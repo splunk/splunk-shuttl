@@ -1,0 +1,12 @@
+This test parses text files and gives the count of words in all the files.There are two sample data files (file01, file02) which are provided and which needed to be uploaded to hdfs using the cmd "hadoop dfs -put file01 /worcound/input/file01".
+The following files have to be copied to the $HADOOP_HOME/lib directory
+splunk-hadoop-connector-*.jar
+(from the httpcomponents contrib dir)
+commons-codec-1.4.jar
+httpcore-4.1.2.jar 
+httpclient-4.1.2.jar
+
+Hadoop needs to be restarted after this copying
+
+Run the test as './runtest.sh 1" where the first argument would be used to make a new (a requirement by Hadoop) output dir for the job run. 
+The results will be in Splunk with source as "wordcount" and type as "hadoop_event".

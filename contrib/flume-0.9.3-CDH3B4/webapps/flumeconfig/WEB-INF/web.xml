@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+<!--
+Automatically created by Tomcat JspC.
+-->
+<web-app>
+
+
+    <servlet>
+        <servlet-name>org.apache.jsp.mastersubmit_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.mastersubmit_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.masterext_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.masterext_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.menu_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.menu_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.version_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.version_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.mastercommand_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.mastercommand_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.command_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.command_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.flumemaster_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.flumemaster_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.masterstaticconfig_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.masterstaticconfig_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.allcommands_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.allcommands_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.flumeconfig_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.flumeconfig_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.fullspec_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.fullspec_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.masterenv_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.masterenv_jsp</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.mastersubmit_jsp</servlet-name>
+        <url-pattern>/mastersubmit.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.masterext_jsp</servlet-name>
+        <url-pattern>/masterext.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.menu_jsp</servlet-name>
+        <url-pattern>/menu.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.version_jsp</servlet-name>
+        <url-pattern>/version.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.mastercommand_jsp</servlet-name>
+        <url-pattern>/mastercommand.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.command_jsp</servlet-name>
+        <url-pattern>/command.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.flumemaster_jsp</servlet-name>
+        <url-pattern>/flumemaster.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.masterstaticconfig_jsp</servlet-name>
+        <url-pattern>/masterstaticconfig.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.allcommands_jsp</servlet-name>
+        <url-pattern>/allcommands.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.flumeconfig_jsp</servlet-name>
+        <url-pattern>/flumeconfig.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.fullspec_jsp</servlet-name>
+        <url-pattern>/fullspec.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.masterenv_jsp</servlet-name>
+        <url-pattern>/masterenv.jsp</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+

@@ -1,0 +1,504 @@
+From b4e9f4a31f2c29f00f50603cdaf100aeff4f083a Mon Sep 17 00:00:00 2001
+From: Andrew Bayer <andrew.bayer@gmail.com>
+Date: Thu, 10 Feb 2011 16:34:27 -0800
+Subject: [PATCH 2/5] CLOUDERA-BUILD. CDH Mavenization for Flume.
+
+* When do-release-build is called, CDH Hadoop and Zookeeper jars are
+  copied into the lib directory, while the checked-in equivalents are
+  deleted. mvn install is called after Ant to get the jare into the
+  local Maven repo, and, if appropriate, deployed to repository.cloudera.com.
+---
+ cloudera-pom.xml                       |   92 +++++++++++
+ cloudera/do-release-build              |    8 +-
+ cloudera/maven-packaging/flume/pom.xml |  262 ++++++++++++++++++++++++++++++++
+ cloudera/maven-packaging/pom.xml       |   90 +++++++++++
+ 4 files changed, 451 insertions(+), 1 deletions(-)
+ create mode 100644 cloudera-pom.xml
+ create mode 100644 cloudera/maven-packaging/flume/pom.xml
+ create mode 100644 cloudera/maven-packaging/pom.xml
+
+diff --git a/cloudera-pom.xml b/cloudera-pom.xml
+new file mode 100644
+index 0000000..80d9414
+--- /dev/null
++++ b/cloudera-pom.xml
+@@ -0,0 +1,92 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++   Licensed to the Apache Software Foundation (ASF) under one or more
++   contributor license agreements.  See the NOTICE file distributed with
++   this work for additional information regarding copyright ownership.
++   The ASF licenses this file to You under the Apache License, Version 2.0
++   (the "License"); you may not use this file except in compliance with
++   the License.  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++-->
++<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  
++  <parent>
++    <groupId>com.cloudera.cdh</groupId>
++    <artifactId>flume-root</artifactId>
++    <version>3.0-beta-4-SNAPSHOT</version>
++    <relativePath>cloudera/maven-packaging/pom.xml</relativePath>
++  </parent>
++  
++  <groupId>com.cloudera.cdh</groupId>
++  <artifactId>flume-ant</artifactId>
++  <version>3.0-beta-4-SNAPSHOT</version>
++  <packaging>pom</packaging>
++  
++  <description>Flume dummy for crepo</description>
++  <name>Flume ant</name>
++
++  <dependencies>
++    <dependency>
++      <groupId>org.apache.hadoop</groupId>
++      <artifactId>hadoop-core</artifactId>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.zookeeper</groupId>
++      <artifactId>zookeeper</artifactId>
++    </dependency>
++  </dependencies>
++  
++  <build>
++    <plugins>
++      <plugin>
++        <groupId>org.apache.maven.plugins</groupId>
++        <artifactId>maven-antrun-plugin</artifactId>
++        <executions>
++          <execution>
++            <id>delete-old-zk-hadoop-jars</id>
++            <phase>validate</phase>
++            <goals>
++              <goal>run</goal>
++            </goals>
++            <configuration>
++              <target>
++                <delete>
++                  <fileset dir="${project.basedir}/lib">
++                    <include name="**/hadoop-core*.jar" />
++                    <include name="**/zookeeper*.jar" />
++                  </fileset>
++                </delete>
++              </target>
++            </configuration>
++          </execution>
++        </executions>
++      </plugin>
++      <plugin>
++        <groupId>org.apache.maven.plugins</groupId>
++        <artifactId>maven-dependency-plugin</artifactId>
++        <executions>
++          <execution>
++            <id>copy-zk-hadoop-jars</id>
++            <phase>process-resources</phase>
++            <goals>
++              <goal>copy-dependencies</goal>
++            </goals>
++            <configuration>
++              <excludeTransitive>true</excludeTransitive>
++              <outputDirectory>${project.basedir}/lib</outputDirectory>
++            </configuration>
++          </execution>
++        </executions>
++      </plugin>
++    </plugins>
++  </build>
++    
++</project>
+diff --git a/cloudera/do-release-build b/cloudera/do-release-build
+index 6c2981b..e0f964e 100755
+--- a/cloudera/do-release-build
++++ b/cloudera/do-release-build
+@@ -32,6 +32,12 @@ fi
+ BIN_DIR=$(readlink -f $(dirname $0))
+ RELEASE_DIR=$BIN_DIR/..
+ 
+-cd $RELEASE_DIR
++cd $BIN_DIR/maven-packaging
++mvn -N install
+ 
++cd $RELEASE_DIR
++mvn -f cloudera-pom.xml process-resources
+ JAVA_HOME=$JAVA32_HOME  ant clean tar -Dversion=${FULL_VERSION} -propertyfile cloudera/build.properties 
++
++cd $BIN_DIR/maven-packaging
++mvn install $DO_MAVEN_DEPLOY
+\ No newline at end of file
+diff --git a/cloudera/maven-packaging/flume/pom.xml b/cloudera/maven-packaging/flume/pom.xml
+new file mode 100644
+index 0000000..c452ea7
+--- /dev/null
++++ b/cloudera/maven-packaging/flume/pom.xml
+@@ -0,0 +1,262 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++   Licensed to the Apache Software Foundation (ASF) under one or more
++   contributor license agreements.  See the NOTICE file distributed with
++   this work for additional information regarding copyright ownership.
++   The ASF licenses this file to You under the Apache License, Version 2.0
++   (the "License"); you may not use this file except in compliance with
++   the License.  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++-->
++<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  
++  <parent>
++    <groupId>com.cloudera.cdh</groupId>
++    <artifactId>flume-root</artifactId>
++    <version>3.0-beta-4-SNAPSHOT</version>
++    <relativePath>../pom.xml</relativePath>
++  </parent>
++
++  <groupId>com.cloudera.flume</groupId>
++  <artifactId>flume</artifactId>
++  <version>${cdh.flume.version}</version>
++
++  <dependencies>
++    <!-- Dependencies: compile -->
++    
++    <dependency>
++      <groupId>commons-lang</groupId>
++      <artifactId>commons-lang</artifactId>
++      <version>2.5</version>
++    </dependency>
++    
++    <dependency>
++      <groupId>commons-collections</groupId>
++      <artifactId>commons-collections</artifactId>
++      <version>3.1</version>
++    </dependency>
++    
++    <dependency>
++      <groupId>commons-cli</groupId>
++      <artifactId>commons-cli</artifactId>
++      <version>1.1</version>
++    </dependency>
++
++    <dependency>
++      <groupId>commons-codec</groupId>
++      <artifactId>commons-codec</artifactId>
++      <version>1.4</version>
++    </dependency>
++
++    <dependency>
++      <groupId>commons-io</groupId>
++      <artifactId>commons-io</artifactId>
++      <version>1.2</version>
++    </dependency>
++
++    <dependency>
++      <groupId>commons-el</groupId>
++      <artifactId>commons-el</artifactId>
++      <version>1.0</version>
++    </dependency>
++
++    <dependency>
++      <groupId>commons-logging</groupId>
++      <artifactId>commons-logging</artifactId>
++      <version>1.0.4</version>
++    </dependency>
++
++    <dependency>
++      <groupId>com.google.collections</groupId>
++      <artifactId>google-collections</artifactId>
++      <version>1.0-rc2</version>
++    </dependency>
++    
++    <dependency>
++      <groupId>org.antlr</groupId>
++      <artifactId>antlr</artifactId>
++      <version>3.1.3</version>
++    </dependency>
++    
++    <dependency>
++      <groupId>org.apache.avro</groupId>
++      <artifactId>avro</artifactId>
++      <version>1.4.0</version>
++    </dependency>
++
++    <dependency>
++      <groupId>org.codehaus.jackson</groupId>
++      <artifactId>jackson-core-asl</artifactId>
++      <version>1.4.0</version>
++    </dependency>
++    <dependency>
++      <groupId>org.codehaus.jackson</groupId>
++      <artifactId>jackson-mapper-asl</artifactId>
++      <version>1.4.0</version>
++    </dependency>
++    <dependency>
++      <groupId>tomcat</groupId>
++      <artifactId>jasper-runtime</artifactId>
++      <version>5.0.28</version>
++    </dependency>
++    <dependency>
++      <groupId>tomcat</groupId>
++      <artifactId>jasper-compiler</artifactId>
++      <version>5.0.28</version>
++    </dependency>
++    <dependency>
++      <groupId>tomcat</groupId>
++      <artifactId>jsp-api</artifactId>
++      <version>5.0.18</version>
++    </dependency>
++    <dependency>
++      <groupId>tomcat</groupId>
++      <artifactId>servlet-api</artifactId>
++      <version>5.0.18</version>
++    </dependency>
++    <dependency>
++      <groupId>com.thoughtworks.paranamer</groupId>
++      <artifactId>paranamer</artifactId>
++      <version>2.1</version>
++    </dependency>
++    
++    <dependency>
++      <groupId>log4j</groupId>
++      <artifactId>log4j</artifactId>
++      <version>1.2.15</version>
++      <exclusions>
++        <exclusion>
++          <groupId>com.sun.jdmk</groupId>
++          <artifactId>jmxtools</artifactId>
++        </exclusion>
++        <exclusion>
++          <groupId>com.sun.jmx</groupId>
++          <artifactId>jmxri</artifactId>
++        </exclusion>
++      </exclusions>
++    </dependency>
++    
++    <dependency>
++      <groupId>org.slf4j</groupId>
++      <artifactId>slf4j-api</artifactId>
++      <version>1.6.1</version>
++    </dependency>
++    
++    <dependency>
++      <groupId>org.slf4j</groupId>
++      <artifactId>slf4j-log4j12</artifactId>
++      <version>1.6.1</version>
++    </dependency>
++    <dependency>
++      <groupId>jline</groupId>
++      <artifactId>jline</artifactId>
++      <version>0.9.94</version>
++    </dependency>
++    <dependency>
++      <groupId>net.sf.jopt-simple</groupId>
++      <artifactId>jopt-simple</artifactId>
++      <version>3.2</version>
++    </dependency>
++
++    <dependency>
++      <groupId>org.codehaus.jettison</groupId>
++      <artifactId>jettison</artifactId>
++      <version>1.2</version>
++    </dependency>
++    <dependency>
++      <groupId>com.sun.jersey</groupId>
++      <artifactId>jersey-core</artifactId>
++      <version>1.4</version>
++    </dependency>
++    <dependency>
++      <groupId>org.mortbay.jetty</groupId>
++      <artifactId>jetty</artifactId>
++      <version>6.1.22</version>
++    </dependency>
++    <dependency>
++      <groupId>org.mortbay.jetty</groupId>
++      <artifactId>jetty-util</artifactId>
++      <version>6.1.22</version>
++    </dependency>
++
++    <dependency>
++      <groupId>com.sun.jersey</groupId>
++      <artifactId>jersey-server</artifactId>
++      <version>1.4</version>
++    </dependency>
++    
++    <dependency>
++      <groupId>com.sun.jersey</groupId>
++      <artifactId>jersey-json</artifactId>
++      <version>1.4</version>
++    </dependency>
++    
++    <dependency>
++      <groupId>org.apache.thrift</groupId>
++      <artifactId>libthrift</artifactId>
++      <version>0.5.0-cdh</version>
++    </dependency>
++
++    <dependency>
++      <groupId>org.schwering.irc</groupId>
++      <artifactId>irclib</artifactId>
++      <version>1.0.0</version>
++    </dependency>
++
++    <dependency>
++      <groupId>dk.brics.automaton</groupId>
++      <artifactId>automaton</artifactId>
++      <version>1.0.0</version>
++    </dependency>
++
++    <dependency>
++      <groupId>org.arabidopsis.ahocorasick</groupId>
++      <artifactId>ahocorasick</artifactId>
++      <version>2.x</version>
++    </dependency>
++    
++    <dependency>
++      <groupId>org.apache.hadoop</groupId>
++      <artifactId>hadoop-core</artifactId>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.zookeeper</groupId>
++      <artifactId>zookeeper</artifactId>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <groupId>org.apache.maven.plugins</groupId>
++        <artifactId>maven-antrun-plugin</artifactId>
++        <inherited>false</inherited>
++        <executions>
++          <execution>
++            <id>compile</id>
++            <configuration>
++              <target>
++                <copy file="${basedir}/../../../build/flume-${project.version}-core.jar"
++                      todir="${basedir}/target"/>
++                <unzip src="${basedir}/target/flume-${project.version}-core.jar"
++                       dest="${basedir}/target/classes"/>
++              </target>
++            </configuration>
++            <goals>
++              <goal>run</goal>
++            </goals>
++            <phase>compile</phase>
++          </execution>
++        </executions>
++      </plugin>
++    </plugins>
++  </build>
++
++</project>
+\ No newline at end of file
+diff --git a/cloudera/maven-packaging/pom.xml b/cloudera/maven-packaging/pom.xml
+new file mode 100644
+index 0000000..a5a4735
+--- /dev/null
++++ b/cloudera/maven-packaging/pom.xml
+@@ -0,0 +1,90 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++   Licensed to the Apache Software Foundation (ASF) under one or more
++   contributor license agreements.  See the NOTICE file distributed with
++   this work for additional information regarding copyright ownership.
++   The ASF licenses this file to You under the Apache License, Version 2.0
++   (the "License"); you may not use this file except in compliance with
++   the License.  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++-->
++<project>
++  <modelVersion>4.0.0</modelVersion>
++  
++  <parent>
++    <groupId>com.cloudera.cdh</groupId>
++    <artifactId>cdh-root</artifactId>
++    <version>3.0-beta-4-SNAPSHOT</version>
++    <relativePath>../../../../../pom.xml</relativePath>
++  </parent>
++  
++  <groupId>com.cloudera.cdh</groupId>
++  <artifactId>flume-root</artifactId>
++  <version>3.0-beta-4-SNAPSHOT</version>
++  <packaging>pom</packaging>
++  
++  <name>CDH flume root</name>
++
++  <scm>
++    <connection>scm:git:git@git.sf.cloudera.com:flume.git</connection>
++    <url>git@git.sf.cloudera.com:flume.git</url>
++  </scm>
++
++  <licenses>
++    <license>
++      <name>The Apache Software License, Version 2.0</name>
++      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
++    </license>
++  </licenses>
++  
++  <organization>
++    <name>Cloudera</name>
++    <url>http://www.cloudera.com</url>
++  </organization>
++
++  <repositories>
++    <repository>
++      <id>cloudera.public.repo</id>
++      <url>https://repository.cloudera.com/content/groups/public</url>
++      <name>Cloudera Public Repository</name>
++      <snapshots>
++        <enabled>false</enabled>
++      </snapshots>
++    </repository>
++    <repository>
++      <id>cloudera.snapshots.repo</id>
++      <url>https://repository.cloudera.com/content/repositories/snapshots</url>
++      <name>Cloudera Snapshots Repository</name>
++      <snapshots>
++        <enabled>true</enabled>
++      </snapshots>
++    </repository>
++  </repositories>
++
++  <modules>
++    <module>../../cloudera-pom.xml</module>
++    <module>flume</module>
++  </modules>
++  <build>
++    <plugins>
++      <plugin>
++        <groupId>org.apache.maven.plugins</groupId>
++        <artifactId>maven-jar-plugin</artifactId>
++        <configuration>
++          <archive>
++            <manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
++          </archive>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++  
++</project>
++
+-- 
+1.7.0.4
+

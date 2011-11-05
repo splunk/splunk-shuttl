@@ -1,0 +1,6 @@
+<nav>
+    <view name="events" default="true" />
+    <view name="sources" />
+    <view name="sourcetypes" />
+    <view name="hosts" />
+</nav>

@@ -1,0 +1,72 @@
+From 822c62f0c13ab76921e96dd92e19f68007dbcbe2 Mon Sep 17 00:00:00 2001
+From: Jenkins <dev-kitchen@cloudera.com>
+Date: Sat, 19 Feb 2011 00:27:51 -0800
+Subject: [PATCH 5/5] CLOUDERA-BUILD. Preparing for CDH3B4 release.
+
+---
+ cloudera-pom.xml                       |    4 ++--
+ cloudera/maven-packaging/flume/pom.xml |    2 +-
+ cloudera/maven-packaging/pom.xml       |    6 +++---
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/cloudera-pom.xml b/cloudera-pom.xml
+index 80d9414..6b82c10 100644
+--- a/cloudera-pom.xml
++++ b/cloudera-pom.xml
+@@ -21,13 +21,13 @@
+   <parent>
+     <groupId>com.cloudera.cdh</groupId>
+     <artifactId>flume-root</artifactId>
+-    <version>3.0-beta-4-SNAPSHOT</version>
++    <version>3.0-beta-4</version>
+     <relativePath>cloudera/maven-packaging/pom.xml</relativePath>
+   </parent>
+   
+   <groupId>com.cloudera.cdh</groupId>
+   <artifactId>flume-ant</artifactId>
+-  <version>3.0-beta-4-SNAPSHOT</version>
++  <version>3.0-beta-4</version>
+   <packaging>pom</packaging>
+   
+   <description>Flume dummy for crepo</description>
+diff --git a/cloudera/maven-packaging/flume/pom.xml b/cloudera/maven-packaging/flume/pom.xml
+index c452ea7..df108e9 100644
+--- a/cloudera/maven-packaging/flume/pom.xml
++++ b/cloudera/maven-packaging/flume/pom.xml
+@@ -21,7 +21,7 @@
+   <parent>
+     <groupId>com.cloudera.cdh</groupId>
+     <artifactId>flume-root</artifactId>
+-    <version>3.0-beta-4-SNAPSHOT</version>
++    <version>3.0-beta-4</version>
+     <relativePath>../pom.xml</relativePath>
+   </parent>
+ 
+diff --git a/cloudera/maven-packaging/pom.xml b/cloudera/maven-packaging/pom.xml
+index 105776b..6c963b1 100644
+--- a/cloudera/maven-packaging/pom.xml
++++ b/cloudera/maven-packaging/pom.xml
+@@ -21,17 +21,17 @@
+   <parent>
+     <groupId>com.cloudera.cdh</groupId>
+     <artifactId>cdh-root</artifactId>
+-    <version>3.0-beta-4-SNAPSHOT</version>
++    <version>3.0-beta-4</version>
+     <relativePath>../../../../../pom.xml</relativePath>
+   </parent>
+   
+   <groupId>com.cloudera.cdh</groupId>
+   <artifactId>flume-root</artifactId>
+-  <version>3.0-beta-4-SNAPSHOT</version>
++  <version>3.0-beta-4</version>
+   <packaging>pom</packaging>
+   
+   <name>CDH flume root</name>
+-  <properties><cdh.flume.version>0.9.3-CDH3B4-SNAPSHOT</cdh.flume.version></properties>
++  <properties><cdh.flume.version>0.9.3-CDH3B4</cdh.flume.version></properties>
+ 
+   <scm>
+     <connection>scm:git:git@git.sf.cloudera.com:flume.git</connection>
+-- 
+1.7.0.4
+

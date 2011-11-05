@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+<!--
+Automatically created by Tomcat JspC.
+-->
+<web-app>
+
+
+    <servlet>
+        <servlet-name>org.apache.jsp.environment_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.environment_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.extension_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.extension_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.version_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.version_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.flumeagent_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.flumeagent_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.staticconfig_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.staticconfig_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.apache.jsp.menu_005fagent_jsp</servlet-name>
+        <servlet-class>org.apache.jsp.menu_005fagent_jsp</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.environment_jsp</servlet-name>
+        <url-pattern>/environment.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.extension_jsp</servlet-name>
+        <url-pattern>/extension.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.version_jsp</servlet-name>
+        <url-pattern>/version.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.flumeagent_jsp</servlet-name>
+        <url-pattern>/flumeagent.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.staticconfig_jsp</servlet-name>
+        <url-pattern>/staticconfig.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.apache.jsp.menu_005fagent_jsp</servlet-name>
+        <url-pattern>/menu_agent.jsp</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+

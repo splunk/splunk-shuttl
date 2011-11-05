@@ -1,0 +1,16 @@
+This test parses each event in Splunk and gives the count of words in all the events. The text file - wordfile-timestamp included in this directory should be uploaded to Splunk to be indexed once.
+The following files have to be copied to the $HADOOP_HOME/lib directory
+splunk-hadoop-connector-*.jar
+(from the httpcomponents contrib dir)
+commons-codec-1.4.jar
+httpcore-4.1.2.jar 
+httpclient-4.1.2.jar
+
+Hadoop needs to be restarted after this copying
+
+Run the test as './runtest.sh 1" where the first argument would be used to make a new (a requirement by Hadoop) output dir for the job run. 
+The results can be checked using
+bin/hadoop dfs -cat /wordcount/output1/part-00000
+where the 1 suffix to "/wordcount/input" is the argument passed to runtest command line.
+There should 296 words like "test" , "is" etc
+

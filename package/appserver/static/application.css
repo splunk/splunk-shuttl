@@ -1,0 +1,322 @@
+* {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.appLogoContainer h1 {
+    display: none;
+}
+.appLogo {
+    background:url(images/splunk_logo_deployment.png) no-repeat scroll 0 0 transparent;
+    _background:url(images/splunk_logo_deployment.gif) no-repeat scroll 0 0 transparent;
+    width: 250px;
+}
+
+.splTemplate-dashboard h1, 
+.splTemplate-dashboard h2, 
+.splTemplate-dashboard h3 {
+    font-weight: 300;
+    font-family: "Helvetica Neue", Helvetica, Arial;
+    color: #111;
+}
+
+.splTemplate-dashboard h1 {
+    font-size: 21px;
+}
+.splTemplate-dashboard h2 {
+    font-size: 18px;
+}
+
+.splTemplate-dashboard h3 {
+    font-size: 14px;
+}
+
+body.splTemplate-dashboard {
+    background: #FFF;
+}
+
+.appHeaderWrapper {
+    background: #333 url(images/bg_header.png) repeat-x 0 0;
+    color: #CCC;
+}
+.appHeaderWrapper h1 {
+    color: #FFF;
+    font-size: 18px;
+}
+.appHeaderWrapper a {
+    color: #eee;
+}
+.navigationHeader {
+    border-bottom: 1px solid #CCC;
+}
+.navigationHeader a {
+    color: #eee;
+    font-weight: normal;
+}
+.splMenu-primary a {
+    color:#333333;
+}
+ul.appBarNav li a {
+    font-weight: normal;
+}
+ul.appBarNav li a:hover {
+    background: none;
+}
+.TitleBar {
+    line-height: 30px;
+    border-bottom: 1px dotted #CCC;
+}
+.TitleBar h2 {
+    font-size: 14px;
+    font-weight: normal;
+}
+.navigationHeader .splIcon-triangle-2-s  {
+    background-position:-27px -367px;
+}
+.splTemplate-dashboard .TitleBar .actionsMenu {
+    line-height: 30px;
+}
+.BreadCrumb {
+    border-bottom:1px dotted #CCCCCC;
+}
+
+.SingleValue {
+    clear:left;
+    float:left;
+}
+.dashboardCell {
+    padding: 15px;
+}
+.dashboardCell .splHeader-dashboard h2 {
+    font-size:21px !important;
+    margin-top:-3px;
+    color:#111 !important;
+    font-weight:300;
+}
+
+.layoutCellInner {
+    margin-right: 10px;
+}
+
+
+.splView-home .ShowHideHeader {
+    border:0px;    
+}
+.splTemplate-dashboard .TitleBar .splHeader,
+.splTemplate-dashboard .viewHeader,
+.splTemplate-dashboard .splSearchControls-inline {
+    background: #FFF none;
+}
+
+/*
+.PostProcessBar label {
+    display:none;
+}
+.PostProcessBar input.searchButton {
+    float:right;
+    margin-top:5px;
+    margin-left:10px;
+}
+*/
+.dashboardContent .SimpleResultsHeader,
+.dashboardContent .SimpleResultsHeader h3{
+    /* DO NOT TURN OFF MARGIN BOTTOM AND PADDING BOTTOM. 
+    Despite happy ponies this may summon wrt visual design, this has unwanted effects in reality */
+    /*   
+    margin-bottom:0px;  
+    padding-bottom:0px;
+    */
+    font-size:16px;
+    font-weight:bold;
+}
+.dashboardContent .SimpleResultsTable .simpleResultsTableWrapper {
+    padding-left:0px;
+}
+.SingleValue .SingleValueHolder { 
+    background-image:none;
+    background-color:transparent;
+    width:auto;
+    font-size:15px;
+    font-weight:normal;
+    text-align:left;
+    color:#111;
+    font-weight: 300;
+    -moz-border-radius: 0;
+    -moz-box-shadow:none;
+    -webkit-border-radius: 0;
+}
+.SingleValue .singleResult {
+    font-size:16px;
+    font-weight:300;
+    color:#111;
+}
+
+.dashboardContent .GenericHeader h3 {
+    color:#111;
+    font-weight: 300;
+    font-size: 14px;
+}
+
+/* VIEW-SPECIFIC OVERRIDES */
+/* used for our little class="DM_dashboardDescription" divs */
+.splView-home .ServerSideInclude {
+    clear:both;
+    padding:0px 21px 3px 21px;
+    color:#666;
+}
+.DM_dashboardDescription {
+    padding-bottom:7px;
+    font-size: 12px;
+}
+.DM_pageTitle {
+    margin:10px 0px;
+    color:#111;
+}
+
+/* forwarder detail page */
+.splView-indexer_detail .viewHeader .singleResult,
+.splView-indexer_detail .GenericHeader h3,
+.splView-sourcetype_detail .viewHeader .singleResult,
+.splView-sourcetype_detail .GenericHeader h3,
+.splView-forwarder_detail .viewHeader .singleResult,
+.splView-forwarder_detail .GenericHeader h3 {
+    font-size: 21px;
+}
+.splView-indexer_detail  .singleLabel,
+.splView-sourcetype_detail  .singleLabel,
+.splView-forwarder_detail .singleLabel {
+    font-size: 12px;
+    display: block;
+    color: #111;
+}
+.splView-indexer_detail  .singleResult,
+.splView-sourcetype_detail  .singleResult,
+.splView-forwarder_detail .singleResult {
+    font-size: 16px;
+}
+
+
+/* stuff for the homepage arrow links */
+.splView-home .panel_row3_col .ViewRedirectorLink a, 
+.splView-home .panel_row5_col .ViewRedirectorLink a, 
+.splView-home .panel_row4_col .ViewRedirectorLink a {
+    background-image:url(images/icon_arrow.png);
+    background-repeat:no-repeat;
+    background-position:0px 0px;
+    display:block;
+    width:25px;
+    height:25px;
+}
+.splView-home .SubmitButton {
+    height:auto;
+    padding-bottom:5px;
+}
+.splView-home .searchButton {
+    background-color:transparent;
+    background-image:url(images/icon_arrow.png);
+    background-position:0px 6px;
+    background-repeat:no-repeat;
+    cursor:pointer;
+    height:24px;
+    padding-top:0px;
+    padding-bottom:0px;
+}
+.splView-home .dashboardCell .SingleValueHolder,
+.splView-indexer_detail .dashboardCell .SingleValueHolder, 
+.splView-sourcetype_detail .dashboardCell .SingleValueHolder, 
+.splView-forwarder_detail .dashboardCell .SingleValueHolder {
+    padding:3px 5px 1px 20px;
+    background-image:url(images/traffic_light_green.png);
+    background-repeat:no-repeat;
+    background-position:0px 7px;
+}
+
+.splView-indexer_detail .dashboardCell .SingleValueHolder, 
+.splView-sourcetype_detail .dashboardCell .SingleValueHolder, 
+.splView-forwarder_detail .dashboardCell .SingleValueHolder {
+    background-image:none;
+}
+
+.splView-home .panel_row3_col .severe, 
+.splView-home .panel_row4_col .severe, 
+.splView-home .panel_row5_col .severe, 
+.splView-indexer_detail .panel_row1_col .severe, 
+.splView-forwarder_detail .panel_row3_col .severe {
+    background-image:url(images/traffic_light_red.png);
+    background-repeat:no-repeat;
+    background-position:1px 8px;
+}
+.splView-home .panel_row3_col .elevated, 
+.splView-home .panel_row4_col .elevated, 
+.splView-home .panel_row5_col .elevated, 
+.splView-indexer_detail .panel_row1_col .elevated, 
+.splView-forwarder_detail .panel_row3_col .elevated {
+    background-image:url(images/traffic_light_yellow.png);
+    background-repeat:no-repeat;
+    background-position:1px 8px;
+}
+.splView-home .panel_row3_col .high, 
+.splView-home .panel_row4_col .high, 
+.splView-home .panel_row5_col .high, 
+.splView-indexer_detail .panel_row1_col .high, 
+.splView-forwarder_detail .panel_row3_col .high {
+    background-image:url(images/traffic_light_yellow.png);
+    background-repeat:no-repeat;
+    background-position:1px 8px;
+}
+.splView-home .panel_row3_col .ViewRedirectorLink, 
+.splView-home .panel_row5_col .ViewRedirectorLink, 
+.splView-home .panel_row4_col .ViewRedirectorLink {
+    float:left;
+    padding:4px 0 0 0 ;
+    height:25px;
+}
+
+
+.splView-forwarder_detail .dashboardCell .SingleValue,
+.splView-sourcetype_detail .dashboardCell .SingleValue,
+.splView-indexer_detail .dashboardCell .SingleValue {
+    width:30%;
+    clear:none;
+    margin:0px 0px 0px 13px !important;
+    padding:0px !important;
+    border-right:1px solid #ddd;
+    position:relative;
+    left:-13px;
+}
+.splView-forwarder_detail .dashboardContent .SingleValueHolder,
+.splView-sourcetype_detail .dashboardContent .SingleValueHolder,
+.splView-indexer_detail .dashboardContent .SingleValueHolder {
+    border-top:1px solid #ddd;
+    margin:8px 13px 0px 0px !important;
+}
+
+.splView-sourcetype_detail .FieldSearch, 
+.splView-indexer_detail .FieldSearch {
+    display:none;
+}
+
+fieldset.flush_and_backfill_indexes,
+fieldset.backfill_indexes{
+    float:left;
+    margin-top:10px;
+}
+
+fieldset.mass_delete {
+    float:right;
+    margin-top:10px;
+}
+
+.splView-all_forwarders .Count,
+.splView-all_sourcetypes .Count,
+.splView-all_indexers .Count{
+    float:right;
+}
+tr.missing td {
+    background-color: #eee;
+    color:#fff;
+}
+
+tr.quiet td {
+    background-color: #eee;
+    color:#fff;
+}
