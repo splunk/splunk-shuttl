@@ -369,10 +369,8 @@ public class HdfsIO implements DataSink
 		try {
 			writter = new HdfsIO();
 			writter.start("/xli/test.txt");
-			//writter.write(msg.getBytes("US-ASCII"), "testsrc", "test", "localhost", 999888);
 			writter.write(msg, "testsrc", "test", "localhost", 999888);
 			System.out.print(writter.read());
-			//writter.deleteCurrentFile();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {
