@@ -18,7 +18,6 @@ package com.splunk.mapreduce.lib.rest.tests;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -85,13 +84,7 @@ public class WordCount2 {
 		conf.setJobName("wordcount");
 		SplunkConfiguration.setConnInfo(conf, "10.196.45.203", 8089, "admin", "changeme");
 		//SplunkConfiguration.setSplunkQuery(conf, "source=wordfile-timestamp", "%Y-%m-%d %H:%M:%S", new String[][]{{"2011-09-19 17:04:11", "2011-09-19 17:06:40"}, {"2011-09-19 17:06:41", "2011-09-19 17:09:12"}});
-		//SplunkConfiguration.setSplunkQueryByIndexers(conf, "source=wordfile-timestamp*",  new String[]{"ip-10-196-45-203.ec2.internal", "domU-12-31-39-16-C6-C0.compute-1.internal"});
-		String query = "source::*wordfile-timestamp";
-		String indexer1 = "localhost"; // The indexer should be configured and
-										// passed in as an argument, instead of
-										// being hard coded.
-		SplunkConfiguration.setSplunkQueryByIndexers(conf, query,
-				new String[] { indexer1 });
+		SplunkConfiguration.setSplunkQueryByIndexers(conf, "source=wordfile-timestamp*",  new String[]{"ip-10-196-45-203.ec2.internal", "domU-12-31-39-16-C6-C0.compute-1.internal"});
 		conf.set(SplunkConfiguration.SPLUNKEVENTREADER, "com.splunk.mapreduce.lib.rest.tests.SplunkRecord");
 		conf.setInputFormat(com.splunk.mapreduce.lib.rest.SplunkInputFormat.class);
 

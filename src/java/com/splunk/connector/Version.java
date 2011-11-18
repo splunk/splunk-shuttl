@@ -22,6 +22,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import bsh.This;
 
 public class Version {
 	public static final String PROD_NAME="Hadoop Connector";

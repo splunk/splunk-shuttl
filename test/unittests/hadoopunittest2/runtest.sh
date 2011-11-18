@@ -17,6 +17,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-$HADOOP_HOME/bin/hadoop jar $SPLBRANCH/build/jar/splunk-hadoop-classes.jar com.splunk.mapreduce.lib.rest.tests.WordCount2 /wordcount/input /wordcount/output$1
-echo "Output from: hadoop dfs -cat /wordcount/output050/part-00000 | tail -n 5"
-$HADOOP_HOME/bin/hadoop dfs -cat /wordcount/output050/part-00000 | tail -n 5
+$HADOOP_HOME/bin/hadoop jar ../../../build/jar/splunk_hadoop_unittests.jar com.splunk.mapreduce.lib.rest.tests.WordCount2 /wordcount/input /wordcount/output$1
+
