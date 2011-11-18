@@ -35,8 +35,6 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
 
 import com.splunk.mapreduce.lib.rest.SplunkConfiguration;
-import com.splunk.mapreduce.lib.rest.SplunkOutputFormat;
-
 
 public class WikiLinkCount {
 
@@ -52,12 +50,12 @@ public class WikiLinkCount {
 			String line = value.getMap().get("_raw");
 			System.out.println("line " + line);
 			StringTokenizer tokenizer = new StringTokenizer(line, "[]");
-			String lasttoken = ""; //comma separated list of links
-			
+			String lasttoken = ""; // comma separated list of links
+
 			while (tokenizer.hasMoreTokens()) {
 				lasttoken = tokenizer.nextToken();
 			}
-			
+
 			System.out.println("lasttoken " + lasttoken);
 			tokenizer = new StringTokenizer(lasttoken, ",");
 			while (tokenizer.hasMoreTokens()) {
@@ -77,26 +75,28 @@ public class WikiLinkCount {
 				sum += values.next().get();
 			}
 			output.collect(key, new IntWritable(sum));
-			
+
 		}
-		
+
 	}
 
 	public static void main(String[] args) throws Exception {
 		System.out.println("Starting job");
 		if (args.length < 7) {
-			System.out.println("Usage:  WikiLinkCount <inputdir> <outputdir> <splunk-host> <userid> <password> <search string>  <indexer1>  ...");
+			System.out
+					.println("Usage:  WikiLinkCount <inputdir> <outputdir> <splunk-host> <userid> <password> <search string>  <indexer1>  ...");
 			System.exit(1);
 		}
 		JobConf conf = new JobConf(WikiLinkCount.class);
 		conf.setJobName("WikiLinkCount");
 		SplunkConfiguration.setConnInfo(conf, args[2], 8089, args[3], args[4]);
-		String indexers[] = new String[args.length-6];
-		for (int i=6; i<args.length; i++) {
-			indexers[i-6] = args[i];
+		String indexers[] = new String[args.length - 6];
+		for (int i = 6; i < args.length; i++) {
+			indexers[i - 6] = args[i];
 		}
-		SplunkConfiguration.setSplunkQueryByIndexers(conf, args[5],  indexers);
-		conf.set(SplunkConfiguration.SPLUNKEVENTREADER, "com.splunk.mapreduce.lib.rest.tests.SplunkRecord");
+		SplunkConfiguration.setSplunkQueryByIndexers(conf, args[5], indexers);
+		conf.set(SplunkConfiguration.SPLUNKEVENTREADER,
+				"com.splunk.mapreduce.lib.rest.tests.SplunkRecord");
 
 		conf.setOutputKeyClass(Text.class);
 		conf.setOutputValueClass(IntWritable.class);
@@ -107,6 +107,8 @@ public class WikiLinkCount {
 
 		conf.setInputFormat(com.splunk.mapreduce.lib.rest.SplunkInputFormat.class);
 		conf.setOutputFormat(TextOutputFormat.class);
+
+		conf.setMapRunnerClass(org.apache.hadoop.mapred.lib.MultithreadedMapRunner.class);
 
 		FileInputFormat.setInputPaths(conf, new Path(args[0]));
 		FileOutputFormat.setOutputPath(conf, new Path(args[1]));

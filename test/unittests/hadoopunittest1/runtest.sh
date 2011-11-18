@@ -17,5 +17,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-$HADOOP_HOME/bin/hadoop jar ../../../build/jar/splunk_hadoop_unittests.jar com.splunk.mapreduce.lib.rest.tests.WordCount /wordcount/input /wordcount/output$1
 
+hadoop=$HADOOP_HOME/bin/hadoop
+
+$hadoop dfs -put file01 /wordcount/input/file01
+$hadoop dfs -put file02 /wordcount/input/file02
+
+$hadoop jar $SPLBRANCH/build/jar/splunk-hadoop-classes.jar com.splunk.mapreduce.lib.rest.tests.WordCount /wordcount/input /wordcount/output$1
+
+echo 'Output from: source="wordcount"'
+splunk search 'source=wordcount'

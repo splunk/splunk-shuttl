@@ -19,10 +19,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.io.LongWritable;
@@ -39,8 +39,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.AbstractHttpClient;
@@ -69,8 +71,9 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 		private SplunkInputSplit split;
 		private HttpClient httpclient = null;
 		private long pos = 0;
-		private HttpResponse response;
 		private SplunkXMLStream parser = null;
+		private String host;
+		private ArrayList<NameValuePair> qparams;
 
 		/**
 		 * @param split
@@ -78,64 +81,109 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 		 * @throws SQLException
 		 */
 		protected SplunkRecordReader(SplunkInputSplit split,
-				Class<V> inputClass, JobConf job) throws IOException {
+				Class<V> inputClass, JobConf job, HttpClient httpClient) {
 			this.inputClass = inputClass;
 			this.split = split;
+			this.host = split.getHost();
 			this.job = job;
 			logger.trace("split id " + split.getId());
-			try {
-				this.httpclient = HttpClientUtils.getHttpClient();
-				String host = split.getHost();
-				((AbstractHttpClient) httpclient)
-						.getCredentialsProvider()
-						.setCredentials(
-								new AuthScope(
-										host,
-										job.getInt(
-												SplunkConfiguration.SPLUNKPORT,
-												SplunkConfiguration.SPLUNK_DEFAULT_PORT)),
-								new UsernamePasswordCredentials(job
-										.get(SplunkConfiguration.USERNAME), job
-										.get(SplunkConfiguration.PASSWORD)));
+			this.httpclient = httpClient;
+			this.qparams = new ArrayList<NameValuePair>();
+			initRecordReader();
+		}
 
-				List<NameValuePair> qparams = new ArrayList<NameValuePair>();
-				// keys itself are the exact strings to be passed to Splunk
-				qparams.add(new BasicNameValuePair(SplunkConfiguration.QUERY,
-						SplunkConfiguration.SEARCHSTR
-								+ job.get(SplunkConfiguration.QUERY)));
-				if (job.getInt(SplunkConfiguration.INDEXBYHOST, 0) == 0) {
+		private void initRecordReader() {
+			configureCredentials();
+			addQParams();
+			HttpResponse response = executeHttpGetRequest();
+			setParserWithHttpResponse(response);
+		}
+
+		private void setParserWithHttpResponse(HttpResponse response) {
+			if (isOKHttpRequestStatus(response))
+				this.parser = getSplunkXMLStream (response);
+			else
+				throw new RuntimeException("Bad Status:"
+						+ response.getStatusLine());
+		}
+
+		private void configureCredentials() {
+			((AbstractHttpClient) httpclient).getCredentialsProvider()
+					.setCredentials(
+							new AuthScope(host, job.getInt(
+									SplunkConfiguration.SPLUNKPORT,
+									SplunkConfiguration.SPLUNK_DEFAULT_PORT)),
+							new UsernamePasswordCredentials(job
+									.get(SplunkConfiguration.USERNAME), job
+									.get(SplunkConfiguration.PASSWORD)));
+		}
+
+		private void addQParams() {
+			// keys itself are the exact strings to be passed to Splunk
+			qparams.add(new BasicNameValuePair(SplunkConfiguration.QUERY,
+					SplunkConfiguration.SEARCHSTR
+							+ job.get(SplunkConfiguration.QUERY)));
+			if (job.getInt(SplunkConfiguration.INDEXBYHOST, 0) == 0) {
+				qparams.add(new BasicNameValuePair(
+						SplunkConfiguration.TIMEFORMAT, job
+								.get(SplunkConfiguration.TIMEFORMAT)));
+				if (job.get(SplunkConfiguration.STARTTIME + split.getId()) != null) {
 					qparams.add(new BasicNameValuePair(
-							SplunkConfiguration.TIMEFORMAT, job
-									.get(SplunkConfiguration.TIMEFORMAT)));
-					if (job.get(SplunkConfiguration.STARTTIME + split.getId()) != null) {
-						qparams.add(new BasicNameValuePair(
-								SplunkConfiguration.STARTTIME, job
-										.get(SplunkConfiguration.STARTTIME
-												+ split.getId())));
-					}
-					if (job.get(SplunkConfiguration.ENDTIME + split.getId()) != null) {
-						qparams.add(new BasicNameValuePair(
-								SplunkConfiguration.ENDTIME, job
-										.get(SplunkConfiguration.ENDTIME
-												+ split.getId())));
-					}
+							SplunkConfiguration.STARTTIME, job
+									.get(SplunkConfiguration.STARTTIME
+											+ split.getId())));
 				}
-				URI uri = URIUtils.createURI("https", host,
+				if (job.get(SplunkConfiguration.ENDTIME + split.getId()) != null) {
+					qparams.add(new BasicNameValuePair(
+							SplunkConfiguration.ENDTIME, job
+									.get(SplunkConfiguration.ENDTIME
+											+ split.getId())));
+				}
+			}
+		}
+
+		private HttpResponse executeHttpGetRequest() {
+			try {
+				return httpclient.execute(getHttpGet());
+			} catch (ClientProtocolException e) {
+				throw new RuntimeException(e);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		private HttpUriRequest getHttpGet() {
+			URI uri = getURI();
+			logger.debug("GET: " + uri);
+			System.out.println("URI: " + uri);
+			return new HttpGet(uri);
+		}
+
+		private URI getURI() {
+			try {
+				return URIUtils.createURI("https", host,
 						job.getInt(SplunkConfiguration.SPLUNKPORT, 8089),
 						SplunkConfiguration.SPLUNK_SEARCH_URL,
 						URLEncodedUtils.format(qparams, "UTF-8"), null);
-				HttpGet httpget = new HttpGet(uri);
-				logger.debug("GET: " + httpget.getURI());
-				response = httpclient.execute(httpget);
-				if (response.getStatusLine().getStatusCode() != 200) {
-					throw new IOException("Bad Status:"
-							+ response.getStatusLine());
-				}
-				this.parser = new SplunkXMLStream(this.response.getEntity()
+			} catch (URISyntaxException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		private boolean isOKHttpRequestStatus(HttpResponse response) {
+			return response.getStatusLine().getStatusCode() == 200;
+		}
+
+		private SplunkXMLStream getSplunkXMLStream(HttpResponse response) {
+			try {
+				return new SplunkXMLStream(response.getEntity()
 						.getContent());
+			} catch (IllegalStateException e) {
+				throw new RuntimeException(e);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
 			} catch (Exception e) {
-				logger.trace(e);
-				throw new IOException(e);
+				throw new RuntimeException(e);
 			}
 		}
 
@@ -276,9 +324,17 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 			Class inputClass = Class.forName(job
 					.get(SplunkConfiguration.SPLUNKEVENTREADER));
 			return new SplunkRecordReader((SplunkInputSplit) split, inputClass,
-					job);
+					job, getHttpClient());
 		} catch (Exception ex) {
 			throw new IOException(ex.getMessage());
+		}
+	}
+
+	private HttpClient getHttpClient() {
+		try {
+			return HttpClientUtils.getHttpClient();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 

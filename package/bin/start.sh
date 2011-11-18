@@ -27,4 +27,8 @@ else
     exit 1
 fi
 
-exec java com.splunk.connector.HDFSConnect ../default/connector.conf 
+if [ -r ../local/connector.conf ]; then
+    exec java com.splunk.connector.HDFSConnect ../local/connector.conf
+else
+    exec java com.splunk.connector.HDFSConnect ../default/connector.conf
+fi

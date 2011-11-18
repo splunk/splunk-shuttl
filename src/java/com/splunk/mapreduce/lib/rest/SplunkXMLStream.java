@@ -27,7 +27,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.InputStreamReader;
 
-
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLInputFactory;
@@ -41,13 +40,13 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.Level;
 
-import com.splunk.mapreduce.lib.rest.util.WrappedReader;
+import com.splunk.mapreduce.lib.rest.util.ReaderWrapper;
 
 /**
- * This returns the results of a splunk search as a map of name-value pairs 
+ * This returns the results of a splunk search as a map of name-value pairs
  * 
  * @author kpakkirisamy
- *
+ * 
  */
 public class SplunkXMLStream {
 	static final String RESULT = "result";
@@ -60,33 +59,25 @@ public class SplunkXMLStream {
 	private InputStream in = null;
 	private XMLInputFactory inputFactory;
 	private XMLEventReader eventReader;
-	private XMLStreamReader streamReader;
-	
-	private static Logger logger = logger = Logger.getLogger(SplunkXMLStream.class);
+
+	private static Logger logger = Logger.getLogger(SplunkXMLStream.class);
 
 	public SplunkXMLStream(InputStream in) throws Exception {
 		this.in = in;
 		this.inputFactory = XMLInputFactory.newInstance();
 		this.inputFactory.setProperty(XMLInputFactory.IS_COALESCING, true);
-		this.inputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-		readToFirstElement(this.in);
+		this.inputFactory.setProperty(XMLInputFactory.IS_VALIDATING,
+				Boolean.FALSE);
 		// create a wrapped reader to inject a SplunkResult root element
-		this.eventReader = inputFactory.createXMLEventReader(new WrappedReader("<?xml version='1.0' encoding='UTF-8'?> <SplunkResult>", new InputStreamReader(this.in), "</SplunkResult>"));
+		String prefix = "<?xml version='1.0' encoding='UTF-8'?> <SplunkResult>";
+		String suffix = "</SplunkResult>";
+		ReaderWrapper readerWrapper = new ReaderWrapper(prefix, suffix);
+		readerWrapper.wrapReader(new InputStreamReader(this.in));
+		this.eventReader = inputFactory.createXMLEventReader(readerWrapper);
 	}
-	
-	private void readToFirstElement(InputStream in) throws Exception{
-		// asssumes splunk output is always prefixed with a prolog like the one below
-		// <?xml version='1.0' encoding='UTF-8'?>
-		// read to the end of it. Assume utf-8 encoding moving forward
-		while (true) {
-			int  c= in.read();
-			if (c == '>' || c == -1) {
-				break;
-			}
-		}
-	}
-	
-	public HashMap<String, String> nextResult() throws IOException{
+
+
+	public HashMap<String, String> nextResult() throws IOException {
 		try {
 			String key = null;
 			HashMap<String, String> map = null;
@@ -94,22 +85,26 @@ public class SplunkXMLStream {
 				XMLEvent event = eventReader.nextEvent();
 				if (event.isStartElement()) {
 					StartElement startElement = event.asStartElement();
-					logger.trace("startElement " + startElement.getName().getLocalPart());
+					logger.trace("startElement "
+							+ startElement.getName().getLocalPart());
 					if (startElement.getName().getLocalPart() == (RESULT)) {
-						map = new HashMap<String, String >();
+						map = new HashMap<String, String>();
 					}
 					if (event.asStartElement().getName().getLocalPart()
 							.equals(FIELD)) {
-						Iterator<Attribute> attributes = startElement.getAttributes();
+						Iterator<Attribute> attributes = startElement
+								.getAttributes();
 						while (attributes.hasNext()) {
 							Attribute attribute = attributes.next();
 							if (attribute.getName().toString().equals(KEY)) {
 								key = attribute.getValue();
-							} 
+							}
 						}
 					}
-					if (event.asStartElement().getName().getLocalPart().equals(TEXT) ||
-							event.asStartElement().getName().getLocalPart().equals(V)) {
+					if (event.asStartElement().getName().getLocalPart()
+							.equals(TEXT)
+							|| event.asStartElement().getName().getLocalPart()
+									.equals(V)) {
 						event = eventReader.nextEvent();
 						String value = event.asCharacters().getData();
 						if (map.get(key) != null) {
@@ -120,10 +115,12 @@ public class SplunkXMLStream {
 						continue;
 					}
 				}
-				if (event.isEndElement()) { // If we reach the end of a result element we return
+				if (event.isEndElement()) { // If we reach the end of a result
+											// element we return
 					EndElement endElement = event.asEndElement();
-					logger.trace("endElement " + endElement.getName().getLocalPart());
-					if (endElement.getName().getLocalPart() == (RESULT) ) {
+					logger.trace("endElement "
+							+ endElement.getName().getLocalPart());
+					if (endElement.getName().getLocalPart() == (RESULT)) {
 						if (map.isEmpty()) {
 							// other empty results element
 							return null;
