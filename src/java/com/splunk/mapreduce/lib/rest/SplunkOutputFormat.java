@@ -79,8 +79,8 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
 
 		public void write(K key, V value) throws IOException {
 			logger.trace("key " + key + " value " + value);
-			StringBuilder sbuf = new StringBuilder();
 			HttpPost httppost = new HttpPost(this.poststring);
+			StringBuilder sbuf = new StringBuilder();
 			sbuf.append(new Date());
 			sbuf.append(" ");
 			sbuf.append(key); // space separated fields for Splunk to regex out
@@ -115,9 +115,8 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
 	 */
 	public RecordWriter<K, V> getRecordWriter(FileSystem ignored, JobConf job,
 			String name, Progressable progress) throws IOException {
-		HttpClient httpclient = null;
 		try {
-			httpclient = HttpClientUtils.getHttpClient();
+			HttpClient httpclient = HttpClientUtils.getHttpClient();
 			((AbstractHttpClient) httpclient).getCredentialsProvider()
 					.setCredentials(
 							new AuthScope(job.get(SPLUNKHOST), job.getInt(

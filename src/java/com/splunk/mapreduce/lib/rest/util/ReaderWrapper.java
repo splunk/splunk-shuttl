@@ -15,35 +15,51 @@
 
 package com.splunk.mapreduce.lib.rest.util;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.IOException;
 
 /**
- * This class is needed because the Splunk results in xml do not have a root element
- * By wrapping the http response with some string prefixes it is possible
- * to inject a root 
+ * This class is needed because the Splunk results in xml do not have a root
+ * element By wrapping the http response with some string prefixes it is
+ * possible to inject a root
  * 
- * @author kpakkirisamy
- *
+ * @author kpakkirisamy and periksson
+ * 
  */
-public class WrappedReader extends Reader {
+public class ReaderWrapper extends Reader {
 	private Reader[] readers;
-	private int rindex  = 0; // start with the first reader
+	private int rindex = 0; // start with the first reader
 
-	public WrappedReader(Reader[] readers) {
+	public ReaderWrapper(Reader[] readers) {
 		this.readers = readers;
 	}
 
-	public WrappedReader(String prefix, Reader mainreader, String suffix) {
-		this(new Reader[] { new StringReader(prefix), mainreader,new StringReader(suffix) });
+	public ReaderWrapper(String prefix, String suffix) {
+		this(new Reader[] { new StringReader(prefix), null,
+				new StringReader(suffix) });
+	}
+
+	public void wrapReader(Reader mainReader) {
+		String readerContent = new ContentReader(mainReader).getContent();
+		String content = getContentWithoutXMLTag(readerContent);
+		readers[1] = new StringReader(content);
+	}
+
+	private String getContentWithoutXMLTag(String readerContent) {
+		String xmlTagEnd = "?>";
+		int indexOfXMLTagEnd = readerContent.indexOf(xmlTagEnd);
+		if (indexOfXMLTagEnd == -1)
+			return readerContent;
+		else
+			return readerContent.substring(indexOfXMLTagEnd
+					+ xmlTagEnd.length());
 	}
 
 	@Override
 	public void close() throws IOException {
-		for (Reader reader : readers) {
+		for (Reader reader : readers)
 			reader.close();
-		}
 	}
 
 	@Override

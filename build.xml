@@ -34,6 +34,7 @@
        <pathelement location="${contribdir}/wikixmlj/bzip2.jar"/>
        <pathelement location="${contribdir}/wikixmlj/xercesImpl.jar"/>
        <pathelement location="${basedir}/src/java/com/splunk/connector/conf"/>
+       <pathelement location="${contribdir}/commons-io-2.1/commons-io-2.1.jar"/>
        <pathelement path="${classdir}"/>
     </path>
     <property name="foo" value="${build.classpath}"/>
@@ -81,7 +82,7 @@
 	
 	<!-- compile all code, may in the future want to split out test and source builds -->
     <target name="compile">
-        <javac srcdir="${srcdir}" destdir="${classdir}" includeAntRuntime="false">
+        <javac srcdir="${srcdir}" destdir="${classdir}" includeAntRuntime="false" debug="true">
             <classpath refid="build.classpath"/>
         </javac>
     </target>
