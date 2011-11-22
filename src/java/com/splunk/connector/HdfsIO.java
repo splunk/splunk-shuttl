@@ -24,7 +24,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.Path;;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -64,7 +64,8 @@ public class HdfsIO implements DataSink
 		try 
 		{
 			conf = new Configuration();
-			fileSystem = FileSystem.get(conf);
+			String uri = new String("hdfs://") + ip + ':' + port;
+			fileSystem = FileSystem.get(URI.create(uri), conf);
 		}
 		catch (Exception e) {
 			logger.error("Exception in setting HDFS configuration: " + e.toString());
