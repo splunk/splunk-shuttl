@@ -64,7 +64,8 @@ public class HdfsIO implements DataSink
 		try 
 		{
 			conf = new Configuration();
-			fileSystem = FileSystem.get(conf);
+			String uri = new String("hdfs://") + ip + ':' + port;
+			fileSystem = FileSystem.get(URI.create(uri), conf);
 		}
 		catch (Exception e) {
 			logger.error("Exception in setting HDFS configuration: " + e.toString());
