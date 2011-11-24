@@ -7,12 +7,15 @@ seamless data flow and processing between Splunk, the
 NoSQL platform for machine data, and Hadoop.
 
 If you are not in the beta program, please register here:
+
 * http://www.splunk.com/goto/hadoop-beta
 
 For documentation, see:
+
 * http://docs.splunk.com/Documentation/Hadoop
 
 Key features as of v0.4 are:
+
 * Streaming of data via Splunk Forwarding to HDFS
 * SplunkInputFormat and SplunkOutputFormat classes for use in Hadoop
 * Automatic batch rolling of indexed data to HDFS
