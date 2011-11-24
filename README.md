@@ -1,15 +1,14 @@
 
-
 Environment setup:
 
-% source setjavaenv
+	% source setjavaenv
 
 Building Hadoop Connector:
 
-% ./buildit.sh
+	% ./buildit.sh
 
 or
 
-% ant
+	% ant
 
 
