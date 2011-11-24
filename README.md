@@ -30,6 +30,7 @@ Building from Source
 ### Requirements
 
 All you need is:
+
 * Java JDK 6
 * git
 
