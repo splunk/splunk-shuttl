@@ -17,6 +17,7 @@ package com.splunk.mapreduce.lib.rest;
 
 import java.io.IOException;
 import java.util.Date;
+import java.net.URLEncoder;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapred.JobConf;
@@ -65,6 +66,7 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
 	 * A RecordWriter that writes the reduce output to Splunk
 	 */
 	protected class SplunkRecordWriter implements RecordWriter<K, V> {
+		private static final String SPACE = " ";
 		HttpClient httpclient;
 		String poststring;
 
@@ -74,18 +76,17 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
 		}
 
 		public void close(Reporter reporter) throws IOException {
-			httpclient.getConnectionManager().shutdown();
 		}
 
 		public void write(K key, V value) throws IOException {
 			logger.trace("key " + key + " value " + value);
 			HttpPost httppost = new HttpPost(this.poststring);
 			StringBuilder sbuf = new StringBuilder();
-			sbuf.append(new Date());
-			sbuf.append(" ");
-			sbuf.append(key); // space separated fields for Splunk to regex out
-			sbuf.append(" ");
-			sbuf.append(value); // space separated fields for Splunk to regex
+			sbuf.append(URLEncoder.encode(new Date().toString()));
+			sbuf.append(URLEncoder.encode(SPACE));
+			sbuf.append(URLEncoder.encode(key.toString())); // space separated fields for Splunk to regex out
+			sbuf.append(URLEncoder.encode(SPACE));
+			sbuf.append(URLEncoder.encode(value.toString())); // space separated fields for Splunk to regex
 								// out
 			sbuf.append("\n");
 			StringEntity reqEntity = new StringEntity(sbuf.toString());
