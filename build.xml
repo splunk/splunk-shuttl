@@ -96,13 +96,19 @@
 		</testng>
 	</target>
 
-	<!-- create the jar file -->
-	<target name="jar" depends="version">
+	<target name="versionized-jar-name" depends="version">
 		<loadproperties>
 			<file file="${classdir}/com/splunk/connector/version.properties" />
 		</loadproperties>
+		<property name="name.versioned" value="${name}-${version}" />
+		<property name="name.versioned.path" value="${builddir}/jar/${name.versioned}.jar" />
+	</target>
+
+
+	<!-- create the jar file -->
+	<target name="jar" depends="versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
-		<jar destfile="${builddir}/jar/${name}-${version}.jar" basedir="${builddir}/classes">
+		<jar destfile="${name.versioned.path}" basedir="${builddir}/classes">
 			<exclude name="com/splunk/connector/tests/*" />
 			<exclude name="com/splunk/mapreduce/lib/rest/tests/**" />
 			<exclude name="edu/jhu/nlp/**" />
@@ -116,8 +122,16 @@
 		</jar>
 	</target>
 
+	<!-- copy the jar file to hadoop environment variable if is set -->
+	<target name="hadoop-copy" depends="jar">
+		<property environment="env" />
+		<fail unless="env.HADOOP_HOME" message="Environment variable HADOOP_HOME was not set." />
+		<copy file="${name.versioned.path}" todir="${env.HADOOP_HOME}/lib" />
+	</target>
+
+
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
-	<target name="dist" depends="clean,compile,test,jar">
+	<target name="dist" depends="clean,compile,test,jar,version,versionized-jar-name">
 		<loadproperties>
 			<file file="${classdir}/com/splunk/connector/version.properties" />
 		</loadproperties>
@@ -132,7 +146,7 @@
 			<replacefilter token="@VERSION@" value="${version}" />
 		</replace>
 		<!-- copy the jar in there -->
-		<copy file="${builddir}/jar/${name}-${version}.jar" todir="${stage.dir}/bin" />
+		<copy file="${name.versioned.path}" todir="${stage.dir}/bin" />
 		<!-- tar it up -->
 		<tar destfile="${builddir}/${appname}.tgz" compression="gzip">
 			<tarfileset dir="${builddir}/${appname}/bin" prefix="${appname}/bin" filemode="755">
@@ -152,6 +166,7 @@
 	<target name="run">
 		<java jar="build/jar/${final.name}.jar" fork="true" />
 	</target>
+
 
 	<target name="splunk2flume2console">
 		<java classname="com.splunk.connector.tests.Splunk2Flume2ConsoleTest">
