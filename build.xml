@@ -101,7 +101,7 @@
 		</testng>
 	</target>
 
-	<target name="shell-tests">
+	<target name="shell-tests" depends="hadoop-copy">
 		<exec dir="." executable="sh" osfamily="unix">
 			<arg line="-c" />
 			<arg line="test/unittests/run-unittests.sh" />
