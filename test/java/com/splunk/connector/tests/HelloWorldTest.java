@@ -31,7 +31,9 @@ import com.splunk.connector.EventEmitter;
 
 public class HelloWorldTest {
  
-    @BeforeClass
+	@BeforeClass
+	// This setUp won't be run without the groups argument,
+	// like so: @BeforeClass(groups = { "fast" })
     public void setUp() {
         System.out.println("Running Setup");
         // code that will be invoked when this test is instantiated
@@ -41,7 +43,7 @@ public class HelloWorldTest {
      * This just checks that when initialized, the EventEmitter object has
      * the two fields set.
      */ 
-    @Test(groups = { "group1" })
+	@Test(groups = { "fast" })
     public void eventEmitterHelloTest() {
         System.out.println("Running Event Emitter test");
 	int targetPort = 8888;
@@ -58,7 +60,7 @@ public class HelloWorldTest {
 	
     }
  
-   @Test(groups = { "group1" })
+	@Test(groups = { "fast" })
    public void fooTest() {
         System.out.println("Running foo test");
    }
