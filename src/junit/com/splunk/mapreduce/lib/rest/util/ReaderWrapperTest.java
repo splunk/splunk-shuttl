@@ -1,13 +1,11 @@
 package com.splunk.mapreduce.lib.rest.util;
 
-import static org.junit.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 import java.io.StringReader;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.splunk.mapreduce.lib.rest.util.ReaderWrapper;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class ReaderWrapperTest {
 
@@ -16,7 +14,7 @@ public class ReaderWrapperTest {
 	private static final String SUFFIX = "suffix";
 	private ReaderWrapper readerWrapper;
 
-	@Before
+	@BeforeMethod
 	public void setUp() {
 		readerWrapper = new ReaderWrapper(PREFIX, SUFFIX);
 	}

@@ -1,11 +1,10 @@
 package com.splunk.mapreduce.lib.rest.util;
 
-import static junit.framework.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 import java.io.StringReader;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 
 public class ContentReaderTest {
 
