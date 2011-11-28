@@ -82,11 +82,18 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
 			logger.trace("key " + key + " value " + value);
 			HttpPost httppost = new HttpPost(this.poststring);
 			StringBuilder sbuf = new StringBuilder();
+			/**
 			sbuf.append(URLEncoder.encode(new Date().toString()));
 			sbuf.append(URLEncoder.encode(SPACE));
 			sbuf.append(URLEncoder.encode(key.toString())); // space separated fields for Splunk to regex out
 			sbuf.append(URLEncoder.encode(SPACE));
-			sbuf.append(URLEncoder.encode(value.toString())); // space separated fields for Splunk to regex
+			sbuf.append(URLEncoder.encode(value.toString())); // space separated fields for Splunk to regex out
+		    **/
+			sbuf.append(new Date().toString());
+			sbuf.append(SPACE);
+			sbuf.append(key.toString()); // space separated fields for Splunk to regex out
+			sbuf.append(SPACE);
+			sbuf.append(value.toString()); // space separated fields for Splunk to regex
 								// out
 			sbuf.append("\n");
 			StringEntity reqEntity = new StringEntity(sbuf.toString());
