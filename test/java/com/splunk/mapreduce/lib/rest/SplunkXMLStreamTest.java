@@ -26,7 +26,7 @@ public class SplunkXMLStreamTest {
 	}
 
 	private File getTestXMLFile() {
-		String splunkSearchResultsXMLPath = "src/junit/com/splunk/mapreduce/lib/rest/SplunkSearchResults.xml";
+		String splunkSearchResultsXMLPath = "test/java/com/splunk/mapreduce/lib/rest/SplunkSearchResults.xml";
 		String osSafePathToXML = splunkSearchResultsXMLPath.replaceAll("/", ""
 				+ File.separatorChar);
 		return new File(osSafePathToXML);

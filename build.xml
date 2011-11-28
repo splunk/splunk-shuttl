@@ -14,7 +14,7 @@
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
 	<property name="srcdir" value="src/java/" />
-	<property name="testdir" value="src/junit/" />
+	<property name="testdir" value="test/java/" />
 
 	<path id="build.classpath">
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
