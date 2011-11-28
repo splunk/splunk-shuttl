@@ -90,12 +90,24 @@
 
 	<!-- run test via testNG -->
 	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
-	<target name="test" depends="compile">
+	<target name="test" depends="fast-tests,shell-tests" />
+	<target name="fast-tests" depends="fast-TestNG-tests" />
+	<target name="slow-tests" depends="shell-tests" />
+
+	<target name="fast-TestNG-tests" depends="compile">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
 			<classfileset dir="${builddir}" includes="**/*.class" />
 		</testng>
 	</target>
+
+	<target name="shell-tests">
+		<exec dir="." executable="sh" osfamily="unix">
+			<arg line="-c" />
+			<arg line="test/unittests/run-unittests.sh" />
+		</exec>
+	</target>
+
 
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties>
@@ -132,7 +144,7 @@
 
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
-	<target name="dist" depends="clean,compile,test,jar,version,versionized-jar-name">
+	<target name="dist" depends="clean,compile,fast-tests,jar,version,versionized-jar-name">
 		<loadproperties>
 			<file file="${classdir}/com/splunk/connector/version.properties" />
 		</loadproperties>
