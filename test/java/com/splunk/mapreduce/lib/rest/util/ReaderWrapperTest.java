@@ -1,13 +1,11 @@
 package com.splunk.mapreduce.lib.rest.util;
 
-import static org.junit.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 import java.io.StringReader;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.splunk.mapreduce.lib.rest.util.ReaderWrapper;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class ReaderWrapperTest {
 
@@ -16,7 +14,7 @@ public class ReaderWrapperTest {
 	private static final String SUFFIX = "suffix";
 	private ReaderWrapper readerWrapper;
 
-	@Before
+	@BeforeMethod(groups = { "fast" })
 	public void setUp() {
 		readerWrapper = new ReaderWrapper(PREFIX, SUFFIX);
 	}
@@ -29,7 +27,7 @@ public class ReaderWrapperTest {
 		return new ContentReader(readerWrapper).getContent();
 	}
 
-	@Test
+	@Test(groups = { "fast" })
 	public void should_containPrefixReaderContentAndSuffix_when_fullyRead() {
 		String expectedContent = PREFIX + STRING_READER_CONTENT + SUFFIX;
 		readerWrapper.wrapReader(getReader(STRING_READER_CONTENT));
@@ -46,19 +44,19 @@ public class ReaderWrapperTest {
 		assertEquals(expectedContent, actualContent);
 	}
 
-	@Test
+	@Test(groups = { "fast" })
 	public void should_removeXMLVersionTagFromTheReaderToBeWrapped_when_thereIsAnXMLVersionTagWithSingleQuotes() {
 		String xmlVersionTag = "<?xml version='1.0' encoding='UTF-8'?>";
 		assertXMLVersionTagIsRemoved(xmlVersionTag);
 	}
 
-	@Test
+	@Test(groups = { "fast" })
 	public void should_removeXMLVersionTagFromTheReaderToBeWrapped_when_thereIsAnXMLVersionTagWithDoubleQuotes() {
 		String xmlVersionTagWithQuotes = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		assertXMLVersionTagIsRemoved(xmlVersionTagWithQuotes);
 	}
 
-	@Test
+	@Test(groups = { "fast" })
 	public void should_removeXMLVersionTagFromTheReaderToBeWrapped_when_thereIsAnXMLVersionTagWithStartingWhitespaces() {
 		String xmlVersionTagWithWhitespaces = "         <?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		assertXMLVersionTagIsRemoved(xmlVersionTagWithWhitespaces);

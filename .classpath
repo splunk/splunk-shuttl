@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/java"/>
-	<classpathentry kind="src" path="src/junit"/>
+	<classpathentry kind="src" path="test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="contrib/flume-0.9.3-CDH3B4/flume-0.9.3-CDH3B4-core.jar"/>
 	<classpathentry kind="lib" path="contrib/apache-log4j-1.2.16/log4j-1.2.16.jar"/>
@@ -11,7 +11,6 @@
 	<classpathentry kind="lib" path="contrib/httpcomponents-client-4.1.2/lib/httpcore-4.1.2.jar"/>
 	<classpathentry kind="lib" path="contrib/wikixmlj/bzip2.jar"/>
 	<classpathentry kind="lib" path="contrib/wikixmlj/xercesImpl.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="contrib/commons-io-2.1/commons-io-2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
