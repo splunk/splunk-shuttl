@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 
 public class ContentReaderTest {
 
-	@Test
+	@Test(groups = { "fast" })
 	public void getReader_should_containStringReaderContent_when_fullyRead() {
 		String expectedContent = "SomeString";
 		StringReader reader = new StringReader(expectedContent);

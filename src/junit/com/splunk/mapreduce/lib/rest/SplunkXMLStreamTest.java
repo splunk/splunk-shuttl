@@ -9,7 +9,7 @@ import static org.testng.Assert.*;
 
 public class SplunkXMLStreamTest {
 
-	@Test
+	@Test(groups = { "fast" })
 	public void should_addSplunkResultTagsToBeginingAndEnd_when_readFully()
 			throws Exception {
 		File testXML = getTestXMLFile();
