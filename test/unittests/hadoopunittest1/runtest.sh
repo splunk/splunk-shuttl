@@ -19,11 +19,14 @@
 #
 
 hadoop=$HADOOP_HOME/bin/hadoop
+testFolder=/hadoopunittest1
 
-$hadoop dfs -put file01 /wordcount/input/file01
-$hadoop dfs -put file02 /wordcount/input/file02
+# Setup
+$hadoop fs -put file01 "$testFolder/input/file01" &>/dev/null
+$hadoop fs -put file02 "$testFolder/input/file02" &>/dev/null
 
-$hadoop jar $SPLBRANCH/build/jar/splunk_hadoop_unittests.jar com.splunk.mapreduce.lib.rest.tests.WordCount /wordcount/input /wordcount/output$1
+# Test
+$hadoop jar $SPLBRANCH/build/jar/splunk_hadoop_unittests.jar com.splunk.mapreduce.lib.rest.tests.WordCount "$testFolder/input" "$testFolder/output$1"
 
 expected_splunk_out="Sun+Nov+27+22%3A34%3A03+PST+2011+World+2
 Sun+Nov+27+22%3A34%3A03+PST+2011+Hello+2
@@ -31,6 +34,12 @@ Sun+Nov+27+22%3A34%3A03+PST+2011+Hadoop+2
 Sun+Nov+27+22%3A34%3A03+PST+2011+Goodbye+1
 Sun+Nov+27+22%3A34%3A03+PST+2011+Bye+1"
 actual_splunk_out=$(splunk search 'source=wordcount sourcetype=hadoop_event' | tail -5)
+
+# Tear down
+$hadoop fs -rmr "$testFolder" &>/dev/null
+# TODO cleanup splunk
+
+# Output
 if [ "$expected_splunk_out" != "$actual_splunk_out" ]
 then
   echo "Fail!
