@@ -34,7 +34,7 @@
 		<pathelement location="${contribdir}/${testng.basename}/${testng.jar}" />
 		<pathelement location="${contribdir}/wikixmlj/bzip2.jar" />
 		<pathelement location="${contribdir}/wikixmlj/xercesImpl.jar" />
-		<pathelement location="${basedir}/src/java/com/splunk/connector/conf" />
+		<pathelement location="${basedir}/src/java/com/splunk/shep/connector/conf" />
 		<pathelement location="${contribdir}/commons-io-2.1/commons-io-2.1.jar" />
 		<pathelement path="${classdir}" />
 	</path>
@@ -72,8 +72,8 @@
 		<tstamp>
 			<format property="noslashtime" timezone="America/Los_Angeles" pattern="yyyyMMddhhmmss" />
 		</tstamp>
-		<copy file="${srcdir}/com/splunk/connector/version.properties" todir="${classdir}/com/splunk/connector/" />
-		<replace file="${classdir}/com/splunk/connector/version.properties">
+		<copy file="${srcdir}/com/splunk/shep/connector/version.properties" todir="${classdir}/com/splunk/shep/connector/" />
+		<replace file="${classdir}/com/splunk/shep/connector/version.properties">
 			<replacefilter token="@DATE@" value="${time} US/Pacific" />
 			<replacefilter token="@REVISION@" value="${p4revision}" />
 			<replacefilter token="@BRANCH@" value="${branch}" />
@@ -111,7 +111,7 @@
 
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties>
-			<file file="${classdir}/com/splunk/connector/version.properties" />
+			<file file="${classdir}/com/splunk/shep/connector/version.properties" />
 		</loadproperties>
 		<property name="name.versioned" value="${name}-${version}" />
 		<property name="name.versioned.path" value="${builddir}/jar/${name.versioned}.jar" />
@@ -122,15 +122,15 @@
 	<target name="jar" depends="versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
 		<jar destfile="${name.versioned.path}" basedir="${builddir}/classes">
-			<exclude name="com/splunk/connector/tests/*" />
-			<exclude name="com/splunk/mapreduce/lib/rest/tests/**" />
+			<exclude name="com/splunk/shep/connector/tests/*" />
+			<exclude name="com/splunk/shep/mapreduce/lib/rest/tests/**" />
 			<exclude name="edu/jhu/nlp/**" />
 			<manifest>
-				<attribute name="Main-Class" value="com.splunk.connector.EventTransmitter" />
+				<attribute name="Main-Class" value="com.splunk.shep.connector.EventTransmitter" />
 			</manifest>
 		</jar>
 		<jar destfile="${hadoop.unittest.jar.file}" basedir="${builddir}/classes">
-			<include name="com/splunk/mapreduce/lib/rest/tests/**" />
+			<include name="com/splunk/shep/mapreduce/lib/rest/tests/**" />
 			<include name="edu/jhu/nlp/**" />
 		</jar>
 	</target>
@@ -152,7 +152,7 @@
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,fast-tests,jar,version,versionized-jar-name">
 		<loadproperties>
-			<file file="${classdir}/com/splunk/connector/version.properties" />
+			<file file="${classdir}/com/splunk/shep/connector/version.properties" />
 		</loadproperties>
 		<!-- make the staging directory -->
 		<mkdir dir="${stage.dir}" />
@@ -188,15 +188,15 @@
 
 
 	<target name="splunk2flume2console">
-		<java classname="com.splunk.connector.tests.Splunk2Flume2ConsoleTest">
-			<arg value="src/java/com/splunk/connector/tests/splunk2flume.conf" />
+		<java classname="com.splunk.shep.connector.tests.Splunk2Flume2ConsoleTest">
+			<arg value="src/java/com/splunk/shep/connector/tests/splunk2flume.conf" />
 			<classpath refid="build.classpath" />
 		</java>
 	</target>
 
 	<target name="stateMachineTest">
-		<java classname="com.splunk.connector.tests.StateMachineTest">
-			<arg value="src/java/com/splunk/connector/tests/s2s.data" />
+		<java classname="com.splunk.shep.connector.tests.StateMachineTest">
+			<arg value="src/java/com/splunk/shep/connector/tests/s2s.data" />
 			<classpath refid="build.classpath" />
 		</java>
 	</target>

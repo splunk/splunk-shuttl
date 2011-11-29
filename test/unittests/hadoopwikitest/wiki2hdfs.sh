@@ -27,9 +27,9 @@ export CLASSPATH=$CLASSPATH:$HADOOP_HOME/lib/commons-configuration-1.6.jar
 export CLASSPATH=$CLASSPATH:$HADOOP_HOME/lib/commons-lang-2.4.jar
 
 if [ $# = 0 ]; then
-  java com.splunk.mapreduce.lib.rest.tests.util.WikipediaHDFSLoader http://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles1.xml-p000000010p000010000.bz2 hdfs://localhost:9000/wordcount/wikitest/wiki2.seq
+  java com.splunk.shep.mapreduce.lib.rest.tests.util.WikipediaHDFSLoader http://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles1.xml-p000000010p000010000.bz2 hdfs://localhost:9000/wordcount/wikitest/wiki2.seq
 else
-  java com.splunk.mapreduce.lib.rest.tests.util.WikipediaHDFSLoader $1 $2
+  java com.splunk.shep.mapreduce.lib.rest.tests.util.WikipediaHDFSLoader $1 $2
 fi
 
 

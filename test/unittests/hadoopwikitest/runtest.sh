@@ -17,5 +17,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-$HADOOP_HOME/bin/hadoop jar $SPLBRANCH/build/jar/splunk_hadoop_unittests.jar com.splunk.mapreduce.lib.rest.tests.Wiki2SplunkMapper /wordcount/wikitest /wordcount/output$1 $2 $3 $4 $5
+$HADOOP_HOME/bin/hadoop jar $SPLBRANCH/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapreduce.lib.rest.tests.Wiki2SplunkMapper /wordcount/wikitest /wordcount/output$1 $2 $3 $4 $5
 
