@@ -29,73 +29,73 @@ import java.io.StringReader;
  */
 public class ReaderWrapper extends Reader {
 
-	private String prefix;
-	private final String suffix;
+    private String prefix;
+    private final String suffix;
 
-	private Reader[] readers;
-	private int rindex = 0; // start with the first reader
+    private Reader[] readers;
+    private int rindex = 0; // start with the first reader
 
-	public ReaderWrapper(String prefix, String suffix) {
-		this.prefix = prefix;
-		this.suffix = suffix;
+    public ReaderWrapper(String prefix, String suffix) {
+	this.prefix = prefix;
+	this.suffix = suffix;
+    }
+
+    public void wrapReader(Reader mainReader) {
+	handlePossibleXMLVersionTag(mainReader);
+	readers = new Reader[] { new StringReader(prefix), mainReader,
+		new StringReader(suffix) };
+    }
+
+    private void handlePossibleXMLVersionTag(Reader mainReader) {
+	String firstTag = getFirstTagOfReader(mainReader);
+	if (!isXMLVersionTag(firstTag))
+	    appendTagToPrefix(firstTag);
+    }
+
+    private void appendTagToPrefix(String firstTag) {
+	prefix = prefix + firstTag;
+    }
+
+    private String getFirstTagOfReader(Reader mainReader) {
+	int ch;
+	String tag = "";
+	while ((ch = getNextChar(mainReader)) != -1) {
+	    tag += (char) ch;
+	    if ((char) ch == '>')
+		break;
 	}
+	return tag;
+    }
 
-	public void wrapReader(Reader mainReader) {
-		handlePossibleXMLVersionTag(mainReader);
-		readers = new Reader[] { new StringReader(prefix), mainReader,
-				new StringReader(suffix) };
+    private int getNextChar(Reader mainReader) {
+	try {
+	    return mainReader.read();
+	} catch (IOException e) {
+	    throw new RuntimeException(e);
 	}
+    }
 
-	private void handlePossibleXMLVersionTag(Reader mainReader) {
-		String firstTag = getFirstTagOfReader(mainReader);
-		if (!isXMLVersionTag(firstTag))
-			appendTagToPrefix(firstTag);
-	}
+    private boolean isXMLVersionTag(String tag) {
+	String trimmedTag = tag.trim();
+	return trimmedTag.matches("<\\?xml version=[\"'].+?[\"'].*?\\?>");
+    }
 
-	private void appendTagToPrefix(String firstTag) {
-		prefix = prefix + firstTag;
-	}
+    @Override
+    public void close() throws IOException {
+	for (Reader reader : readers)
+	    reader.close();
+    }
 
-	private String getFirstTagOfReader(Reader mainReader) {
-		int ch;
-		String tag = "";
-		while ((ch = getNextChar(mainReader)) != -1) {
-			tag += (char) ch;
-			if ((char) ch == '>')
-				break;
-		}
-		return tag;
-	}
-
-	private int getNextChar(Reader mainReader) {
-		try {
-			return mainReader.read();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private boolean isXMLVersionTag(String tag) {
-		String trimmedTag = tag.trim();
-		return trimmedTag.matches("<\\?xml version=[\"'].+?[\"'].*?\\?>");
-	}
-
-	@Override
-	public void close() throws IOException {
-		for (Reader reader : readers)
-			reader.close();
-	}
-
-	@Override
-	public int read(char[] buf, int offset, int length) throws IOException {
-		int charsread = -1;
-		do {
-			charsread = readers[this.rindex].read(buf, offset, length);
-			if (charsread == -1) {
-				this.rindex++;
-			}
-		} while (charsread == -1 && this.rindex < readers.length);
-		return charsread;
-	}
+    @Override
+    public int read(char[] buf, int offset, int length) throws IOException {
+	int charsread = -1;
+	do {
+	    charsread = readers[this.rindex].read(buf, offset, length);
+	    if (charsread == -1) {
+		this.rindex++;
+	    }
+	} while (charsread == -1 && this.rindex < readers.length);
+	return charsread;
+    }
 
 }

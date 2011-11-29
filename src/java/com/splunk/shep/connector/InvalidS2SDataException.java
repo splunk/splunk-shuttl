@@ -18,7 +18,7 @@
 package com.splunk.shep.connector;
 
 public class InvalidS2SDataException extends Exception {
-	public InvalidS2SDataException(String msg) {
-		super(msg);
-	}
+    public InvalidS2SDataException(String msg) {
+	super(msg);
+    }
 }

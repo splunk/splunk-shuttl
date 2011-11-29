@@ -1,4 +1,3 @@
-
 // AbortConnectionException.java
 //
 // Copyright (C) 2011 Splunk Inc.
@@ -19,7 +18,7 @@
 package com.splunk.shep.connector;
 
 public class AbortConnectionException extends Exception {
-	public AbortConnectionException(String msg) {
-		super(msg);
-	}
+    public AbortConnectionException(String msg) {
+	super(msg);
+    }
 }

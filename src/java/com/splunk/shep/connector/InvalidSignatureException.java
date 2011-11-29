@@ -18,7 +18,7 @@
 package com.splunk.shep.connector;
 
 public class InvalidSignatureException extends Exception {
-	public InvalidSignatureException(String msg) {
-		super(msg);
-	}
+    public InvalidSignatureException(String msg) {
+	super(msg);
+    }
 }

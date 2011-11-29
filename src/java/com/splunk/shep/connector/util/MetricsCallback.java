@@ -20,5 +20,5 @@ package com.splunk.shep.connector.util;
 import org.apache.log4j.Logger;
 
 public interface MetricsCallback {
-	public void generateMetrics(Logger logger);
+    public void generateMetrics(Logger logger);
 }

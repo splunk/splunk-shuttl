@@ -18,5 +18,5 @@
 package com.splunk.shep.connector;
 
 public interface S2SDataHandler {
-	public void s2sDataAvailable(byte[] raw) throws Exception;
+    public void s2sDataAvailable(byte[] raw) throws Exception;
 }

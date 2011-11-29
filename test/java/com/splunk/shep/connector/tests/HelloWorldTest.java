@@ -14,12 +14,12 @@
 // limitations under the License.
 
 package com.splunk.shep.connector.tests;
- 
-import org.testng.annotations.*;
+
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import com.splunk.shep.connector.EventEmitter;
-
 
 /*
  * HelloWorldTest
@@ -31,22 +31,22 @@ import com.splunk.shep.connector.EventEmitter;
  */
 
 public class HelloWorldTest {
- 
-	@BeforeClass
-	// This setUp won't be run without the groups argument,
-	// like so: @BeforeClass(groups = { "fast" })
+
+    @BeforeClass
+    // This setUp won't be run without the groups argument,
+    // like so: @BeforeClass(groups = { "fast" })
     public void setUp() {
-        System.out.println("Running Setup");
-        // code that will be invoked when this test is instantiated
+	System.out.println("Running Setup");
+	// code that will be invoked when this test is instantiated
     }
 
     /*
-     * This just checks that when initialized, the EventEmitter object has
-     * the two fields set.
-     */ 
-	@Test(groups = { "fast" })
+     * This just checks that when initialized, the EventEmitter object has the
+     * two fields set.
+     */
+    @Test(groups = { "fast" })
     public void eventEmitterHelloTest() {
-        System.out.println("Running Event Emitter test");
+	System.out.println("Running Event Emitter test");
 	int targetPort = 8888;
 	String targetIP = new String("0.0.0.0");
 	EventEmitter emitter = null;
@@ -58,12 +58,12 @@ public class HelloWorldTest {
 	} catch (Exception e) {
 	    Assert.fail();
 	}
-	
+
     }
- 
-	@Test(groups = { "fast" })
-   public void fooTest() {
-        System.out.println("Running foo test");
-   }
- 
+
+    @Test(groups = { "fast" })
+    public void fooTest() {
+	System.out.println("Running foo test");
+    }
+
 }

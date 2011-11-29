@@ -20,7 +20,9 @@ package com.splunk.shep.connector;
 import java.nio.channels.SocketChannel;
 
 public interface Acceptor {
-	public String getBindIP();
-	public int getPort();
-	public Channel handle(SocketChannel socket) throws Exception;
+    public String getBindIP();
+
+    public int getPort();
+
+    public Channel handle(SocketChannel socket) throws Exception;
 }

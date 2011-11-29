@@ -20,33 +20,37 @@ import com.splunk.shep.connector.S2SDataHandler;
 import com.splunk.shep.connector.S2SDataHandlerFactory;
 
 /**
- * Should be able to plug this into S2SAcceptor ctor and on receiving
- * S2S data, one should be able to see the parsed data on the console.
- * Writing to console is done by EventParser at this time.
+ * Should be able to plug this into S2SAcceptor ctor and on receiving S2S data,
+ * one should be able to see the parsed data on the console. Writing to console
+ * is done by EventParser at this time.
+ * 
  * @author jkerai
  */
 public class TestFlumeDataHandlerFactory implements S2SDataHandlerFactory {
-	public TestFlumeDataHandlerFactory() {
-	}
-	
-	@Override
-	public S2SDataHandler createHandler() {
-		return new TestFlumeDataHandler();
-	}
+    public TestFlumeDataHandlerFactory() {
+    }
+
+    @Override
+    public S2SDataHandler createHandler() {
+	return new TestFlumeDataHandler();
+    }
 
 }
 
 class TestFlumeDataHandler implements S2SDataHandler {
-	private EventParser eventParser = new EventParser(null, 0);
-	public TestFlumeDataHandler() {
-	}
-	
-	/**
-	 * Called where s2s state machine determines that it has decoded whole CowPipelineData
-	 * @raw - s2s bytes
-	 */
-	public void s2sDataAvailable(byte[] raw) {
-		eventParser.processS2SEvent(raw);
-		eventParser.reset();
-	}
+    private EventParser eventParser = new EventParser(null, 0);
+
+    public TestFlumeDataHandler() {
+    }
+
+    /**
+     * Called where s2s state machine determines that it has decoded whole
+     * CowPipelineData
+     * 
+     * @raw - s2s bytes
+     */
+    public void s2sDataAvailable(byte[] raw) {
+	eventParser.processS2SEvent(raw);
+	eventParser.reset();
+    }
 }

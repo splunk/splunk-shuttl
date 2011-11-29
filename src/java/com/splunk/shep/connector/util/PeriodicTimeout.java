@@ -22,26 +22,27 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 public abstract class PeriodicTimeout extends Timeout {
-	private int periodInMs;
-	public PeriodicTimeout(int periodInMs) {
-		super(getNextExiperyDate(periodInMs));
-		this.periodInMs = periodInMs;
-	}
-	
-	public boolean run() throws Exception {
-		if (runPeriodicTask() == false)
-			return false;
+    private int periodInMs;
 
-		addMS(periodInMs);
-		return true;
-	}
-	
-	private static Date getNextExiperyDate(int periodMs) {
-		Calendar c = new GregorianCalendar();
-		c.add(Calendar.MILLISECOND, periodMs);
-		Date expiryTime = c.getTime();
-		return expiryTime;
-	}
+    public PeriodicTimeout(int periodInMs) {
+	super(getNextExiperyDate(periodInMs));
+	this.periodInMs = periodInMs;
+    }
 
-	public abstract boolean runPeriodicTask() throws Exception;
+    public boolean run() throws Exception {
+	if (runPeriodicTask() == false)
+	    return false;
+
+	addMS(periodInMs);
+	return true;
+    }
+
+    private static Date getNextExiperyDate(int periodMs) {
+	Calendar c = new GregorianCalendar();
+	c.add(Calendar.MILLISECOND, periodMs);
+	Date expiryTime = c.getTime();
+	return expiryTime;
+    }
+
+    public abstract boolean runPeriodicTask() throws Exception;
 }

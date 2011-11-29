@@ -17,77 +17,67 @@
 
 package com.splunk.shep.connector;
 
-import java.io.*;
-import java.nio.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.*;
-import java.text.DateFormat;
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+public class EventTransmitter {
+    private static Logger logger = Logger.getLogger(EventTransmitter.class);
 
-public class EventTransmitter
-{
-	private static Logger logger = Logger.getLogger(EventTransmitter.class);
-	
-	public static void main(String[] args) throws Exception
-	{
-		int recvPort = 9997;
-		int targetPort = 8888;
-		String targetIP = new String("0.0.0.0");
-		//EventEmitter emitter = null;
-		EventExtractor extractor = null;
-		
-		if (args.length > 0)
-		{
-			recvPort = Integer.parseInt(args[0]);
-			if (recvPort <= 0)
-				recvPort = 9997;
-			
-			if (args.length > 1)
-				targetPort = Integer.parseInt(args[1]);
-			if (targetPort <= 0)
-				targetPort = 8888;
-			
-			if (args.length > 2)
-				targetIP = args[2];
-			
-			if (args.length > 3)
-				PropertyConfigurator.configure(args[3]);
-		}
-		else {
-			System.err.println("Usage: EventTransmitter <recv-port> <target-port> [<target-ip>] [<properties-file>]");
-			return;
-		}
-		
-		logger.info("started at port " + recvPort + " with tartget " + targetIP + ":" + targetPort);
-		
-						   
-		while (true) 
-		{
-			try 
-			{
-				//emitter = new EventEmitter(targetPort, targetIP);
-				//extractor = new EventExtractor(recvPort, emitter);
-				extractor = new EventExtractor(recvPort, targetPort, targetIP);
-			
-				// turn on debug flag.
-				extractor.debug();
-			
-				// launch application
-				//emitter.start();
-				extractor.run();
-			} 
-			catch (Exception ex) {
-				ex.printStackTrace();
-				//emitter.close();
-				extractor.closeAll();
-				
-				Date time = new Date();
-				//logger.info((DateFormat.getInstance().format(time));
-				logger.info("Restarting EventTransmitter at port " + recvPort + " with tartget " + targetIP + ":" + targetPort);
-			}
-		}
+    public static void main(String[] args) throws Exception {
+	int recvPort = 9997;
+	int targetPort = 8888;
+	String targetIP = new String("0.0.0.0");
+	// EventEmitter emitter = null;
+	EventExtractor extractor = null;
+
+	if (args.length > 0) {
+	    recvPort = Integer.parseInt(args[0]);
+	    if (recvPort <= 0)
+		recvPort = 9997;
+
+	    if (args.length > 1)
+		targetPort = Integer.parseInt(args[1]);
+	    if (targetPort <= 0)
+		targetPort = 8888;
+
+	    if (args.length > 2)
+		targetIP = args[2];
+
+	    if (args.length > 3)
+		PropertyConfigurator.configure(args[3]);
+	} else {
+	    System.err
+		    .println("Usage: EventTransmitter <recv-port> <target-port> [<target-ip>] [<properties-file>]");
+	    return;
 	}
+
+	logger.info("started at port " + recvPort + " with tartget " + targetIP
+		+ ":" + targetPort);
+
+	while (true) {
+	    try {
+		// emitter = new EventEmitter(targetPort, targetIP);
+		// extractor = new EventExtractor(recvPort, emitter);
+		extractor = new EventExtractor(recvPort, targetPort, targetIP);
+
+		// turn on debug flag.
+		extractor.debug();
+
+		// launch application
+		// emitter.start();
+		extractor.run();
+	    } catch (Exception ex) {
+		ex.printStackTrace();
+		// emitter.close();
+		extractor.closeAll();
+
+		Date time = new Date();
+		// logger.info((DateFormat.getInstance().format(time));
+		logger.info("Restarting EventTransmitter at port " + recvPort
+			+ " with tartget " + targetIP + ":" + targetPort);
+	    }
+	}
+    }
 }

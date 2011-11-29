@@ -37,83 +37,83 @@ import com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormat;
 import edu.jhu.nlp.wikipedia.WikiTextParser;
 
 public class Wiki2SplunkMapper {
-	static final String SPACE = " ";
+    static final String SPACE = " ";
 
-	public static class Map extends MapReduceBase implements
-			Mapper<Text, MapWritable, Text, Text> {
-		private final static IntWritable one = new IntWritable(1);
-		private Text word = new Text();
-		private Text updatedtime = new Text();
-		private Text info = new Text();
+    public static class Map extends MapReduceBase implements
+	    Mapper<Text, MapWritable, Text, Text> {
+	private final static IntWritable one = new IntWritable(1);
+	private Text word = new Text();
+	private Text updatedtime = new Text();
+	private Text info = new Text();
 
-		public void map(Text key, MapWritable value,
-				OutputCollector<Text, Text> output, Reporter reporter)
-				throws IOException {
-			StringBuffer outputstr = new StringBuffer();
+	public void map(Text key, MapWritable value,
+		OutputCollector<Text, Text> output, Reporter reporter)
+		throws IOException {
+	    StringBuffer outputstr = new StringBuffer();
 
-			String mtime = getValue("modifiedtime", value);
-			mtime = mtime.replaceAll("\\n", "").trim();
+	    String mtime = getValue("modifiedtime", value);
+	    mtime = mtime.replaceAll("\\n", "").trim();
 
-			String title = getValue("title", value);
-			title = title.replaceAll("\\n", "").trim();
-			outputstr.append("[" + title + "]");
-			outputstr.append(SPACE);
+	    String title = getValue("title", value);
+	    title = title.replaceAll("\\n", "").trim();
+	    outputstr.append("[" + title + "]");
+	    outputstr.append(SPACE);
 
-			String author = getValue("author", value);
-			author = author.replaceAll("\\n", "").trim();
-			outputstr.append("[" + author + "]");
-			outputstr.append(SPACE);
+	    String author = getValue("author", value);
+	    author = author.replaceAll("\\n", "").trim();
+	    outputstr.append("[" + author + "]");
+	    outputstr.append(SPACE);
 
-			WikiTextParser parser = new WikiTextParser(getValue("text", value));
-			Vector links = parser.getLinks();
-			outputstr.append("[");
-			for (int i = 0; i < links.size(); i++) {
-				String link = (String) links.elementAt(i);
-				if (i != 0) {
-					outputstr.append(",");
-				}
-				outputstr.append(link);
-			}
-			outputstr.append("]");
-			outputstr.append("\n");
-			updatedtime.set(mtime);
-			info.set(outputstr.toString());
-			output.collect(updatedtime, info);
+	    WikiTextParser parser = new WikiTextParser(getValue("text", value));
+	    Vector links = parser.getLinks();
+	    outputstr.append("[");
+	    for (int i = 0; i < links.size(); i++) {
+		String link = (String) links.elementAt(i);
+		if (i != 0) {
+		    outputstr.append(",");
 		}
-
-		private String getValue(String keystr, MapWritable value) {
-			String text = null;
-			Text key = new Text(keystr);
-			text = value.get(key).toString();
-			return text;
-		}
+		outputstr.append(link);
+	    }
+	    outputstr.append("]");
+	    outputstr.append("\n");
+	    updatedtime.set(mtime);
+	    info.set(outputstr.toString());
+	    output.collect(updatedtime, info);
 	}
 
-	public static void main(String[] args) throws Exception {
-		if (args.length != 6) {
-			System.out
-					.println("Usage: Wiki2SplunkMapper <inputdir> <outputdir> <splunk-host> <splunk-port> <username> <password>");
-			System.exit(1);
-		}
-		JobConf conf = new JobConf(WordCount.class);
-		conf.setJobName("wikiinput2");
-		conf.set(SplunkOutputFormat.SPLUNKHOST, args[2]);
-		conf.setInt(SplunkOutputFormat.SPLUNKPORT, Integer.parseInt(args[3]));
-		conf.set(SplunkOutputFormat.USERNAME, args[4]);
-		conf.set(SplunkOutputFormat.PASSWORD, args[5]);
-
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(Text.class);
-
-		conf.setMapperClass(Map.class);
-
-		conf.setInputFormat(SequenceFileInputFormat.class);
-		conf.setOutputFormat(com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormat.class);
-		conf.setMapRunnerClass(org.apache.hadoop.mapred.lib.MultithreadedMapRunner.class);
-
-		FileInputFormat.setInputPaths(conf, new Path(args[0]));
-		FileOutputFormat.setOutputPath(conf, new Path(args[1]));
-
-		JobClient.runJob(conf);
+	private String getValue(String keystr, MapWritable value) {
+	    String text = null;
+	    Text key = new Text(keystr);
+	    text = value.get(key).toString();
+	    return text;
 	}
+    }
+
+    public static void main(String[] args) throws Exception {
+	if (args.length != 6) {
+	    System.out
+		    .println("Usage: Wiki2SplunkMapper <inputdir> <outputdir> <splunk-host> <splunk-port> <username> <password>");
+	    System.exit(1);
+	}
+	JobConf conf = new JobConf(WordCount.class);
+	conf.setJobName("wikiinput2");
+	conf.set(SplunkOutputFormat.SPLUNKHOST, args[2]);
+	conf.setInt(SplunkOutputFormat.SPLUNKPORT, Integer.parseInt(args[3]));
+	conf.set(SplunkOutputFormat.USERNAME, args[4]);
+	conf.set(SplunkOutputFormat.PASSWORD, args[5]);
+
+	conf.setOutputKeyClass(Text.class);
+	conf.setOutputValueClass(Text.class);
+
+	conf.setMapperClass(Map.class);
+
+	conf.setInputFormat(SequenceFileInputFormat.class);
+	conf.setOutputFormat(com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormat.class);
+	conf.setMapRunnerClass(org.apache.hadoop.mapred.lib.MultithreadedMapRunner.class);
+
+	FileInputFormat.setInputPaths(conf, new Path(args[0]));
+	FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+
+	JobClient.runJob(conf);
+    }
 }

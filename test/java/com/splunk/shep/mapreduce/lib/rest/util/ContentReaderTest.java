@@ -8,12 +8,12 @@ import org.testng.annotations.Test;
 
 public class ContentReaderTest {
 
-	@Test(groups = { "fast" })
-	public void getReader_should_containStringReaderContent_when_fullyRead() {
-		String expectedContent = "SomeString";
-		StringReader reader = new StringReader(expectedContent);
-		String actualContent = new ContentReader(reader).getContent();
-		assertEquals(expectedContent, actualContent);
-	}
+    @Test(groups = { "fast" })
+    public void getReader_should_containStringReaderContent_when_fullyRead() {
+	String expectedContent = "SomeString";
+	StringReader reader = new StringReader(expectedContent);
+	String actualContent = new ContentReader(reader).getContent();
+	assertEquals(expectedContent, actualContent);
+    }
 
 }

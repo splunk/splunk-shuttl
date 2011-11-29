@@ -16,51 +16,57 @@
 package com.splunk.shep.connector.tests;
 
 import java.nio.channels.SocketChannel;
+
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.connector.AbortConnectionException;
 import com.splunk.shep.connector.Acceptor;
 import com.splunk.shep.connector.Channel;
 
-
 public class TestAcceptor implements Acceptor {
-	private String bindIP;
-	private int port;
-	public TestAcceptor(String bindIP, int port) {
-		this.bindIP = bindIP;
-		this.port = port;
-	}
-	@Override
-	public String getBindIP() {
-		return bindIP;
-	}
+    private String bindIP;
+    private int port;
 
-	@Override
-	public int getPort() {
-		return port;
-	}
+    public TestAcceptor(String bindIP, int port) {
+	this.bindIP = bindIP;
+	this.port = port;
+    }
 
-	@Override
-	public Channel handle(SocketChannel socket) {
-		return new TestChannel(socket);
-	}
+    @Override
+    public String getBindIP() {
+	return bindIP;
+    }
+
+    @Override
+    public int getPort() {
+	return port;
+    }
+
+    @Override
+    public Channel handle(SocketChannel socket) {
+	return new TestChannel(socket);
+    }
 }
 
 class TestChannel implements Channel {
-	private SocketChannel socket;
-	private Logger logger = Logger.getLogger(getClass());
-	public TestChannel(SocketChannel socket) {
-		this.socket = socket;
-	}
-	
-	@Override
-	public void dataAvailable(byte[] buf, int offset, int len) throws AbortConnectionException {
-		logger.info("Received " + buf.length + " bytes from " + socket.socket().getRemoteSocketAddress());
-	}
+    private SocketChannel socket;
+    private Logger logger = Logger.getLogger(getClass());
 
-	@Override
-	public void connectionClosed(SocketChannel socket) {
-		logger.info("Connection from " + socket.socket().getRemoteSocketAddress() + " closed");
-	}
-	
+    public TestChannel(SocketChannel socket) {
+	this.socket = socket;
+    }
+
+    @Override
+    public void dataAvailable(byte[] buf, int offset, int len)
+	    throws AbortConnectionException {
+	logger.info("Received " + buf.length + " bytes from "
+		+ socket.socket().getRemoteSocketAddress());
+    }
+
+    @Override
+    public void connectionClosed(SocketChannel socket) {
+	logger.info("Connection from "
+		+ socket.socket().getRemoteSocketAddress() + " closed");
+    }
+
 }

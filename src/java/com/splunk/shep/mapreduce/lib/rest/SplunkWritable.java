@@ -18,13 +18,14 @@ package com.splunk.shep.mapreduce.lib.rest;
 import java.util.Map;
 
 /**
- * The SplunkWritable class encloses a map of key, value pairs of the Search result
+ * The SplunkWritable class encloses a map of key, value pairs of the Search
+ * result
  * 
  * @author kpakkirisamy
- *
+ * 
  */
 public interface SplunkWritable {
-	
-	public void setMap(Map<String, String> m);
+
+    public void setMap(Map<String, String> m);
 
 }

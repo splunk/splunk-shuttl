@@ -22,61 +22,56 @@
 
 package com.splunk.shep.cli;
 
-import com.splunk.shep.connector.HDFSConnect;
-import com.splunk.shep.connector.Version;
-
 public class ShepCLI {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) throws Exception
-	{
-		// TODO Auto-generated method stub
+    /**
+     * @param args
+     */
+    public static void main(String[] args) throws Exception {
+	// TODO Auto-generated method stub
 
-		System.out.println("Splunk Shep CLI");
-		ShepCLI cli = new ShepCLI();
-		cli.parseArgs(args);
-		
-		// run shell command
-		//Runtime r = Runtime.getRuntime();
-		//r.exec("mv /Users/xli/code/javadev/workspace/Transmitter/test/txt /Users/xli/code/javadev/workspace/Transmitter/test/newtxt");
+	System.out.println("Splunk Shep CLI");
+	ShepCLI cli = new ShepCLI();
+	cli.parseArgs(args);
 
+	// run shell command
+	// Runtime r = Runtime.getRuntime();
+	// r.exec("mv /Users/xli/code/javadev/workspace/Transmitter/test/txt /Users/xli/code/javadev/workspace/Transmitter/test/newtxt");
+
+    }
+
+    protected void parseArgs(String[] args) throws Exception {
+	if (args.length < 1) {
+	    usage();
 	}
-	
-	protected void parseArgs(String[] args) throws Exception {
-		if (args.length < 1) {
-			usage();
-		}
-		
-		// Explicit check for help
-		if ((args[0].equals("-h")) || (args[0].equals("help")) || (args[0].equals("--h"))) {
-			usage();
-		}
-		else if (args[0].equals("-get")) {
-			if (args.length == 3)
-				get(args[1], args[2]);
-			else {
-				System.out.println("Incorrect command arguments.");
-				usage();
-			}
-		}
-		else {
-			System.out.println("Unknown commands.");
-			usage();
-		}
+
+	// Explicit check for help
+	if ((args[0].equals("-h")) || (args[0].equals("help"))
+		|| (args[0].equals("--h"))) {
+	    usage();
+	} else if (args[0].equals("-get")) {
+	    if (args.length == 3)
+		get(args[1], args[2]);
+	    else {
+		System.out.println("Incorrect command arguments.");
+		usage();
+	    }
+	} else {
+	    System.out.println("Unknown commands.");
+	    usage();
 	}
-	
-	protected void usage() {
-		System.out.println("Usage : java " + getClass().getName() + " <cmd>");
-		System.out.println("Commands:\n" +
-				"-h" +
-				"-get <source-path> <dest-path>");
-	}
-	
-	protected void get(String src, String dest) throws Exception {
-		Runtime r = Runtime.getRuntime();
-		r.exec("/Users/xli/app/hadoop-0.20.2-cdh3u1/bin/hadoop dfs -get " + src + " " + dest);
-	}
+    }
+
+    protected void usage() {
+	System.out.println("Usage : java " + getClass().getName() + " <cmd>");
+	System.out.println("Commands:\n" + "-h"
+		+ "-get <source-path> <dest-path>");
+    }
+
+    protected void get(String src, String dest) throws Exception {
+	Runtime r = Runtime.getRuntime();
+	r.exec("/Users/xli/app/hadoop-0.20.2-cdh3u1/bin/hadoop dfs -get " + src
+		+ " " + dest);
+    }
 
 }

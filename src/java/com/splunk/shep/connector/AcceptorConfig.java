@@ -18,7 +18,8 @@
 package com.splunk.shep.connector;
 
 public interface AcceptorConfig {
-	public String getBindIP();
-	public int getPort();
+    public String getBindIP();
+
+    public int getPort();
 
 }

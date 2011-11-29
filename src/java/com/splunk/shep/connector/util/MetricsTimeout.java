@@ -17,15 +17,14 @@
 
 package com.splunk.shep.connector.util;
 
-
 public class MetricsTimeout extends PeriodicTimeout {
-	public MetricsTimeout(int periodInMs) {
-		super(periodInMs);
-	}
+    public MetricsTimeout(int periodInMs) {
+	super(periodInMs);
+    }
 
-	@Override
-	public boolean runPeriodicTask() throws Exception {
-		MetricsManager.getInstance().fire();
-		return true;
-	}
+    @Override
+    public boolean runPeriodicTask() throws Exception {
+	MetricsManager.getInstance().fire();
+	return true;
+    }
 }

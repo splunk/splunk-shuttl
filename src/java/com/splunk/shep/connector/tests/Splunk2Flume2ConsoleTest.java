@@ -16,21 +16,21 @@
 package com.splunk.shep.connector.tests;
 
 import com.splunk.shep.connector.BridgeConfig;
-import com.splunk.shep.connector.FlumeDataHandlerFactory;
 import com.splunk.shep.connector.S2SAcceptor;
 import com.splunk.shep.connector.Splunk2Flume;
 
 public class Splunk2Flume2ConsoleTest extends Splunk2Flume {
-	public static void main(String[] args) throws Exception {
-		Splunk2Flume2ConsoleTest s2f2ct = new Splunk2Flume2ConsoleTest();
-		s2f2ct.parseConfig(args);
-		s2f2ct.createAcceptors();
-		s2f2ct.run();
-	}
+    public static void main(String[] args) throws Exception {
+	Splunk2Flume2ConsoleTest s2f2ct = new Splunk2Flume2ConsoleTest();
+	s2f2ct.parseConfig(args);
+	s2f2ct.createAcceptors();
+	s2f2ct.run();
+    }
 
-	protected void createAcceptors() {
-		for (BridgeConfig conf : configs) {
-			acceptors.add(new S2SAcceptor(conf, new TestFlumeDataHandlerFactory()));
-		}
+    protected void createAcceptors() {
+	for (BridgeConfig conf : configs) {
+	    acceptors.add(new S2SAcceptor(conf,
+		    new TestFlumeDataHandlerFactory()));
 	}
+    }
 }

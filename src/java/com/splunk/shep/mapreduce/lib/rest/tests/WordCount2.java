@@ -18,7 +18,6 @@ package com.splunk.shep.mapreduce.lib.rest.tests;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -36,81 +35,87 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
 
 import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
-import com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormat;
-
 
 public class WordCount2 {
 
-	public static class Map extends MapReduceBase implements
-			Mapper<LongWritable, SplunkRecord, Text, IntWritable> {
-		private final static IntWritable one = new IntWritable(1);
-		private Text word = new Text();
+    public static class Map extends MapReduceBase implements
+	    Mapper<LongWritable, SplunkRecord, Text, IntWritable> {
+	private final static IntWritable one = new IntWritable(1);
+	private Text word = new Text();
 
-		public void map(LongWritable key, SplunkRecord value,
-				OutputCollector<Text, IntWritable> output, Reporter reporter)
-				throws IOException {
-			System.out.println("got a map");
-			String line = value.getMap().get("_raw");
-			if (line == null) {
-				System.out.println("_raw is null");
-				return;
-			}
-			System.out.println("line " + line);
-			StringTokenizer tokenizer = new StringTokenizer(line);
-			while (tokenizer.hasMoreTokens()) {
-				word.set(tokenizer.nextToken());
-				output.collect(word, one);
-			}
-		}
+	public void map(LongWritable key, SplunkRecord value,
+		OutputCollector<Text, IntWritable> output, Reporter reporter)
+		throws IOException {
+	    System.out.println("got a map");
+	    String line = value.getMap().get("_raw");
+	    if (line == null) {
+		System.out.println("_raw is null");
+		return;
+	    }
+	    System.out.println("line " + line);
+	    StringTokenizer tokenizer = new StringTokenizer(line);
+	    while (tokenizer.hasMoreTokens()) {
+		word.set(tokenizer.nextToken());
+		output.collect(word, one);
+	    }
+	}
+    }
+
+    public static class Reduce extends MapReduceBase implements
+	    Reducer<Text, IntWritable, Text, IntWritable> {
+	public void reduce(Text key, Iterator<IntWritable> values,
+		OutputCollector<Text, IntWritable> output, Reporter reporter)
+		throws IOException {
+	    int sum = 0;
+	    while (values.hasNext()) {
+		sum += values.next().get();
+	    }
+	    output.collect(key, new IntWritable(sum));
+
 	}
 
-	public static class Reduce extends MapReduceBase implements
-			Reducer<Text, IntWritable, Text, IntWritable> {
-		public void reduce(Text key, Iterator<IntWritable> values,
-				OutputCollector<Text, IntWritable> output, Reporter reporter)
-				throws IOException {
-			int sum = 0;
-			while (values.hasNext()) {
-				sum += values.next().get();
-			}
-			output.collect(key, new IntWritable(sum));
-			
-		}
-		
-	}
+    }
 
-	public static void main(String[] args) throws Exception {
-		System.out.println("Starting job");
-		JobConf conf = new JobConf(WordCount2.class);
-		conf.setJobName("wordcount");
-		SplunkConfiguration.setConnInfo(conf, "10.196.45.203", 8089, "admin", "changeme");
-		//SplunkConfiguration.setSplunkQuery(conf, "source=wordfile-timestamp", "%Y-%m-%d %H:%M:%S", new String[][]{{"2011-09-19 17:04:11", "2011-09-19 17:06:40"}, {"2011-09-19 17:06:41", "2011-09-19 17:09:12"}});
-		//SplunkConfiguration.setSplunkQueryByIndexers(conf, "source=wordfile-timestamp*",  new String[]{"ip-10-196-45-203.ec2.internal", "domU-12-31-39-16-C6-C0.compute-1.internal"});
-		String query = "source::*wordfile-timestamp";
-		String indexer1 = "localhost"; // The indexer should be configured and
-										// passed in as an argument, instead of
-										// being hard coded.
-		SplunkConfiguration.setSplunkQueryByIndexers(conf, query,
-				new String[] { indexer1 });
-		conf.set(SplunkConfiguration.SPLUNKEVENTREADER,
-				SplunkRecord.class.getName());
-		conf.setInputFormat(com.splunk.shep.mapreduce.lib.rest.SplunkInputFormat.class);
+    public static void main(String[] args) throws Exception {
+	System.out.println("Starting job");
+	JobConf conf = new JobConf(WordCount2.class);
+	conf.setJobName("wordcount");
+	SplunkConfiguration.setConnInfo(conf, "10.196.45.203", 8089, "admin",
+		"changeme");
+	// SplunkConfiguration.setSplunkQuery(conf, "source=wordfile-timestamp",
+	// "%Y-%m-%d %H:%M:%S", new String[][]{{"2011-09-19 17:04:11",
+	// "2011-09-19 17:06:40"}, {"2011-09-19 17:06:41",
+	// "2011-09-19 17:09:12"}});
+	// SplunkConfiguration.setSplunkQueryByIndexers(conf,
+	// "source=wordfile-timestamp*", new
+	// String[]{"ip-10-196-45-203.ec2.internal",
+	// "domU-12-31-39-16-C6-C0.compute-1.internal"});
+	String query = "source::*wordfile-timestamp";
+	String indexer1 = "localhost"; // The indexer should be configured and
+				       // passed in as an argument, instead of
+				       // being hard coded.
+	SplunkConfiguration.setSplunkQueryByIndexers(conf, query,
+		new String[] { indexer1 });
+	conf.set(SplunkConfiguration.SPLUNKEVENTREADER,
+		SplunkRecord.class.getName());
+	conf.setInputFormat(com.splunk.shep.mapreduce.lib.rest.SplunkInputFormat.class);
 
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(IntWritable.class);
+	conf.setOutputKeyClass(Text.class);
+	conf.setOutputValueClass(IntWritable.class);
 
-		conf.setMapperClass(Map.class);
-		conf.setCombinerClass(Reduce.class);
-		conf.setReducerClass(Reduce.class);
+	conf.setMapperClass(Map.class);
+	conf.setCombinerClass(Reduce.class);
+	conf.setReducerClass(Reduce.class);
 
-		conf.setInputFormat(com.splunk.shep.mapreduce.lib.rest.SplunkInputFormat.class);
-		conf.setOutputFormat(TextOutputFormat.class);
-		//conf.setOutputFormat(com.splunk.mapred.lib.rest.SplunkOutputFormat.class);
+	conf.setInputFormat(com.splunk.shep.mapreduce.lib.rest.SplunkInputFormat.class);
+	conf.setOutputFormat(TextOutputFormat.class);
+	// conf.setOutputFormat(com.splunk.mapred.lib.rest.SplunkOutputFormat.class);
 
-		FileInputFormat.setInputPaths(conf, new Path(args[0]));
-		FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+	FileInputFormat.setInputPaths(conf, new Path(args[0]));
+	FileOutputFormat.setOutputPath(conf, new Path(args[1]));
 
-		System.out.println("indexbyhost " + conf.getInt(SplunkConfiguration.INDEXBYHOST,0));
-		JobClient.runJob(conf);
-	}
+	System.out.println("indexbyhost "
+		+ conf.getInt(SplunkConfiguration.INDEXBYHOST, 0));
+	JobClient.runJob(conf);
+    }
 }

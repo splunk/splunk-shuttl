@@ -13,17 +13,17 @@ import org.apache.commons.io.IOUtils;
  */
 public class ContentReader {
 
-	private final Reader reader;
+    private final Reader reader;
 
-	public ContentReader(Reader reader) {
-		this.reader = reader;
-	}
+    public ContentReader(Reader reader) {
+	this.reader = reader;
+    }
 
-	public String getContent() {
-		try {
-			return IOUtils.toString(reader);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+    public String getContent() {
+	try {
+	    return IOUtils.toString(reader);
+	} catch (IOException e) {
+	    throw new RuntimeException(e);
 	}
+    }
 }

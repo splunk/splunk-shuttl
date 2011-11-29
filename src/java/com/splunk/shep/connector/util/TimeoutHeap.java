@@ -21,30 +21,30 @@ import java.util.Date;
 import java.util.PriorityQueue;
 
 public class TimeoutHeap {
-	private static PriorityQueue<Timeout> queue = new PriorityQueue<Timeout>();
-	public static void addTimeout(Timeout timeout) {
-		queue.offer(timeout);
-	}
-	
-	public static void removeTimeout(Timeout timeout) {
-		queue.remove(timeout);
-	}
-	
-	public static Timeout getExpiredTimeout(Date currentTime) {
-		// No element present
-		if (queue.size() == 0)
-			return null;
-		
-		Timeout t = queue.peek();
-		// System.out.println("expr time=" + t.expirationTime().getTime());
-		// System.out.println("currentTime=" + currentTime.getTime());
-		if (t.expirationTime().getTime() <= currentTime.getTime()) {
-			queue.remove();
-			return t;
-		}
-		
-		// No eligible timeout
-		return null;
-	}
-}
+    private static PriorityQueue<Timeout> queue = new PriorityQueue<Timeout>();
 
+    public static void addTimeout(Timeout timeout) {
+	queue.offer(timeout);
+    }
+
+    public static void removeTimeout(Timeout timeout) {
+	queue.remove(timeout);
+    }
+
+    public static Timeout getExpiredTimeout(Date currentTime) {
+	// No element present
+	if (queue.size() == 0)
+	    return null;
+
+	Timeout t = queue.peek();
+	// System.out.println("expr time=" + t.expirationTime().getTime());
+	// System.out.println("currentTime=" + currentTime.getTime());
+	if (t.expirationTime().getTime() <= currentTime.getTime()) {
+	    queue.remove();
+	    return t;
+	}
+
+	// No eligible timeout
+	return null;
+    }
+}

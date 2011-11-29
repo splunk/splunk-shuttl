@@ -18,9 +18,7 @@
 package com.splunk.shep.connector;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,144 +29,152 @@ import com.splunk.shep.connector.util.MetricsCallback;
 import com.splunk.shep.connector.util.MetricsManager;
 
 public class EventThruput implements MetricsCallback {
-	private class Thruput {
-		private long totalBytes = 0;
-		private int eventCount = 0;
-		public void update(long size) {
-			totalBytes += size;
-			eventCount++;
-		}
-	}
-	
-	private Map<String, Thruput> perHostThruput = new HashMap<String, Thruput>();
-	private String lastHost;
-	private Thruput lastHostThruput;
-	
-	private Map<String, Thruput> perSourceThruput = new HashMap<String, Thruput>();
-	private String lastSource;
-	private Thruput lastSourceThruput;
-	
-	private Map<String, Thruput> perSourcetypeThruput = new HashMap<String, Thruput>();
-	private String lastSourcetype;
-	private Thruput lastSourcetypeThruput;
-	
-	private Map<String, Thruput> perIndexThruput = new HashMap<String, Thruput>();
-	private String lastIndex;
-	private Thruput lastIndexThruput;
-	
-	private long bytesSeenSinceLastOutput = 0;
-	private int eventsSeenSinceLastOutput = 0;
-	private double totalBytesSent = 0;
-	private Date lastOutputTime = new Date();
-	private Date startTime = new Date();
-	private static EventThruput instance = null;
-	
-	public static EventThruput getInstance() {
-		synchronized (EventThruput.class) {
-			if (instance == null)
-				instance = new EventThruput();
-		}
-		return instance;
-	}
-	
-	public synchronized void update(String host, String source, String sourcetype, String index, long size) {
-		lastHostThruput = updateThruput(host, lastHost, perHostThruput, lastHostThruput, size);
-		lastHost = host;
+    private class Thruput {
+	private long totalBytes = 0;
+	private int eventCount = 0;
 
-		lastSourceThruput = updateThruput(source, lastSource, perSourceThruput, lastSourceThruput, size);
-		lastSource = source;
-		
-		lastSourcetypeThruput = updateThruput(sourcetype, lastSourcetype, perSourcetypeThruput, lastSourcetypeThruput, size);
-		lastSourcetype = sourcetype;
-		
-		lastIndexThruput = updateThruput(index, lastIndex, perIndexThruput, lastIndexThruput, size);
-		lastIndex = index;
-		
-		bytesSeenSinceLastOutput += size;
-		totalBytesSent += size;
-		eventsSeenSinceLastOutput++;
+	public void update(long size) {
+	    totalBytes += size;
+	    eventCount++;
 	}
-	
-	private EventThruput() {
-		MetricsManager.getInstance().register(this);
-	}
-	
-	public void close() {
-		MetricsManager.getInstance().unregister(this);
-	}
-	
-	private Thruput updateThruput(String newKey, String prevKey, 
-			Map<String, Thruput> thruputMap,
-			Thruput lastThruput,
-			long size) {
-		Thruput t;
-		if ((newKey != prevKey) || (prevKey == null)) {
-			if (thruputMap.containsKey(newKey)) {
-				t = thruputMap.get(newKey);
-			} else {
-				t = new Thruput();
-				thruputMap.put(newKey, t);
-			}
-		} else {
-			t = lastThruput;
-		}
-		t.update(size);
-		return t;
-	}
+    }
 
-	@Override
-	public synchronized void generateMetrics(Logger logger) {
-		Date now = new Date();
-		long timeDiff = (now.getTime() - lastOutputTime.getTime())/1000;
-		if (timeDiff <= 0)
-			return;
-		
-		double kb = (bytesSeenSinceLastOutput/1024);
-		double kbps =  kb / timeDiff;
-		int eps = (int) (eventsSeenSinceLastOutput / timeDiff);
-		double avgKbps = (totalBytesSent/1024) / ((now.getTime() - startTime.getTime()) * 1000);
-		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
-		ps.print(" Metrics - group=thruput name=connector_thruput");
-		ps.format(" instantaneous_kbps=%.4f",kbps);
-		ps.print(" instantaneous_eps=" + eps);
-		ps.format(" average_kbps=%.4f",avgKbps);
-		ps.format(" total_k_processed=%.4f", (totalBytesSent/1024));
-		ps.format(" kb=%.4f", kb);
-		ps.print(" ev=" + eventsSeenSinceLastOutput);
-		logger.info(baos.toString());
-		baos.reset();
-		
-		generateMetrics(logger, "per_host_thruput", perHostThruput, timeDiff);
-		generateMetrics(logger, "per_source_thruput", perSourceThruput, timeDiff);
-		generateMetrics(logger, "per_sourcetype_thruput", perSourcetypeThruput, timeDiff);
-		generateMetrics(logger, "per_index_thruput", perIndexThruput, timeDiff);
-			
-		bytesSeenSinceLastOutput = 0;
-		eventsSeenSinceLastOutput = 0;
-		
-		lastOutputTime = new Date();
+    private Map<String, Thruput> perHostThruput = new HashMap<String, Thruput>();
+    private String lastHost;
+    private Thruput lastHostThruput;
+
+    private Map<String, Thruput> perSourceThruput = new HashMap<String, Thruput>();
+    private String lastSource;
+    private Thruput lastSourceThruput;
+
+    private Map<String, Thruput> perSourcetypeThruput = new HashMap<String, Thruput>();
+    private String lastSourcetype;
+    private Thruput lastSourcetypeThruput;
+
+    private Map<String, Thruput> perIndexThruput = new HashMap<String, Thruput>();
+    private String lastIndex;
+    private Thruput lastIndexThruput;
+
+    private long bytesSeenSinceLastOutput = 0;
+    private int eventsSeenSinceLastOutput = 0;
+    private double totalBytesSent = 0;
+    private Date lastOutputTime = new Date();
+    private Date startTime = new Date();
+    private static EventThruput instance = null;
+
+    public static EventThruput getInstance() {
+	synchronized (EventThruput.class) {
+	    if (instance == null)
+		instance = new EventThruput();
 	}
-	
-	private void generateMetrics(Logger logger, String group, Map<String, Thruput> thruput, long timeDiff) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
-		for (String series : thruput.keySet()) {
-			double kb = thruput.get(series).totalBytes/1024;
-			double kbps = kb/timeDiff;
-			int ev = thruput.get(series).eventCount;
-			int eps = (int) (ev/timeDiff);
-			ps.print(" Metrics -");
-			ps.print(" group=" + group);
-			ps.print(" series=" + series);
-			ps.format(" kbps=%.4f", kbps);
-			ps.print(" eps=" + eps);
-			ps.format(" kb=%.4f", kb);
-			ps.print(" ev=" + ev);
-			logger.info(baos.toString());
-			baos.reset();
-		}
-		thruput.clear();
+	return instance;
+    }
+
+    public synchronized void update(String host, String source,
+	    String sourcetype, String index, long size) {
+	lastHostThruput = updateThruput(host, lastHost, perHostThruput,
+		lastHostThruput, size);
+	lastHost = host;
+
+	lastSourceThruput = updateThruput(source, lastSource, perSourceThruput,
+		lastSourceThruput, size);
+	lastSource = source;
+
+	lastSourcetypeThruput = updateThruput(sourcetype, lastSourcetype,
+		perSourcetypeThruput, lastSourcetypeThruput, size);
+	lastSourcetype = sourcetype;
+
+	lastIndexThruput = updateThruput(index, lastIndex, perIndexThruput,
+		lastIndexThruput, size);
+	lastIndex = index;
+
+	bytesSeenSinceLastOutput += size;
+	totalBytesSent += size;
+	eventsSeenSinceLastOutput++;
+    }
+
+    private EventThruput() {
+	MetricsManager.getInstance().register(this);
+    }
+
+    public void close() {
+	MetricsManager.getInstance().unregister(this);
+    }
+
+    private Thruput updateThruput(String newKey, String prevKey,
+	    Map<String, Thruput> thruputMap, Thruput lastThruput, long size) {
+	Thruput t;
+	if ((newKey != prevKey) || (prevKey == null)) {
+	    if (thruputMap.containsKey(newKey)) {
+		t = thruputMap.get(newKey);
+	    } else {
+		t = new Thruput();
+		thruputMap.put(newKey, t);
+	    }
+	} else {
+	    t = lastThruput;
 	}
+	t.update(size);
+	return t;
+    }
+
+    @Override
+    public synchronized void generateMetrics(Logger logger) {
+	Date now = new Date();
+	long timeDiff = (now.getTime() - lastOutputTime.getTime()) / 1000;
+	if (timeDiff <= 0)
+	    return;
+
+	double kb = (bytesSeenSinceLastOutput / 1024);
+	double kbps = kb / timeDiff;
+	int eps = (int) (eventsSeenSinceLastOutput / timeDiff);
+	double avgKbps = (totalBytesSent / 1024)
+		/ ((now.getTime() - startTime.getTime()) * 1000);
+
+	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	PrintStream ps = new PrintStream(baos);
+	ps.print(" Metrics - group=thruput name=connector_thruput");
+	ps.format(" instantaneous_kbps=%.4f", kbps);
+	ps.print(" instantaneous_eps=" + eps);
+	ps.format(" average_kbps=%.4f", avgKbps);
+	ps.format(" total_k_processed=%.4f", (totalBytesSent / 1024));
+	ps.format(" kb=%.4f", kb);
+	ps.print(" ev=" + eventsSeenSinceLastOutput);
+	logger.info(baos.toString());
+	baos.reset();
+
+	generateMetrics(logger, "per_host_thruput", perHostThruput, timeDiff);
+	generateMetrics(logger, "per_source_thruput", perSourceThruput,
+		timeDiff);
+	generateMetrics(logger, "per_sourcetype_thruput", perSourcetypeThruput,
+		timeDiff);
+	generateMetrics(logger, "per_index_thruput", perIndexThruput, timeDiff);
+
+	bytesSeenSinceLastOutput = 0;
+	eventsSeenSinceLastOutput = 0;
+
+	lastOutputTime = new Date();
+    }
+
+    private void generateMetrics(Logger logger, String group,
+	    Map<String, Thruput> thruput, long timeDiff) {
+	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	PrintStream ps = new PrintStream(baos);
+	for (String series : thruput.keySet()) {
+	    double kb = thruput.get(series).totalBytes / 1024;
+	    double kbps = kb / timeDiff;
+	    int ev = thruput.get(series).eventCount;
+	    int eps = (int) (ev / timeDiff);
+	    ps.print(" Metrics -");
+	    ps.print(" group=" + group);
+	    ps.print(" series=" + series);
+	    ps.format(" kbps=%.4f", kbps);
+	    ps.print(" eps=" + eps);
+	    ps.format(" kb=%.4f", kb);
+	    ps.print(" ev=" + ev);
+	    logger.info(baos.toString());
+	    baos.reset();
+	}
+	thruput.clear();
+    }
 }

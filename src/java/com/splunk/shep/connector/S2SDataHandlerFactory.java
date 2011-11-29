@@ -18,6 +18,5 @@
 package com.splunk.shep.connector;
 
 public interface S2SDataHandlerFactory {
-	public S2SDataHandler createHandler() throws Exception;
+    public S2SDataHandler createHandler() throws Exception;
 }
-

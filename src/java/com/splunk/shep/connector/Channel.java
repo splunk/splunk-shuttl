@@ -20,6 +20,8 @@ package com.splunk.shep.connector;
 import java.nio.channels.SocketChannel;
 
 public interface Channel {
-	public void dataAvailable(byte[] buf, int offset, int len) throws AbortConnectionException;
-	public void connectionClosed(SocketChannel socket);
+    public void dataAvailable(byte[] buf, int offset, int len)
+	    throws AbortConnectionException;
+
+    public void connectionClosed(SocketChannel socket);
 }

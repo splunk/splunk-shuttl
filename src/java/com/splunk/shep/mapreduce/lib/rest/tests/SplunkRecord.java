@@ -20,32 +20,31 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 
 import com.splunk.shep.mapreduce.lib.rest.SplunkWritable;
 
-public class SplunkRecord implements Writable, SplunkWritable{
-	Map<String, String> map =null;
-	
-	@Override
-	public void setMap(Map<String, String> m) {
-		this.map = m;
-	}
-	
-	public Map<String, String> getMap() {
-		return this.map;
-	}
+public class SplunkRecord implements Writable, SplunkWritable {
+    Map<String, String> map = null;
 
-	@Override
-	public void readFields(DataInput arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void setMap(Map<String, String> m) {
+	this.map = m;
+    }
 
-	@Override
-	public void write(DataOutput arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
+    public Map<String, String> getMap() {
+	return this.map;
+    }
+
+    @Override
+    public void readFields(DataInput arg0) throws IOException {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void write(DataOutput arg0) throws IOException {
+	// TODO Auto-generated method stub
+
+    }
 }

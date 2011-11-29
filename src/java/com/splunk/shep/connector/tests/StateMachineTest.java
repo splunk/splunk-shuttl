@@ -16,7 +16,7 @@
 package com.splunk.shep.connector.tests;
 
 import java.io.FileInputStream;
-import java.io.IOException;
+
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.connector.EventParser;
@@ -25,62 +25,69 @@ import com.splunk.shep.connector.S2SDataHandler;
 import com.splunk.shep.connector.S2SStateMachine;
 
 public class StateMachineTest {
-	S2SStateMachine stateMachine;
-	public static void main(String[] args) throws Exception, InvalidSignatureException {
-		if (args.length < 1) {
-			System.out.println("Usage : java StateMachineTest <s2s-data-file>");
-			return;
-		}
-		
-		new StateMachineTest().testBasicStateMachine(args[0]);
-		new StateMachineTest().testStateMachineWithFlumeEventParser(args[0]);
-	}
-	
-	public void churnStateMachine(String fileName) throws Exception, InvalidSignatureException {
-		FileInputStream fis = new FileInputStream(fileName);
-		
-		int read;
-		byte[] buf = new byte[1000];
-		while ((read = fis.read(buf)) != -1) {
-			stateMachine.consume(buf, 0, read);
-		}
-		
-		fis.close();
-	}
-	
-	public void testBasicStateMachine(String fileName)  throws Exception, InvalidSignatureException {
-		stateMachine = new S2SStateMachine(new S2SDataCallbackImpl());
-		churnStateMachine(fileName);
+    S2SStateMachine stateMachine;
+
+    public static void main(String[] args) throws Exception,
+	    InvalidSignatureException {
+	if (args.length < 1) {
+	    System.out.println("Usage : java StateMachineTest <s2s-data-file>");
+	    return;
 	}
 
-	public void testStateMachineWithFlumeEventParser(String fileName)  throws Exception, InvalidSignatureException {
-		stateMachine = new S2SStateMachine(new TestFlumeDataHandler());
-		churnStateMachine(fileName);
+	new StateMachineTest().testBasicStateMachine(args[0]);
+	new StateMachineTest().testStateMachineWithFlumeEventParser(args[0]);
+    }
+
+    public void churnStateMachine(String fileName) throws Exception,
+	    InvalidSignatureException {
+	FileInputStream fis = new FileInputStream(fileName);
+
+	int read;
+	byte[] buf = new byte[1000];
+	while ((read = fis.read(buf)) != -1) {
+	    stateMachine.consume(buf, 0, read);
 	}
 
-	private class S2SDataCallbackImpl implements S2SDataHandler {
-		private int count = 0;
-		private Logger logger = Logger.getLogger(getClass());
-		
-		@Override
-		public void s2sDataAvailable(byte[] raw) {
-			logger.info("Got s2s data" + count++);
-		}
-		
+	fis.close();
+    }
+
+    public void testBasicStateMachine(String fileName) throws Exception,
+	    InvalidSignatureException {
+	stateMachine = new S2SStateMachine(new S2SDataCallbackImpl());
+	churnStateMachine(fileName);
+    }
+
+    public void testStateMachineWithFlumeEventParser(String fileName)
+	    throws Exception, InvalidSignatureException {
+	stateMachine = new S2SStateMachine(new TestFlumeDataHandler());
+	churnStateMachine(fileName);
+    }
+
+    private class S2SDataCallbackImpl implements S2SDataHandler {
+	private int count = 0;
+	private Logger logger = Logger.getLogger(getClass());
+
+	@Override
+	public void s2sDataAvailable(byte[] raw) {
+	    logger.info("Got s2s data" + count++);
 	}
 
-	private class TestFlumeDataHandler implements S2SDataHandler {
-		private EventParser eventParser = new EventParser(null, 0);
-		public TestFlumeDataHandler() {
-		}
-		
-		/**
-		 * Called where s2s state machine determines that it has decoded whole CowPipelineData
-		 * @raw - s2s bytes
-		 */
-		public void s2sDataAvailable(byte[] raw) {
-			eventParser.processS2SEvent(raw);
-		}
+    }
+
+    private class TestFlumeDataHandler implements S2SDataHandler {
+	private EventParser eventParser = new EventParser(null, 0);
+
+	public TestFlumeDataHandler() {
 	}
+
+	/**
+	 * Called where s2s state machine determines that it has decoded whole
+	 * CowPipelineData
+	 * 
+	 * @raw - s2s bytes
+	 */
+	public void s2sDataAvailable(byte[] raw) {
+	    eventParser.processS2SEvent(raw);
+	}
+    }
 }
-

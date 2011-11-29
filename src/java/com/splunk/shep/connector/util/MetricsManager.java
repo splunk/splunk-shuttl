@@ -23,30 +23,31 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 public class MetricsManager {
-	private static MetricsManager instance = new MetricsManager();
-	private Set<MetricsCallback> callbacks = new HashSet<MetricsCallback>();
-	private Logger logger = Logger.getLogger("EventEmitter");
-	public static MetricsManager getInstance() {
-		return instance;
+    private static MetricsManager instance = new MetricsManager();
+    private Set<MetricsCallback> callbacks = new HashSet<MetricsCallback>();
+    private Logger logger = Logger.getLogger("EventEmitter");
+
+    public static MetricsManager getInstance() {
+	return instance;
+    }
+
+    public void register(MetricsCallback callback) {
+	synchronized (callbacks) {
+	    callbacks.add(callback);
 	}
-	
-	public void register(MetricsCallback callback) {
-		synchronized (callbacks) {
-			callbacks.add(callback);
-		}
+    }
+
+    public void unregister(MetricsCallback callback) {
+	synchronized (callbacks) {
+	    callbacks.remove(callback);
 	}
-	
-	public void unregister(MetricsCallback callback) {
-		synchronized (callbacks) {
-			callbacks.remove(callback);
-		}
+    }
+
+    public void fire() {
+	synchronized (callbacks) {
+	    for (MetricsCallback c : callbacks) {
+		c.generateMetrics(logger);
+	    }
 	}
-	
-	public void fire() {
-		synchronized (callbacks) {
-			for (MetricsCallback c : callbacks) {
-				c.generateMetrics(logger);
-			}
-		}
-	}
+    }
 }

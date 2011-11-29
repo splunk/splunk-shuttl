@@ -29,72 +29,74 @@ import com.splunk.shep.connector.util.Timeout;
 import com.splunk.shep.connector.util.TimeoutHeap;
 
 /**
- * This needs to be on its own thread. Potentially it could have been shared with
- * ConnectionManagerImpl, but since handlers can potentially block causing Timeout
- * to block. 
+ * This needs to be on its own thread. Potentially it could have been shared
+ * with ConnectionManagerImpl, but since handlers can potentially block causing
+ * Timeout to block.
+ * 
  * @author jkerai
- *
+ * 
  */
 public class TimeoutRunnerThread extends Thread {
-	private Logger logger = Logger.getLogger(getClass());
-	private Selector selector;
-	private boolean stopThread = false;
-	public void run() {
-		try {
-			selector = Selector.open();
-			runTimeouts();
-		} catch (IOException e) {
-			logger.error("TimeoutRunnerThread", e);
-		}
+    private Logger logger = Logger.getLogger(getClass());
+    private Selector selector;
+    private boolean stopThread = false;
+
+    public void run() {
+	try {
+	    selector = Selector.open();
+	    runTimeouts();
+	} catch (IOException e) {
+	    logger.error("TimeoutRunnerThread", e);
 	}
-	
-	public void runTimeouts() throws IOException {
-		logger.debug("Waiting for timeout...");
-		// Create a selector
-		while (!shouldShutdown()) {
-			selector.select(100); // Will block for 100ms.
-			
-			// Process each timeout
-			List<Timeout> rescheduledTimeouts = new ArrayList<Timeout>();
-			Date now = new Date();
-			Timeout t;
-			while ((t = TimeoutHeap.getExpiredTimeout(now)) != null) {
-				try {
-					if (!t.run()) {
-						logger.debug("Removing timeout");
-						TimeoutHeap.removeTimeout(t);
-					} else {
-						rescheduledTimeouts.add(t);
-					}
-				} catch (Exception e) { 
-					logger.error("Timeout exception", e);
-					e.printStackTrace();
-					TimeoutHeap.removeTimeout(t);
-				}
-			}
-			for (Timeout to : rescheduledTimeouts) {
-				TimeoutHeap.addTimeout(to);
-			}
+    }
+
+    public void runTimeouts() throws IOException {
+	logger.debug("Waiting for timeout...");
+	// Create a selector
+	while (!shouldShutdown()) {
+	    selector.select(100); // Will block for 100ms.
+
+	    // Process each timeout
+	    List<Timeout> rescheduledTimeouts = new ArrayList<Timeout>();
+	    Date now = new Date();
+	    Timeout t;
+	    while ((t = TimeoutHeap.getExpiredTimeout(now)) != null) {
+		try {
+		    if (!t.run()) {
+			logger.debug("Removing timeout");
+			TimeoutHeap.removeTimeout(t);
+		    } else {
+			rescheduledTimeouts.add(t);
+		    }
+		} catch (Exception e) {
+		    logger.error("Timeout exception", e);
+		    e.printStackTrace();
+		    TimeoutHeap.removeTimeout(t);
 		}
+	    }
+	    for (Timeout to : rescheduledTimeouts) {
+		TimeoutHeap.addTimeout(to);
+	    }
+	}
+    }
+
+    private boolean shouldShutdown() {
+	synchronized (this) {
+	    return stopThread;
+	}
+    }
+
+    public void shutdown() {
+	synchronized (this) {
+	    stopThread = true;
+	    selector.wakeup();
+	}
+	try {
+	    logger.info("Waiting for timeoutRunner thread to stop");
+	    join();
+	} catch (InterruptedException e) {
+	    e.printStackTrace();
 	}
 
-	private boolean shouldShutdown() {
-		synchronized (this) {
-			return stopThread;
-		}
-	}
-	
-	public void shutdown() {
-		synchronized(this) {
-			stopThread = true;
-			selector.wakeup();
-		}
-		try {
-			logger.info("Waiting for timeoutRunner thread to stop");
-			join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-	}
+    }
 }

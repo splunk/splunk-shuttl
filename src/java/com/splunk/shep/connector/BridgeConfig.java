@@ -18,77 +18,78 @@
 package com.splunk.shep.connector;
 
 public class BridgeConfig implements AcceptorConfig {
-	private String bindIP = "0.0.0.0";
-	private int inPort = 9998;
-	
-	private boolean usingFlume = true;
-	
-	private String outIP = "localhost";
-	private int outPort = 8888;
-	private String outPath = "/spl/output";
-	private long fileRollingSize = 10000000;
-	private long maxEventSize = 32000;
-	
-	public BridgeConfig() {
-	}
-	
-	public BridgeConfig(String bindIp, int bindPort, String tarIP, int tarPort, long eventSize) {
-		setConnectionParams(bindIp, bindPort, tarIP, tarPort, eventSize);
-	}
-	
-	public void setHDFSMode(boolean directToHDFS)
-	{
-		if (directToHDFS)
-			usingFlume = false;
-	}
-	
-	public void setConnectionParams(String bindIp, int bindPort, String tarIP, int tarPort, long eventSize) {
-		bindIP = bindIp;
-		inPort = bindPort;
-		outIP = tarIP;
-		outPort = tarPort;
-		maxEventSize = eventSize;
-	}
-	
-	public void setConnectionParams(String bindIp, int bindPort, String tarIP, int tarPort, String tarPath, long fileSize) {
-		bindIP = bindIp;
-		inPort = bindPort;
-		outIP = tarIP;
-		outPort = tarPort;
-		outPath = tarPath;
-		fileRollingSize = fileSize;
-	}
-	
-	public boolean useFlume()
-	{
-		return usingFlume;
-	}
-	
-	public String getBindIP() {
-		return bindIP;
-	}
-	
-	public int getPort() {
-		return inPort;
-	}
-	
-	public String getOutIP() {
-		return outIP;
-	}
-	
-	public int getOutPort() {
-		return outPort;
-	}
-	
-	public String getOutPath() {
-		return outPath;
-	}
-	
-	public long getFileSize() {
-		return fileRollingSize;
-	}
-	
-	public long getEventSize() {
-		return maxEventSize;
-	}
+    private String bindIP = "0.0.0.0";
+    private int inPort = 9998;
+
+    private boolean usingFlume = true;
+
+    private String outIP = "localhost";
+    private int outPort = 8888;
+    private String outPath = "/spl/output";
+    private long fileRollingSize = 10000000;
+    private long maxEventSize = 32000;
+
+    public BridgeConfig() {
+    }
+
+    public BridgeConfig(String bindIp, int bindPort, String tarIP, int tarPort,
+	    long eventSize) {
+	setConnectionParams(bindIp, bindPort, tarIP, tarPort, eventSize);
+    }
+
+    public void setHDFSMode(boolean directToHDFS) {
+	if (directToHDFS)
+	    usingFlume = false;
+    }
+
+    public void setConnectionParams(String bindIp, int bindPort, String tarIP,
+	    int tarPort, long eventSize) {
+	bindIP = bindIp;
+	inPort = bindPort;
+	outIP = tarIP;
+	outPort = tarPort;
+	maxEventSize = eventSize;
+    }
+
+    public void setConnectionParams(String bindIp, int bindPort, String tarIP,
+	    int tarPort, String tarPath, long fileSize) {
+	bindIP = bindIp;
+	inPort = bindPort;
+	outIP = tarIP;
+	outPort = tarPort;
+	outPath = tarPath;
+	fileRollingSize = fileSize;
+    }
+
+    public boolean useFlume() {
+	return usingFlume;
+    }
+
+    public String getBindIP() {
+	return bindIP;
+    }
+
+    public int getPort() {
+	return inPort;
+    }
+
+    public String getOutIP() {
+	return outIP;
+    }
+
+    public int getOutPort() {
+	return outPort;
+    }
+
+    public String getOutPath() {
+	return outPath;
+    }
+
+    public long getFileSize() {
+	return fileRollingSize;
+    }
+
+    public long getEventSize() {
+	return maxEventSize;
+    }
 }

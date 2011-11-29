@@ -17,23 +17,22 @@
 
 package com.splunk.shep.connector;
 
+public interface DataSink {
+    void start() throws Exception;
 
-public interface DataSink
-{	
-	void start() throws Exception;
-	
-	void start(String sinkPath) throws Exception;
-	
-	void close();
-	
-	void send(byte[] rawBytes, String sourceType, String source, String host, long time) throws Exception;
-	
-	void send(String data, String sourceType, String source, String host, long time) throws Exception;
-		
-	void send(byte[] rawBytes) throws Exception;
-	
-	void setMaxEventSize(long size);
-	
-	void setFileRollingSize(long size);
+    void start(String sinkPath) throws Exception;
+
+    void close();
+
+    void send(byte[] rawBytes, String sourceType, String source, String host,
+	    long time) throws Exception;
+
+    void send(String data, String sourceType, String source, String host,
+	    long time) throws Exception;
+
+    void send(byte[] rawBytes) throws Exception;
+
+    void setMaxEventSize(long size);
+
+    void setFileRollingSize(long size);
 }
-

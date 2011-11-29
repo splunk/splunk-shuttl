@@ -22,39 +22,40 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 public abstract class Timeout implements Comparable<Timeout> {
-	private Date expiryTime;
-	public Timeout(Date expiryTime) {
-		this.expiryTime = expiryTime;
-	}
+    private Date expiryTime;
 
-	@Override
-	public int compareTo(Timeout timeout) {
-		if (expiryTime.getTime() < timeout.expirationTime().getTime())
-			return -1;
-		if (expiryTime.getTime() > timeout.expirationTime().getTime())
-			return 1;
-		return 0;
-	}
-	
-	protected Date expirationTime() {
-		return expiryTime;
-	}
-	
-	protected void addMS(int ms) {
-		// expiryTime.
-		Calendar c = new GregorianCalendar();
-		c.setTime(expiryTime);
-		c.add(Calendar.MILLISECOND, ms);
-		expiryTime = c.getTime();
-	}
-	
-	/**
-	 * Runs timeout task
-	 * @return false to remove timeout
-	 * @throws Exception
-	 */
-	public boolean run() throws Exception {
-		return false;
-	}
+    public Timeout(Date expiryTime) {
+	this.expiryTime = expiryTime;
+    }
+
+    @Override
+    public int compareTo(Timeout timeout) {
+	if (expiryTime.getTime() < timeout.expirationTime().getTime())
+	    return -1;
+	if (expiryTime.getTime() > timeout.expirationTime().getTime())
+	    return 1;
+	return 0;
+    }
+
+    protected Date expirationTime() {
+	return expiryTime;
+    }
+
+    protected void addMS(int ms) {
+	// expiryTime.
+	Calendar c = new GregorianCalendar();
+	c.setTime(expiryTime);
+	c.add(Calendar.MILLISECOND, ms);
+	expiryTime = c.getTime();
+    }
+
+    /**
+     * Runs timeout task
+     * 
+     * @return false to remove timeout
+     * @throws Exception
+     */
+    public boolean run() throws Exception {
+	return false;
+    }
 }
-

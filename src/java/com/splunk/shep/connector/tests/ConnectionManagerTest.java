@@ -22,153 +22,154 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.splunk.shep.connector.Acceptor;
-import com.splunk.shep.connector.BridgeConfig;
-import com.splunk.shep.connector.ConnectionManager;
-import com.splunk.shep.connector.S2SAcceptor;
+import org.apache.log4j.Logger;
 
-import org.apache.log4j.*;
+import com.splunk.shep.connector.Acceptor;
+import com.splunk.shep.connector.ConnectionManager;
 
 public class ConnectionManagerTest {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		Receiver r = new Receiver();
-		r.start();
-		
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		
-		Sender s = new Sender();
-		s.start();
-		
-		try {
-			s.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		r.stopReceiver();
-		try {
-			r.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+	Receiver r = new Receiver();
+	r.start();
+
+	try {
+	    Thread.sleep(1000);
+	} catch (InterruptedException e1) {
+	    e1.printStackTrace();
 	}
+
+	Sender s = new Sender();
+	s.start();
+
+	try {
+	    s.join();
+	} catch (InterruptedException e) {
+	    e.printStackTrace();
+	}
+
+	r.stopReceiver();
+	try {
+	    r.join();
+	} catch (InterruptedException e) {
+	    e.printStackTrace();
+	}
+    }
 }
 
 class Sender extends Thread {
-	private Socket sock1;
-	private Socket sock2;
-	private Logger logger = Logger.getLogger(getClass());
-	private boolean connect1() throws InterruptedException {
-		int attempt = 0;
-		while(attempt++ < 5) {
-			try {
-				sock1 = new Socket("localhost", 9997);
-				return true;
-			} catch (UnknownHostException e) {
-				Thread.sleep(100);
-			} catch (IOException e) {
-				Thread.sleep(100);
-			}
-		}
-		System.err.println("Could not connect to port 9997");
-		return false;
+    private Socket sock1;
+    private Socket sock2;
+    private Logger logger = Logger.getLogger(getClass());
+
+    private boolean connect1() throws InterruptedException {
+	int attempt = 0;
+	while (attempt++ < 5) {
+	    try {
+		sock1 = new Socket("localhost", 9997);
+		return true;
+	    } catch (UnknownHostException e) {
+		Thread.sleep(100);
+	    } catch (IOException e) {
+		Thread.sleep(100);
+	    }
 	}
-	private boolean connect2() throws InterruptedException {
-		int attempt = 0;
-		while(attempt++ < 5) {
-			try {
-				sock2 = new Socket("localhost", 9998);
-				return true;
-			} catch (UnknownHostException e) {
-				Thread.sleep(100);
-			} catch (IOException e) {
-				Thread.sleep(100);
-			}
-		}
-		System.err.println("Could not connect to port 9998");
-		return false;
+	System.err.println("Could not connect to port 9997");
+	return false;
+    }
+
+    private boolean connect2() throws InterruptedException {
+	int attempt = 0;
+	while (attempt++ < 5) {
+	    try {
+		sock2 = new Socket("localhost", 9998);
+		return true;
+	    } catch (UnknownHostException e) {
+		Thread.sleep(100);
+	    } catch (IOException e) {
+		Thread.sleep(100);
+	    }
 	}
-	
-	private void doIt() throws InterruptedException, IOException {
-		// send messages
-		
-		if (!connect1())
-			return;
-		if (!connect2())
-			return;
-		try {
-			PrintWriter pw1 = new PrintWriter(sock1.getOutputStream());
-			PrintWriter pw2 = new PrintWriter(sock2.getOutputStream());
-			
-			for (int i=0; i < 100; i++) {
-				logger.info("Message for acceptor 1. Message id=" + i);
-				pw1.println("Message for acceptor 1. Message id=" + i);
-				
-				logger.info("Message for acceptor 2. Message id=" + i);
-				pw2.println("Message for acceptor 2. Message id=" + i);
-			}
-			pw1.close();
-			sock1.close();
-			sock1 = null;
-			pw2.close();
-			sock2.close();
-			sock2 = null;
-		} catch (UnknownHostException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} finally {
-			if (sock1 != null)
-				sock1.close();
-			if (sock2 != null)
-				sock2.close();
-		}
+	System.err.println("Could not connect to port 9998");
+	return false;
+    }
+
+    private void doIt() throws InterruptedException, IOException {
+	// send messages
+
+	if (!connect1())
+	    return;
+	if (!connect2())
+	    return;
+	try {
+	    PrintWriter pw1 = new PrintWriter(sock1.getOutputStream());
+	    PrintWriter pw2 = new PrintWriter(sock2.getOutputStream());
+
+	    for (int i = 0; i < 100; i++) {
+		logger.info("Message for acceptor 1. Message id=" + i);
+		pw1.println("Message for acceptor 1. Message id=" + i);
+
+		logger.info("Message for acceptor 2. Message id=" + i);
+		pw2.println("Message for acceptor 2. Message id=" + i);
+	    }
+	    pw1.close();
+	    sock1.close();
+	    sock1 = null;
+	    pw2.close();
+	    sock2.close();
+	    sock2 = null;
+	} catch (UnknownHostException e1) {
+	    e1.printStackTrace();
+	} catch (IOException e1) {
+	    e1.printStackTrace();
+	} finally {
+	    if (sock1 != null)
+		sock1.close();
+	    if (sock2 != null)
+		sock2.close();
 	}
-	
-	public void run() {
-		try {
-			doIt();
-			Thread.sleep(2000);
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		logger.debug("Sender finished");
+    }
+
+    public void run() {
+	try {
+	    doIt();
+	    Thread.sleep(2000);
+	} catch (IOException ioe) {
+	    ioe.printStackTrace();
+	} catch (InterruptedException e) {
+	    e.printStackTrace();
 	}
+	logger.debug("Sender finished");
+    }
 }
 
 class Receiver extends Thread {
-	private ConnectionManager cm = new ConnectionManager();
-	Logger logger = Logger.getLogger(getClass());
-	public void run() {
-		logger.debug("Starting Receivers");
-		List<Acceptor> acceptors = new ArrayList<Acceptor>();
-		Acceptor acc = new TestAcceptor("localhost", 9997);
-		acceptors.add(acc);
+    private ConnectionManager cm = new ConnectionManager();
+    Logger logger = Logger.getLogger(getClass());
 
-		acc = new TestAcceptor("localhost", 9998);
-		acceptors.add(acc);
-		try {
-			cm.listen(acceptors);
-			cm.run();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		logger.debug("Receivers started");
+    public void run() {
+	logger.debug("Starting Receivers");
+	List<Acceptor> acceptors = new ArrayList<Acceptor>();
+	Acceptor acc = new TestAcceptor("localhost", 9997);
+	acceptors.add(acc);
+
+	acc = new TestAcceptor("localhost", 9998);
+	acceptors.add(acc);
+	try {
+	    cm.listen(acceptors);
+	    cm.run();
+	} catch (IOException e) {
+	    e.printStackTrace();
 	}
-	
-	public void stopReceiver() {
-		logger.debug("Shutting receivers");
-		cm.shutdown();
-		logger.debug("Receivers shutdown");
-	}
+	logger.debug("Receivers started");
+    }
+
+    public void stopReceiver() {
+	logger.debug("Shutting receivers");
+	cm.shutdown();
+	logger.debug("Receivers shutdown");
+    }
 }
