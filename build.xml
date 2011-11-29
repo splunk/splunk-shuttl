@@ -139,7 +139,13 @@
 	<target name="hadoop-copy" depends="jar">
 		<property environment="env" />
 		<fail unless="env.HADOOP_HOME" message="Environment variable HADOOP_HOME was not set." />
-		<copy file="${name.versioned.path}" todir="${env.HADOOP_HOME}/lib" />
+		<property name="hadoop.lib" value="${env.HADOOP_HOME}/lib" />
+		<copy file="${name.versioned.path}" todir="${hadoop.lib}" />
+		<!-- copy httpcomponents to hadoop -->
+		<property name="httpcomponents.lib" value="${contribdir}/httpcomponents-client-4.1.2/lib" />
+		<copy file="${httpcomponents.lib}/commons-codec-1.4.jar" todir="${hadoop.lib}" />
+		<copy file="${httpcomponents.lib}/httpclient-4.1.2.jar" todir="${hadoop.lib}" />
+		<copy file="${httpcomponents.lib}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
 	</target>
 
 
