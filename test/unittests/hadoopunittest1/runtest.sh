@@ -28,12 +28,16 @@ $hadoop fs -put file02 "$testFolder/input/file02" &>/dev/null
 # Test
 $hadoop jar $SPLBRANCH/build/jar/splunk_hadoop_unittests.jar com.splunk.mapreduce.lib.rest.tests.WordCount "$testFolder/input" "$testFolder/output$1"
 
-expected_splunk_out="Sun+Nov+27+22%3A34%3A03+PST+2011+World+2
-Sun+Nov+27+22%3A34%3A03+PST+2011+Hello+2
-Sun+Nov+27+22%3A34%3A03+PST+2011+Hadoop+2
-Sun+Nov+27+22%3A34%3A03+PST+2011+Goodbye+1
-Sun+Nov+27+22%3A34%3A03+PST+2011+Bye+1"
-actual_splunk_out=$(splunk search 'source=wordcount sourcetype=hadoop_event' | tail -5)
+expected_splunk_out="\
+FIELDNAME
+---------
+Bye 1
+Goodbye 1
+Hadoop 2
+Hello 2
+World 2"
+
+actual_splunk_out=$(splunk search 'index=main sourcetype="hadoop_event" | rex "(?i)^(?:[^ ]* ){6}(?P<FIELDNAME>.+)" | table FIELDNAME | tail 5')
 
 # Tear down
 $hadoop fs -rmr "$testFolder" &>/dev/null
