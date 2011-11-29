@@ -49,10 +49,10 @@ $HADOOP fs -rmr "$testFolder" &>/dev/null
 if [ "$expected_splunk_out" != "$actual_splunk_out" ]
 then
   echo "Fail!
-Expected:
-\"$expected_splunk_out\"
-Actual:
-\n\"$actual_splunk_out\""
+  Expected:
+  \"$expected_splunk_out\"
+  Actual:
+  \"$actual_splunk_out\""
   exit 1
 else
   exit 0
