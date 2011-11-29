@@ -24,8 +24,32 @@ Note: earlier versions of the forwarding mechanism relied on
 Flume. That dependency is now removed, and Shep will write
 direct to HDFS without a Flume intermediary.
 
+Prerequisites
+-------------
+
+### Hadoop
+
+Currently the Hadoop version used is 0.20.203.0
+
+You can download it from one of the mirror sites listed [here][hadoop-download].
+And see the [Hadoop documentation][] for instructions on installing and more.
+
+[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz
+[Hadoop documentation]:http://hadoop.apache.org/common/docs/r0.20.203.0/
+
+### Splunk
+
+Currently the Splunk version used is 4.2.4
+
+You can download it from [here][splunk-download]
+And see the [Splunk documentation][] for instructions on installing and more.
+
+[Splunk documentation]:http://docs.splunk.com/Documentation/Splunk/latest/User
+[splunk-download]:http://www.splunk.com/download
+
+
 Building from Source
-----------
+--------------------
 
 ### Requirements
 
