@@ -18,15 +18,17 @@
 # limitations under the License.
 #
 
-hadoop=$HADOOP_HOME/bin/hadoop
+script_dir=$(dirname $0)
+HADOOP=$HADOOP_HOME/bin/hadoop
+SPLUNK=$SPLUNK_HOME/bin/splunk
 testFolder=/hadoopunittest1
 
 # Setup
-$hadoop fs -put file01 "$testFolder/input/file01" &>/dev/null
-$hadoop fs -put file02 "$testFolder/input/file02" &>/dev/null
+$HADOOP fs -put "$script_dir/file01" "$testFolder/input/file01" &>/dev/null
+$HADOOP fs -put "$script_dir/file02" "$testFolder/input/file02" &>/dev/null
 
 # Test
-$hadoop jar $SPLBRANCH/build/jar/splunk_hadoop_unittests.jar com.splunk.mapreduce.lib.rest.tests.WordCount "$testFolder/input" "$testFolder/output$1"
+$HADOOP jar $SPLBRANCH/build/jar/splunk_hadoop_unittests.jar com.splunk.mapreduce.lib.rest.tests.WordCount "$testFolder/input" "$testFolder/output$1"
 
 expected_splunk_out="\
 FIELDNAME
@@ -37,11 +39,11 @@ Hadoop 2
 Hello 2
 World 2"
 
-actual_splunk_out=$(splunk search 'index=main sourcetype="hadoop_event" | rex "(?i)^(?:[^ ]* ){6}(?P<FIELDNAME>.+)" | table FIELDNAME | tail 5')
+actual_splunk_out=$($SPLUNK search 'index=main sourcetype="hadoop_event" | rex "(?i)^(?:[^ ]* ){6}(?P<FIELDNAME>.+)" | table FIELDNAME | tail 5')
 
-# Tear down
-$hadoop fs -rmr "$testFolder" &>/dev/null
-# TODO cleanup splunk
+# Teardown
+$HADOOP fs -rmr "$testFolder" &>/dev/null
+# TODO clean splunk
 
 # Output
 if [ "$expected_splunk_out" != "$actual_splunk_out" ]
