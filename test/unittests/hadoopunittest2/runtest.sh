@@ -1,4 +1,4 @@
-#!/usr/bin/env /bin/bash
+#!/bin/sh
 
 # start.sh
 #
