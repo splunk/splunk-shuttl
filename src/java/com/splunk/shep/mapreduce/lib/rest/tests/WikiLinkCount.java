@@ -96,7 +96,7 @@ public class WikiLinkCount {
 		}
 		SplunkConfiguration.setSplunkQueryByIndexers(conf, args[5], indexers);
 		conf.set(SplunkConfiguration.SPLUNKEVENTREADER,
-				"com.splunk.mapreduce.lib.rest.tests.SplunkRecord");
+				SplunkRecord.class.getName());
 
 		conf.setOutputKeyClass(Text.class);
 		conf.setOutputValueClass(IntWritable.class);

@@ -92,7 +92,8 @@ public class WordCount2 {
 										// being hard coded.
 		SplunkConfiguration.setSplunkQueryByIndexers(conf, query,
 				new String[] { indexer1 });
-		conf.set(SplunkConfiguration.SPLUNKEVENTREADER, "com.splunk.mapreduce.lib.rest.tests.SplunkRecord");
+		conf.set(SplunkConfiguration.SPLUNKEVENTREADER,
+				SplunkRecord.class.getName());
 		conf.setInputFormat(com.splunk.shep.mapreduce.lib.rest.SplunkInputFormat.class);
 
 		conf.setOutputKeyClass(Text.class);
