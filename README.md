@@ -14,7 +14,7 @@ For documentation, see:
 
 * http://docs.splunk.com/Documentation/Hadoop
 
-Key features as of v0.4 are:
+Key features as of v0.4.1 are:
 
 * Streaming of data via Splunk Forwarding to HDFS
 * SplunkInputFormat and SplunkOutputFormat classes for use in Hadoop
