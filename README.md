@@ -56,7 +56,6 @@ Building from Source
 All you need is:
 
 * Java JDK 6
-* git
 
 The build should work on both MacOSX and Linux.
 

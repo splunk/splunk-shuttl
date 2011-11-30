@@ -20,7 +20,7 @@ setup() {
 
   clear_file $results_out
   clear_file $fails_out
- clear_file $wins_out
+  clear_file $wins_out
 }
 
 clear_file() {
@@ -31,12 +31,7 @@ run_tests() {
   nr_tests=0
   for test in `find . -name runtest.sh`
   do
-    $test &> $results_out
-    if [[ $? != 0 ]]; then
-    echo "Fail in test: $test" | tee -a $fails_out
-    else
-    echo "Win in test: $test" | tee -a $wins_out
-    fi
+    run_test $test
     nr_tests=$((nr_tests+1))
   done
 
@@ -45,5 +40,18 @@ run_tests() {
   echo "Total shell tests run: $nr_tests, Failures: $failed_tests"
   echo "Test output, fails and successes can be found in $out_dir"
 }
+
+run_test() {
+  echo "-- Started running test: $test --" >> $results_out
+  $test >> $results_out 2>&1
+  if [[ $? != 0 ]]; then
+    echo "Fail in test: $test" | tee -a $fails_out | tee -a $results_out
+  else
+    echo "Win in test: $test" | tee -a $wins_out | tee -a $results_out
+  fi
+  echo "-- Finished running test: $test --" >> $results_out
+  echo "-- ---------------------" >> $results_out
+}
+
 
 main #run the script
