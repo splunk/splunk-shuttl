@@ -58,12 +58,21 @@
 		<exec executable="hostname" osfamily="unix" failifexecutionfails="false" outputproperty="hostname">
 			<arg value="-s" />
 		</exec>
-		<exec executable="p4" osfamily="unix" failifexecutionfails="false" outputproperty="p4revision_long">
-			<arg value="changes" />
-			<arg value="-m1" />
-			<arg value="..." />
+
+		<exec executable="git" outputproperty="git.revision">
+			<arg value="describe" />
+			<arg value="--match" />
+			<arg value="build" />
+			<redirector>
+				<outputfilterchain>
+					<tokenfilter>
+						<replaceregex pattern="^[^-]+-" replace="" />
+						<replaceregex pattern="-.+$" replace="" />
+					</tokenfilter>
+				</outputfilterchain>
+			</redirector>
 		</exec>
-		<propertyregex property="p4revision" input="${p4revision_long}" regexp="\b[0-9]+\b" select="\0" />
+
 		<propertyregex property="branch" input="${basedir}" regexp="[^/]*$" select="\0" />
 
 		<tstamp>
@@ -75,7 +84,7 @@
 		<copy file="${srcdir}/com/splunk/shep/connector/version.properties" todir="${classdir}/com/splunk/shep/connector/" />
 		<replace file="${classdir}/com/splunk/shep/connector/version.properties">
 			<replacefilter token="@DATE@" value="${time} US/Pacific" />
-			<replacefilter token="@REVISION@" value="${p4revision}" />
+			<replacefilter token="@REVISION@" value="${git.revision}" />
 			<replacefilter token="@BRANCH@" value="${branch}" />
 			<replacefilter token="@BUILDMACHINE@" value="${hostname}" />
 		</replace>
@@ -178,7 +187,7 @@
 				<exclude name="bin/**" />
 			</tarfileset>
 		</tar>
-		<copy tofile="${builddir}/${appname}-${version}-${p4revision}-${branch}-${hostname}-${noslashtime}.tgz" file="${builddir}/${appname}.tgz" />
+		<copy tofile="${builddir}/${appname}-${version}-${git.revision}-${branch}-${hostname}-${noslashtime}.tgz" file="${builddir}/${appname}.tgz" />
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->
