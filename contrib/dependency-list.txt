@@ -1,0 +1,2 @@
+# Use this file to keep track of the dependencies the project uses
+# Name		Version		Fetch URL
