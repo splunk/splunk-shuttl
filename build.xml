@@ -134,6 +134,16 @@
 		<antcall target="hadoop-unsafe-mode" />
 	</target>
 
+	<!-- grab hadoop and put in contrib dir -->
+	<target name="download-hadoop">
+		<exec executable="curl" osfamily="unix">
+			<arg value="-O"/> 
+			<arg value="-s"/> 
+			<arg value="ftp://apache.cs.utah.edu/apache.org/hadoop/common/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz"/>
+		</exec>
+		<move file="hadoop-0.20.203.0rc1.tar.gz" todir="contrib"/>
+	</target>
+
 	<target name="hadoop-env">
 		<property environment="env" />
 		<fail unless="env.HADOOP_HOME" message="Environment variable HADOOP_HOME was not set." />
