@@ -1,4 +1,4 @@
-<project name="HadoopConnector" default="dist" basedir=".">
+<project name="HadoopConnector" default="build" basedir=".">
 	<property name="contribdir" value="${basedir}/contrib" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="flumelib.home" value="${flume.home}/lib" />
@@ -112,13 +112,53 @@
 		</testng>
 	</target>
 
-	<target name="shell-tests" depends="hadoop-copy">
+	<target name="shell-tests" depends="setup-hadoop">
 		<exec dir="." executable="sh" osfamily="unix">
 			<arg line="-c" />
 			<arg line="test/unittests/run-unittests.sh" />
 		</exec>
 	</target>
 
+	<!-- Check hadoop_home env, stop, copy and start -->
+	<target name="setup-hadoop" depends="hadoop-env,hadoop-stop,hadoop-copy,hadoop-start,hadoop-unsafe-mode" />
+
+	<target name="hadoop-env">
+		<property environment="env" />
+		<fail unless="env.HADOOP_HOME" message="Environment variable HADOOP_HOME was not set." />
+		<property name="hadoop.home" value="${env.HADOOP_HOME}" />
+	</target>
+
+	<target name="hadoop-stop" depends="hadoop-env">
+		<exec executable="sh" osfamily="unix">
+			<arg line="-c" />
+			<arg line="${hadoop.home}/bin/stop-all.sh" />
+		</exec>
+	</target>
+
+	<!-- copy the jar file to hadoop lib -->
+	<target name="hadoop-copy" depends="jar,hadoop-env">
+		<property name="hadoop.lib" value="${hadoop.home}/lib" />
+		<copy file="${name.versioned.path}" todir="${hadoop.lib}" />
+		<!-- copy httpcomponents to hadoop -->
+		<property name="httpcomponents.lib" value="${contribdir}/httpcomponents-client-4.1.2/lib" />
+		<copy file="${httpcomponents.lib}/commons-codec-1.4.jar" todir="${hadoop.lib}" />
+		<copy file="${httpcomponents.lib}/httpclient-4.1.2.jar" todir="${hadoop.lib}" />
+		<copy file="${httpcomponents.lib}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
+	</target>
+
+	<target name="hadoop-start" depends="hadoop-env">
+		<exec executable="sh" osfamily="unix">
+			<arg line="-c" />
+			<arg line="${hadoop.home}/bin/start-all.sh" />
+		</exec>
+	</target>
+
+	<target name="hadoop-unsafe-mode" depends="hadoop-env">
+		<exec executable="sh" osfamily="unix">
+			<arg line="-c" />
+			<arg line="'${hadoop.home}/bin/hadoop dfsadmin -safemode leave'" />
+		</exec>
+	</target>
 
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties>
@@ -146,19 +186,9 @@
 		</jar>
 	</target>
 
-	<!-- copy the jar file to hadoop environment variable if is set -->
-	<target name="hadoop-copy" depends="jar">
-		<property environment="env" />
-		<fail unless="env.HADOOP_HOME" message="Environment variable HADOOP_HOME was not set." />
-		<property name="hadoop.lib" value="${env.HADOOP_HOME}/lib" />
-		<copy file="${name.versioned.path}" todir="${hadoop.lib}" />
-		<!-- copy httpcomponents to hadoop -->
-		<property name="httpcomponents.lib" value="${contribdir}/httpcomponents-client-4.1.2/lib" />
-		<copy file="${httpcomponents.lib}/commons-codec-1.4.jar" todir="${hadoop.lib}" />
-		<copy file="${httpcomponents.lib}/httpclient-4.1.2.jar" todir="${hadoop.lib}" />
-		<copy file="${httpcomponents.lib}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
-	</target>
 
+	<!-- build ready for testing -->
+	<target name="build" depends="clean,compile,jar" />
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,fast-tests,jar,version,versionized-jar-name">
