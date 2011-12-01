@@ -10,7 +10,7 @@
 	<property name="testng.jar" value="${testng.basename}.jar" />
 	<property name="jar.file" value="${builddir}/jar/${final.name}.jar" />
 	<property name="hadoop.unittest.jar.file" value="${builddir}/jar/splunk_hadoop_unittests.jar" />
-	<property name="appname" value="hadoopconnector" />
+	<property name="appname" value="shep" />
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
 	<property name="srcdir" value="src/java/" />
