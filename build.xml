@@ -245,7 +245,8 @@
 				<exclude name="bin/**" />
 			</tarfileset>
 		</tar>
-		<copy tofile="${builddir}/${appname}-${version}-${git.revision}-${git.branch}-${hostname}-${noslashtime}.tgz" file="${builddir}/${appname}.tgz" />
+		<!-- TODO add ${git.branch} into the file name after properly fixing the retrival of branch name -->
+		<copy tofile="${builddir}/${appname}-${version}-${git.revision}-${hostname}-${noslashtime}.tgz" file="${builddir}/${appname}.tgz" />
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->
