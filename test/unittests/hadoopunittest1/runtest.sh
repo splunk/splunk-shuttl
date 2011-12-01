@@ -24,8 +24,8 @@ SPLUNK=$SPLUNK_HOME/bin/splunk
 testFolder=/hadoopunittest1
 
 # Setup
-$HADOOP fs -put "$script_dir/file01" "$testFolder/input/file01" &>/dev/null
-$HADOOP fs -put "$script_dir/file02" "$testFolder/input/file02" &>/dev/null
+$HADOOP fs -put "$script_dir/file01" "$testFolder/input/file01"
+$HADOOP fs -put "$script_dir/file02" "$testFolder/input/file02"
 
 # Test
 $HADOOP jar $SPLBRANCH/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapreduce.lib.rest.tests.WordCount "$testFolder/input" "$testFolder/output$1"
