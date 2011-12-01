@@ -39,7 +39,7 @@ Hadoop 2
 Hello 2
 World 2"
 
-actual_splunk_out=$($SPLUNK search 'index=main sourcetype="hadoop_event" | rex "(?i)^(?:[^ ]* ){6}(?P<FIELDNAME>.+)" | table FIELDNAME | tail 5')
+actual_splunk_out=$($SPLUNK search 'index=main source=hadoopunittest1 sourcetype="hadoop_event" | rex "(?i)^(?:[^ ]* ){6}(?P<FIELDNAME>.+)" | table FIELDNAME | tail 5')
 
 # Teardown
 $HADOOP fs -rmr "$testFolder" &>/dev/null
