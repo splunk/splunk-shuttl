@@ -72,7 +72,7 @@ public class WordCount {
 
     public static void main(String[] args) throws Exception {
 	JobConf conf = new JobConf(WordCount.class);
-	conf.setJobName("wordcount");
+	conf.setJobName("hadoopunittest1");
 	conf.set(SplunkOutputFormat.SPLUNKHOST, "localhost");
 	conf.setInt(SplunkOutputFormat.SPLUNKPORT, 8089);
 	conf.set(SplunkOutputFormat.USERNAME, "admin");
