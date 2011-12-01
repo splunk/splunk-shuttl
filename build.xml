@@ -1,4 +1,4 @@
-<project name="HadoopConnector" default="dist" basedir=".">
+<project name="HadoopConnector" default="build" basedir=".">
 	<property name="contribdir" value="${basedir}/contrib" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="flumelib.home" value="${flume.home}/lib" />
@@ -157,6 +157,8 @@
 		<copy file="${httpcomponents.lib}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
 	</target>
 
+	<!-- build ready for testing -->
+	<target name="build" depends="clean,compile,jar" />
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,fast-tests,jar,version,versionized-jar-name">
