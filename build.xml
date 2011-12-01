@@ -72,10 +72,7 @@
 			</redirector>
 		</exec>
 
-		<exec dir="." executable="sh" osfamily="unix" outputproperty="git.branch">
-			<arg line="-c" />
-			<arg line="'git branch --no-color 2&gt;/dev/null | grep -oP &quot;(?&lt;=\* ).+&quot; | sed &quot;s/\//_/g&quot;'" />
-		</exec>
+		<property name="git.branch" value="fixmeWithTheRealBranchName" />
 
 		<tstamp>
 			<format property="time" timezone="America/Los_Angeles" pattern="MM/dd/yyyy hh:mm:ss aa" />
