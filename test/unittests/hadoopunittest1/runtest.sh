@@ -1,4 +1,4 @@
-#!/usr/bin/env /bin/bash
+#!/bin/sh
 
 # start.sh
 #
@@ -18,12 +18,42 @@
 # limitations under the License.
 #
 
-hadoop=$HADOOP_HOME/bin/hadoop
+script_dir=$(dirname $0)
+HADOOP=$HADOOP_HOME/bin/hadoop
+SPLUNK=$SPLUNK_HOME/bin/splunk
+testFolder=/hadoopunittest1
 
-$hadoop dfs -put file01 /wordcount/input/file01
-$hadoop dfs -put file02 /wordcount/input/file02
+# Setup
+$HADOOP fs -put "$script_dir/file01" "$testFolder/input/file01"
+$HADOOP fs -put "$script_dir/file02" "$testFolder/input/file02"
 
-$hadoop jar $SPLBRANCH/build/jar/splunk_hadoop_unittests.jar com.splunk.mapreduce.lib.rest.tests.WordCount /wordcount/input /wordcount/output$1
+# Test
+$HADOOP jar $SHEPDIR/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapreduce.lib.rest.tests.WordCount "$testFolder/input" "$testFolder/output$1"
 
-echo 'Output from: source="wordcount"'
-splunk search 'source=wordcount'
+expected_splunk_out="\
+FIELDNAME
+---------
+Bye 1
+Goodbye 1
+Hadoop 2
+Hello 2
+World 2"
+
+actual_splunk_out=$($SPLUNK search 'index=main source=hadoopunittest1 sourcetype="hadoop_event" | rex "(?i)^(?:[^ ]* ){6}(?P<FIELDNAME>.+)" | table FIELDNAME | tail 5')
+
+# Teardown
+$HADOOP fs -rmr "$testFolder" &>/dev/null
+# TODO clean splunk
+
+# Output
+if [ "$expected_splunk_out" != "$actual_splunk_out" ]
+then
+  echo "Fail!
+  Expected:
+  \"$expected_splunk_out\"
+  Actual:
+  \"$actual_splunk_out\""
+  exit 1
+else
+  exit 0
+fi

@@ -1,170 +1,272 @@
-<project name="HadoopConnector" default="dist" basedir=".">
-    <property name="contribdir" value="${basedir}/contrib" /> 
-    <property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
-    <property name="flumelib.home" value="${flume.home}/lib" />
-    <property name="builddir" value="${basedir}/build" />
-    <property name="classdir" value="${builddir}/classes" />
-    <property name="name" value="splunk-hadoop-connector"/>
-    <property name="testng.basename" value="testng-6.1.1"/>
-    <property name="testng.zip" value="${testng.basename}.zip"/>
-    <property name="testng.jar" value="${testng.basename}.jar"/>
-    <property name="jar.file" value="${builddir}/jar/${final.name}.jar"/>
-	<property name="hadoop.unittest.jar.file" value="${builddir}/jar/splunk_hadoop_unittests.jar"/>
-    <property name="appname" value="hadoopconnector"/>
-    <property name="package.dir" value="${basedir}/package"/>
-    <property name="stage.dir" value="${builddir}/${appname}"/>
+<project name="HadoopConnector" default="build" basedir=".">
+	<property name="contribdir" value="${basedir}/contrib" />
+	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
+	<property name="flumelib.home" value="${flume.home}/lib" />
+	<property name="builddir" value="${basedir}/build" />
+	<property name="classdir" value="${builddir}/classes" />
+	<property name="name" value="splunk-hadoop-connector" />
+	<property name="testng.basename" value="testng-6.1.1" />
+	<property name="testng.zip" value="${testng.basename}.zip" />
+	<property name="testng.jar" value="${testng.basename}.jar" />
+	<property name="jar.file" value="${builddir}/jar/${final.name}.jar" />
+	<property name="hadoop.unittest.jar.file" value="${builddir}/jar/splunk_hadoop_unittests.jar" />
+	<property name="appname" value="shep" />
+	<property name="package.dir" value="${basedir}/package" />
+	<property name="stage.dir" value="${builddir}/${appname}" />
 	<property name="srcdir" value="src/java/" />
-    
-    <path id="build.classpath">
-       <pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar"/>
-       <pathelement location="${flumelib.home}/jackson-core-asl-1.4.0.jar"/>
-       <pathelement location="${flumelib.home}/jackson-mapper-asl-1.4.0.jar"/>
-       <pathelement location="${flumelib.home}/slf4j-log4j12-1.6.1.jar"/>
-       <pathelement location="${flumelib.home}/slf4j-api-1.6.1.jar"/>
-       <pathelement location="${flumelib.home}/avro-1.4.0.jar"/>
-       <pathelement location="${flumelib.home}/log4j-1.2.15.jar"/>
-       <pathelement location="${flumelib.home}/hadoop-core-0.20.2-CDH3B4.jar"/>
-       <pathelement location="${flumelib.home}/commons-logging-1.0.4.jar"/>
-       <pathelement location="${flumelib.home}/google-collect-1.0-rc2.jar"/>
-       <pathelement location="${flumelib.home}/commons-lang-2.5.jar"/>
-       <pathelement location="${contribdir}/apache-log4j-1.2.16/log4j-1.2.16.jar}"/>
-       <pathelement location="${contribdir}/httpcomponents-client-4.1.2/lib/httpclient-4.1.2.jar"/>
-       <pathelement location="${contribdir}/httpcomponents-client-4.1.2/lib/httpcore-4.1.2.jar"/>
-       <pathelement location="${contribdir}/${testng.basename}/${testng.jar}"/>
-       <pathelement location="${contribdir}/wikixmlj/bzip2.jar"/>
-       <pathelement location="${contribdir}/wikixmlj/xercesImpl.jar"/>
-       <pathelement location="${basedir}/src/java/com/splunk/connector/conf"/>
-       <pathelement location="${contribdir}/commons-io-2.1/commons-io-2.1.jar"/>
-       <pathelement path="${classdir}"/>
-    </path>
-    <property name="foo" value="${build.classpath}"/>
-	
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-		 <classpath>
-		        <pathelement location="${contribdir}/ant-contrib-1.0b3/ant-contrib-1.0b3.jar"/>
-		  </classpath>
-	</taskdef>
-	
-    <!-- Clean everything, and recreate needed dirs -->
-    <target name="clean">
-        <delete dir="${builddir}"/>
-        <mkdir dir="${builddir}"/>
-        <mkdir dir="${classdir}"/>
-    </target>
+	<property name="testdir" value="test/java/" />
 
-    <!-- create a version.properties file from a template which is read by Version.java -->
+	<path id="build.classpath">
+		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
+		<pathelement location="${flumelib.home}/jackson-core-asl-1.4.0.jar" />
+		<pathelement location="${flumelib.home}/jackson-mapper-asl-1.4.0.jar" />
+		<pathelement location="${flumelib.home}/slf4j-log4j12-1.6.1.jar" />
+		<pathelement location="${flumelib.home}/slf4j-api-1.6.1.jar" />
+		<pathelement location="${flumelib.home}/avro-1.4.0.jar" />
+		<pathelement location="${flumelib.home}/log4j-1.2.15.jar" />
+		<pathelement location="${flumelib.home}/hadoop-core-0.20.2-CDH3B4.jar" />
+		<pathelement location="${flumelib.home}/commons-logging-1.0.4.jar" />
+		<pathelement location="${flumelib.home}/google-collect-1.0-rc2.jar" />
+		<pathelement location="${flumelib.home}/commons-lang-2.5.jar" />
+		<pathelement location="${contribdir}/apache-log4j-1.2.16/log4j-1.2.16.jar}" />
+		<pathelement location="${contribdir}/httpcomponents-client-4.1.2/lib/httpclient-4.1.2.jar" />
+		<pathelement location="${contribdir}/httpcomponents-client-4.1.2/lib/httpcore-4.1.2.jar" />
+		<pathelement location="${contribdir}/${testng.basename}/${testng.jar}" />
+		<pathelement location="${contribdir}/wikixmlj/bzip2.jar" />
+		<pathelement location="${contribdir}/wikixmlj/xercesImpl.jar" />
+		<pathelement location="${basedir}/src/java/com/splunk/shep/connector/conf" />
+		<pathelement location="${contribdir}/commons-io-2.1/commons-io-2.1.jar" />
+		<pathelement path="${classdir}" />
+	</path>
+	<property name="foo" value="${build.classpath}" />
+
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="${contribdir}/ant-contrib-1.0b3/ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+
+	<!-- Clean everything, and recreate needed dirs -->
+	<target name="clean">
+		<delete dir="${builddir}" />
+		<mkdir dir="${builddir}" />
+		<mkdir dir="${classdir}" />
+	</target>
+
+	<!-- create a version.properties file from a template which is read by Version.java -->
 	<target name="version">
 		<exec executable="hostname" osfamily="unix" failifexecutionfails="false" outputproperty="hostname">
 			<arg value="-s" />
 		</exec>
-		<exec executable="p4" osfamily="unix" failifexecutionfails="false" outputproperty="p4revision_long">
-			<arg value="changes" />
-			<arg value="-m1" />
-			<arg value="..." />
+
+		<exec executable="git" outputproperty="git.revision">
+			<arg value="describe" />
+			<arg value="--match" />
+			<arg value="build" />
+			<redirector>
+				<outputfilterchain>
+					<tokenfilter>
+						<replaceregex pattern="^[^-]+-" replace="" />
+					</tokenfilter>
+				</outputfilterchain>
+			</redirector>
 		</exec>
-		<propertyregex property="p4revision" input="${p4revision_long}" regexp="\b[0-9]+\b" select="\0" />
-		<propertyregex property="branch" input="${basedir}" regexp="[^/]*$" select="\0" />
-		
+
+		<property name="git.branch" value="fixmeWithTheRealBranchName" />
+
 		<tstamp>
-			<format property="time" timezone="America/Los_Angeles" pattern="MM/dd/yyyy hh:mm:ss aa"/>
+			<format property="time" timezone="America/Los_Angeles" pattern="MM/dd/yyyy hh:mm:ss aa" />
 		</tstamp>
 		<tstamp>
-			<format property="noslashtime" timezone="America/Los_Angeles" pattern="yyyyMMddhhmmss"/>
+			<format property="noslashtime" timezone="America/Los_Angeles" pattern="yyyyMMddhhmmss" />
 		</tstamp>
-		<copy file="${srcdir}/com/splunk/connector/version.properties" todir="${classdir}/com/splunk/connector/"/>
-		<replace file="${classdir}/com/splunk/connector/version.properties">	
-			<replacefilter token="@DATE@" value="${time} US/Pacific"/>
-			<replacefilter token="@REVISION@" value="${p4revision}"/>
-			<replacefilter token="@BRANCH@" value="${branch}"/>
-			<replacefilter token="@BUILDMACHINE@" value="${hostname}"/>
+		<copy file="${srcdir}/com/splunk/shep/connector/version.properties" todir="${classdir}/com/splunk/shep/connector/" />
+		<replace file="${classdir}/com/splunk/shep/connector/version.properties">
+			<replacefilter token="@DATE@" value="${time} US/Pacific" />
+			<replacefilter token="@REVISION@" value="${git.revision}" />
+			<replacefilter token="@BRANCH@" value="${git.branch}" />
+			<replacefilter token="@BUILDMACHINE@" value="${hostname}" />
 		</replace>
 	</target>
-	
+
 	<!-- compile all code, may in the future want to split out test and source builds -->
-    <target name="compile">
-        <javac srcdir="${srcdir}" destdir="${classdir}" includeAntRuntime="false" debug="true">
-            <classpath refid="build.classpath"/>
-        </javac>
-    </target>
+	<target name="compile">
+		<javac srcdir="${srcdir};${testdir}" destdir="${classdir}" includeAntRuntime="false" debug="true">
+			<classpath refid="build.classpath" />
+		</javac>
+	</target>
 
-    <!-- run test via testNG -->
-    <taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
-    <target name="test">
-	<!-- "group1" is just used as an example of how to use groups, over time we'll change it-->
-        <testng classpathref="build.classpath" groups="group1" outputdir="${builddir}/test-results">
-	    <classfileset dir="${builddir}" includes="**/*.class" />
-        </testng>
-    </target>
-   
-    <!-- create the jar file --> 
-    <target name="jar" depends="version">
-    	<loadproperties>
-    	    <file file="${classdir}/com/splunk/connector/version.properties"/>
-    	</loadproperties>
-        <mkdir dir="${builddir}/jar"/>
-        <jar destfile="${builddir}/jar/${name}-${version}.jar" basedir="${builddir}/classes">
-            <exclude name="com/splunk/connector/tests/*"/>
-        	<exclude name="com/splunk/mapreduce/lib/rest/tests/**"/>
-        	<exclude name="edu/jhu/nlp/**"/>
-            <manifest>
-                <attribute name="Main-Class" value="com.splunk.connector.EventTransmitter"/>
-            </manifest>
-        </jar>
-    	<jar destfile="${hadoop.unittest.jar.file}" basedir="${builddir}/classes">
-    		<include name="com/splunk/mapreduce/lib/rest/tests/**"/>
-    		<include name="edu/jhu/nlp/**"/>
-    	</jar>
-    </target>
+	<!-- run test via testNG -->
+	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
+	<target name="test">
+		<antcall target="fast-tests" />
+		<!-- TODO: re-enable when better  <antcall target="slow-tests" /> -->
+	</target>
 
-    <!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
-    <target name="dist" depends="clean,compile,test,jar">
-    	<loadproperties>
-    		<file file="${classdir}/com/splunk/connector/version.properties"/>
-    	</loadproperties>
-        <!-- make the staging directory -->
-	<mkdir dir="${stage.dir}"/>
-	<!-- copy all the package files into there -->
-	<copy todir="${stage.dir}">
-	    <fileset dir="${package.dir}"/>
-	</copy>
-    <!-- update the version in the app.conf file -->
-	<replace file="${stage.dir}/default/app.conf">	
-		<replacefilter token="@VERSION@" value="${version}"/>
-	</replace>
-	<!-- copy the jar in there -->
-	<copy file="${builddir}/jar/${name}-${version}.jar" todir="${stage.dir}/bin"/>
-	<!-- tar it up -->
-	<tar destfile="${builddir}/${appname}.tgz" compression="gzip">
-	    <tarfileset dir="${builddir}/${appname}/bin" prefix="${appname}/bin" filemode="755">
-	        <exclude name="README"/>
-	    </tarfileset>
-	    <tarfileset dir="${builddir}/${appname}/bin" prefix="${appname}/bin">
-                <include name="README"/>
-            </tarfileset>
-	    <tarfileset dir="${builddir}/${appname}" prefix="${appname}">
-	        <exclude name="bin/**"/>
-            </tarfileset>
-        </tar>
-	<copy tofile="${builddir}/${appname}-${version}-${p4revision}-${branch}-${hostname}-${noslashtime}.tgz" file="${builddir}/${appname}.tgz"/>
-    </target>
+	<target name="fast-tests">
+		<antcall target="fast-TestNG-tests" />
+	</target>
 
-    <!-- run the connector, this needs to be fixed -->
-    <target name="run">
-        <java jar="build/jar/${final.name}.jar" fork="true"/>
-    </target>
+	<target name="slow-tests">
+		<antcall target="shell-tests" />
+	</target>
 
-    <target name="splunk2flume2console">
-        <java classname="com.splunk.connector.tests.Splunk2Flume2ConsoleTest">
-            <arg value="src/java/com/splunk/connector/tests/splunk2flume.conf"/>
-            <classpath refid="build.classpath"/>
-        </java>
-    </target>
+	<target name="fast-TestNG-tests" depends="compile">
+		<!-- Test group 'fast'. We think about adding more groups in the future -->
+		<testng classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
+			<classfileset dir="${builddir}" includes="**/*.class" />
+		</testng>
+	</target>
 
-    <target name="stateMachineTest">
-        <java classname="com.splunk.connector.tests.StateMachineTest">
-            <arg value="src/java/com/splunk/connector/tests/s2s.data"/>
-            <classpath refid="build.classpath"/>
-        </java>
-    </target>
+	<target name="shell-tests" depends="setup-hadoop">
+		<exec dir="." executable="sh" osfamily="unix">
+			<arg line="-c" />
+			<arg line="test/unittests/run-unittests.sh" />
+		</exec>
+	</target>
+
+	<!-- Check hadoop_home env, stop, copy and start -->
+	<target name="setup-hadoop">
+		<antcall target="hadoop-env" />
+		<antcall target="hadoop-stop" />
+		<antcall target="hadoop-copy" />
+		<antcall target="hadoop-start" />
+		<antcall target="hadoop-unsafe-mode" />
+	</target>
+
+	<!-- grab hadoop and put in contrib dir -->
+	<target name="download-hadoop">
+		<exec executable="curl" osfamily="unix">
+			<arg value="-O"/> 
+			<arg value="-s"/> 
+			<arg value="ftp://apache.cs.utah.edu/apache.org/hadoop/common/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz"/>
+		</exec>
+		<move file="hadoop-0.20.203.0rc1.tar.gz" todir="contrib"/>
+	</target>
+
+	<target name="hadoop-env">
+		<property environment="env" />
+		<fail unless="env.HADOOP_HOME" message="Environment variable HADOOP_HOME was not set." />
+		<property name="hadoop.home" value="${env.HADOOP_HOME}" />
+	</target>
+
+	<target name="hadoop-stop" depends="hadoop-env">
+		<exec executable="sh" osfamily="unix">
+			<arg line="-c" />
+			<arg line="${hadoop.home}/bin/stop-all.sh" />
+		</exec>
+	</target>
+
+	<!-- copy the jar file to hadoop lib -->
+	<target name="hadoop-copy" depends="jar,hadoop-env">
+		<property name="hadoop.lib" value="${hadoop.home}/lib" />
+		<copy file="${name.versioned.path}" todir="${hadoop.lib}" />
+		<!-- copy httpcomponents to hadoop -->
+		<property name="httpcomponents.lib" value="${contribdir}/httpcomponents-client-4.1.2/lib" />
+		<copy file="${httpcomponents.lib}/commons-codec-1.4.jar" todir="${hadoop.lib}" />
+		<copy file="${httpcomponents.lib}/httpclient-4.1.2.jar" todir="${hadoop.lib}" />
+		<copy file="${httpcomponents.lib}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
+	</target>
+
+	<target name="hadoop-start" depends="hadoop-env">
+		<exec executable="sh" osfamily="unix">
+			<arg line="-c" />
+			<arg line="${hadoop.home}/bin/start-all.sh" />
+		</exec>
+	</target>
+
+	<target name="hadoop-unsafe-mode" depends="hadoop-env">
+		<exec executable="sh" osfamily="unix">
+			<arg line="-c" />
+			<arg line="'${hadoop.home}/bin/hadoop dfsadmin -safemode leave'" />
+		</exec>
+	</target>
+
+	<target name="versionized-jar-name" depends="version">
+		<loadproperties>
+			<file file="${classdir}/com/splunk/shep/connector/version.properties" />
+		</loadproperties>
+		<property name="name.versioned" value="${name}-${version}" />
+		<property name="name.versioned.path" value="${builddir}/jar/${name.versioned}.jar" />
+	</target>
+
+
+	<!-- create the jar file -->
+	<target name="jar" depends="versionized-jar-name">
+		<mkdir dir="${builddir}/jar" />
+		<jar destfile="${name.versioned.path}" basedir="${builddir}/classes">
+			<exclude name="com/splunk/shep/connector/tests/*" />
+			<exclude name="com/splunk/shep/mapreduce/lib/rest/tests/**" />
+			<exclude name="edu/jhu/nlp/**" />
+			<manifest>
+				<attribute name="Main-Class" value="com.splunk.shep.connector.EventTransmitter" />
+			</manifest>
+		</jar>
+		<jar destfile="${hadoop.unittest.jar.file}" basedir="${builddir}/classes">
+			<include name="com/splunk/shep/mapreduce/lib/rest/tests/**" />
+			<include name="edu/jhu/nlp/**" />
+		</jar>
+	</target>
+
+
+	<!-- build ready for testing -->
+	<target name="build">
+		<antcall target="clean" />
+		<antcall target="compile" />
+		<antcall target="jar" />
+	</target>
+
+	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
+	<target name="dist" depends="clean,compile,fast-tests,jar,version,versionized-jar-name">
+		<loadproperties>
+			<file file="${classdir}/com/splunk/shep/connector/version.properties" />
+		</loadproperties>
+		<!-- make the staging directory -->
+		<mkdir dir="${stage.dir}" />
+		<!-- copy all the package files into there -->
+		<copy todir="${stage.dir}">
+			<fileset dir="${package.dir}" />
+		</copy>
+		<!-- update the version in the app.conf file -->
+		<replace file="${stage.dir}/default/app.conf">
+			<replacefilter token="@VERSION@" value="${version}" />
+		</replace>
+		<!-- copy the jar in there -->
+		<copy file="${name.versioned.path}" todir="${stage.dir}/bin" />
+		<!-- tar it up -->
+		<tar destfile="${builddir}/${appname}.tgz" compression="gzip">
+			<tarfileset dir="${builddir}/${appname}/bin" prefix="${appname}/bin" filemode="755">
+				<exclude name="README" />
+			</tarfileset>
+			<tarfileset dir="${builddir}/${appname}/bin" prefix="${appname}/bin">
+				<include name="README" />
+			</tarfileset>
+			<tarfileset dir="${builddir}/${appname}" prefix="${appname}">
+				<exclude name="bin/**" />
+			</tarfileset>
+		</tar>
+		<!-- TODO add ${git.branch} into the file name after properly fixing the retrival of branch name -->
+		<copy tofile="${builddir}/${appname}-${version}-${git.revision}-${hostname}-${noslashtime}.tgz" file="${builddir}/${appname}.tgz" />
+	</target>
+
+	<!-- run the connector, this needs to be fixed -->
+	<target name="run">
+		<java jar="build/jar/${final.name}.jar" fork="true" />
+	</target>
+
+
+	<target name="splunk2flume2console">
+		<java classname="com.splunk.shep.connector.tests.Splunk2Flume2ConsoleTest">
+			<arg value="src/java/com/splunk/shep/connector/tests/splunk2flume.conf" />
+			<classpath refid="build.classpath" />
+		</java>
+	</target>
+
+	<target name="stateMachineTest">
+		<java classname="com.splunk.shep.connector.tests.StateMachineTest">
+			<arg value="src/java/com/splunk/shep/connector/tests/s2s.data" />
+			<classpath refid="build.classpath" />
+		</java>
+	</target>
 
 </project>
