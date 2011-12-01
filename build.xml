@@ -72,7 +72,10 @@
 			</redirector>
 		</exec>
 
-		<propertyregex property="branch" input="${basedir}" regexp="[^/]*$" select="\0" />
+		<exec dir="." executable="sh" osfamily="unix" outputproperty="git.branch">
+			<arg line="-c" />
+			<arg line="'git branch --no-color 2&gt;/dev/null | grep -oP &quot;(?&lt;=\* ).+&quot; | sed &quot;s/\//_/g&quot;'" />
+		</exec>
 
 		<tstamp>
 			<format property="time" timezone="America/Los_Angeles" pattern="MM/dd/yyyy hh:mm:ss aa" />
@@ -84,7 +87,7 @@
 		<replace file="${classdir}/com/splunk/shep/connector/version.properties">
 			<replacefilter token="@DATE@" value="${time} US/Pacific" />
 			<replacefilter token="@REVISION@" value="${git.revision}" />
-			<replacefilter token="@BRANCH@" value="${branch}" />
+			<replacefilter token="@BRANCH@" value="${git.branch}" />
 			<replacefilter token="@BUILDMACHINE@" value="${hostname}" />
 		</replace>
 	</target>
@@ -186,7 +189,7 @@
 				<exclude name="bin/**" />
 			</tarfileset>
 		</tar>
-		<copy tofile="${builddir}/${appname}-${version}-${git.revision}-${branch}-${hostname}-${noslashtime}.tgz" file="${builddir}/${appname}.tgz" />
+		<copy tofile="${builddir}/${appname}-${version}-${git.revision}-${git.branch}-${hostname}-${noslashtime}.tgz" file="${builddir}/${appname}.tgz" />
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->
