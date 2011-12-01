@@ -101,9 +101,18 @@
 
 	<!-- run test via testNG -->
 	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
-	<target name="test" depends="fast-tests,shell-tests" />
-	<target name="fast-tests" depends="fast-TestNG-tests" />
-	<target name="slow-tests" depends="shell-tests" />
+	<target name="test">
+		<antcall target="fast-tests" />
+		<antcall target="slow-tests" />
+	</target>
+
+	<target name="fast-tests">
+		<antcall target="fast-TestNG-tests" />
+	</target>
+
+	<target name="slow-tests">
+		<antcall target="shell-tests" />
+	</target>
 
 	<target name="fast-TestNG-tests" depends="compile">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
@@ -120,7 +129,13 @@
 	</target>
 
 	<!-- Check hadoop_home env, stop, copy and start -->
-	<target name="setup-hadoop" depends="hadoop-env,hadoop-stop,hadoop-copy,hadoop-start,hadoop-unsafe-mode" />
+	<target name="setup-hadoop">
+		<antcall target="hadoop-env" />
+		<antcall target="hadoop-stop" />
+		<antcall target="hadoop-copy" />
+		<antcall target="hadoop-start" />
+		<antcall target="hadoop-unsafe-mode" />
+	</target>
 
 	<target name="hadoop-env">
 		<property environment="env" />
@@ -188,7 +203,11 @@
 
 
 	<!-- build ready for testing -->
-	<target name="build" depends="clean,compile,jar" />
+	<target name="build">
+		<antcall target="clean" />
+		<antcall target="compile" />
+		<antcall target="jar" />
+	</target>
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,fast-tests,jar,version,versionized-jar-name">
