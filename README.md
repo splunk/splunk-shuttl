@@ -84,3 +84,26 @@ You'll need to build once, before you can use Eclipse
 The Shep code base is to follow the standard java conventions:
 http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html
 
+Getting Started
+---------------
+
+Make sure `SPLUNK_HOME` and `HADOOP_HOME` are set.
+Make sure your spunk user name and password is *admin* and *changeme*
+Make sure the hadoop namenode is formatted once. `$HADOOP_HOME/bin/hadoop namenode -format`
+
+Start spunk and login
+
+    $ $SPLUNK_HOME/bin/splunk start
+    $ $SPLUNK_HOME/bin/splunk login
+
+Cd into to the splunk-shep directory and run the following
+
+    $ source setjavaenv
+
+Run ant ant to build
+
+    $ ant
+
+Run the tests:
+
+    $ ant test
