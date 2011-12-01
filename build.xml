@@ -67,7 +67,6 @@
 				<outputfilterchain>
 					<tokenfilter>
 						<replaceregex pattern="^[^-]+-" replace="" />
-						<replaceregex pattern="-.+$" replace="" />
 					</tokenfilter>
 				</outputfilterchain>
 			</redirector>
