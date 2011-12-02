@@ -27,13 +27,13 @@ testFolder=/hadoopunittest2
 # TODO: The search is made because we don't clean splunk.
 #       The only code that belongs here is the splunk add oneshot wordfile-timestamp.
 #       Because if the file has been added twice, the test should fail.
-search=`splunk search 'source=*wordfile-timestamp | head 1'`
+search=`$SPLUNK search 'source=*wordfile-timestamp | head 1'`
 if [ "$search" = "" ]; then
   $SPLUNK add oneshot $script_dir/wordfile-timestamp
 fi
 
 # Test
-$HADOOP jar $SPLBRANCH/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapreduce.lib.rest.tests.WordCount2 "$testFolder/input" "$testFolder/output$1"
+$HADOOP jar $SHEPDIR/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapreduce.lib.rest.tests.WordCount2 "$testFolder/input" "$testFolder/output$1"
 
 expected_splunk_out="\
 2011-09-19	300
