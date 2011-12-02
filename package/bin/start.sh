@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-cd $SPLUNK_HOME/etc/apps/hadoopconnector/bin
+cd $SPLUNK_HOME/etc/apps/shep/bin
 
 if [ -f "setjavaenv" ]; then
     source setjavaenv
