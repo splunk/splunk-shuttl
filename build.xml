@@ -87,6 +87,15 @@
 			<replacefilter token="@BRANCH@" value="${git.branch}" />
 			<replacefilter token="@BUILDMACHINE@" value="${hostname}" />
 		</replace>
+		
+		<loadproperties>
+			<file file="${classdir}/com/splunk/shep/connector/version.properties" />
+		</loadproperties>
+
+		<!-- TODO add ${git.branch} into the suffix after properly fixing the retrival of branch name -->
+		<property name="buildVersionSuffix" value="${version}-${git.revision}-${hostname}-${noslashtime}" />
+		<echo message="Build version suffix: ${buildVersionSuffix}" />
+
 	</target>
 
 	<!-- compile all code, may in the future want to split out test and source builds -->
@@ -218,9 +227,6 @@
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,fast-tests,jar,version,versionized-jar-name">
-		<loadproperties>
-			<file file="${classdir}/com/splunk/shep/connector/version.properties" />
-		</loadproperties>
 		<!-- make the staging directory -->
 		<mkdir dir="${stage.dir}" />
 		<!-- copy all the package files into there -->
@@ -245,8 +251,8 @@
 				<exclude name="bin/**" />
 			</tarfileset>
 		</tar>
-		<!-- TODO add ${git.branch} into the file name after properly fixing the retrival of branch name -->
-		<copy tofile="${builddir}/${appname}-${version}-${git.revision}-${hostname}-${noslashtime}.tgz" file="${builddir}/${appname}.tgz" />
+			
+		<copy tofile="${builddir}/${appname}-${buildVersionSuffix}.tgz" file="${builddir}/${appname}.tgz" />
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->
