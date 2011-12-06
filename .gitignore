@@ -12,3 +12,6 @@
 
 # Test folders
 /test/unittests/test-output/
+
+# Splunk package folder
+/put-splunk-tgz-here/*
