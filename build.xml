@@ -3,6 +3,7 @@
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="flumelib.home" value="${flume.home}/lib" />
 	<property name="builddir" value="${basedir}/build" />
+	<property name="build-cache" value="${basedir}/build-cache" />
 	<property name="classdir" value="${builddir}/classes" />
 	<property name="name" value="splunk-hadoop-connector" />
 	<property name="testng.basename" value="testng-6.1.1" />
@@ -51,6 +52,11 @@
 		<delete dir="${builddir}" />
 		<mkdir dir="${builddir}" />
 		<mkdir dir="${classdir}" />
+
+		<!-- same things happen for builddir and build-cache -->
+		<!-- should not create things in the clean target -->
+		<delete dir="${build-cache}" />
+		<mkdir dir="${build-cache}" />
 	</target>
 
 	<!-- create a version.properties file from a template which is read by Version.java -->

@@ -4,6 +4,7 @@
 # Compile output
 /build/
 /bin/
+/build-cache/
 
 # TODO - this the output folder when ant unzips one of the libs.
 # All the other libs are currently directories but in the future they should be zips.
