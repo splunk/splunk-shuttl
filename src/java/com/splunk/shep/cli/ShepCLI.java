@@ -85,6 +85,13 @@ public class ShepCLI {
 		System.out.println("Incorrect arguments for get command.");
 		usage();
 	    }
+	} else if (args[startIndex].equals("-ls")) {
+	    // System.out.println("Run -ls command.");
+	    if ((args.length - startIndex) == 2)
+		list(args[startIndex + 1]);
+	    else {
+		list("/");
+	    }
 	} else if (args[startIndex].equals("-cat")) {
 	    // System.out.println("Run -cat command.");
 	    if ((args.length - startIndex) == 2)
@@ -96,12 +103,20 @@ public class ShepCLI {
 	} else if (args[startIndex].equals("-tail")) {
 	    // System.out.println("Run -tail command.");
 	    if ((args.length - startIndex) == 2)
-		cat(args[startIndex + 1]);
+		tail(args[startIndex + 1]);
 	    else if (((args.length - startIndex) == 3)
 		    && (args[startIndex + 1].equals("-f")))
-		tail(args[startIndex + 2]);
+		tailFile(args[startIndex + 2]);
 	    else {
 		System.out.println("Incorrect arguments for tail command.");
+		usage();
+	    }
+	} else if (args[startIndex].equals("-import")) {
+	    // System.out.println("Run -cat command.");
+	    if ((args.length - startIndex) == 2)
+		importFile(args[startIndex + 1]);
+	    else {
+		System.out.println("Incorrect arguments for cat command.");
 		usage();
 	    }
 	} else {
@@ -112,7 +127,8 @@ public class ShepCLI {
 
     private void usage() {
 	System.out.println("Usage : java " + getClass().getName() + " <cmd>");
-	System.out.println("Commands:\n" + "    -h\n"
+	System.out
+		.println("Commands:\n" + "    -h\n" + "    -ls <path>\n"
 		+ "    -get <source-path> <dest-path>\n"
 			+ "    -cat <source-path>\n"
 			+ "    -tail [-f] <source-path>\n");
@@ -138,6 +154,15 @@ public class ShepCLI {
 	// r.exec(cmd);
     }
 
+    private void list(String src) throws Exception {
+	Runtime r = Runtime.getRuntime();
+	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -ls " + src;
+
+	// System.out.println("run: " + cmd);
+	runCmd(cmd);
+	// r.exec(cmd);
+    }
+
     private void cat(String src) throws Exception {
 	Runtime r = Runtime.getRuntime();
 	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
@@ -147,7 +172,23 @@ public class ShepCLI {
 	// r.exec(cmd);
     }
 
-    private void tail(String src) throws Exception {
+    private void importFile(String src) throws Exception {
+	int index = src.lastIndexOf('/');
+	if (index < 0)
+	    index = 0;
+	else
+	    index += 1;
+	String fileName = src.substring(index);
+	Runtime r = Runtime.getRuntime();
+	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -get " + src
+		+ conf.getSplunkHome() + "/etc/apps/shep/import/" + fileName;
+
+	// System.out.println("run: " + cmd);
+	runCmd(cmd);
+	// r.exec(cmd);
+    }
+
+    private void tailFile(String src) throws Exception {
 	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
 	if (!fileIO.setFilePath(src)) {
 	    System.out.println("Cannot find file: " + src);
@@ -167,11 +208,17 @@ public class ShepCLI {
 
 	    modTime = newModTime;
 	    // Runtime r = Runtime.getRuntime();
-	    String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
+	    String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -tail " + src;
 	    // System.out.println("run: " + cmd);
 	    runCmd(cmd);
 	    // r.exec(cmd);
 	}
+    }
+
+    private void tail(String src) throws Exception {
+	Runtime r = Runtime.getRuntime();
+	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -tail " + src;
+	runCmd(cmd);
     }
 
     private static void runCmd(String cmd) {
