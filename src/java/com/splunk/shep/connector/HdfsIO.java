@@ -23,6 +23,7 @@ import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
@@ -55,6 +56,13 @@ public class HdfsIO implements DataSink {
 	init();
     }
 
+    public HdfsIO(String targetIP, String targetPort) throws Exception {
+	port = targetPort;
+	ip = targetIP;
+	path = new String("");
+	init();
+    }
+
     private void init() throws Exception {
 	try {
 	    conf = new Configuration();
@@ -76,7 +84,7 @@ public class HdfsIO implements DataSink {
 	close();
 
 	if (path.charAt(0) != '/')
-	    path = "/" + path; // must be ablosute path.
+	    path = "/" + path; // must be absolute path.
 
 	try {
 	    String tarURL = new String("hdfs://") + ip + ':' + port + path
@@ -95,6 +103,32 @@ public class HdfsIO implements DataSink {
 	    logger.error("Exception in setting Hadoop connection: "
 		    + e.toString());
 	}
+    }
+
+    public boolean setFilePath(String filePath) {
+	close(); // close any existing connection.
+	if (filePath != null) {
+	    path = filePath;
+	} else if (ofstream != null)
+	    return false; // already set.
+
+	if (path.charAt(0) != '/')
+	    path = "/" + path; // must be absolute path.
+
+	try {
+	    String tarURL = new String("hdfs://") + ip + ':' + port + path
+		    + System.currentTimeMillis();
+	    destination = new Path(tarURL);
+
+	    if (!fileSystem.exists(destination)) {
+		return false;
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    logger.error("Exception in setting Hadoop fiel path: "
+		    + e.toString());
+	}
+	return true;
     }
 
     public void setFileRollingSize(long size) {
@@ -156,6 +190,16 @@ public class HdfsIO implements DataSink {
 	} catch (Exception e) {
 	    logger.error("Exception in reconnecting HDFS: " + e.toString());
 	}
+    }
+
+    public long getFileModTime() throws Exception {
+	if (destination == null)
+	    return -1;
+	if (fileSystem.exists(destination)) {
+	    FileStatus fileStatus = fileSystem.getFileStatus(destination);
+	    return fileStatus.getModificationTime();
+	}
+	return -1;
     }
 
     private void deleteCurrentFile() {

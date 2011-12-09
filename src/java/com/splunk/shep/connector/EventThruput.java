@@ -150,6 +150,12 @@ public class EventThruput implements MetricsCallback {
 		timeDiff);
 	generateMetrics(logger, "per_index_thruput", perIndexThruput, timeDiff);
 
+	// Make sure to clear these metrics
+	perHostThruput.clear();
+	perSourceThruput.clear();
+	perSourcetypeThruput.clear();
+	perIndexThruput.clear();
+
 	bytesSeenSinceLastOutput = 0;
 	eventsSeenSinceLastOutput = 0;
 
