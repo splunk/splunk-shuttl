@@ -1,0 +1,4 @@
+[inputhdfs]
+filename = inputhdfs.py
+streaming = true
+generating = true
