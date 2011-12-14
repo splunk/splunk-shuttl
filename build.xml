@@ -17,6 +17,21 @@
 	<property name="srcdir" value="src/java/" />
 	<property name="testdir" value="test/java/" />
 
+	<!-- hadoop properties -->
+	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
+	<property name="hadoop.download.url" value="ftp://apache.cs.utah.edu/apache.org/hadoop/common/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
+	<property name="hadoop.download.name.extracted" value="hadoop-0.20.203.0" />
+	<property name="hadoop.download.name" value="${hadoop.download.name.extracted}rc1.tar.gz" />
+	<property name="hadoop.download.dir" value="${contribdir}" />
+	<property name="hadoop.download.path" value="${hadoop.download.dir}/${hadoop.download.name}" />
+	<property name="hadoop.extracted.dir" value="${build-cache}" />
+	<property name="hadoop.extracted.path" value="${hadoop.extracted.dir}/${hadoop.download.name.extracted}" />
+	<property name="hadoop.extracted.conf.dir" value="${hadoop.extracted.path}/conf" />
+
+	<!-- splunk properties -->
+	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
+	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
+
 	<path id="build.classpath">
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
 		<pathelement location="${flumelib.home}/jackson-core-asl-1.4.0.jar" />
