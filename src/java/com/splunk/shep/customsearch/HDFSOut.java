@@ -1,5 +1,7 @@
 package com.splunk.shep.customsearch;
 
+import java.net.URI;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -11,13 +13,15 @@ public class HDFSOut {
 	try {
 	    java.io.BufferedReader stdin = new java.io.BufferedReader(
 		    new java.io.InputStreamReader(System.in));
-
 	    Configuration conf = new Configuration();
-	    FileSystem fs = FileSystem.get(conf);
+	    URI fileuri = URI.create(args[0]);
+	    String host = fileuri.getHost();
+	    int port = fileuri.getPort();
+	    FileSystem fs = FileSystem.get(
+		    URI.create("hdfs://" + host + ":" + port), conf);
 	    Path filenamePath = new Path(args[0]);
-
 	    if (fs.exists(filenamePath)) {
-		// remove the file first
+		// remove the file first 
 		fs.delete(filenamePath);
 	    }
 	    FSDataOutputStream out = fs.create(filenamePath);
@@ -26,8 +30,8 @@ public class HDFSOut {
 		if (arg.equals("exit")) {
 		    break;
 		} else {
-		    out.writeUTF(arg);
-		    out.writeUTF("\n");
+		    out.writeBytes(arg);
+		    out.writeBytes("\n");
 		}
 	    }
 	    out.close();

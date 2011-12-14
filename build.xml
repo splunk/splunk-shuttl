@@ -1,5 +1,7 @@
 <project name="HadoopConnector" default="build" basedir=".">
+	<property file="build.properties" />
 	<property name="contribdir" value="${basedir}/contrib" />
+	<property name="hadoop.dir" value="${contribdir}/hadoop-0.20.205.0" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="flumelib.home" value="${flume.home}/lib" />
 	<property name="builddir" value="${basedir}/build" />
@@ -17,6 +19,10 @@
 	<property name="testdir" value="test/java/" />
 
 	<path id="build.classpath">
+		<pathelement location="${hadoop.dir}/hadoop-core-0.20.205.0.jar" />
+		<pathelement location="${hadoop.dir}/lib/commons-logging-1.1.1.jar" />
+		<pathelement location="${hadoop.dir}/lib/commons-configuration-1.6.jar" />
+		<pathelement location="${hadoop.dir}/lib/commons-lang-2.4.jar" />
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
 		<pathelement location="${flumelib.home}/jackson-core-asl-1.4.0.jar" />
 		<pathelement location="${flumelib.home}/jackson-mapper-asl-1.4.0.jar" />
@@ -24,7 +30,6 @@
 		<pathelement location="${flumelib.home}/slf4j-api-1.6.1.jar" />
 		<pathelement location="${flumelib.home}/avro-1.4.0.jar" />
 		<pathelement location="${flumelib.home}/log4j-1.2.15.jar" />
-		<pathelement location="${flumelib.home}/hadoop-core-0.20.2-CDH3B4.jar" />
 		<pathelement location="${flumelib.home}/commons-logging-1.0.4.jar" />
 		<pathelement location="${flumelib.home}/google-collect-1.0-rc2.jar" />
 		<pathelement location="${flumelib.home}/commons-lang-2.5.jar" />
