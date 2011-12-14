@@ -41,13 +41,7 @@ public class ShepCLI {
 	    "/Users/xli/app/hadoop-0.20.205.0");
 
     public static void main(String[] args) throws Exception {
-	// TODO Auto-generated method stub
-
 	// System.out.println("Splunk Shep CLI");
-
-	// Test shell command
-	// runCmd("ls");
-
 	int startIndex = 0;
 	String confPath = new String("ShepCLI.conf");
 	if (args.length > 2) {
@@ -180,10 +174,10 @@ public class ShepCLI {
 	    index += 1;
 	String fileName = src.substring(index);
 	Runtime r = Runtime.getRuntime();
-	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -get " + src
+	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -get " + src + " "
 		+ conf.getSplunkHome() + "/etc/apps/shep/import/" + fileName;
 
-	// System.out.println("run: " + cmd);
+	System.out.println("run: " + cmd);
 	runCmd(cmd);
 	// r.exec(cmd);
     }
@@ -211,7 +205,7 @@ public class ShepCLI {
 	    String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -tail " + src;
 	    // System.out.println("run: " + cmd);
 	    runCmd(cmd);
-	    // r.exec(cmd);
+	    Thread.currentThread().sleep(1000); // sleep for 1000 ms.
 	}
     }
 

@@ -41,6 +41,7 @@ public class HdfsIO implements DataSink {
     private long totalBytesWritten = 0; // total bytes with current connection.
     private long fileRollingSize = 10000000;
     private long maxEventSize = 32000; // not supported for now.
+    private String currentFilePath = new String("");
 
     private static Logger logger = Logger.getLogger(HdfsIO.class);
 
@@ -87,8 +88,9 @@ public class HdfsIO implements DataSink {
 	    path = "/" + path; // must be absolute path.
 
 	try {
-	    String tarURL = new String("hdfs://") + ip + ':' + port + path
-		    + System.currentTimeMillis();
+	    currentFilePath = path + System.currentTimeMillis();
+	    String tarURL = new String("hdfs://") + ip + ':' + port
+		    + currentFilePath;
 	    destination = new Path(tarURL);
 
 	    if (fileSystem.exists(destination)) {
@@ -116,8 +118,9 @@ public class HdfsIO implements DataSink {
 	    path = "/" + path; // must be absolute path.
 
 	try {
-	    String tarURL = new String("hdfs://") + ip + ':' + port + path
-		    + System.currentTimeMillis();
+	    currentFilePath = path + System.currentTimeMillis();
+	    String tarURL = new String("hdfs://") + ip + ':' + port
+		    + currentFilePath;
 	    destination = new Path(tarURL);
 
 	    if (!fileSystem.exists(destination)) {
@@ -127,6 +130,34 @@ public class HdfsIO implements DataSink {
 	    e.printStackTrace();
 	    logger.error("Exception in setting Hadoop fiel path: "
 		    + e.toString());
+	}
+	return true;
+    }
+
+    // Set connection to the current internal file.
+    private boolean setCurrentFile() {
+	close(); // close any existing connection.
+
+	if (currentFilePath.length() == 0)
+	    return false;
+
+	try {
+	    String tarURL = new String("hdfs://") + ip + ':' + port
+		    + currentFilePath;
+	    destination = new Path(tarURL);
+
+	    if (!fileSystem.exists(destination)) {
+		return false;
+	    }
+
+	    // HDFS doesn't support append() any more.
+	    ofstream = fileSystem.append(destination);
+
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    logger.error("Exception in setting Hadoop file path: "
+		    + e.toString() + "/n StackTrace:/n"
+		    + e.getStackTrace().toString());
 	}
 	return true;
     }
@@ -156,6 +187,22 @@ public class HdfsIO implements DataSink {
 
     public void start() throws Exception {
 	start(path);
+    }
+    
+    // testing code.
+    private boolean open(String fileName) throws Exception {
+	close(); // close any existing connection.
+	if (fileName != null) {
+	    currentFilePath = fileName;
+	} else
+	    return false; // already set.
+
+	if (currentFilePath.charAt(0) != '/')
+	    currentFilePath = "/" + fileName; // must be absolute path.
+
+	logger.info("Open connection to hdfs file " + currentFilePath);
+	setCurrentFile();
+	return true;
     }
 
     public void close() {
@@ -366,12 +413,24 @@ public class HdfsIO implements DataSink {
 
     public static void main(String[] args) throws IOException {
 	String msg = "Hello, splunker! I'm here.\n";
+	String fileName = new String("/xli/test.txt1323824707048");
 	HdfsIO writter = null;
 
 	try {
-	    writter = new HdfsIO();
-	    writter.start("/xli/test.txt");
+	    writter = new HdfsIO("localhost", "9000");
+	
+	    if (args.length > 0) {
+		writter.open(args[0]);
+	    } else if (fileName.length() > 0) {
+		writter.open(fileName);
+	    } else {
+		writter.start("/xli/test.txt");
+	    }
+
 	    writter.write(msg, "testsrc", "test", "localhost", 999888);
+	    writter.close();
+	    Thread.sleep(1000); // sleep for 1000 ms.
+	    writter.setCurrentFile();
 	    System.out.print(writter.read());
 	} catch (Exception ex) {
 	    ex.printStackTrace();
