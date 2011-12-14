@@ -297,6 +297,29 @@
 		<fail unless="foundSplunkTgz" message="There has to be a splunk version packaged with .tgz in ${splunk.tgz.dir}" />
 	</target>
 
+	<target name="splunk-start">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="start --accept-license --no-prompt --answer-yes" />
+		</exec>
+	</target>
+
+	<target name="splunk-teardown" depends="set-splunk-home,checkForSplunkBinary" if="existsSplunkBinary">
+		<antcall>
+			<target name="splunk-stop" />
+			<target name="splunk-clean-all" />
+		</antcall>
+	</target>
+
+	<target name="checkForSplunkBinary">
+		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
+	</target>
+
+	<target name="splunk-stop">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="stop" />
+		</exec>
+	</target>
+
 	<target name="splunk-clean-all">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="clean all -f" />
