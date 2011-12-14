@@ -3,6 +3,8 @@
 
 # Compile output
 /build/
+
+# Eclipse compile output
 /bin/
 
 # TODO - this the output folder when ant unzips one of the libs.
