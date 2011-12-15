@@ -139,15 +139,25 @@
 		<antcall target="fast-TestNG-tests" />
 	</target>
 
-	<target name="slow-tests">
-		<antcall target="shell-tests" />
-	</target>
-
 	<target name="fast-TestNG-tests" depends="compile">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
 			<classfileset dir="${builddir}" includes="**/*.class" />
 		</testng>
+	</target>
+
+	<target name="slow-tests">
+		<antcall>
+			<target name="hadoop-setup" />
+			<target name="splunk-setup" />
+		</antcall>
+		<antcall>
+			<target name="shell-tests" />
+		</antcall>
+		<antcall>
+			<target name="splunk-teardown" />
+			<target name="hadoop-teardown" />
+		</antcall>
 	</target>
 
 	<target name="shell-tests" depends="compile,set-splunk-home,set-hadoop-home">
