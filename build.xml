@@ -132,7 +132,7 @@
 	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
 	<target name="test">
 		<antcall target="fast-tests" />
-		<!-- TODO: re-enable when better  <antcall target="slow-tests" /> -->
+		<antcall target="slow-tests" />
 	</target>
 
 	<target name="fast-tests">
