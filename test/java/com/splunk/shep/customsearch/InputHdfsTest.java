@@ -7,21 +7,24 @@ import java.io.InputStreamReader;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 public class InputHdfsTest extends SplunkHdfsTest {
-    String testuri = "hdfs://localhost:54310/inputhdfstest/testfile";
+    String testuri = null;
 
     String line1 = "this is line1";
     String line2 = "this is line2";
 
+    @Parameters({ "username", "password" })
     @Test(groups = { "fast" })
-    public void fileCheck() {
+    public void fileCheck(String username, String password) {
 	System.out.println("Running InputHdfs Test");
 	try {
 	    Runtime rt = Runtime.getRuntime();
 	    String cmdarray[] = { "/Applications/splunk/bin/splunk", "search",
-		    "| inputhdfs file=" + testuri };
+		    "| inputhdfs file=" + testuri, "-auth",
+		    username + ":" + password };
 	    Process proc = rt.exec(cmdarray);
 	    InputStream stdin = proc.getInputStream();
 	    InputStreamReader isr = new InputStreamReader(stdin);
@@ -37,15 +40,17 @@ public class InputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
+    @Parameters({ "inputhdfstesturi" })
     @BeforeTest(groups = { "fast" })
-    public void beforeTest() {
+    public void beforeTest(String uri) {
+	this.testuri = uri;
 	StringBuffer msg = new StringBuffer();
 	msg.append(line1);
 	msg.append("\n");
 	msg.append(line2);
 	msg.append("\n");
 	try {
-	    putFileinHDFS(testuri, msg.toString());
+	    putFileinHDFS(this.testuri, msg.toString());
 	} catch (Exception e) {
 	    e.printStackTrace();
 	    Assert.fail(e.getMessage());
