@@ -16,3 +16,6 @@
 
 # Splunk package folder
 /put-splunk-tgz-here/*
+
+# Downloads
+/contrib/hadoop-*.tar.gz
