@@ -74,6 +74,10 @@
 		<mkdir dir="${build-cache}" />
 	</target>
 
+	<target name="clean-downloads">
+		<delete file="${hadoop.download.path}" />
+	</target>
+
 	<!-- create a version.properties file from a template which is read by Version.java -->
 	<target name="version">
 		<exec executable="hostname" osfamily="unix" failifexecutionfails="false" outputproperty="hostname">
