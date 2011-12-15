@@ -1,4 +1,22 @@
 #!/bin/bash
+# The first argument ($1) should contain HADOOP_HOME
+# The second argument ($2) should contain SHEPDIR
+# The third argument ($3) should contain SPLUNK_HOME
+
+filename=$(basename $0)
+hadoop_home_arg=$1
+shepdir_arg=$2
+splunk_home_arg=$3
+
+print_usage () {
+  echo "Usage: $filename <HADOOP_HOME> <SHEPDIR>."
+}
+
+if [ $# -ne 3 ]; then
+  echo "Warning: $filename was not run correctly."
+  print_usage
+  exit
+fi
 
 results_out=""
 fails_out=""
