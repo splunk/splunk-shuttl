@@ -409,7 +409,7 @@
 
 
 	<!-- create the jar file -->
-	<target name="jar" depends="versionized-jar-name">
+	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
 		<jar destfile="${name.versioned.path}" basedir="${builddir}/classes">
 			<exclude name="com/splunk/shep/connector/tests/*" />
