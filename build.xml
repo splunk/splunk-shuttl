@@ -318,6 +318,31 @@
 	<target name="checkForHadoopBinaries">
 		<available file="${hadoop.home}/bin" type="dir" property="existsHadoopBinaries" />
 	</target>
+
+	<!-- Splunk -->
+	<target name="splunk-setup" depends="set-splunk-home">
+		<antcall>
+			<target name="splunk-unpack-if-not-extracted" />
+			<target name="splunk-start" />
+		</antcall>
+	</target>
+
+	<target name="splunk-unpack-if-not-extracted" unless="gotSplunk">
+		<antcall target="do-splunk-unpack-if-not-extracted" />
+	</target>
+
+	<target name="do-splunk-unpack-if-not-extracted" depends="checkForSplunkExtraction" if="isSplunkNotExtracted">
+		<antcall target="splunk-unpack" />
+	</target>
+
+	<target name="checkForSplunkExtraction">
+		<condition property="isSplunkNotExtracted">
+			<not>
+				<available file="${splunk.extracted.dir}/bin" type="dir" />
+			</not>
+		</condition>
+	</target>
+
 	<target name="splunk-unpack" depends="isSplunkTgzAvailable" if="foundSplunkTgz">
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
