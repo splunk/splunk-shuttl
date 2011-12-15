@@ -128,6 +128,7 @@
 		</javac>
 	</target>
 
+
 	<!-- run test via testNG -->
 	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
 	<target name="test">
@@ -438,9 +439,11 @@
 
 	<!-- build ready for testing -->
 	<target name="build">
-		<antcall target="clean" />
-		<antcall target="compile" />
-		<antcall target="jar" />
+		<antcall>
+			<target name="clean" />
+			<target name="compile" />
+			<target name="jar" />
+		</antcall>
 	</target>
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
