@@ -68,8 +68,15 @@
 		<mkdir dir="${builddir}" />
 		<mkdir dir="${classdir}" />
 
-		<!-- same things happen for builddir and build-cache -->
-		<!-- should not create things in the clean target -->
+		<!-- should not create things in the clean target? -->
+		<antcall target="clean-build-cache" />
+	</target>
+
+	<target name="clean-build-cache">
+		<antcall>
+			<target name="hadoop-teardown" />
+			<target name="splunk-teardown" />
+		</antcall>
 		<delete dir="${build-cache}" />
 		<mkdir dir="${build-cache}" />
 	</target>
