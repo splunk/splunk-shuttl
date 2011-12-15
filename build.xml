@@ -3,6 +3,7 @@
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="flumelib.home" value="${flume.home}/lib" />
 	<property name="builddir" value="${basedir}/build" />
+	<property name="build-cache" value="${basedir}/build-cache" />
 	<property name="classdir" value="${builddir}/classes" />
 	<property name="name" value="splunk-hadoop-connector" />
 	<property name="testng.basename" value="testng-6.1.1" />
@@ -15,6 +16,21 @@
 	<property name="stage.dir" value="${builddir}/${appname}" />
 	<property name="srcdir" value="src/java/" />
 	<property name="testdir" value="test/java/" />
+
+	<!-- hadoop properties -->
+	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
+	<property name="hadoop.download.url" value="ftp://apache.cs.utah.edu/apache.org/hadoop/common/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
+	<property name="hadoop.download.name.extracted" value="hadoop-0.20.203.0" />
+	<property name="hadoop.download.name" value="${hadoop.download.name.extracted}rc1.tar.gz" />
+	<property name="hadoop.download.dir" value="${contribdir}" />
+	<property name="hadoop.download.path" value="${hadoop.download.dir}/${hadoop.download.name}" />
+	<property name="hadoop.extracted.dir" value="${build-cache}" />
+	<property name="hadoop.extracted.path" value="${hadoop.extracted.dir}/${hadoop.download.name.extracted}" />
+	<property name="hadoop.extracted.conf.dir" value="${hadoop.extracted.path}/conf" />
+
+	<!-- splunk properties -->
+	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
+	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
 
 	<path id="build.classpath">
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
@@ -51,6 +67,22 @@
 		<delete dir="${builddir}" />
 		<mkdir dir="${builddir}" />
 		<mkdir dir="${classdir}" />
+
+		<!-- should not create things in the clean target? -->
+		<antcall target="clean-build-cache" />
+	</target>
+
+	<target name="clean-build-cache">
+		<antcall>
+			<target name="hadoop-teardown" />
+			<target name="splunk-teardown" />
+		</antcall>
+		<delete dir="${build-cache}" />
+		<mkdir dir="${build-cache}" />
+	</target>
+
+	<target name="clean-downloads">
+		<delete file="${hadoop.download.path}" />
 	</target>
 
 	<!-- create a version.properties file from a template which is read by Version.java -->
@@ -105,19 +137,16 @@
 		</javac>
 	</target>
 
+
 	<!-- run test via testNG -->
 	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
 	<target name="test">
 		<antcall target="fast-tests" />
-		<!-- TODO: re-enable when better  <antcall target="slow-tests" /> -->
+		<antcall target="slow-tests" />
 	</target>
 
 	<target name="fast-tests">
 		<antcall target="fast-TestNG-tests" />
-	</target>
-
-	<target name="slow-tests">
-		<antcall target="shell-tests" />
 	</target>
 
 	<target name="fast-TestNG-tests" depends="compile">
@@ -127,47 +156,171 @@
 		</testng>
 	</target>
 
-	<target name="shell-tests" depends="setup-hadoop">
-		<exec dir="." executable="sh" osfamily="unix">
-			<arg line="-c" />
-			<arg line="test/unittests/run-unittests.sh" />
+	<target name="slow-tests">
+		<antcall>
+			<target name="hadoop-setup" />
+			<target name="splunk-setup" />
+		</antcall>
+		<antcall>
+			<target name="shell-tests" />
+		</antcall>
+		<antcall>
+			<target name="splunk-teardown" />
+			<target name="hadoop-teardown" />
+		</antcall>
+	</target>
+
+	<target name="shell-tests" depends="compile,set-splunk-home,set-hadoop-home">
+		<echo>Running shell-tests..</echo>
+		<exec dir="." executable="${basedir}/test/unittests/run-unittests.sh" osfamily="unix">
+			<arg value="${hadoop.home}" />
+			<arg value="${basedir}" />
+			<arg value="${splunk.home}" />
 		</exec>
 	</target>
 
-	<!-- Check hadoop_home env, stop, copy and start -->
-	<target name="setup-hadoop">
-		<antcall target="hadoop-env" />
-		<antcall target="hadoop-stop" />
-		<antcall target="hadoop-copy" />
-		<antcall target="hadoop-start" />
-		<antcall target="hadoop-unsafe-mode" />
-	</target>
 
-	<!-- grab hadoop and put in contrib dir -->
-	<target name="download-hadoop">
-		<exec executable="curl" osfamily="unix">
-			<arg value="-O"/> 
-			<arg value="-s"/> 
-			<arg value="ftp://apache.cs.utah.edu/apache.org/hadoop/common/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz"/>
-		</exec>
-		<move file="hadoop-0.20.203.0rc1.tar.gz" todir="contrib"/>
-	</target>
-
-	<target name="hadoop-env">
+	<!-- Setting environment specific properties -->
+	<target name="set-environment-property">
 		<property environment="env" />
-		<fail unless="env.HADOOP_HOME" message="Environment variable HADOOP_HOME was not set." />
-		<property name="hadoop.home" value="${env.HADOOP_HOME}" />
 	</target>
 
-	<target name="hadoop-stop" depends="hadoop-env">
+	<target name="set-splunk-home" depends="set-user-env-splunk" unless="splunk.home">
+		<property name="splunk.home" value="${splunk.extracted.dir}" />
+	</target>
+
+	<target name="set-user-env-splunk" depends="set-environment-property" if="gotSplunk">
+		<property name="splunk.home" value="${env.SPLUNK_HOME}" />
+		<echo>You specified that you've got your own Splunk.</echo>
+		<echo>Running shell tests with SPLUNK_HOME: ${splunk.home}</echo>
+	</target>
+
+	<target name="set-hadoop-home" depends="set-user-env-hadoop" unless="hadoop.home">
+		<property name="hadoop.home" value="${hadoop.extracted.path}" />
+	</target>
+
+	<target name="set-user-env-hadoop" depends="set-environment-property" if="gotHadoop">
+		<property name="hadoop.home" value="${env.HADOOP_HOME}" />
+		<echo>You specified that you've got your own Hadoop.</echo>
+		<echo>Running shell tests with HADOOP_HOME: ${hadoop.home}</echo>
+	</target>
+
+	<!-- Hadoop -->
+	<target name="hadoop-setup" depends="set-hadoop-home">
+		<antcall>
+			<target name="hadoop-prepare-build-cache" />
+			<target name="hadoop-boot" />
+		</antcall>
+	</target>
+
+	<target name="hadoop-prepare-build-cache" unless="gotHadoop">
+		<antcall target="do-hadoop-prepare-build-cache" />
+	</target>
+
+	<target name="do-hadoop-prepare-build-cache" depends="checkHadoopInCache" unless="isHadoopInCache">
+		<antcall>
+			<target name="hadoop-download" />
+			<target name="hadoop-extract" />
+			<target name="hadoop-copy-confs" />
+			<target name="hadoop-format-namenode-unsafe" />
+		</antcall>
+	</target>
+
+	<target name="checkHadoopInCache">
+		<condition property="isHadoopInCache">
+			<available file="${hadoop.extracted.path}" type="dir" />
+		</condition>
+	</target>
+
+	<target name="hadoop-download" depends="checkIfHadoopNotDownloaded" if="isNotDownloaded">
+		<echo>Downloading hadoop from ${hadoop.download.url}</echo>
+		<exec executable="curl" osfamily="unix">
+			<arg value="-O" />
+			<arg value="-s" />
+			<arg value="${hadoop.download.url}" />
+		</exec>
+		<!-- this move will make hadoop.download.path make sence -->
+		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
+	</target>
+
+	<target name="checkIfHadoopNotDownloaded">
+		<condition property="isNotDownloaded">
+			<not>
+				<available file="${hadoop.download.path}" type="file" />
+			</not>
+		</condition>
+	</target>
+
+	<!-- extract to build cache-->
+	<target name="hadoop-extract" depends="checkIfHadoopIsDownloaded" unless="isDownloaded">
+		<echo>Extracting...</echo>
 		<exec executable="sh" osfamily="unix">
-			<arg line="-c" />
-			<arg line="${hadoop.home}/bin/stop-all.sh" />
+			<arg value="-c" />
+			<arg line="'tar xf ${hadoop.download.path} -C ${hadoop.extracted.dir}'" />
+		</exec>
+	</target>
+
+	<target name="checkIfHadoopIsDownloaded">
+		<condition property="isDownloaded">
+			<not>
+				<available file="${hadoop.download.path}" type="file" />
+			</not>
+		</condition>
+	</target>
+
+	<target name="hadoop-copy-confs">
+		<property name="hadoop.conf.dir" value="${hadoop.utils}/conf" />
+		<copy todir="${hadoop.extracted.conf.dir}">
+			<fileset dir="${hadoop.conf.dir}" includes="*" />
+		</copy>
+		<antcall>
+			<target name="hadoop-set-java-home" />
+			<target name="hadoop-set-tmp-dir" />
+		</antcall>
+	</target>
+
+	<target name="hadoop-set-java-home" depends="set-environment-property">
+		<property name="hadoop.env.sh" value="${hadoop.extracted.conf.dir}/hadoop-env.sh" />
+		<fail if="${env.JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured."/>
+		<replace file="${hadoop.env.sh}">
+			<replacefilter token="@JAVA.HOME@" value="${env.JAVA_HOME}" />
+		</replace>
+	</target>
+
+	<target name="hadoop-set-tmp-dir">
+		<property name="core-site.xml" value="${hadoop.extracted.conf.dir}/core-site.xml" />
+		<replace file="${core-site.xml}">
+			<replacefilter token="@HADOOP.TMP.DIR@" value="${hadoop.extracted.path}/tmp" />
+		</replace>
+		<property name="hadoop-env.sh" value="${hadoop.extracted.conf.dir}/hadoop-env.sh" />
+		<replace file="${hadoop-env.sh}">
+			<replacefilter token="@HADOOP.PID.DIR@" value="${hadoop.extracted.path}/tmp" />
+		</replace>
+	</target>
+
+	<!-- Stop, copy and start -->
+	<target name="hadoop-boot">
+		<antcall>
+			<target name="hadoop-stop" />
+			<target name="hadoop-copy-jars" />
+			<target name="hadoop-start" />
+			<target name="hadoop-unsafe-mode" />
+		</antcall>
+	</target>
+
+	<target name="hadoop-stop">
+		<exec executable="${hadoop.home}/bin/stop-all.sh" osfamily="unix" />
+	</target>
+
+	<target name="hadoop-format-namenode-unsafe">
+		<exec executable="sh" osfamily="unix">
+			<arg value="-c" />
+			<arg line="'${hadoop.home}/bin/hadoop namenode -format'" />
 		</exec>
 	</target>
 
 	<!-- copy the jar file to hadoop lib -->
-	<target name="hadoop-copy" depends="jar,hadoop-env">
+	<target name="hadoop-copy-jars" depends="jar">
 		<property name="hadoop.lib" value="${hadoop.home}/lib" />
 		<copy file="${name.versioned.path}" todir="${hadoop.lib}" />
 		<!-- copy httpcomponents to hadoop -->
@@ -177,17 +330,92 @@
 		<copy file="${httpcomponents.lib}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
 	</target>
 
-	<target name="hadoop-start" depends="hadoop-env">
-		<exec executable="sh" osfamily="unix">
-			<arg line="-c" />
-			<arg line="${hadoop.home}/bin/start-all.sh" />
+	<target name="hadoop-start">
+		<exec executable="${hadoop.home}/bin/start-all.sh" osfamily="unix" />
+	</target>
+
+	<target name="hadoop-unsafe-mode">
+		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
+			<arg line="dfsadmin -safemode leave" />
 		</exec>
 	</target>
 
-	<target name="hadoop-unsafe-mode" depends="hadoop-env">
+	<target name="hadoop-teardown" depends="set-hadoop-home,checkForHadoopBinaries" if="existsHadoopBinaries">
+		<antcall>
+			<target name="hadoop-stop" />
+		</antcall>
+	</target>
+
+	<target name="checkForHadoopBinaries">
+		<available file="${hadoop.home}/bin" type="dir" property="existsHadoopBinaries" />
+	</target>
+
+	<!-- Splunk -->
+	<target name="splunk-setup" depends="set-splunk-home">
+		<antcall>
+			<target name="splunk-unpack-if-not-extracted" />
+			<target name="splunk-start" />
+		</antcall>
+	</target>
+
+	<target name="splunk-unpack-if-not-extracted" unless="gotSplunk">
+		<antcall target="do-splunk-unpack-if-not-extracted" />
+	</target>
+
+	<target name="do-splunk-unpack-if-not-extracted" depends="checkForSplunkExtraction" if="isSplunkNotExtracted">
+		<antcall target="splunk-unpack" />
+	</target>
+
+	<target name="checkForSplunkExtraction">
+		<condition property="isSplunkNotExtracted">
+			<not>
+				<available file="${splunk.extracted.dir}/bin" type="dir" />
+			</not>
+		</condition>
+	</target>
+
+	<target name="splunk-unpack" depends="isSplunkTgzAvailable" if="foundSplunkTgz">
 		<exec executable="sh" osfamily="unix">
-			<arg line="-c" />
-			<arg line="'${hadoop.home}/bin/hadoop dfsadmin -safemode leave'" />
+			<arg value="-c" />
+			<arg line="'tar xf ${splunk.tgz.dir}/*.tgz -C ${build-cache}'" />
+		</exec>
+	</target>
+
+	<target name="isSplunkTgzAvailable">
+		<pathconvert property="foundSplunkTgz" setonempty="false" pathsep=" ">
+			<path>
+				<fileset dir="${splunk.tgz.dir}" includes="splunk-*.tgz" />
+			</path>
+		</pathconvert>
+		<fail unless="foundSplunkTgz" message="There has to be a splunk version packaged with .tgz in ${splunk.tgz.dir}" />
+	</target>
+
+	<target name="splunk-start">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="start --accept-license --no-prompt --answer-yes" />
+		</exec>
+	</target>
+
+	<target name="splunk-teardown" depends="set-splunk-home,checkForSplunkBinary" if="existsSplunkBinary">
+		<antcall>
+			<target name="splunk-stop" />
+			<target name="splunk-clean-all" />
+		</antcall>
+	</target>
+
+	<target name="checkForSplunkBinary">
+		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
+	</target>
+
+	<target name="splunk-stop">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="stop" />
+		</exec>
+	</target>
+
+	<target name="splunk-clean-all">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="clean all -f" />
 		</exec>
 	</target>
 
@@ -201,7 +429,7 @@
 
 
 	<!-- create the jar file -->
-	<target name="jar" depends="versionized-jar-name">
+	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
 		<jar destfile="${name.versioned.path}" basedir="${builddir}/classes">
 			<exclude name="com/splunk/shep/connector/tests/*" />
@@ -220,9 +448,11 @@
 
 	<!-- build ready for testing -->
 	<target name="build">
-		<antcall target="clean" />
-		<antcall target="compile" />
-		<antcall target="jar" />
+		<antcall>
+			<target name="clean" />
+			<target name="compile" />
+			<target name="jar" />
+		</antcall>
 	</target>
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->

@@ -6,6 +6,7 @@
 
 # Eclipse compile output
 /bin/
+/build-cache/
 
 # TODO - this the output folder when ant unzips one of the libs.
 # All the other libs are currently directories but in the future they should be zips.
@@ -14,3 +15,9 @@
 
 # Test folders
 /test/unittests/test-output/
+
+# Splunk package folder
+/put-splunk-tgz-here/*
+
+# Downloads
+/contrib/hadoop-*.tar.gz
