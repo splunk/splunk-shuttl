@@ -243,12 +243,33 @@
 		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
 	</target>
 
+
+	<target name="set-hadoop-download-url" depends="set-user-hadoop-version-url" unless="hadoop.download.url">
+		<property name="hadoop.download.url" value="${hadoop.default.download.url}" />
+	</target>
+
 	<target name="checkIfHadoopNotDownloaded">
 		<condition property="isNotDownloaded">
 			<not>
 				<available file="${hadoop.download.path}" type="file" />
 			</not>
 		</condition>
+	</target>
+
+	<target name="set-user-hadoop-version-url" if="hadoopVersion">
+		<if>
+			<equals arg1="${hadoopVersion}" arg2="203" />
+			<then>
+				<property name="hadoop.version.url" value="hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
+			</then>
+			<elseif>
+				<equals arg1="${hadoopVersion}" arg2="205" />
+				<then>
+					<property name="hadoop.version.url" value="hadoop-0.20.205.0/hadoop-0.20.205.0.tar.gz" />
+				</then>
+			</elseif>
+		</if>
+		<property name="hadoop.download.url" value="${hadoop.apache.org.hadoop.common.host}/${hadoop.version.url}" />
 	</target>
 
 	<!-- extract to build cache-->
