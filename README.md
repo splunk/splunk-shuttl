@@ -88,6 +88,7 @@ Getting Started
 ---------------
 
 Set the `JAVA_HOME` environment variable
+
 Make sure that you can run `ssh localhost` without having to enter a password*
 
 Cd into to the splunk-shep directory and run the following:
@@ -109,7 +110,7 @@ Run the tests:
 
 Warning: All of your Splunk indexes is cleared if you do this.
 
-Assertions: The tests currently assert that the username and password for your Pplunk instance is admin and password. We also assert that your Hadoop namenode has been formatted.
+Assertions: The tests assert that the username and password for your Splunk instance is admin and password. We also assert that your Hadoop namenode has been formatted.
 
 How to do it:
 
@@ -119,4 +120,4 @@ Run ant test with parameter `-DgotSplunk=true` and/or `-DgotHadoop=true`. For ex
 
 	$ ant test -DgotSplunk=true -DgotHadoop=true
 
-The script will now use your own environment variables to run the tests.
+The script will now use your own environment variables to run the tests. You don't have to run with both parameters. You can run with either one.
