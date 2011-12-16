@@ -1,0 +1,5 @@
+username=admin
+password=changeme
+inputhdfstesturi=hdfs://localhost:54310/inputhdfstest/testfile
+outputhdfstesturi=hdfs://localhost:54310/outputhdfstest/testfile
+splunk.home=/Applications/splunk

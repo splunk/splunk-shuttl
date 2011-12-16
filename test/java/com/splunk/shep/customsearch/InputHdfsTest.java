@@ -16,13 +16,13 @@ public class InputHdfsTest extends SplunkHdfsTest {
     String line1 = "this is line1";
     String line2 = "this is line2";
 
-    @Parameters({ "username", "password" })
+    @Parameters({ "username", "password", "splunk.home" })
     @Test(groups = { "fast" })
-    public void fileCheck(String username, String password) {
+    public void fileCheck(String username, String password, String splunkhome) {
 	System.out.println("Running InputHdfs Test");
 	try {
 	    Runtime rt = Runtime.getRuntime();
-	    String cmdarray[] = { "/Applications/splunk/bin/splunk", "search",
+	    String cmdarray[] = { splunkhome + "/bin/splunk", "search",
 		    "| inputhdfs file=" + testuri, "-auth",
 		    username + ":" + password };
 	    Process proc = rt.exec(cmdarray);

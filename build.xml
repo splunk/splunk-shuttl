@@ -130,6 +130,7 @@
 	    <propertyref name="password"/>
 		<propertyref name="inputhdfstesturi"/>
 		<propertyref name="outputhdfstesturi" />
+		<propertyref name="splunk.home" />
 	</propertyset>
 
 	<target name="fast-TestNG-tests" depends="compile">

@@ -14,7 +14,7 @@ public class SplunkHdfsTest {
     protected void putFileinHDFS(String uri, String msg) throws IOException {
 	FileSystem fs = getFileSystem(uri);
 	Path filepath = new Path(uri);
-	// TODO fs.mkdirs(filepath);
+	fs.mkdirs(filepath.getParent());
 	if (fs.exists(filepath)) {
 	    // remove the file first
 	    fs.delete(filepath);
@@ -37,7 +37,7 @@ public class SplunkHdfsTest {
     protected void mkdirsinHDFS(String uri) throws IOException {
 	FileSystem fs = getFileSystem(uri);
 	Path filepath = new Path(uri);
-	fs.mkdirs(filepath);
+	fs.mkdirs(filepath.getParent());
     }
 
     protected void deleteFileinHDFS(String uri) throws IOException {
@@ -46,7 +46,7 @@ public class SplunkHdfsTest {
 	if (fs.exists(filepath)) {
 	    // remove the file first
 	    fs.delete(filepath);
-	    // TODO need to delete the dir as well
+	    fs.delete(filepath.getParent());
 	}
     }
 

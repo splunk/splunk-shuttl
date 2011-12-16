@@ -1,2 +1,3 @@
 This directory contains custom search commands that integrate Splunk with HADOOP.
 The directory contains a py file and commands.conf.<commandname> snippet that needs to be added to the ./etc/apps/default/commands.conf
+The tests have to be run with the build.properties.test concatenated to the build.properties file.
