@@ -63,7 +63,15 @@
 		</classpath>
 	</taskdef>
 
-	<!-- Clean everything, and recreate needed dirs -->
+	<!-- Cleans everything -->
+	<target name="clean-all">
+		<antcall>
+			<target name="clean" />
+			<target name="clean-downloads" />
+		</antcall>
+	</target>
+
+	<!-- Clean build and build-cache dirs, and recreate them -->
 	<target name="clean">
 		<delete dir="${builddir}" />
 		<mkdir dir="${builddir}" />
@@ -83,6 +91,10 @@
 	</target>
 
 	<target name="clean-downloads">
+		<antcall target="clean-hadoop-download" />
+	</target>
+
+	<target name="clean-hadoop-download">
 		<delete file="${hadoop.download.path}" />
 	</target>
 
