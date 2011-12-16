@@ -19,9 +19,10 @@
 
 	<!-- hadoop properties -->
 	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
-	<property name="hadoop.download.url" value="ftp://apache.cs.utah.edu/apache.org/hadoop/common/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
-	<property name="hadoop.download.name.extracted" value="hadoop-0.20.203.0" />
-	<property name="hadoop.download.name" value="${hadoop.download.name.extracted}rc1.tar.gz" />
+	<property name="hadoop.apache.org.hadoop.common.host" value="ftp://apache.cs.utah.edu/apache.org/hadoop/common" />
+	<property name="hadoop.default.download.url" value="${hadoop.apache.org.hadoop.common.host}/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
+	<property name="hadoop.download.name.extracted" value="hadoop" />
+	<property name="hadoop.download.name" value="hadoop.tar.gz" />
 	<property name="hadoop.download.dir" value="${contribdir}" />
 	<property name="hadoop.download.path" value="${hadoop.download.dir}/${hadoop.download.name}" />
 	<property name="hadoop.extracted.dir" value="${build-cache}" />
@@ -233,11 +234,17 @@
 	</target>
 
 	<target name="hadoop-download" depends="checkIfHadoopNotDownloaded" if="isNotDownloaded">
+		<antcall>
+			<target name="do-hadoop-download" />
+		</antcall>
+	</target>
+
+	<target name="do-hadoop-download" depends="set-hadoop-download-url">
 		<echo>Downloading hadoop from ${hadoop.download.url}</echo>
 		<exec executable="curl" osfamily="unix">
-			<arg value="-O" />
 			<arg value="-s" />
 			<arg value="${hadoop.download.url}" />
+			<arg line="-o ${hadoop.download.name}" />
 		</exec>
 		<!-- this move will make hadoop.download.path make sence -->
 		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
@@ -278,6 +285,10 @@
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
 			<arg line="'tar xf ${hadoop.download.path} -C ${hadoop.extracted.dir}'" />
+		</exec>
+		<exec executable="sh" osfamily="unix">
+			<arg value="-c" />
+			<arg line="'mv ${hadoop.extracted.dir}/hadoop-* ${hadoop.extracted.path}'" />
 		</exec>
 	</target>
 
