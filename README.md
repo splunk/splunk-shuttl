@@ -121,3 +121,11 @@ Run ant test with parameter `-DgotSplunk=true` and/or `-DgotHadoop=true`. For ex
 	$ ant test -DgotSplunk=true -DgotHadoop=true
 
 The script will now use your own environment variables to run the tests. You don't have to run with both parameters. You can run with either one.
+
+### Specifying which Hadoop version to run
+
+Run ant test with parameter `-DhadoopVersion=<version>`, like so:
+
+	$ ant test -DhadoopVersion=203
+
+Currently supports version 203 and 205 for downloading. Tests are not working on 205 yet.
