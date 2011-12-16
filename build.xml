@@ -132,7 +132,7 @@
 			<replacefilter token="@BRANCH@" value="${git.branch}" />
 			<replacefilter token="@BUILDMACHINE@" value="${hostname}" />
 		</replace>
-		
+
 		<loadproperties>
 			<file file="${classdir}/com/splunk/shep/connector/version.properties" />
 		</loadproperties>
@@ -149,7 +149,6 @@
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
-
 
 	<!-- run test via testNG -->
 	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
@@ -191,7 +190,6 @@
 			<arg value="${splunk.home}" />
 		</exec>
 	</target>
-
 
 	<!-- Setting environment specific properties -->
 	<target name="set-environment-property">
@@ -262,7 +260,6 @@
 		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
 	</target>
 
-
 	<target name="set-hadoop-download-url" depends="set-user-hadoop-version-url" unless="hadoop.download.url">
 		<property name="hadoop.download.url" value="${hadoop.default.download.url}" />
 	</target>
@@ -325,7 +322,7 @@
 
 	<target name="hadoop-set-java-home" depends="set-environment-property">
 		<property name="hadoop.env.sh" value="${hadoop.extracted.conf.dir}/hadoop-env.sh" />
-		<fail if="${env.JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured."/>
+		<fail if="${env.JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured." />
 		<replace file="${hadoop.env.sh}">
 			<replacefilter token="@JAVA.HOME@" value="${env.JAVA_HOME}" />
 		</replace>
@@ -471,7 +468,6 @@
 		<property name="name.versioned.path" value="${builddir}/jar/${name.versioned}.jar" />
 	</target>
 
-
 	<!-- create the jar file -->
 	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
@@ -488,7 +484,6 @@
 			<include name="edu/jhu/nlp/**" />
 		</jar>
 	</target>
-
 
 	<!-- build ready for testing -->
 	<target name="build">
@@ -525,7 +520,7 @@
 				<exclude name="bin/**" />
 			</tarfileset>
 		</tar>
-			
+
 		<copy tofile="${builddir}/${appname}-${buildVersionSuffix}.tgz" file="${builddir}/${appname}.tgz" />
 	</target>
 
@@ -548,5 +543,4 @@
 			<classpath refid="build.classpath" />
 		</java>
 	</target>
-
 </project>
