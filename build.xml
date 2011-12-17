@@ -169,6 +169,7 @@
 	<propertyset id="testng">
 		<propertyref name="username" />
 		<propertyref name="password" />
+		<!-- testuri example: hdfs://localhost:port/somedir/filename -->
 		<propertyref name="inputhdfstesturi" />
 		<propertyref name="outputhdfstesturi" />
 		<propertyref name="splunk.home" />
@@ -177,7 +178,6 @@
 	<target name="fast-TestNG-tests" depends="compile">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
-			<propertyset refid="testng" />
 			<classfileset dir="${builddir}" includes="**/*.class" />
 		</testng>
 	</target>
@@ -188,12 +188,21 @@
 			<target name="splunk-setup" />
 		</antcall>
 		<antcall>
+			<target name="slow-TestNG-tests" />
 			<target name="shell-tests" />
 		</antcall>
 		<antcall>
 			<target name="splunk-teardown" />
 			<target name="hadoop-teardown" />
 		</antcall>
+	</target>
+
+	<target name="slow-TestNG-tests" depends="compile">
+		<!-- Test group 'fast'. We think about adding more groups in the future -->
+		<testng classpathref="build.classpath" groups="slow" outputdir="${builddir}/test-results">
+			<propertyset refid="testng" />
+			<classfileset dir="${builddir}" includes="**/*.class" />
+		</testng>
 	</target>
 
 	<target name="shell-tests" depends="compile,set-splunk-home,set-hadoop-home">
