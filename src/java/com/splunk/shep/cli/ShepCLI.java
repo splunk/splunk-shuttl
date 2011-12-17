@@ -64,6 +64,7 @@ public class ShepCLI {
     private void parseArgs(String[] args, int startIndex) throws Exception {
 	if (args.length < 1) {
 	    usage();
+	    return;
 	}
 
 	// Explicit check for help
@@ -129,12 +130,11 @@ public class ShepCLI {
 
     private void usage() {
 	System.out.println("Usage : java " + getClass().getName() + " <cmd>");
-	System.out.println("Commands:\n                      "
-		+ "    -h\n         "
-		+ "    -ls <path>\n                          "
-		+ "    -ls [<path>}\n           "
+	System.out.println("Commands:                      \n"
+		+ "    -h                           \n"
+		+ "    -ls [<path>]                          \n"
 		+ "    -create <file-path> <message>\n"
-		+ "    -import <source-path>\n               "
+		+ "    -import <source-path>               \n"
 		+ "    -cat <source-path>\n"
 		+ "    -tail [-f] <source-path>\n"
 		+ "    -get <source-path> <dest-path>\n");
