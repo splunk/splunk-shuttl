@@ -19,9 +19,10 @@
 
 	<!-- hadoop properties -->
 	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
-	<property name="hadoop.download.url" value="ftp://apache.cs.utah.edu/apache.org/hadoop/common/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
-	<property name="hadoop.download.name.extracted" value="hadoop-0.20.203.0" />
-	<property name="hadoop.download.name" value="${hadoop.download.name.extracted}rc1.tar.gz" />
+	<property name="hadoop.apache.org.hadoop.common.host" value="ftp://apache.cs.utah.edu/apache.org/hadoop/common" />
+	<property name="hadoop.default.download.url" value="${hadoop.apache.org.hadoop.common.host}/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
+	<property name="hadoop.download.name.extracted" value="hadoop" />
+	<property name="hadoop.download.name" value="hadoop.tar.gz" />
 	<property name="hadoop.download.dir" value="${contribdir}" />
 	<property name="hadoop.download.path" value="${hadoop.download.dir}/${hadoop.download.name}" />
 	<property name="hadoop.extracted.dir" value="${build-cache}" />
@@ -62,7 +63,15 @@
 		</classpath>
 	</taskdef>
 
-	<!-- Clean everything, and recreate needed dirs -->
+	<!-- Cleans everything -->
+	<target name="clean-all">
+		<antcall>
+			<target name="clean" />
+			<target name="clean-downloads" />
+		</antcall>
+	</target>
+
+	<!-- Clean build and build-cache dirs, and recreate them -->
 	<target name="clean">
 		<delete dir="${builddir}" />
 		<mkdir dir="${builddir}" />
@@ -82,6 +91,10 @@
 	</target>
 
 	<target name="clean-downloads">
+		<antcall target="clean-hadoop-download" />
+	</target>
+
+	<target name="clean-hadoop-download">
 		<delete file="${hadoop.download.path}" />
 	</target>
 
@@ -119,7 +132,7 @@
 			<replacefilter token="@BRANCH@" value="${git.branch}" />
 			<replacefilter token="@BUILDMACHINE@" value="${hostname}" />
 		</replace>
-		
+
 		<loadproperties>
 			<file file="${classdir}/com/splunk/shep/connector/version.properties" />
 		</loadproperties>
@@ -136,7 +149,6 @@
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
-
 
 	<!-- run test via testNG -->
 	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
@@ -178,7 +190,6 @@
 			<arg value="${splunk.home}" />
 		</exec>
 	</target>
-
 
 	<!-- Setting environment specific properties -->
 	<target name="set-environment-property">
@@ -233,14 +244,24 @@
 	</target>
 
 	<target name="hadoop-download" depends="checkIfHadoopNotDownloaded" if="isNotDownloaded">
+		<antcall>
+			<target name="do-hadoop-download" />
+		</antcall>
+	</target>
+
+	<target name="do-hadoop-download" depends="set-hadoop-download-url">
 		<echo>Downloading hadoop from ${hadoop.download.url}</echo>
 		<exec executable="curl" osfamily="unix">
-			<arg value="-O" />
 			<arg value="-s" />
 			<arg value="${hadoop.download.url}" />
+			<arg line="-o ${hadoop.download.name}" />
 		</exec>
 		<!-- this move will make hadoop.download.path make sence -->
 		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
+	</target>
+
+	<target name="set-hadoop-download-url" depends="set-user-hadoop-version-url" unless="hadoop.download.url">
+		<property name="hadoop.download.url" value="${hadoop.default.download.url}" />
 	</target>
 
 	<target name="checkIfHadoopNotDownloaded">
@@ -251,12 +272,32 @@
 		</condition>
 	</target>
 
+	<target name="set-user-hadoop-version-url" if="hadoopVersion">
+		<if>
+			<equals arg1="${hadoopVersion}" arg2="203" />
+			<then>
+				<property name="hadoop.version.url" value="hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
+			</then>
+			<elseif>
+				<equals arg1="${hadoopVersion}" arg2="205" />
+				<then>
+					<property name="hadoop.version.url" value="hadoop-0.20.205.0/hadoop-0.20.205.0.tar.gz" />
+				</then>
+			</elseif>
+		</if>
+		<property name="hadoop.download.url" value="${hadoop.apache.org.hadoop.common.host}/${hadoop.version.url}" />
+	</target>
+
 	<!-- extract to build cache-->
 	<target name="hadoop-extract" depends="checkIfHadoopIsDownloaded" unless="isDownloaded">
 		<echo>Extracting...</echo>
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
 			<arg line="'tar xf ${hadoop.download.path} -C ${hadoop.extracted.dir}'" />
+		</exec>
+		<exec executable="sh" osfamily="unix">
+			<arg value="-c" />
+			<arg line="'mv ${hadoop.extracted.dir}/hadoop-* ${hadoop.extracted.path}'" />
 		</exec>
 	</target>
 
@@ -281,7 +322,7 @@
 
 	<target name="hadoop-set-java-home" depends="set-environment-property">
 		<property name="hadoop.env.sh" value="${hadoop.extracted.conf.dir}/hadoop-env.sh" />
-		<fail if="${env.JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured."/>
+		<fail if="${env.JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured." />
 		<replace file="${hadoop.env.sh}">
 			<replacefilter token="@JAVA.HOME@" value="${env.JAVA_HOME}" />
 		</replace>
@@ -427,7 +468,6 @@
 		<property name="name.versioned.path" value="${builddir}/jar/${name.versioned}.jar" />
 	</target>
 
-
 	<!-- create the jar file -->
 	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
@@ -444,7 +484,6 @@
 			<include name="edu/jhu/nlp/**" />
 		</jar>
 	</target>
-
 
 	<!-- build ready for testing -->
 	<target name="build">
@@ -481,7 +520,7 @@
 				<exclude name="bin/**" />
 			</tarfileset>
 		</tar>
-			
+
 		<copy tofile="${builddir}/${appname}-${buildVersionSuffix}.tgz" file="${builddir}/${appname}.tgz" />
 	</target>
 
@@ -504,5 +543,4 @@
 			<classpath refid="build.classpath" />
 		</java>
 	</target>
-
 </project>

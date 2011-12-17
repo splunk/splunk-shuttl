@@ -20,4 +20,4 @@
 /put-splunk-tgz-here/*
 
 # Downloads
-/contrib/hadoop-*.tar.gz
+/contrib/hadoop.tar.gz
