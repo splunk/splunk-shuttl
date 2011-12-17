@@ -376,7 +376,7 @@
 		<exec executable="${hadoop.home}/bin/stop-all.sh" osfamily="unix" />
 	</target>
 
-	<target name="hadoop-format-namenode-unsafe">
+	<target name="hadoop-format-namenode-unsafe" depends="set-hadoop-home">
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
 			<arg line="'${hadoop.home}/bin/hadoop namenode -format'" />
@@ -525,10 +525,13 @@
 		<copy todir="${stage.dir}">
 			<fileset dir="${package.dir}" />
 		</copy>
+		<antcall target="copy-libs-to-stage-dir" />
+
 		<!-- update the version in the app.conf file -->
 		<replace file="${stage.dir}/default/app.conf">
 			<replacefilter token="@VERSION@" value="${version}" />
 		</replace>
+
 		<!-- copy the jar in there -->
 		<copy file="${name.versioned.path}" todir="${stage.dir}/bin" />
 		<!-- tar it up -->
@@ -545,6 +548,27 @@
 		</tar>
 
 		<copy tofile="${builddir}/${appname}-${buildVersionSuffix}.tgz" file="${builddir}/${appname}.tgz" />
+	</target>
+
+	<target name="copy-libs-to-stage-dir">
+		<antcall>
+			<target name="copy-hadoop-jars-to-stage-dir" />
+		</antcall>
+	</target>
+
+	<target name="copy-hadoop-jars-to-stage-dir" depends="hadoop-prepare-build-cache">
+		<copy todir="${stage.dir}/lib">
+			<fileset dir="${hadoop.extracted.path}" includes="hadoop-core-*.jar" />
+		</copy>
+		<copy todir="${stage.dir}/lib">
+			<fileset dir="${hadoop.extracted.path}/lib" includes="commons-configuration-*.jar" />
+		</copy>
+		<copy todir="${stage.dir}/lib">
+			<fileset dir="${hadoop.extracted.path}/lib" includes="commons-lang-*.jar" />
+		</copy>
+		<copy todir="${stage.dir}/lib">
+			<fileset dir="${hadoop.extracted.path}/lib" includes="commons-logging-1.*.jar" />
+		</copy>
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->
