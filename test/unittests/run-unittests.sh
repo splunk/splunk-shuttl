@@ -1,26 +1,65 @@
 #!/bin/bash
+# The first argument ($1) should contain HADOOP_HOME
+# The second argument ($2) should contain SHEPDIR
+# The third argument ($3) should contain SPLUNK_HOME
+
+filename=$(basename $0)
+hadoop_home_arg=$1
+shepdir_arg=$2
+splunk_home_arg=$3
+
+print_usage () {
+  echo "Usage: $filename <HADOOP_HOME> <SHEPDIR>."
+}
+
+if [ $# -ne 3 ]; then
+  echo "Warning: $filename was not run correctly."
+  print_usage
+  exit
+fi
 
 results_out=""
 fails_out=""
-wins_out=""
 
 main() {
-  setup
+  setup_environment
+  setup_tests
   run_tests
 }
 
-setup() {
+setup_environment() {
+  set_env_with_variable HADOOP_HOME $hadoop_home_arg $HADOOP_HOME
+  set_env_with_variable SHEPDIR $shepdir_arg $SHEPDIR
+  set_env_with_variable SPLUNK_HOME $splunk_home_arg $SPLUNK_HOME
+
+  #Splunk authentication
+  export SPLUNK_USERNAME=admin
+  export SPLUNK_PASSWORD=changeme
+}
+
+# Sets the environment variable in $1 with value in $2.
+# $3 contains the current value of $1.
+# Warning will be printed if there's already a value in variable $1.
+set_env_with_variable () {
+  env_name=$1
+  new_value=$2
+  old_value=$3
+  if [ "$old_value" != "" ] && [ "$old_value" != "$new_value" ]; then
+    echo "Warning: Overriding environment variable $env_name=$old_value with $new_value."
+  fi
+  export $env_name=$new_value
+}
+
+setup_tests() {
   script_dir=$(dirname $0)
   out_dir=$script_dir/test-output
   mkdir -p $out_dir
 
   results_out=$out_dir/test-results.txt
   fails_out=$out_dir/test-fails.txt
-  wins_out=$out_dir/test-wins.txt
 
   clear_file $results_out
   clear_file $fails_out
-  clear_file $wins_out
 }
 
 clear_file() {
@@ -47,11 +86,10 @@ run_test() {
   if [[ $? != 0 ]]; then
     echo "Fail in test: $test" | tee -a $fails_out | tee -a $results_out
   else
-    echo "Win in test: $test" | tee -a $wins_out | tee -a $results_out
+    echo "Win in test: $test" | tee -a $results_out
   fi
   echo "-- Finished running test: $test --" >> $results_out
   echo "-- ---------------------" >> $results_out
 }
-
 
 main #run the script

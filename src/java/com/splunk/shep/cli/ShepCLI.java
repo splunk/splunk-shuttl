@@ -41,13 +41,7 @@ public class ShepCLI {
 	    "/Users/xli/app/hadoop-0.20.205.0");
 
     public static void main(String[] args) throws Exception {
-	// TODO Auto-generated method stub
-
 	// System.out.println("Splunk Shep CLI");
-
-	// Test shell command
-	// runCmd("ls");
-
 	int startIndex = 0;
 	String confPath = new String("ShepCLI.conf");
 	if (args.length > 2) {
@@ -77,8 +71,16 @@ public class ShepCLI {
 		|| (args[startIndex].equals("help"))
 		|| (args[startIndex].equals("--h"))) {
 	    usage();
+	} else if (args[startIndex].equals("-create")) {
+	    // /System.out.println("Run -get command.");
+	    if ((args.length - startIndex) == 3)
+		createFile(args[startIndex + 1], args[startIndex + 2]);
+	    else {
+		System.out.println("Incorrect arguments for create command.");
+		usage();
+	    }
 	} else if (args[startIndex].equals("-get")) {
-	    System.out.println("Run -get command.");
+	    // System.out.println("Run -get command.");
 	    if ((args.length - startIndex) == 3)
 		get(args[startIndex + 1], args[startIndex + 2]);
 	    else {
@@ -127,20 +129,26 @@ public class ShepCLI {
 
     private void usage() {
 	System.out.println("Usage : java " + getClass().getName() + " <cmd>");
-	System.out
-		.println("Commands:\n" + "    -h\n" + "    -ls <path>\n"
-		+ "    -get <source-path> <dest-path>\n"
-			+ "    -cat <source-path>\n"
-			+ "    -tail [-f] <source-path>\n");
+	System.out.println("Commands:\n                      "
+		+ "    -h\n         "
+		+ "    -ls <path>\n                          "
+		+ "    -ls [<path>}\n           "
+		+ "    -create <file-path> <message>\n"
+		+ "    -import <source-path>\n               "
+		+ "    -cat <source-path>\n"
+		+ "    -tail [-f] <source-path>\n"
+		+ "    -get <source-path> <dest-path>\n");
     }
 
     private void init() {
-	if (conf.getHadoopHome() == null) {
-	    // System.out.println("Using default Hadoop Home: "
-	    // + DefaultHadoopHome);
+	try {
+	    if (conf.getHadoopHome() == null) {
+		System.out.println("Using default Hadoop Home: "
+			+ DefaultHadoopHome);
+		conf.setHadoopHome(DefaultHadoopHome);
+	    }
+	} catch (Exception e) {
 	    conf.setHadoopHome(DefaultHadoopHome);
-	} else {
-	    // System.out.println("Hadoop home: " + conf.getHadoopHome());
 	}
     }
 
@@ -164,11 +172,16 @@ public class ShepCLI {
     }
 
     private void cat(String src) throws Exception {
-	Runtime r = Runtime.getRuntime();
-	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
+	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
+	fileIO.openToRead(src);
+	System.out.print(fileIO.read());
+	fileIO.close();
+
+	// Runtime r = Runtime.getRuntime();
+	// String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
 
 	// System.out.println("run: " + cmd);
-	runCmd(cmd);
+	// runCmd(cmd);
 	// r.exec(cmd);
     }
 
@@ -180,12 +193,20 @@ public class ShepCLI {
 	    index += 1;
 	String fileName = src.substring(index);
 	Runtime r = Runtime.getRuntime();
-	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -get " + src
+	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -get " + src + " "
 		+ conf.getSplunkHome() + "/etc/apps/shep/import/" + fileName;
 
 	// System.out.println("run: " + cmd);
 	runCmd(cmd);
 	// r.exec(cmd);
+    }
+
+    private void createFile(String filePath, String msg) throws Exception {
+	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
+	fileIO.openToCreate(filePath);
+	fileIO.write(msg, "commandline", "user_input", "localhost",
+		System.currentTimeMillis());
+	fileIO.close();
     }
 
     private void tailFile(String src) throws Exception {
@@ -211,7 +232,7 @@ public class ShepCLI {
 	    String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -tail " + src;
 	    // System.out.println("run: " + cmd);
 	    runCmd(cmd);
-	    // r.exec(cmd);
+	    Thread.currentThread().sleep(1000); // sleep for 1000 ms.
 	}
     }
 

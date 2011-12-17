@@ -87,23 +87,45 @@ http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html
 Getting Started
 ---------------
 
-Make sure `SPLUNK_HOME` and `HADOOP_HOME` are set.
-Make sure your spunk user name and password is *admin* and *changeme*
-Make sure the hadoop namenode is formatted once. `$HADOOP_HOME/bin/hadoop namenode -format`
+Set the `JAVA_HOME` environment variable
 
-Start spunk and login
+Make sure that you can run `ssh localhost` without having to enter a password*
 
-    $ $SPLUNK_HOME/bin/splunk start
-    $ $SPLUNK_HOME/bin/splunk login
+Cd into to the splunk-shep directory and run the following:
 
-Cd into to the splunk-shep directory and run the following
+Put a .tgz packaged Splunk in the put-splunk-tgz-here directory**
 
-    $ source setjavaenv
+Build shep:
 
-Run ant ant to build
-
-    $ ant
+	$ ./buildit.sh
 
 Run the tests:
 
-    $ ant test
+	$ ant test
+
+* Here's how you setup passphraseless ssh: http://hadoop.apache.org/common/docs/current/single_node_setup.html#Setup+passphraseless
+** You don't need to do this if you want to run against your own Splunk instance.
+
+### Running tests against your own Splunk and/or Hadoop
+
+Warning: All of your Splunk indexes is cleared if you do this.
+
+Assertions: The tests assert that the username and password for your Splunk instance is admin and password. We also assert that your Hadoop namenode has been formatted.
+
+How to do it:
+
+Set `SPLUNK_HOME` and/or `HADOOP_HOME` environment variables
+
+Run ant test with parameter `-DgotSplunk=true` and/or `-DgotHadoop=true`. For example:
+
+	$ ant test -DgotSplunk=true -DgotHadoop=true
+
+The script will now use your own environment variables to run the tests. You don't have to run with both parameters. You can run with either one.
+
+### Specifying which Hadoop version to run
+
+Run ant test with parameter `-DhadoopVersion=<version>`, like so:
+
+	$ ant test -DhadoopVersion=203
+
+Currently supports version 203 and 205 for downloading. Tests are not working on 205 yet.

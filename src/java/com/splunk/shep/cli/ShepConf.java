@@ -35,9 +35,9 @@ import java.util.Properties;
 public class ShepConf 
 {
     private String hadoopIP = new String("localhost");
-    private String hadoopPort = new String("50001");
+    private String hadoopPort = new String("9000");
     private String hadoopHome = null;
-    private String splunkHome = new String("");
+    private String splunkHome = null;
 	
 	//private Logger logger = Logger.getLogger(getClass());
 	
@@ -46,7 +46,7 @@ public class ShepConf
 	    parseConfig(filePath);
 	} catch (Exception e) {
 	    System.out.println("WARN: Failed opening/parsing ShepCLI.conf.");
-	    // e.printStackTrace();
+	    e.printStackTrace();
 	}
     }
 
@@ -63,17 +63,29 @@ public class ShepConf
 	if (ip != null) {
 	    hadoopIP = ip;
 	}
+ else {
+	    System.err.println("WARN: Hadoop host not configured.");
+	}
 		
 	if (port != null) {
 	    hadoopPort = port;
+	}
+ else {
+	    System.err.println("WARN: Hadoop port not configured.");
 	}
 		
 	if (hdfs != null) {
 	    hadoopHome = hdfs;
 	}
+ else {
+	    System.err.println("WARN: Hadoop home not configured.");
+	}
 
 	if (spl != null) {
 	    splunkHome = spl;
+	}
+ else {
+	    System.err.println("WARN: Splunk home not configured.");
 	}
     }
 
@@ -89,7 +101,9 @@ public class ShepConf
 	return hadoopPort;
     }
 
-    public String getHadoopHome() {
+    public String getHadoopHome() throws Exception {
+	if (hadoopHome == null)
+	    throw (new Exception("Hadoop home not configured."));
 	return hadoopHome;
     }
 
@@ -97,7 +111,9 @@ public class ShepConf
 	hadoopHome = hdfs;
     }
 
-    public String getSplunkHome() {
+    public String getSplunkHome() throws Exception {
+	if (splunkHome == null)
+	    throw (new Exception("Splunk home not configured."));
 	return splunkHome;
     }
 }
