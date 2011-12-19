@@ -7,7 +7,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-public class HDFSOut {
+public class HDFSPut {
 
     public static void main(String args[]) {
 	try {
@@ -37,6 +37,8 @@ public class HDFSOut {
 	    out.close();
 	} catch (Exception e) {
 	    e.printStackTrace();
+	    System.exit(1);
 	}
+	System.exit(0);
     }
 }

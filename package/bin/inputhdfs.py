@@ -44,7 +44,7 @@ separator_char = ' '
 if args['separator'] == 'tab':
 	separator_char = '\t'
 
-process = subprocess.Popen('$HADOOP_HOME/bin/hadoop dfs -cat ' + args['file'], shell=True, stdout=subprocess.PIPE)
+process = subprocess.Popen('java -cp $SPLUNK_HOME/etc/apps/shep/lib/hadoop-core-0.20.203.0.jar:$SPLUNK_HOME/etc/apps/shep/lib/commons-logging-1.1.1.jar:$SPLUNK_HOME/etc/apps/shep/lib/commons-configuration-1.6.jar:$SPLUNK_HOME/etc/apps/shep/lib/commons-lang-2.4.jar:$SPLUNK_HOME/etc/apps/shep/bin/splunk-hadoop-connector-0.4.1.jar com.splunk.shep.customsearch.HDFSCat ' + args['file'], shell=True, stdout=subprocess.PIPE)
 
 results = []
 chunkcount = 1;

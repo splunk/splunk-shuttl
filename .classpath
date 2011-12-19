@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="contrib/wikixmlj/bzip2.jar"/>
 	<classpathentry kind="lib" path="contrib/wikixmlj/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="contrib/commons-io-2.1/commons-io-2.1.jar"/>
+	<classpathentry kind="lib" path="contrib/testng-6.1.1.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

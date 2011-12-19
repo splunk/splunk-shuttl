@@ -34,7 +34,7 @@ if  args['file'] == 'nofile':
     splunk.Intersplunk.outputResults(errorresult)
     sys.exit()
 
-process = subprocess.Popen('java -cp $HADOOP_HOME/hadoop-core-0.20.205.0.jar:$HADOOP_HOME/lib/commons-logging-1.1.1.jar:$HADOOP_HOME/lib/commons-configuration-1.6.jar:$HADOOP_HOME/lib/commons-lang-2.4.jar:$SPLUNK_HOME/etc/apps/shep/bin/splunk-hadoop-connector-0.4.1.jar com.splunk.shep.customsearch.HDFSOut ' + args['file'], shell=True, stdin=subprocess.PIPE)
+process = subprocess.Popen('java -cp $SPLUNK_HOME/etc/apps/shep/lib/hadoop-core-0.20.203.0.jar:$SPLUNK_HOME/etc/apps/shep/lib/commons-logging-1.1.1.jar:$SPLUNK_HOME/etc/apps/shep/lib/commons-configuration-1.6.jar:$SPLUNK_HOME/etc/apps/shep/lib/commons-lang-2.4.jar:$SPLUNK_HOME/etc/apps/shep/bin/splunk-hadoop-connector-0.4.1.jar com.splunk.shep.customsearch.HDFSPut ' + args['file'], shell=True, stdin=subprocess.PIPE)
 # output results
 results,unused1,unused2 = splunk.Intersplunk.getOrganizedResults()
 

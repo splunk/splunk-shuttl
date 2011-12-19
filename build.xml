@@ -1,5 +1,9 @@
 <project name="HadoopConnector" default="build" basedir=".">
 	<property file="build.properties" />
+	<property name="username" value="admin" />
+	<property name="password" value="changeme" />
+	<property name="inputhdfstesturi" value="hdfs://localhost:54310/inputhdfstest/testfile" />
+	<property name="outputhdfstesturi" value="hdfs://localhost:54310/outputhdfstest/testfile" />
 	<property name="contribdir" value="${basedir}/contrib" />
 	<property name="hadoop.dir" value="${contribdir}/hadoop-0.20.205.0" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
@@ -169,7 +173,6 @@
 	<propertyset id="testng">
 		<propertyref name="username" />
 		<propertyref name="password" />
-		<!-- testuri example: hdfs://localhost:port/somedir/filename -->
 		<propertyref name="inputhdfstesturi" />
 		<propertyref name="outputhdfstesturi" />
 		<propertyref name="splunk.home" />

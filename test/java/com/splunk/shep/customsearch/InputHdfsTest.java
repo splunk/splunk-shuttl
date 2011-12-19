@@ -17,7 +17,7 @@ public class InputHdfsTest extends SplunkHdfsTest {
     String line2 = "this is line2";
 
     @Parameters({ "username", "password", "splunk.home" })
-    @Test(groups = { "fast" })
+    @Test(groups = { "slow" })
     public void fileCheck(String username, String password, String splunkhome) {
 	System.out.println("Running InputHdfs Test");
 	try {
@@ -41,7 +41,7 @@ public class InputHdfsTest extends SplunkHdfsTest {
     }
 
     @Parameters({ "inputhdfstesturi" })
-    @BeforeTest(groups = { "fast" })
+    @BeforeTest(groups = { "slow" })
     public void beforeTest(String uri) {
 	this.testuri = uri;
 	StringBuffer msg = new StringBuffer();
@@ -57,7 +57,7 @@ public class InputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
-    @AfterTest(groups = { "fast" })
+    @AfterTest(groups = { "slow" })
     public void afterTest() {
 	try {
 	    deleteFileinHDFS(testuri);
