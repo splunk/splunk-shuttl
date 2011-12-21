@@ -1,4 +1,4 @@
-<project name="HadoopConnector" default="build" basedir=".">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="HadoopConnector" default="build" basedir=".">
 	<property name="contribdir" value="${basedir}/contrib" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="flumelib.home" value="${flume.home}/lib" />
@@ -149,6 +149,10 @@
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
+
+    <target name="ivy-resolve" description="--> retrieve dependencies with ivy">
+        <ivy:retrieve />
+    </target>
 
 	<!-- run test via testNG -->
 	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
