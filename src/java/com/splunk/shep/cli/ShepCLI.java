@@ -153,36 +153,30 @@ public class ShepCLI {
     }
 
     private void get(String src, String dest) throws Exception {
-	Runtime r = Runtime.getRuntime();
 	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -get " + src + " "
 		+ dest;
 
 	// System.out.println("run: " + cmd);
 	runCmd(cmd);
-	// r.exec(cmd);
     }
 
     private void list(String src) throws Exception {
-	Runtime r = Runtime.getRuntime();
 	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -ls " + src;
 
 	// System.out.println("run: " + cmd);
 	runCmd(cmd);
-	// r.exec(cmd);
     }
 
     private void cat(String src) throws Exception {
-	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
-	fileIO.openToRead(src);
-	System.out.print(fileIO.read());
-	fileIO.close();
+	// HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
+	// fileIO.openToRead(src);
+	// fileIO.displayCurrentFile();
+	// fileIO.readCurrentFile();
+	// fileIO.close();
 
-	// Runtime r = Runtime.getRuntime();
-	// String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
-
+	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
 	// System.out.println("run: " + cmd);
-	// runCmd(cmd);
-	// r.exec(cmd);
+	runCmd(cmd);
     }
 
     private void importFile(String src) throws Exception {
@@ -228,7 +222,7 @@ public class ShepCLI {
 		continue;
 
 	    modTime = newModTime;
-	    // Runtime r = Runtime.getRuntime();
+
 	    String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -tail " + src;
 	    // System.out.println("run: " + cmd);
 	    runCmd(cmd);

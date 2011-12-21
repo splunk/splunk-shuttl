@@ -17,7 +17,9 @@
 
 package com.splunk.shep.connector;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
@@ -26,6 +28,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.util.LineReader;
 import org.apache.log4j.Logger;
 
 public class HdfsIO implements DataSink {
@@ -156,16 +159,24 @@ public class HdfsIO implements DataSink {
 		return false;
 	    }
 
-	    // HDFS doesn't support append() any more.
-	    // ofstream = fileSystem..append(destination);
-	    ifstream = fileSystem.open(destination);
+	    return openRead();
 
 	} catch (Exception e) {
-	    e.printStackTrace();
 	    logger.error("Exception in setting Hadoop file path: "
 		    + e.toString() + "/n StackTrace:/n"
 		    + e.getStackTrace().toString());
 	}
+	return false;
+    }
+
+    public boolean openRead() throws Exception {
+	if (destination == null)
+	    return false;
+	
+	if (!fileSystem.exists(destination))
+		return false;
+		
+	ifstream = fileSystem.open(destination);
 	return true;
     }
 
@@ -344,16 +355,7 @@ public class HdfsIO implements DataSink {
 	    }
 	}
 
-	try {
-	    ofstream.writeUTF(message);
-	    ofstream.flush();
-	    logger.debug("Sent 1 event to Hadoop.");
-	    totalBytesWritten += message.length();
-	} catch (IOException e) {
-	    logger.info("Sending " + message);
-	    e.printStackTrace();
-	    logger.error("IOException during sending: " + e.toString());
-	}
+	write(message);
     }
 
     // Implementation of DataSink interface method.
@@ -378,15 +380,18 @@ public class HdfsIO implements DataSink {
 	    }
 	}
 
+	write(message);
+    }
+
+    private void write(String data) {
 	try {
-	    ofstream.writeUTF(message);
+	    ofstream.writeBytes(data);
 	    ofstream.flush();
 	    logger.debug("Sent 1 event to Hadoop.");
-	    totalBytesWritten += message.length();
+	    totalBytesWritten += data.length();
 	} catch (IOException e) {
-	    logger.info("Sending " + message);
-	    e.printStackTrace();
-	    logger.error("IOException during sending: " + e.toString());
+	    logger.error("IOException during sending data: " + e.toString()
+		    + "\nStacktrace:\n" + e.getStackTrace().toString());
 	}
     }
 
@@ -442,21 +447,24 @@ public class HdfsIO implements DataSink {
 	}
     }
 
-    // Read current file.
-    public String read() {
-	String msg = "";
-
+    // Read a line of current file.
+    // Return null if end of data.
+    private String readLine() {
 	try {
 	    if (ifstream == null)
 		setInputFile();
-	    msg = ifstream.readUTF();
+	    LineReader reader = new LineReader(ifstream);
+	    org.apache.hadoop.io.Text msg = new org.apache.hadoop.io.Text();
+	    reader.readLine(msg);
+	    if (msg.getLength() > 0)
+		return msg.toString();
 	} catch (Exception e) {
 	    logger.error("IOException in displaying hdfs file " + path + ": "
 		    + e.toString() + "/nStacktrace"
 		    + e.getStackTrace().toString());
 	}
 
-	return msg;
+	return null;
     }
 
     private void setInputFile() throws Exception {
@@ -464,7 +472,26 @@ public class HdfsIO implements DataSink {
     }
 
     public void displayCurrentFile() {
-	System.out.print(read());
+	while (true) {
+	    String str = readLine();
+	    if (str != null)
+		System.out.print(str);
+	    else
+		return;
+	}
+    }
+
+    public void readCurrentFile() throws Exception {
+	ifstream.seek(0);
+	BufferedReader bufferIn = new BufferedReader(new InputStreamReader(
+		ifstream));
+	char[] buf = new char[1024];
+	int bytes = 0;
+	int offset = 0;
+	while ((bytes = bufferIn.read(buf, offset, 1024)) >= 0) {
+	    System.out.print(buf.toString());
+	    // offset += bytes;
+	}
     }
 
     public static void main(String[] args) throws IOException {
@@ -486,7 +513,8 @@ public class HdfsIO implements DataSink {
 	    // writter.setCurrentFile();
 
 	    System.out.print("Reading file " + writter.getCurrentFileName());
-	    System.out.print(writter.read());
+	    writter.openRead();
+	    writter.displayCurrentFile();
 
 	} catch (Exception ex) {
 	    ex.printStackTrace();
