@@ -477,8 +477,9 @@ public class HdfsIO implements DataSink {
 	    if (str != null)
 		System.out.print(str);
 	    else
-		return;
+		break;
 	}
+	System.out.println("");
     }
 
     public void readCurrentFile() throws Exception {
@@ -489,6 +490,8 @@ public class HdfsIO implements DataSink {
 	int bytes = 0;
 	int offset = 0;
 	while ((bytes = bufferIn.read(buf, offset, 1024)) >= 0) {
+	    System.out.println("read bytes: " + bytes);
+	    String msg = new String(buf);
 	    System.out.print(buf.toString());
 	    // offset += bytes;
 	}
