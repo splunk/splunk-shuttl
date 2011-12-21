@@ -1,0 +1,5 @@
+<ivy-module version="2.0">
+    <info organisation="com.splunk.shep" module="shep-ivy"/>
+    <dependencies>
+    </dependencies>
+</ivy-module>
