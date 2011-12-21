@@ -1,3 +1,4 @@
+#!/bin/sh
 # Copyright 2011 Splunk, Inc.                                                                       
 #                                                                                                        
 # Licensed under the Apache License, Version 2.0 (the "License");                                      
@@ -16,6 +17,10 @@
 # It must be modified to suit your individual needs, and 
 # we highly recommend testing this on a non-production instance 
 # before deploying it.
+
+bin_dir=$(dirname $0)
+source $bin_dir/setjavaenv
+
 echo "Calling exporttool with $1" at `date` >> $SPLUNK_HOME/var/log/splunk/coldtofrozen.log
 $SPLUNK_HOME/bin/exporttool $1 $1.csv -csv
 # assuming dir /splunk/output exists on hadoop, replace with any other dir
