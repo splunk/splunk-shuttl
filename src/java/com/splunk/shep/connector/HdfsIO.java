@@ -456,7 +456,7 @@ public class HdfsIO implements DataSink {
 	    LineReader reader = new LineReader(ifstream);
 	    org.apache.hadoop.io.Text msg = new org.apache.hadoop.io.Text();
 	    reader.readLine(msg);
-	    if (msg.getLength() > 0)
+	    if (msg.getLength() >= 0)
 		return msg.toString();
 	} catch (Exception e) {
 	    logger.error("IOException in displaying hdfs file " + path + ": "
@@ -475,14 +475,15 @@ public class HdfsIO implements DataSink {
 	while (true) {
 	    String str = readLine();
 	    if (str != null)
-		System.out.print(str);
+		System.out.println(str);
 	    else
 		break;
 	}
 	System.out.println("");
     }
 
-    public void readCurrentFile() throws Exception {
+    // For internal testing only.
+    private void readCurrentFile() throws Exception {
 	ifstream.seek(0);
 	BufferedReader bufferIn = new BufferedReader(new InputStreamReader(
 		ifstream));
