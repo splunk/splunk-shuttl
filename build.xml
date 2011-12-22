@@ -37,16 +37,11 @@
 
 	<path id="build.classpath">
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
-		<pathelement location="${flumelib.home}/hadoop-core-0.20.2-CDH3B4.jar" />
-		<pathelement location="${contribdir}/apache-log4j-1.2.16/log4j-1.2.16.jar" />
-		<pathelement location="${contribdir}/httpcomponents-client-4.1.2/lib/httpclient-4.1.2.jar" />
-		<pathelement location="${contribdir}/httpcomponents-client-4.1.2/lib/httpcore-4.1.2.jar" />
-		<pathelement location="${contribdir}/${testng.basename}/${testng.jar}" />
-		<pathelement location="${contribdir}/wikixmlj/bzip2.jar" />
-		<pathelement location="${contribdir}/wikixmlj/xercesImpl.jar" />
 		<pathelement location="${basedir}/src/java/com/splunk/shep/connector/conf" />
-		<pathelement location="${contribdir}/commons-io-2.1/commons-io-2.1.jar" />
 		<pathelement path="${classdir}" />
+		<fileset dir="${libdir}">
+			<include name="*.jar" />
+		</fileset>
 	</path>
 	<property name="foo" value="${build.classpath}" />
 
@@ -145,15 +140,15 @@
 	</target>
 
 	<!-- compile all code, may in the future want to split out test and source builds -->
-	<target name="compile">
+	<target name="compile" depends="ivy-resolve">
 		<javac srcdir="${srcdir};${testdir}" destdir="${classdir}" includeAntRuntime="false" debug="true">
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
 
-    <target name="ivy-resolve" description="--> retrieve dependencies with ivy">
-        <ivy:retrieve />
-    </target>
+	<target name="ivy-resolve" description="--> retrieve dependencies with ivy">
+		<ivy:retrieve />
+	</target>
 
 	<!-- run test via testNG -->
 	<taskdef name="testng" classname="org.testng.TestNGAntTask" />
@@ -370,10 +365,9 @@
 		<property name="hadoop.lib" value="${hadoop.home}/lib" />
 		<copy file="${name.versioned.path}" todir="${hadoop.lib}" />
 		<!-- copy httpcomponents to hadoop -->
-		<property name="httpcomponents.lib" value="${contribdir}/httpcomponents-client-4.1.2/lib" />
-		<copy file="${httpcomponents.lib}/commons-codec-1.4.jar" todir="${hadoop.lib}" />
-		<copy file="${httpcomponents.lib}/httpclient-4.1.2.jar" todir="${hadoop.lib}" />
-		<copy file="${httpcomponents.lib}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
+		<copy file="${libdir}/commons-codec-1.4.jar" todir="${hadoop.lib}" />
+		<copy file="${libdir}/httpclient-4.1.2.jar" todir="${hadoop.lib}" />
+		<copy file="${libdir}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
 	</target>
 
 	<target name="hadoop-start">
