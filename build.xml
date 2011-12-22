@@ -50,11 +50,7 @@
 	</path>
 	<property name="foo" value="${build.classpath}" />
 
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-		<classpath>
-			<pathelement location="${contribdir}/ant-contrib-1.0b3/ant-contrib-1.0b3.jar" />
-		</classpath>
-	</taskdef>
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
 
 	<!-- Cleans everything -->
 	<target name="clean-all">
@@ -160,7 +156,7 @@
     </target>
 
 	<!-- run test via testNG -->
-	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
+	<taskdef name="testng" classname="org.testng.TestNGAntTask" />
 	<target name="test">
 		<antcall target="fast-tests" />
 		<antcall target="slow-tests" />

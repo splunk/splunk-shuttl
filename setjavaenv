@@ -6,5 +6,9 @@ export SHEPDIR=`pwd`
 
 unzip -u $SHEPDIR/contrib/testng-6.1.1.zip -d contrib
 
+## Setup ant
 export ANT_HOME="$SHEPDIR/contrib/apache-ant-1.8.2"
+cp "$SHEPDIR"/contrib/ant-libs/* $ANT_HOME/lib
+
+# Setting our ant before everyone elses.
 export PATH="$ANT_HOME/bin:$PATH"
