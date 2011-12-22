@@ -12,5 +12,6 @@
 		<dependency org="org.bluestemsoftware.open.maven.tparty"
 			name="xerces-impl" rev="2.9.0" />
 		<dependency org="ant-contrib" name="ant-contrib" rev="1.0b3" />
+		<dependency org="commons-codec" name="commons-codec" rev="1.4" />
 	</dependencies>
 </ivy-module>
