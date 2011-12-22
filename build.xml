@@ -35,17 +35,8 @@
 
 	<path id="build.classpath">
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
-		<pathelement location="${flumelib.home}/jackson-core-asl-1.4.0.jar" />
-		<pathelement location="${flumelib.home}/jackson-mapper-asl-1.4.0.jar" />
-		<pathelement location="${flumelib.home}/slf4j-log4j12-1.6.1.jar" />
-		<pathelement location="${flumelib.home}/slf4j-api-1.6.1.jar" />
-		<pathelement location="${flumelib.home}/avro-1.4.0.jar" />
-		<pathelement location="${flumelib.home}/log4j-1.2.15.jar" />
 		<pathelement location="${flumelib.home}/hadoop-core-0.20.2-CDH3B4.jar" />
-		<pathelement location="${flumelib.home}/commons-logging-1.0.4.jar" />
-		<pathelement location="${flumelib.home}/google-collect-1.0-rc2.jar" />
-		<pathelement location="${flumelib.home}/commons-lang-2.5.jar" />
-		<pathelement location="${contribdir}/apache-log4j-1.2.16/log4j-1.2.16.jar}" />
+		<pathelement location="${contribdir}/apache-log4j-1.2.16/log4j-1.2.16.jar" />
 		<pathelement location="${contribdir}/httpcomponents-client-4.1.2/lib/httpclient-4.1.2.jar" />
 		<pathelement location="${contribdir}/httpcomponents-client-4.1.2/lib/httpcore-4.1.2.jar" />
 		<pathelement location="${contribdir}/${testng.basename}/${testng.jar}" />
