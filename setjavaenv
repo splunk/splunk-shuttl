@@ -4,8 +4,6 @@ export SHEPDIR=`pwd`
 #export CLASSPATH=$FLUME_HOME/flume-0.9.3-CDH3B4-core.jar:$FLUME_HOME/lib/jackson-core-asl-1.4.0.jar:/$FLUME_HOME/lib/jackson-mapper-asl-1.4.0.jar:$FLUME_HOME/lib/slf4j-log4j12-1.6.1.jar:$FLUME_HOME/lib/slf4j-api-1.6.1.jar:$FLUME_HOME/lib/avro-1.4.0.jar:$FLUME_HOME/lib/log4j-1.2.15.jar:$FLUME_HOME/lib/hadoop-core-0.20.2-CDH3B4.jar:$FLUME_HOME/lib/commons-logging-1.0.4.jar:$FLUME_HOME/lib/google-collect-1.0-rc2.jar:$FLUME_HOME/lib/commons-lang-2.5.jar:$BRANCH/build/jar/splunk_connector.jar
 #tar xzvf $SHEPDIR/contrib/commons-net-3.0.1-bin.tar.gz -C contrib
 
-unzip -u $SHEPDIR/contrib/testng-6.1.1.zip -d contrib
-
 ## Setup ant
 export ANT_HOME="$SHEPDIR/contrib/apache-ant-1.8.2"
 cp "$SHEPDIR"/contrib/ant-libs/* $ANT_HOME/lib
