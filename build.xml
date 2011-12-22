@@ -16,6 +16,8 @@
 	<property name="stage.dir" value="${builddir}/${appname}" />
 	<property name="srcdir" value="src/java/" />
 	<property name="testdir" value="test/java/" />
+	<property name="libdir" value="${basedir}/lib" />
+
 
 	<!-- hadoop properties -->
 	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
@@ -87,6 +89,18 @@
 
 	<target name="clean-hadoop-download">
 		<delete file="${hadoop.download.path}" />
+	</target>
+
+	<target name="clean-ivy-downloads">
+		<delete>
+			<fileset dir="${libdir}">
+				<include name="*.jar" />
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="clean-ivy-cache">
+		<ivy:cleancache />
 	</target>
 
 	<!-- create a version.properties file from a template which is read by Version.java -->
