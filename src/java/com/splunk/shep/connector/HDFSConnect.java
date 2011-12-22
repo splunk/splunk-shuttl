@@ -255,6 +255,8 @@ public class HDFSConnect {
 	    try {
 		Thread.sleep(1000);
 	    } catch (InterruptedException e) {
+		logger.error("Exception in sleep call: " + e.toString()
+			+ "\nStacktrace:\n" + e.getStackTrace().toString());
 		e.printStackTrace();
 	    }
 	}
