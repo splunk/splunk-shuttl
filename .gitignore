@@ -12,6 +12,7 @@
 # All the other libs are currently directories but in the future they should be zips.
 # The ant should use a shared output folder for unzipping which should be ingnored here.
 /contrib/testng-6.1.1/
+/lib/*
 
 # Test folders
 /test/unittests/test-output/
