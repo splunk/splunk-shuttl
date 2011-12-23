@@ -37,8 +37,8 @@ public class SplunkEventReader {
 	public void map(LongWritable key, Text value,
 		OutputCollector<Text, NullWritable> output, Reporter reporter)
 		throws IOException {
-	    NullWritable nullwr = new NullWritable();
-	    output.collect(value, "null");
+	    NullWritable nullwr = NullWritable.get();
+	    output.collect(value, nullwr);
 	}
     }
 
