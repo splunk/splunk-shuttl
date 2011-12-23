@@ -249,7 +249,7 @@ public class HDFSConnect {
 	TimeoutRunnerThread timeoutRunnerThread = new TimeoutRunnerThread();
 	timeoutRunnerThread.start();
 
-	System.out.println("To exit create a file '.quit'");
+	System.out.println("To exit, create a file '.quit'");
 
 	while (!quit()) {
 	    try {
@@ -257,7 +257,6 @@ public class HDFSConnect {
 	    } catch (InterruptedException e) {
 		logger.error("Exception in sleep call: " + e.toString()
 			+ "\nStacktrace:\n" + e.getStackTrace().toString());
-		e.printStackTrace();
 	    }
 	}
 	cm.shutdown();

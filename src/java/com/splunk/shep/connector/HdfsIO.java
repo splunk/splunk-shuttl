@@ -384,7 +384,7 @@ public class HdfsIO implements DataSink {
 
     private void write(String data) {
 	try {
-	    ofstream.writeBytes(data);
+	    ofstream.writeUTF(data);
 	    ofstream.flush();
 	    logger.debug("Sent 1 event to Hadoop.");
 	    totalBytesWritten += data.length();
@@ -464,6 +464,21 @@ public class HdfsIO implements DataSink {
 	}
 
 	return null;
+    }
+
+    public String read() {
+	String msg = "";
+	try {
+	    if (ifstream == null)
+		setInputFile();
+	    msg = ifstream.readUTF();
+	} catch (Exception e) {
+	    logger.error("IOException in reading hdfs file " + path + ": "
+		    + e.toString() + "\nStacktrace\n"
+		    + e.getStackTrace().toString());
+	}
+
+	return msg;
     }
 
     private void setInputFile() throws Exception {
