@@ -168,16 +168,15 @@ public class ShepCLI {
     }
 
     private void cat(String src) throws Exception {
-	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
+	// String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
 	// System.out.println("run: " + cmd);
-	runCmd(cmd);
+	// runCmd(cmd);
 
-	/*
-	 * api call to read file HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(),
-	 * conf.getHadoopPort()); fileIO.openToRead(src);
-	 * fileIO.displayCurrentFile(); // fileIO.readCurrentFile();
-	 * fileIO.close();
-	 */
+	// api call to read file
+	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
+	fileIO.openToRead(src);
+	System.out.println(fileIO.read());
+	fileIO.close();
     }
 
     private void importFile(String src) throws Exception {
