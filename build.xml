@@ -322,7 +322,7 @@
 
 	<target name="hadoop-set-java-home" depends="set-environment-property">
 		<property name="hadoop.env.sh" value="${hadoop.extracted.conf.dir}/hadoop-env.sh" />
-		<fail if="${env.JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured." />
+		<fail if="${JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured." />
 		<replace file="${hadoop.env.sh}">
 			<replacefilter token="@JAVA.HOME@" value="${env.JAVA_HOME}" />
 		</replace>
