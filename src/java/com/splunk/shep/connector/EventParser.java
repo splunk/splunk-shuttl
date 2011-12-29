@@ -111,7 +111,6 @@ public class EventParser {
     }
 
     public void outputEvent() {
-	// System.err.println("\n");
 	System.out.println("event_begin{");
 	if (hasRaw) {
 	    System.out.println(rawLength);
@@ -184,10 +183,13 @@ public class EventParser {
 		}
 	    }
 
+	    logger.info("Parsed event: host = " + host + ", source = " + source
+		    + ", sourcetype = " + sourcetype + ", time = " + time);
 	    emitter.send(rawBuffer, sourcetype, source, host, time);
 
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+	    logger.error("Failed parsing event: " + ex.toString()
+		    + "\nStacktrace:\n" + ex.getStackTrace().toString());
 	}
 
     }
@@ -216,12 +218,13 @@ public class EventParser {
 		}
 
 		count = inStream.read(buffer, 0, count);
-		// System.out.println("received " + count + " bytes");
+		logger.trace("received " + count + " bytes");
 		String msg = new String(buffer);
 		System.err.println(msg);
 	    }
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+	    logger.error("Failed displaying event: " + ex.toString()
+		    + "\nStacktrace:\n" + ex.getStackTrace().toString());
 	}
     }
 
@@ -234,8 +237,7 @@ public class EventParser {
 	try {
 	    int rawlen = 4;
 	    byte[] raw_char = new byte[rawlen];
-	    // System.out.println("Initial byte array: " +
-	    // Arrays.toString(raw_char));
+	    logger.trace("Initial byte array: " + Arrays.toString(raw_char));
 	    int readLen = 0;
 	    do {
 		int numBytes = inStream.read(raw_char, readLen,
@@ -254,13 +256,13 @@ public class EventParser {
 	    ByteBuffer bb = ByteBuffer.wrap(raw_char);
 	    IntBuffer ib = bb.asIntBuffer();
 	    dataSize = ib.get(0);
-
-	    // System.out.println("recvd size = " + dataSize);
+	    logger.trace("recvd size = " + dataSize);
 	} catch (IOException ex) {
 	    logger.warn("channel " + channelID + " got IO exception");
 	    throw ex;
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+	    logger.error("Failed parsing data size: " + ex.toString()
+		    + "\nStacktrace:\n" + ex.getStackTrace().toString());
 	}
 
 	return dataSize;
@@ -280,7 +282,7 @@ public class EventParser {
 		    throw (new IOException("Lost client connection"));
 
 		readLen += numBytes;
-		// System.out.println("received data size so far = " + readLen);
+		logger.trace("received data size so far = " + readLen);
 	    } while (readLen < size);
 
 	    logger.debug(new String(buf));
@@ -288,7 +290,8 @@ public class EventParser {
 	    logger.warn("channel " + channelID + " got IO exception");
 	    throw ex;
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+	    logger.error("Failed parsing data: " + ex.toString()
+		    + "\nStacktrace:\n" + ex.getStackTrace().toString());
 	}
 
 	if (readLen < 4)
@@ -354,7 +357,7 @@ public class EventParser {
 	byte[] countBuf = Arrays.copyOfRange(buf, offset, offset + 4);
 	IntBuffer ib = ByteBuffer.wrap(countBuf).asIntBuffer();
 	int count = ib.get(0);
-	// System.out.println("field count = " + count);
+	logger.trace("field count = " + count);
 	return count;
     }
 
@@ -469,11 +472,12 @@ public class EventParser {
 		return null;
 
 	    String str = new String(buf, offset + 4, len, "UTF-8");
-	    // System.out.println("Parsed string = " + str);
+	    logger.trace("Parsed string = " + str);
 
 	    return str;
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+	    logger.error("Failed parsing data string: " + ex.toString()
+		    + "\nStacktrace:\n" + ex.getStackTrace().toString());
 	}
 
 	return null;
