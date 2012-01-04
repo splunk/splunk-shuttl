@@ -179,7 +179,7 @@ public class EventParser {
 		try {
 		    time = Long.parseLong(timeValue);
 		} catch (java.lang.NumberFormatException ex) {
-		    ex.printStackTrace();
+		    logger.warn("Exception in parsing timestamp: " + ex.toString() + "\nStacktrace:\n" + ex.getStackTrace().toString());
 		}
 	    }
 
@@ -382,13 +382,13 @@ public class EventParser {
 
 	if (key.equals(KeyRAW)) {
 	    if (value.charAt(value.length() - 1) == '\0') {
-		rawValue = value.substring(0, value.length() - 1);
+	    	rawValue = value.substring(0, value.length() - 1);
 	    } else {
-		rawValue = value;
+	    	rawValue = value;
 	    }
 
 	    if (rawValue.length() == 0)
-		return -1; // drop 0 byte event.
+	    	return -1; // drop 0 byte event.
 
 	    rawLength = String.valueOf(rawValue.length());
 	    // rawBuffer = Arrays.copyOfRange(buf, offset+len,
@@ -396,65 +396,65 @@ public class EventParser {
 	    hasRaw = true;
 	} else if (key.equals(KeyHOST)) {
 	    if (value.charAt(value.length() - 1) == '\0')
-		hostValue = value.substring(0, value.length() - 1);
+	    	hostValue = value.substring(0, value.length() - 1);
 	    else
-		hostValue = value;
+	    	hostValue = value;
 	    hasHost = true;
 	} else if (key.equals(KeySOURCETYPE)) {
 	    if (value.charAt(value.length() - 1) == '\0')
-		sourceTypeValue = value.substring(0, value.length() - 1);
+	    	sourceTypeValue = value.substring(0, value.length() - 1);
 	    else
-		sourceTypeValue = value;
+	    	sourceTypeValue = value;
 
 	    if (sourceTypeValue.equals("sourcetype::fwd-hb"))
-		return -1; // drop hear-beat msg.
+	    	return -1; // drop hear-beat msg.
 
 	    if (sourceTypeValue.equals("sourcetype::audittrail"))
-		return -1; // drop audit msg.
+	    	return -1; // drop audit msg.
 
 	    hasSourceType = true;
 	} else if (key.equals(KeySOURCE)) {
 	    if (value.charAt(value.length() - 1) == '\0')
-		sourceValue = value.substring(0, value.length() - 1);
+	    	sourceValue = value.substring(0, value.length() - 1);
 	    else
-		sourceValue = value;
+	    	sourceValue = value;
 
 	    if (sourceValue.indexOf("HadoopConnector") >= 0)
-		return -1; // drop connector log messages.
+	    	return -1; // drop connector log messages.
 
 	    if (sourceValue.equals("source::fwd-hb")
 		    || sourceValue.equals("source::fwd"))
-		return -1; // drop hear-beat msg.
+	    	return -1; // drop hear-beat msg.
 
 	    if (sourceValue.equals("source::audittrail"))
-		return -1; // drop audit msg.
+	    	return -1; // drop audit msg.
 
 	    hasSource = true;
 	} else if (key.equals(KeyTIME)) {
 	    if (value.charAt(value.length() - 1) == '\0')
-		timeValue = value.substring(0, value.length() - 1);
+	    	timeValue = value.substring(0, value.length() - 1);
 	    else
-		timeValue = value;
+	    	timeValue = value;
 	    long unixtime = 0;
 	    try {
-		unixtime = Long.parseLong(timeValue);
-		unixtime *= 1000L;
+	    	unixtime = Long.parseLong(timeValue);
+	    	unixtime *= 1000L;
 	    } catch (java.lang.NumberFormatException ex) {
-		ex.printStackTrace();
+	    	logger.warn("Exception in parsing timestamp: " + ex.toString() + "\nStacktrace:\n" + ex.getStackTrace().toString());
 	    }
 	    timeValue = String.valueOf(unixtime);
 	    hasTime = true;
 	} else if (key.equals(KeyINDEX)) {
 	    if (value.charAt(value.length() - 1) == '\0')
-		indexValue = value.substring(0, value.length() - 1);
+	    	indexValue = value.substring(0, value.length() - 1);
 	    else
-		indexValue = value;
+	    	indexValue = value;
 
 	    if (indexValue.indexOf("hdfsconnector") >= 0)
-		return -1; // drop connector log messages.
+	    	return -1; // drop connector log messages.
 
 	    if (indexValue.equals("_internal") || indexValue.equals("_audit"))
-		return -1; // drop internal msg.
+	    	return -1; // drop internal msg.
 
 	    hasIndex = true;
 	}
@@ -466,10 +466,10 @@ public class EventParser {
 	try {
 	    int len = parseCount(buf, offset);
 	    if (len <= 0)
-		return null;
+	    	return null;
 	    size -= 4;
 	    if (size < len)
-		return null;
+	    	return null;
 
 	    String str = new String(buf, offset + 4, len, "UTF-8");
 	    logger.trace("Parsed string = " + str);
@@ -485,23 +485,23 @@ public class EventParser {
 
     // return bytes will always be 4 bytes long.
     public byte[] htonl(int x) {
-	byte[] res = new byte[4];
-	for (int i = 0; i < 4; i++) {
-	    res[i] = (new Integer(x >>> 24)).byteValue();
-	    x <<= 8;
-	}
-	return res;
+    	byte[] res = new byte[4];
+    	for (int i = 0; i < 4; i++) {
+    		res[i] = (new Integer(x >>> 24)).byteValue();
+    		x <<= 8;
+    	}
+    	return res;
     }
 
     // You can only ask for a byte array 4 bytes long to be converted. Rest
     // everything will be ignored.
     public int ntohl(byte[] x) {
-	int res = 0;
-	for (int i = 0; i < 4; i++) {
-	    res <<= 8;
-	    res |= (int) x[i];
-	}
-	return res;
+    	int res = 0;
+    	for (int i = 0; i < 4; i++) {
+    		res <<= 8;
+    		res |= (int) x[i];
+    	}
+    	return res;
     }
 
     /**
@@ -520,11 +520,11 @@ public class EventParser {
      *         System.out.println(i0); System.out.println(i1);
      */
     public static int byteArrayToInt(byte[] b, int offset) {
-	int value = 0;
-	for (int i = 0; i < 4; i++) {
-	    int shift = (4 - 1 - i) * 8;
-	    value += (b[i + offset] & 0x000000FF) << shift;
-	}
-	return value;
+    	int value = 0;
+    	for (int i = 0; i < 4; i++) {
+    		int shift = (4 - 1 - i) * 8;
+    		value += (b[i + offset] & 0x000000FF) << shift;
+    	}
+    	return value;
     }
 }

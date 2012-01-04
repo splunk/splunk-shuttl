@@ -69,8 +69,7 @@ public class TimeoutRunnerThread extends Thread {
 			rescheduledTimeouts.add(t);
 		    }
 		} catch (Exception e) {
-		    logger.error("Timeout exception", e);
-		    e.printStackTrace();
+		    logger.error("Timeout exception: " + e.toString() + "\nStacktrace:\n" + e.getStackTrace().toString());
 		    TimeoutHeap.removeTimeout(t);
 		}
 	    }
@@ -95,7 +94,7 @@ public class TimeoutRunnerThread extends Thread {
 	    logger.info("Waiting for timeoutRunner thread to stop");
 	    join();
 	} catch (InterruptedException e) {
-	    e.printStackTrace();
+	    logger.warn("Shutdown exception: " + e.toString() + "\nStacktrace:\n" + e.getStackTrace().toString());
 	}
 
     }

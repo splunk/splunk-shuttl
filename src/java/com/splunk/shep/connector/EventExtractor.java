@@ -160,47 +160,45 @@ public class EventExtractor {
 	    }
 
 	} catch (Exception ex) {
-	    ex.printStackTrace();
-	    logger.error("failed cleaning channels");
+	    logger.error("failed cleaning channels: " + ex.toString() + "\nStacktrace:\n" + ex.getStackTrace().toString());
 	}
     }
 
     public void closeAll() {
-	try {
-	    // serverSock.close();
-	    serverChannel.close();
-	    selector.close();
-	} catch (Exception ex) {
-	    ex.printStackTrace();
-	}
+    	try {
+    		// serverSock.close();
+    		serverChannel.close();
+    		selector.close();
+    	} catch (Exception ex) {
+    		logger.warn("Exception in closing channels: " + ex.toString() + "\nStacktrace:\n" + ex.getStackTrace().toString());
+    	}
     }
 
     public static void main(String[] args) throws Exception {
-	int recvPort = 9997;
-	EventExtractor extractor = null;
+    	int recvPort = 9997;
+    	EventExtractor extractor = null;
 
-	if (args.length > 0) {
-	    recvPort = Integer.parseInt(args[0]);
-	    if (recvPort <= 0)
-		recvPort = 9997;
+    	if (args.length > 0) {
+    		recvPort = Integer.parseInt(args[0]);
+    		if (recvPort <= 0)
+    			recvPort = 9997;
 
-	    if (args.length > 1)
-		PropertyConfigurator.configure(args[1]);
-	} else {
-	    System.err
-		    .println("Usage: EventExtractor <recv-port> [<properties-file>]");
-	    return;
-	}
+    		if (args.length > 1)
+    			PropertyConfigurator.configure(args[1]);
+    	} else {
+    		System.err.println("Usage: EventExtractor <recv-port> [<properties-file>]");
+    		return;
+    	}
 
-	try {
-	    extractor = new EventExtractor(recvPort);
-	    extractor.debug();
-	    extractor.run();
-	} catch (Exception ex) {
-	    ex.printStackTrace();
-	} finally {
-	    extractor.closeAll();
-	}
+    	try {
+    		extractor = new EventExtractor(recvPort);
+    		extractor.debug();
+    		extractor.run();
+    	} catch (Exception ex) {
+    		ex.printStackTrace();
+    	} finally {
+    		extractor.closeAll();
+    	}
     }
 }
 
@@ -361,23 +359,18 @@ class EventChannel extends Thread {
 		    receiver.readData();
 		    // recver.displayData();
 		} catch (IOException ex) {
-		    ex.printStackTrace();
 		    logger.warn("channel " + channelID
-			    + " lost connection to client");
+			    + " lost connection to client: " + ex.toString() + "\nStacktrace:\n" + ex.getStackTrace().toString());
 		    break;
 		} catch (Exception ex) {
-		    ex.printStackTrace();
 		    logger.warn("channel " + channelID
-			    + " caught exception, retry connection");
+			    + " caught exception, retry connection: " + ex.toString() + "\nStacktrace:\n" + ex.getStackTrace().toString());
 		    break;
 		}
 	    }
-
-	    // closeClient();
 	} catch (Exception ex) {
-	    ex.printStackTrace();
 	    logger.error("channel " + channelID
-		    + " caught exception, channel exit");
+		    + " caught exception, channel exit: " + ex.toString() + "\nStacktrace:\n" + ex.getStackTrace().toString());
 	} finally {
 	    closeClient();
 	    state = Finished;
@@ -390,7 +383,7 @@ class EventChannel extends Thread {
 	    if (sockIn != null)
 		sockIn.close();
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+		logger.warn("Exception in closing socket stream: " + ex.toString() + "\nStacktrace:\n" + ex.getStackTrace().toString());
 	}
     }
 
@@ -401,7 +394,7 @@ class EventChannel extends Thread {
 	    if (emitter != null)
 		emitter.close();
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+		logger.warn("Exception in closing client: " + ex.toString() + "\nStacktrace:\n" + ex.getStackTrace().toString());;
 	}
     }
 

@@ -107,9 +107,9 @@ class ConnectionManagerImpl extends Thread {
     public void run() {
 	while (!shouldShutdown()) {
 	    try {
-		select();
+	    	select();
 	    } catch (IOException e) {
-		e.printStackTrace();
+	    	logger.error("Exception in running connection manager: " + e.toString() + "\nStacktrace:\n" + e.getStackTrace().toString());
 	    }
 	}
 
