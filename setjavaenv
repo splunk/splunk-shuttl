@@ -6,7 +6,7 @@ export SHEPDIR=`pwd`
 
 ## Setup ant
 export ANT_HOME="$SHEPDIR/contrib/apache-ant-1.8.2"
-cp "$SHEPDIR"/contrib/ant-libs/* $ANT_HOME/lib
+cp "$SHEPDIR"/contrib/ant-libs/*.jar $ANT_HOME/lib
 
 # Setting our ant before everyone elses.
 export PATH="$ANT_HOME/bin:$PATH"
