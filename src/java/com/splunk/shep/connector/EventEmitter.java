@@ -54,7 +54,7 @@ public class EventEmitter implements DataSink {
     }
 
     public void setFileRollingSize(long size) {
-	// fiel size conf not supported with flume connection.
+	// file size configuration is not supported with flume connection.
     }
 
     public int getPort() {
@@ -123,10 +123,14 @@ public class EventEmitter implements DataSink {
 		unixtime = Long.parseLong(time);
 		unixtime *= 1000L;
 	    } catch (java.lang.NumberFormatException ex) {
-		ex.printStackTrace();
+		logger.error("Exception in prasing timestamp: " + ex.toString()
+			+ "\nStacktrace:\n" + ex.getStackTrace().toString());
 	    }
 
 	    stdIn.readLine();
+	    logger.info("Processing event from host=" + host + ", source="
+		    + source + ", sourcetype=" + sourcetype + ", timestamp="
+		    + unixtime);
 	    send(raw_bytes, sourcetype, source, host, unixtime);
 	}
 
@@ -177,19 +181,16 @@ public class EventEmitter implements DataSink {
 		+ ", event_sourcetype=" + sourceType + ", event_time=" + time
 		+ ", event_rawlen=" + rawBytes.length + ", event_data=" + msg);
 
-	/*
-	 * System.out.println("Sending event_host=" + host + ", event_source=" +
-	 * source + ", event_sourcetype=" + sourceType + ", event_time=" + time
-	 * + ", event_rawlen=" + rawBytes.length); //
-	 */
-
 	EventImpl ei = null;
 
 	try {
 	    ei = new EventImpl(rawBytes, time, Priority.INFO, 0, host, map);
 	} catch (Exception ex) {
-	    logger.error("cannot build event object. Skip msg: " + msg);
-	    ex.printStackTrace();
+	    logger.error("cannot build event object. Skip msg: host=" + host
+		    + ", source=" + source + ", sourcetype=" + sourceType
+		    + ", event_time=" + time + ", rawBytes=" + rawBytes.length
+		    + ", data: " + msg + "\nStack trace:\n"
+		    + ex.getStackTrace().toString());
 	    return;
 	}
 
@@ -198,37 +199,32 @@ public class EventEmitter implements DataSink {
 		if (rawBytes.length < maxEventSize)
 		    snk.append(ei);
 		else
-		    logger.warn("event too long to send. Skip msg: " + msg);
-
+		    logger.warn("event too long to send. Skip msg: host="
+			    + host + ", source=" + source + ", sourcetype="
+			    + sourceType + ", event_time=" + time
+			    + ", rawBytes=" + rawBytes.length + ", data: "
+			    + msg);
 		break;
 	    } catch (java.lang.Exception ex) {
-		ex.printStackTrace();
-		logger.warn("exception in sending data to Flume, retry...");
+		logger.warn("exception in sending data to Flume, try reconnection.\nStacktrace:\n"
+			+ ex.getStackTrace().toString());
 
 		try {
 		    Thread.currentThread().sleep(1000); // sleep for 1000 ms.
-		} catch (Exception e) {
-		    e.printStackTrace();
-		}
-
-		try {
 		    snk.close();
 		    logger.debug("Closed connection to Flume.");
 		} catch (Exception e) {
-		    e.printStackTrace();
+		    logger.warn("exception in closing connection to Flume.\nStacktrace:\n"
+			    + e.getStackTrace().toString());
 		}
 
 		try {
 		    Thread.currentThread().sleep(1000); // sleep for 1000 ms.
-		} catch (Exception e) {
-		    e.printStackTrace();
-		}
-
-		try {
 		    snk.open();
 		    logger.debug("Reopened connection to Flume.");
 		} catch (Exception e) {
-		    e.printStackTrace();
+		    logger.warn("exception in opening connection to Flume.\nStacktrace:\n"
+			    + e.getStackTrace().toString());
 		}
 	    }
 	}

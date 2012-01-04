@@ -110,9 +110,9 @@ public class HdfsIO implements DataSink {
 	    logger.info("Write to: " + currentFilePath);
 
 	} catch (Exception e) {
-	    e.printStackTrace();
 	    logger.error("Exception in setting Hadoop connection: "
-		    + e.toString());
+		    + e.toString() + "\nStacktrace:\n"
+		    + e.getStackTrace().toString());
 	}
     }
 
@@ -136,9 +136,9 @@ public class HdfsIO implements DataSink {
 		return false;
 	    }
 	} catch (Exception e) {
-	    e.printStackTrace();
 	    logger.error("Exception in setting Hadoop fiel path: "
-		    + e.toString());
+		    + e.toString() + "\nStacktrace:\n"
+		    + e.getStackTrace().toString());
 	}
 	return true;
     }
@@ -163,7 +163,7 @@ public class HdfsIO implements DataSink {
 
 	} catch (Exception e) {
 	    logger.error("Exception in setting Hadoop file path: "
-		    + e.toString() + "/n StackTrace:/n"
+		    + e.toString() + "\nStackTrace:\n"
 		    + e.getStackTrace().toString());
 	}
 	return false;
@@ -200,9 +200,8 @@ public class HdfsIO implements DataSink {
 	    logger.info("Write to: " + currentFilePath);
 
 	} catch (Exception e) {
-	    e.printStackTrace();
 	    logger.error("Exception in setting Hadoop file path: "
-		    + e.toString() + "/n StackTrace:/n"
+		    + e.toString() + "\nStackTrace:\n"
 		    + e.getStackTrace().toString());
 	}
 	return true;
@@ -280,9 +279,9 @@ public class HdfsIO implements DataSink {
 	    logger.info("closed: " + path + " with size " + totalBytesWritten);
 	    totalBytesWritten = 0;
 	} catch (Exception e) {
-	    e.printStackTrace();
 	    logger.error("Exception in closing Hadoop connection: "
-		    + e.toString());
+		    + e.toString() + "\nStacktrace:\n"
+		    + e.getStackTrace().toString());
 	}
     }
 
@@ -325,9 +324,9 @@ public class HdfsIO implements DataSink {
 
 	    logger.info("deleted hdfs file: " + path);
 	} catch (Exception e) {
-	    e.printStackTrace();
 	    logger.error("Exception in deleting Hdfs file: " + path + " - "
-		    + e.toString());
+		    + e.toString() + "\nStacktrace\n"
+		    + e.getStackTrace().toString());
 	}
     }
 
@@ -385,7 +384,7 @@ public class HdfsIO implements DataSink {
 
     private void write(String data) {
 	try {
-	    ofstream.writeBytes(data);
+	    ofstream.writeUTF(data);
 	    ofstream.flush();
 	    logger.debug("Sent 1 event to Hadoop.");
 	    totalBytesWritten += data.length();
@@ -456,22 +455,38 @@ public class HdfsIO implements DataSink {
 	    LineReader reader = new LineReader(ifstream);
 	    org.apache.hadoop.io.Text msg = new org.apache.hadoop.io.Text();
 	    reader.readLine(msg);
-	    if (msg.getLength() >= 0)
+	    if (msg.getLength() > 0)
 		return msg.toString();
 	} catch (Exception e) {
 	    logger.error("IOException in displaying hdfs file " + path + ": "
-		    + e.toString() + "/nStacktrace"
+		    + e.toString() + "\nStacktrace\n"
 		    + e.getStackTrace().toString());
 	}
 
 	return null;
     }
 
+    public String read() {
+	String msg = "";
+	try {
+	    if (ifstream == null)
+		setInputFile();
+	    msg = ifstream.readUTF();
+	} catch (Exception e) {
+	    logger.error("IOException in reading hdfs file " + path + ": "
+		    + e.toString() + "\nStacktrace\n"
+		    + e.getStackTrace().toString());
+	}
+
+	return msg;
+    }
+
     private void setInputFile() throws Exception {
 	ifstream = fileSystem.open(destination);
     }
 
-    public void displayCurrentFile() {
+    // Currently for internal testing only.
+    private void displayCurrentFile() {
 	while (true) {
 	    String str = readLine();
 	    if (str != null)

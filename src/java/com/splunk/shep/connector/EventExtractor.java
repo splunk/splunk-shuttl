@@ -66,8 +66,6 @@ public class EventExtractor {
 	// logger.setLevel(Level.DEBUG);
 	logger.debug("set debug mode");
 	debugging = true;
-	// if (emitter != null)
-	// emitter.debug();
     }
 
     public void run() throws Exception {

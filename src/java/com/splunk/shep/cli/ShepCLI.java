@@ -35,10 +35,6 @@ public class ShepCLI {
      */
 
     private ShepConf conf = null;
-    // private final String DefaultHadoopHome = new
-    // String("/Users/xli/app/hadoop-0.20.2-cdh3u1");
-    private final String DefaultHadoopHome = new String(
-	    "/Users/xli/app/hadoop-0.20.205.0");
 
     public static void main(String[] args) throws Exception {
 	// System.out.println("Splunk Shep CLI");
@@ -56,7 +52,7 @@ public class ShepCLI {
 
     }
 
-    public ShepCLI(String confFile) {
+    public ShepCLI(String confFile) throws Exception {
 	conf = new ShepConf(confFile);
 	init();
     }
@@ -140,15 +136,10 @@ public class ShepCLI {
 		+ "    -get <source-path> <dest-path>\n");
     }
 
-    private void init() {
-	try {
-	    if (conf.getHadoopHome() == null) {
-		System.out.println("Using default Hadoop Home: "
-			+ DefaultHadoopHome);
-		conf.setHadoopHome(DefaultHadoopHome);
-	    }
-	} catch (Exception e) {
-	    conf.setHadoopHome(DefaultHadoopHome);
+    private void init() throws Exception {
+	if (conf.getHadoopHome() == null) {
+	    System.err.println("ERROR: HadoopHome not configured.");
+	    throw (new Exception("HadoopHome unavailable"));
 	}
     }
 
@@ -168,16 +159,15 @@ public class ShepCLI {
     }
 
     private void cat(String src) throws Exception {
-	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
+	// String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
 	// System.out.println("run: " + cmd);
-	runCmd(cmd);
+	// runCmd(cmd);
 
-	/*
-	 * api call to read file HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(),
-	 * conf.getHadoopPort()); fileIO.openToRead(src);
-	 * fileIO.displayCurrentFile(); // fileIO.readCurrentFile();
-	 * fileIO.close();
-	 */
+	// api call to read file
+	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
+	fileIO.openToRead(src);
+	System.out.println(fileIO.read());
+	fileIO.close();
     }
 
     private void importFile(String src) throws Exception {
