@@ -35,10 +35,6 @@ public class ShepCLI {
      */
 
     private ShepConf conf = null;
-    // private final String DefaultHadoopHome = new
-    // String("/Users/xli/app/hadoop-0.20.2-cdh3u1");
-    private final String DefaultHadoopHome = new String(
-	    "/Users/xli/app/hadoop-0.20.205.0");
 
     public static void main(String[] args) throws Exception {
 	// System.out.println("Splunk Shep CLI");
@@ -56,7 +52,7 @@ public class ShepCLI {
 
     }
 
-    public ShepCLI(String confFile) {
+    public ShepCLI(String confFile) throws Exception {
 	conf = new ShepConf(confFile);
 	init();
     }
@@ -64,6 +60,7 @@ public class ShepCLI {
     private void parseArgs(String[] args, int startIndex) throws Exception {
 	if (args.length < 1) {
 	    usage();
+	    return;
 	}
 
 	// Explicit check for help
@@ -129,60 +126,48 @@ public class ShepCLI {
 
     private void usage() {
 	System.out.println("Usage : java " + getClass().getName() + " <cmd>");
-	System.out.println("Commands:\n                      "
-		+ "    -h\n         "
-		+ "    -ls <path>\n                          "
-		+ "    -ls [<path>}\n           "
+	System.out.println("Commands:                      \n"
+		+ "    -h                           \n"
+		+ "    -ls [<path>]                          \n"
 		+ "    -create <file-path> <message>\n"
-		+ "    -import <source-path>\n               "
+		+ "    -import <source-path>               \n"
 		+ "    -cat <source-path>\n"
 		+ "    -tail [-f] <source-path>\n"
 		+ "    -get <source-path> <dest-path>\n");
     }
 
-    private void init() {
-	try {
-	    if (conf.getHadoopHome() == null) {
-		System.out.println("Using default Hadoop Home: "
-			+ DefaultHadoopHome);
-		conf.setHadoopHome(DefaultHadoopHome);
-	    }
-	} catch (Exception e) {
-	    conf.setHadoopHome(DefaultHadoopHome);
+    private void init() throws Exception {
+	if (conf.getHadoopHome() == null) {
+	    System.err.println("ERROR: HadoopHome not configured.");
+	    throw (new Exception("HadoopHome unavailable"));
 	}
     }
 
     private void get(String src, String dest) throws Exception {
-	Runtime r = Runtime.getRuntime();
 	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -get " + src + " "
 		+ dest;
 
 	// System.out.println("run: " + cmd);
 	runCmd(cmd);
-	// r.exec(cmd);
     }
 
     private void list(String src) throws Exception {
-	Runtime r = Runtime.getRuntime();
 	String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -ls " + src;
 
 	// System.out.println("run: " + cmd);
 	runCmd(cmd);
-	// r.exec(cmd);
     }
 
     private void cat(String src) throws Exception {
-	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
-	fileIO.openToRead(src);
-	System.out.print(fileIO.read());
-	fileIO.close();
-
-	// Runtime r = Runtime.getRuntime();
 	// String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -cat " + src;
-
 	// System.out.println("run: " + cmd);
 	// runCmd(cmd);
-	// r.exec(cmd);
+
+	// api call to read file
+	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
+	fileIO.openToRead(src);
+	System.out.println(fileIO.read());
+	fileIO.close();
     }
 
     private void importFile(String src) throws Exception {
@@ -198,7 +183,6 @@ public class ShepCLI {
 
 	// System.out.println("run: " + cmd);
 	runCmd(cmd);
-	// r.exec(cmd);
     }
 
     private void createFile(String filePath, String msg) throws Exception {
@@ -228,7 +212,7 @@ public class ShepCLI {
 		continue;
 
 	    modTime = newModTime;
-	    // Runtime r = Runtime.getRuntime();
+
 	    String cmd = conf.getHadoopHome() + "/bin/hadoop dfs -tail " + src;
 	    // System.out.println("run: " + cmd);
 	    runCmd(cmd);
