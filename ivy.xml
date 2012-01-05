@@ -1,0 +1,20 @@
+<!-- To add a dependency: Go to: http://mvnrepository.com/ . Search for your
+	dependency. Click on the right link for your dependency. Select the version
+	you want. Click on the Ivy tab. Copy the <dependecy> tag and insert it below -->
+<ivy-module version="2.0">
+	<info organisation="com.splunk.shep" module="shep-ivy" />
+	<dependencies>
+		<dependency org="commons-io" name="commons-io" rev="2.1" />
+		<dependency org="org.apache.httpcomponents" name="httpclient"
+			rev="4.1.2" />
+		<dependency org="org.apache.httpcomponents" name="httpcore"
+			rev="4.1.2" />
+		<dependency org="log4j" name="log4j" rev="1.2.16" />
+		<dependency org="org.testng" name="testng" rev="6.1.1" />
+		<dependency org="org.apache.hadoop" name="hadoop-core" rev="0.20.2" />
+		<dependency org="org.bluestemsoftware.open.maven.tparty"
+			name="xerces-impl" rev="2.9.0" />
+		<dependency org="ant-contrib" name="ant-contrib" rev="1.0b3" />
+		<dependency org="commons-codec" name="commons-codec" rev="1.4" />
+	</dependencies>
+</ivy-module>

@@ -4,13 +4,14 @@
 	<classpathentry kind="src" path="test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="contrib/flume-0.9.3-CDH3B4/flume-0.9.3-CDH3B4-core.jar"/>
-	<classpathentry kind="lib" path="contrib/apache-log4j-1.2.16/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="contrib/flume-0.9.3-CDH3B4/lib/hadoop-0.20.2-core.jar"/>
-	<classpathentry kind="lib" path="contrib/testng-6.1.1/testng-6.1.1.jar"/>
-	<classpathentry kind="lib" path="contrib/httpcomponents-client-4.1.2/lib/httpclient-4.1.2.jar"/>
-	<classpathentry kind="lib" path="contrib/httpcomponents-client-4.1.2/lib/httpcore-4.1.2.jar"/>
-	<classpathentry kind="lib" path="contrib/wikixmlj/bzip2.jar"/>
-	<classpathentry kind="lib" path="contrib/wikixmlj/xercesImpl.jar"/>
-	<classpathentry kind="lib" path="contrib/commons-io-2.1/commons-io-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-core-0.20.2.jar"/>
+	<classpathentry kind="lib" path="lib/testng-6.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/xerces-impl-2.9.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

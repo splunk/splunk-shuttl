@@ -1,4 +1,4 @@
-<project name="HadoopConnector" default="build" basedir=".">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="HadoopConnector" default="build" basedir=".">
 	<property name="contribdir" value="${basedir}/contrib" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="flumelib.home" value="${flume.home}/lib" />
@@ -16,6 +16,8 @@
 	<property name="stage.dir" value="${builddir}/${appname}" />
 	<property name="srcdir" value="src/java/" />
 	<property name="testdir" value="test/java/" />
+	<property name="libdir" value="${basedir}/lib" />
+
 
 	<!-- hadoop properties -->
 	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
@@ -35,33 +37,15 @@
 
 	<path id="build.classpath">
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
-		<pathelement location="${flumelib.home}/jackson-core-asl-1.4.0.jar" />
-		<pathelement location="${flumelib.home}/jackson-mapper-asl-1.4.0.jar" />
-		<pathelement location="${flumelib.home}/slf4j-log4j12-1.6.1.jar" />
-		<pathelement location="${flumelib.home}/slf4j-api-1.6.1.jar" />
-		<pathelement location="${flumelib.home}/avro-1.4.0.jar" />
-		<pathelement location="${flumelib.home}/log4j-1.2.15.jar" />
-		<pathelement location="${flumelib.home}/hadoop-core-0.20.2-CDH3B4.jar" />
-		<pathelement location="${flumelib.home}/commons-logging-1.0.4.jar" />
-		<pathelement location="${flumelib.home}/google-collect-1.0-rc2.jar" />
-		<pathelement location="${flumelib.home}/commons-lang-2.5.jar" />
-		<pathelement location="${contribdir}/apache-log4j-1.2.16/log4j-1.2.16.jar}" />
-		<pathelement location="${contribdir}/httpcomponents-client-4.1.2/lib/httpclient-4.1.2.jar" />
-		<pathelement location="${contribdir}/httpcomponents-client-4.1.2/lib/httpcore-4.1.2.jar" />
-		<pathelement location="${contribdir}/${testng.basename}/${testng.jar}" />
-		<pathelement location="${contribdir}/wikixmlj/bzip2.jar" />
-		<pathelement location="${contribdir}/wikixmlj/xercesImpl.jar" />
 		<pathelement location="${basedir}/src/java/com/splunk/shep/connector/conf" />
-		<pathelement location="${contribdir}/commons-io-2.1/commons-io-2.1.jar" />
 		<pathelement path="${classdir}" />
+		<fileset dir="${libdir}">
+			<include name="*.jar" />
+		</fileset>
 	</path>
 	<property name="foo" value="${build.classpath}" />
 
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-		<classpath>
-			<pathelement location="${contribdir}/ant-contrib-1.0b3/ant-contrib-1.0b3.jar" />
-		</classpath>
-	</taskdef>
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
 
 	<!-- Cleans everything -->
 	<target name="clean-all">
@@ -92,10 +76,23 @@
 
 	<target name="clean-downloads">
 		<antcall target="clean-hadoop-download" />
+		<antcall target="clean-ivy-downloads" />
 	</target>
 
 	<target name="clean-hadoop-download">
 		<delete file="${hadoop.download.path}" />
+	</target>
+
+	<target name="clean-ivy-downloads">
+		<delete>
+			<fileset dir="${libdir}">
+				<include name="*.jar" />
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="clean-ivy-cache">
+		<ivy:cleancache />
 	</target>
 
 	<!-- create a version.properties file from a template which is read by Version.java -->
@@ -144,14 +141,18 @@
 	</target>
 
 	<!-- compile all code, may in the future want to split out test and source builds -->
-	<target name="compile">
+	<target name="compile" depends="ivy-resolve">
 		<javac srcdir="${srcdir};${testdir}" destdir="${classdir}" includeAntRuntime="false" debug="true">
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
 
+	<target name="ivy-resolve" description="--> retrieve dependencies with ivy">
+		<ivy:retrieve />
+	</target>
+
 	<!-- run test via testNG -->
-	<taskdef name="testng" classpathref="build.classpath" classname="org.testng.TestNGAntTask" />
+	<taskdef name="testng" classname="org.testng.TestNGAntTask" />
 	<target name="test">
 		<antcall target="fast-tests" />
 		<antcall target="slow-tests" />
@@ -365,10 +366,9 @@
 		<property name="hadoop.lib" value="${hadoop.home}/lib" />
 		<copy file="${name.versioned.path}" todir="${hadoop.lib}" />
 		<!-- copy httpcomponents to hadoop -->
-		<property name="httpcomponents.lib" value="${contribdir}/httpcomponents-client-4.1.2/lib" />
-		<copy file="${httpcomponents.lib}/commons-codec-1.4.jar" todir="${hadoop.lib}" />
-		<copy file="${httpcomponents.lib}/httpclient-4.1.2.jar" todir="${hadoop.lib}" />
-		<copy file="${httpcomponents.lib}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
+		<copy file="${libdir}/commons-codec-1.4.jar" todir="${hadoop.lib}" />
+		<copy file="${libdir}/httpclient-4.1.2.jar" todir="${hadoop.lib}" />
+		<copy file="${libdir}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
 	</target>
 
 	<target name="hadoop-start">
