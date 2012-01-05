@@ -22,6 +22,7 @@
 	<property name="srcdir" value="src/java/" />
 	<property name="testdir" value="test/java/" />
 	<property name="libdir" value="${basedir}/lib" />
+	<property name="ant-libs" value="${contribdir}/ant-libs" />
 
 
 	<!-- hadoop properties -->
@@ -48,9 +49,15 @@
 			<include name="*.jar" />
 		</fileset>
 	</path>
-	<property name="foo" value="${build.classpath}" />
 
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+	<path id="ant.libs.classpath">
+		<fileset dir="${ant-libs}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="ant.libs.classpath" />
+	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ant.libs.classpath" />
 
 	<!-- Cleans everything -->
 	<target name="clean-all">
@@ -157,7 +164,7 @@
 	</target>
 
 	<!-- run test via testNG -->
-	<taskdef name="testng" classname="org.testng.TestNGAntTask" />
+	<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="ant.libs.classpath" />
 	<target name="test">
 		<antcall target="fast-tests" />
 		<antcall target="slow-tests" />
