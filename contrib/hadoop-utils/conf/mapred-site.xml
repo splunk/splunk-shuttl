@@ -6,6 +6,6 @@
 <configuration>
   <property>
     <name>mapred.job.tracker</name>
-    <value>localhost:9001</value>
+    <value>@HADOOP.HOST@:@HADOOP.JOBTRACKER.PORT@</value>
   </property>
 </configuration>

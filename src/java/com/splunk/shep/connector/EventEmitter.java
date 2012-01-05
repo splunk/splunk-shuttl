@@ -155,7 +155,8 @@ public class EventEmitter implements DataSink {
 	try {
 	    snk.close();
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+		logger.warn("Exception in close: " + ex.toString() 
+				+ "\nStacktrace:\n" + ex.getStackTrace().toString());
 	}
 
 	logger.info("closed.");

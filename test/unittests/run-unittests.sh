@@ -2,17 +2,21 @@
 # The first argument ($1) should contain HADOOP_HOME
 # The second argument ($2) should contain SHEPDIR
 # The third argument ($3) should contain SPLUNK_HOME
+# The forth argument ($4) should contain SPLUNK_USERNAME
+# The fifth argument ($5) should contain SPLUNK_PASSWORD
+
+print_usage () {
+  echo "Usage: $filename <HADOOP_HOME> <SHEPDIR> <SPLUNK_HOME> <SPLUNK_USERNAME> <SPLUNK_PASSWORD>."
+}
 
 filename=$(basename $0)
 hadoop_home_arg=$1
 shepdir_arg=$2
 splunk_home_arg=$3
+splunk_username_arg=$4
+splunk_password_arg=$5
 
-print_usage () {
-  echo "Usage: $filename <HADOOP_HOME> <SHEPDIR>."
-}
-
-if [ $# -ne 3 ]; then
+if [ $# -ne 5 ]; then
   echo "Warning: $filename was not run correctly."
   print_usage
   exit
@@ -31,15 +35,13 @@ setup_environment() {
   set_env_with_variable HADOOP_HOME $hadoop_home_arg $HADOOP_HOME
   set_env_with_variable SHEPDIR $shepdir_arg $SHEPDIR
   set_env_with_variable SPLUNK_HOME $splunk_home_arg $SPLUNK_HOME
-
-  #Splunk authentication
-  export SPLUNK_USERNAME=admin
-  export SPLUNK_PASSWORD=changeme
+  set_env_with_variable SPLUNK_USERNAME $splunk_username_arg $SPLUNK_USERNAME
+  set_env_with_variable SPLUNK_PASSWORD $splunk_password_arg $SPLUNK_PASSWORD
 }
 
 # Sets the environment variable in $1 with value in $2.
 # $3 contains the current value of $1.
-# Warning will be printed if there's already a value in variable $1.
+# Warning will be printed if there's already a value in variable $3.
 set_env_with_variable () {
   env_name=$1
   new_value=$2

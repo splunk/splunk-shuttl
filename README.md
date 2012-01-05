@@ -106,26 +106,37 @@ Run the tests:
 * Here's how you setup passphraseless ssh: http://hadoop.apache.org/common/docs/current/single_node_setup.html#Setup+passphraseless
 ** You don't need to do this if you want to run against your own Splunk instance.
 
+### Test configuration
+
+Create a file called `build.properties`
+
+Copy the contents from `default.properties` to `build.properties` and edit the values you want to change
+
 ### Running tests against your own Splunk and/or Hadoop
 
-Warning: All of your Splunk indexes is cleared if you do this.
+Warning: All of your Splunk indexes is cleared if you do this
 
-Assertions: The tests assert that the username and password for your Splunk instance is admin and password. We also assert that your Hadoop namenode has been formatted.
+Assertions: The tests assert that your Hadoop namenode has been formatted
 
 How to do it:
 
 Set `SPLUNK_HOME` and/or `HADOOP_HOME` environment variables
 
-Run ant test with parameter `-DgotSplunk=true` and/or `-DgotHadoop=true`. For example:
+In your `build.properties`, set the properties `defined.means.running.on.self.defined.splunk.home` and/or `defined.means.running.on.self.defined.hadoop.home` to any value
 
-	$ ant test -DgotSplunk=true -DgotHadoop=true
+Now run:
 
-The script will now use your own environment variables to run the tests. You don't have to run with both parameters. You can run with either one.
+	$ `ant test`
+
+The script will now use your own environment variables to run the tests. You don't have to run with both properties defined. You can run with either one
 
 ### Specifying which Hadoop version to run
 
-Run ant test with parameter `-DhadoopVersion=<version>`, like so:
+In your `build.properties`, set the property `hadoop.version` to the version you want to run
 
-	$ ant test -DhadoopVersion=203
+Now run:
 
-Currently supports version 203 and 205 for downloading. Tests are not working on 205 yet.
+	$ `ant clean-all`
+	$ `ant test`
+
+Currently supports version 203 and 205 for downloading. Tests are not working on 205 yet
