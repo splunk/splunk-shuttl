@@ -211,6 +211,20 @@
 		<property name="splunk.home" value="${env.SPLUNK_HOME}" />
 		<echo>You specified that you've got your own Splunk.</echo>
 		<echo>Running shell tests with SPLUNK_HOME: ${splunk.home}</echo>
+		<if>
+			<isset property="splunkUsername" />
+			<then>
+				<property name="splunk.username" value="${splunkUsername}" />
+				<echo>Using Splunk username: ${splunk.username}</echo>
+			</then>
+		</if>
+		<if>
+			<isset property="splunkPassword" />
+			<then>
+				<property name="splunk.password" value="${splunkPassword}" />
+				<echo>Using Splunk password: ${splunk.password}</echo>
+			</then>
+		</if>
 	</target>
 
 	<target name="set-hadoop-home" depends="set-user-env-hadoop-home" unless="hadoop.home">
