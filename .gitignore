@@ -23,3 +23,6 @@
 
 # Downloads
 /contrib/hadoop.tar.gz
+
+# Property files
+build.properties

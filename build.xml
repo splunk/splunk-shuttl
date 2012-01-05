@@ -1,4 +1,9 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="HadoopConnector" default="build" basedir=".">
+	<!-- property files -->
+	<property file="build.properties" />
+	<property file="default.properties" />
+
+	<!-- project filesystem properties -->
 	<property name="contribdir" value="${basedir}/contrib" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="flumelib.home" value="${flume.home}/lib" />
@@ -34,8 +39,6 @@
 	<!-- splunk properties -->
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
 	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
-	<property name="splunk.default.username" value="admin" />
-	<property name="splunk.default.password" value="changeme" />
 
 	<path id="build.classpath">
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
@@ -203,35 +206,19 @@
 
 	<target name="set-splunk-home" depends="set-user-env-splunk-home" unless="splunk.home">
 		<property name="splunk.home" value="${splunk.extracted.dir}" />
-		<property name="splunk.username" value="${splunk.default.username}" />
-		<property name="splunk.password" value="${splunk.default.password}" />
 	</target>
 
-	<target name="set-user-env-splunk-home" depends="set-environment-property" if="gotSplunk">
+	<target name="set-user-env-splunk-home" depends="set-environment-property" if="defined.means.running.on.self.defined.splunk.home">
 		<property name="splunk.home" value="${env.SPLUNK_HOME}" />
 		<echo>You specified that you've got your own Splunk.</echo>
 		<echo>Running shell tests with SPLUNK_HOME: ${splunk.home}</echo>
-		<if>
-			<isset property="splunkUsername" />
-			<then>
-				<property name="splunk.username" value="${splunkUsername}" />
-				<echo>Using Splunk username: ${splunk.username}</echo>
-			</then>
-		</if>
-		<if>
-			<isset property="splunkPassword" />
-			<then>
-				<property name="splunk.password" value="${splunkPassword}" />
-				<echo>Using Splunk password: ${splunk.password}</echo>
-			</then>
-		</if>
 	</target>
 
 	<target name="set-hadoop-home" depends="set-user-env-hadoop-home" unless="hadoop.home">
 		<property name="hadoop.home" value="${hadoop.extracted.path}" />
 	</target>
 
-	<target name="set-user-env-hadoop-home" depends="set-environment-property" if="gotHadoop">
+	<target name="set-user-env-hadoop-home" depends="set-environment-property" if="defined.means.running.on.self.defined.hadoop.home">
 		<property name="hadoop.home" value="${env.HADOOP_HOME}" />
 		<echo>You specified that you've got your own Hadoop.</echo>
 		<echo>Running shell tests with HADOOP_HOME: ${hadoop.home}</echo>
@@ -245,7 +232,7 @@
 		</antcall>
 	</target>
 
-	<target name="hadoop-prepare-build-cache" unless="gotHadoop">
+	<target name="hadoop-prepare-build-cache" unless="defined.means.running.on.self.defined.hadoop.home">
 		<antcall target="do-hadoop-prepare-build-cache" />
 	</target>
 
@@ -281,10 +268,6 @@
 		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
 	</target>
 
-	<target name="set-hadoop-download-url" depends="set-user-hadoop-version-url" unless="hadoop.download.url">
-		<property name="hadoop.download.url" value="${hadoop.default.download.url}" />
-	</target>
-
 	<target name="checkIfHadoopNotDownloaded">
 		<condition property="isNotDownloaded">
 			<not>
@@ -293,14 +276,14 @@
 		</condition>
 	</target>
 
-	<target name="set-user-hadoop-version-url" if="hadoopVersion">
+	<target name="set-hadoop-download-url">
 		<if>
-			<equals arg1="${hadoopVersion}" arg2="203" />
+			<equals arg1="${hadoop.version}" arg2="203" />
 			<then>
 				<property name="hadoop.version.url" value="hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
 			</then>
 			<elseif>
-				<equals arg1="${hadoopVersion}" arg2="205" />
+				<equals arg1="${hadoop.version}" arg2="205" />
 				<then>
 					<property name="hadoop.version.url" value="hadoop-0.20.205.0/hadoop-0.20.205.0.tar.gz" />
 				</then>
@@ -335,28 +318,43 @@
 		<copy todir="${hadoop.extracted.conf.dir}">
 			<fileset dir="${hadoop.conf.dir}" includes="*" />
 		</copy>
+		<antcall target="hadoop-setup-copied-confs" />
+	</target>
+
+	<target name="hadoop-setup-copied-confs" depends="set-extracted-hadoop-conf-properties">
 		<antcall>
-			<target name="hadoop-set-java-home" />
-			<target name="hadoop-set-tmp-dir" />
+			<target name="hadoop-conf-hadoop-env-sh" />
+			<target name="hadoop-conf-core-site-xml" />
+			<target name="hadoop-conf-mapred-site-xml" />
 		</antcall>
 	</target>
 
-	<target name="hadoop-set-java-home" depends="set-environment-property">
+	<target name="set-extracted-hadoop-conf-properties">
 		<property name="hadoop.env.sh" value="${hadoop.extracted.conf.dir}/hadoop-env.sh" />
+		<property name="core-site.xml" value="${hadoop.extracted.conf.dir}/core-site.xml" />
+		<property name="mapred-site.xml" value="${hadoop.extracted.conf.dir}/mapred-site.xml" />
+	</target>
+
+	<target name="hadoop-conf-hadoop-env-sh" depends="set-environment-property">
 		<fail if="${JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured." />
 		<replace file="${hadoop.env.sh}">
 			<replacefilter token="@JAVA.HOME@" value="${env.JAVA_HOME}" />
+			<replacefilter token="@HADOOP.PID.DIR@" value="${hadoop.extracted.path}/tmp" />
 		</replace>
 	</target>
 
-	<target name="hadoop-set-tmp-dir">
-		<property name="core-site.xml" value="${hadoop.extracted.conf.dir}/core-site.xml" />
+	<target name="hadoop-conf-core-site-xml">
 		<replace file="${core-site.xml}">
 			<replacefilter token="@HADOOP.TMP.DIR@" value="${hadoop.extracted.path}/tmp" />
+			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
+			<replacefilter token="@HADOOP.PORT@" value="${hadoop.port}" />
 		</replace>
-		<property name="hadoop-env.sh" value="${hadoop.extracted.conf.dir}/hadoop-env.sh" />
-		<replace file="${hadoop-env.sh}">
-			<replacefilter token="@HADOOP.PID.DIR@" value="${hadoop.extracted.path}/tmp" />
+	</target>
+
+	<target name="hadoop-conf-mapred-site-xml">
+		<replace file="${mapred-site.xml}">
+			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
+			<replacefilter token="@HADOOP.JOBTRACKER.PORT@" value="${hadoop.jobtracker.port}" />
 		</replace>
 	</target>
 
@@ -419,7 +417,7 @@
 		</antcall>
 	</target>
 
-	<target name="splunk-unpack-if-not-extracted" unless="gotSplunk">
+	<target name="splunk-unpack-if-not-extracted" unless="defined.means.running.on.self.defined.splunk.home">
 		<antcall target="do-splunk-unpack-if-not-extracted" />
 	</target>
 
