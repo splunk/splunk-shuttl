@@ -129,3 +129,9 @@ Run ant test with parameter `-DhadoopVersion=<version>`, like so:
 	$ ant test -DhadoopVersion=203
 
 Currently supports version 203 and 205 for downloading. Tests are not working on 205 yet.
+
+### Specifying Splunk username and password
+
+If you're running the tests against external Splunk instances with -DgotSplunk=true, you can specify username and password with ant arguments -DsplunkUsername=<username> -DsplunkPassword=<password>, like so:
+
+	$ ant test -DgotSplunk=true -DsplunkUsername=admin -DsplunkPassword=secret
