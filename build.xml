@@ -1,4 +1,9 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="HadoopConnector" default="build" basedir=".">
+	<!-- property files -->
+	<property file="build.properties" />
+	<property file="default.properties" />
+
+	<!-- project filesystem properties -->
 	<property name="contribdir" value="${basedir}/contrib" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="flumelib.home" value="${flume.home}/lib" />
