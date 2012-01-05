@@ -318,28 +318,43 @@
 		<copy todir="${hadoop.extracted.conf.dir}">
 			<fileset dir="${hadoop.conf.dir}" includes="*" />
 		</copy>
+		<antcall target="hadoop-setup-copied-confs" />
+	</target>
+
+	<target name="hadoop-setup-copied-confs" depends="set-extracted-hadoop-conf-properties">
 		<antcall>
-			<target name="hadoop-set-java-home" />
-			<target name="hadoop-set-tmp-dir" />
+			<target name="hadoop-conf-hadoop-env-sh" />
+			<target name="hadoop-conf-core-site-xml" />
+			<target name="hadoop-conf-mapred-site-xml" />
 		</antcall>
 	</target>
 
-	<target name="hadoop-set-java-home" depends="set-environment-property">
+	<target name="set-extracted-hadoop-conf-properties">
 		<property name="hadoop.env.sh" value="${hadoop.extracted.conf.dir}/hadoop-env.sh" />
+		<property name="core-site.xml" value="${hadoop.extracted.conf.dir}/core-site.xml" />
+		<property name="mapred-site.xml" value="${hadoop.extracted.conf.dir}/mapred-site.xml" />
+	</target>
+
+	<target name="hadoop-conf-hadoop-env-sh" depends="set-environment-property">
 		<fail if="${JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured." />
 		<replace file="${hadoop.env.sh}">
 			<replacefilter token="@JAVA.HOME@" value="${env.JAVA_HOME}" />
+			<replacefilter token="@HADOOP.PID.DIR@" value="${hadoop.extracted.path}/tmp" />
 		</replace>
 	</target>
 
-	<target name="hadoop-set-tmp-dir">
-		<property name="core-site.xml" value="${hadoop.extracted.conf.dir}/core-site.xml" />
+	<target name="hadoop-conf-core-site-xml">
 		<replace file="${core-site.xml}">
 			<replacefilter token="@HADOOP.TMP.DIR@" value="${hadoop.extracted.path}/tmp" />
+			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
+			<replacefilter token="@HADOOP.PORT@" value="${hadoop.port}" />
 		</replace>
-		<property name="hadoop-env.sh" value="${hadoop.extracted.conf.dir}/hadoop-env.sh" />
-		<replace file="${hadoop-env.sh}">
-			<replacefilter token="@HADOOP.PID.DIR@" value="${hadoop.extracted.path}/tmp" />
+	</target>
+
+	<target name="hadoop-conf-mapred-site-xml">
+		<replace file="${mapred-site.xml}">
+			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
+			<replacefilter token="@HADOOP.JOBTRACKER.PORT@" value="${hadoop.jobtracker.port}" />
 		</replace>
 	</target>
 
