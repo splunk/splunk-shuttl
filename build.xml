@@ -34,6 +34,8 @@
 	<!-- splunk properties -->
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
 	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
+	<property name="splunk.default.username" value="admin" />
+	<property name="splunk.default.password" value="changeme" />
 
 	<path id="build.classpath">
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
@@ -189,6 +191,8 @@
 			<arg value="${hadoop.home}" />
 			<arg value="${basedir}" />
 			<arg value="${splunk.home}" />
+			<arg value="${splunk.username}" />
+			<arg value="${splunk.password}" />
 		</exec>
 	</target>
 
@@ -199,6 +203,8 @@
 
 	<target name="set-splunk-home" depends="set-user-env-splunk-home" unless="splunk.home">
 		<property name="splunk.home" value="${splunk.extracted.dir}" />
+		<property name="splunk.username" value="${splunk.default.username}" />
+		<property name="splunk.password" value="${splunk.default.password}" />
 	</target>
 
 	<target name="set-user-env-splunk-home" depends="set-environment-property" if="gotSplunk">
