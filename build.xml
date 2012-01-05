@@ -197,21 +197,21 @@
 		<property environment="env" />
 	</target>
 
-	<target name="set-splunk-home" depends="set-user-env-splunk" unless="splunk.home">
+	<target name="set-splunk-home" depends="set-user-env-splunk-home" unless="splunk.home">
 		<property name="splunk.home" value="${splunk.extracted.dir}" />
 	</target>
 
-	<target name="set-user-env-splunk" depends="set-environment-property" if="gotSplunk">
+	<target name="set-user-env-splunk-home" depends="set-environment-property" if="gotSplunk">
 		<property name="splunk.home" value="${env.SPLUNK_HOME}" />
 		<echo>You specified that you've got your own Splunk.</echo>
 		<echo>Running shell tests with SPLUNK_HOME: ${splunk.home}</echo>
 	</target>
 
-	<target name="set-hadoop-home" depends="set-user-env-hadoop" unless="hadoop.home">
+	<target name="set-hadoop-home" depends="set-user-env-hadoop-home" unless="hadoop.home">
 		<property name="hadoop.home" value="${hadoop.extracted.path}" />
 	</target>
 
-	<target name="set-user-env-hadoop" depends="set-environment-property" if="gotHadoop">
+	<target name="set-user-env-hadoop-home" depends="set-environment-property" if="gotHadoop">
 		<property name="hadoop.home" value="${env.HADOOP_HOME}" />
 		<echo>You specified that you've got your own Hadoop.</echo>
 		<echo>Running shell tests with HADOOP_HOME: ${hadoop.home}</echo>
