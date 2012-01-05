@@ -208,7 +208,7 @@
 		<property name="splunk.home" value="${splunk.extracted.dir}" />
 	</target>
 
-	<target name="set-user-env-splunk-home" depends="set-environment-property" if="gotSplunk">
+	<target name="set-user-env-splunk-home" depends="set-environment-property" if="defined.means.running.on.self.defined.splunk.home">
 		<property name="splunk.home" value="${env.SPLUNK_HOME}" />
 		<echo>You specified that you've got your own Splunk.</echo>
 		<echo>Running shell tests with SPLUNK_HOME: ${splunk.home}</echo>
@@ -218,7 +218,7 @@
 		<property name="hadoop.home" value="${hadoop.extracted.path}" />
 	</target>
 
-	<target name="set-user-env-hadoop-home" depends="set-environment-property" if="gotHadoop">
+	<target name="set-user-env-hadoop-home" depends="set-environment-property" if="defined.means.running.on.self.defined.hadoop.home">
 		<property name="hadoop.home" value="${env.HADOOP_HOME}" />
 		<echo>You specified that you've got your own Hadoop.</echo>
 		<echo>Running shell tests with HADOOP_HOME: ${hadoop.home}</echo>
@@ -232,7 +232,7 @@
 		</antcall>
 	</target>
 
-	<target name="hadoop-prepare-build-cache" unless="gotHadoop">
+	<target name="hadoop-prepare-build-cache" unless="defined.means.running.on.self.defined.hadoop.home">
 		<antcall target="do-hadoop-prepare-build-cache" />
 	</target>
 
@@ -402,7 +402,7 @@
 		</antcall>
 	</target>
 
-	<target name="splunk-unpack-if-not-extracted" unless="gotSplunk">
+	<target name="splunk-unpack-if-not-extracted" unless="defined.means.running.on.self.defined.splunk.home">
 		<antcall target="do-splunk-unpack-if-not-extracted" />
 	</target>
 
