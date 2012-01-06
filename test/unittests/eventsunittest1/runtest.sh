@@ -47,7 +47,3 @@ $HADOOP fs -rmr "$testFolder" &>/dev/null
 rm -f _SUCCESS
 
 exit $retval
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
