@@ -14,11 +14,12 @@ For documentation, see:
 
 * http://docs.splunk.com/Documentation/Hadoop
 
-Key features as of v0.4.2 are:
+Key features as of v0.4.3 are:
 
 * Streaming of data via Splunk Forwarding to HDFS
 * SplunkInputFormat and SplunkOutputFormat classes for use in Hadoop
 * Automatic batch rolling of indexed data to HDFS
+* Developer friendly building and testing shep
 
 Note: earlier versions of the forwarding mechanism relied on
 Flume. That dependency is now removed, and Shep will write
