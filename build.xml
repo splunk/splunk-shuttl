@@ -5,8 +5,8 @@
 
 	<property name="username" value="admin" />
 	<property name="password" value="changeme" />
-	<property name="inputhdfstesturi" value="hdfs://localhost:54310/inputhdfstest/testfile" />
-	<property name="outputhdfstesturi" value="hdfs://localhost:54310/outputhdfstest/testfile" />
+	<property name="inputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/inputhdfstest/testfile" />
+	<property name="outputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/outputhdfstest/testfile" />
 
 	<!-- project filesystem properties -->
 	<property name="contribdir" value="${basedir}/contrib" />
