@@ -526,6 +526,35 @@
 		</exec>
 	</target>
 
+	<target name="splunk-restart">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="restart" />
+		</exec>
+	</target>
+
+	<target name="enable-shep-splunk-app" depends="checkIfShepIsEnabled" unless="isShepAlreadyEnabled">
+		<exec executable="curl" osfamily="unix">
+			<arg value="-s" />
+			<arg line="-u ${splunk.username}:${splunk.password}" />
+			<arg line="-k https://localhost:8089/services/apps/local/shep/enable" />
+			<arg line="-X POST" />
+		</exec>
+		<!-- Restarting splunk after enabling an app -->
+		<antcall target="splunk-restart" />
+	</target>
+
+	<target name="checkIfShepIsEnabled">
+		<shellscript shell="sh" outputproperty="isEnabled">
+			${splunk.home}/bin/splunk display app 2> /dev/null | grep shep | grep -o ENABLED
+		</shellscript>
+		<if>
+			<equals arg1="${isEnabled}" arg2="ENABLED" />
+			<then>
+				<property name="isShepAlreadyEnabled" value="true" />
+			</then>
+		</if>
+	</target>
+
 	<target name="splunk-teardown" depends="set-splunk-home,checkForSplunkBinary" if="existsSplunkBinary">
 		<antcall>
 			<target name="splunk-stop" />
