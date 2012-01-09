@@ -564,22 +564,8 @@
 	</target>
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
-	<target name="dist" depends="clean,compile,fast-tests,jar,version,versionized-jar-name">
-		<!-- make the staging directory -->
-		<mkdir dir="${stage.dir}" />
-		<!-- copy all the package files into there -->
-		<copy todir="${stage.dir}">
-			<fileset dir="${package.dir}" />
-		</copy>
-		<antcall target="copy-libs-to-stage-dir" />
-
-		<!-- update the version in the app.conf file -->
-		<replace file="${stage.dir}/default/app.conf">
-			<replacefilter token="@VERSION@" value="${version}" />
-		</replace>
-
-		<!-- copy the jar in there -->
-		<copy file="${name.versioned.path}" todir="${stage.dir}/bin" />
+	<target name="dist" depends="clean,compile,jar">
+		<antcall target="create-splunk-app" />
 		<!-- tar it up -->
 		<tar destfile="${builddir}/${appname}.tgz" compression="gzip">
 			<tarfileset dir="${builddir}/${appname}/bin" prefix="${appname}/bin" filemode="755">
@@ -592,8 +578,24 @@
 				<exclude name="bin/**" />
 			</tarfileset>
 		</tar>
-
 		<copy tofile="${builddir}/${appname}-${buildVersionSuffix}.tgz" file="${builddir}/${appname}.tgz" />
+	</target>
+
+	<target name="create-splunk-app" depends="version">
+		<!-- make the staging directory -->
+		<mkdir dir="${stage.dir}" />
+		<!-- copy all the package files into there -->
+		<copy todir="${stage.dir}">
+			<fileset dir="${package.dir}" />
+		</copy>
+		<antcall target="copy-libs-to-stage-dir" />
+
+		<!-- update the version in the app.conf file -->
+		<replace file="${stage.dir}/default/app.conf">
+			<replacefilter token="@VERSION@" value="${version}" />
+		</replace>
+		<!-- copy the jar in there -->
+		<copy file="${name.versioned.path}" todir="${stage.dir}/bin" />
 	</target>
 
 	<target name="copy-libs-to-stage-dir">
@@ -621,7 +623,6 @@
 	<target name="run">
 		<java jar="build/jar/${final.name}.jar" fork="true" />
 	</target>
-
 
 	<target name="splunk2flume2console">
 		<java classname="com.splunk.shep.connector.tests.Splunk2Flume2ConsoleTest">
