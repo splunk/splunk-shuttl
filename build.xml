@@ -526,6 +526,12 @@
 		</exec>
 	</target>
 
+	<target name="splunk-stop">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="stop" />
+		</exec>
+	</target>
+
 	<target name="splunk-restart">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="restart" />
@@ -564,12 +570,6 @@
 
 	<target name="checkForSplunkBinary">
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
-	</target>
-
-	<target name="splunk-stop">
-		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="stop" />
-		</exec>
 	</target>
 
 	<target name="splunk-clean-all">
