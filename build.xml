@@ -500,6 +500,26 @@
 		<fail unless="foundSplunkTgz" message="There has to be a splunk version packaged with .tgz in ${splunk.tgz.dir}" />
 	</target>
 
+	<target name="install-shep-splunk-app" depends="checkIfAlreadyInstalledShepApp" if="isNotInstalledShep">
+		<antcall target="do-install-shep-splunk-app" />
+	</target>
+
+	<target name="checkIfAlreadyInstalledShepApp">
+		<property name="shep.app.home" value="${splunk.home}/etc/apps/shep" />
+		<condition property="isNotInstalledShep">
+			<not>
+				<available file="${shep.app.home}" type="dir" />
+			</not>
+		</condition>
+	</target>
+
+	<target name="do-install-shep-splunk-app" depends="create-splunk-app">
+		<antcall target="splunk-stop" />
+		<copy todir="${shep.app.home}">
+			<fileset dir="${stage.dir}" />
+		</copy>
+	</target>
+
 	<target name="splunk-start">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="start --accept-license --no-prompt --answer-yes" />
