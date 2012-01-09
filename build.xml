@@ -283,7 +283,7 @@
 		</antcall>
 	</target>
 
-	<target name="hadoop-prepare-build-cache" unless="defined.means.running.on.self.defined.hadoop.home">
+	<target name="hadoop-prepare-build-cache" unless="defined.means.running.on.self.defined.hadoop.home" depends="set-hadoop-home">
 		<antcall target="do-hadoop-prepare-build-cache" />
 	</target>
 
@@ -464,7 +464,15 @@
 	<target name="splunk-setup" depends="set-splunk-home">
 		<antcall>
 			<target name="splunk-unpack-if-not-extracted" />
+			<target name="splunk-configure-and-start" />
+		</antcall>
+	</target>
+
+	<target name="splunk-configure-and-start">
+		<antcall>
+			<target name="install-shep-splunk-app" />
 			<target name="splunk-start" />
+			<target name="enable-shep-splunk-app" />
 		</antcall>
 	</target>
 
@@ -630,7 +638,7 @@
 		<copy tofile="${builddir}/${appname}-${buildVersionSuffix}.tgz" file="${builddir}/${appname}.tgz" />
 	</target>
 
-	<target name="create-splunk-app" depends="version">
+	<target name="create-splunk-app" depends="jar">
 		<!-- make the staging directory -->
 		<mkdir dir="${stage.dir}" />
 		<!-- copy all the package files into there -->
