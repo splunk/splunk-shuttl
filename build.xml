@@ -231,7 +231,7 @@
 		</antcall>
 	</target>
 
-	<target name="slow-TestNG-tests" depends="compile">
+	<target name="slow-TestNG-tests" depends="compile,set-splunk-home">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="slow" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
