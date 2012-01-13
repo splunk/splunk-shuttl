@@ -3,8 +3,14 @@
 	<property file="build.properties" />
 	<property file="default.properties" />
 
+	<property name="username" value="admin" />
+	<property name="password" value="changeme" />
+	<property name="inputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/inputhdfstest/testfile" />
+	<property name="outputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/outputhdfstest/testfile" />
+
 	<!-- project filesystem properties -->
 	<property name="contribdir" value="${basedir}/contrib" />
+	<property name="hadoop.dir" value="${contribdir}/hadoop-0.20.205.0" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="flumelib.home" value="${flume.home}/lib" />
 	<property name="builddir" value="${basedir}/build" />
@@ -41,7 +47,27 @@
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
 	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
 
+	<!-- hadoop properties -->
+	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
+	<property name="hadoop.apache.org.hadoop.common.host" value="ftp://apache.cs.utah.edu/apache.org/hadoop/common" />
+	<property name="hadoop.default.download.url" value="${hadoop.apache.org.hadoop.common.host}/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
+	<property name="hadoop.download.name.extracted" value="hadoop" />
+	<property name="hadoop.download.name" value="hadoop.tar.gz" />
+	<property name="hadoop.download.dir" value="${contribdir}" />
+	<property name="hadoop.download.path" value="${hadoop.download.dir}/${hadoop.download.name}" />
+	<property name="hadoop.extracted.dir" value="${build-cache}" />
+	<property name="hadoop.extracted.path" value="${hadoop.extracted.dir}/${hadoop.download.name.extracted}" />
+	<property name="hadoop.extracted.conf.dir" value="${hadoop.extracted.path}/conf" />
+
+	<!-- splunk properties -->
+	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
+	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
+
 	<path id="build.classpath">
+		<pathelement location="${hadoop.dir}/hadoop-core-0.20.205.0.jar" />
+		<pathelement location="${hadoop.dir}/lib/commons-logging-1.1.1.jar" />
+		<pathelement location="${hadoop.dir}/lib/commons-configuration-1.6.jar" />
+		<pathelement location="${hadoop.dir}/lib/commons-lang-2.4.jar" />
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
 		<pathelement location="${basedir}/src/java/com/splunk/shep/connector/conf" />
 		<pathelement path="${classdir}" />
@@ -174,9 +200,18 @@
 		<antcall target="fast-TestNG-tests" />
 	</target>
 
+	<propertyset id="testng">
+		<propertyref name="username" />
+		<propertyref name="password" />
+		<propertyref name="inputhdfstesturi" />
+		<propertyref name="outputhdfstesturi" />
+		<propertyref name="splunk.home" />
+	</propertyset>
+
 	<target name="fast-TestNG-tests" depends="compile">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
+			<propertyset refid="testng" />
 			<classfileset dir="${builddir}" includes="**/*.class" />
 		</testng>
 	</target>
@@ -187,12 +222,21 @@
 			<target name="splunk-setup" />
 		</antcall>
 		<antcall>
+			<target name="slow-TestNG-tests" />
 			<target name="shell-tests" />
 		</antcall>
 		<antcall>
 			<target name="splunk-teardown" />
 			<target name="hadoop-teardown" />
 		</antcall>
+	</target>
+
+	<target name="slow-TestNG-tests" depends="compile,set-splunk-home">
+		<!-- Test group 'fast'. We think about adding more groups in the future -->
+		<testng classpathref="build.classpath" groups="slow" outputdir="${builddir}/test-results">
+			<propertyset refid="testng" />
+			<classfileset dir="${builddir}" includes="**/*.class" />
+		</testng>
 	</target>
 
 	<target name="shell-tests" depends="compile,set-splunk-home,set-hadoop-home">
@@ -239,7 +283,7 @@
 		</antcall>
 	</target>
 
-	<target name="hadoop-prepare-build-cache" unless="defined.means.running.on.self.defined.hadoop.home">
+	<target name="hadoop-prepare-build-cache" unless="defined.means.running.on.self.defined.hadoop.home" depends="set-hadoop-home">
 		<antcall target="do-hadoop-prepare-build-cache" />
 	</target>
 
@@ -420,7 +464,15 @@
 	<target name="splunk-setup" depends="set-splunk-home">
 		<antcall>
 			<target name="splunk-unpack-if-not-extracted" />
+			<target name="splunk-configure-and-start" />
+		</antcall>
+	</target>
+
+	<target name="splunk-configure-and-start">
+		<antcall>
+			<target name="install-shep-splunk-app" />
 			<target name="splunk-start" />
+			<target name="enable-shep-splunk-app" />
 		</antcall>
 	</target>
 
@@ -456,10 +508,65 @@
 		<fail unless="foundSplunkTgz" message="There has to be a splunk version packaged with .tgz in ${splunk.tgz.dir}" />
 	</target>
 
+	<target name="install-shep-splunk-app" depends="checkIfAlreadyInstalledShepApp" if="isNotInstalledShep">
+		<antcall target="do-install-shep-splunk-app" />
+	</target>
+
+	<target name="checkIfAlreadyInstalledShepApp">
+		<property name="shep.app.home" value="${splunk.home}/etc/apps/shep" />
+		<condition property="isNotInstalledShep">
+			<not>
+				<available file="${shep.app.home}" type="dir" />
+			</not>
+		</condition>
+	</target>
+
+	<target name="do-install-shep-splunk-app" depends="create-splunk-app">
+		<antcall target="splunk-stop" />
+		<copy todir="${shep.app.home}">
+			<fileset dir="${stage.dir}" />
+		</copy>
+	</target>
+
 	<target name="splunk-start">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="start --accept-license --no-prompt --answer-yes" />
 		</exec>
+	</target>
+
+	<target name="splunk-stop">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="stop" />
+		</exec>
+	</target>
+
+	<target name="splunk-restart">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="restart" />
+		</exec>
+	</target>
+
+	<target name="enable-shep-splunk-app" depends="checkIfShepIsEnabled" unless="isShepAlreadyEnabled">
+		<exec executable="curl" osfamily="unix">
+			<arg value="-s" />
+			<arg line="-u ${splunk.username}:${splunk.password}" />
+			<arg line="-k https://localhost:8089/services/apps/local/shep/enable" />
+			<arg line="-X POST" />
+		</exec>
+		<!-- Restarting splunk after enabling an app -->
+		<antcall target="splunk-restart" />
+	</target>
+
+	<target name="checkIfShepIsEnabled">
+		<shellscript shell="sh" outputproperty="isEnabled">
+			${splunk.home}/bin/splunk display app 2> /dev/null | grep shep | grep -o ENABLED
+		</shellscript>
+		<if>
+			<equals arg1="${isEnabled}" arg2="ENABLED" />
+			<then>
+				<property name="isShepAlreadyEnabled" value="true" />
+			</then>
+		</if>
 	</target>
 
 	<target name="splunk-teardown" depends="set-splunk-home,checkForSplunkBinary" if="existsSplunkBinary">
@@ -471,12 +578,6 @@
 
 	<target name="checkForSplunkBinary">
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
-	</target>
-
-	<target name="splunk-stop">
-		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="stop" />
-		</exec>
 	</target>
 
 	<target name="splunk-clean-all">
@@ -520,19 +621,8 @@
 	</target>
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
-	<target name="dist" depends="clean,compile,fast-tests,jar,version,versionized-jar-name">
-		<!-- make the staging directory -->
-		<mkdir dir="${stage.dir}" />
-		<!-- copy all the package files into there -->
-		<copy todir="${stage.dir}">
-			<fileset dir="${package.dir}" />
-		</copy>
-		<!-- update the version in the app.conf file -->
-		<replace file="${stage.dir}/default/app.conf">
-			<replacefilter token="@VERSION@" value="${version}" />
-		</replace>
-		<!-- copy the jar in there -->
-		<copy file="${name.versioned.path}" todir="${stage.dir}/bin" />
+	<target name="dist" depends="clean,compile,jar">
+		<antcall target="create-splunk-app" />
 		<!-- tar it up -->
 		<tar destfile="${builddir}/${appname}.tgz" compression="gzip">
 			<tarfileset dir="${builddir}/${appname}/bin" prefix="${appname}/bin" filemode="755">
@@ -545,15 +635,58 @@
 				<exclude name="bin/**" />
 			</tarfileset>
 		</tar>
-
 		<copy tofile="${builddir}/${appname}-${buildVersionSuffix}.tgz" file="${builddir}/${appname}.tgz" />
+	</target>
+
+	<target name="create-splunk-app" depends="jar">
+		<!-- make the staging directory -->
+		<mkdir dir="${stage.dir}" />
+		<!-- copy all the package files into there -->
+		<copy todir="${stage.dir}">
+			<fileset dir="${package.dir}" excludes="lib/*"/>
+		</copy>
+		<antcall target="copy-libs-to-stage-dir" />
+
+		<!-- update the version in the app.conf file -->
+		<replace file="${stage.dir}/default/app.conf">
+			<replacefilter token="@VERSION@" value="${version}" />
+		</replace>
+		<!-- copy the jar in there -->
+		<copy file="${name.versioned.path}" todir="${stage.dir}/bin" />
+	</target>
+
+	<target name="copy-libs-to-stage-dir">
+		<antcall>
+			<target name="copy-hadoop-jars-to-stage-dir" />
+			<target name="copy-lib-jars-to-stage-dir" />
+		</antcall>
+	</target>
+
+	<target name="copy-lib-jars-to-stage-dir">
+		<copy todir="${stage.dir}/lib">
+			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar" />
+		</copy>
+	</target>
+
+	<target name="copy-hadoop-jars-to-stage-dir" depends="hadoop-prepare-build-cache">
+		<copy todir="${stage.dir}/lib">
+			<fileset dir="${hadoop.extracted.path}" includes="hadoop-core-*.jar" />
+		</copy>
+		<copy todir="${stage.dir}/lib">
+			<fileset dir="${hadoop.extracted.path}/lib" includes="commons-configuration-*.jar" />
+		</copy>
+		<copy todir="${stage.dir}/lib">
+			<fileset dir="${hadoop.extracted.path}/lib" includes="commons-lang-*.jar" />
+		</copy>
+		<copy todir="${stage.dir}/lib">
+			<fileset dir="${hadoop.extracted.path}/lib" includes="commons-logging-1.*.jar" />
+		</copy>
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->
 	<target name="run">
 		<java jar="build/jar/${final.name}.jar" fork="true" />
 	</target>
-
 
 	<target name="splunk2flume2console">
 		<java classname="com.splunk.shep.connector.tests.Splunk2Flume2ConsoleTest">

@@ -30,3 +30,9 @@ access = read : [ * ], write : [ * ]
 ### LOOKUPS 
 [lookups]
 export = system
+
+### COMMANDS
+[commands]
+access = read : [ * ], write : [ admin ]
+export = system
+
