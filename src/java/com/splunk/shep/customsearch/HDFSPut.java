@@ -30,8 +30,12 @@ public class HDFSPut {
 		if (arg.equals("exit")) {
 		    break;
 		} else {
-		    out.writeBytes(arg);
-		    out.writeBytes("\n");
+		    if (args[1].equals("csv")) {
+			out.writeBytes(arg);
+			out.writeBytes("\n");
+		    } else {
+			out.writeUTF(arg);
+		    }
 		}
 	    }
 	    out.close();
