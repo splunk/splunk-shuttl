@@ -57,6 +57,9 @@ separator_char = ' '
 
 if args['separator'] == 'tab':
     separator_char = '\t'
+else :
+    separator_char = ','
+    
 if (args['file']) != 'nofile':
     process = catfile(args['file'])
 if (args['job']) != 'nojob':
