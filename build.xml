@@ -643,7 +643,7 @@
 		<mkdir dir="${stage.dir}" />
 		<!-- copy all the package files into there -->
 		<copy todir="${stage.dir}">
-			<fileset dir="${package.dir}" />
+			<fileset dir="${package.dir}" excludes="lib/*"/>
 		</copy>
 		<antcall target="copy-libs-to-stage-dir" />
 
@@ -658,7 +658,14 @@
 	<target name="copy-libs-to-stage-dir">
 		<antcall>
 			<target name="copy-hadoop-jars-to-stage-dir" />
+			<target name="copy-lib-jars-to-stage-dir" />
 		</antcall>
+	</target>
+
+	<target name="copy-lib-jars-to-stage-dir">
+		<copy todir="${stage.dir}/lib">
+			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar" />
+		</copy>
 	</target>
 
 	<target name="copy-hadoop-jars-to-stage-dir" depends="hadoop-prepare-build-cache">
