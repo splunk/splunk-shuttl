@@ -43,12 +43,9 @@ for item in sys.argv:
             pass
         args[kv[0]] = util.normalizeBoolean(val)
 
-HADOOP_CLIENT_JARS='../lib/hadoop-core-0.20.203.0.jar:../lib/commons-logging-1.1.1.jar:../lib/commons-configuration-1.6.jar:../lib/commons-lang-2.4.jar'
-HADOOP_LAUNCH_JARS='../lib/commons-httpclient-3.1.jar:../lib/jackson-core-asl-1.4.0.jar:../lib/jackson-mapper-asl-1.4.0.jar:../lib/log4j-1.2.16.jar'
-SPLUNK_JARS='./*'
 
 def catfile(filename):
-    process = subprocess.Popen('java -cp ' + HADOOP_CLIENT_JARS + ':' + SPLUNK_JARS + ' com.splunk.shep.customsearch.HDFSCat ' + filename, shell=True, stdout=subprocess.PIPE)
+    process = subprocess.Popen('./hdfsrun.sh ' + 'com.splunk.shep.customsearch.HDFSCat ' + filename, shell=True, stdout=subprocess.PIPE)
     return process
 
 if args['file'] == 'nofile' and args['job'] == 'nojob':    
@@ -66,8 +63,7 @@ else :
 if (args['file']) != 'nofile':
     process = catfile(args['file'])
 if (args['job']) != 'nojob':
-    process = subprocess.Popen('java -cp ' + HADOOP_CLIENT_JARS + ':' + HADOOP_LAUNCH_JARS + ':' + SPLUNK_JARS +  ' ' 
-                                    + args['job'] + ' ' + args['input'] + ' ' + args['output'], shell=True)
+    process = subprocess.Popen('./hdfsrun.sh ' + args['job'] + ' ' + args['input'] + ' ' + args['output'], shell=True)
     exitstatus = process.wait()
     if (exitstatus == 0):
         process = catfile(args['output']+'/part-00000')

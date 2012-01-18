@@ -65,10 +65,6 @@
 	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
 
 	<path id="build.classpath">
-		<pathelement location="${hadoop.dir}/hadoop-core-0.20.205.0.jar" />
-		<pathelement location="${hadoop.dir}/lib/commons-logging-1.1.1.jar" />
-		<pathelement location="${hadoop.dir}/lib/commons-configuration-1.6.jar" />
-		<pathelement location="${hadoop.dir}/lib/commons-lang-2.4.jar" />
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
 		<pathelement location="${basedir}/src/java/com/splunk/shep/connector/conf" />
 		<pathelement path="${classdir}" />
