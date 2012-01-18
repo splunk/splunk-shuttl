@@ -623,27 +623,22 @@
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,jar">
 		<antcall target="create-splunk-app" />
-		<!-- tar it up -->
-		<tar destfile="${builddir}/${appname}.tgz" compression="gzip">
-			<tarfileset dir="${builddir}/${appname}/bin" prefix="${appname}/bin" filemode="755">
-				<exclude name="README" />
-			</tarfileset>
-			<tarfileset dir="${builddir}/${appname}/bin" prefix="${appname}/bin">
-				<include name="README" />
-			</tarfileset>
-			<tarfileset dir="${builddir}/${appname}" prefix="${appname}">
-				<exclude name="bin/**" />
-			</tarfileset>
-		</tar>
-		<copy tofile="${builddir}/${appname}-${buildVersionSuffix}.tgz" file="${builddir}/${appname}.tgz" />
+		<copy tofile="${stage.dir}-${buildVersionSuffix}.tgz" file="${splunk-app.tar}" />
 	</target>
 
 	<target name="create-splunk-app" depends="jar">
+		<antcall>
+			<target name="stage-splunk-app" />
+			<target name="tar-splunk-app" />
+		</antcall>
+	</target>
+
+	<target name="stage-splunk-app">
 		<!-- make the staging directory -->
 		<mkdir dir="${stage.dir}" />
 		<!-- copy all the package files into there -->
 		<copy todir="${stage.dir}">
-			<fileset dir="${package.dir}" excludes="lib/*"/>
+			<fileset dir="${package.dir}" excludes="lib/*" />
 		</copy>
 		<antcall target="copy-libs-to-stage-dir" />
 
@@ -653,6 +648,20 @@
 		</replace>
 		<!-- copy the jar in there -->
 		<copy file="${name.versioned.path}" todir="${stage.dir}/bin" />
+	</target>
+
+	<target name="tar-splunk-app">
+		<tar destfile="${splunk-app.tar}" compression="gzip">
+			<tarfileset dir="${stage.dir}/bin" prefix="${appname}/bin" filemode="755">
+				<exclude name="README" />
+			</tarfileset>
+			<tarfileset dir="${stage.dir}/bin" prefix="${appname}/bin">
+				<include name="README" />
+			</tarfileset>
+			<tarfileset dir="${stage.dir}" prefix="${appname}">
+				<exclude name="bin/**" />
+			</tarfileset>
+		</tar>
 	</target>
 
 	<target name="copy-libs-to-stage-dir">
