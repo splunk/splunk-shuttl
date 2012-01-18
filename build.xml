@@ -25,6 +25,7 @@
 	<property name="appname" value="shep" />
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
+	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
 	<property name="srcdir" value="src/java/" />
 	<property name="testdir" value="test/java/" />
 	<property name="libdir" value="${basedir}/lib" />
@@ -513,7 +514,8 @@
 	</target>
 
 	<target name="checkIfAlreadyInstalledShepApp">
-		<property name="shep.app.home" value="${splunk.home}/etc/apps/shep" />
+		<property name="splunk.apps.home" value="${splunk.home}/etc/apps" />
+		<property name="shep.app.home" value="${splunk.apps.home}/shep" />
 		<condition property="isNotInstalledShep">
 			<not>
 				<available file="${shep.app.home}" type="dir" />
@@ -523,9 +525,11 @@
 
 	<target name="do-install-shep-splunk-app" depends="create-splunk-app">
 		<antcall target="splunk-stop" />
-		<copy todir="${shep.app.home}">
-			<fileset dir="${stage.dir}" />
-		</copy>
+		<exec executable="tar" osfamily="unix">
+			<arg value="xf" />
+			<arg value="${splunk-app.tar}" />
+			<arg line="-C ${splunk.apps.home}" />
+		</exec>
 	</target>
 
 	<target name="splunk-start">
