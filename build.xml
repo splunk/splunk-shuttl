@@ -34,7 +34,6 @@
 	<!-- hadoop properties -->
 	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
 	<property name="hadoop.apache.org.hadoop.common.host" value="ftp://apache.cs.utah.edu/apache.org/hadoop/common" />
-	<property name="hadoop.default.download.url" value="${hadoop.apache.org.hadoop.common.host}/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
 	<property name="hadoop.download.name.extracted" value="hadoop" />
 	<property name="hadoop.download.name" value="hadoop.tar.gz" />
 	<property name="hadoop.download.dir" value="${contribdir}" />
