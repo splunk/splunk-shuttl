@@ -330,12 +330,18 @@
 			<then>
 				<property name="hadoop.version.url" value="hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
 			</then>
-			<elseif>
-				<equals arg1="${hadoop.version}" arg2="205" />
-				<then>
-					<property name="hadoop.version.url" value="hadoop-0.20.205.0/hadoop-0.20.205.0.tar.gz" />
-				</then>
-			</elseif>
+		</if>
+		<if>
+			<equals arg1="${hadoop.version}" arg2="205" />
+			<then>
+				<property name="hadoop.version.url" value="hadoop-0.20.205.0/hadoop-0.20.205.0.tar.gz" />
+			</then>
+		</if>
+		<if>
+			<equals arg1="${hadoop.version}" arg2="1.0.0" />
+			<then>
+				<property name="hadoop.version.url" value="hadoop-1.0.0/hadoop-1.0.0.tar.gz" />
+			</then>
 		</if>
 		<property name="hadoop.download.url" value="${hadoop.apache.org.hadoop.common.host}/${hadoop.version.url}" />
 	</target>
