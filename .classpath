@@ -5,7 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="contrib/flume-0.9.3-CDH3B4/flume-0.9.3-CDH3B4-core.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-core-0.20.2.jar"/>
 	<classpathentry kind="lib" path="lib/testng-6.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.1.2.jar"/>
@@ -13,5 +12,6 @@
 	<classpathentry kind="lib" path="lib/commons-io-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-core-1.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
