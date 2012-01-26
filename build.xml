@@ -541,8 +541,6 @@
 			<arg line="-k https://localhost:8089/services/apps/local/shep/enable" />
 			<arg line="-X POST" />
 		</exec>
-		<!-- Restarting splunk after enabling an app -->
-		<antcall target="splunk-restart" />
 	</target>
 
 	<target name="checkIfShepIsEnabled">
