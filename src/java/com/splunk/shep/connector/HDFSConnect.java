@@ -134,10 +134,12 @@ public class HDFSConnect {
 	boolean directHDFS = false;
 	long maxEventSize = 32000;
 	long fileRollSize = 10000000;
+	boolean useAppend = false;
 
 	String eventSize = prop.getProperty("maxEventSize_KB");
 	String fileSize = prop.getProperty("fileRollingSize_MB");
 	String usingHDFS = prop.getProperty("directToHDFS");
+	String useAppending = prop.getProperty("appending");
 
 	if (eventSize != null) {
 	    maxEventSize = (long) Integer.parseInt(eventSize) * 1000;
@@ -153,11 +155,18 @@ public class HDFSConnect {
 		directHDFS = true; // default setting.
 	}
 
+	if (useAppending != null) {
+	    String flag = useAppending.toLowerCase();
+	    if (flag.indexOf("true") >= 0)
+		useAppend = true; // default setting.
+	}
+
 	if (!directHDFS)
 	    addFlumeConf(prop.getProperty("splunk2flume"), maxEventSize);
 
 	else
-	    addHDFSConf(prop.getProperty("splunk2hdfs"), fileRollSize);
+	    addHDFSConf(prop.getProperty("splunk2hdfs"), fileRollSize,
+		    useAppend);
 
 	if (configs.size() <= 0) {
 	    System.err
@@ -198,7 +207,7 @@ public class HDFSConnect {
 	}
     }
 
-    protected void addHDFSConf(String s2hdfs, long fileSize)
+    protected void addHDFSConf(String s2hdfs, long fileSize, boolean useAppend)
 	    throws FileNotFoundException, IOException {
 	logger.info("Connect HDFS directly.");
 
@@ -222,6 +231,7 @@ public class HDFSConnect {
 		conf.setHDFSMode(true);
 		conf.setConnectionParams(bindip, bindport, tarip, tarport,
 			tarpath, fileSize);
+		conf.setAppend(useAppend);
 		configs.add(conf);
 	    }
 
