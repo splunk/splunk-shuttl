@@ -36,10 +36,10 @@ $HADOOP fs -get "$testFolder/output$1/_SUCCESS"  _SUCCESS
 # Check run
 if [ -e _SUCCESS ]
 then
-  set retval = 0
+  retval=0
 else
   echo "Fail - SplunkEventsInputFormat not working"
-  set retval = 1
+  retval=1
 fi
 
 # Teardown
