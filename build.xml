@@ -418,16 +418,6 @@
 		</exec>
 	</target>
 
-	<!-- copy the jar file to hadoop lib -->
-	<target name="hadoop-copy-jars" depends="jar">
-		<property name="hadoop.lib" value="${hadoop.home}/lib" />
-		<copy file="${name.versioned.path}" todir="${hadoop.lib}" />
-		<!-- copy httpcomponents to hadoop -->
-		<copy file="${libdir}/commons-codec-1.4.jar" todir="${hadoop.lib}" />
-		<copy file="${libdir}/httpclient-4.1.2.jar" todir="${hadoop.lib}" />
-		<copy file="${libdir}/httpcore-4.1.2.jar" todir="${hadoop.lib}" />
-	</target>
-
 	<target name="hadoop-start">
 		<exec executable="${hadoop.home}/bin/start-all.sh" osfamily="unix" />
 	</target>
