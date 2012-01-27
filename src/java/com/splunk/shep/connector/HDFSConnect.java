@@ -139,7 +139,7 @@ public class HDFSConnect {
 	String eventSize = prop.getProperty("maxEventSize_KB");
 	String fileSize = prop.getProperty("fileRollingSize_MB");
 	String usingHDFS = prop.getProperty("directToHDFS");
-	String useAppending = prop.getProperty("appending");
+	String useAppending = prop.getProperty("useAppending");
 
 	if (eventSize != null) {
 	    maxEventSize = (long) Integer.parseInt(eventSize) * 1000;
