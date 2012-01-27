@@ -314,7 +314,7 @@
 			</then>
 		</if>
 		<if>
-			<equals arg1="${hadoop.version}" arg2="205" />
+			<equals arg1="${hadoop.version}" arg2="0.20.205.0" />
 			<then>
 				<property name="hadoop.version.url" value="hadoop-0.20.205.0/hadoop-0.20.205.0.tar.gz" />
 			</then>
