@@ -308,7 +308,7 @@
 
 	<target name="set-hadoop-download-url">
 		<if>
-			<equals arg1="${hadoop.version}" arg2="203" />
+			<equals arg1="${hadoop.version}" arg2="0.20.203.0" />
 			<then>
 				<property name="hadoop.version.url" value="hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
 			</then>
