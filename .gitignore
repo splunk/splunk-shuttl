@@ -26,3 +26,6 @@
 
 # Property files
 build.properties
+
+# Ivy configuration at runtime. Ivy.xml in the root of shep is configured at runtime and should not be tracked.
+ivy.xml
