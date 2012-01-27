@@ -80,7 +80,7 @@ public class WordCount2 {
 	System.out.println("Starting job");
 	JobConf conf = new JobConf(WordCount2.class);
 	conf.setJobName("wordcount");
-	SplunkConfiguration.setConnInfo(conf, "10.196.45.203", 8089, "admin",
+	SplunkConfiguration.setConnInfo(conf, "localhost", 8089, "admin",
 		"changeme");
 	// SplunkConfiguration.setSplunkQuery(conf, "source=wordfile-timestamp",
 	// "%Y-%m-%d %H:%M:%S", new String[][]{{"2011-09-19 17:04:11",
