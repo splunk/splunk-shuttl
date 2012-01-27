@@ -46,6 +46,11 @@
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
 	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
 
+	<!-- ivy properties -->
+	<property name="ivy.utils" value="${contribdir}/ivy-utils" />
+	<property name="ivy.xml.original" value="${ivy.utils}/ivy.xml" />
+	<property name="ivy.xml.configurable" value="${basedir}/ivy.xml" />
+
 	<path id="build.classpath">
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
 		<pathelement location="${basedir}/src/java/com/splunk/shep/connector/conf" />
