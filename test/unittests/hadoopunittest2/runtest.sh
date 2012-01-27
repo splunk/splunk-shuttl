@@ -36,11 +36,11 @@ fi
 $HADOOP jar $SHEPDIR/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapreduce.lib.rest.tests.WordCount2 "$testFolder/input" "$testFolder/output$1"
 
 expected_splunk_out="\
-2011-09-19	300
-a	300
-is	300
-test	300
-this	300"
+2011-09-19	5
+a	5
+is	5
+test	5
+this	5"
 
 actual_splunk_out=$($HADOOP_HOME/bin/hadoop dfs -cat "$testFolder/output$1/part-00000" | tail -n 5)
 
