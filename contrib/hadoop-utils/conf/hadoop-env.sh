@@ -10,7 +10,7 @@
 export JAVA_HOME=@JAVA.HOME@
 # Extra Java CLASSPATH elements.  Optional.
 # export HADOOP_CLASSPATH=
-
+export HADOOP_CLASSPATH=@HADOOP.CLASSPATH@
 # The maximum amount of heap to use, in MB. Default is 1000.
 # export HADOOP_HEAPSIZE=2000
 

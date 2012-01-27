@@ -371,12 +371,17 @@
 		<property name="mapred-site.xml" value="${hadoop.extracted.conf.dir}/mapred-site.xml" />
 	</target>
 
-	<target name="hadoop-conf-hadoop-env-sh" depends="set-environment-property">
+	<target name="hadoop-conf-hadoop-env-sh" depends="set-environment-property,set-hadoop-classpath">
 		<fail if="${JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured." />
 		<replace file="${hadoop.env.sh}">
 			<replacefilter token="@JAVA.HOME@" value="${env.JAVA_HOME}" />
 			<replacefilter token="@HADOOP.PID.DIR@" value="${hadoop.extracted.path}/tmp" />
+			<replacefilter token="@HADOOP.CLASSPATH@" value="$HADOOP_CLASSPATH:${hadoop.classpath}" />
 		</replace>
+	</target>
+
+	<target name="set-hadoop-classpath" depends="jar">
+		<property name="hadoop.classpath" value="${name.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar" />
 	</target>
 
 	<target name="hadoop-conf-core-site-xml">
@@ -397,8 +402,6 @@
 	<!-- Stop, copy and start -->
 	<target name="hadoop-boot">
 		<antcall>
-			<target name="hadoop-stop" />
-			<target name="hadoop-copy-jars" />
 			<target name="hadoop-start" />
 			<target name="hadoop-unsafe-mode" />
 		</antcall>
