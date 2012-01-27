@@ -386,7 +386,7 @@
 	</target>
 
 	<target name="hadoop-conf-hadoop-env-sh" depends="set-environment-property,set-hadoop-classpath">
-		<fail if="${JAVA_HOME}" message="You need to have JAVA_HOME set in order to get hadoop configured." />
+		<fail unless="env.JAVA_HOME" message="You need to have JAVA_HOME set in order to get hadoop configured." />
 		<replace file="${hadoop.env.sh}">
 			<replacefilter token="@JAVA.HOME@" value="${env.JAVA_HOME}" />
 			<replacefilter token="@HADOOP.PID.DIR@" value="${hadoop.extracted.path}/tmp" />
