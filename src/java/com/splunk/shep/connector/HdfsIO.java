@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
 public class HdfsIO implements DataSink {
     private String ip = new String("localhost");
     private String port = new String("50001");
-    private String path = new String("xli");
+    private String path = new String("spl");
 
     private Configuration conf = new Configuration();
     private FileSystem fileSystem = null;
@@ -42,8 +42,12 @@ public class HdfsIO implements DataSink {
     private FSDataOutputStream ofstream = null;
     private FSDataInputStream ifstream = null;
 
+    private boolean useAppend = true;
+    private boolean reopenedForWriting = false;
     private long totalBytesWritten = 0; // total bytes with current connection.
     private long fileRollingSize = 10000000;
+    private long fileRollingDuration = 30000; // roll to new file every 30 sec.
+    private long timeOpened = 0; // milliseconds
     private long maxEventSize = 32000; // not supported for now.
     private String currentFilePath = new String("");
 
@@ -53,11 +57,13 @@ public class HdfsIO implements DataSink {
 	init();
     }
 
-    public HdfsIO(String targetIP, String targetPort, String filePath)
+    public HdfsIO(String targetIP, String targetPort, String filePath,
+	    boolean useAppending)
 	    throws Exception {
 	port = targetPort;
 	ip = targetIP;
 	path = filePath;
+	useAppend = useAppending;
 	init();
     }
 
@@ -107,6 +113,9 @@ public class HdfsIO implements DataSink {
 	    }
 
 	    ofstream = fileSystem.create(destination);
+	    totalBytesWritten = 0;
+	    timeOpened = System.currentTimeMillis();
+	    reopenedForWriting = false;
 	    logger.info("Write to: " + currentFilePath);
 
 	} catch (Exception e) {
@@ -144,7 +153,7 @@ public class HdfsIO implements DataSink {
     }
 
     // Set connection to the current file.
-    private boolean openCurrentFile() {
+    private boolean openCurrentFile(boolean reading) {
 	close(); // close any existing connection.
 
 	if (currentFilePath.length() == 0)
@@ -159,7 +168,10 @@ public class HdfsIO implements DataSink {
 		return false;
 	    }
 
-	    return openRead();
+	    if (reading)
+		return openRead();
+	    else
+		return openAppend();
 
 	} catch (Exception e) {
 	    logger.error("Exception in setting Hadoop file path: "
@@ -180,6 +192,19 @@ public class HdfsIO implements DataSink {
 	return true;
     }
 
+    public boolean openAppend() throws Exception {
+	if (destination == null)
+	    return false;
+
+	if (!fileSystem.exists(destination))
+	    return false;
+
+	ofstream = fileSystem.append(destination);
+	reopenedForWriting = true;
+	timeOpened = System.currentTimeMillis();
+	return true;
+    }
+
     // Create current file.
     private boolean createCurrentFile() {
 	close(); // close any existing connection.
@@ -197,6 +222,9 @@ public class HdfsIO implements DataSink {
 	    }
 
 	    ofstream = fileSystem.create(destination);
+	    totalBytesWritten = 0;
+	    timeOpened = System.currentTimeMillis();
+	    reopenedForWriting = false;
 	    logger.info("Write to: " + currentFilePath);
 
 	} catch (Exception e) {
@@ -216,9 +244,22 @@ public class HdfsIO implements DataSink {
 	logger.info("HDFS file rolling size: " + fileRollingSize);
     }
 
+    public void setFileRollingDuration(long interval) {
+	fileRollingDuration = interval;
+	logger.info("HDFS file rolling duration: " + fileRollingDuration);
+    }
+
     public void setMaxEventSize(long size) {
 	maxEventSize = size;
 	logger.info("Ignored max event size: " + maxEventSize);
+    }
+
+    public void setAppending(boolean appending) {
+	useAppend = appending;
+	if (useAppend)
+	    logger.info("Appending enabled.");
+	else
+	    logger.info("Appending disabled.");
     }
 
     public String getPort() {
@@ -250,7 +291,22 @@ public class HdfsIO implements DataSink {
 	    currentFilePath = "/" + fileName; // must be absolute path.
 
 	logger.info("Open connection to hdfs file " + currentFilePath);
-	openCurrentFile();
+	openCurrentFile(true);
+	return true;
+    }
+
+    public boolean openToAppend(String fileName) throws Exception {
+	close(); // close any existing connection.
+	if (fileName != null) {
+	    currentFilePath = fileName;
+	} else
+	    return false;
+
+	if (currentFilePath.charAt(0) != '/')
+	    currentFilePath = "/" + fileName; // must be absolute path.
+
+	logger.info("Open connection to hdfs file " + currentFilePath);
+	openCurrentFile(false);
 	return true;
     }
 
@@ -270,14 +326,27 @@ public class HdfsIO implements DataSink {
     }
 
     public void close() {
-	if (ofstream == null)
-	    return;
-
 	try {
-	    ofstream.close();
-	    ofstream = null;
-	    logger.info("closed: " + path + " with size " + totalBytesWritten);
-	    totalBytesWritten = 0;
+	    boolean closed = false;
+
+	    if (ofstream != null) {
+		ofstream.close();
+		ofstream = null;
+		closed = true;
+	    }
+
+	    if (ifstream != null) {
+		ifstream.close();
+		ifstream = null;
+		closed = true;
+	    }
+
+	    if (closed) {
+		logger.info("closed: " + path + " with size "
+			+ totalBytesWritten);
+		// totalBytesWritten = 0;
+		timeOpened = 0;
+	    }
 	} catch (Exception e) {
 	    logger.error("Exception in closing Hadoop connection: "
 		    + e.toString() + "\nStacktrace:\n"
@@ -287,14 +356,52 @@ public class HdfsIO implements DataSink {
 
     private void checkFileSize() {
 	if (totalBytesWritten < fileRollingSize) {
-	    if (totalBytesWritten > 0)
+	    if (totalBytesWritten > 0) {
 		logger.debug("Total bytes written so far: " + totalBytesWritten);
+		checkOpenDuration();
+	    }
 
 	    return;
 	}
 
 	if (ofstream == null)
 	    return;
+
+	try {
+	    start();
+	} catch (Exception e) {
+	    logger.error("Exception in reconnecting HDFS: " + e.toString());
+	}
+    }
+
+    // Check time duration for closing/reopening.
+    public void checkOpenDuration() {
+	if (reopenedForWriting)
+	    return; // reopened already.
+
+	if (useAppend) {
+	    try {
+		close(); // close first
+		Thread.sleep(1000);
+		openCurrentFile(false); // reopen for writing.
+	    } catch (Exception e) {
+		logger.error("Exception in reconnecting HDFS: " + e.toString());
+	    }
+	    return;
+	}
+
+	if (timeOpened == 0)
+	    return;
+
+	if (ofstream == null)
+	    return;
+
+	if (totalBytesWritten <= 0)
+	    return;
+
+	if ((System.currentTimeMillis() - timeOpened) < fileRollingDuration) {
+	    return;
+	}
 
 	try {
 	    start();
@@ -513,27 +620,131 @@ public class HdfsIO implements DataSink {
 	}
     }
 
+    public static void testStreaming(HdfsIO writter) throws Exception {
+	if (writter == null)
+	    return;
+	
+	for (int i = 0; i < 60; i++) {
+	    String msg = "Message line " + i;
+	    System.out.println("Sending msg: " + msg);
+	    writter.send(msg, "HdfsIO main", "HDFS IO", "localhost",
+			999888);
+	    Thread.sleep(10000);
+	}
+    }
+
+    public static void testCreating(HdfsIO writter) throws Exception {
+
+	if (writter == null)
+	    return;
+
+		String msg = "Hello, splunker! I'm here.\n";
+		writter.write(msg, "HdfsIO main", "HDFS IO", "localhost",
+			999888);
+		writter.close();
+		Thread.sleep(1000); // sleep for 1000 ms.
+		// writter.setCurrentFile();
+
+		System.out.println("Reading file "
+			+ writter.getCurrentFileName());
+		writter.openRead();
+		writter.displayCurrentFile();
+
+    }
+
+    public static void testAppending(HdfsIO writter) throws Exception {
+	if (writter == null)
+	    return;
+
+	String msg = "Some message here.";
+
+	System.out.println("Appending " + msg);
+	writter.write(msg, "HdfsIO main", "HDFS IO", "localhost", 999888);
+
+	Thread.sleep(30000);
+
+	msg = "More message here.";
+
+	System.out.println("Appending " + msg);
+	writter.write(msg, "HdfsIO main", "HDFS IO", "localhost", 999888);
+
+	Thread.sleep(30000);
+
+	msg = "Even more message here.";
+
+	System.out.println("Appending " + msg);
+	writter.write(msg, "HdfsIO main", "HDFS IO", "localhost", 999888);
+
+		// System.out
+		// .print("Reading file " + writter.getCurrentFileName());
+		// writter.close();
+		// Thread.sleep(1000); // sleep for 1000 ms.
+		// writter.openRead();
+		// writter.displayCurrentFile();
+    }
+
+    public static void testReading(HdfsIO writter) throws IOException {
+	if (writter == null)
+	    return;
+
+	try {
+	    writter.displayCurrentFile();
+
+	} catch (Exception ex) {
+	    ex.printStackTrace();
+	}
+    }
+
     public static void main(String[] args) throws IOException {
-	String msg = "Hello, splunker! I'm here.\n";
 	HdfsIO writter = null;
+	boolean simulating = false; // simulating stream input to hdfs.
+	boolean appending = false;
+	boolean reading = false;
+	boolean creating = false;
+	String filename = "/xli/testmsg.txt";
+
+	if (args.length > 0) {
+	    if (args[0].contains("appending")) {
+		appending = true;
+		System.out.println("Test appending...");
+	    } else if (args[0].contains("creating")) {
+		creating = true;
+		System.out.println("Test creating...");
+	    } else if (args[0].contains("reading")) {
+		reading = true;
+		System.out.println("Test reading...");
+	    } else if (args[0].contains("simulating")) {
+		simulating = true;
+		System.out.println("Running simulation...");
+	    }
+
+	    if (args.length > 1)
+		filename = args[1];
+	}
 
 	try {
 	    writter = new HdfsIO("localhost", "9000");
-	
-	    if (args.length > 0) {
-		writter.openToCreate(args[0]);
-	    } else {
-		writter.start("/xli/test.txt." + System.currentTimeMillis());
+
+	    if (creating) {
+		writter.openToCreate(filename);
+		testCreating(writter);
 	    }
 
-	    writter.write(msg, "testsrc", "test", "localhost", 999888);
-	    writter.close();
-	    Thread.sleep(1000); // sleep for 1000 ms.
-	    // writter.setCurrentFile();
+	    if (reading) {
+		System.out.println("Reading file " + filename);
+		writter.openToRead(filename);
+		testReading(writter);
+	    }
 
-	    System.out.print("Reading file " + writter.getCurrentFileName());
-	    writter.openRead();
-	    writter.displayCurrentFile();
+	    if (appending) {
+		writter.openToAppend(filename);
+		testAppending(writter);
+	    }
+
+	    if (simulating) {
+		writter.openToCreate(filename);
+		testStreaming(writter);
+	    }
 
 	} catch (Exception ex) {
 	    ex.printStackTrace();

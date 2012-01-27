@@ -29,6 +29,8 @@ public class BridgeConfig implements AcceptorConfig {
     private long fileRollingSize = 10000000;
     private long maxEventSize = 32000;
 
+    private boolean usingAppend = false;
+
     public BridgeConfig() {
     }
 
@@ -40,6 +42,10 @@ public class BridgeConfig implements AcceptorConfig {
     public void setHDFSMode(boolean directToHDFS) {
 	if (directToHDFS)
 	    usingFlume = false;
+    }
+
+    public void setAppend(boolean useAppend) {
+	usingAppend = useAppend;
     }
 
     public void setConnectionParams(String bindIp, int bindPort, String tarIP,
@@ -63,6 +69,10 @@ public class BridgeConfig implements AcceptorConfig {
 
     public boolean useFlume() {
 	return usingFlume;
+    }
+
+    public boolean useAppending() {
+	return usingAppend;
     }
 
     public String getBindIP() {

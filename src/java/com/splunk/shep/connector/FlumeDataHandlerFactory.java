@@ -59,7 +59,8 @@ class FlumeDataHandler implements S2SDataHandler {
 	    } else {
 		System.err.println("creating HDFS IO object.");
 		emitter = new HdfsIO(config.getOutIP(), Integer.toString(config
-			.getOutPort()), config.getOutPath());
+			.getOutPort()), config.getOutPath(),
+			config.useAppending());
 		emitter.setFileRollingSize(config.getFileSize());
 	    }
 
