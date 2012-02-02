@@ -17,18 +17,18 @@
 
 package com.splunk.shep.connector;
 
+// Configuration object of shep connector.
+// All the default values in the code will be replaced with conf file.
 public class BridgeConfig implements AcceptorConfig {
     private String bindIP = "0.0.0.0";
     private int inPort = 9998;
-
-    private boolean usingFlume = true;
-
     private String outIP = "localhost";
     private int outPort = 8888;
     private String outPath = "/spl/output";
-    private long fileRollingSize = 10000000;
-    private long maxEventSize = 32000;
+    private long fileRollingSize = HdfsIO.HadoopFileSize;
+    private long maxEventSize = 32000; // not implemented with direct write.
 
+    private boolean usingFlume = true;
     private boolean usingAppend = false;
 
     public BridgeConfig() {

@@ -133,7 +133,7 @@ public class HDFSConnect {
 
 	boolean directHDFS = false;
 	long maxEventSize = 32000;
-	long fileRollSize = 10000000;
+	long fileRollSize = HdfsIO.HadoopFileSize;
 	boolean useAppend = false;
 
 	String eventSize = prop.getProperty("maxEventSize_KB");
