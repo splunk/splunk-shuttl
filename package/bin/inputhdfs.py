@@ -26,8 +26,8 @@ DEFAULT_ARGS = {
     'file': 'nofile',
     'append': False,
     'max': -1,
-    'input': 'noinput',
-    'output': 'nooutput',
+    'args': 'noinput',
+    'outfile': 'nooutput',
     'job': 'nojob'
 }
 
@@ -63,10 +63,10 @@ else :
 if (args['file']) != 'nofile':
     process = catfile(args['file'])
 if (args['job']) != 'nojob':
-    process = subprocess.Popen('./hdfsrun.sh ' + args['job'] + ' ' + args['input'] + ' ' + args['output'], shell=True)
+    process = subprocess.Popen('./hdfsrun.sh ' + args['job'] + ' ' + args['args'] , shell=True)
     exitstatus = process.wait()
     if (exitstatus == 0):
-        process = catfile(args['output']+'/part-00000')
+        process = catfile(args['outfile'])
 
 results = []
 if (args['append'] == True):
