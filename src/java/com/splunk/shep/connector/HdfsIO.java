@@ -32,6 +32,7 @@ import org.apache.hadoop.util.LineReader;
 import org.apache.log4j.Logger;
 
 public class HdfsIO implements DataSink {
+    static public final long HadoopFileSize = 63000000;
     private String ip = new String("localhost");
     private String port = new String("50001");
     private String path = new String("spl");
@@ -45,7 +46,7 @@ public class HdfsIO implements DataSink {
     private boolean useAppend = true;
     private boolean reopenedForWriting = false;
     private long totalBytesWritten = 0; // total bytes with current connection.
-    private long fileRollingSize = 10000000;
+    static public long fileRollingSize = HadoopFileSize;
     private long fileRollingDuration = 30000; // roll to new file every 30 sec.
     private long timeOpened = 0; // milliseconds
     private long maxEventSize = 32000; // not supported for now.
