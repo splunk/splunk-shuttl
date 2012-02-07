@@ -13,7 +13,7 @@ import splunk.appserver.mrsparkle.lib.util as app_util
 
 APP_NAME ='shep'
 
-local_path = os.path.join(app_util.get_apps_dir(), APP_NAME, 'bin', 'hivepylib')
+local_path = os.path.join(app_util.get_apps_dir(), APP_NAME, 'bin', 'hivepylib081')
 
 if not local_path in sys.path:
     sys.path.append(local_path)
@@ -51,16 +51,20 @@ try:
     client = ThriftHive.Client(protocol)
     transport.open()
     client.execute(args['query'])
-    while (1):
-      row = client.fetchOne()
-      if (row == ''):
-        break
-      rowset = {}
-      rowset['_raw'] = row
-      results.append(rowset)
+    while (1) :
+        row = client.fetchOne()
+        if (row == None):
+            break
+        rowset = {}
+        rowset['_time']  = float(time.time())
+        rowset['_raw'] = row
+        results.append(rowset)
     isp.outputResults(results)
 
     transport.close()
 
-except Thrift.TException, tx:
-    print '%s' % (tx.message)
+except Exception, tx:
+    if (tx.errorCode == 0) :
+        isp.outputResults(results)
+    else :
+        print '%s' % (tx.message)
