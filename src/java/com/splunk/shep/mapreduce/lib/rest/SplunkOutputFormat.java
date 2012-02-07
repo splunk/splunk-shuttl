@@ -140,7 +140,8 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
 		    + new Integer(job.getInt(SPLUNKPORT,
 			    SPLUNK_MGMTPORT_DEFAULT)) + SPLUNK_SMPLRCVR_ENDPT
 		    + "?source=" + job.getJobName() + "&sourcetype="
-		    + HADOOP_EVENT;
+		    + job.get(SplunkConfiguration.SPLUNKSOURCETYPE) + "&index="
+		    + job.get(SplunkConfiguration.SPLUNKINDEX);
 	    logger.trace("POSTSTR: " + poststr);
 	    return new SplunkRecordWriter(httpclient, poststr);
 	} catch (Exception e) {
