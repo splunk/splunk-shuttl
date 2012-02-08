@@ -48,7 +48,7 @@ import com.splunk.shep.mapreduce.lib.rest.util.HttpClientUtils;
  */
 public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
     private static final String SPLUNK_SMPLRCVR_ENDPT = "/services/receivers/simple";
-    private static final int SPLUNK_MGMTPORT_DEFAULT = 8089;
+    private static final int SPLUNK_MGMTPORT_DEFAULT = SplunkConfiguration.SPLUNKDEFAULTPORT;
     private static final String HADOOP_EVENT = "hadoop_event"; // event can be
 							       // configured on
 							       // the Splunk
