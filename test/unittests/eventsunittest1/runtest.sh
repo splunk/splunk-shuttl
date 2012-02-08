@@ -25,13 +25,15 @@ testFolder=/eventsunittest1
 
 # Setup
 $HADOOP fs -mkdir "$testFolder"
-$HADOOP fs -put "$script_dir/splunkdatatest1" "$testFolder/splunkdatatest1"
-$HADOOP fs -put "$script_dir/splunkdatatest2" "$testFolder/splunkdatatest2"
+$HADOOP fs -put "$script_dir/sdata1" "$testFolder/splunkdatatest1"
+$HADOOP fs -put "$script_dir/sdata2" "$testFolder/splunkdatatest2"
 
 # Test
 $HADOOP jar $SHEPDIR/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapreduce.lib.rest.tests.SplunkEventReader "$testFolder/splunkdata*" "$testFolder/output$1"
 
 $HADOOP fs -get "$testFolder/output$1/_SUCCESS"  _SUCCESS
+# for debugging
+#$HADOOP fs -get "$testFolder/output$1/part-00000" output 
 
 # Check run
 if [ -e _SUCCESS ]
