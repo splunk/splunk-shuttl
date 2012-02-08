@@ -47,17 +47,18 @@ public class SplunkConfiguration {
     public final static String TIMEFORMAT = "time_format";
     public final static String NUMSPLITS = "numsplits";
     public final static String SPLUNKEVENTREADER = "splunkeventreader";
-    public final static int SPLUNK_DEFAULT_PORT = 8089;
     public final static String SPLUNK_SEARCH_URL = "/servicesNS/admin/search/search/jobs/export";
     public final static String INDEXHOST = "indexhost";
 
     public final static String SPLUNKDEFAULTSOURCETYPE = "hadoop_event";
     public final static String SPLUNKDEFAULTINDEX = "main";
+    public final static String SPLUNKDEFAULTHOST = "localhost";
+    public final static int SPLUNKDEFAULTPORT = 8089;
 
-    private String host = "hadoop";
+    private String host = SPLUNKDEFAULTHOST;
     private String sourceType = SPLUNKDEFAULTSOURCETYPE;
     private String splunkIndex = SPLUNKDEFAULTINDEX;
-    private int mgmtPort = SPLUNK_DEFAULT_PORT;
+    private int mgmtPort = SPLUNKDEFAULTPORT;
 
     private static Logger logger = Logger.getLogger(SplunkConfiguration.class);
 
@@ -85,6 +86,15 @@ public class SplunkConfiguration {
 	    String username, String password) {
 	job.set(SPLUNKHOST, host);
 	job.setInt(SPLUNKPORT, port);
+	job.set(USERNAME, username);
+	job.set(PASSWORD, password);
+	job.set(SPLUNKSOURCETYPE, SPLUNKDEFAULTSOURCETYPE);
+	job.set(SPLUNKINDEX, SPLUNKDEFAULTINDEX);
+    }
+
+    public static void setConnInfo(JobConf job, String username, String password) {
+	job.set(SPLUNKHOST, SPLUNKDEFAULTHOST);
+	job.setInt(SPLUNKPORT, SPLUNKDEFAULTPORT);
 	job.set(USERNAME, username);
 	job.set(PASSWORD, password);
 	job.set(SPLUNKSOURCETYPE, SPLUNKDEFAULTSOURCETYPE);

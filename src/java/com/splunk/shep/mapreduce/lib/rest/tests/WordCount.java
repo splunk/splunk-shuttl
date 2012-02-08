@@ -34,7 +34,7 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextInputFormat;
 
-import com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormat;
+import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
 
 public class WordCount {
 
@@ -73,10 +73,7 @@ public class WordCount {
     public static void main(String[] args) throws Exception {
 	JobConf conf = new JobConf(WordCount.class);
 	conf.setJobName("hadoopunittest1");
-	conf.set(SplunkOutputFormat.SPLUNKHOST, "localhost");
-	conf.setInt(SplunkOutputFormat.SPLUNKPORT, 8089);
-	conf.set(SplunkOutputFormat.USERNAME, "admin");
-	conf.set(SplunkOutputFormat.PASSWORD, "changeme");
+	SplunkConfiguration.setConnInfo(conf, "admin", "changeme");
 
 	conf.setOutputKeyClass(Text.class);
 	conf.setOutputValueClass(IntWritable.class);

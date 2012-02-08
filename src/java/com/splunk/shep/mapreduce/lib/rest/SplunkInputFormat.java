@@ -112,7 +112,7 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 		    .setCredentials(
 			    new AuthScope(host, job.getInt(
 				    SplunkConfiguration.SPLUNKPORT,
-				    SplunkConfiguration.SPLUNK_DEFAULT_PORT)),
+				    SplunkConfiguration.SPLUNKDEFAULTPORT)),
 			    new UsernamePasswordCredentials(job
 				    .get(SplunkConfiguration.USERNAME), job
 				    .get(SplunkConfiguration.PASSWORD)));
