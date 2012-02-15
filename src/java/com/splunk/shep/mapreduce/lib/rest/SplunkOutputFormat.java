@@ -15,8 +15,13 @@
 
 package com.splunk.shep.mapreduce.lib.rest;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.Socket;
 import java.util.Date;
+
+import com.splunk.Args;
+import com.splunk.Index;
+import com.splunk.Service;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapred.JobConf;
@@ -24,147 +29,144 @@ import org.apache.hadoop.mapred.OutputFormat;
 import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.Progressable;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.log4j.Logger;
 
-import com.splunk.shep.mapreduce.lib.rest.util.HttpClientUtils;
 
 /**
  * An OutputFormat that send reduce output to Splunk as a simple event with
  * space separated key and value, prefixed with a time stamp on when this was
  * generated
- * 
- * @author kpakkirisamy
- * 
+ *
  * @param <K>
  * @param <V>
+ * @author kpakkirisamy
  */
+
 public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
-    private static final String SPLUNK_SMPLRCVR_ENDPT = "/services/receivers/simple";
-    private static final int SPLUNK_MGMTPORT_DEFAULT = 8089;
-    private static final String HADOOP_EVENT = "hadoop_event"; // event can be
-							       // configured on
-							       // the Splunk
-							       // side
+    private static final String HADOOP_EVENT = "hadoop_event";
     public final static String SPLUNKHOST = SplunkConfiguration.SPLUNKHOST;
     public final static String SPLUNKPORT = SplunkConfiguration.SPLUNKPORT;
     public final static String USERNAME = SplunkConfiguration.USERNAME;
     public final static String PASSWORD = SplunkConfiguration.PASSWORD;
-    private final static int HTTP_OK = 200;
     private static Logger logger = logger = Logger
-	    .getLogger(SplunkOutputFormat.class);
+            .getLogger(SplunkOutputFormat.class);
+    private Service service = null;
+    private Socket stream = null;
+    private OutputStream ostream;
+    private Writer writerOut;
+    // SLOW -- UNTIL TEST CODE FIXES RACE CONDITION.
+    // one really wants to stream events, because this is very very slow.
+    // eventually, remove all references to these 3 variables, and make
+    // a local index loginSplunk().
+    private boolean useSlowSubmit = false;
+    private JobConf job;
+    private Index index;
 
     /**
      * A RecordWriter that writes the reduce output to Splunk
      */
     protected class SplunkRecordWriter implements RecordWriter<K, V> {
-	private static final String SPACE = " ";
-	HttpClient httpclient;
-	String poststring;
+        private static final String SPACE = " ";
 
-	protected SplunkRecordWriter(HttpClient httpclient, String poststr) {
-	    this.httpclient = httpclient;
-	    this.poststring = poststr;
-	}
+        protected SplunkRecordWriter() {
+            System.out.println("SplunkRecordWriter Constructor!!!");
+        }
 
-	public void close(Reporter reporter) throws IOException {
-	}
+        public void close(Reporter reporter) throws IOException {
+        }
 
-	public void write(K key, V value) throws IOException {
-	    logger.trace("key " + key + " value " + value);
-	    HttpPost httppost = new HttpPost(this.poststring);
-	    StringBuilder sbuf = new StringBuilder();
-	    /**
-	     * sbuf.append(URLEncoder.encode(new Date().toString()));
-	     * sbuf.append(URLEncoder.encode(SPACE));
-	     * sbuf.append(URLEncoder.encode(key.toString())); // space
-	     * separated fields for Splunk to regex out
-	     * sbuf.append(URLEncoder.encode(SPACE));
-	     * sbuf.append(URLEncoder.encode(value.toString())); // space
-	     * separated fields for Splunk to regex out
-	     **/
-	    sbuf.append(new Date().toString());
-	    sbuf.append(SPACE);
-	    sbuf.append(key.toString()); // space separated fields for Splunk to
-					 // regex out
-	    sbuf.append(SPACE);
-	    sbuf.append(value.toString()); // space separated fields for Splunk
-					   // to regex
-					   // out
-	    sbuf.append("\n");
-	    StringEntity reqEntity = new StringEntity(sbuf.toString());
-	    httppost.setEntity(reqEntity);
-	    HttpResponse response = this.httpclient.execute(httppost);
-	    if (response.getStatusLine().getStatusCode() != HTTP_OK) {
-		logger.trace(response.getStatusLine());
-		throw new IOException(response.getStatusLine().toString());
-	    }
-	    HttpEntity resEntity = response.getEntity();
-	    resEntity.consumeContent();
-	}
+        public void write(K key, V value) throws IOException {
+            logger.trace("key " + key + " value " + value);
+
+            StringBuilder sbuf = new StringBuilder();
+            sbuf.append(new Date().toString());
+            sbuf.append(SPACE);             // space separator for Splunk
+            sbuf.append(key.toString());
+            sbuf.append(SPACE);             // space separator for Splunk
+            sbuf.append(value.toString());
+            sbuf.append("\n");
+            String eventString = sbuf.toString();
+            if (useSlowSubmit) {
+                Args args = new Args();
+                args.put("source", job.getJobName());
+                args.put("sourcetype", HADOOP_EVENT);
+                index.submit(eventString, args);
+            } else {
+                writerOut.write(eventString);
+                writerOut.flush();
+            }
+        }
+    }
+
+    private void loginSplunk(JobConf job) {
+        if (useSlowSubmit) {
+            this.job = job;
+        }
+        try {
+            if (service == null) {
+                //build up login
+                Args args = new Args();
+                args.put("username", job.get(SplunkConfiguration.USERNAME));
+                args.put("password", job.get(SplunkConfiguration.PASSWORD));
+                args.put("host", job.get(SplunkConfiguration.SPLUNKHOST));
+                args.put("port", job.getInt(SplunkConfiguration.SPLUNKPORT, 8089));
+                service = Service.connect(args);
+            }
+            if (stream == null) {
+                // create a an http stream input assume "main" index.
+                // wkcifx: add allowance for different index through
+                // hadoop job settings (like user/pass/etc).
+
+                index = service.getIndexes().get("main");
+                if (!useSlowSubmit) {
+                    Args attachArgs = new Args();
+                    attachArgs.put("source", job.getJobName());
+                    attachArgs.put("sourcetype", HADOOP_EVENT);
+                    stream = index.attach(attachArgs);
+                    ostream = stream.getOutputStream();
+                    writerOut = new OutputStreamWriter(ostream, "UTF8");
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Failed to connect to splunk, "
+                                     + "or connect to streaming socket");
+        }
     }
 
     /**
      * Get the {@link RecordWriter} for the given job.
-     * 
+     *
      * @param ignored
-     * @param job
-     *            configuration for the job whose output is being written.
-     * @param name
-     *            the unique name for this part of the output.
-     * @param progress
-     *            mechanism for reporting progress while writing to file.
+     * @param job      configuration for the job whose output is being written.
+     * @param name     the unique name for this part of the output.
+     * @param progress mechanism for reporting progress while writing to file.
      * @return a {@link RecordWriter} to write the output for the job.
      * @throws IOException
      */
-    public RecordWriter<K, V> getRecordWriter(FileSystem ignored, JobConf job,
-	    String name, Progressable progress) throws IOException {
-	try {
-	    HttpClient httpclient = HttpClientUtils.getHttpClient();
-	    ((AbstractHttpClient) httpclient).getCredentialsProvider()
-		    .setCredentials(
-			    new AuthScope(job.get(SPLUNKHOST), job.getInt(
-				    SPLUNKPORT, SPLUNK_MGMTPORT_DEFAULT)),
-			    new UsernamePasswordCredentials(job.get(USERNAME),
-				    job.get(PASSWORD)));
-	    String poststr = "https://"
-		    + job.get(SPLUNKHOST)
-		    + ":"
-		    + new Integer(job.getInt(SPLUNKPORT,
-			    SPLUNK_MGMTPORT_DEFAULT)) + SPLUNK_SMPLRCVR_ENDPT
-		    + "?source=" + job.getJobName() + "&sourcetype="
-		    + HADOOP_EVENT;
-	    logger.trace("POSTSTR: " + poststr);
-	    return new SplunkRecordWriter(httpclient, poststr);
-	} catch (Exception e) {
-	    logger.trace(e);
-	    throw new IOException(e);
-	}
+    public RecordWriter<K, V> getRecordWriter(
+        FileSystem ignored, JobConf job,String name, Progressable progress)
+        throws IOException {
+
+        loginSplunk(job);
+
+        return new SplunkRecordWriter();
     }
 
     /**
      * Check for validity of the output-specification for the job.
-     * 
+     * <p/>
      * <p>
      * This is to validate the output specification for the job when it is a job
      * is submitted. Typically checks that it does not already exist, throwing
      * an exception when it already exists, so that output is not overwritten.
      * </p>
-     * 
+     *
      * @param ignored
-     * @param job
-     *            job configuration.
-     * @throws IOException
-     *             when output should not be attempted
+     * @param job     job configuration.
+     * @throws IOException when output should not be attempted
      */
     public void checkOutputSpecs(FileSystem ignored, JobConf job)
-	    throws IOException {
+            throws IOException {
     }
 }
