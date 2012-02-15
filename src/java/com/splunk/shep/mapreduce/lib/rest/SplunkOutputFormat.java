@@ -48,19 +48,11 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
     public final static String SPLUNKPORT = SplunkConfiguration.SPLUNKPORT;
     public final static String USERNAME = SplunkConfiguration.USERNAME;
     public final static String PASSWORD = SplunkConfiguration.PASSWORD;
-    private static Logger logger = logger = Logger
+    private static Logger logger = Logger
             .getLogger(SplunkOutputFormat.class);
     private Service service = null;
     private Socket stream = null;
-    private OutputStream ostream;
     private Writer writerOut;
-    // SLOW -- UNTIL TEST CODE FIXES RACE CONDITION.
-    // one really wants to stream events, because this is very very slow.
-    // eventually, remove all references to these 3 variables, and make
-    // a local index loginSplunk().
-    private boolean useSlowSubmit = false;
-    private JobConf job;
-    private Index index;
 
     /**
      * A RecordWriter that writes the reduce output to Splunk
@@ -86,22 +78,12 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
             sbuf.append(value.toString());
             sbuf.append("\n");
             String eventString = sbuf.toString();
-            if (useSlowSubmit) {
-                Args args = new Args();
-                args.put("source", job.getJobName());
-                args.put("sourcetype", HADOOP_EVENT);
-                index.submit(eventString, args);
-            } else {
-                writerOut.write(eventString);
-                writerOut.flush();
-            }
+            writerOut.write(eventString);
+            writerOut.flush();
         }
     }
 
     private void loginSplunk(JobConf job) {
-        if (useSlowSubmit) {
-            this.job = job;
-        }
         try {
             if (service == null) {
                 //build up login
@@ -117,15 +99,13 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
                 // wkcifx: add allowance for different index through
                 // hadoop job settings (like user/pass/etc).
 
-                index = service.getIndexes().get("main");
-                if (!useSlowSubmit) {
-                    Args attachArgs = new Args();
-                    attachArgs.put("source", job.getJobName());
-                    attachArgs.put("sourcetype", HADOOP_EVENT);
-                    stream = index.attach(attachArgs);
-                    ostream = stream.getOutputStream();
-                    writerOut = new OutputStreamWriter(ostream, "UTF8");
-                }
+                Index index = service.getIndexes().get("main");
+                Args attachArgs = new Args();
+                attachArgs.put("source", job.getJobName());
+                attachArgs.put("sourcetype", HADOOP_EVENT);
+                stream = index.attach(attachArgs);
+                OutputStream ostream = stream.getOutputStream();
+                writerOut = new OutputStreamWriter(ostream, "UTF8");
             }
         }
         catch (Exception e) {
@@ -137,7 +117,7 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
     /**
      * Get the {@link RecordWriter} for the given job.
      *
-     * @param ignored
+     * @param ignored  ignored param
      * @param job      configuration for the job whose output is being written.
      * @param name     the unique name for this part of the output.
      * @param progress mechanism for reporting progress while writing to file.
@@ -162,7 +142,7 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
      * an exception when it already exists, so that output is not overwritten.
      * </p>
      *
-     * @param ignored
+     * @param ignored ignored param
      * @param job     job configuration.
      * @throws IOException when output should not be attempted
      */

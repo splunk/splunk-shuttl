@@ -59,13 +59,7 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	    private long pos = 0;
 	    private SplunkXMLStream parser = null;
         private Service service;
-        private Job searchJob;
         private Args queryArgs;
-        private int totalNumEvents = 0;
-        private int currentEventOffset = 0;
-        private int eventsLeftInChunk = 0;
-        // for using export, instead of native search.
-        private boolean usingExport = false;
         private InputStream stream;
 
         /**
@@ -90,13 +84,7 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
             if (!searchString.contains("search")) {
                 searchString = "search "  + searchString;
             }
-            if (usingExport) {
-                stream = service.export(searchString, queryArgs);
-            } else {
-                queryArgs.put("exec_mode", "blocking"); // block until finished
-                searchJob = service.getJobs().create(searchString, queryArgs);
-                totalNumEvents = searchJob.getEventCount(); // total events
-            }
+            stream = service.export(searchString, queryArgs);
         }
 
         private void configureCredentials() {
@@ -123,77 +111,37 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 		    }
         }
 
-        private SplunkXMLStream getCurrentParser() {
-            if (usingExport) {
-                if (parser == null) {
-                    try {
-                        parser = new SplunkXMLStream(stream);
-                    }
-                    catch (Exception e) {
-                        throw new RuntimeException("Failed to retrieve results stream");
-                    }
-                }
-            } else {
-
-                // hide multi-pumping the events reader when we have a large
-                // number nof events returned by a search.
-                // ASSUMPTION: we get called only once per Splunk EVENT
-
-                int chunkSize = 40000;
-                if (eventsLeftInChunk == 0) {
-                    int eventsLeft = totalNumEvents - currentEventOffset;
-                    eventsLeftInChunk = (eventsLeft > chunkSize)
-                            ? chunkSize : eventsLeft;
-                    try {
-                        Args args = new Args();
-                        args.put("offset", currentEventOffset);
-                        args.put("count", eventsLeftInChunk);
-                        parser = new SplunkXMLStream(searchJob.getResults(args));
-                    }
-                    catch (Exception e) {
-                        throw new RuntimeException("Failed to retrieve results stream");
-                    }
-                }
-
-                currentEventOffset++;
-                eventsLeftInChunk--;
-            }
-
-            assert(parser != null);
-            return parser;
-        }
-
-        @Override
         public void close() throws IOException {
-            searchJob.cancel();
             service.logout();
         }
 
-        @Override
         public LongWritable createKey() {
             return new LongWritable();
         }
 
-        @Override
         public V createValue() {
             return ReflectionUtils.newInstance(inputClass, job);
         }
 
-        @Override
         public long getPos() throws IOException {
             // TODO Auto-generated method stub
             return pos;
         }
 
-        @Override
         public float getProgress() throws IOException {
             return pos / split.getLength();
         }
 
-        @Override
         public boolean next(LongWritable key, V value) throws IOException {
 
-            parser = getCurrentParser();
+            if (parser == null) {
+                try {
+                    parser = new SplunkXMLStream(stream);
+                }
+                catch (Exception e) {
+                    throw new RuntimeException("Failed to retrieve results stream");
+                }
+            }
             logger.trace("next");
             pos++;
             HashMap<String, String> map = parser.nextResult();
@@ -254,7 +202,6 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
             this.id = id;
         }
 
-        @Override
         public void readFields(DataInput in) throws IOException {
             id = in.readInt();
             host = in.readUTF();
@@ -265,7 +212,6 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
             }
         }
 
-        @Override
         public void write(DataOutput out) throws IOException {
             out.writeInt(id);
             out.writeUTF(host);
@@ -275,24 +221,20 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
             }
         }
 
-        @Override
         public long getLength() throws IOException {
             // we dont know the size of search results
             return Long.MAX_VALUE;
         }
 
-        @Override
         public String[] getLocations() {
             return locations;
         }
     }
 
-    @Override
     public void configure(JobConf arg0) {
 	    // TODO Auto-generated method stub
     }
 
-    @Override
     public RecordReader<LongWritable, V> getRecordReader(InputSplit split,
 	    JobConf job, Reporter arg2) throws IOException {
 	    try {
@@ -306,7 +248,6 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	    }
     }
 
-    @Override
     public SplunkInputSplit[] getSplits(JobConf job, int arg1)
             throws IOException {
         // number of splits is equal to the number of time ranges provided for
