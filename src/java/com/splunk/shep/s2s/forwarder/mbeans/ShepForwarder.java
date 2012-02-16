@@ -1,10 +1,11 @@
 package com.splunk.shep.s2s.forwarder.mbeans;
 
 import java.io.FileReader;
+import java.util.ArrayList;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import java.util.ArrayList;;
+
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.s2s.forwarder.model.ForwarderConf;
