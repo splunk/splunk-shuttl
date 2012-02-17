@@ -1,5 +1,6 @@
 package com.splunk.shep.testutil;
 
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
@@ -53,19 +54,10 @@ public class LocalFileToHadoopCopierTest {
 	}
     }
 
-    private void copyFileToHadoop(File src, Path dest) {
-	copier.copyFileToHadoop(src, dest);
-    }
-
-    private Path getPathOnHadoopForFile(File src) {
-	return new Path(hadoopDirectoryThatIsRemovedAfterTests.getName() + "/"
-		+ src.getName());
-    }
-
     @BeforeTest(groups = { "fast" })
     public void setUp() {
 	fileSystem = getLocalFileSystem();
-	copier = new LocalFileToHadoopCopier(fileSystem);
+	copier = LocalFileToHadoopCopier.get(fileSystem);
     }
 
     @AfterTest(groups = { "fast" })
@@ -83,27 +75,19 @@ public class LocalFileToHadoopCopierTest {
     public void copyingFileThatExists_should_existInFileSystemCopiedTo()
 	    throws IOException {
 	File tempFile = getTempFileThatIsAutomaticallyDeleted();
-	Path destination = getPathOnHadoopForFile(tempFile);
-	copyFileToHadoop(tempFile, destination);
-	assertTrue(fileSystem.exists(destination));
+	copier.copyFileToHadoop(tempFile);
+	assertTrue(copier.isFileCopiedToFileSystem(tempFile));
     }
 
     @Test(groups = { "fast" }, expectedExceptions = LocalFileNotFound.class)
     public void copyingFileThatDoesntExist_should_throw_LocalFileNotFound() {
 	File nonExistingFile = new File("file-does-not-exist");
-	copyFileToHadoop(nonExistingFile,
-		getPathOnHadoopForFile(nonExistingFile));
+	copier.copyFileToHadoop(nonExistingFile);
     }
 
-    // TODO, WHY AM I THROWING AN IOException?
-    @Test(groups = { "fast" }, expectedExceptions = InvalidHadoopPath.class)
-    public void copyTempFileToAnInvalidHadoopPath_should_throw_InvalidHadoopPath() {
-	File tempFile = getTempFileThatIsAutomaticallyDeleted();
-	Path invalidPath = new Path("fisk");
-    }
-
-    public class InvalidHadoopPath extends RuntimeException {
-
+    @Test(groups = { "fast" })
+    public void fileThatIsNotCopied_shouldNot_existInFileSystem() {
+	assertFalse(copier.isFileCopiedToFileSystem(new File("somefile")));
     }
 
 }
