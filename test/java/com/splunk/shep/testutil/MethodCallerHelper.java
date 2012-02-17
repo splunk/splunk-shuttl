@@ -1,5 +1,14 @@
 package com.splunk.shep.testutil;
 
+/**
+ * MethodCallerHelper is a class for finding out who outside of your own class,
+ * called you. <br>
+ * See the test in {@link MethodCallerHelperTest} to get an understanding for
+ * the class.
+ * 
+ * @author periksson@splunk.com
+ * 
+ */
 public class MethodCallerHelper {
 
     protected static final int INDEX_OF_CALLER_TO_THIS_METHOD = 3;
