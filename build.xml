@@ -169,8 +169,9 @@
 		</javac>
 	</target>
 
-	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml">
+	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">
 		<ivy:retrieve />
+		<property name="isIvyResolved" value="true"/>
 	</target>
 
 	<target name="setup-ivy-xml">
@@ -185,7 +186,7 @@
 
 	<!-- run test via testNG -->
 	<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="ant.libs.classpath" />
-	<target name="test">
+	<target name="test" depends="compile">
 		<antcall target="fast-tests" />
 		<antcall target="slow-tests" />
 	</target>
