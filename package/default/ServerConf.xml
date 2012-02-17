@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:serverConf xmlns:ns2="com.splunk.shep.s2s.forwarder.model">
+    <clusterlist>
+        <hadoopcluster>
+            <name>dev</name>
+            <defcluster>true</defcluster>
+            <host>localhost</host>
+            <port>54310</port>
+        </hadoopcluster>
+        <hadoopcluster>
+            <name>test</name>
+            <defcluster>false</defcluster>
+            <host>localhost</host>
+            <port>9000</port>
+        </hadoopcluster>
+    </clusterlist>
+</ns2:serverConf>

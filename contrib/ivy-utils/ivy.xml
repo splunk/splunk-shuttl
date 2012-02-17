@@ -1,7 +1,7 @@
 <!-- @EDIT.THIS.FILE.DESCRIPTION.PATTERN@ -->
 <!-- To add a dependency: Go to: http://mvnrepository.com/ . Search for your
 	dependency. Click on the right link for your dependency. Select the version
-	you want. Click on the Ivy tab. Copy the <dependecy> tag and insert it below -->
+	you want. Click on the Ivy tab. Copy the <dependency> tag and insert it below -->
 <ivy-module version="2.0">
 	<info organisation="com.splunk.shep" module="shep-ivy" />
 	<dependencies>
@@ -23,6 +23,8 @@
         <dependency org="commons-lang" name="commons-lang" rev="2.4"/>
         <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.4.0"/>
         <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.4.0"/>
+        <dependency org="org.eclipse.jetty.aggregate" name="jetty-all-server" rev="8.0.4.v20111024"/>
         <exclude org="xerces" module="*" type="*" ext="*" conf="" matcher="exact"/>
+        <exclude org="org.mortbay.jetty" module="*" type="*" ext="*" conf="" matcher="exact"/>
 	</dependencies>
 </ivy-module>
