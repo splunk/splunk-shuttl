@@ -1,4 +1,4 @@
-package com.splunk.shep.archiver;
+package com.splunk.shep.archiver.fileSystem;
 
 /**
  * With this interface code can send, get, list files in any system that
