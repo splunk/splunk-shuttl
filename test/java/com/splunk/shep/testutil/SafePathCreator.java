@@ -11,7 +11,7 @@ public class SafePathCreator {
 	this.methodCallerHelper = methodCallerHelper;
     }
 
-    public Path getPathOnFileSystem(FileSystem fileSystem) {
+    public Path getSafeDirectory(FileSystem fileSystem) {
 	StackTraceElement caller = methodCallerHelper.getCallerToMyMethod();
 	return new Path(fileSystem.getHomeDirectory() + "/"
 		+ caller.getClassName());

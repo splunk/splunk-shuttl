@@ -19,7 +19,7 @@ public class SafePathCreatorTest {
     @Test(groups = { "fast" })
     public void safePath_should_beSeparated_by_HomeDirectoryAndNameOfTestCase_toAchieve_nicerStructure() {
 	FileSystem fileSystem = FileSystemUtils.getLocalFileSystem();
-	Path safePath = safePathCreator.getPathOnFileSystem(fileSystem);
+	Path safePath = safePathCreator.getSafeDirectory(fileSystem);
 	Path expected = new Path(fileSystem.getHomeDirectory() + "/"
 		+ this.getClass().getName());
 	assertEquals(safePath, expected);
