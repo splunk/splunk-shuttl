@@ -6,7 +6,18 @@ import java.io.IOException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-public class FileToHadoopFileSystemCopier {
+/**
+ * HadoopFileSystemPutter puts a file on a hadoop {@link FileSystem} in a safe
+ * place. <br>
+ * It uses the {@link SafePathCreator} to get a unique, readable and writable
+ * directory on Hadoop. <br>
+ * Use convenience method {@link HadoopFileSystemPutter#get(FileSystem)} to
+ * instanciate this class with whatever filesystem you'd like to use.
+ * 
+ * @author periksson
+ * 
+ */
+public class HadoopFileSystemPutter {
 
     public static class LocalFileNotFound extends RuntimeException {
 	private static final long serialVersionUID = 1L;
@@ -15,7 +26,7 @@ public class FileToHadoopFileSystemCopier {
     private final FileSystem fileSystem;
     private final SafePathCreator safePathCreator;
 
-    public FileToHadoopFileSystemCopier(FileSystem fileSystem,
+    public HadoopFileSystemPutter(FileSystem fileSystem,
 	    SafePathCreator safePathCreator) {
 	this.fileSystem = fileSystem;
 	this.safePathCreator = safePathCreator;
@@ -38,7 +49,7 @@ public class FileToHadoopFileSystemCopier {
     }
 
     private Path getSafePathOnFileSystemForFile(File src) {
-	Path safeDirectory = safePathCreator.getPathOnFileSystem(fileSystem);
+	Path safeDirectory = safePathCreator.getSafeDirectory(fileSystem);
 	return new Path(safeDirectory, src.getName());
     }
 
@@ -50,7 +61,7 @@ public class FileToHadoopFileSystemCopier {
 	}
     }
 
-    public static FileToHadoopFileSystemCopier get(FileSystem fileSystem) {
-	return new FileToHadoopFileSystemCopier(fileSystem, SafePathCreator.get());
+    public static HadoopFileSystemPutter get(FileSystem fileSystem) {
+	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.get());
     }
 }

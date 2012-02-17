@@ -12,16 +12,16 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.testutil.FileToHadoopFileSystemCopier.LocalFileNotFound;
+import com.splunk.shep.testutil.HadoopFileSystemPutter.LocalFileNotFound;
 
-public class FileToHadoopFileSystemCopierTest {
+public class HadoopFileSystemPutterTest {
 
-    private FileToHadoopFileSystemCopier copier;
+    private HadoopFileSystemPutter copier;
     private FileSystem fileSystem;
 
     private Path hadoopDirectoryThatIsRemovedAfterTests = new Path(
 	    "/ShepTests/"
-		    + FileToHadoopFileSystemCopierTest.class.getSimpleName());
+		    + HadoopFileSystemPutterTest.class.getSimpleName());
 
     private void deleteHadoopTestDirectory() {
 	try {
@@ -48,7 +48,7 @@ public class FileToHadoopFileSystemCopierTest {
     @BeforeTest(groups = { "fast" })
     public void setUp() {
 	fileSystem = FileSystemUtils.getLocalFileSystem();
-	copier = FileToHadoopFileSystemCopier.get(fileSystem);
+	copier = HadoopFileSystemPutter.get(fileSystem);
     }
 
     @AfterTest(groups = { "fast" })
