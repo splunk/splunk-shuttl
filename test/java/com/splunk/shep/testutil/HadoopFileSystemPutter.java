@@ -25,11 +25,14 @@ public class HadoopFileSystemPutter {
 
     private final FileSystem fileSystem;
     private final SafePathCreator safePathCreator;
+    private final MethodCallerHelper methodCallerHelper;
 
     public HadoopFileSystemPutter(FileSystem fileSystem,
-	    SafePathCreator safePathCreator) {
+	    SafePathCreator safePathCreator,
+	    MethodCallerHelper methodCallerHelper) {
 	this.fileSystem = fileSystem;
 	this.safePathCreator = safePathCreator;
+	this.methodCallerHelper = methodCallerHelper;
     }
 
     public void putFile(File source) {
@@ -49,8 +52,15 @@ public class HadoopFileSystemPutter {
     }
 
     private Path getSafePathOnFileSystemForFile(File src) {
-	Path safeDirectory = safePathCreator.getSafeDirectory(fileSystem);
+	Path safeDirectory = getSafePathForClassPuttingFile();
 	return new Path(safeDirectory, src.getName());
+    }
+
+    private Path getSafePathForClassPuttingFile() {
+	Class<?> callerToThisMethod = methodCallerHelper.getCallerToMyMethod();
+	Path safeDirectory = safePathCreator.getSafeDirectory(fileSystem,
+		callerToThisMethod);
+	return safeDirectory;
     }
 
     public boolean isFileCopiedToFileSystem(File file) {
@@ -65,7 +75,12 @@ public class HadoopFileSystemPutter {
 	return getSafePathOnFileSystemForFile(file);
     }
 
+    public Path getPathWhereMyFilesAreStored() {
+	return getSafePathForClassPuttingFile();
+    }
+
     public static HadoopFileSystemPutter get(FileSystem fileSystem) {
-	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.get());
+	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.get(),
+		MethodCallerHelper.get());
     }
 }

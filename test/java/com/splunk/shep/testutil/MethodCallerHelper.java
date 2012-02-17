@@ -13,19 +13,20 @@ public class MethodCallerHelper {
 
     protected static final int INDEX_OF_CALLER_TO_THIS_METHOD = 3;
 
-    public StackTraceElement getCallerToMyMethod() {
+    public Class<?> getCallerToMyMethod() {
 	StackTraceElement[] elements = Thread.getAllStackTraces().get(
 		Thread.currentThread());
 	return getCallerToMyMethod(elements);
     }
 
-    protected StackTraceElement getCallerToMyMethod(StackTraceElement[] elements) {
+    protected Class<?> getCallerToMyMethod(StackTraceElement[] elements) {
 	StackTraceElement caller = elements[INDEX_OF_CALLER_TO_THIS_METHOD];
-	return getClassThatCalledCaller(elements, caller);
+	StackTraceElement callersCaller = getCallersCaller(elements, caller);
+	return getClass(callersCaller);
     }
 
-    private StackTraceElement getClassThatCalledCaller(
-	    StackTraceElement[] elements, StackTraceElement caller) {
+    private StackTraceElement getCallersCaller(StackTraceElement[] elements,
+	    StackTraceElement caller) {
 	for (int i = INDEX_OF_CALLER_TO_THIS_METHOD; i < elements.length; i++)
 	    if (!isSameClassAsCaller(caller, elements[i]))
 		return elements[i];
@@ -40,4 +41,15 @@ public class MethodCallerHelper {
 	return element.getClassName().equals(caller.getClassName());
     }
 
+    private Class<?> getClass(StackTraceElement callersCaller) {
+	try {
+	    return Class.forName(callersCaller.getClassName());
+	} catch (ClassNotFoundException e) {
+	    throw new RuntimeException(e);
+	}
+    }
+
+    public static MethodCallerHelper get() {
+	return new MethodCallerHelper();
+    }
 }

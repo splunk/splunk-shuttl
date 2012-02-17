@@ -7,15 +7,15 @@ import org.testng.annotations.Test;
 public class MethodCallerHelperTest {
 
     @Test(groups = { "fast" })
-    public void getCallerToMyMethod_should_return_stackTraceElement_with_thisClass_when_invokingCaller_call() {
-	StackTraceElement element = new Caller().call();
-	assertEquals(element.getClassName(), getClass().getName());
+    public void getCallerToMyMethod_should_return_thisClass_when_invokingCaller_call() {
+	Class<?> clazz = new Caller().call();
+	assertEquals(clazz, getClass());
     }
 
     @Test(groups = { "fast" })
     public void getCallerToMyMethod_should_stillGetThisClass_when_otherInternalCallsInsideTheClassIsCalled() {
-	StackTraceElement element = new Caller().internalCall_before_call();
-	assertEquals(element.getClassName(), getClass().getName());
+	Class<?> clazz = new Caller().internalCall_before_call();
+	assertEquals(clazz, getClass());
     }
 
     @Test(groups = { "fast" }, expectedExceptions = { IllegalStateException.class })
@@ -34,15 +34,15 @@ public class MethodCallerHelperTest {
 
     private static class Caller {
 
-	public StackTraceElement internalCall_before_call() {
+	public Class<?> internalCall_before_call() {
 	    return internalCall();
 	}
 
-	public StackTraceElement internalCall() {
+	public Class<?> internalCall() {
 	    return call();
 	}
 
-	public StackTraceElement call() {
+	public Class<?> call() {
 	    return new MethodCallerHelper().getCallerToMyMethod();
 	}
     }
