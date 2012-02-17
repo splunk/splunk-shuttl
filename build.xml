@@ -210,7 +210,7 @@
 		</testng>
 	</target>
 
-	<target name="slow-tests">
+	<target name="slow-tests" depends="jar">
 		<antcall>
 			<target name="hadoop-setup" />
 			<target name="splunk-setup" />
