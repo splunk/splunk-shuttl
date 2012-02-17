@@ -2,7 +2,7 @@ package com.splunk.shep.testutil;
 
 public class MethodCallerHelper {
 
-    private final int INDEX_OF_CALLER_TO_THIS_METHOD = 3;
+    protected static final int INDEX_OF_CALLER_TO_THIS_METHOD = 3;
 
     public StackTraceElement getCallerToMyMethod() {
 	StackTraceElement[] elements = Thread.getAllStackTraces().get(
@@ -20,7 +20,10 @@ public class MethodCallerHelper {
 	for (int i = INDEX_OF_CALLER_TO_THIS_METHOD; i < elements.length; i++)
 	    if (!isSameClassAsCaller(caller, elements[i]))
 		return elements[i];
-	return null;
+	throw new IllegalStateException(
+		"There should always be a class that called the caller. "
+			+ "Otherwise this code would be run by the Thread class directly, "
+			+ "which would be wierd.");
     }
 
     private boolean isSameClassAsCaller(StackTraceElement caller,

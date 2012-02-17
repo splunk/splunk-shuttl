@@ -18,6 +18,20 @@ public class MethodCallerHelperTest {
 	assertEquals(element.getClassName(), getClass().getName());
     }
 
+    @Test(groups = { "fast" }, expectedExceptions = { IllegalStateException.class })
+    public void should_throw_IllegalStateException_when_stackTrace_containsOnlyTheSameClass() {
+	StackTraceElement[] elements = getElementsWithSameClass();
+	new MethodCallerHelper().getCallerToMyMethod(elements);
+    }
+
+    private StackTraceElement[] getElementsWithSameClass() {
+	StackTraceElement[] elements = new StackTraceElement[MethodCallerHelper.INDEX_OF_CALLER_TO_THIS_METHOD + 1];
+	for (int i = 0; i < elements.length; i++)
+	    elements[i] = new StackTraceElement("class", "methodName",
+		    "fileName", 0);
+	return elements;
+    }
+
     private static class Caller {
 
 	public StackTraceElement internalCall_before_call() {
