@@ -21,14 +21,14 @@ public class FileToHadoopFileSystemCopier {
 	this.safePathCreator = safePathCreator;
     }
 
-    public void copyFileToHadoop(File source) {
+    public void putFile(File source) {
 	if (!source.exists())
 	    throw new LocalFileNotFound();
 	else
-	    doCopyFileToHadoop(source);
+	    doPutFile(source);
     }
 
-    private void doCopyFileToHadoop(File src) {
+    private void doPutFile(File src) {
 	try {
 	    fileSystem.copyFromLocalFile(new Path(src.getPath()),
 		    getSafePathOnFileSystemForFile(src));

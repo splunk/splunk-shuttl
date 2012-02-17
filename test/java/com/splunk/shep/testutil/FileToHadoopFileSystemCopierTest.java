@@ -66,14 +66,14 @@ public class FileToHadoopFileSystemCopierTest {
     public void copyingFileThatExists_should_existInFileSystemCopiedTo()
 	    throws IOException {
 	File tempFile = getTempFileThatIsAutomaticallyDeleted();
-	copier.copyFileToHadoop(tempFile);
+	copier.putFile(tempFile);
 	assertTrue(copier.isFileCopiedToFileSystem(tempFile));
     }
 
     @Test(groups = { "fast" }, expectedExceptions = LocalFileNotFound.class)
     public void copyingFileThatDoesntExist_should_throw_LocalFileNotFound() {
 	File nonExistingFile = new File("file-does-not-exist");
-	copier.copyFileToHadoop(nonExistingFile);
+	copier.putFile(nonExistingFile);
     }
 
     @Test(groups = { "fast" })
