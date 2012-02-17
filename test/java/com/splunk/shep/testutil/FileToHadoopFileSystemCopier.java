@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-public class LocalFileToHadoopCopier {
+public class FileToHadoopFileSystemCopier {
 
     public static class LocalFileNotFound extends RuntimeException {
 	private static final long serialVersionUID = 1L;
@@ -15,7 +15,7 @@ public class LocalFileToHadoopCopier {
     private final FileSystem fileSystem;
     private final SafePathCreator safePathCreator;
 
-    public LocalFileToHadoopCopier(FileSystem fileSystem,
+    public FileToHadoopFileSystemCopier(FileSystem fileSystem,
 	    SafePathCreator safePathCreator) {
 	this.fileSystem = fileSystem;
 	this.safePathCreator = safePathCreator;
@@ -50,7 +50,7 @@ public class LocalFileToHadoopCopier {
 	}
     }
 
-    public static LocalFileToHadoopCopier get(FileSystem fileSystem) {
-	return new LocalFileToHadoopCopier(fileSystem, SafePathCreator.get());
+    public static FileToHadoopFileSystemCopier get(FileSystem fileSystem) {
+	return new FileToHadoopFileSystemCopier(fileSystem, SafePathCreator.get());
     }
 }

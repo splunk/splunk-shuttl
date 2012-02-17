@@ -6,35 +6,26 @@ import static org.testng.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.testutil.LocalFileToHadoopCopier.LocalFileNotFound;
+import com.splunk.shep.testutil.FileToHadoopFileSystemCopier.LocalFileNotFound;
 
-public class LocalFileToHadoopCopierTest {
+public class FileToHadoopFileSystemCopierTest {
 
-    private LocalFileToHadoopCopier copier;
+    private FileToHadoopFileSystemCopier copier;
     private FileSystem fileSystem;
 
     private Path hadoopDirectoryThatIsRemovedAfterTests = new Path(
-	    "/ShepTests/" + LocalFileToHadoopCopierTest.class.getSimpleName());
+	    "/ShepTests/"
+		    + FileToHadoopFileSystemCopierTest.class.getSimpleName());
 
     private void deleteHadoopTestDirectory() {
 	try {
 	    fileSystem.delete(hadoopDirectoryThatIsRemovedAfterTests, true);
-	} catch (IOException e) {
-	    throw new RuntimeException(e);
-	}
-    }
-
-    private FileSystem getLocalFileSystem() {
-	Configuration configuration = new Configuration();
-	try {
-	    return FileSystem.getLocal(configuration);
 	} catch (IOException e) {
 	    throw new RuntimeException(e);
 	}
@@ -56,8 +47,8 @@ public class LocalFileToHadoopCopierTest {
 
     @BeforeTest(groups = { "fast" })
     public void setUp() {
-	fileSystem = getLocalFileSystem();
-	copier = LocalFileToHadoopCopier.get(fileSystem);
+	fileSystem = FileSystemUtils.getLocalFileSystem();
+	copier = FileToHadoopFileSystemCopier.get(fileSystem);
     }
 
     @AfterTest(groups = { "fast" })
