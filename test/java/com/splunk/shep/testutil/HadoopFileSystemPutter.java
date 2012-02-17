@@ -61,6 +61,10 @@ public class HadoopFileSystemPutter {
 	}
     }
 
+    public Path getPathWhereFileIsStored(File file) {
+	return getSafePathOnFileSystemForFile(file);
+    }
+
     public static HadoopFileSystemPutter get(FileSystem fileSystem) {
 	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.get());
     }

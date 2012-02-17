@@ -1,6 +1,8 @@
 package com.splunk.shep.testutil;
 
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
@@ -81,4 +83,26 @@ public class HadoopFileSystemPutterTest {
 	assertFalse(copier.isFileCopiedToFileSystem(new File("somefile")));
     }
 
+    @Test(groups = { "fast" })
+    public void should_beAbleToGetThePath_where_TheFileIsStored() {
+	File tempFile = getTempFileThatIsAutomaticallyDeleted();
+	copier.putFile(tempFile);
+	assertTrue(copier.isFileCopiedToFileSystem(tempFile));
+	Path path = copier.getPathWhereFileIsStored(tempFile);
+	assertNotNull(path);
+    }
+
+    @Test(groups = { "fast" })
+    public void pathWhereFileIsStored_for_twoDifferentFiles_should_differ() {
+	File file1 = getTempFileThatIsAutomaticallyDeleted();
+	File file2 = getTempFileThatIsAutomaticallyDeleted();
+	assertNotEquals(file1.getName(), file2.getName());
+
+	copier.putFile(file1);
+	copier.putFile(file2);
+
+	Path path1 = copier.getPathWhereFileIsStored(file1);
+	Path path2 = copier.getPathWhereFileIsStored(file2);
+	assertNotEquals(path1, path2);
+    }
 }
