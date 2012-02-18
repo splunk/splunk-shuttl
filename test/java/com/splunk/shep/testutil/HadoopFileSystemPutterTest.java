@@ -43,20 +43,7 @@ public class HadoopFileSystemPutterTest {
 
     @AfterTest(groups = { "fast" })
     public void tearDown() {
-	deletePathWhereTestFilesArePut();
-    }
-
-    private void deletePathWhereTestFilesArePut() {
-	try {
-	    doDeletePathWhereTestFilesArePut();
-	} catch (IOException e) {
-	    throw new RuntimeException(e);
-	}
-    }
-
-    private void doDeletePathWhereTestFilesArePut() throws IOException {
-	Path filesDir = copier.getPathWhereMyFilesAreStored();
-	fileSystem.delete(filesDir, true);
+	copier.deleteMyFiles();
     }
 
     @Test(groups = { "fast" })
@@ -113,5 +100,15 @@ public class HadoopFileSystemPutterTest {
 	public Path getPathWhereFilesAreStored() {
 	    return copier.getPathWhereMyFilesAreStored();
 	}
+    }
+
+    @Test(groups = { "fast" })
+    public void after_putFile_then_deleteMyFiles_should_removeTheDirectory_where_thisClassPutFilesOnTheFileSystem()
+	    throws IOException {
+	Path myFiles = copier.getPathWhereMyFilesAreStored();
+	copier.putFile(getTempFileThatIsAutomaticallyDeleted());
+	assertTrue(fileSystem.exists(myFiles));
+	copier.deleteMyFiles();
+	assertFalse(fileSystem.exists(myFiles));
     }
 }
