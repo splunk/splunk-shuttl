@@ -111,4 +111,21 @@ public class HadoopFileSystemPutterTest {
 	copier.deleteMyFiles();
 	assertFalse(fileSystem.exists(myFiles));
     }
+
+    @Test(groups = { "fast" })
+    public void should_beAbleToGetPath_where_fileIsPut() {
+	assertNotNull(copier
+		.getPathForFile(getTempFileThatIsAutomaticallyDeleted()));
+    }
+
+    @Test(groups = { "fast" })
+    public void path_where_localFileIsPut_should_differForDifferentFiles() {
+	File file1 = getTempFileThatIsAutomaticallyDeleted();
+	File file2 = getTempFileThatIsAutomaticallyDeleted();
+	assertNotEquals(file1, file2);
+
+	Path path1 = copier.getPathForFile(file1);
+	Path path2 = copier.getPathForFile(file2);
+	assertNotEquals(path1, path2);
+    }
 }
