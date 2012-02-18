@@ -1,7 +1,7 @@
 <!-- @EDIT.THIS.FILE.DESCRIPTION.PATTERN@ -->
 <!-- To add a dependency: Go to: http://mvnrepository.com/ . Search for your
 	dependency. Click on the right link for your dependency. Select the version
-	you want. Click on the Ivy tab. Copy the <dependecy> tag and insert it below -->
+	you want. Click on the Ivy tab. Copy the <dependency> tag and insert it below -->
 <ivy-module version="2.0">
 	<info organisation="com.splunk.shep" module="shep-ivy" />
 	<dependencies>
