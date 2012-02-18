@@ -1,15 +1,10 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -27,105 +22,62 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextInputFormat;
 
 import com.splunk.shep.mapreduce.lib.rest.tests.WordCount;
+import com.splunk.shep.testutil.FileSystemUtils;
+import com.splunk.shep.testutil.HadoopFileSystemPutter;
 
 public class WordCountTest {
 
-    // Folder where the test input and output will end up.
-    private final String TEST_FOLDER_ON_HADOOP = "/"
-	    + WordCountTest.class.getSimpleName();
-    private final String FILENAME_FOR_FILE_WITH_TEST_INPUT = "file01";
-    private final String TEST_FILE_PATH_ON_HADOOP = TEST_FOLDER_ON_HADOOP
-	    + FILENAME_FOR_FILE_WITH_TEST_INPUT;
+    private static final String FILENAME_FOR_FILE_WITH_TEST_INPUT = "file01";
+
+    private HadoopFileSystemPutter putter;
+
+    private File getLocalFileWithTestInput() {
+	String pathToFileWithTestInput = "test/java/com/splunk/shep/mapreduce/lib/rest"
+		+ "/" + FILENAME_FOR_FILE_WITH_TEST_INPUT;
+	return new File(pathToFileWithTestInput);
+    }
 
     // @Parameters({ "inputhdfstesturi" })
     // @BeforeTest(groups = { "slow" })
     public void setUp() {
-	copyTestFileWithInputToHadoop();
-    }
-
-    private void copyTestFileWithInputToHadoop() {
-	try {
-	    doCopyTestFileWithInputToHadoop();
-	} catch (IOException e) {
-	    throw new RuntimeException(e);
-	}
-    }
-
-    private void doCopyTestFileWithInputToHadoop() throws IOException {
-	FileSystem fs = FileSystem.get(new Configuration());
-	OutputStream outputStream = outputStreamForTestFile(fs);
-	InputStream inputStream = getInputStreamForLocalFileWithTestInput();
-	copyBytesToFileSystem(fs, outputStream, inputStream);
-    }
-
-    private OutputStream outputStreamForTestFile(FileSystem fs)
-	    throws IOException {
-	return fs.create(new Path(TEST_FILE_PATH_ON_HADOOP));
-    }
-
-    private InputStream getInputStreamForLocalFileWithTestInput()
-	    throws FileNotFoundException {
-	return new FileInputStream(getLocalFileWithTestInput());
-    }
-
-    private File getLocalFileWithTestInput() {
-	String pathToFileWithTestInput = getClass().getResource(
-		FILENAME_FOR_FILE_WITH_TEST_INPUT).getPath();
-	return new File(pathToFileWithTestInput);
-    }
-
-    private void copyBytesToFileSystem(FileSystem fs,
-	    OutputStream outputStream, InputStream inputStream)
-	    throws IOException {
-	org.apache.hadoop.io.IOUtils.copyBytes(inputStream, outputStream,
-		fs.getConf());
-    }
-
-    private static class LocalFileToHadoopCopier {
-
-	private final FileSystem fileSystem;
-	private final String testFolderOnHadoop;
-
-	public LocalFileToHadoopCopier(FileSystem fileSystem, Class<?> caller) {
-	    this.fileSystem = fileSystem;
-	    testFolderOnHadoop = "/" + caller.getSimpleName();
-	}
-
-	public void copyFileToHadoop(File f) {
-	    try {
-		doCopyFileToHadoop(f);
-	    } catch (IOException e) {
-		throw new RuntimeException(e);
-	    }
-	}
-
-	private void doCopyFileToHadoop(File f) throws IOException {
-	    InputStream inputStream = new FileInputStream(f);
-	    OutputStream outputStream = outputStreamToHadoopFileSystem();
-	    copyBytesToFileSystem(inputStream, outputStream);
-	}
-
-	private OutputStream outputStreamToHadoopFileSystem()
-		throws IOException {
-	    return fileSystem.create(new Path(testFolderOnHadoop));
-	}
-
-	private void copyBytesToFileSystem(InputStream inputStream,
-		OutputStream outputStream) throws IOException {
-	    org.apache.hadoop.io.IOUtils.copyBytes(inputStream, outputStream,
-		    fileSystem.getConf());
-	}
+	FileSystem fileSystem = FileSystemUtils.getLocalFileSystem();
+	putter = HadoopFileSystemPutter.get(fileSystem);
     }
 
     // @AfterTest(groups = { "slow" })
     public void tearDown() {
-
+	// putter.deleteMyFiles();
     }
 
-    // @Parameters({ "username", "password", "splunk.home" })
+    // @Parameters({ "splunk.username", "splunk.password", "splunk.home" })
     // @Test(groups = { "slow" })
-    public void fileCheck(String username, String password, String splunkhome) {
+    public void fileCheck(String splunkUsername, String splunkPassword,
+	    String splunkHome) throws IOException {
+	JobConf conf = new JobConf(WordCount.class);
+	conf.setJobName("hadoopunittest1");
+	SplunkConfiguration.setConnInfo(conf, "localhost", 8089,
+		splunkUsername, splunkPassword);
 
+	conf.setOutputKeyClass(Text.class);
+	conf.setOutputValueClass(IntWritable.class);
+
+	conf.setMapperClass(Map.class);
+	conf.setCombinerClass(Reduce.class);
+	conf.setReducerClass(Reduce.class);
+
+	conf.setInputFormat(TextInputFormat.class);
+	conf.setOutputFormat(SplunkOutputFormat.class);
+
+	File localFile = getLocalFileWithTestInput();
+	putter.putFile(localFile);
+	Path remoteFile = putter.getPathForFile(localFile);
+	Path remoteDir = putter.getPathWhereMyFilesAreStored();
+	Path outputFile = new Path(remoteDir, "output");
+
+	FileInputFormat.setInputPaths(conf, remoteFile);
+	FileOutputFormat.setOutputPath(conf, outputFile);
+
+	JobClient.runJob(conf);
     }
 
     public static class Map extends MapReduceBase implements
@@ -157,27 +109,5 @@ public class WordCountTest {
 	    output.collect(key, new IntWritable(sum));
 
 	}
-    }
-
-    public static void main(String[] args) throws Exception {
-	JobConf conf = new JobConf(WordCount.class);
-	conf.setJobName("hadoopunittest1");
-	SplunkConfiguration.setConnInfo(conf, "localhost", 8089, "admin",
-		"changeme");
-
-	conf.setOutputKeyClass(Text.class);
-	conf.setOutputValueClass(IntWritable.class);
-
-	conf.setMapperClass(Map.class);
-	conf.setCombinerClass(Reduce.class);
-	conf.setReducerClass(Reduce.class);
-
-	conf.setInputFormat(TextInputFormat.class);
-	conf.setOutputFormat(com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormat.class);
-
-	FileInputFormat.setInputPaths(conf, new Path(args[0]));
-	FileOutputFormat.setOutputPath(conf, new Path(args[1]));
-
-	JobClient.runJob(conf);
     }
 }
