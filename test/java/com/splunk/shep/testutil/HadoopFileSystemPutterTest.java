@@ -21,17 +21,6 @@ public class HadoopFileSystemPutterTest {
     private HadoopFileSystemPutter copier;
     private FileSystem fileSystem;
 
-    private Path hadoopDirectoryThatIsRemovedAfterTests = new Path(
-	    "/ShepTests/" + HadoopFileSystemPutterTest.class.getSimpleName());
-
-    private void deleteHadoopTestDirectory() {
-	try {
-	    fileSystem.delete(hadoopDirectoryThatIsRemovedAfterTests, true);
-	} catch (IOException e) {
-	    throw new RuntimeException(e);
-	}
-    }
-
     private File getTempFileThatIsAutomaticallyDeleted() {
 	File tempFile = getTempFile();
 	tempFile.deleteOnExit();
@@ -54,7 +43,20 @@ public class HadoopFileSystemPutterTest {
 
     @AfterTest(groups = { "fast" })
     public void tearDown() {
-	deleteHadoopTestDirectory();
+	deletePathWhereTestFilesArePut();
+    }
+
+    private void deletePathWhereTestFilesArePut() {
+	try {
+	    doDeletePathWhereTestFilesArePut();
+	} catch (IOException e) {
+	    throw new RuntimeException(e);
+	}
+    }
+
+    private void doDeletePathWhereTestFilesArePut() throws IOException {
+	Path filesDir = copier.getPathWhereMyFilesAreStored();
+	fileSystem.delete(filesDir, true);
     }
 
     @Test(groups = { "fast" })
