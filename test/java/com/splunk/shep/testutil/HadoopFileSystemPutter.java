@@ -71,13 +71,8 @@ public class HadoopFileSystemPutter {
 	}
     }
 
-    protected Path getPathWhereMyFilesAreStored() {
+    public Path getPathWhereMyFilesAreStored() {
 	return getSafePathForClassPuttingFile();
-    }
-
-    public static HadoopFileSystemPutter get(FileSystem fileSystem) {
-	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.get(),
-		MethodCallerHelper.get());
     }
 
     public void deleteMyFiles() {
@@ -91,5 +86,14 @@ public class HadoopFileSystemPutter {
     private void doDeleteMyFiles() throws IOException {
 	Path filesDir = getPathWhereMyFilesAreStored();
 	fileSystem.delete(filesDir, true);
+    }
+
+    public Path getPathForFile(File file) {
+	return getSafePathOnFileSystemForFile(file);
+    }
+
+    public static HadoopFileSystemPutter get(FileSystem fileSystem) {
+	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.get(),
+		MethodCallerHelper.get());
     }
 }
