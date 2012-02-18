@@ -200,6 +200,8 @@
 		<propertyref name="password" />
 		<propertyref name="inputhdfstesturi" />
 		<propertyref name="outputhdfstesturi" />
+		<propertyref name="splunk.username" />
+		<propertyref name="splunk.password" />
 		<propertyref name="splunk.home" />
 	</propertyset>
 
