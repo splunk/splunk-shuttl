@@ -49,7 +49,7 @@ public class WordCountTest {
 
     @AfterMethod(groups = { "slow" })
     public void tearDown() {
-	// putter.deleteMyFiles();
+	putter.deleteMyFiles();
     }
 
     @Parameters({ "splunk.username", "splunk.password" })
