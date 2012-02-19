@@ -1,0 +1,7 @@
+commons-configuration-1.6.jar
+commons-httpclient-3.1.jar
+commons-lang-2.4.jar
+commons-logging-1.1.1.jar
+hadoop-core-1.0.0.jar
+log4j-1.2.16.jar
+splunk-hadoop-connector-0.4.3.jar

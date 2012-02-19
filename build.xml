@@ -171,8 +171,9 @@
 		</javac>
 	</target>
 
-	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml">
+	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">
 		<ivy:retrieve />
+		<property name="isIvyResolved" value="true"/>
 	</target>
 
 	<target name="setup-ivy-xml">
@@ -187,7 +188,7 @@
 
 	<!-- run test via testNG -->
 	<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="ant.libs.classpath" />
-	<target name="test">
+	<target name="test" depends="compile">
 		<antcall target="fast-tests" />
 		<antcall target="slow-tests" />
 	</target>
@@ -662,7 +663,6 @@
 
 	<target name="copy-libs-to-stage-dir">
 		<antcall>
-			<target name="copy-hadoop-jars-to-stage-dir" />
 			<target name="copy-lib-jars-to-stage-dir" />
 		</antcall>
 	</target>
@@ -670,21 +670,6 @@
 	<target name="copy-lib-jars-to-stage-dir">
 		<copy todir="${stage.dir}/lib">
 			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar" />
-		</copy>
-	</target>
-
-	<target name="copy-hadoop-jars-to-stage-dir" depends="hadoop-prepare-build-cache">
-		<copy todir="${stage.dir}/lib">
-			<fileset dir="${hadoop.extracted.path}" includes="hadoop-core-*.jar" />
-		</copy>
-		<copy todir="${stage.dir}/lib">
-			<fileset dir="${hadoop.extracted.path}/lib" includes="commons-configuration-*.jar" />
-		</copy>
-		<copy todir="${stage.dir}/lib">
-			<fileset dir="${hadoop.extracted.path}/lib" includes="commons-lang-*.jar" />
-		</copy>
-		<copy todir="${stage.dir}/lib">
-			<fileset dir="${hadoop.extracted.path}/lib" includes="commons-logging-1.*.jar" />
 		</copy>
 	</target>
 

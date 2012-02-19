@@ -35,7 +35,6 @@ import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.Args;
-import com.splunk.Job;
 import com.splunk.Service;
 
 /**

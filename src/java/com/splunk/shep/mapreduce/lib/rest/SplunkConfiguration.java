@@ -15,6 +15,11 @@
 
 package com.splunk.shep.mapreduce.lib.rest;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.log4j.Logger;
 
@@ -25,9 +30,10 @@ import org.apache.log4j.Logger;
  */
 public class SplunkConfiguration {
 
-    // hadoop job keys
+    public static final String SPLUNKHOST = "splunk.host";
+    public static final String SPLUNKINDEX = "splunk.index";
+    public static final String SPLUNKSOURCETYPE = "splunk.sourcetype";
     public static final String INDEXBYHOST = "INDEXBYHOST";
-    public final static String SPLUNKHOST = "splunk.host";
     public final static String SPLUNKPORT = "splunk.port";
     public final static String USERNAME = "username";
     public final static String PASSWORD = "password";
@@ -37,9 +43,25 @@ public class SplunkConfiguration {
     public final static String TIMEFORMAT = "time_format";
     public final static String NUMSPLITS = "numsplits";
     public final static String SPLUNKEVENTREADER = "splunkeventreader";
+    public final static String SPLUNK_SEARCH_URL = "/servicesNS/admin/search/search/jobs/export";
     public final static String INDEXHOST = "indexhost";
 
+    public final static String SPLUNKDEFAULTSOURCETYPE = "hadoop_event";
+    public final static String SPLUNKDEFAULTINDEX = "main";
+    public final static String SPLUNKDEFAULTHOST = "localhost";
+    public final static int SPLUNKDEFAULTPORT = 8089;
+
+    private String host = SPLUNKDEFAULTHOST;
+    private String sourceType = SPLUNKDEFAULTSOURCETYPE;
+    private String splunkIndex = SPLUNKDEFAULTINDEX;
+    private int mgmtPort = SPLUNKDEFAULTPORT;
+
     private static Logger logger = Logger.getLogger(SplunkConfiguration.class);
+
+    public SplunkConfiguration(String confpath) throws FileNotFoundException,
+	    IOException {
+	parseConfig(confpath);
+    }
 
     /**
      * Method to convenienty set various connection parameters
@@ -59,6 +81,36 @@ public class SplunkConfiguration {
 	    String username, String password) {
 	job.set(SPLUNKHOST, host);
 	job.setInt(SPLUNKPORT, port);
+	job.set(USERNAME, username);
+	job.set(PASSWORD, password);
+	job.set(SPLUNKSOURCETYPE, SPLUNKDEFAULTSOURCETYPE);
+	job.set(SPLUNKINDEX, SPLUNKDEFAULTINDEX);
+    }
+
+    public static void setConnInfo(JobConf job, String username, String password) {
+	job.set(SPLUNKHOST, SPLUNKDEFAULTHOST);
+	job.setInt(SPLUNKPORT, SPLUNKDEFAULTPORT);
+	job.set(USERNAME, username);
+	job.set(PASSWORD, password);
+	job.set(SPLUNKSOURCETYPE, SPLUNKDEFAULTSOURCETYPE);
+	job.set(SPLUNKINDEX, SPLUNKDEFAULTINDEX);
+    }
+
+    public static void setJobConf(JobConf job, String host, int port,
+	    String sourcetype, String index, String username, String password) {
+	job.set(SPLUNKHOST, host);
+	job.setInt(SPLUNKPORT, port);
+	job.set(USERNAME, username);
+	job.set(PASSWORD, password);
+	job.set(SPLUNKSOURCETYPE, sourcetype);
+	job.set(SPLUNKINDEX, index);
+    }
+
+    public void setJobConf(JobConf job, String username, String password) {
+	job.set(SPLUNKHOST, host);
+	job.set(SPLUNKSOURCETYPE, sourceType);
+	job.set(SPLUNKINDEX, splunkIndex);
+	job.setInt(SPLUNKPORT, mgmtPort);
 	job.set(USERNAME, username);
 	job.set(PASSWORD, password);
     }
@@ -97,4 +149,32 @@ public class SplunkConfiguration {
 	    }
 	}
     }
+
+    protected void parseConfig(String confpath) throws FileNotFoundException,
+	    IOException {
+	Properties prop = new Properties();
+	prop.load(new FileInputStream(confpath));
+
+	String hostname = prop.getProperty("host");
+	String srctype = prop.getProperty("sourcetype");
+	String index = prop.getProperty("index");
+	String port = prop.getProperty("port");
+
+	if (hostname != null) {
+	    host = hostname;
+	}
+
+	if (srctype != null) {
+	    sourceType = srctype;
+	}
+
+	if (index != null) {
+	    splunkIndex = index;
+	}
+
+	if (port != null) {
+	    mgmtPort = Integer.parseInt(port);
+	}
+    }
+
 }

@@ -15,13 +15,12 @@
 
 package com.splunk.shep.mapreduce.lib.rest;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.Socket;
 import java.util.Date;
-
-import com.splunk.Args;
-import com.splunk.Index;
-import com.splunk.Service;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapred.JobConf;
@@ -30,6 +29,10 @@ import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.Progressable;
 import org.apache.log4j.Logger;
+
+import com.splunk.Args;
+import com.splunk.Index;
+import com.splunk.Service;
 
 /**
  * An OutputFormat that send reduce output to Splunk as a simple event with
@@ -42,7 +45,12 @@ import org.apache.log4j.Logger;
  */
 
 public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
-    private static final String HADOOP_EVENT = "hadoop_event";
+    private static final String SPLUNK_SMPLRCVR_ENDPT = "/services/receivers/simple";
+    private static final int SPLUNK_MGMTPORT_DEFAULT = SplunkConfiguration.SPLUNKDEFAULTPORT;
+    private static final String HADOOP_EVENT = "hadoop_event"; // event can be
+							       // configured on
+							       // the Splunk
+							       // side
     public final static String SPLUNKHOST = SplunkConfiguration.SPLUNKHOST;
     public final static String SPLUNKPORT = SplunkConfiguration.SPLUNKPORT;
     public final static String USERNAME = SplunkConfiguration.USERNAME;
