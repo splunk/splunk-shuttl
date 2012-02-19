@@ -20,6 +20,10 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextInputFormat;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
+import org.testng.annotations.Test;
 
 import com.splunk.shep.mapreduce.lib.rest.tests.WordCount;
 import com.splunk.shep.testutil.FileSystemUtils;
@@ -37,22 +41,21 @@ public class WordCountTest {
 	return new File(pathToFileWithTestInput);
     }
 
-    // @Parameters({ "inputhdfstesturi" })
-    // @BeforeTest(groups = { "slow" })
+    @BeforeMethod(groups = { "slow" })
     public void setUp() {
 	FileSystem fileSystem = FileSystemUtils.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.get(fileSystem);
     }
 
-    // @AfterTest(groups = { "slow" })
+    @AfterMethod(groups = { "slow" })
     public void tearDown() {
 	// putter.deleteMyFiles();
     }
 
-    // @Parameters({ "splunk.username", "splunk.password", "splunk.home" })
-    // @Test(groups = { "slow" })
-    public void fileCheck(String splunkUsername, String splunkPassword,
-	    String splunkHome) throws IOException {
+    @Parameters({ "splunk.username", "splunk.password" })
+    @Test(groups = { "slow" })
+    public void fileCheck(String splunkUsername, String splunkPassword)
+	    throws IOException {
 	JobConf conf = new JobConf(WordCount.class);
 	conf.setJobName("hadoopunittest1");
 	SplunkConfiguration.setConnInfo(conf, "localhost", 8089,
