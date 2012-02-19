@@ -12,6 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package com.splunk.shep.mapreduce.lib.rest;
 
 import java.io.IOException;
@@ -33,20 +34,22 @@ import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
 
-public class SplunkEventsInputFormat extends FileInputFormat<LongWritable, Text>
-	implements JobConfigurable {
+public class SplunkEventsInputFormat extends
+	FileInputFormat<LongWritable, Text> implements JobConfigurable {
     private static Logger logger = Logger
 	    .getLogger(SplunkEventsInputFormat.class);
 
     public RecordReader<LongWritable, Text> getRecordReader(
 	    InputSplit genericSplit, JobConf job, Reporter reporter)
 	    throws IOException {
+
 	reporter.setStatus(genericSplit.toString());
 	return new SplunkJsonRecordReader((FileSplit) genericSplit, job);
     }
 
     public class SplunkJsonRecordReader implements
 	    RecordReader<LongWritable, Text> {
+
 	FSDataInputStream fis;
 	long splitsize;
 	DataOutputBuffer buffer = new DataOutputBuffer();
@@ -98,20 +101,19 @@ public class SplunkEventsInputFormat extends FileInputFormat<LongWritable, Text>
 	public InputSplit[] getSplits(JobConf job, int numSplits)
 		throws IOException {
 	    ArrayList<FileSplit> splits = new ArrayList<FileSplit>();
-    	    for (FileStatus status : listStatus(job)) {
-    		Path fileName = status.getPath();
-    		if (status.isDir()) {
-    		    throw new IOException("Not a file: " + fileName);
-    		}
+	    for (FileStatus status : listStatus(job)) {
+		Path fileName = status.getPath();
+		if (status.isDir()) {
+		    throw new IOException("Not a file: " + fileName);
+		}
 		logger.trace("Adding split: " + fileName);
-    		splits.add(new FileSplit(fileName, 0, status.getLen(),
-    				    new String[] {}));
-    	    }
+		splits.add(new FileSplit(fileName, 0, status.getLen(),
+			new String[] {}));
+	    }
 	    return splits.toArray(new FileSplit[splits.size()]);
 	}
     }
 
     public void configure(JobConf conf) {
     }
-
 }

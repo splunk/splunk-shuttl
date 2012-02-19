@@ -37,33 +37,26 @@ import com.splunk.shep.mapreduce.lib.rest.util.ReaderWrapper;
  * This returns the results of a splunk search as a map of name-value pairs
  * 
  * @author kpakkirisamy
- * 
  */
 public class SplunkXMLStream {
     static final String RESULT = "result";
     static final String FIELD = "field";
     static final String KEY = "k";
-    static final String VALUE = "value";
     static final String V = "v";
     static final String TEXT = "text";
-    static final String RAW = "raw";
-    private InputStream in = null;
-    private XMLInputFactory inputFactory;
     private XMLEventReader eventReader;
 
     private static Logger logger = Logger.getLogger(SplunkXMLStream.class);
 
     public SplunkXMLStream(InputStream in) throws Exception {
-	this.in = in;
-	this.inputFactory = XMLInputFactory.newInstance();
-	this.inputFactory.setProperty(XMLInputFactory.IS_COALESCING, true);
-	this.inputFactory.setProperty(XMLInputFactory.IS_VALIDATING,
-		Boolean.FALSE);
+	XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+	inputFactory.setProperty(XMLInputFactory.IS_COALESCING, true);
+	inputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
 	// create a wrapped reader to inject a SplunkResult root element
 	String prefix = "<?xml version='1.0' encoding='UTF-8'?> <SplunkResult>";
 	String suffix = "</SplunkResult>";
 	ReaderWrapper readerWrapper = new ReaderWrapper(prefix, suffix);
-	readerWrapper.wrapReader(new InputStreamReader(this.in));
+	readerWrapper.wrapReader(new InputStreamReader(in));
 	this.eventReader = inputFactory.createXMLEventReader(readerWrapper);
     }
 
@@ -106,11 +99,11 @@ public class SplunkXMLStream {
 		    }
 		}
 		if (event.isEndElement()) { // If we reach the end of a result
-					    // element we return
+		    // element we return
 		    EndElement endElement = event.asEndElement();
 		    logger.trace("endElement "
 			    + endElement.getName().getLocalPart());
-		    if (endElement.getName().getLocalPart() == (RESULT)) {
+		    if (endElement.getName().getLocalPart().equals(RESULT)) {
 			if (map.isEmpty()) {
 			    // other empty results element
 			    return null;
