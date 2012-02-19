@@ -12,6 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package com.splunk.shep.mapreduce.lib.rest;
 
 import java.io.IOException;
@@ -41,12 +42,14 @@ public class SplunkEventsInputFormat extends
     public RecordReader<LongWritable, Text> getRecordReader(
 	    InputSplit genericSplit, JobConf job, Reporter reporter)
 	    throws IOException {
+
 	reporter.setStatus(genericSplit.toString());
 	return new SplunkJsonRecordReader((FileSplit) genericSplit, job);
     }
 
     public class SplunkJsonRecordReader implements
 	    RecordReader<LongWritable, Text> {
+
 	FSDataInputStream fis;
 	long splitsize;
 	DataOutputBuffer buffer = new DataOutputBuffer();
@@ -113,5 +116,4 @@ public class SplunkEventsInputFormat extends
 
     public void configure(JobConf conf) {
     }
-
 }

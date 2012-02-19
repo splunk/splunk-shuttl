@@ -13,6 +13,7 @@
 	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-core-1.0.0.jar"/>
+	<classpathentry kind="lib" path="contrib/splunk-sdk/splunk.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-asl-1.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-all-server-8.0.4.v20111024.jar"/>

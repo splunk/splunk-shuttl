@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
  * Convenience methods to configure for Splunk access
  * 
  * @author kpakkirisamy
- * 
  */
 public class SplunkConfiguration {
 
@@ -39,9 +38,6 @@ public class SplunkConfiguration {
     public final static String USERNAME = "username";
     public final static String PASSWORD = "password";
     public final static String QUERY = "search";
-    public final static String SEARCHSTR = "search "; // part of the search
-						      // query over the REST
-						      // interface
     public final static String STARTTIME = "earliest_time";
     public final static String ENDTIME = "latest_time";
     public final static String TIMEFORMAT = "time_format";
@@ -80,7 +76,6 @@ public class SplunkConfiguration {
      *            Splunk User name
      * @param password
      *            Splunk password
-     * 
      */
     public static void setConnInfo(JobConf job, String host, int port,
 	    String username, String password) {
@@ -120,23 +115,6 @@ public class SplunkConfiguration {
 	job.set(PASSWORD, password);
     }
 
-    @Deprecated
-    public static void setSplunkQuery(JobConf job, String query,
-	    String timeformat, String times[][]) {
-	logger.trace("query " + query + " num of splits " + times.length);
-	job.set(QUERY, query);
-	job.set(TIMEFORMAT, timeformat);
-	job.setInt(NUMSPLITS, times.length);
-	for (int i = 0; i < times.length; i++) {
-	    if (times[i].length > 0) {
-		job.set(STARTTIME + i, times[i][0]);
-		if (times[i].length > 1) {
-		    job.set(ENDTIME + i, times[i][1]);
-		}
-	    }
-	}
-    }
-
     /**
      * Method to specify the Splunk search query
      * 
@@ -146,7 +124,6 @@ public class SplunkConfiguration {
      *            Splunk search query string
      * @param indexers
      *            Array of Splunk Indexer host names
-     * 
      */
     public static void setSplunkQueryByIndexers(JobConf job, String query,
 	    String indexers[]) {
@@ -164,6 +141,7 @@ public class SplunkConfiguration {
 		job.set(INDEXHOST + i, indexers[i]);
 	    }
 	}
+
 	// distribute the splits across the indexers
 	if (numsplits > indexers.length) {
 	    for (int i = indexers.length; i < numsplits; i++) {
