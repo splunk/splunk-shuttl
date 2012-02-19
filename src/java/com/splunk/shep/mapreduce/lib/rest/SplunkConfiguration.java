@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Convenience methods to configure for Splunk access
- *
+ * 
  * @author kpakkirisamy
  */
 public class SplunkConfiguration {
@@ -43,50 +43,58 @@ public class SplunkConfiguration {
 
     /**
      * Method to convenienty set various connection parameters
-     *
-     * @param job      Job Configuration
-     * @param host     Splunk Host name
-     * @param port     Splunk Management port
-     * @param username Splunk User name
-     * @param password Splunk password
+     * 
+     * @param job
+     *            Job Configuration
+     * @param host
+     *            Splunk Host name
+     * @param port
+     *            Splunk Management port
+     * @param username
+     *            Splunk User name
+     * @param password
+     *            Splunk password
      */
     public static void setConnInfo(JobConf job, String host, int port,
-                                   String username, String password) {
-        job.set(SPLUNKHOST, host);
-        job.setInt(SPLUNKPORT, port);
-        job.set(USERNAME, username);
-        job.set(PASSWORD, password);
+	    String username, String password) {
+	job.set(SPLUNKHOST, host);
+	job.setInt(SPLUNKPORT, port);
+	job.set(USERNAME, username);
+	job.set(PASSWORD, password);
     }
 
     /**
      * Method to specify the Splunk search query
-     *
-     * @param job      Job Configuration
-     * @param query    Splunk search query string
-     * @param indexers Array of Splunk Indexer host names
+     * 
+     * @param job
+     *            Job Configuration
+     * @param query
+     *            Splunk search query string
+     * @param indexers
+     *            Array of Splunk Indexer host names
      */
     public static void setSplunkQueryByIndexers(JobConf job, String query,
-                                                           String indexers[]) {
-        setSplunkQueryByIndexers(job, query, indexers, indexers.length);
+	    String indexers[]) {
+	setSplunkQueryByIndexers(job, query, indexers, indexers.length);
     }
 
     private static void setSplunkQueryByIndexers(JobConf job, String query,
-                                            String indexers[], int numsplits) {
-        logger.trace("query " + query + " num of splits " + indexers.length);
-        job.set(QUERY, query);
-        job.setInt(INDEXBYHOST, 1);
-        job.setInt(NUMSPLITS, numsplits);
-        for (int i = 0; i < indexers.length; i++) {
-            if (indexers.length > 0) {
-                job.set(INDEXHOST + i, indexers[i]);
-            }
-        }
+	    String indexers[], int numsplits) {
+	logger.trace("query " + query + " num of splits " + indexers.length);
+	job.set(QUERY, query);
+	job.setInt(INDEXBYHOST, 1);
+	job.setInt(NUMSPLITS, numsplits);
+	for (int i = 0; i < indexers.length; i++) {
+	    if (indexers.length > 0) {
+		job.set(INDEXHOST + i, indexers[i]);
+	    }
+	}
 
-        // distribute the splits across the indexers
-        if (numsplits > indexers.length) {
-            for (int i = indexers.length; i < numsplits; i++) {
-                job.set(INDEXHOST + i, indexers[i % indexers.length]);
-            }
-        }
+	// distribute the splits across the indexers
+	if (numsplits > indexers.length) {
+	    for (int i = indexers.length; i < numsplits; i++) {
+		job.set(INDEXHOST + i, indexers[i % indexers.length]);
+	    }
+	}
     }
 }

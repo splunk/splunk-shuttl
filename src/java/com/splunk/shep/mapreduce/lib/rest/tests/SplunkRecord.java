@@ -29,20 +29,20 @@ public class SplunkRecord implements Writable, SplunkWritable {
 
     @Override
     public void setMap(Map<String, String> m) {
-	    this.map = m;
+	this.map = m;
     }
 
     public Map<String, String> getMap() {
-	    return this.map;
+	return this.map;
     }
 
     @Override
     public void readFields(DataInput arg0) throws IOException {
-	    // TODO Auto-generated method stub
+	// TODO Auto-generated method stub
     }
 
     @Override
     public void write(DataOutput arg0) throws IOException {
-    	// TODO Auto-generated method stub
+	// TODO Auto-generated method stub
     }
 }

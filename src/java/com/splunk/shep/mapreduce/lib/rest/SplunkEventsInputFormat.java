@@ -34,84 +34,84 @@ import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
 
-public class SplunkEventsInputFormat extends FileInputFormat<LongWritable, Text>
-        implements JobConfigurable {
-    private static Logger logger = Logger.
-            getLogger(SplunkEventsInputFormat.class);
+public class SplunkEventsInputFormat extends
+	FileInputFormat<LongWritable, Text> implements JobConfigurable {
+    private static Logger logger = Logger
+	    .getLogger(SplunkEventsInputFormat.class);
 
     public RecordReader<LongWritable, Text> getRecordReader(
-            InputSplit genericSplit, JobConf job, Reporter reporter)
-            throws IOException {
+	    InputSplit genericSplit, JobConf job, Reporter reporter)
+	    throws IOException {
 
-        reporter.setStatus(genericSplit.toString());
-        return new SplunkJsonRecordReader((FileSplit) genericSplit, job);
+	reporter.setStatus(genericSplit.toString());
+	return new SplunkJsonRecordReader((FileSplit) genericSplit, job);
     }
 
-    public class SplunkJsonRecordReader
-            implements RecordReader<LongWritable, Text> {
+    public class SplunkJsonRecordReader implements
+	    RecordReader<LongWritable, Text> {
 
-        FSDataInputStream fis;
-        long splitsize;
-        DataOutputBuffer buffer = new DataOutputBuffer();
+	FSDataInputStream fis;
+	long splitsize;
+	DataOutputBuffer buffer = new DataOutputBuffer();
 
-        public SplunkJsonRecordReader(FileSplit split, JobConf jobConf)
-                throws IOException {
-            Path file = split.getPath();
-            this.splitsize = split.getLength();
-            FileSystem fs = file.getFileSystem(jobConf);
-            this.fis = fs.open(split.getPath());
-            logger.trace("Path: " + file);
-        }
+	public SplunkJsonRecordReader(FileSplit split, JobConf jobConf)
+		throws IOException {
+	    Path file = split.getPath();
+	    this.splitsize = split.getLength();
+	    FileSystem fs = file.getFileSystem(jobConf);
+	    this.fis = fs.open(split.getPath());
+	    logger.trace("Path: " + file);
+	}
 
-        public LongWritable createKey() {
-            return new LongWritable();
-        }
+	public LongWritable createKey() {
+	    return new LongWritable();
+	}
 
-        public Text createValue() {
-            return new Text();
-        }
+	public Text createValue() {
+	    return new Text();
+	}
 
-        public long getPos() throws IOException {
-            return this.fis.getPos();
-        }
+	public long getPos() throws IOException {
+	    return this.fis.getPos();
+	}
 
-        public void close() throws IOException {
-            this.fis.close();
-        }
+	public void close() throws IOException {
+	    this.fis.close();
+	}
 
-        public float getProgress() throws IOException {
-            return ((float) 0);
-        }
+	public float getProgress() throws IOException {
+	    return ((float) 0);
+	}
 
-        public boolean next(LongWritable key, Text value) throws IOException {
-            try {
-                key.set(this.fis.getPos());
-                String event = fis.readUTF();
-                if (event == null) {
-                    return false;
-                }
-                logger.trace("event: " + event);
-                value.set(event);
-            } catch (java.io.EOFException e) {
-                return false;
-            }
-            return true;
-        }
+	public boolean next(LongWritable key, Text value) throws IOException {
+	    try {
+		key.set(this.fis.getPos());
+		String event = fis.readUTF();
+		if (event == null) {
+		    return false;
+		}
+		logger.trace("event: " + event);
+		value.set(event);
+	    } catch (java.io.EOFException e) {
+		return false;
+	    }
+	    return true;
+	}
 
-        public InputSplit[] getSplits(JobConf job, int numSplits)
-                throws IOException {
-            ArrayList<FileSplit> splits = new ArrayList<FileSplit>();
-            for (FileStatus status : listStatus(job)) {
-                Path fileName = status.getPath();
-                if (status.isDir()) {
-                    throw new IOException("Not a file: " + fileName);
-                }
-                logger.trace("Adding split: " + fileName);
-                splits.add(new FileSplit(fileName, 0, status.getLen(),
-                        new String[]{}));
-            }
-            return splits.toArray(new FileSplit[splits.size()]);
-        }
+	public InputSplit[] getSplits(JobConf job, int numSplits)
+		throws IOException {
+	    ArrayList<FileSplit> splits = new ArrayList<FileSplit>();
+	    for (FileStatus status : listStatus(job)) {
+		Path fileName = status.getPath();
+		if (status.isDir()) {
+		    throw new IOException("Not a file: " + fileName);
+		}
+		logger.trace("Adding split: " + fileName);
+		splits.add(new FileSplit(fileName, 0, status.getLen(),
+			new String[] {}));
+	    }
+	    return splits.toArray(new FileSplit[splits.size()]);
+	}
     }
 
     public void configure(JobConf conf) {
