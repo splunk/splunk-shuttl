@@ -10,8 +10,8 @@ import java.io.IOException;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.testutil.HadoopFileSystemPutter.LocalFileNotFound;
@@ -35,13 +35,13 @@ public class HadoopFileSystemPutterTest {
 	}
     }
 
-    @BeforeTest(groups = { "fast" })
+    @BeforeMethod(groups = { "fast" })
     public void setUp() {
 	fileSystem = FileSystemUtils.getLocalFileSystem();
 	copier = HadoopFileSystemPutter.get(fileSystem);
     }
 
-    @AfterTest(groups = { "fast" })
+    @AfterMethod(groups = { "fast" })
     public void tearDown() {
 	copier.deleteMyFiles();
     }

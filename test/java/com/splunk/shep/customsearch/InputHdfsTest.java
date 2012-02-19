@@ -5,8 +5,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -41,7 +41,7 @@ public class InputHdfsTest extends SplunkHdfsTest {
     }
 
     @Parameters({ "inputhdfstesturi" })
-    @BeforeTest(groups = { "slow" })
+    @BeforeMethod(groups = { "slow" })
     public void beforeTest(String uri) {
 	this.testuri = uri;
 	StringBuffer msg = new StringBuffer();
@@ -57,7 +57,7 @@ public class InputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
-    @AfterTest(groups = { "slow" })
+    @AfterMethod(groups = { "slow" })
     public void afterTest() {
 	try {
 	    deleteFileinHDFS(testuri);

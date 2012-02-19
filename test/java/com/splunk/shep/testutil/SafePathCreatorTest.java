@@ -4,14 +4,14 @@ import static org.testng.Assert.assertEquals;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class SafePathCreatorTest {
 
     SafePathCreator safePathCreator;
 
-    @BeforeTest(groups = { "fast" })
+    @BeforeMethod(groups = { "fast" })
     public void setUp() {
 	safePathCreator = SafePathCreator.get();
     }

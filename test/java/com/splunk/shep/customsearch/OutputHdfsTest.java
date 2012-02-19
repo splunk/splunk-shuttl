@@ -2,8 +2,8 @@ package com.splunk.shep.customsearch;
 
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -35,7 +35,7 @@ public class OutputHdfsTest extends SplunkHdfsTest {
     }
 
     @Parameters({ "outputhdfstesturi" })
-    @BeforeTest(groups = { "slow" })
+    @BeforeMethod(groups = { "slow" })
     public void beforeTest(String uri) {
 	System.out.println("uri: " + uri);
 	this.testuri = uri;
@@ -46,7 +46,7 @@ public class OutputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
-    @AfterTest(groups = { "slow" })
+    @AfterMethod(groups = { "slow" })
     public void afterTest() {
 	try {
 	    deleteFileinHDFS(this.testuri);
