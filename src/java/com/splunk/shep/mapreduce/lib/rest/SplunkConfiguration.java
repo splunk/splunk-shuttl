@@ -62,8 +62,8 @@ public class SplunkConfiguration {
 
     private static Logger logger = Logger.getLogger(SplunkConfiguration.class);
 
-    public SplunkConfiguration(String confpath)
-	    throws FileNotFoundException, IOException {
+    public SplunkConfiguration(String confpath) throws FileNotFoundException,
+	    IOException {
 	parseConfig(confpath);
     }
 
@@ -111,8 +111,7 @@ public class SplunkConfiguration {
 	job.set(SPLUNKINDEX, index);
     }
 
-    public void setJobConf(JobConf job, String username,
-	    String password) {
+    public void setJobConf(JobConf job, String username, String password) {
 	job.set(SPLUNKHOST, host);
 	job.set(SPLUNKSOURCETYPE, sourceType);
 	job.set(SPLUNKINDEX, splunkIndex);

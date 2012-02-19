@@ -33,8 +33,8 @@ import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
 
-public class SplunkEventsInputFormat extends FileInputFormat<LongWritable, Text>
-	implements JobConfigurable {
+public class SplunkEventsInputFormat extends
+	FileInputFormat<LongWritable, Text> implements JobConfigurable {
     private static Logger logger = Logger
 	    .getLogger(SplunkEventsInputFormat.class);
 
@@ -98,15 +98,15 @@ public class SplunkEventsInputFormat extends FileInputFormat<LongWritable, Text>
 	public InputSplit[] getSplits(JobConf job, int numSplits)
 		throws IOException {
 	    ArrayList<FileSplit> splits = new ArrayList<FileSplit>();
-    	    for (FileStatus status : listStatus(job)) {
-    		Path fileName = status.getPath();
-    		if (status.isDir()) {
-    		    throw new IOException("Not a file: " + fileName);
-    		}
+	    for (FileStatus status : listStatus(job)) {
+		Path fileName = status.getPath();
+		if (status.isDir()) {
+		    throw new IOException("Not a file: " + fileName);
+		}
 		logger.trace("Adding split: " + fileName);
-    		splits.add(new FileSplit(fileName, 0, status.getLen(),
-    				    new String[] {}));
-    	    }
+		splits.add(new FileSplit(fileName, 0, status.getLen(),
+			new String[] {}));
+	    }
 	    return splits.toArray(new FileSplit[splits.size()]);
 	}
     }
