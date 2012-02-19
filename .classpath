@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-core-1.0.0.jar"/>
+	<classpathentry kind="lib" path="contrib/splunk-sdk/splunk.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
