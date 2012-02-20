@@ -1,0 +1,1 @@
+This tests the ShepForwarderRest endpoint and the dependent MBean ShepForwarder. Assumption/based on default values in ForwarderConf.xml.
