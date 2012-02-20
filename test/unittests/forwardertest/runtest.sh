@@ -30,7 +30,7 @@ if [ "$search" = "" ]; then
   $SPLUNK add oneshot $script_dir/testdata-ts
 fi
 
-sleep 15 
+sleep  30
 
 # Test
 
