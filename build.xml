@@ -537,7 +537,7 @@
 
 	<target name="splunk-stop">
 		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="stop" />
+			<arg line="stop -f" />
 		</exec>
 	</target>
 
