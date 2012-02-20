@@ -62,32 +62,38 @@ public class WordCountTest {
 	putter.deleteMyFiles();
     }
 
-    @Parameters({ "splunk.username", "splunk.password" })
+    private SplunkParameters testParameters;
+
+    @Parameters({ "splunk.username", "splunk.password", "splunk.host",
+	    "splunk.mgmtport" })
     @Test(groups = { "slow" })
     public void should_putDataInSplunk_when_runningAMapReduceJob_with_SplunkOutputFormat(
-	    String splunkUsername, String splunkPassword) {
+	    String splunkUsername, String splunkPassword, String splunkHost,
+	    String splunkMGMTPort) {
+	testParameters = new SplunkParameters(splunkUsername, splunkPassword,
+		splunkHost, splunkMGMTPort);
 	// Run hadoop
-	runHadoopWordCount(splunkUsername, splunkPassword);
+	runHadoopWordCount();
 
 	// Verify in splunk
-	verifySplunk(splunkUsername, splunkPassword);
+	verifySplunk();
     }
 
     /**
      * Hadoop MapReduce job -->
      */
-    private void runHadoopWordCount(String splunkUsername, String splunkPassword) {
-	JobConf mapReduceJob = getConfiguredJob(splunkUsername, splunkPassword);
+    private void runHadoopWordCount() {
+	JobConf mapReduceJob = getConfiguredJob();
 	configureJobInputAndOutputPaths(mapReduceJob);
 	runJob(mapReduceJob);
     }
 
-    private JobConf getConfiguredJob(String splunkUsername,
-	    String splunkPassword) {
+    private JobConf getConfiguredJob() {
 	JobConf conf = new JobConf(WordCountTest.class);
 	conf.setJobName(SOURCE);
-	SplunkConfiguration.setConnInfo(conf, "localhost", 8089,
-		splunkUsername, splunkPassword);
+	SplunkConfiguration.setConnInfo(conf, testParameters.host,
+		testParameters.mgmtPort, testParameters.username,
+		testParameters.password);
 
 	conf.setOutputKeyClass(Text.class);
 	conf.setOutputValueClass(IntWritable.class);
@@ -132,18 +138,15 @@ public class WordCountTest {
     /**
      * Splunk verification -->
      */
-    private void verifySplunk(String splunkUsername, String splunkPassword) {
-	List<String> searchResults = getSearchResultsFromSplunk(splunkUsername,
-		splunkPassword);
+    private void verifySplunk() {
+	List<String> searchResults = getSearchResultsFromSplunk();
 	assertFalse(searchResults.isEmpty());
 	verifyWordCountInSearchResults(searchResults);
     }
 
-    private List<String> getSearchResultsFromSplunk(String splunkUsername,
-	    String splunkPassword) {
-	// TODO: OMG! LOCALHOST AND PORT MUST BE CONFIGURED!
-	Service service = getLoggedInSplunkService(splunkUsername,
-		splunkPassword);
+    private List<String> getSearchResultsFromSplunk() {
+	Service service = getLoggedInSplunkService(testParameters.username,
+		testParameters.password);
 	Job search = startSearch(service);
 	waitWhileSearchFinishes(search);
 	InputStream results = search.getResults();
@@ -152,7 +155,8 @@ public class WordCountTest {
 
     private Service getLoggedInSplunkService(String splunkUsername,
 	    String splunkPassword) {
-	Service service = new Service("localhost", 8089);
+	Service service = new Service(testParameters.host,
+		testParameters.mgmtPort);
 	service.login(splunkUsername, splunkPassword);
 	return service;
     }
@@ -237,6 +241,24 @@ public class WordCountTest {
 	    }
 	    output.collect(key, new IntWritable(sum));
 
+	}
+    }
+
+    /**
+     * Container for the parameters passed to the test.
+     */
+    private static class SplunkParameters {
+	public final String username;
+	public final String password;
+	public final String host;
+	public final int mgmtPort;
+
+	public SplunkParameters(String username, String password, String host,
+		String mgmtPort) {
+	    this.username = username;
+	    this.password = password;
+	    this.host = host;
+	    this.mgmtPort = Integer.parseInt(mgmtPort);
 	}
     }
 }

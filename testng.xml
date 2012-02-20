@@ -3,6 +3,8 @@
 <suite name="Suite" parallel="none">
   <parameter name="splunk.username"  value="admin"/>
   <parameter name="splunk.password"  value="changeme"/>
+  <parameter name="splunk.host"  value="localhost"/>
+  <parameter name="splunk.mgmtport"  value="8089"/>
 
   <test name="Test" preserve-order="true">
     <classes>
