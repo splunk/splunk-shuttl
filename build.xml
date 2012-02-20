@@ -537,6 +537,12 @@
 		</exec>
 	</target>
 
+	<target name="splunk-start-splunkweb" depends="set-splunk-home">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="start splunkweb" />
+		</exec>
+	</target>
+
 	<target name="splunk-stop">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="stop -f" />
