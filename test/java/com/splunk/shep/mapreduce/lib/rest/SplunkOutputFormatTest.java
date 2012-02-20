@@ -165,7 +165,7 @@ public class SplunkOutputFormatTest {
 
     private void waitWhileSearchFinishes(Job job) {
 	while (!job.isDone()) {
-	    sleep(10);
+	    sleep(20);
 	    job.refresh();
 	}
     }
