@@ -85,7 +85,6 @@ public class SplunkEventReader {
 	}
     }
 
-
     public static void main(String[] args) throws Exception {
 	JobConf conf = new JobConf(WikiLinkCount.class);
 	conf.setJobName("SplunkEventReader");
@@ -96,7 +95,6 @@ public class SplunkEventReader {
 
 	conf.setInputFormat(com.splunk.shep.mapreduce.lib.rest.SplunkEventsInputFormat.class);
 	conf.setOutputFormat(TextOutputFormat.class);
-
 
 	FileInputFormat.setInputPaths(conf, new Path(args[0]));
 	FileOutputFormat.setOutputPath(conf, new Path(args[1]));

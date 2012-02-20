@@ -25,7 +25,5 @@ import java.util.Map;
  * 
  */
 public interface SplunkWritable {
-
     public void setMap(Map<String, String> m);
-
 }

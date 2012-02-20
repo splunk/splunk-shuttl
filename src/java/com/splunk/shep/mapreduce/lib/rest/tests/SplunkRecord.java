@@ -39,12 +39,10 @@ public class SplunkRecord implements Writable, SplunkWritable {
     @Override
     public void readFields(DataInput arg0) throws IOException {
 	// TODO Auto-generated method stub
-
     }
 
     @Override
     public void write(DataOutput arg0) throws IOException {
 	// TODO Auto-generated method stub
-
     }
 }

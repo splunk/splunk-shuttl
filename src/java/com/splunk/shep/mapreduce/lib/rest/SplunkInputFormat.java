@@ -18,10 +18,7 @@ package com.splunk.shep.mapreduce.lib.rest;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -35,21 +32,10 @@ import org.apache.hadoop.mapred.JobConfigurable;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.ReflectionUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URIUtils;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 
-import com.splunk.shep.mapreduce.lib.rest.util.HttpClientUtils;
+import com.splunk.Args;
+import com.splunk.Service;
 
 /**
  * This InputFormat uses a search to pull data from Splunk No progress is
@@ -62,165 +48,106 @@ import com.splunk.shep.mapreduce.lib.rest.util.HttpClientUtils;
  */
 public class SplunkInputFormat<V extends SplunkWritable> implements
 	InputFormat<LongWritable, V>, JobConfigurable {
-    private static Logger logger = logger = Logger
-	    .getLogger(SplunkInputFormat.class);
+    private static Logger logger = Logger.getLogger(SplunkInputFormat.class);
 
     protected class SplunkRecordReader implements RecordReader<LongWritable, V> {
 	private Class<V> inputClass;
 	private JobConf job;
 	private SplunkInputSplit split;
-	private HttpClient httpclient = null;
 	private long pos = 0;
 	private SplunkXMLStream parser = null;
-	private String host;
-	private ArrayList<NameValuePair> qparams;
+	private Service service;
+	private Args queryArgs;
+	private InputStream stream;
 
 	/**
 	 * @param split
 	 *            The InputSplit to read data for
-	 * @throws SQLException
+	 * @param inputClass
+	 *            input class
+	 * @param job
+	 *            Hadoop job
 	 */
 	protected SplunkRecordReader(SplunkInputSplit split,
-		Class<V> inputClass, JobConf job, HttpClient httpClient) {
+		Class<V> inputClass, JobConf job) {
 	    this.inputClass = inputClass;
 	    this.split = split;
-	    this.host = split.getHost();
 	    this.job = job;
+	    queryArgs = new Args();
 	    logger.trace("split id " + split.getId());
-	    this.httpclient = httpClient;
-	    this.qparams = new ArrayList<NameValuePair>();
+	    configureCredentials();
+	    addQueryParameters();
 	    initRecordReader();
 	}
 
 	private void initRecordReader() {
-	    configureCredentials();
-	    addQParams();
-	    HttpResponse response = executeHttpGetRequest();
-	    setParserWithHttpResponse(response);
-	}
-
-	private void setParserWithHttpResponse(HttpResponse response) {
-	    if (isOKHttpRequestStatus(response))
-		this.parser = getSplunkXMLStream(response);
-	    else
-		throw new RuntimeException("Bad Status:"
-			+ response.getStatusLine());
+	    String searchString = job.get(SplunkConfiguration.QUERY);
+	    if (!searchString.contains("search")) {
+		searchString = "search " + searchString;
+	    }
+	    stream = service.export(searchString, queryArgs);
 	}
 
 	private void configureCredentials() {
-	    ((AbstractHttpClient) httpclient).getCredentialsProvider()
-		    .setCredentials(
-			    new AuthScope(host, job.getInt(
-				    SplunkConfiguration.SPLUNKPORT,
-				    SplunkConfiguration.SPLUNKDEFAULTPORT)),
-			    new UsernamePasswordCredentials(job
-				    .get(SplunkConfiguration.USERNAME), job
-				    .get(SplunkConfiguration.PASSWORD)));
+	    Args args = new Args();
+	    args.put("username", job.get(SplunkConfiguration.USERNAME));
+	    args.put("password", job.get(SplunkConfiguration.PASSWORD));
+	    args.put("host", job.get(SplunkConfiguration.SPLUNKHOST));
+	    args.put("port", job.getInt(SplunkConfiguration.SPLUNKPORT, 8089));
+	    service = Service.connect(args);
 	}
 
-	private void addQParams() {
-	    // keys itself are the exact strings to be passed to Splunk
-	    qparams.add(new BasicNameValuePair(SplunkConfiguration.QUERY,
-		    SplunkConfiguration.SEARCHSTR
-			    + job.get(SplunkConfiguration.QUERY)));
+	private void addQueryParameters() {
 	    if (job.getInt(SplunkConfiguration.INDEXBYHOST, 0) == 0) {
-		qparams.add(new BasicNameValuePair(
-			SplunkConfiguration.TIMEFORMAT, job
-				.get(SplunkConfiguration.TIMEFORMAT)));
-		if (job.get(SplunkConfiguration.STARTTIME + split.getId()) != null) {
-		    qparams.add(new BasicNameValuePair(
-			    SplunkConfiguration.STARTTIME, job
-				    .get(SplunkConfiguration.STARTTIME
-					    + split.getId())));
-		}
-		if (job.get(SplunkConfiguration.ENDTIME + split.getId()) != null) {
-		    qparams.add(new BasicNameValuePair(
-			    SplunkConfiguration.ENDTIME, job
-				    .get(SplunkConfiguration.ENDTIME
-					    + split.getId())));
-		}
+		queryArgs.put(SplunkConfiguration.TIMEFORMAT,
+			job.get(SplunkConfiguration.TIMEFORMAT));
+	    }
+	    if (job.get(SplunkConfiguration.STARTTIME + split.getId()) != null) {
+		queryArgs.put(SplunkConfiguration.STARTTIME,
+			job.get(SplunkConfiguration.STARTTIME + split.getId()));
+	    }
+	    if (job.get(SplunkConfiguration.ENDTIME + split.getId()) != null) {
+		queryArgs.put(SplunkConfiguration.ENDTIME,
+			job.get(SplunkConfiguration.ENDTIME + split.getId()));
 	    }
 	}
 
-	private HttpResponse executeHttpGetRequest() {
-	    try {
-		return httpclient.execute(getHttpGet());
-	    } catch (ClientProtocolException e) {
-		throw new RuntimeException(e);
-	    } catch (IOException e) {
-		throw new RuntimeException(e);
-	    }
-	}
-
-	private HttpUriRequest getHttpGet() {
-	    URI uri = getURI();
-	    logger.debug("GET: " + uri);
-	    System.out.println("URI: " + uri);
-	    return new HttpGet(uri);
-	}
-
-	private URI getURI() {
-	    try {
-		return URIUtils.createURI("https", host,
-			job.getInt(SplunkConfiguration.SPLUNKPORT, 8089),
-			SplunkConfiguration.SPLUNK_SEARCH_URL,
-			URLEncodedUtils.format(qparams, "UTF-8"), null);
-	    } catch (URISyntaxException e) {
-		throw new RuntimeException(e);
-	    }
-	}
-
-	private boolean isOKHttpRequestStatus(HttpResponse response) {
-	    return response.getStatusLine().getStatusCode() == 200;
-	}
-
-	private SplunkXMLStream getSplunkXMLStream(HttpResponse response) {
-	    try {
-		return new SplunkXMLStream(response.getEntity().getContent());
-	    } catch (IllegalStateException e) {
-		throw new RuntimeException(e);
-	    } catch (IOException e) {
-		throw new RuntimeException(e);
-	    } catch (Exception e) {
-		throw new RuntimeException(e);
-	    }
-	}
-
-	@Override
 	public void close() throws IOException {
-	    // TODO Auto-generated method stub
-	    this.httpclient.getConnectionManager().shutdown();
+	    service.logout();
 	}
 
-	@Override
 	public LongWritable createKey() {
 	    return new LongWritable();
 	}
 
-	@Override
 	public V createValue() {
 	    return ReflectionUtils.newInstance(inputClass, job);
 	}
 
-	@Override
 	public long getPos() throws IOException {
 	    // TODO Auto-generated method stub
-	    return this.pos;
+	    return pos;
 	}
 
-	@Override
 	public float getProgress() throws IOException {
-	    return this.pos / this.split.getLength();
+	    return pos / split.getLength();
 	}
 
-	@Override
 	public boolean next(LongWritable key, V value) throws IOException {
-	    logger.trace("next");
-	    this.pos++;
-	    HashMap<String, String> map = this.parser.nextResult();
-	    if (map == null) {
-		return false;
+
+	    if (parser == null) {
+		try {
+		    parser = new SplunkXMLStream(stream);
+		} catch (Exception e) {
+		    throw new RuntimeException(
+			    "Failed to retrieve results stream");
+		}
 	    }
+	    logger.trace("next");
+	    pos++;
+	    HashMap<String, String> map = parser.nextResult();
+	    if (map == null)
+		return false;
 	    value.setMap(map);
 	    return true;
 	}
@@ -234,10 +161,10 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	private String locations[];
 
 	public SplunkInputSplit() {
-	    this.host = "localhost";
-	    this.id = 0;
-	    this.locations = new String[1];
-	    this.locations[0] = this.host;
+	    host = "localhost";
+	    id = 0;
+	    locations = new String[1];
+	    locations[0] = host;
 	}
 
 	public String getHost() {
@@ -245,7 +172,7 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	}
 
 	public void setLocations(String[] hosts) {
-	    this.locations = hosts;
+	    locations = hosts;
 	}
 
 	public void setHost(String host) {
@@ -261,7 +188,7 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	}
 
 	public String getEndtime() {
-	    return this.endtime;
+	    return endtime;
 	}
 
 	public void setEndtime(String endtime) {
@@ -269,82 +196,65 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	}
 
 	public int getId() {
-	    return this.id;
+	    return id;
 	}
 
 	public void setId(int id) {
 	    this.id = id;
 	}
 
-	@Override
 	public void readFields(DataInput in) throws IOException {
-	    this.id = in.readInt();
-	    this.host = in.readUTF();
+	    id = in.readInt();
+	    host = in.readUTF();
 	    int numlocations = in.readInt();
-	    this.locations = new String[numlocations];
+	    locations = new String[numlocations];
 	    for (int i = 0; i < numlocations; i++) {
-		this.locations[i] = in.readUTF();
+		locations[i] = in.readUTF();
 	    }
 	}
 
-	@Override
 	public void write(DataOutput out) throws IOException {
-	    out.writeInt(this.id);
-	    out.writeUTF(this.host);
+	    out.writeInt(id);
+	    out.writeUTF(host);
 	    out.writeInt(locations.length);
-	    for (String location : this.locations) {
+	    for (String location : locations) {
 		out.writeUTF(location);
 	    }
 	}
 
-	@Override
 	public long getLength() throws IOException {
 	    // we dont know the size of search results
 	    return Long.MAX_VALUE;
 	}
 
-	@Override
 	public String[] getLocations() {
-	    return this.locations;
+	    return locations;
 	}
-
     }
 
-    @Override
     public void configure(JobConf arg0) {
 	// TODO Auto-generated method stub
-
     }
 
-    @Override
     public RecordReader<LongWritable, V> getRecordReader(InputSplit split,
 	    JobConf job, Reporter arg2) throws IOException {
 	try {
 	    Class inputClass = Class.forName(job
 		    .get(SplunkConfiguration.SPLUNKEVENTREADER));
 	    return new SplunkRecordReader((SplunkInputSplit) split, inputClass,
-		    job, getHttpClient());
+		    job);
 	} catch (Exception ex) {
 	    throw new IOException(ex.getMessage());
 	}
     }
 
-    private HttpClient getHttpClient() {
-	try {
-	    return HttpClientUtils.getHttpClient();
-	} catch (Exception e) {
-	    throw new RuntimeException(e);
-	}
-    }
-
-    @Override
     public SplunkInputSplit[] getSplits(JobConf job, int arg1)
 	    throws IOException {
 	// number of splits is equal to the number of time ranges provided for
 	// the search
 	SplunkInputSplit splits[] = new SplunkInputSplit[job.getInt(
 		SplunkConfiguration.NUMSPLITS, 1)];
-	logger.trace("num splits "
+	logger.trace("num splits foo"
 		+ job.getInt(SplunkConfiguration.NUMSPLITS, 1));
 	for (int i = 0; i < job.getInt(SplunkConfiguration.NUMSPLITS, 1); i++) {
 	    splits[i] = new SplunkInputSplit();
@@ -364,13 +274,14 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 		// search by indexers
 		splits[i].setHost(job.get(SplunkConfiguration.INDEXHOST + i));
 	    }
+
 	    splits[i].setLocations(getClusterNodeList(job));
 	    resetLocations(splits[i], splits[i].getHost()); // currently splits
-							    // will run only on
-							    // the same indexer
-							    // if co-located
-							    // with a Hadoop
-							    // node
+	    // will run only on
+	    // the same indexer
+	    // if co-located
+	    // with a Hadoop
+	    // node
 	}
 	return splits;
     }
@@ -406,5 +317,4 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	}
 	return locations;
     }
-
 }
