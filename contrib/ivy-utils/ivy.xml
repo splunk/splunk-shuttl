@@ -24,7 +24,7 @@
         <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.4.0"/>
         <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.4.0"/>
         <dependency org="org.eclipse.jetty.aggregate" name="jetty-all-server" rev="8.0.4.v20111024"/>
+		<dependency org="org.apache.hadoop" name="hadoop-test" rev="1.0.0"/>
         <exclude org="xerces" module="*" type="*" ext="*" conf="" matcher="exact"/>
-        <exclude org="org.mortbay.jetty" module="*" type="*" ext="*" conf="" matcher="exact"/>
 	</dependencies>
 </ivy-module>
