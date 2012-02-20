@@ -16,6 +16,7 @@
       <class name="com.splunk.shep.connector.tests.HelloWorldTest"/>
       <class name="com.splunk.shep.testutil.SafePathCreatorTest"/>
       <class name="com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormatTest"/>
+      <class name="com.splunk.shep.mapreduce.lib.rest.WordCountTest2"/>
     </classes>
   </test> <!-- Test -->
 </suite> <!-- Suite -->
