@@ -531,7 +531,7 @@
 
 	<target name="splunk-start">
 		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="start --accept-license --no-prompt --answer-yes" />
+			<arg line="start --accept-license --no-prompt --answer-yes splunkd" />
 		</exec>
 	</target>
 
