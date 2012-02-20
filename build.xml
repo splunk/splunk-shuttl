@@ -173,7 +173,7 @@
 
 	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">
 		<ivy:retrieve />
-		<property name="isIvyResolved" value="true"/>
+		<property name="isIvyResolved" value="true" />
 	</target>
 
 	<target name="setup-ivy-xml">
