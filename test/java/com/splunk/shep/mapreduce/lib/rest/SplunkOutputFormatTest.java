@@ -1,6 +1,5 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
@@ -75,8 +74,7 @@ public class SplunkOutputFormatTest {
 		splunkHost, splunkMGMTPort);
 	// Run hadoop
 	runHadoopWordCount();
-	// Wait a while.
-	sleep(300);
+
 	// Verify in splunk
 	verifySplunk();
     }
@@ -142,7 +140,7 @@ public class SplunkOutputFormatTest {
      */
     private void verifySplunk() {
 	List<String> searchResults = getSearchResultsFromSplunk();
-	assertFalse(searchResults.isEmpty());
+	assertTrue(!searchResults.isEmpty());
 	verifyWordCountInSearchResults(searchResults);
     }
 
