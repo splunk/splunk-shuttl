@@ -13,9 +13,9 @@
       <class name="com.splunk.shep.testutil.MethodCallerHelperTest"/>
       <class name="com.splunk.shep.testutil.HadoopFileSystemPutterTest"/>
       <class name="com.splunk.shep.mapreduce.lib.rest.SplunkXMLStreamTest"/>
-      <class name="com.splunk.shep.mapreduce.lib.rest.WordCountTest"/>
       <class name="com.splunk.shep.connector.tests.HelloWorldTest"/>
       <class name="com.splunk.shep.testutil.SafePathCreatorTest"/>
+      <class name="com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormatTest"/>
     </classes>
   </test> <!-- Test -->
 </suite> <!-- Suite -->

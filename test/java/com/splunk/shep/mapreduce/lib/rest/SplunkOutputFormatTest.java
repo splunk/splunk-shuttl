@@ -38,10 +38,11 @@ import com.splunk.Service;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 
-public class WordCountTest {
+public class SplunkOutputFormatTest {
 
     private static final String FILENAME_FOR_FILE_WITH_TEST_INPUT = "file01";
-    private static final String SOURCE = WordCountTest.class.getSimpleName();
+    private static final String SOURCE = SplunkOutputFormatTest.class
+	    .getSimpleName();
 
     private HadoopFileSystemPutter putter;
 
@@ -74,7 +75,8 @@ public class WordCountTest {
 		splunkHost, splunkMGMTPort);
 	// Run hadoop
 	runHadoopWordCount();
-
+	// Wait a while.
+	sleep(300);
 	// Verify in splunk
 	verifySplunk();
     }
@@ -89,7 +91,7 @@ public class WordCountTest {
     }
 
     private JobConf getConfiguredJob() {
-	JobConf conf = new JobConf(WordCountTest.class);
+	JobConf conf = new JobConf();
 	conf.setJobName(SOURCE);
 	SplunkConfiguration.setConnInfo(conf, testParameters.host,
 		testParameters.mgmtPort, testParameters.username,
@@ -259,6 +261,13 @@ public class WordCountTest {
 	    this.password = password;
 	    this.host = host;
 	    this.mgmtPort = Integer.parseInt(mgmtPort);
+	}
+
+	@Override
+	public String toString() {
+	    return "SplunkParameters [username=" + username + ", password="
+		    + password + ", host=" + host + ", mgmtPort=" + mgmtPort
+		    + "]";
 	}
     }
 }
