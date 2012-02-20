@@ -36,6 +36,7 @@ import com.splunk.Job;
 import com.splunk.Service;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
+import com.splunk.shep.testutil.SplunkServiceParameters;
 
 public class SplunkOutputFormatTest {
 
@@ -62,7 +63,7 @@ public class SplunkOutputFormatTest {
 	putter.deleteMyFiles();
     }
 
-    private SplunkParameters testParameters;
+    private SplunkServiceParameters testParameters;
 
     @Parameters({ "splunk.username", "splunk.password", "splunk.host",
 	    "splunk.mgmtport" })
@@ -70,8 +71,8 @@ public class SplunkOutputFormatTest {
     public void should_putDataInSplunk_when_runningAMapReduceJob_with_SplunkOutputFormat(
 	    String splunkUsername, String splunkPassword, String splunkHost,
 	    String splunkMGMTPort) {
-	testParameters = new SplunkParameters(splunkUsername, splunkPassword,
-		splunkHost, splunkMGMTPort);
+	testParameters = new SplunkServiceParameters(splunkUsername,
+		splunkPassword, splunkHost, splunkMGMTPort);
 	// Run hadoop
 	runHadoopWordCount();
 
@@ -145,20 +146,11 @@ public class SplunkOutputFormatTest {
     }
 
     private List<String> getSearchResultsFromSplunk() {
-	Service service = getLoggedInSplunkService(testParameters.username,
-		testParameters.password);
+	Service service = testParameters.getLoggedInService();
 	Job search = startSearch(service);
 	waitWhileSearchFinishes(search);
 	InputStream results = search.getResults();
 	return readResults(results);
-    }
-
-    private Service getLoggedInSplunkService(String splunkUsername,
-	    String splunkPassword) {
-	Service service = new Service(testParameters.host,
-		testParameters.mgmtPort);
-	service.login(splunkUsername, splunkPassword);
-	return service;
     }
 
     private Job startSearch(Service service) {
@@ -241,31 +233,6 @@ public class SplunkOutputFormatTest {
 	    }
 	    output.collect(key, new IntWritable(sum));
 
-	}
-    }
-
-    /**
-     * Container for the parameters passed to the test.
-     */
-    private static class SplunkParameters {
-	public final String username;
-	public final String password;
-	public final String host;
-	public final int mgmtPort;
-
-	public SplunkParameters(String username, String password, String host,
-		String mgmtPort) {
-	    this.username = username;
-	    this.password = password;
-	    this.host = host;
-	    this.mgmtPort = Integer.parseInt(mgmtPort);
-	}
-
-	@Override
-	public String toString() {
-	    return "SplunkParameters [username=" + username + ", password="
-		    + password + ", host=" + host + ", mgmtPort=" + mgmtPort
-		    + "]";
 	}
     }
 }
