@@ -1,4 +1,4 @@
-#!/usr/bin/env /bin/bash
+#!/bin/sh
 
 # start.sh
 #
@@ -18,6 +18,20 @@
 # limitations under the License.
 #
 
-cd $SPLUNK_HOME/etc/apps/shep/bin
+script_dir=$(dirname $0)
 
-exec $JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./*  com.splunk.shep.server.ShepJettyServer
+expected_rest_out="localhost"
+actual_rest_out=`curl -s http://localhost:8080/shep/rest/server/defaulthost`
+
+# Output
+if [ "$expected_rest_out" != "$actual_rest_out" ]
+then
+  echo "Fail!
+  Expected:
+  \"$expected_rest_out\"
+  Actual:
+  \"$actual_rest_out\""
+  exit 1
+else
+  exit 0
+fi
