@@ -1,9 +1,10 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
+import static org.testng.Assert.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -28,18 +29,15 @@ public class WordCountTest2 {
 
     private void indexTestFile(String splunkHome) throws IOException,
 	    InterruptedException {
-	// There's currently no way to oneshot a file through the SDK.
-	// Using splunk.home instead.
+	// There's currently no way to oneshot a file through the Splunk SDK/API
+	// yet. Using splunk.home instead.
 	File file = new File("test/java/com/splunk/shep/mapreduce/lib/rest"
 		+ "/wordfile-timestamp");
 	Process exec = Runtime.getRuntime().exec(
 		splunkHome + "/bin/splunk add oneshot "
 			+ file.getAbsolutePath());
-	System.out.println("exec.waitFor() " + exec.waitFor());
-	System.out.println("splunk add oneshot out: "
-		+ IOUtils.readLines(exec.getInputStream()));
-	System.out.println("splunk add oneshot err: "
-		+ IOUtils.readLines(exec.getErrorStream()));
+	int exitStatus = exec.waitFor();
+	assertEquals(exitStatus, 0);
     }
 
     private boolean isTestFileAlreadyIndexed(Service splunk)
