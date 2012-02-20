@@ -205,6 +205,8 @@
 		<propertyref name="splunk.username" />
 		<propertyref name="splunk.password" />
 		<propertyref name="splunk.home" />
+		<propertyref name="splunk.host" />
+		<propertyref name="splunk.mgmtport" />
 	</propertyset>
 
 	<target name="fast-TestNG-tests" depends="compile">
