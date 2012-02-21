@@ -19,6 +19,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -300,8 +301,9 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
     private String[] getClusterNodeList(JobConf job) throws IOException {
 	JobClient client = new JobClient(job);
 	ClusterStatus status = client.getClusterStatus(true);
-	logger.trace("num active trackers " + status.getTaskTrackers());
-	String locations[] = new String[status.getTaskTrackers()];
+	Collection<String> activeTrackerNames = status.getActiveTrackerNames();
+	logger.trace("num active trackers " + activeTrackerNames.size());
+	String locations[] = new String[activeTrackerNames.size()];
 	int index = 0;
 	for (String host : status.getActiveTrackerNames()) {
 	    logger.trace("activeTracker " + host);

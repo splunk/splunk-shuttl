@@ -5,8 +5,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -16,8 +16,8 @@ public class InputHdfsTest extends SplunkHdfsTest {
     String line1 = "this is line1";
     String line2 = "this is line2";
 
-    @Parameters({ "username", "password", "splunk.home" })
-    @Test(groups = { "slow" })
+    @Parameters({ "splunk.username", "splunk.password", "splunk.home" })
+    @Test(groups = { "super-slow" })
     public void fileCheck(String username, String password, String splunkhome) {
 	System.out.println("Running InputHdfs Test");
 	try {
@@ -32,7 +32,8 @@ public class InputHdfsTest extends SplunkHdfsTest {
 	    String readline1 = br.readLine();
 	    String readline2 = br.readLine();
 	    if (!readline2.endsWith(line2)) {
-		Assert.fail("Data incorrect in file - " + line2);
+		Assert.fail("Data incorrect in file - " + line2 + ", was: "
+			+ readline2);
 	    }
 	} catch (Throwable t) {
 	    t.printStackTrace();
@@ -40,10 +41,11 @@ public class InputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
-    @Parameters({ "inputhdfstesturi" })
-    @BeforeTest(groups = { "slow" })
-    public void beforeTest(String uri) {
-	this.testuri = uri;
+    @Parameters({ "hadoop.host", "hadoop.port" })
+    @BeforeMethod(groups = { "super-slow" })
+    public void beforeTest(String hadoophost, String hadoopport) {
+	this.testuri = "hdfs://" + hadoophost + ":" + hadoopport
+		+ "/inputhdfstest/testfile";
 	StringBuffer msg = new StringBuffer();
 	msg.append(line1);
 	msg.append("\n");
@@ -57,7 +59,7 @@ public class InputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
-    @AfterTest(groups = { "slow" })
+    @AfterMethod(groups = { "super-slow" })
     public void afterTest() {
 	try {
 	    deleteFileinHDFS(testuri);

@@ -2,11 +2,8 @@
 	<!-- property files -->
 	<property file="build.properties" />
 	<property file="default.properties" />
+
 	<property environment="env"/>
-	<property name="username" value="admin" />
-	<property name="password" value="changeme" />
-	<property name="inputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/inputhdfstest/testfile" />
-	<property name="outputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/outputhdfstest/testfile" />
 	<property name="user" value="${env.USER}" />
 
 	<!-- project filesystem properties -->
@@ -194,7 +191,7 @@
 
 	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">
 		<ivy:retrieve />
-		<property name="isIvyResolved" value="true"/>
+		<property name="isIvyResolved" value="true" />
 	</target>
 
 	<target name="setup-ivy-xml">
@@ -215,16 +212,23 @@
 		<antcall target="slow-tests" />
 	</target>
 
+	<target name="test-all" depends="compile">
+		<antcall target="test" />
+		<antcall target="super-slow-tests" />
+	</target>
+
 	<target name="fast-tests">
 		<antcall target="fast-TestNG-tests" />
 	</target>
 
 	<propertyset id="testng">
-		<propertyref name="username" />
-		<propertyref name="password" />
-		<propertyref name="inputhdfstesturi" />
-		<propertyref name="outputhdfstesturi" />
+		<propertyref name="splunk.username" />
+		<propertyref name="splunk.password" />
 		<propertyref name="splunk.home" />
+		<propertyref name="splunk.host" />
+		<propertyref name="splunk.mgmtport" />
+		<propertyref name="hadoop.host" />
+		<propertyref name="hadoop.port" />
 	</propertyset>
 
 	<target name="fast-TestNG-tests" depends="compile">
@@ -237,12 +241,33 @@
 
 	<target name="slow-tests" depends="jar">
 		<antcall>
+			<target name="splunk-setup" />
+		</antcall>
+		<antcall>
+			<target name="slow-TestNG-tests" />
+		</antcall>
+		<antcall>
+			<target name="splunk-teardown" />
+		</antcall>
+	</target>
+
+	<target name="slow-TestNG-tests" depends="compile,set-splunk-home">
+		<!-- Test group 'fast'. We think about adding more groups in the future -->
+		<testng classpathref="build.classpath" groups="slow" outputdir="${builddir}/test-results">
+			<propertyset refid="testng" />
+			<classfileset dir="${builddir}" includes="**/*.class" />
+		</testng>
+	</target>
+
+	<!-- super-slow tests are tests that are in need of hadoop. -->
+	<target name="super-slow-tests" depends="jar">
+		<antcall>
 			<target name="hadoop-setup" />
 			<target name="hive-setup" />
 			<target name="splunk-setup" />
 		</antcall>
 		<antcall>
-			<target name="slow-TestNG-tests" />
+			<target name="super-slow-TestNG-tests" />
 			<target name="shell-tests" />
 		</antcall>
 		<antcall>
@@ -251,9 +276,9 @@
 		</antcall>
 	</target>
 
-	<target name="slow-TestNG-tests" depends="compile,set-splunk-home">
-		<!-- Test group 'fast'. We think about adding more groups in the future -->
-		<testng classpathref="build.classpath" groups="slow" outputdir="${builddir}/test-results">
+	<target name="super-slow-TestNG-tests" depends="compile,set-splunk-home">
+		<!-- Test group 'super-slow'. For tests that use hadoop -->
+		<testng classpathref="build.classpath" groups="super-slow" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
 			<classfileset dir="${builddir}" includes="**/*.class" />
 		</testng>
@@ -645,13 +670,19 @@
 
 	<target name="splunk-start">
 		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="start --accept-license --no-prompt --answer-yes" />
+			<arg line="start --accept-license --no-prompt --answer-yes splunkd" />
+		</exec>
+	</target>
+
+	<target name="splunk-start-splunkweb" depends="set-splunk-home">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="start splunkweb" />
 		</exec>
 	</target>
 
 	<target name="splunk-stop">
 		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="stop" />
+			<arg line="stop -f" />
 		</exec>
 	</target>
 

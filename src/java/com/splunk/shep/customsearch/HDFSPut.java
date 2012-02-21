@@ -15,13 +15,10 @@ public class HDFSPut {
 		    new java.io.InputStreamReader(System.in));
 	    Configuration conf = new Configuration();
 	    URI fileuri = URI.create(args[0]);
-	    String host = fileuri.getHost();
-	    int port = fileuri.getPort();
-	    FileSystem fs = FileSystem.get(
-		    URI.create("hdfs://" + host + ":" + port), conf);
+	    FileSystem fs = FileSystem.get(fileuri, conf);
 	    Path filenamePath = new Path(args[0]);
 	    if (fs.exists(filenamePath)) {
-		// remove the file first 
+		// remove the file first
 		fs.delete(filenamePath);
 	    }
 	    FSDataOutputStream out = fs.create(filenamePath);
