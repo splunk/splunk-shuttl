@@ -7,7 +7,7 @@ import com.splunk.Job;
  */
 public class SplunkTestUtils {
 
-    private static final int SLEEP_IN_MILLIS_BETWEEN_JOB_REFRESH = 30;
+    private static final int SLEEP_IN_MILLIS_BETWEEN_JOB_REFRESH = 70;
 
     public static void waitWhileJobFinishes(Job job) {
 	while (!job.isDone()) {
