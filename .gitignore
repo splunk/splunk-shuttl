@@ -3,6 +3,7 @@
 
 # Compile output
 /build/
+/bin/
 
 # Eclipse compile output
 /eclipse-bin/
@@ -24,6 +25,7 @@
 
 # Downloads
 /contrib/hadoop.tar.gz
+/contrib/hive-0.8.1.tar.gz
 
 # Property files
 build.properties

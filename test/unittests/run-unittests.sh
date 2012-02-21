@@ -75,6 +75,11 @@ run_tests() {
     run_test $test
     nr_tests=$((nr_tests+1))
   done
+  for test in `find . -name runtest_phase2.sh`
+  do
+    run_test $test
+    nr_tests=$((nr_tests+1))
+  done
 
   failed_tests=`wc -l $fails_out | grep -oP "\d+? "`
 

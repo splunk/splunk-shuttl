@@ -89,6 +89,17 @@ public class ShepServerRest {
 	}
     }
 
+    // hack for HADOOP-254. Remove before GA
+    // will generate a warning about a GET being void during runtime
+    // TODO
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("/shutdown")
+    public void shutdownHTML() {
+	logger.info("Shep shutting down ..");
+	System.exit(0);
+    }
+
     private String getAttribute(String attr) throws Exception {
 	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 	ObjectName name = new ObjectName("com.splunk.shep.mbeans:type=Server");
