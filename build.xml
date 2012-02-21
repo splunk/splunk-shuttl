@@ -5,7 +5,6 @@
 
 	<property name="username" value="admin" />
 	<property name="password" value="changeme" />
-	<property name="inputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/inputhdfstest/testfile" />
 	<property name="outputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/outputhdfstest/testfile" />
 
 	<!-- project filesystem properties -->
@@ -200,13 +199,14 @@
 	<propertyset id="testng">
 		<propertyref name="username" />
 		<propertyref name="password" />
-		<propertyref name="inputhdfstesturi" />
 		<propertyref name="outputhdfstesturi" />
 		<propertyref name="splunk.username" />
 		<propertyref name="splunk.password" />
 		<propertyref name="splunk.home" />
 		<propertyref name="splunk.host" />
 		<propertyref name="splunk.mgmtport" />
+		<propertyref name="hadoop.host" />
+		<propertyref name="hadoop.port" />
 	</propertyset>
 
 	<target name="fast-TestNG-tests" depends="compile">

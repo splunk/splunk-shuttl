@@ -41,10 +41,11 @@ public class InputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
-    @Parameters({ "inputhdfstesturi" })
+    @Parameters({ "hadoop.host", "hadoop.port" })
     @BeforeMethod(groups = { "super-slow" })
-    public void beforeTest(String uri) {
-	this.testuri = uri;
+    public void beforeTest(String hadoophost, String hadoopport) {
+	this.testuri = "hdfs://" + hadoophost + ":" + hadoopport
+		+ "/inputhdfstest/testfile";
 	StringBuffer msg = new StringBuffer();
 	msg.append(line1);
 	msg.append("\n");
