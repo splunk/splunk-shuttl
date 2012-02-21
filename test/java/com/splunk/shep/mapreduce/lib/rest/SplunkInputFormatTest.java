@@ -42,9 +42,9 @@ import com.splunk.shep.testutil.SplunkTestUtils;
 
 public class SplunkInputFormatTest {
 
-    private static final String TEST_INPUT_FILENAME = "/wordfile-timestamp";
+    private static final String TEST_INPUT_FILENAME = "wordfile-timestamp";
     private static final String TEST_INPUT_FILE_PATH = "test/java/com/splunk/shep/mapreduce/lib/rest"
-	    + TEST_INPUT_FILENAME;
+	    + "/" + TEST_INPUT_FILENAME;
     private FileSystem fileSystem;
     private HadoopFileSystemPutter putter;
     private SplunkServiceParameters testParameters;

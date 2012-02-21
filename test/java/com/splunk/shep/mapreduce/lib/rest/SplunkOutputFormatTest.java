@@ -42,15 +42,15 @@ import com.splunk.shep.testutil.SplunkTestUtils;
 public class SplunkOutputFormatTest {
 
     private static final String FILENAME_FOR_FILE_WITH_TEST_INPUT = "file01";
+    private static final String TEST_INPUT_FILE_PATH = "test/java/com/splunk/shep/mapreduce/lib/rest"
+	    + "/" + FILENAME_FOR_FILE_WITH_TEST_INPUT;
     private static final String SOURCE = SplunkOutputFormatTest.class
 	    .getSimpleName();
 
     private HadoopFileSystemPutter putter;
 
     private File getLocalFileWithTestInput() {
-	String pathToFileWithTestInput = "test/java/com/splunk/shep/mapreduce/lib/rest"
-		+ "/" + FILENAME_FOR_FILE_WITH_TEST_INPUT;
-	return new File(pathToFileWithTestInput);
+	return new File(TEST_INPUT_FILE_PATH);
     }
 
     @BeforeMethod(groups = { "slow" })
