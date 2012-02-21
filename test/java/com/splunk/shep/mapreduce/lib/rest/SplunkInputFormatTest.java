@@ -118,9 +118,11 @@ public class SplunkInputFormatTest {
 
     private Process doOneshotFileToSplunk(String splunkHome, File file)
 	    throws IOException {
-	return Runtime.getRuntime().exec(
-		splunkHome + "/bin/splunk add oneshot "
-			+ file.getAbsolutePath());
+	String command = splunkHome + "/bin/splunk add oneshot "
+		+ file.getAbsolutePath() + " -auth "
+		+ testParameters.getUsername() + ":"
+		+ testParameters.getPassword();
+	return Runtime.getRuntime().exec(command);
     }
 
     private int waitForOneshotToComplete(Process exec) {
