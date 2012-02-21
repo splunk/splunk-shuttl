@@ -1,5 +1,3 @@
-// InvalidSignatureException.java
-//
 // Copyright (C) 2011 Splunk Inc.
 //
 // Splunk Inc. licenses this file
@@ -14,11 +12,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package com.splunk.shep.server.mbeans.rest;
 
-package com.splunk.shep.s2s;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-public class InvalidSignatureException extends S2SException {
-    public InvalidSignatureException(String msg) {
-	super(msg);
+/**
+ * A RuntimeException that throws a HTTP error with status code 500 (Internal
+ * Server error) and given message
+ * 
+ * @author kpakkirisamy
+ * 
+ */
+public class ShepRestException extends WebApplicationException {
+    static final long serialVersionUID = 213;
+    
+    public ShepRestException(String message) {
+	super(Response.status(500).entity(message).type(MediaType.TEXT_PLAIN)
+		.build());
     }
 }

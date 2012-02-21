@@ -53,14 +53,12 @@ if args['file'] == 'nofile' and args['job'] == 'nojob':
     isp.outputResults(errorresult)
     sys.exit()
 
+separator_char = ' '
 
 if args['separator'] == 'tab':
     separator_char = '\t'
 else :
-    if args['separator'] == 'comma':
-        separator_char = ','
-    else :
-        separator_char = ' '
+    separator_char = ','
     
 if (args['file']) != 'nofile':
     process = catfile(args['file'])
@@ -89,7 +87,7 @@ while True:
                 rowset['col'+str(colcount)] = word.rstrip()    
                 colcount += 1
                 raw.append(word.rstrip())
-            rowset['_raw'] = separator_char.join(raw)
+            rowset['_raw'] = line
             results.append(rowset)
             chunkcount += 1
             if ((args['max'] != -1) and (chunkcount > args['max'])):

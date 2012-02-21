@@ -49,7 +49,6 @@ class S2SV43DataHandler implements S2SProtocolHandler {
      */
     public void s2sDataAvailable(byte[] raw) throws Exception {
 	if (eventParser == null) {
-	    logger.info("creating S2SEventParser");
 	    eventParser = new S2SEventParser(null, sink, 0);
 	    try {
 		sink.start();
@@ -60,7 +59,6 @@ class S2SV43DataHandler implements S2SProtocolHandler {
 		throw e;
 	    }
 	}
-	logger.info("processing event");
 	eventParser.processS2SEvent(raw);
 	eventParser.reset();
     }

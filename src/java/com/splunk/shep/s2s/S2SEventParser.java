@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 
 public class S2SEventParser {
     private Logger logger = Logger.getLogger(getClass());
@@ -288,10 +288,8 @@ public class S2SEventParser {
      *            - buf is serialized CowPipelineData
      */
     public void processS2SEvent(byte[] buf) {
-	logger.info("processS2SEvent");
 	int count = parseCount(buf, 0);
 	if (count > 0) {
-	    logger.info("count is greater than 0");
 	    int offset = 4;
 	    processData(buf, offset, buf.length - offset, count);
 	}
@@ -320,16 +318,15 @@ public class S2SEventParser {
 	}
 
 	if ((!ignore) && hasAllData()) {
-	    logger.info("hasalldata");
 	    if (emitter == null) {
-		logger.info("emitter is null");
 		outputEvent();
 	    } else {
-		logger.info("sendevent");
 		sendEvent();
 	    }
+	    S2SEventThruput.getInstance().update(hostValue, sourceValue,
+		    sourceTypeValue, indexValue, size);
 	} else {
-	    logger.info("no data");
+	    logger.debug("Filtered out 1 event");
 	}
     }
 
@@ -342,13 +339,11 @@ public class S2SEventParser {
 
     // return the total length of the field.
     private int parseField(byte[] buf, int offset, int size) {
-	logger.info("Parse field from " + offset + " of buffer size " + size);
 
 	String key = parseString(buf, offset, size);
 	if (key == null)
 	    return -1;
 
-	logger.info("key = " + key);
 
 	int len = (4 + key.length());
 

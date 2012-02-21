@@ -1,5 +1,3 @@
-// InvalidSignatureException.java
-//
 // Copyright (C) 2011 Splunk Inc.
 //
 // Splunk Inc. licenses this file
@@ -14,11 +12,21 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package com.splunk.shep.server.mbeans;
 
-package com.splunk.shep.s2s;
+import com.splunk.shep.server.ShepException;
 
-public class InvalidSignatureException extends S2SException {
-    public InvalidSignatureException(String msg) {
-	super(msg);
+/**
+ * @author kpakkirisamy
+ *
+ */
+public class ShepMBeanException extends ShepException {
+    public ShepMBeanException(String s) {
+	super(s);
     }
+
+    public ShepMBeanException(Exception e) {
+	super(e);
+    }
+
 }

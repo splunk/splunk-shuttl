@@ -1,5 +1,3 @@
-// InvalidSignatureException.java
-//
 // Copyright (C) 2011 Splunk Inc.
 //
 // Splunk Inc. licenses this file
@@ -14,11 +12,45 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 package com.splunk.shep.s2s;
 
-public class InvalidSignatureException extends S2SException {
-    public InvalidSignatureException(String msg) {
-	super(msg);
+/**
+ * @author kpakkirisamy
+ *
+ */
+public class S2SException extends Exception {
+
+    /**
+     * 
+     */
+    public S2SException() {
+	super();
+	// TODO Auto-generated constructor stub
     }
+
+    /**
+     * @param message
+     * @param cause
+     */
+    public S2SException(String message, Throwable cause) {
+	super(message, cause);
+	// TODO Auto-generated constructor stub
+    }
+
+    /**
+     * @param message
+     */
+    public S2SException(String message) {
+	super(message);
+	// TODO Auto-generated constructor stub
+    }
+
+    /**
+     * @param cause
+     */
+    public S2SException(Throwable cause) {
+	super(cause);
+	// TODO Auto-generated constructor stub
+    }
+
 }
