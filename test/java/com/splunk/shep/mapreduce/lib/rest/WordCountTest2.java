@@ -68,6 +68,9 @@ public class WordCountTest2 {
 
 	addDataToSplunk(splunkHome);
 
+	// Wait until data has been processed in Splunk.
+	Thread.sleep(1000);
+
 	runMapReduceJob();
 
 	verifyOutput();
