@@ -23,7 +23,6 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.MiniMRCluster;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
@@ -44,21 +43,16 @@ public class WordCountTest2 {
 
     private FileSystem fileSystem;
     private HadoopFileSystemPutter putter;
-    private MiniMRCluster cluster;
     private SplunkServiceParameters testParameters;
 
     @BeforeMethod(groups = { "slow" })
     public void setUp() throws IOException {
 	fileSystem = FileSystemUtils.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.get(fileSystem);
-	System.setProperty("hadoop.log.dir", "test-logs");
-	System.out.println("FileSystem URI: " + fileSystem.getUri());
-	cluster = new MiniMRCluster(1, fileSystem.getUri() + "/hdfs", 1);
     }
 
     @AfterMethod(groups = { "slow" })
     public void tearDown() {
-	// cluster.shutdown();
 	putter.deleteMyFiles();
     }
 
@@ -80,8 +74,7 @@ public class WordCountTest2 {
     }
 
     private void verifyOutput() throws IOException {
-	FileSystem localFileSystem = FileSystemUtils.getLocalFileSystem();
-	FSDataInputStream open = localFileSystem.open(new Path(getOutput(),
+	FSDataInputStream open = fileSystem.open(new Path(getOutput(),
 		"part-00000"));
 	Set<String> expected = new HashSet<String>();
 	expected.add("17:04:15	1");
@@ -137,8 +130,8 @@ public class WordCountTest2 {
 	}
     }
 
-    private void runMapReduceJob() throws IOException {
-	JobConf job = cluster.createJobConf();
+    private void runMapReduceJob() throws IOException, InterruptedException {
+	JobConf job = new JobConf(); // cluster.createJobConf();
 	configureJobConf(job);
 
 	System.out.println("indexbyhost "
