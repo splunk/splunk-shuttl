@@ -42,7 +42,7 @@ import com.splunk.shep.testutil.SplunkTestUtils;
 public class SplunkOutputFormatTest {
 
     private static final String FILENAME_FOR_FILE_WITH_TEST_INPUT = "file01";
-    private static final String TEST_INPUT_FILE_PATH = "test/java/com/splunk/shep/mapreduce/lib/rest"
+    private static final String TEST_INPUT_FILE_PATH = MapReduceRestTestConstants.TEST_RESOURCES_PATH
 	    + "/" + FILENAME_FOR_FILE_WITH_TEST_INPUT;
     private static final String SOURCE = SplunkOutputFormatTest.class
 	    .getSimpleName();
