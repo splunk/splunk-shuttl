@@ -107,7 +107,6 @@
 	<target name="clean-build-cache">
 		<antcall>
 			<target name="hadoop-teardown" />
-			<target name="hive-teardown" />
 			<target name="splunk-teardown" />
 		</antcall>
 		<delete dir="${build-cache}" />
