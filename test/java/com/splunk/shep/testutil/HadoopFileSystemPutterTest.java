@@ -19,7 +19,7 @@ import com.splunk.shep.testutil.HadoopFileSystemPutter.LocalFileNotFound;
 
 public class HadoopFileSystemPutterTest {
 
-    private HadoopFileSystemPutter copier;
+    private HadoopFileSystemPutter putter;
     private FileSystem fileSystem;
 
     private File getTempFileThatIsAutomaticallyDeleted() {
@@ -39,12 +39,12 @@ public class HadoopFileSystemPutterTest {
     @BeforeMethod(groups = { "fast" })
     public void setUp() {
 	fileSystem = FileSystemUtils.getLocalFileSystem();
-	copier = HadoopFileSystemPutter.get(fileSystem);
+	putter = HadoopFileSystemPutter.get(fileSystem);
     }
 
     @AfterMethod(groups = { "fast" })
     public void tearDown() {
-	copier.deleteMyFiles();
+	putter.deleteMyFiles();
     }
 
     @Test(groups = { "fast" })
@@ -57,24 +57,24 @@ public class HadoopFileSystemPutterTest {
     public void copyingFileThatExists_should_existInFileSystemCopiedTo()
 	    throws IOException {
 	File tempFile = getTempFileThatIsAutomaticallyDeleted();
-	copier.putFile(tempFile);
-	assertTrue(copier.isFileCopiedToFileSystem(tempFile));
+	putter.putFile(tempFile);
+	assertTrue(putter.isFileCopiedToFileSystem(tempFile));
     }
 
     @Test(groups = { "fast" }, expectedExceptions = LocalFileNotFound.class)
     public void copyingFileThatDoesntExist_should_throw_LocalFileNotFound() {
 	File nonExistingFile = new File("file-does-not-exist");
-	copier.putFile(nonExistingFile);
+	putter.putFile(nonExistingFile);
     }
 
     @Test(groups = { "fast" })
     public void fileThatIsNotCopied_shouldNot_existInFileSystem() {
-	assertFalse(copier.isFileCopiedToFileSystem(new File("somefile")));
+	assertFalse(putter.isFileCopiedToFileSystem(new File("somefile")));
     }
 
     @Test(groups = { "fast" })
     public void should_bePossibleToGetTheDirectory_where_allThisTestCasesFilesAreStored() {
-	assertNotNull(copier.getPathWhereMyFilesAreStored());
+	assertNotNull(putter.getPathWhereMyFilesAreStored());
     }
 
     @Test(groups = { "fast" })
@@ -93,29 +93,29 @@ public class HadoopFileSystemPutterTest {
     private class ClassA {
 
 	public Path getPathWhereFilesAreStored() {
-	    return copier.getPathWhereMyFilesAreStored();
+	    return putter.getPathWhereMyFilesAreStored();
 	}
     }
 
     private class ClassB {
 	public Path getPathWhereFilesAreStored() {
-	    return copier.getPathWhereMyFilesAreStored();
+	    return putter.getPathWhereMyFilesAreStored();
 	}
     }
 
     @Test(groups = { "fast" })
     public void after_putFile_then_deleteMyFiles_should_removeTheDirectory_where_thisClassPutFilesOnTheFileSystem()
 	    throws IOException {
-	Path myFiles = copier.getPathWhereMyFilesAreStored();
-	copier.putFile(getTempFileThatIsAutomaticallyDeleted());
+	Path myFiles = putter.getPathWhereMyFilesAreStored();
+	putter.putFile(getTempFileThatIsAutomaticallyDeleted());
 	assertTrue(fileSystem.exists(myFiles));
-	copier.deleteMyFiles();
+	putter.deleteMyFiles();
 	assertFalse(fileSystem.exists(myFiles));
     }
 
     @Test(groups = { "fast" })
     public void should_beAbleToGetPath_where_fileIsPut() {
-	assertNotNull(copier
+	assertNotNull(putter
 		.getPathForFile(getTempFileThatIsAutomaticallyDeleted()));
     }
 
@@ -125,16 +125,16 @@ public class HadoopFileSystemPutterTest {
 	File file2 = getTempFileThatIsAutomaticallyDeleted();
 	assertNotEquals(file1, file2);
 
-	Path path1 = copier.getPathForFile(file1);
-	Path path2 = copier.getPathForFile(file2);
+	Path path1 = putter.getPathForFile(file1);
+	Path path2 = putter.getPathForFile(file2);
 	assertNotEquals(path1, path2);
     }
 
     @Test(groups = { "fast" })
     public void should_bePossibleToGetPathToFile_with_fileName() {
 	File file = getTempFileThatIsAutomaticallyDeleted();
-	Path expected = copier.getPathForFile(file);
-	Path actual = copier.getPathForFileName(file.getName());
+	Path expected = putter.getPathForFile(file);
+	Path actual = putter.getPathForFileName(file.getName());
 
 	assertEquals(actual, expected);
     }
