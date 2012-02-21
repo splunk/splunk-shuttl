@@ -92,7 +92,20 @@ public class SplunkInputFormatTest {
 	File file = new File(TEST_INPUT_FILE_PATH);
 	Process exec = oneshotFileToSplunk(splunkHome, file);
 	int exitStatus = waitForOneshotToComplete(exec);
+	if (exitStatus > 0)
+	    printOneshotOutput(exec);
 	assertEquals(exitStatus, 0);
+    }
+
+    private void printOneshotOutput(Process exec) {
+	try {
+	    System.err.println("Exec err: "
+		    + IOUtils.readLines(exec.getErrorStream()));
+	    System.err.println("Exec out: "
+		    + IOUtils.readLines(exec.getInputStream()));
+	} catch (IOException e) {
+	    throw new RuntimeException(e);
+	}
     }
 
     private Process oneshotFileToSplunk(String splunkHome, File file) {
