@@ -2,11 +2,12 @@
 	<!-- property files -->
 	<property file="build.properties" />
 	<property file="default.properties" />
-
+	<property environment="env"/>
 	<property name="username" value="admin" />
 	<property name="password" value="changeme" />
 	<property name="inputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/inputhdfstest/testfile" />
 	<property name="outputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/outputhdfstest/testfile" />
+	<property name="user" value="${env.USER}" />
 
 	<!-- project filesystem properties -->
 	<property name="contribdir" value="${basedir}/contrib" />
@@ -52,10 +53,11 @@
 	<property name="hive.download.dir" value="${contribdir}" />
 	<property name="hive.download.path" value="${hive.download.dir}/${hive.download.name}" />
 	<property name="hive.extracted.dir" value="${build-cache}" />
-	<property name="hive.home" value="${build-cache}" />
 	<property name="hive.extracted.path" value="${hive.extracted.dir}/${hive.versname}" />
+	<property name="hive.home" value="${hive.extracted.path}" /> <!-- NOTE: unlike hadoop, will ignore env.HIVE_HOME -->
 	<property name="hive.extracted.conf.dir" value="${hive.extracted.path}/conf" />
 	<property name="hive.download.url" value="${hive.download.url.prefix}/${hive.basename}/${hive.versname}/${hive.fullname}" />
+	<property name="hive.home" value="${hive.extracted.path}" />
 
 	<!-- splunk properties -->
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
@@ -236,6 +238,7 @@
 	<target name="slow-tests" depends="jar">
 		<antcall>
 			<target name="hadoop-setup" />
+			<target name="hive-setup" />
 			<target name="splunk-setup" />
 		</antcall>
 		<antcall>
@@ -319,6 +322,65 @@
 		<available file="${hive.download.path}" type="file" property="hive.isDownloaded"/>
 		<echo>hive.isDownloaded is ${hive.isDownloaded}</echo>
 		<echo>hive.download.path is ${hive.download.path}</echo>
+	</target>
+	
+	<!-- Hive -->
+	<target name="hive-setup" depends="set-hadoop-home">
+		<!-- create the dirs in hdfs; hive keys off of hadoop.home  -->
+		<echo>hadoop.home is ${hadoop.home} </echo>
+		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
+			<arg value="fs" />
+			<arg value="-mkdir" />
+			<arg value="/tmp" />
+		</exec>
+		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
+			<arg value="fs" />
+			<arg value="-mkdir" />
+			<arg value="/user/hive/warehouse" />
+		</exec>	
+		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
+			<arg value="fs" />
+			<arg value="-chmod" />
+			<arg value="g+w" />
+			<arg value="/tmp" />
+		</exec>
+		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
+			<arg value="fs" />
+			<arg value="-chmod" />
+			<arg value="g+w" />
+			<arg value="/user/hive/warehouse" />
+		</exec>
+	</target>
+
+	<!- Start hive server; use screen to run in background -->
+	<target name="hive-start" depends="set-hadoop-home">
+		<!-- we'll use screen, and hive-$USER will be the name of the session -->
+		<echo>hive.home=${hive.home} hive.server.port=${hive.server.port} screenvalue = ${hive.basename}-${user}
+		</echo>
+		<exec executable="screen" dir="${hive.home}" osfamily="unix">
+			<env key="HADOOP_HOME" value="${hadoop.home}"/>
+			<arg value="-S" />
+			<arg value="${hive.basename}-${env.USER}" />
+			<arg value="-d" />
+			<arg value="-m" />
+			<arg value="./bin/hive" />
+			<arg value="--service" />
+			<arg value="hiveserver" />
+			<arg value="-p" />
+			<arg value="${hive.server.port}" />
+		</exec>
+	</target>
+
+	<!-- Stop hive server; quiting screen session may leave hive processes behind, kill those too -->
+	<target name="hive-stop" depends="set-hadoop-home">
+		<exec executable="screen" dir="${hive.home}" osfamily="unix">
+			<env key="HADOOP_HOME" value="${hadoop.home}"/>
+			<arg value="-S" />
+			<arg value="${hive.basename}-${env.USER}" />
+			<arg value="-X" />
+			<arg value="quit" />
+		</exec>
+		<exec executable="bin/hiv3-kill.sh" osfamily="unix"/>
 	</target>
  
 	<!-- Hadoop -->

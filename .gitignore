@@ -5,7 +5,7 @@
 /build/
 
 # Eclipse compile output
-/bin/
+/eclipse-bin/
 /build-cache/
 
 # TODO - this the output folder when ant unzips one of the libs.
