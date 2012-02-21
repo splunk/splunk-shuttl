@@ -52,9 +52,8 @@
 	<property name="hive.download.dir" value="${contribdir}" />
 	<property name="hive.download.path" value="${hive.download.dir}/${hive.download.name}" />
 	<property name="hive.extracted.dir" value="${build-cache}" />
-	<property name="hive.extracted.dir" value="${build-cache}" />
 	<property name="hive.home" value="${build-cache}" />
-	<property name="hive.extracted.path" value="${hive.extracted.dir}/${hive.basename}" />
+	<property name="hive.extracted.path" value="${hive.extracted.dir}/${hive.versname}" />
 	<property name="hive.extracted.conf.dir" value="${hive.extracted.path}/conf" />
 	<property name="hive.download.url" value="${hive.download.url.prefix}/${hive.basename}/${hive.versname}/${hive.fullname}" />
 
@@ -306,7 +305,9 @@
 	</target>
 
 	<!-- extract to build cache-->
-	<target name="hive-extract" depends="checkIfHiveIsDownloaded" if="hive.isDownloaded">
+	<target name="hive-extract" depends="hive-download">
+		<echo>Deleting ${hive.extracted.dir}/hive* ...</echo>
+		<delete dir="${hive.extracted.dir}/hive*" />
 		<echo>Extracting into ${hive.extracted.dir} ...</echo>
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
@@ -336,6 +337,7 @@
 		<antcall>
 			<target name="hadoop-download" />
 			<target name="hadoop-extract" />
+			<target name="hive-extract" />
 			<target name="hadoop-copy-confs" />
 			<target name="hadoop-format-namenode-unsafe" />
 		</antcall>
@@ -365,6 +367,7 @@
 	</target>
 
 	<target name="checkIfHadoopNotDownloaded">
+		<!--PLEASEREVIEW:  brain hurts -->
 		<condition property="isNotDownloaded">
 			<not>
 				<available file="${hadoop.download.path}" type="file" />
@@ -396,6 +399,8 @@
 
 	<!-- extract to build cache-->
 	<target name="hadoop-extract" depends="checkIfHadoopIsDownloaded" unless="isDownloaded">
+		<!-- PLEASEREVIEW: unclear if the check for downloaded is correct; better not to check
+		and fail, no? -->
 		<echo>Extracting...</echo>
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
@@ -408,6 +413,7 @@
 	</target>
 
 	<target name="checkIfHadoopIsDownloaded">
+		<!-- PLEASEREVIEW: didn't I see this target before? oh, no, I saw its evil twin -->
 		<condition property="isDownloaded">
 			<not>
 				<available file="${hadoop.download.path}" type="file" />
