@@ -45,12 +45,11 @@ public class OutputHdfsLocalTest {
     public void fileCheck(String username, String password, String splunkhost,
 	    String splunkmgmtport, String splunkhome) throws IOException,
 	    InterruptedException {
-	System.out.println("Running OutputHdfs Test");
 	SplunkServiceParameters parameters = new SplunkServiceParameters(
 		username, password, splunkhost, splunkmgmtport);
 	Service loggedInService = parameters.getLoggedInService();
 	putDataInSplunk(loggedInService);
-	Thread.sleep(200);
+	Thread.sleep(1000);
 	runCustomSearchCommand(username, password, splunkhome);
     }
 
