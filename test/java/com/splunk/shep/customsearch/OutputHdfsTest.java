@@ -11,7 +11,7 @@ public class OutputHdfsTest extends SplunkHdfsTest {
 
     String testuri = null;
 
-    @Parameters({ "username", "password", "splunk.home" })
+    @Parameters({ "splunk.username", "splunk.password", "splunk.home" })
     @Test(groups = { "slow" })
     public void fileCheck(String username, String password, String splunkhome) {
 	System.out.println("Running OutputHdfs Test");
