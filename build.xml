@@ -352,7 +352,7 @@
 		</exec>
 	</target>
 
-	<!- Start hive server; use screen to run in background -->
+	<!-- Start hive server; use screen to run in background -->
 	<target name="hive-start" depends="set-hadoop-home">
 		<!-- we'll use screen, and hive-$USER will be the name of the session -->
 		<echo>hive.home=${hive.home} hive.server.port=${hive.server.port} screenvalue = ${hive.basename}-${user}
