@@ -12,7 +12,7 @@ public class OutputHdfsTest extends SplunkHdfsTest {
     String testuri = null;
 
     @Parameters({ "splunk.username", "splunk.password", "splunk.home" })
-    @Test(groups = { "slow" })
+    @Test(groups = { "super-slow" })
     public void fileCheck(String username, String password, String splunkhome) {
 	System.out.println("Running OutputHdfs Test");
 	System.out.println("splunkhome " + splunkhome);
@@ -35,7 +35,7 @@ public class OutputHdfsTest extends SplunkHdfsTest {
     }
 
     @Parameters({ "outputhdfstesturi" })
-    @BeforeMethod(groups = { "slow" })
+    @BeforeMethod(groups = { "super-slow" })
     public void beforeTest(String uri) {
 	System.out.println("uri: " + uri);
 	this.testuri = uri;
@@ -46,7 +46,7 @@ public class OutputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
-    @AfterMethod(groups = { "slow" })
+    @AfterMethod(groups = { "super-slow" })
     public void afterTest() {
 	try {
 	    deleteFileinHDFS(this.testuri);
