@@ -21,7 +21,7 @@
 script_dir=$(dirname $0)
 
 expected_rest_out="/splunkeventdata"
-actual_rest_out=`curl -s http://localhost:8080/shep/rest/forwarder/sinkprefix?name=directwrite`
+actual_rest_out=`curl -s http://localhost:9090/shep/rest/forwarder/sinkprefix?name=directwrite`
 
 # Output
 if [ "$expected_rest_out" != "$actual_rest_out" ]

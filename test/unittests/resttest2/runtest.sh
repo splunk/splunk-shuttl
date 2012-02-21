@@ -21,7 +21,7 @@
 script_dir=$(dirname $0)
 
 expected_rest_out="localhost"
-actual_rest_out=`curl -s http://localhost:8080/shep/rest/server/defaulthost`
+actual_rest_out=`curl -s http://localhost:9090/shep/rest/server/defaulthost`
 
 # Output
 if [ "$expected_rest_out" != "$actual_rest_out" ]
