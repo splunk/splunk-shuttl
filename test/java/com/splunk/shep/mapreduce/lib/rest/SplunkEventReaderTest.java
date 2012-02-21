@@ -1,8 +1,14 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -33,10 +39,11 @@ public class SplunkEventReaderTest {
     private static final String TEST_INPUT_FILENAME_1 = "sdata1";
     private static final String TEST_INPUT_FILENAME_2 = "sdata2";
     private HadoopFileSystemPutter putter;
+    private FileSystem fileSystem;
 
     @BeforeMethod(groups = { "slow" })
     public void setUp() {
-	FileSystem fileSystem = FileSystemUtils.getLocalFileSystem();
+	fileSystem = FileSystemUtils.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.get(fileSystem);
     }
 
@@ -46,10 +53,13 @@ public class SplunkEventReaderTest {
     }
 
     @Test(groups = { "slow" })
-    public void theTest() throws IOException {
+    public void should_getExpectedOutput_when_havingSplunkEventsInputFormat_as_inputFormat()
+	    throws IOException {
 	putFilesOnHadoop();
 
 	runMapReduceJob();
+
+	verifyOutput();
     }
 
     private void putFilesOnHadoop() {
@@ -94,6 +104,40 @@ public class SplunkEventReaderTest {
 
     private Path getOutputPath() {
 	return new Path(putter.getPathWhereMyFilesAreStored(), "output");
+    }
+
+    private void verifyOutput() throws IOException {
+	List<String> expectedLines = getExpectedLines();
+	FSDataInputStream inputStream = fileSystem.open(new Path(
+		getOutputPath(), "part-00000"));
+	List<String> readLines = IOUtils.readLines(inputStream);
+	assertEquals(readLines, expectedLines);
+    }
+
+    private List<String> getExpectedLines() {
+	List<String> expectedLines = new ArrayList<String>();
+	expectedLines.add("<105>Jan 19 15:37:41 2012 datagen-host63"
+		+ " postfix/qmgr[27513]: 1G9XWOG6QI: removed ");
+	expectedLines.add("<115>Jan 19 15:37:41 2012 datagen-host99"
+		+ " postfix/qmgr[15450]: VLNUTPSGNB: removed ");
+	expectedLines
+		.add("<130>Jan 19 18:08:54 2012 datagen-host93"
+			+ " postfix/smtpd[13396]: disconnect from unknown[44.254.53.22] ");
+	expectedLines.add("<136>Jan 19 18:08:54 2012 datagen-host2"
+		+ " snmpd[18798]: truncating integer value > 32 bits ");
+	expectedLines.add("<13>Jan 19 15:37:41 2012 datagen-host76"
+		+ " postfix/qmgr[19920]: JQ4FZ93VTE: removed ");
+	expectedLines.add("<166>Jan 19 15:37:41 2012 datagen-host25"
+		+ " status=101 DHCPACK=ASCII from host=22.71.238.208 ");
+	expectedLines
+		.add("<168>Jan 19 15:37:41 2012 datagen-host1"
+			+ " sshd(pam_unix)[3269]: session on port=950 closed for user cgreene ASCII");
+	expectedLines.add("<53>Jan 19 18:08:55 2012 datagen-host54"
+		+ " crond[31203]: (root) CMD (run-parts /etc/cron.hourly) ");
+	expectedLines
+		.add("<98>Jan 19 18:08:55 2012 datagen-host63"
+			+ " postfix/smtpd[32053]: disconnect from unknown[22.121.157.180] ");
+	return expectedLines;
     }
 
     public static class Map extends MapReduceBase implements
