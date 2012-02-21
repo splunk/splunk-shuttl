@@ -296,33 +296,26 @@
 	<!-- Hive -->
 
 	<target name="hive-download" depends="checkIfHiveIsDownloaded" unless="hive.isDownloaded">
-                <echo>Downloading hive from ${hive.download.url}</echo>
-                <exec executable="curl" osfamily="unix">
-                        <arg value="-s" />
-                        <arg value="${hive.download.url}" />
-                        <arg line="-o ${hive.download.name}" />
-                </exec>
-                <move file="${hive.download.name}" todir="${hive.download.dir}" />
+		<echo>Downloading hive from ${hive.download.url}</echo>
+		<exec executable="curl" osfamily="unix">
+			<arg value="-s" />
+			<arg value="${hive.download.url}" />
+			<arg line="-o ${hive.download.name}" />
+		</exec>
+		<move file="${hive.download.name}" todir="${hive.download.dir}" />
 	</target>
 
-        <!-- extract to build cache-->
-        <target name="hive-extract" depends="checkIfHiveIsDownloaded" if="hive.isDownloaded">
-                <echo>Extracting into ${hive.extracted.dir} ...</echo>
-                <exec executable="sh" osfamily="unix">
-                        <arg value="-c" />
-                        <arg line="'tar xf ${hive.download.path} -C ${hive.extracted.dir}'" />
-                </exec>
-<!--
-                <exec executable="sh" osfamily="unix">
-                        <arg value="-c" />
-                        <arg line="'mv ${hive.extracted.path}/${hive.basename}-* ${hadoop.extracted.path}'" />
-                </exec>
--->
+	<!-- extract to build cache-->
+	<target name="hive-extract" depends="checkIfHiveIsDownloaded" if="hive.isDownloaded">
+		<echo>Extracting into ${hive.extracted.dir} ...</echo>
+		<exec executable="sh" osfamily="unix">
+			<arg value="-c" />
+			<arg line="'tar xf ${hive.download.path} -C ${hive.extracted.dir}'" />
+		</exec>
 	</target>
 
-        <target name="checkIfHiveIsDownloaded">
-                <available file="${hive.download.path}" type="file" property="hive.isDownloaded"/>
-		<!-- FIXME: why is this always true? -->
+	<target name="checkIfHiveIsDownloaded">
+		<available file="${hive.download.path}" type="file" property="hive.isDownloaded"/>
 		<echo>hive.isDownloaded is ${hive.isDownloaded}</echo>
 		<echo>hive.download.path is ${hive.download.path}</echo>
 	</target>
