@@ -4,6 +4,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -127,5 +128,14 @@ public class HadoopFileSystemPutterTest {
 	Path path1 = copier.getPathForFile(file1);
 	Path path2 = copier.getPathForFile(file2);
 	assertNotEquals(path1, path2);
+    }
+
+    @Test(groups = { "fast" })
+    public void should_bePossibleToGetPathToFile_with_fileName() {
+	File file = getTempFileThatIsAutomaticallyDeleted();
+	Path expected = copier.getPathForFile(file);
+	Path actual = copier.getPathForFileName(file.getName());
+
+	assertEquals(actual, expected);
     }
 }

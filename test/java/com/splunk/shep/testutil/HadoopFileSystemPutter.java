@@ -96,4 +96,8 @@ public class HadoopFileSystemPutter {
 	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.get(),
 		MethodCallerHelper.get());
     }
+
+    public Path getPathForFileName(String fileName) {
+	return getPathForFile(new File(fileName));
+    }
 }
