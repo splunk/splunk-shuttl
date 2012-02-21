@@ -34,7 +34,7 @@ import com.splunk.shep.mapreduce.lib.rest.tests.WikiLinkCount;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 
-public class SplunkEventReaderTest {
+public class SplunkEventsInputFormatTest {
 
     private static final String TEST_INPUT_FILENAME_1 = "sdata1";
     private static final String TEST_INPUT_FILENAME_2 = "sdata2";
