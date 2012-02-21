@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 
-public class InputHdfsTest2 extends SplunkHdfsTest {
+public class InputHdfsLocalTest {
 
     private static final String FILENAME = "testfile";
     String line1 = "this is line1";
