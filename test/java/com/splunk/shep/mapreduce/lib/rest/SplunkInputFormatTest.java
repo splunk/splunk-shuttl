@@ -77,27 +77,6 @@ public class SplunkInputFormatTest {
 	verifyOutput();
     }
 
-    private void verifyOutput() throws IOException {
-	FSDataInputStream open = fileSystem.open(new Path(getOutput(),
-		"part-00000"));
-	Set<String> expected = new HashSet<String>();
-	expected.add("17:04:15	1");
-	expected.add("17:04:14	1");
-	expected.add("17:04:13	1");
-	expected.add("17:04:12	1");
-	expected.add("17:04:11	1");
-	expected.add("2011-09-19	5");
-	expected.add("a	5");
-	expected.add("is	5");
-	expected.add("test	5");
-	expected.add("this	5");
-
-	List<String> readLines = IOUtils.readLines(open);
-	Set<String> actual = new HashSet<String>(readLines);
-
-	assertEquals(actual, expected);
-    }
-
     public void addDataToSplunk(String splunkHome) throws InterruptedException,
 	    IOException {
 	Service splunk = testParameters.getLoggedInService();
@@ -174,6 +153,27 @@ public class SplunkInputFormatTest {
 
 	FileInputFormat.setInputPaths(job, getInput());
 	FileOutputFormat.setOutputPath(job, getOutput());
+    }
+
+    private void verifyOutput() throws IOException {
+	FSDataInputStream open = fileSystem.open(new Path(getOutput(),
+		"part-00000"));
+	Set<String> expected = new HashSet<String>();
+	expected.add("17:04:15	1");
+	expected.add("17:04:14	1");
+	expected.add("17:04:13	1");
+	expected.add("17:04:12	1");
+	expected.add("17:04:11	1");
+	expected.add("2011-09-19	5");
+	expected.add("a	5");
+	expected.add("is	5");
+	expected.add("test	5");
+	expected.add("this	5");
+
+	List<String> readLines = IOUtils.readLines(open);
+	Set<String> actual = new HashSet<String>(readLines);
+
+	assertEquals(actual, expected);
     }
 
     public static class Map extends MapReduceBase implements
