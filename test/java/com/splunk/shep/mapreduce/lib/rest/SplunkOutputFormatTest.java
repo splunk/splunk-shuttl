@@ -37,6 +37,7 @@ import com.splunk.Service;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
+import com.splunk.shep.testutil.SplunkTestUtils;
 
 public class SplunkOutputFormatTest {
 
@@ -148,7 +149,7 @@ public class SplunkOutputFormatTest {
     private List<String> getSearchResultsFromSplunk() {
 	Service service = testParameters.getLoggedInService();
 	Job search = startSearch(service);
-	waitWhileSearchFinishes(search);
+	SplunkTestUtils.waitWhileJobFinishes(search);
 	InputStream results = search.getResults();
 	return readResults(results);
     }
@@ -161,13 +162,6 @@ public class SplunkOutputFormatTest {
 	Job job = service.getJobs().create(search);
 	System.out.println("Splunk search: " + search);
 	return job;
-    }
-
-    private void waitWhileSearchFinishes(Job job) {
-	while (!job.isDone()) {
-	    sleep(30);
-	    job.refresh();
-	}
     }
 
     private List<String> readResults(InputStream results) {
@@ -195,14 +189,6 @@ public class SplunkOutputFormatTest {
 	expectedWordCountResults.add("Hello 2");
 	expectedWordCountResults.add("World 2");
 	return expectedWordCountResults;
-    }
-
-    private void sleep(int millis) {
-	try {
-	    Thread.sleep(millis);
-	} catch (InterruptedException e) {
-	    throw new RuntimeException(e);
-	}
     }
 
     public static class Map extends MapReduceBase implements

@@ -38,6 +38,7 @@ import com.splunk.shep.mapreduce.lib.rest.tests.SplunkRecord;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
+import com.splunk.shep.testutil.SplunkTestUtils;
 
 public class SplunkInputFormatTest {
 
@@ -121,16 +122,8 @@ public class SplunkInputFormatTest {
 	    throws InterruptedException {
 	Job search = splunk.getJobs().create(
 		"search index=main source=*wordfile-timestamp");
-	waitWhileSearchFinishes(search);
+	SplunkTestUtils.waitWhileJobFinishes(search);
 	return search.getResultCount() > 0;
-    }
-
-    private void waitWhileSearchFinishes(Job search)
-	    throws InterruptedException {
-	while (!search.isDone()) {
-	    Thread.sleep(30);
-	    search.refresh();
-	}
     }
 
     private void runMapReduceJob() throws IOException, InterruptedException {
