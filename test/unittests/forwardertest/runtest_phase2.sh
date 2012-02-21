@@ -41,6 +41,13 @@ ev
 
 actual_splunk_out=$($SPLUNK search 'index="_internal" source="HadoopConnector" "group=per_source_thruput" series=source::*testdata-ts | table ev')
 
+# retry second time
+if [ "$expected_splunk_out" != "$actual_splunk_out" ]
+then
+  sleep 15
+  actual_splunk_out=$($SPLUNK search 'index="_internal" source="HadoopConnector" "group=per_source_thruput" series=source::*testdata-ts | table ev')
+fi
+
 # Output
 if [ "$expected_splunk_out" != "$actual_splunk_out" ]
 then
