@@ -3,10 +3,6 @@
 	<property file="build.properties" />
 	<property file="default.properties" />
 
-	<property name="username" value="admin" />
-	<property name="password" value="changeme" />
-	<property name="outputhdfstesturi" value="hdfs://${hadoop.host}:${hadoop.port}/outputhdfstest/testfile" />
-
 	<!-- project filesystem properties -->
 	<property name="contribdir" value="${basedir}/contrib" />
 	<property name="hadoop.dir" value="${contribdir}/hadoop-0.20.205.0" />
@@ -197,9 +193,6 @@
 	</target>
 
 	<propertyset id="testng">
-		<propertyref name="username" />
-		<propertyref name="password" />
-		<propertyref name="outputhdfstesturi" />
 		<propertyref name="splunk.username" />
 		<propertyref name="splunk.password" />
 		<propertyref name="splunk.home" />
