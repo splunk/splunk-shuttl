@@ -3,6 +3,7 @@
 
 # Compile output
 /build/
+/bin/
 
 # Eclipse compile output
 /eclipse-bin/
