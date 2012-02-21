@@ -1,7 +1,8 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
+import java.io.File;
+
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -28,19 +29,33 @@ public class SplunkEventReaderTest {
 
     @Test(groups = { "slow" })
     public void theTest() {
-	Path file1 = getPathToFirstFile();
-	Path file2 = getPathToSecondFile();
+	putFilesOnHadoop();
+
+	runMapReduceJob();
     }
 
-    private Path getPathToFirstFile() {
-	return getPathToFile(TEST_INPUT_FILENAME_1);
+    private void putFilesOnHadoop() {
+	File file1 = getFirstFile();
+	File file2 = getSecondFile();
+	putter.putFile(file1);
+	putter.putFile(file2);
     }
 
-    private Path getPathToSecondFile() {
-	return getPathToFile(TEST_INPUT_FILENAME_2);
+    private File getFirstFile() {
+	return getFileForFileName(TEST_INPUT_FILENAME_1);
     }
 
-    private Path getPathToFile(String fileName) {
-	return putter.getPathForFileName(fileName);
+    private File getSecondFile() {
+	return getFileForFileName(TEST_INPUT_FILENAME_2);
     }
+
+    private File getFileForFileName(String fileName) {
+	return new File(MapReduceRestTestConstants.TEST_RESOURCES_PATH + "/"
+		+ fileName);
+    }
+
+    private void runMapReduceJob() {
+
+    }
+
 }
