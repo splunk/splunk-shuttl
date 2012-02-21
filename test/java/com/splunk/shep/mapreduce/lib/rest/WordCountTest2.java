@@ -94,7 +94,7 @@ public class WordCountTest2 {
 	List<String> readLines = IOUtils.readLines(open);
 	Set<String> actual = new HashSet<String>(readLines);
 
-	assertEquals(expected, actual);
+	assertEquals(actual, expected);
     }
 
     public void addDataToSplunk(String splunkHome) throws InterruptedException,
@@ -128,7 +128,7 @@ public class WordCountTest2 {
     private void waitWhileSearchFinishes(Job search)
 	    throws InterruptedException {
 	while (!search.isDone()) {
-	    Thread.sleep(20);
+	    Thread.sleep(30);
 	    search.refresh();
 	}
     }
@@ -153,10 +153,7 @@ public class WordCountTest2 {
     }
 
     private Path getPathWhereMyFilesAreStored() {
-	Path pathWhereMyFilesAreStored = HadoopFileSystemPutter.get(
-		FileSystemUtils.getLocalFileSystem())
-		.getPathWhereMyFilesAreStored();
-	return pathWhereMyFilesAreStored;
+	return putter.getPathWhereMyFilesAreStored();
     }
 
     private void configureJobConf(JobConf job) {
