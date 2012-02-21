@@ -34,11 +34,11 @@ public class OutputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
-    @Parameters({ "outputhdfstesturi" })
+    @Parameters({ "hadoop.host", "hadoop.port" })
     @BeforeMethod(groups = { "super-slow" })
-    public void beforeTest(String uri) {
-	System.out.println("uri: " + uri);
-	this.testuri = uri;
+    public void beforeTest(String hadoophost, String hadoopport) {
+	this.testuri = "hdfs://" + hadoophost + ":" + hadoopport
+		+ "/outputhdfstest/testfile";
 	try {
 	    mkdirsinHDFS(this.testuri);
 	} catch (Exception e) {
