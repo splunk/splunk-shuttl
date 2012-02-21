@@ -42,6 +42,9 @@ import com.splunk.shep.testutil.SplunkTestUtils;
 
 public class SplunkInputFormatTest {
 
+    private static final String TEST_INPUT_FILENAME = "/wordfile-timestamp";
+    private static final String TEST_INPUT_FILE_PATH = "test/java/com/splunk/shep/mapreduce/lib/rest"
+	    + TEST_INPUT_FILENAME;
     private FileSystem fileSystem;
     private HadoopFileSystemPutter putter;
     private SplunkServiceParameters testParameters;
@@ -77,35 +80,52 @@ public class SplunkInputFormatTest {
 	verifyOutput();
     }
 
-    public void addDataToSplunk(String splunkHome) throws InterruptedException,
-	    IOException {
+    public void addDataToSplunk(String splunkHome) {
 	Service splunk = testParameters.getLoggedInService();
 	if (!isTestFileAlreadyIndexed(splunk))
 	    indexTestFile(splunkHome);
     }
 
-    private void indexTestFile(String splunkHome) throws IOException,
-	    InterruptedException {
-	// There's currently no way to oneshot a file through the Splunk SDK/API
-	// yet. Using splunk.home instead.
-	File file = new File("test/java/com/splunk/shep/mapreduce/lib/rest"
-		+ "/wordfile-timestamp");
-	Process exec = Runtime.getRuntime().exec(
-		splunkHome + "/bin/splunk add oneshot "
-			+ file.getAbsolutePath());
-	int exitStatus = exec.waitFor();
+    // There's currently no way to oneshot a file through the Splunk SDK/API
+    // Currently using $SPLUNK_HOME instead.
+    private void indexTestFile(String splunkHome) {
+	File file = new File(TEST_INPUT_FILE_PATH);
+	Process exec = oneshotFileToSplunk(splunkHome, file);
+	int exitStatus = waitForOneshotToComplete(exec);
 	assertEquals(exitStatus, 0);
     }
 
-    private boolean isTestFileAlreadyIndexed(Service splunk)
-	    throws InterruptedException {
+    private Process oneshotFileToSplunk(String splunkHome, File file) {
+	try {
+	    return doOneshotFileToSplunk(splunkHome, file);
+	} catch (IOException e) {
+	    throw new RuntimeException(e);
+	}
+    }
+
+    private Process doOneshotFileToSplunk(String splunkHome, File file)
+	    throws IOException {
+	return Runtime.getRuntime().exec(
+		splunkHome + "/bin/splunk add oneshot "
+			+ file.getAbsolutePath());
+    }
+
+    private int waitForOneshotToComplete(Process exec) {
+	try {
+	    return exec.waitFor();
+	} catch (InterruptedException e) {
+	    throw new RuntimeException(e);
+	}
+    }
+
+    private boolean isTestFileAlreadyIndexed(Service splunk) {
 	Job search = splunk.getJobs().create(
 		"search index=main source=*wordfile-timestamp");
 	SplunkTestUtils.waitWhileJobFinishes(search);
 	return search.getResultCount() > 0;
     }
 
-    private void runMapReduceJob() throws IOException, InterruptedException {
+    private void runMapReduceJob() throws IOException {
 	JobConf job = new JobConf(); // cluster.createJobConf();
 	configureJobConf(job);
 
@@ -113,7 +133,6 @@ public class SplunkInputFormatTest {
 		+ job.getInt(SplunkConfiguration.INDEXBYHOST, 0));
 
 	JobClient.runJob(job);
-
     }
 
     private Path getOutput() {
