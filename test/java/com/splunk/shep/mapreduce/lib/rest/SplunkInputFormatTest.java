@@ -39,7 +39,7 @@ import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
 
-public class WordCountTest2 {
+public class SplunkInputFormatTest {
 
     private FileSystem fileSystem;
     private HadoopFileSystemPutter putter;
@@ -157,7 +157,7 @@ public class WordCountTest2 {
     }
 
     private void configureJobConf(JobConf job) {
-	job.setJobName(WordCountTest2.class.getSimpleName());
+	job.setJobName(SplunkInputFormatTest.class.getSimpleName());
 	SplunkConfiguration.setConnInfo(job, testParameters.host,
 		testParameters.mgmtPort, testParameters.username,
 		testParameters.password);
