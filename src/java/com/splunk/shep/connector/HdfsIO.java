@@ -421,6 +421,7 @@ public class HdfsIO implements DataSink {
 	return -1;
     }
 
+    @SuppressWarnings("deprecation")
     private void deleteCurrentFile() {
 	close();
 
