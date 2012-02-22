@@ -15,8 +15,11 @@
 
 package com.splunk.shep.connector.tests;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.fail;
+
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.connector.EventEmitter;
@@ -32,7 +35,7 @@ import com.splunk.shep.connector.EventEmitter;
 
 public class HelloWorldTest {
 
-    @BeforeClass
+    @BeforeMethod(groups = { "fast" })
     // This setUp won't be run without the groups argument,
     // like so: @BeforeClass(groups = { "fast" })
     public void setUp() {
@@ -52,11 +55,11 @@ public class HelloWorldTest {
 	EventEmitter emitter = null;
 	try {
 	    emitter = new EventEmitter(targetPort, targetIP);
-	    Assert.assertEquals(targetIP, emitter.getIp());
-	    Assert.assertEquals(targetPort, emitter.getPort());
-	    Assert.assertNotNull(emitter);
+	    assertEquals(targetIP, emitter.getIp());
+	    assertEquals(targetPort, emitter.getPort());
+	    assertNotNull(emitter);
 	} catch (Exception e) {
-	    Assert.fail();
+	    fail();
 	}
 
     }

@@ -71,6 +71,8 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
 	}
 
 	public void close(Reporter reporter) throws IOException {
+	    writerOut.flush();
+	    writerOut.close();
 	}
 
 	public void write(K key, V value) throws IOException {
@@ -85,7 +87,6 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
 	    sbuf.append("\n");
 	    String eventString = sbuf.toString();
 	    writerOut.write(eventString);
-	    writerOut.flush();
 	}
     }
 
