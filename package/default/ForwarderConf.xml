@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:forwarderConf xmlns:ns2="com.splunk.shep.s2s.forwarder.model">
+<ns2:forwarderConf xmlns:ns2="com.splunk.shep.server.model">
     <hdfssinklist>
         <hdfssink>
             <name>directwrite</name>
             <cluster>dev</cluster>
-            <fileprefix>/newsplunkdata</fileprefix>
+            <fileprefix>/splunkeventdata</fileprefix>
             <maxEventSizeKB>64000</maxEventSizeKB>
             <useAppending>false</useAppending>
         </hdfssink>

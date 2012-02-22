@@ -20,15 +20,4 @@
 
 cd $SPLUNK_HOME/etc/apps/shep/bin
 
-if [ -f "setjavaenv" ]; then
-    source setjavaenv
-else
-    echo "ERROR - HDFS Connector starting failed, setjaveenv unavailable" 
-    exit 1
-fi
-
-if [ -r ../local/connector.conf ]; then
-    exec $JAVA_HOME/bin/java com.splunk.shep.connector.HDFSConnect ../local/connector.conf
-else
-    exec $JAVA_HOME/bin/java com.splunk.shep.connector.HDFSConnect ../default/connector.conf
-fi
+exec $JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./*  com.splunk.shep.server.ShepJettyServer

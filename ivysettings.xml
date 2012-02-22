@@ -1,0 +1,17 @@
+<ivysettings>
+  <settings defaultResolver="default"/>
+  <include url="${ivy.default.settings.dir}/ivysettings-public.xml"/>
+  <include url="${ivy.default.settings.dir}/ivysettings-shared.xml"/>
+  <include url="${ivy.default.settings.dir}/ivysettings-local.xml"/>
+  <include url="${ivy.default.settings.dir}/ivysettings-main-chain.xml"/>
+  <include url="${ivy.default.settings.dir}/ivysettings-default-chain.xml"/>
+  <resolvers>
+    <chain name="default" returnFirst="true">
+      <resolver ref="local"/>
+      <resolver ref="main"/>
+      <!-- Add a second resolver to find jdo2-api/2.3-ec which hive depends on
+      and which is oddly missing from the maven repos -->
+      <ibiblio name="maven2" m2compatible="true" root="http://www.datanucleus.org/downloads/maven2" />
+    </chain>
+  </resolvers>
+</ivysettings>

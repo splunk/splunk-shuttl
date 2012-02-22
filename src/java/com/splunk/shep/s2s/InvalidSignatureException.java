@@ -17,7 +17,7 @@
 
 package com.splunk.shep.s2s;
 
-public class InvalidSignatureException extends Exception {
+public class InvalidSignatureException extends S2SException {
     public InvalidSignatureException(String msg) {
 	super(msg);
     }

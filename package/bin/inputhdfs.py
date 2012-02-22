@@ -53,12 +53,14 @@ if args['file'] == 'nofile' and args['job'] == 'nojob':
     isp.outputResults(errorresult)
     sys.exit()
 
-separator_char = ' '
 
 if args['separator'] == 'tab':
     separator_char = '\t'
 else :
-    separator_char = ','
+    if args['separator'] == 'comma':
+        separator_char = ','
+    else :
+        separator_char = ' '
     
 if (args['file']) != 'nofile':
     process = catfile(args['file'])

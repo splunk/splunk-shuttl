@@ -1,3 +1,17 @@
+// Copyright (C) 2011 Splunk Inc.
+//
+// Splunk Inc. licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 package com.splunk.shep.s2s.forwarder.jetty;
 
 import java.io.IOException;
@@ -15,6 +29,11 @@ import com.splunk.shep.s2s.S2SChannel;
 import com.splunk.shep.s2s.S2SProtocolHandler;
 import com.splunk.shep.s2s.S2SProtocolHandlerFactory;
 
+/**
+ * 
+ * @author kpakkirisamy
+ * 
+ */
 public class S2SConnection implements Connection {
 
     Connector connector;
@@ -22,7 +41,7 @@ public class S2SConnection implements Connection {
     Server server;
     S2SChannel s2schannel;
 
-    ByteArrayBuffer buffer = new ByteArrayBuffer(new byte[40960]);
+    ByteArrayBuffer buffer = new ByteArrayBuffer(new byte[4096]);
 
     private Logger logger = Logger.getLogger(getClass());
 
@@ -41,31 +60,28 @@ public class S2SConnection implements Connection {
 	    handler.setSink(sink);
 	    this.s2schannel = new S2SChannel(handler);
 	} catch (Exception e) {
-	    e.printStackTrace();
+	    logger.error("Exception in init ", e);
+	    throw new RuntimeException("Exception in S2SConnection init");
 	}
     }
 
     @Override
-    public void closed() {
-	// TODO Auto-generated method stub
-	logger.trace("closed");
-
-    }
-
-    @Override
     public long getTimeStamp() {
-	// TODO Auto-generated method stub
-	logger.trace("getTimeStamp");
 	return 0;
     }
 
     @Override
+    public void onIdleExpired(long l) {
+    }
+
+    @Override
+    public void onClose() {
+    }
+
+    @Override
     public Connection handle() throws IOException {
-	// TODO Auto-generated method stub
-	logger.trace("handle");
 	try {
 	    int read = this.endpoint.fill(buffer);
-	    logger.debug("read # of bytes :" + read);
 	    if (read != 0) {
 		byte buf[] = this.buffer.asArray();
 		this.s2schannel.dataAvailable(buf, 0, buf.length);
@@ -76,30 +92,19 @@ public class S2SConnection implements Connection {
 	    this.endpoint.close();
 	} catch (Exception e) {
 	    this.endpoint.close();
-	    e.printStackTrace();
+	    logger.error("Exception in handle", e);
 	}
 	buffer.clear();
 	return this;
     }
 
     @Override
-    public void idleExpired() {
-	// TODO Auto-generated method stub
-	logger.trace("idleExpired");
-
-    }
-
-    @Override
     public boolean isIdle() {
-	// TODO Auto-generated method stub
-	logger.trace("isIdle");
 	return false;
     }
 
     @Override
     public boolean isSuspended() {
-	// TODO Auto-generated method stub
-	logger.trace("isSuspended");
 	return false;
     }
 

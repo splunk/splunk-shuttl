@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.net.URI;
+import java.util.TimerTask;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -36,6 +37,7 @@ import org.apache.hadoop.util.LineReader;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.s2s.DataSink;
+import com.splunk.shep.server.*;
 
 public class HDFSSink implements DataSink {
     public static final long HadoopFileSize = 63000000;
@@ -61,10 +63,9 @@ public class HDFSSink implements DataSink {
 
     private Logger logger = Logger.getLogger(getClass());
 
-    public HDFSSink() throws Exception {
-
+    public HDFSSink() {
     }
-
+    
     // only when my name gets set I can init myself
     @Override
     public void setName(String name) {
@@ -73,20 +74,28 @@ public class HDFSSink implements DataSink {
 	    MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 
 	    // Construct the ObjectName for the MBean we will register
-	    ObjectName objname = new ObjectName(
+	    ObjectName servername = new ObjectName(
 		    "com.splunk.shep.mbeans:type=Server");
-	    Object host = mbs.getAttribute(objname, "DefHadoopClusterHost");
+	    Object host = mbs.getAttribute(servername, "DefHadoopClusterHost");
 	    this.ip = host.toString();
-	    logger.info("host " + this.ip);
-	    Object port = mbs.getAttribute(objname, "DefHadoopClusterPort");
+	    Object port = mbs.getAttribute(servername, "DefHadoopClusterPort");
 	    this.port = port.toString();
-	    logger.info("port " + this.port);
-	    ObjectName objname2 = new ObjectName(
+	    ObjectName forwardername = new ObjectName(
 		    "com.splunk.shep.mbeans:type=Forwarder");
+	    Object params[] = new Object[1];
+	    params[0] = new String(name);
+	    String signature[] = { "java.lang.String" };
+	    Object prefix = mbs.invoke(forwardername, "getHDFSSinkPrefix", params,
+		    signature);
+	    this.path = prefix.toString();
+	    Object appending = mbs.invoke(forwardername, "getHDFSSinkPrefix", params,
+		    signature);
+	    this.useAppend = Boolean.getBoolean(appending.toString());
 	    init();
 	} catch (Exception e) {
-	    // TODO
-	    e.printStackTrace();
+	    // should not happen - so runtime exception
+	    logger.error("HDFSSink Init fail in setName" , e);
+	    throw new RuntimeException("HDFSSink Init fail in setName");
 	}
     }
 

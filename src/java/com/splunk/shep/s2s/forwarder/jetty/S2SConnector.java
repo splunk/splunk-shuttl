@@ -1,3 +1,17 @@
+// Copyright (C) 2011 Splunk Inc.
+//
+// Splunk Inc. licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 package com.splunk.shep.s2s.forwarder.jetty;
 
 import java.io.IOException;
@@ -9,6 +23,16 @@ import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.bio.SocketConnector;
 
+import com.splunk.shep.connector.TimeoutRunnerThread;
+import com.splunk.shep.connector.util.MetricsTimeout;
+import com.splunk.shep.connector.util.TimeoutHeap;
+import com.splunk.shep.s2s.S2SEventThruput;
+
+/**
+ * 
+ * @author kpakkirisamy
+ * 
+ */
 public class S2SConnector extends SocketConnector {
     private static final String IGNORED = "ignored";
     private Logger logger = Logger.getLogger(getClass());
@@ -25,9 +49,15 @@ public class S2SConnector extends SocketConnector {
 	super.setResponseHeaderSize(MAX_PACKET_SIZE);
 	super.setRequestBufferSize(MAX_PACKET_SIZE);
 	super.setResponseBufferSize(MAX_PACKET_SIZE);
-	// IN AJP protocol the socket stay open, so
-	// by default the time out is set to 0 seconds
 	super.setMaxIdleTime(0);
+
+	S2SEventThruput.getInstance();
+
+	MetricsTimeout metricsTimeout = new MetricsTimeout(30 * 1000);
+	TimeoutHeap.addTimeout(metricsTimeout);
+	TimeoutRunnerThread timeoutRunnerThread = new TimeoutRunnerThread();
+	timeoutRunnerThread.start();
+
     }
 
     public String getName() {
@@ -40,7 +70,6 @@ public class S2SConnector extends SocketConnector {
 
     public void setDataSink(String classname) {
 	this.sinkclassname = classname;
-	logger.info("sink : " + classname);
     }
 
     public String getDataSink() {
@@ -50,8 +79,6 @@ public class S2SConnector extends SocketConnector {
     @Override
     protected void doStart() throws Exception {
 	super.doStart();
-	logger.info("S2S is not a secure protocol. Please protect port :"
-		+ Integer.toString(getLocalPort()));
     }
 
     /* ------------------------------------------------------------ */

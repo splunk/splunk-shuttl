@@ -2,8 +2,8 @@ package com.splunk.shep.customsearch;
 
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -11,8 +11,8 @@ public class OutputHdfsTest extends SplunkHdfsTest {
 
     String testuri = null;
 
-    @Parameters({ "username", "password", "splunk.home" })
-    @Test(groups = { "slow" })
+    @Parameters({ "splunk.username", "splunk.password", "splunk.home" })
+    @Test(groups = { "super-slow" })
     public void fileCheck(String username, String password, String splunkhome) {
 	System.out.println("Running OutputHdfs Test");
 	System.out.println("splunkhome " + splunkhome);
@@ -34,11 +34,11 @@ public class OutputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
-    @Parameters({ "outputhdfstesturi" })
-    @BeforeTest(groups = { "slow" })
-    public void beforeTest(String uri) {
-	System.out.println("uri: " + uri);
-	this.testuri = uri;
+    @Parameters({ "hadoop.host", "hadoop.port" })
+    @BeforeMethod(groups = { "super-slow" })
+    public void beforeTest(String hadoophost, String hadoopport) {
+	this.testuri = "hdfs://" + hadoophost + ":" + hadoopport
+		+ "/outputhdfstest/testfile";
 	try {
 	    mkdirsinHDFS(this.testuri);
 	} catch (Exception e) {
@@ -46,7 +46,7 @@ public class OutputHdfsTest extends SplunkHdfsTest {
 	}
     }
 
-    @AfterTest(groups = { "slow" })
+    @AfterMethod(groups = { "super-slow" })
     public void afterTest() {
 	try {
 	    deleteFileinHDFS(this.testuri);
