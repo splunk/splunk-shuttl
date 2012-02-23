@@ -17,6 +17,7 @@
 			<class name="com.splunk.shep.testutil.SafePathCreatorTest" />
 			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormatTest" />
 			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkInputFormatTest" />
+			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkEventsInputFormatTest" />
 			<class name="com.splunk.shep.customsearch.InputHdfsLocalTest" />
 			<class name="com.splunk.shep.customsearch.OutputHdfsLocalTest" />
 		</classes>
