@@ -220,10 +220,6 @@
 		<antcall target="super-slow-tests" />
 	</target>
 
-	<target name="fast-tests">
-		<antcall target="fast-TestNG-tests" />
-	</target>
-
 	<propertyset id="testng">
 		<propertyref name="splunk.username" />
 		<propertyref name="splunk.password" />
@@ -234,7 +230,7 @@
 		<propertyref name="hadoop.port" />
 	</propertyset>
 
-	<target name="fast-TestNG-tests" depends="compile">
+	<target name="fast-tests" depends="compile">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
