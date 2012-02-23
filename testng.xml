@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Suite" parallel="none">
-  <parameter name="splunk.username"  value="admin"/>
-  <parameter name="splunk.password"  value="changeme"/>
-  <parameter name="splunk.host"  value="localhost"/>
-  <parameter name="splunk.mgmtport"  value="8089"/>
+	<parameter name="splunk.username" value="admin" />
+	<parameter name="splunk.password" value="changeme" />
+	<parameter name="splunk.host" value="localhost" />
+	<parameter name="splunk.mgmtport" value="8089" />
 
-  <test name="Test" preserve-order="true">
-    <classes>
-      <class name="com.splunk.shep.mapreduce.lib.rest.util.ContentReaderTest"/>
-      <class name="com.splunk.shep.mapreduce.lib.rest.util.ReaderWrapperTest"/>
-      <class name="com.splunk.shep.testutil.MethodCallerHelperTest"/>
-      <class name="com.splunk.shep.testutil.HadoopFileSystemPutterTest"/>
-      <class name="com.splunk.shep.mapreduce.lib.rest.SplunkXMLStreamTest"/>
-      <class name="com.splunk.shep.connector.tests.HelloWorldTest"/>
-      <class name="com.splunk.shep.testutil.SafePathCreatorTest"/>
-      <class name="com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormatTest"/>
-      <class name="com.splunk.shep.mapreduce.lib.rest.WordCountTest2"/>
-    </classes>
-  </test> <!-- Test -->
+	<test name="Test" preserve-order="true">
+		<classes>
+			<class name="com.splunk.shep.mapreduce.lib.rest.util.ContentReaderTest" />
+			<class name="com.splunk.shep.mapreduce.lib.rest.util.ReaderWrapperTest" />
+			<class name="com.splunk.shep.testutil.MethodCallerHelperTest" />
+			<class name="com.splunk.shep.testutil.HadoopFileSystemPutterTest" />
+			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkXMLStreamTest" />
+			<class name="com.splunk.shep.connector.tests.HelloWorldTest" />
+			<class name="com.splunk.shep.testutil.SafePathCreatorTest" />
+			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormatTest" />
+			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkInputFormatTest" />
+			<class name="com.splunk.shep.customsearch.InputHdfsLocalTest" />
+			<class name="com.splunk.shep.customsearch.OutputHdfsLocalTest" />
+		</classes>
+	</test> <!-- Test -->
 </suite> <!-- Suite -->
