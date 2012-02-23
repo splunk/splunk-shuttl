@@ -62,13 +62,14 @@ public class SplunkInputFormatTest {
 
     @Test(groups = { "slow" })
     @Parameters({ "splunk.host", "splunk.mgmtport", "splunk.username",
-	    "splunk.password", "splunk.home" })
+	    "splunk.password" })
     public void should_runAMapReduceJob_by_usingSplunkAsAnInputToHadoop(
 	    String splunkHost, String splunkMGMTPort, String splunkUsername,
-	    String splunkPassword, String splunkHome)
-	    throws InterruptedException, IOException {
+	    String splunkPassword) throws InterruptedException, IOException {
 	testParameters = new SplunkServiceParameters(splunkUsername,
 		splunkPassword, splunkHost, splunkMGMTPort);
+	Service loggedInService = testParameters.getLoggedInService();
+	String splunkHome = loggedInService.getSettings().getSplunkHome();
 
 	addDataToSplunk(splunkHome);
 
