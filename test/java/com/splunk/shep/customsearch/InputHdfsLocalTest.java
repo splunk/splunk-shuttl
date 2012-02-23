@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
+import com.splunk.shep.testutil.SplunkServiceParameters;
 
 public class InputHdfsLocalTest {
 
@@ -28,17 +29,21 @@ public class InputHdfsLocalTest {
     HadoopFileSystemPutter putter;
     private FileSystem fileSystem;
 
-    @Parameters({ "splunk.username", "splunk.password", "splunk.home" })
+    @Parameters({ "splunk.host", "splunk.mgmtport", "splunk.username",
+	    "splunk.password" })
     @Test(groups = { "slow" })
-    public void fileCheck(String username, String password, String splunkhome) {
+    public void fileCheck(String splunkHost, String splunkMGMTPort,
+	    String splunkUsername, String splunkPassword) {
+	String splunkHome = getSplunkHome(splunkHost, splunkMGMTPort,
+		splunkUsername, splunkPassword);
 	System.out.println("Running InputHdfs Test");
 	Path pathToTestFile = putter.getPathForFileName(FILENAME);
 	try {
 	    System.out.println("pathToTestFile uri: " + pathToTestFile.toUri());
 	    Runtime rt = Runtime.getRuntime();
-	    String cmdarray[] = { splunkhome + "/bin/splunk", "search",
+	    String cmdarray[] = { splunkHome + "/bin/splunk", "search",
 		    "| inputhdfs file=" + pathToTestFile.toUri(), "-auth",
-		    username + ":" + password };
+		    splunkUsername + ":" + splunkPassword };
 	    Process proc = rt.exec(cmdarray);
 	    proc.waitFor();
 	    InputStream stdin = proc.getInputStream();
@@ -52,6 +57,14 @@ public class InputHdfsLocalTest {
 	    t.printStackTrace();
 	    Assert.fail(t.getMessage());
 	}
+    }
+
+    private String getSplunkHome(String splunkHost, String splunkMGMTPort,
+	    String splunkUsername, String splunkPassword) {
+	String splunkHome = new SplunkServiceParameters(splunkUsername,
+		splunkPassword, splunkHost, splunkMGMTPort)
+		.getLoggedInService().getSettings().getSplunkHome();
+	return splunkHome;
     }
 
     @BeforeMethod(groups = { "slow" })
