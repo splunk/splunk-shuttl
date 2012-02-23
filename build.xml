@@ -104,6 +104,11 @@
 		<!-- should not create things in the clean target? -->
 		<antcall target="clean-build-cache" />
 	</target>
+	
+	<target name="delete-built-classes">
+		<delete dir="${classdir}" />
+		<mkdir dir="${classdir}" />
+	</target>
 
 	<target name="clean-build-cache">
 		<antcall>
@@ -186,7 +191,8 @@
 	</target>
 
 	<!-- compile all code, may in the future want to split out test and source builds -->
-	<target name="compile" depends="ivy-resolve">
+	<target name="compile" depends="ivy-resolve, do-compile" />
+	<target name="do-compile" >
 		<javac srcdir="${srcdir};${testdir}" destdir="${classdir}" includeAntRuntime="false" debug="true">
 			<classpath refid="build.classpath" />
 		</javac>
@@ -230,9 +236,10 @@
 		<propertyref name="hadoop.port" />
 	</propertyset>
 
-	<target name="fast-tests" depends="compile">
+	<target name="fast-tests" depends="compile, do-fast-tests" />
+	<target name="do-fast-tests">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
-		<testng classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
 			<classfileset dir="${builddir}" includes="**/*.class" />
 		</testng>
@@ -844,5 +851,10 @@
 			<arg value="src/java/com/splunk/shep/connector/tests/s2s.data" />
 			<classpath refid="build.classpath" />
 		</java>
+	</target>
+	
+	<!-- Run by hooks -->
+	<target name="pre-commit" depends="delete-built-classes, do-compile, do-fast-tests" >
+		<fail if="testng.failed" message="Fast tests have failed."/>
 	</target>
 </project>
