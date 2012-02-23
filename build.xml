@@ -241,7 +241,7 @@
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
-			<classfileset dir="${builddir}" includes="**/*.class" />
+			<classfileset dir="${classdir}" includes="**/*.class" />
 		</testng>
 	</target>
 
@@ -261,7 +261,7 @@
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="slow" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
-			<classfileset dir="${builddir}" includes="**/*.class" />
+			<classfileset dir="${classdir}" includes="**/*.class" />
 		</testng>
 	</target>
 
@@ -287,7 +287,7 @@
 		<!-- Test group 'super-slow'. For tests that use hadoop -->
 		<testng classpathref="build.classpath" groups="super-slow" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
-			<classfileset dir="${builddir}" includes="**/*.class" />
+			<classfileset dir="${classdir}" includes="**/*.class" />
 		</testng>
 	</target>
 
