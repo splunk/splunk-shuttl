@@ -23,10 +23,10 @@ import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.bio.SocketConnector;
 
-import com.splunk.shep.connector.TimeoutRunnerThread;
-import com.splunk.shep.connector.util.MetricsTimeout;
-import com.splunk.shep.connector.util.TimeoutHeap;
 import com.splunk.shep.s2s.S2SEventThruput;
+import com.splunk.shep.s2s.timer.MetricsTimeout;
+import com.splunk.shep.s2s.timer.TimeoutHeap;
+import com.splunk.shep.s2s.timer.TimeoutRunnerThread;
 
 /**
  * 

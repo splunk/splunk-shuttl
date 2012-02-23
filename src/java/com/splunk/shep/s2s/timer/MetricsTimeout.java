@@ -1,4 +1,4 @@
-// MetricsManager.java
+// MetricsTimeout.java
 //
 // Copyright (C) 2011 Splunk Inc.
 //
@@ -15,25 +15,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.s2s.forwarder;
+package com.splunk.shep.s2s.timer;
 
-import com.splunk.shep.s2s.timer.PeriodicTimeout;
-
-public class HDFSFileTimeout extends PeriodicTimeout {
-    private HDFSSink fileMgr = null;
-
-    public HDFSFileTimeout(int periodInMs) {
+public class MetricsTimeout extends PeriodicTimeout {
+    public MetricsTimeout(int periodInMs) {
 	super(periodInMs);
-    }
-
-    public void setFileIO(HDFSSink fileIO) {
-	fileMgr = fileIO;
     }
 
     @Override
     public boolean runPeriodicTask() throws Exception {
-	if (fileMgr != null)
-	    fileMgr.checkOpenDuration();
+	MetricsManager.getInstance().fire();
 	return true;
     }
 }
