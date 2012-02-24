@@ -2,6 +2,7 @@ package com.splunk.shep.archiver.fileSystem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -25,10 +26,12 @@ public interface ArchiveFileSystem {
      *             If specified file on the local file system doesn't exist.
      * @throws FileOverwriteException
      *             If there is already a file on the specified path.
+     * @throws IOException
+     *             If there was any other problem with the operation.
      */
     void putFile(File fileOnLocalFileSystem,
 	    FileSystemPath fileOnArchiveFileSystem)
-	    throws FileNotFoundException, FileOverwriteException;
+	    throws FileNotFoundException, FileOverwriteException, IOException;
     
     /**
      * Retries the file from specified path on archiving file system and stores
@@ -43,10 +46,12 @@ public interface ArchiveFileSystem {
      *             specified path.
      * @throws FileOverwriteException
      *             If there is already a file on the local file system.
+     * @throws IOException
+     *             If there was any other problem with the operation.
      */
     void getFile(File fileOnLocalFileSystem,
 	    FileSystemPath fileOnArchiveFileSystem)
-	    throws FileNotFoundException, FileOverwriteException;
+	    throws FileNotFoundException, FileOverwriteException, IOException;
 
     /**
      * Lists the contents of the specified path.
@@ -56,7 +61,10 @@ public interface ArchiveFileSystem {
      * @return One of three possibilities: 1. The contents of specified path. 2.
      *         A list with only the path it self if its a file. 3. An empty list
      *         if the specified path doesn't exist OR it's an empty directory.
+     * @throws IOException
+     *             If there was any other problem with the operation.
      */
-    List<FileSystemPath> listPath(FileSystemPath pathToBeListed);
+    List<FileSystemPath> listPath(FileSystemPath pathToBeListed)
+	    throws IOException;
 
 }
