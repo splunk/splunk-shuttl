@@ -31,7 +31,7 @@ import com.splunk.shep.server.model.ForwarderConf;
  */
 public class ShepForwarder implements ShepForwarderMBean {
     private Logger logger = Logger.getLogger(getClass());
-    private String FORWARDERCONF_XML = "etc/apps/shep/default/ForwarderConf.xml";
+    private String FORWARDERCONF_XML = "etc/apps/shep/conf/forwarder.xml";
     private ArrayList<ForwarderConf.HDFSSink> hdfsSinkList;
 
     public ShepForwarder() throws ShepMBeanException {
