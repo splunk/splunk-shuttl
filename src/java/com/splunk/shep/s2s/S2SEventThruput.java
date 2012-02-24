@@ -25,8 +25,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shep.connector.util.MetricsCallback;
-import com.splunk.shep.connector.util.MetricsManager;
+import com.splunk.shep.s2s.timer.MetricsCallback;
+import com.splunk.shep.s2s.timer.MetricsManager;
 
 public class S2SEventThruput implements MetricsCallback {
     private class Thruput {

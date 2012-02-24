@@ -86,7 +86,8 @@ public class HDFSSink implements DataSink {
 	    Object prefix = mbs.invoke(forwardername, "getHDFSSinkPrefix", params,
 		    signature);
 	    this.path = prefix.toString();
-	    Object appending = mbs.invoke(forwardername, "getHDFSSinkPrefix", params,
+	    Object appending = mbs.invoke(forwardername,
+		    "getHDFSSinkUseAppending", params,
 		    signature);
 	    this.useAppend = Boolean.getBoolean(appending.toString());
 	    init();
