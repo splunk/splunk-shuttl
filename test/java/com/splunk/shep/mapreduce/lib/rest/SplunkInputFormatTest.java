@@ -144,10 +144,6 @@ public class SplunkInputFormatTest {
     private void runMapReduceJob() throws IOException {
 	JobConf job = new JobConf(); // cluster.createJobConf();
 	configureJobConf(job);
-
-	System.out.println("indexbyhost "
-		+ job.getInt(SplunkConfiguration.INDEXBYHOST, 0));
-
 	JobClient.runJob(job);
     }
 
@@ -219,13 +215,11 @@ public class SplunkInputFormatTest {
 	public void map(LongWritable key, SplunkRecord value,
 		OutputCollector<Text, IntWritable> output, Reporter reporter)
 		throws IOException {
-	    System.out.println("got a map");
 	    String line = value.getMap().get("_raw");
 	    if (line == null) {
 		System.out.println("_raw is null");
 		return;
 	    }
-	    System.out.println("line " + line);
 	    StringTokenizer tokenizer = new StringTokenizer(line);
 	    while (tokenizer.hasMoreTokens()) {
 		word.set(tokenizer.nextToken());
