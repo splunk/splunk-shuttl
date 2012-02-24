@@ -46,13 +46,11 @@ public class WordCount2 {
 	public void map(LongWritable key, SplunkRecord value,
 		OutputCollector<Text, IntWritable> output, Reporter reporter)
 		throws IOException {
-	    System.out.println("got a map");
 	    String line = value.getMap().get("_raw");
 	    if (line == null) {
 		System.out.println("_raw is null");
 		return;
 	    }
-	    System.out.println("line " + line);
 	    StringTokenizer tokenizer = new StringTokenizer(line);
 	    while (tokenizer.hasMoreTokens()) {
 		word.set(tokenizer.nextToken());
@@ -77,7 +75,6 @@ public class WordCount2 {
     }
 
     public static void main(String[] args) throws Exception {
-	System.out.println("Starting job");
 	JobConf conf = new JobConf(WordCount2.class);
 	conf.setJobName("wordcount");
 	SplunkConfiguration.setConnInfo(conf, "localhost", 8089, "admin",
@@ -114,8 +111,6 @@ public class WordCount2 {
 	FileInputFormat.setInputPaths(conf, new Path(args[0]));
 	FileOutputFormat.setOutputPath(conf, new Path(args[1]));
 
-	System.out.println("indexbyhost "
-		+ conf.getInt(SplunkConfiguration.INDEXBYHOST, 0));
 	JobClient.runJob(conf);
     }
 }

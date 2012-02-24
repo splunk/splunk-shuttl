@@ -38,19 +38,21 @@ public class OutputHdfsLocalTest {
     String sourcetype = "shep-splunk-hadoop-test";
     String source = simpleClassName;
     String splunkMessage = simpleClassName;
+    SplunkServiceParameters parameters;
 
-    @Parameters({ "splunk.username", "splunk.password", "splunk.host",
-	    "splunk.mgmtport", "splunk.home" })
+    @Parameters({ "splunk.host", "splunk.mgmtport", "splunk.username",
+	    "splunk.password" })
     @Test(groups = { "slow" })
-    public void fileCheck(String username, String password, String splunkhost,
-	    String splunkmgmtport, String splunkhome) throws IOException,
+    public void fileCheck(String splunkHost, String splunkMGMTPort,
+	    String splunkUsername, String splunkPassword) throws IOException,
 	    InterruptedException {
-	SplunkServiceParameters parameters = new SplunkServiceParameters(
-		username, password, splunkhost, splunkmgmtport);
+	parameters = new SplunkServiceParameters(splunkUsername,
+		splunkPassword, splunkHost, splunkMGMTPort);
 	Service loggedInService = parameters.getLoggedInService();
 	putDataInSplunk(loggedInService);
 	Thread.sleep(1000);
-	runCustomSearchCommand(username, password, splunkhome);
+	runCustomSearchCommand(splunkUsername, splunkPassword, loggedInService
+		.getSettings().getSplunkHome());
     }
 
     private void runCustomSearchCommand(String username, String password,

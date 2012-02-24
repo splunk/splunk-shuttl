@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.net.URI;
-import java.util.TimerTask;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -37,7 +36,6 @@ import org.apache.hadoop.util.LineReader;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.s2s.DataSink;
-import com.splunk.shep.server.*;
 
 public class HDFSSink implements DataSink {
     public static final long HadoopFileSize = 63000000;
@@ -460,23 +458,6 @@ public class HDFSSink implements DataSink {
 	    return fileStatus.getModificationTime();
 	}
 	return -1;
-    }
-
-    private void deleteCurrentFile() {
-	close();
-
-	try {
-	    if (fileSystem.exists(destination)) {
-		// remove the file.
-		fileSystem.delete(destination);
-	    }
-
-	    logger.info("deleted hdfs file: " + path);
-	} catch (Exception e) {
-	    logger.error("Exception in deleting Hdfs file: " + path + " - "
-		    + e.toString() + "\nStacktrace\n"
-		    + e.getStackTrace().toString());
-	}
     }
 
     // Implementation of DataSink interface method.

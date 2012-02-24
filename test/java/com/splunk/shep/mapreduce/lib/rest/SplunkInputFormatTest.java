@@ -62,13 +62,14 @@ public class SplunkInputFormatTest {
 
     @Test(groups = { "slow" })
     @Parameters({ "splunk.host", "splunk.mgmtport", "splunk.username",
-	    "splunk.password", "splunk.home" })
+	    "splunk.password" })
     public void should_runAMapReduceJob_by_usingSplunkAsAnInputToHadoop(
 	    String splunkHost, String splunkMGMTPort, String splunkUsername,
-	    String splunkPassword, String splunkHome)
-	    throws InterruptedException, IOException {
+	    String splunkPassword) throws InterruptedException, IOException {
 	testParameters = new SplunkServiceParameters(splunkUsername,
 		splunkPassword, splunkHost, splunkMGMTPort);
+	Service loggedInService = testParameters.getLoggedInService();
+	String splunkHome = loggedInService.getSettings().getSplunkHome();
 
 	addDataToSplunk(splunkHome);
 
@@ -143,10 +144,6 @@ public class SplunkInputFormatTest {
     private void runMapReduceJob() throws IOException {
 	JobConf job = new JobConf(); // cluster.createJobConf();
 	configureJobConf(job);
-
-	System.out.println("indexbyhost "
-		+ job.getInt(SplunkConfiguration.INDEXBYHOST, 0));
-
 	JobClient.runJob(job);
     }
 
@@ -218,13 +215,11 @@ public class SplunkInputFormatTest {
 	public void map(LongWritable key, SplunkRecord value,
 		OutputCollector<Text, IntWritable> output, Reporter reporter)
 		throws IOException {
-	    System.out.println("got a map");
 	    String line = value.getMap().get("_raw");
 	    if (line == null) {
 		System.out.println("_raw is null");
 		return;
 	    }
-	    System.out.println("line " + line);
 	    StringTokenizer tokenizer = new StringTokenizer(line);
 	    while (tokenizer.hasMoreTokens()) {
 		word.set(tokenizer.nextToken());
