@@ -27,4 +27,16 @@ public interface ArchiveFileSystem {
     void putFile(File fileOnLocalFileSystem,
 	    File fileOnArchiveFileSystem) throws FileNotFoundException,
 	    FileAlreadyExistsException;
+    
+    /**
+     * Retries the file on archiving file system and stores it to the specified
+     * file on local file system.
+     * 
+     * @param fileOnLocalFileSystem
+     *            A
+     * @param fileOnArchiveFileSystem
+     * @throws FileNotFoundException
+     */
+    void getFile(File fileOnLocalFileSystem, File fileOnArchiveFileSystem)
+	    throws FileNotFoundException;
 }
