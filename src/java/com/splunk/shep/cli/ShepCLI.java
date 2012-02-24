@@ -26,7 +26,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.splunk.shep.connector.HdfsIO;
+import com.splunk.shep.s2s.forwarder.HDFSSink;
 
 public class ShepCLI {
 
@@ -164,7 +164,7 @@ public class ShepCLI {
 	// runCmd(cmd);
 
 	// api call to read file
-	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
+	HDFSSink fileIO = new HDFSSink(conf.getHadoopIP(), conf.getHadoopPort());
 	fileIO.openToRead(src);
 	System.out.println(fileIO.read());
 	fileIO.close();
@@ -186,7 +186,7 @@ public class ShepCLI {
     }
 
     private void createFile(String filePath, String msg) throws Exception {
-	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
+	HDFSSink fileIO = new HDFSSink(conf.getHadoopIP(), conf.getHadoopPort());
 	fileIO.openToCreate(filePath);
 	fileIO.write(msg, "commandline", "user_input", "localhost",
 		System.currentTimeMillis());
@@ -194,7 +194,7 @@ public class ShepCLI {
     }
 
     private void tailFile(String src) throws Exception {
-	HdfsIO fileIO = new HdfsIO(conf.getHadoopIP(), conf.getHadoopPort());
+	HDFSSink fileIO = new HDFSSink(conf.getHadoopIP(), conf.getHadoopPort());
 	if (!fileIO.setFilePath(src)) {
 	    System.out.println("Cannot find file: " + src);
 	    return;
