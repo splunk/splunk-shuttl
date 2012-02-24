@@ -2,6 +2,7 @@ package com.splunk.shep.archiver.fileSystem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 /**
  * With this interface code can put, retrieve and list files in any system that
@@ -46,5 +47,16 @@ public interface ArchiveFileSystem {
     void getFile(File fileOnLocalFileSystem,
 	    FileSystemPath fileOnArchiveFileSystem)
 	    throws FileNotFoundException, FileOverwriteException;
-    
+
+    /**
+     * Lists the contents of the specified path.
+     * 
+     * @param pathToBeListed
+     *            The returned list fill contains the contents of this path.
+     * @return One of three possibilities: 1. The contents of specified path. 2.
+     *         A list with only the path it self if its a file. 3. An empty list
+     *         if the specified path doesn't exist OR it's an empty directory.
+     */
+    List<FileSystemPath> listPath(FileSystemPath pathToBeListed);
+
 }
