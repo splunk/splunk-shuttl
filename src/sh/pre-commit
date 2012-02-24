@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# This hook does three things:
+#
+# 1. Remove everything from the working directory that is not going to be committed.
+#    This is done becouse we want to make sure that the code that will be committed 
+#    together with the the code allready committed is alone enough for building and
+#    running the tests. This was we make sure that we can allways roll back to a state
+#    that has at least been compiled and tested.
+#
+# 2. Run the ant target 'pre-commit' for the purpose of being fast this target doesn't
+#    resolve ivy dependencies. It recompiles everything and runs the fast tests.
+#
+# 3. Put everything back to working directory that earlier was removed.
+#
+# Pitfalls:
+#
+# Incase you have written a test that fails but haven't added it for commit that test will
+# not be run (since it's being stashed away) and you will be able to do a commit that actually
+# fails. This is prevented by always commit your tests together with the source that it tests.
+# This is the how it should be done anyway.
+
+set -e
+set -u
+
+main()
+{
+    stash_identifier="This stash entry is for creating a clean working space for pre-commit testing"
+    trap 'pop "${stash_identifier}"; exit' INT TERM EXIT
+        stash "${stash_identifier}"
+        compile_and_test_code || {
+            print_commit_failed_msg
+            exit 1
+        }
+        pop "${stash_identifier}"
+    trap - INT TERM EXIT
+}
+
+stash()
+{
+    echo ""
+    echo "Stashing: Creating a clean working directory by stashing every thing except the index"
+    stash_identifier="${1}"
+    git stash save --keep-index --include-untracked "${stash_identifier}" > /dev/null
+}
+
+pop()
+{
+    echo ""
+    echo "Poping: Restoring the status of your working directory by poping changes from stash"
+    stash_identifier="${1}"
+    test_identifier="$(git --no-pager stash list -n 1 --format='%s')"
+    if [[ "${test_identifier}" == *"${stash_identifier}" ]]; then
+        git stash pop > /dev/null
+    fi
+}
+
+print_commit_failed_msg()
+{
+    echo "
+    The fast tests are failing, fix the issue before commiting.
+    If the tests shouldn't fail test the following before retrying to commit:
+        > ant clean-all
+        > ant ivy-resolve
+    
+    COMMIT FAILED!"
+}
+
+compile_and_test_code()
+{
+    ant pre-commit
+}
+
+main
