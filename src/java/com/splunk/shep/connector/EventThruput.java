@@ -125,19 +125,19 @@ public class EventThruput implements MetricsCallback {
 	if (timeDiff <= 0)
 	    return;
 
-	double kb = (bytesSeenSinceLastOutput / 1024);
+	double kb = ((double) bytesSeenSinceLastOutput / 1024);
 	double kbps = kb / timeDiff;
-	int eps = (int) (eventsSeenSinceLastOutput / timeDiff);
-	double avgKbps = (totalBytesSent / 1024)
+	double eps = (double) (eventsSeenSinceLastOutput / timeDiff);
+	double avgKbps = ((double) totalBytesSent / 1024)
 		/ ((now.getTime() - startTime.getTime()) * 1000);
 
 	ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	PrintStream ps = new PrintStream(baos);
 	ps.print(" Metrics - group=thruput name=connector_thruput");
 	ps.format(" instantaneous_kbps=%.4f", kbps);
-	ps.print(" instantaneous_eps=" + eps);
+	ps.format(" instantaneous_eps=%.4f", eps);
 	ps.format(" average_kbps=%.4f", avgKbps);
-	ps.format(" total_k_processed=%.4f", (totalBytesSent / 1024));
+	ps.format(" total_k_processed=%.4f", ((double) totalBytesSent / 1024));
 	ps.format(" kb=%.4f", kb);
 	ps.print(" ev=" + eventsSeenSinceLastOutput);
 	logger.info(baos.toString());
@@ -167,18 +167,81 @@ public class EventThruput implements MetricsCallback {
 	ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	PrintStream ps = new PrintStream(baos);
 	for (String series : thruput.keySet()) {
-	    double kb = thruput.get(series).totalBytes / 1024;
+	    double kb = (double) thruput.get(series).totalBytes / 1024;
 	    double kbps = kb / timeDiff;
 	    int ev = thruput.get(series).eventCount;
-	    int eps = (int) (ev / timeDiff);
+	    double eps = (double) (ev / timeDiff);
 	    ps.print(" Metrics -");
 	    ps.print(" group=" + group);
 	    ps.print(" series=" + series);
 	    ps.format(" kbps=%.4f", kbps);
-	    ps.print(" eps=" + eps);
+	    ps.format(" eps=%.4f", eps);
 	    ps.format(" kb=%.4f", kb);
 	    ps.print(" ev=" + ev);
 	    logger.info(baos.toString());
+	    baos.reset();
+	}
+	thruput.clear();
+    }
+
+    public synchronized void printMetrics() {
+	Date now = new Date();
+	long timeDiff = (now.getTime() - lastOutputTime.getTime()) / 1000;
+	if (timeDiff <= 0)
+	    return;
+
+	double kb = ((double) bytesSeenSinceLastOutput / 1024);
+	double kbps = kb / timeDiff;
+	double eps = (double) (eventsSeenSinceLastOutput / timeDiff);
+	double avgKbps = ((double) totalBytesSent / 1024)
+		/ ((now.getTime() - startTime.getTime()) * 1000);
+
+	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	PrintStream ps = new PrintStream(baos);
+	ps.print(" Metrics - group=thruput name=connector_thruput");
+	ps.format(" instantaneous_kbps=%.4f", kbps);
+	ps.format(" instantaneous_eps=%.4f", eps);
+	ps.format(" average_kbps=%.4f", avgKbps);
+	ps.format(" total_k_processed=%.4f", ((double) totalBytesSent / 1024));
+	ps.format(" kb=%.4f", kb);
+	ps.print(" ev=" + eventsSeenSinceLastOutput);
+	System.out.println(baos.toString());
+	baos.reset();
+
+	printMetrics("per_host_thruput", perHostThruput, timeDiff);
+	printMetrics("per_source_thruput", perSourceThruput, timeDiff);
+	printMetrics("per_sourcetype_thruput", perSourcetypeThruput, timeDiff);
+	printMetrics("per_index_thruput", perIndexThruput, timeDiff);
+
+	// Make sure to clear these metrics
+	perHostThruput.clear();
+	perSourceThruput.clear();
+	perSourcetypeThruput.clear();
+	perIndexThruput.clear();
+
+	bytesSeenSinceLastOutput = 0;
+	eventsSeenSinceLastOutput = 0;
+
+	lastOutputTime = new Date();
+    }
+
+    private void printMetrics(String group, Map<String, Thruput> thruput,
+	    long timeDiff) {
+	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	PrintStream ps = new PrintStream(baos);
+	for (String series : thruput.keySet()) {
+	    double kb = (double) thruput.get(series).totalBytes / 1024;
+	    double kbps = kb / timeDiff;
+	    int ev = thruput.get(series).eventCount;
+	    double eps = (double) (ev / timeDiff);
+	    ps.print(" Metrics -");
+	    ps.print(" group=" + group);
+	    ps.print(" series=" + series);
+	    ps.format(" kbps=%.4f", kbps);
+	    ps.format(" eps=%.4f", eps);
+	    ps.format(" kb=%.4f", kb);
+	    ps.print(" ev=" + ev);
+	    System.out.println(baos.toString());
 	    baos.reset();
 	}
 	thruput.clear();
