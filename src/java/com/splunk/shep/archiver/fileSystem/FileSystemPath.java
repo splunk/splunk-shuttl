@@ -10,6 +10,8 @@ public class FileSystemPath {
 
     private final String pathString;
 
+    public static final String SEPERATOR = "/";
+
     public FileSystemPath(String pathAsString) {
 	pathString = pathAsString;
     }
