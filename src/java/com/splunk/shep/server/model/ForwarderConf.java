@@ -56,21 +56,21 @@ public class ForwarderConf {
     }
 
     @XmlRootElement(name = "HDFSSink")
-    @XmlType(propOrder = { "name", "cluster", "fileprefix", "maxEventSizeKB",
+    @XmlType(propOrder = { "name", "cluster", "filePrefix", "fileRollingSize",
 	    "useAppending" })
     public static class HDFSSink {
 	private String cluster;
 	private String name;
-	private String fileprefix;
-	private int maxEventSizeKB = 64000;
+	private String filePrefix;
+	private long fileRollingSize;
 	private boolean useAppending;
 
-	public int getMaxEventSizeKB() {
-	    return maxEventSizeKB;
+	public long getFileRollingSize() {
+	    return fileRollingSize;
 	}
 
-	public void setMaxEventSizeKB(int maxEventSizeKB) {
-	    this.maxEventSizeKB = maxEventSizeKB;
+	public void setFileRollingSize(long fileRollingSize) {
+	    this.fileRollingSize = fileRollingSize;
 	}
 
 	public boolean isUseAppending() {
@@ -97,20 +97,21 @@ public class ForwarderConf {
 	    this.cluster = cluster;
 	}
 
-	public String getFileprefix() {
-	    return fileprefix;
+	public String getFilePrefix() {
+	    return filePrefix;
 	}
 
-	public void setFileprefix(String fileprefix) {
-	    this.fileprefix = fileprefix;
+	public void setFilePrefix(String fileprefix) {
+	    this.filePrefix = fileprefix;
 	}
     }
 
     @XmlRootElement(name = "FlumeSink")
-    @XmlType(propOrder = { "name", "cluster" })
+    @XmlType(propOrder = { "name", "cluster", "maxEventSizeKB" })
     public static class FlumeSink {
 	private String name;
 	private String cluster;
+	private int maxEventSizeKB = 64000;
 
 	public String getName() {
 	    return name;
@@ -118,6 +119,14 @@ public class ForwarderConf {
 
 	public void setName(String name) {
 	    this.name = name;
+	}
+
+	public int getMaxEventSizeKB() {
+	    return maxEventSizeKB;
+	}
+
+	public void setMaxEventSizeKB(int maxEventSizeKB) {
+	    this.maxEventSizeKB = maxEventSizeKB;
 	}
 
 	public String getCluster() {

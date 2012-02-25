@@ -172,8 +172,8 @@
 		<tstamp>
 			<format property="noslashtime" timezone="America/Los_Angeles" pattern="yyyyMMddhhmmss" />
 		</tstamp>
-		<copy file="${srcdir}/com/splunk/shep/connector/version.properties" todir="${classdir}/com/splunk/shep/connector/" />
-		<replace file="${classdir}/com/splunk/shep/connector/version.properties">
+		<copy file="${srcdir}/com/splunk/shep/server/version.properties" todir="${classdir}/com/splunk/shep/server/" />
+		<replace file="${classdir}/com/splunk/shep/server/version.properties">
 			<replacefilter token="@DATE@" value="${time} US/Pacific" />
 			<replacefilter token="@REVISION@" value="${git.revision}" />
 			<replacefilter token="@BRANCH@" value="${git.branch}" />
@@ -181,7 +181,7 @@
 		</replace>
 
 		<loadproperties>
-			<file file="${classdir}/com/splunk/shep/connector/version.properties" />
+			<file file="${classdir}/com/splunk/shep/server/version.properties" />
 		</loadproperties>
 
 		<!-- TODO add ${git.branch} into the suffix after properly fixing the retrival of branch name -->
@@ -746,7 +746,7 @@
 
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties>
-			<file file="${classdir}/com/splunk/shep/connector/version.properties" />
+			<file file="${classdir}/com/splunk/shep/server/version.properties" />
 		</loadproperties>
 		<property name="name.versioned" value="${name}-${version}" />
 		<property name="name.versioned.path" value="${builddir}/jar/${name.versioned}.jar" />
@@ -756,11 +756,10 @@
 	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
 		<jar destfile="${name.versioned.path}" basedir="${builddir}/classes">
-			<exclude name="com/splunk/shep/connector/tests/*" />
 			<exclude name="com/splunk/shep/mapreduce/lib/rest/tests/**" />
 			<exclude name="edu/jhu/nlp/**" />
 			<manifest>
-				<attribute name="Main-Class" value="com.splunk.shep.connector.EventTransmitter" />
+				<attribute name="Main-Class" value="com.splunk.shep.server.ShepJettyServer" />
 			</manifest>
 		</jar>
 		<jar destfile="${hadoop.unittest.jar.file}" basedir="${builddir}/classes">

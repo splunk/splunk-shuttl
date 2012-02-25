@@ -34,7 +34,7 @@ public class ShepServer implements ShepServerMBean {
     private String defHadoopClusterHost = null;
     private int defHadoopClusterPort = -1;
     private ArrayList<ServerConf.HadoopCluster> clusterlist;
-    private String SERVERCONF_XML = "etc/apps/shep/default/ServerConf.xml";
+    private String SERVERCONF_XML = "etc/apps/shep/conf/server.xml";
     ServerConf conf;
 
     public ShepServer() throws ShepMBeanException {

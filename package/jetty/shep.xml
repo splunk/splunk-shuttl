@@ -165,8 +165,8 @@
       <New class="com.splunk.shep.s2s.forwarder.jetty.S2SConnector">
         <Set name="host"><Property name="jetty.host" /></Set>
         <Set name="port"><Property name="jetty.port" default="10098"/></Set>
-	<Set name="dataSink">com.splunk.shep.s2s.forwarder.HDFSSink</Set>
-	<Set name="name">directwrite</Set>
+		<Set name="dataSink">com.splunk.shep.s2s.forwarder.HDFSSink</Set>
+		<Set name="name">directwrite</Set>
         <Set name="maxIdleTime">300000</Set>
         <Set name="Acceptors">20</Set>
       </New>

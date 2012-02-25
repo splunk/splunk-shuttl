@@ -40,6 +40,7 @@ stash()
     echo ""
     echo "Stashing: Creating a clean working directory by stashing every thing except the index"
     stash_identifier="${1}"
+    #git stash save --include-untracked, needs at least version 1.7.7.x of git to work
     git stash save --keep-index --include-untracked "${stash_identifier}" > /dev/null
 }
 

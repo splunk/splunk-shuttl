@@ -86,9 +86,16 @@ public class HDFSSink implements DataSink {
 	    Object prefix = mbs.invoke(forwardername, "getHDFSSinkPrefix", params,
 		    signature);
 	    this.path = prefix.toString();
-	    Object appending = mbs.invoke(forwardername, "getHDFSSinkPrefix", params,
+	    Object appending = mbs.invoke(forwardername,
+		    "getHDFSSinkUseAppending", params,
 		    signature);
 	    this.useAppend = Boolean.getBoolean(appending.toString());
+	    Object fileRollingSize = mbs.invoke(forwardername,
+		    "getHDFSSinkFileRollingSize", params, signature);
+	    this.fileRollingSize = Integer.parseInt(fileRollingSize.toString());
+	    logger.debug("filePrefix: " + this.path);
+	    logger.debug("useAppending: " + this.useAppend);
+	    logger.debug("fileRollingSize: " + this.fileRollingSize);
 	    init();
 	} catch (Exception e) {
 	    // should not happen - so runtime exception
