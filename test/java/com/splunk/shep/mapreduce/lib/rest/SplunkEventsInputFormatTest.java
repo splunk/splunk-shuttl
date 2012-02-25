@@ -103,7 +103,7 @@ public class SplunkEventsInputFormatTest {
     }
 
     private Path getOutputPath() {
-	return new Path(putter.getPathWhereMyFilesAreStored(), "output");
+	return new Path(putter.getPathOfMyFiles(), "output");
     }
 
     private void verifyOutput() throws IOException {

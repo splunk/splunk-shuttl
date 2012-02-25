@@ -156,7 +156,7 @@ public class SplunkInputFormatTest {
     }
 
     private Path getPathWhereMyFilesAreStored() {
-	return putter.getPathWhereMyFilesAreStored();
+	return putter.getPathOfMyFiles();
     }
 
     private void configureJobConf(JobConf job) {

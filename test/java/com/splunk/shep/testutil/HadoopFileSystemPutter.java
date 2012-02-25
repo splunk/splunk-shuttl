@@ -39,10 +39,10 @@ public class HadoopFileSystemPutter {
 	if (!source.exists())
 	    throw new LocalFileNotFound();
 	else
-	    doPutFile(source);
+	    putFileOnHadoopFileSystemHadnlingIOExceptions(source);
     }
 
-    private void doPutFile(File src) {
+    private void putFileOnHadoopFileSystemHadnlingIOExceptions(File src) {
 	try {
 	    fileSystem.copyFromLocalFile(new Path(src.getPath()),
 		    getSafePathOnFileSystemForFile(src));
@@ -71,21 +71,20 @@ public class HadoopFileSystemPutter {
 	}
     }
 
-    public Path getPathWhereMyFilesAreStored() {
+    public Path getPathOfMyFiles() {
 	return getSafePathForClassPuttingFile();
     }
 
     public void deleteMyFiles() {
+	deletePathOnHadoopFileSystemHandlingIOException(getPathOfMyFiles());
+    }
+
+    private void deletePathOnHadoopFileSystemHandlingIOException(Path filesDir) {
 	try {
-	    doDeleteMyFiles();
+	    fileSystem.delete(filesDir, true);
 	} catch (IOException e) {
 	    throw new RuntimeException(e);
 	}
-    }
-
-    private void doDeleteMyFiles() throws IOException {
-	Path filesDir = getPathWhereMyFilesAreStored();
-	fileSystem.delete(filesDir, true);
     }
 
     public Path getPathForFile(File file) {
