@@ -4,33 +4,57 @@ import java.io.File;
 
 public class ArchiveBucket {
 
-    public static final String SAFE_LOCATION = System.getProperty("user.home")
-	    + "/" + ArchiveBucket.class.getName();
+    public static final String DEFAULT_SAFE_LOCATION = System
+	    .getProperty("user.home") + "/" + ArchiveBucket.class.getName();
+
+    private final String safeLocationForBuckets;
+    private int exit = -1;
+
+    public ArchiveBucket() {
+	this.safeLocationForBuckets = DEFAULT_SAFE_LOCATION;
+    }
+
+    protected ArchiveBucket(String safeLocationForBuckets) {
+	this.safeLocationForBuckets = safeLocationForBuckets;
+    }
+
+    public void archiveBucket(String path) {
+	File directory = new File(path);
+	if (!directory.isDirectory())
+	    exit = 3;
+	else
+	    moveDirectoryToASafeLocation(directory);
+    }
+
+    private void moveDirectoryToASafeLocation(File directory) {
+	File safeLocation = createSafeLocation();
+	File locationToMoveTo = new File(safeLocation, directory.getName());
+	boolean isMoved = directory.renameTo(locationToMoveTo);
+	if (!isMoved)
+	    exit = 4;
+	else
+	    exit = 0;
+    }
+
+    private File createSafeLocation() {
+	File safeLocation = new File(safeLocationForBuckets);
+	safeLocation.mkdirs();
+	return safeLocation;
+    }
+
+    public int getExitStatus() {
+	return exit;
+    }
 
     public static void main(String[] args) {
 	if (args.length == 0)
 	    System.exit(1);
 	if (args.length >= 2)
 	    System.exit(2);
-
-	File directory = new File(args[0]);
-	if (!directory.isDirectory())
-	    System.exit(3);
-
-	moveDirectoryToASafeLocation(directory);
-
-	System.exit(0);
-    }
-
-    private static void moveDirectoryToASafeLocation(File directory) {
-	File safeLocation = new File(SAFE_LOCATION);
-	safeLocation.mkdirs();
-	boolean renamed = directory.renameTo(new File(safeLocation, directory
-		.getName()));
-	// System.exit(4) isn't testable since SAFE_LOCATION is hard coded,
-	// and can't be configured.
-	if (!renamed)
-	    System.exit(4);
+	ArchiveBucket archiveBucket = new ArchiveBucket();
+	archiveBucket.archiveBucket(args[0]);
+	int exitStatus = archiveBucket.getExitStatus();
+	System.exit(exitStatus);
     }
 
 }
