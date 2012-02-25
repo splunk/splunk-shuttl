@@ -5,7 +5,7 @@ import java.io.File;
 public class ArchiveBucket {
 
     public static final String SAFE_LOCATION = System.getProperty("user.home")
-	    + "/SafeBucketArchive";
+	    + "/" + ArchiveBucket.class.getName();
 
     public static void main(String[] args) {
 	if (args.length == 0)
