@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.testutil.ShellClassRunner;
 
 @Test(groups = { "fast" })
-public class ArchiveBucketTest {
+public class BucketFreezerTest {
 
     private ShellClassRunner shellClassRunner;
 
@@ -44,21 +44,21 @@ public class ArchiveBucketTest {
     @Test
     public void should_returnExitStatusZero_when_runWithOneArgument_where_theArgumentIsAnExistingDirectory() {
 	File directory = createTestDirectory();
-	assertEquals(0, runArchiveBucketMain(directory.getAbsolutePath()));
+	assertEquals(0, runBucketFreezerMain(directory.getAbsolutePath()));
     }
 
     @Test
     public void should_returnExitStatus_1_when_runWithZeroArguments() {
-	assertEquals(1, runArchiveBucketMain());
+	assertEquals(1, runBucketFreezerMain());
     }
 
     @Test
     public void should_returnExitStatus_2_when_runWithMoreThanOneArgument() {
-	assertEquals(2, runArchiveBucketMain("one", "two"));
+	assertEquals(2, runBucketFreezerMain("one", "two"));
     }
 
-    private int runArchiveBucketMain(String... args) {
-	return shellClassRunner.runClassWithArgs(ArchiveBucket.class, args)
+    private int runBucketFreezerMain(String... args) {
+	return shellClassRunner.runClassWithArgs(BucketFreezer.class, args)
 		.getExitCode();
     }
 
@@ -68,7 +68,7 @@ public class ArchiveBucketTest {
 	File file = File.createTempFile("ArchiveTest", ".tmp");
 	file.deleteOnExit();
 	assertTrue(!file.isDirectory());
-	assertEquals(3, runArchiveBucketMain(file.getAbsolutePath()));
+	assertEquals(3, runBucketFreezerMain(file.getAbsolutePath()));
     }
 
     @Test
@@ -78,9 +78,9 @@ public class ArchiveBucketTest {
 	File safeLocationDirectory = new File(safeLocation);
 	File dirToBeMoved = createTestDirectory();
 
-	ArchiveBucket archiveBucket = new ArchiveBucket(safeLocation);
-	archiveBucket.archiveBucket(dirToBeMoved.getAbsolutePath());
-	assertEquals(0, archiveBucket.getExitStatus());
+	BucketFreezer bucketFreezer = new BucketFreezer(safeLocation);
+	bucketFreezer.freezeBucket(dirToBeMoved.getAbsolutePath());
+	assertEquals(0, bucketFreezer.getExitStatus());
 
 	assertTrue(!dirToBeMoved.exists());
 	File dirInSafeLocation = new File(safeLocationDirectory,

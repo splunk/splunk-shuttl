@@ -2,23 +2,23 @@ package com.splunk.shep.archiver.archive;
 
 import java.io.File;
 
-public class ArchiveBucket {
+public class BucketFreezer {
 
     public static final String DEFAULT_SAFE_LOCATION = System
-	    .getProperty("user.home") + "/" + ArchiveBucket.class.getName();
+	    .getProperty("user.home") + "/" + BucketFreezer.class.getName();
 
     private final String safeLocationForBuckets;
     private int exit = -1;
 
-    public ArchiveBucket() {
+    public BucketFreezer() {
 	this.safeLocationForBuckets = DEFAULT_SAFE_LOCATION;
     }
 
-    protected ArchiveBucket(String safeLocationForBuckets) {
+    protected BucketFreezer(String safeLocationForBuckets) {
 	this.safeLocationForBuckets = safeLocationForBuckets;
     }
 
-    public void archiveBucket(String path) {
+    public void freezeBucket(String path) {
 	File directory = new File(path);
 	if (!directory.isDirectory())
 	    exit = 3;
@@ -51,8 +51,8 @@ public class ArchiveBucket {
 	    System.exit(1);
 	if (args.length >= 2)
 	    System.exit(2);
-	ArchiveBucket archiveBucket = new ArchiveBucket();
-	archiveBucket.archiveBucket(args[0]);
+	BucketFreezer archiveBucket = new BucketFreezer();
+	archiveBucket.freezeBucket(args[0]);
 	int exitStatus = archiveBucket.getExitStatus();
 	System.exit(exitStatus);
     }
