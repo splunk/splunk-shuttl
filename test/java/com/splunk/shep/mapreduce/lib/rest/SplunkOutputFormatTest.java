@@ -56,7 +56,7 @@ public class SplunkOutputFormatTest {
     @BeforeMethod(groups = { "slow" })
     public void setUp() {
 	FileSystem fileSystem = FileSystemUtils.getLocalFileSystem();
-	putter = HadoopFileSystemPutter.get(fileSystem);
+	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 
     @AfterMethod(groups = { "slow" })

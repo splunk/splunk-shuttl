@@ -11,7 +11,7 @@ import org.apache.hadoop.fs.Path;
  * place. <br>
  * It uses the {@link SafePathCreator} to get a unique, readable and writable
  * directory on Hadoop. <br>
- * Use convenience method {@link HadoopFileSystemPutter#get(FileSystem)} to
+ * Use convenience method {@link HadoopFileSystemPutter#create(FileSystem)} to
  * instanciate this class with whatever filesystem you'd like to use.
  * 
  * @author periksson
@@ -91,9 +91,9 @@ public class HadoopFileSystemPutter {
 	return getSafePathOnFileSystemForFile(file);
     }
 
-    public static HadoopFileSystemPutter get(FileSystem fileSystem) {
-	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.get(),
-		MethodCallerHelper.get());
+    public static HadoopFileSystemPutter create(FileSystem fileSystem) {
+	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.create(),
+		MethodCallerHelper.create());
     }
 
     public Path getPathForFileName(String fileName) {
