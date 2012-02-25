@@ -124,7 +124,7 @@ public class SplunkOutputFormatTest {
     }
 
     private Path getJobOutputFile() {
-	Path remoteDir = putter.getPathWhereMyFilesAreStored();
+	Path remoteDir = putter.getPathOfMyFiles();
 	Path outputFile = new Path(remoteDir, "output");
 	return outputFile;
     }

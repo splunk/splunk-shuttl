@@ -74,7 +74,7 @@ public class HadoopFileSystemPutterTest {
 
     @Test(groups = { "fast" })
     public void should_bePossibleToGetTheDirectory_where_allThisTestCasesFilesAreStored() {
-	assertNotNull(putter.getPathWhereMyFilesAreStored());
+	assertNotNull(putter.getPathOfMyFiles());
     }
 
     @Test(groups = { "fast" })
@@ -93,20 +93,20 @@ public class HadoopFileSystemPutterTest {
     private class ClassA {
 
 	public Path getPathWhereFilesAreStored() {
-	    return putter.getPathWhereMyFilesAreStored();
+	    return putter.getPathOfMyFiles();
 	}
     }
 
     private class ClassB {
 	public Path getPathWhereFilesAreStored() {
-	    return putter.getPathWhereMyFilesAreStored();
+	    return putter.getPathOfMyFiles();
 	}
     }
 
     @Test(groups = { "fast" })
     public void after_putFile_then_deleteMyFiles_should_removeTheDirectory_where_thisClassPutFilesOnTheFileSystem()
 	    throws IOException {
-	Path myFiles = putter.getPathWhereMyFilesAreStored();
+	Path myFiles = putter.getPathOfMyFiles();
 	putter.putFile(getTempFileThatIsAutomaticallyDeleted());
 	assertTrue(fileSystem.exists(myFiles));
 	putter.deleteMyFiles();
