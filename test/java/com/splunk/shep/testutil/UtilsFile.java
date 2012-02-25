@@ -9,7 +9,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 
 /**
- * All the utils regarding files goes in here.
+ * All the utils regarding files goes in here. If there are exceptions while
+ * doing any operations the test will fail with appropriate message.
  */
 public class UtilsFile {
 
