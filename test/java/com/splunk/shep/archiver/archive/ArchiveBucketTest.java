@@ -5,6 +5,8 @@ import static org.testng.AssertJUnit.*;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -20,8 +22,31 @@ public class ArchiveBucketTest {
 	shellClassRunner = new ShellClassRunner();
     }
 
+    @AfterMethod(groups = { "fast" })
+    public void tearDown() {
+	deleteDirectory(getSafeLocationDirectory());
+	deleteDirectory(getTestDirectory());
+    }
+
+    private void deleteDirectory(File dir) {
+	try {
+	    FileUtils.deleteDirectory(dir);
+	} catch (IOException e) {
+	    e.printStackTrace();
+	    throw new RuntimeException(e);
+	}
+    }
+
+    public void safeLocationDirectory_shouldNot_exist() {
+	assertFalse(getSafeLocationDirectory().exists());
+    }
+
+    public void testDirectory_shouldNot_exist() {
+	assertFalse(getTestDirectory().exists());
+    }
+
     public void should_returnExitStatusZero_when_runWithOneArgument_where_theArgumentIsAnExistingDirectory() {
-	File directory = getDirectory();
+	File directory = createTestDirectory();
 	assertEquals(0, runArchiveBucketMain(directory.getAbsolutePath()));
     }
 
@@ -48,21 +73,32 @@ public class ArchiveBucketTest {
 
     @Test
     public void should_moveDirectory_to_aSafeLocation_when_givenPath() {
-	File dir = getDirectory();
+	File dirToBeMoved = createTestDirectory();
+	File safeLocationDirectory = getSafeLocationDirectory();
 
-	assertEquals(0, runArchiveBucketMain(dir.getAbsolutePath()));
-	assertTrue(!dir.exists());
-
-	File dirInSafeLocation = new File(ArchiveBucket.SAFE_LOCATION,
-		dir.getName());
+	assertEquals(0, runArchiveBucketMain(dirToBeMoved.getAbsolutePath()));
+	assertTrue(!dirToBeMoved.exists());
+	File dirInSafeLocation = new File(safeLocationDirectory,
+		dirToBeMoved.getName());
 	assertTrue(dirInSafeLocation.exists());
 	assertTrue(dirInSafeLocation.delete());
+	assertTrue(safeLocationDirectory.exists());
     }
 
-    private File getDirectory() {
-	File dir = new File("dir");
+    private File getSafeLocationDirectory() {
+	return new File(ArchiveBucket.SAFE_LOCATION);
+    }
+
+    private File getTestDirectory() {
+	return new File(getClass().getSimpleName() + "-test-dir");
+    }
+
+    private File createTestDirectory() {
+	return createDirectory(getTestDirectory());
+    }
+
+    private File createDirectory(File dir) {
 	dir.mkdir();
-	dir.deleteOnExit(); // In case something goes wrong, delete on exit.
 	assertTrue(dir.exists());
 	return dir;
     }
