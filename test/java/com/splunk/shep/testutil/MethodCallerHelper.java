@@ -49,7 +49,7 @@ public class MethodCallerHelper {
 	}
     }
 
-    public static MethodCallerHelper get() {
+    public static MethodCallerHelper create() {
 	return new MethodCallerHelper();
     }
 }

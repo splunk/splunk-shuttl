@@ -13,7 +13,7 @@ public class SafePathCreatorTest {
 
     @BeforeMethod(groups = { "fast" })
     public void setUp() {
-	safePathCreator = SafePathCreator.get();
+	safePathCreator = SafePathCreator.create();
     }
 
     @Test(groups = { "fast" })
