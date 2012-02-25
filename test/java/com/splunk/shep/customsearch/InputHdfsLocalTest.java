@@ -70,7 +70,7 @@ public class InputHdfsLocalTest {
     @BeforeMethod(groups = { "slow" })
     public void beforeMethod() throws IOException {
 	fileSystem = FileSystemUtils.getLocalFileSystem();
-	putter = HadoopFileSystemPutter.get(fileSystem);
+	putter = HadoopFileSystemPutter.create(fileSystem);
 	putFileWithTestInputOnHadoop();
     }
 

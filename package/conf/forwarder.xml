@@ -4,8 +4,8 @@
         <hdfssink>
             <name>directwrite</name>
             <cluster>dev</cluster>
-            <fileprefix>/splunkeventdata</fileprefix>
-            <maxEventSizeKB>64000</maxEventSizeKB>
+            <filePrefix>/splunkeventdata</filePrefix>
+            <fileRollingSize>63000</fileRollingSize>
             <useAppending>false</useAppending>
         </hdfssink>
     </hdfssinklist>
@@ -13,6 +13,7 @@
         <flumesink>
             <name>flumewrite</name>
             <cluster>test</cluster>
+            <maxEventSizeKB>64000</maxEventSizeKB>
         </flumesink>
     </flumesinklist>
 </ns2:forwarderConf>

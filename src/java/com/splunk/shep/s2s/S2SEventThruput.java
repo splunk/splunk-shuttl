@@ -25,10 +25,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shep.connector.util.MetricsCallback;
-import com.splunk.shep.connector.util.MetricsManager;
+import com.splunk.shep.s2s.timer.MetricsCallback;
+import com.splunk.shep.s2s.timer.MetricsManager;
 
 public class S2SEventThruput implements MetricsCallback {
+    org.apache.log4j.Logger logger = Logger.getLogger(getClass());
     private class Thruput {
 	private long totalBytes = 0;
 	private int eventCount = 0;
@@ -116,6 +117,10 @@ public class S2SEventThruput implements MetricsCallback {
 	}
 	t.update(size);
 	return t;
+    }
+
+    public synchronized void generateMetrics() {
+	generateMetrics(logger);
     }
 
     @Override

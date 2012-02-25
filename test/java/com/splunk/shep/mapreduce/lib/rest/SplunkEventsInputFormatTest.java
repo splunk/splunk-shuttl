@@ -44,7 +44,7 @@ public class SplunkEventsInputFormatTest {
     @BeforeMethod(groups = { "slow" })
     public void setUp() {
 	fileSystem = FileSystemUtils.getLocalFileSystem();
-	putter = HadoopFileSystemPutter.get(fileSystem);
+	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 
     @AfterMethod(groups = { "slow" })
@@ -103,7 +103,7 @@ public class SplunkEventsInputFormatTest {
     }
 
     private Path getOutputPath() {
-	return new Path(putter.getPathWhereMyFilesAreStored(), "output");
+	return new Path(putter.getPathOfMyFiles(), "output");
     }
 
     private void verifyOutput() throws IOException {

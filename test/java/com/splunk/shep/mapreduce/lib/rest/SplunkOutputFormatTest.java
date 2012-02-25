@@ -56,7 +56,7 @@ public class SplunkOutputFormatTest {
     @BeforeMethod(groups = { "slow" })
     public void setUp() {
 	FileSystem fileSystem = FileSystemUtils.getLocalFileSystem();
-	putter = HadoopFileSystemPutter.get(fileSystem);
+	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 
     @AfterMethod(groups = { "slow" })
@@ -124,7 +124,7 @@ public class SplunkOutputFormatTest {
     }
 
     private Path getJobOutputFile() {
-	Path remoteDir = putter.getPathWhereMyFilesAreStored();
+	Path remoteDir = putter.getPathOfMyFiles();
 	Path outputFile = new Path(remoteDir, "output");
 	return outputFile;
     }

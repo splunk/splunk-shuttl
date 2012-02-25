@@ -39,7 +39,8 @@ public interface ShepForwarderMBean {
      * 
      * @return
      */
-    public int getHDFSSinkMaxEventSize(String name) throws ShepMBeanException;
+    public long getHDFSSinkFileRollingSize(String name)
+	    throws ShepMBeanException;
 
     /**
      * Retrieves the HDFSSinkPrefix attribute
