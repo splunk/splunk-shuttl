@@ -12,10 +12,10 @@
 	<classpathentry kind="lib" path="lib/commons-io-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-core-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-core-1.0.0.jar" sourcepath="/hadoop-1.0.0/src"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
-	<classpathentry kind="lib" path="contrib/splunk-sdk/splunk.jar"/>
+	<classpathentry kind="lib" path="contrib/splunk-sdk/splunk.jar" sourcepath="/splunk-sdk-java/splunk"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-asl-1.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
@@ -27,5 +27,10 @@
 	<classpathentry kind="lib" path="lib/jersey-bundle-1.11.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-servlet-1.11.jar"/>
 	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-test-1.0.0.jar" sourcepath="/hadoop-1.0.0/src"/>
+	<classpathentry kind="lib" path="lib/junit-4.10.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-6.1.26.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-6.1.26.jar"/>
+	<classpathentry kind="lib" path="lib/javax.servlet-api-3.0.1.jar"/>
 	<classpathentry kind="output" path="eclipse-bin"/>
 </classpath>
