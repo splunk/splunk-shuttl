@@ -6,8 +6,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.splunk.shep.archiver.archive.BucketArchiver;
-
 /**
  * REST endpoint for archiving a bucket.
  */
@@ -25,6 +23,8 @@ public class BucketArchiverRest {
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/bucket/archive")
     public void archiveBucket(@QueryParam("path") String path) {
-	new BucketArchiver().archiveBucket(path);
+	// Bucket bucket = new Bucket();
+	// BucketArchiver.create().archiveBucket(bucket);
+	throw new UnsupportedOperationException();
     }
 }
