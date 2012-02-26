@@ -4,6 +4,7 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -43,8 +44,7 @@ public class HadoopFileSystemArchiveTest {
 	File testFile = UtilsFile.createTestFileWithRandomContent();
 	hadoopFileSystemPutter.putFile(testFile);
 	Path hadoopPath = hadoopFileSystemPutter.getPathForFile(testFile);
-	FileSystemPath fileSystemPath = HadoopFileSystemArchive
-		.convertHadoopPathToFilesystemPath(hadoopPath);
+	URI fileSystemPath = hadoopPath.toUri();
 	File retrivedFile = UtilsFile.createTestFile();
 
 	hadoopFileSystemArchive.getFile(retrivedFile, fileSystemPath);
@@ -59,13 +59,5 @@ public class HadoopFileSystemArchiveTest {
     @Test(enabled = false)
     public void putFile() {
 	throw new RuntimeException("Test not implemented");
-    }
-
-    public void convertHadoopPathToFilesystemPath() {
-	Path hadoopPath = new Path("file:/emre/was/here");
-	FileSystemPath fileSystemPath = HadoopFileSystemArchive
-		.convertHadoopPathToFilesystemPath(hadoopPath);
-
-	assertEquals("/emre/was/here", fileSystemPath.toString());
     }
 }
