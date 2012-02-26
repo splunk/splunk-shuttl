@@ -38,12 +38,12 @@ public class BucketArchiverTest {
     }
 
     public void archiveBucket_shouldUseTheArchiveFormatForExportingTheBucket() {
+	// Setup
 	ArchiveFormat format = ArchiveFormat.SPLUNK_BUCKET;
 	when(config.getArchiveFormat()).thenReturn(format);
-
 	// Test
 	bucketArchiver.archiveBucket(bucket);
-
+	// Verification
 	verify(exporter).exportBucketToFormat(bucket, format);
     }
 
