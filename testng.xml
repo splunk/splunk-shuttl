@@ -8,18 +8,24 @@
 
 	<test name="Test" preserve-order="true">
 		<classes>
-			<class name="com.splunk.shep.mapreduce.lib.rest.util.ContentReaderTest" />
-			<class name="com.splunk.shep.mapreduce.lib.rest.util.ReaderWrapperTest" />
 			<class name="com.splunk.shep.testutil.MethodCallerHelperTest" />
 			<class name="com.splunk.shep.testutil.HadoopFileSystemPutterTest" />
-			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkXMLStreamTest" />
-			<class name="com.splunk.shep.connector.tests.HelloWorldTest" />
 			<class name="com.splunk.shep.testutil.SafePathCreatorTest" />
+			<class name="com.splunk.shep.testutil.ShellClassRunnerTest" />
+			<class name="com.splunk.shep.mapreduce.lib.rest.util.ContentReaderTest" />
+			<class name="com.splunk.shep.mapreduce.lib.rest.util.ReaderWrapperTest" />
+			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkXMLStreamTest" />
 			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkOutputFormatTest" />
 			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkInputFormatTest" />
 			<class name="com.splunk.shep.mapreduce.lib.rest.SplunkEventsInputFormatTest" />
 			<class name="com.splunk.shep.customsearch.InputHdfsLocalTest" />
 			<class name="com.splunk.shep.customsearch.OutputHdfsLocalTest" />
+			<class name="com.splunk.shep.archiver.archive.ArchiveConfigurationTest" />
+			<class name="com.splunk.shep.archiver.archive.BucketArchiverTest" />
+			<class name="com.splunk.shep.archiver.archive.BucketFreezerTest" />
+			<class name="com.splunk.shep.archiver.fileSystem.FileOverwriteExceptionTest" />
+			<class name="com.splunk.shep.archiver.fileSystem.FileSystemPathTest" />
+			<class name="com.splunk.shep.archiver.fileSystem.HadoopFileSystemArchiveTest" />
 		</classes>
 	</test> <!-- Test -->
 </suite> <!-- Suite -->
