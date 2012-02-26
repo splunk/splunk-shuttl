@@ -79,6 +79,9 @@ If everything goes well, you should see the message
 ### Eclipse Users
 
 You'll need to build once, before you can use Eclipse
+This .eclipse.templates directory contains templates for generating Eclipse files to configure
+Eclipse for shep development.
+
 
 ### Coding Conventions
 
