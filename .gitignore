@@ -1,5 +1,6 @@
 # Mac Noise
 .DS_Store
+.classpath
 
 # Compile output
 /build/

@@ -16,7 +16,7 @@ public class SafePathCreator {
 	return new Path(fileSystem.getHomeDirectory() + "/" + clazz.getName());
     }
 
-    public static SafePathCreator get() {
+    public static SafePathCreator create() {
 	return new SafePathCreator();
     }
 

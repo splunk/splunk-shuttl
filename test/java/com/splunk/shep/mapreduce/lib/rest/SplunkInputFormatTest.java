@@ -52,7 +52,7 @@ public class SplunkInputFormatTest {
     @BeforeMethod(groups = { "slow" })
     public void setUp() throws IOException {
 	fileSystem = FileSystemUtils.getLocalFileSystem();
-	putter = HadoopFileSystemPutter.get(fileSystem);
+	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 
     @AfterMethod(groups = { "slow" })
@@ -156,7 +156,7 @@ public class SplunkInputFormatTest {
     }
 
     private Path getPathWhereMyFilesAreStored() {
-	return putter.getPathWhereMyFilesAreStored();
+	return putter.getPathOfMyFiles();
     }
 
     private void configureJobConf(JobConf job) {

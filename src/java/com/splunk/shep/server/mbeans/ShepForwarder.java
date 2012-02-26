@@ -31,7 +31,7 @@ import com.splunk.shep.server.model.ForwarderConf;
  */
 public class ShepForwarder implements ShepForwarderMBean {
     private Logger logger = Logger.getLogger(getClass());
-    private String FORWARDERCONF_XML = "etc/apps/shep/default/ForwarderConf.xml";
+    private String FORWARDERCONF_XML = "etc/apps/shep/conf/forwarder.xml";
     private ArrayList<ForwarderConf.HDFSSink> hdfsSinkList;
 
     public ShepForwarder() throws ShepMBeanException {
@@ -52,7 +52,7 @@ public class ShepForwarder implements ShepForwarderMBean {
     public String getHDFSSinkPrefix(String name) throws ShepMBeanException {
 	for (ForwarderConf.HDFSSink sink : this.hdfsSinkList) {
 	    if (sink.getName().equals(name)) {
-		return sink.getFileprefix();
+		return sink.getFilePrefix();
 	    }
 	}
 	throw new ShepMBeanException("Unable to find sink configuration: "
@@ -60,10 +60,11 @@ public class ShepForwarder implements ShepForwarderMBean {
     }
 
     @Override
-    public int getHDFSSinkMaxEventSize(String name) throws ShepMBeanException {
+    public long getHDFSSinkFileRollingSize(String name)
+	    throws ShepMBeanException {
 	for (ForwarderConf.HDFSSink sink : this.hdfsSinkList) {
 	    if (sink.getName().equals(name)) {
-		return sink.getMaxEventSizeKB();
+		return sink.getFileRollingSize();
 	    }
 	}
 	throw new ShepMBeanException("Unable to find sink configuration: "

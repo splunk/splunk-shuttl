@@ -101,7 +101,7 @@ public class OutputHdfsLocalTest {
     @BeforeMethod(groups = { "slow" })
     public void setUp() throws IOException {
 	fileSystem = FileSystemUtils.getLocalFileSystem();
-	putter = HadoopFileSystemPutter.get(fileSystem);
+	putter = HadoopFileSystemPutter.create(fileSystem);
 	Path pathForFile = putter.getPathForFile(getOutputFile());
 	fileSystem.mkdirs(pathForFile.getParent());
     }
