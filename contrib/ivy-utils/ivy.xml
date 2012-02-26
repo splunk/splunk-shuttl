@@ -31,6 +31,7 @@
         <dependency org="org.apache.tomcat" name="jsp-api" transitive="false" rev="6.0.35"/>
         <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1"/>
         <dependency org="asm" name="asm" transitive="false" rev="3.3.1"/>
+        <dependency org="org.mockito" name="mockito-all" rev="1.9.0"/>
         <exclude org="xerces" module="*" type="*" ext="*" conf="" matcher="exact"/>
         <exclude org="org.mortbay.jetty" module="*" type="*" ext="*" conf="" matcher="exact"/>
         <exclude org="javax.servlet" module="servlet-api" type="*" ext="*" conf="" matcher="exact"/>
