@@ -3,6 +3,7 @@ package com.splunk.shep.archiver.fileSystem;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -29,10 +30,9 @@ public interface ArchiveFileSystem {
      * @throws IOException
      *             If there was any other problem with the operation.
      */
-    void putFile(File fileOnLocalFileSystem,
-	    FileSystemPath fileOnArchiveFileSystem)
+    void putFile(File fileOnLocalFileSystem, URI fileOnArchiveFileSystem)
 	    throws FileNotFoundException, FileOverwriteException, IOException;
-    
+
     /**
      * Retries the file from specified path on archiving file system and stores
      * it to the specified file on local file system.
@@ -49,8 +49,7 @@ public interface ArchiveFileSystem {
      * @throws IOException
      *             If there was any other problem with the operation.
      */
-    void getFile(File fileOnLocalFileSystem,
-	    FileSystemPath fileOnArchiveFileSystem)
+    void getFile(File fileOnLocalFileSystem, URI fileOnArchiveFileSystem)
 	    throws FileNotFoundException, FileOverwriteException, IOException;
 
     /**
@@ -64,7 +63,6 @@ public interface ArchiveFileSystem {
      * @throws IOException
      *             If there was any other problem with the operation.
      */
-    List<FileSystemPath> listPath(FileSystemPath pathToBeListed)
-	    throws IOException;
+    List<URI> listPath(URI pathToBeListed) throws IOException;
 
 }
