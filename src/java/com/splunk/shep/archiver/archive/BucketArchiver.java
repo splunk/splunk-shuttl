@@ -1,7 +1,8 @@
 package com.splunk.shep.archiver.archive;
 
+import java.net.URI;
+
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
-import com.splunk.shep.archiver.fileSystem.FileSystemPath;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
 
@@ -40,8 +41,8 @@ public class BucketArchiver {
     public void archiveBucket(Bucket bucket) {
 	ArchiveFormat archiveFormat = archiveConfiguration.getArchiveFormat();
 	bucketExporter.exportBucketToFormat(bucket, archiveFormat);
-	FileSystemPath path = pathResolver
-		.resolveArchivePathWithBucketAndFormat(bucket, archiveFormat);
+	URI path = pathResolver.resolveArchivePathWithBucketAndFormat(bucket,
+		archiveFormat);
 	bucketTransferer.transferBucketToPath(bucket, path);
     }
 

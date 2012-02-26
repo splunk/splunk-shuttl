@@ -3,11 +3,14 @@ package com.splunk.shep.archiver.archive;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.fileSystem.FileSystemPath;
 import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.testutil.UtilsTestNG;
 
 @Test(groups = { "fast" })
 public class BucketArchiverTest {
@@ -56,11 +59,20 @@ public class BucketArchiverTest {
     }
 
     public void archiveBucket_shouldLetBucketSender_TransferTheBucket() {
-	FileSystemPath path = new FileSystemPath("some/path");
+	URI path = getTestUri();
 	when(
 		pathResolver.resolveArchivePathWithBucketAndFormat(eq(bucket),
 			any(ArchiveFormat.class))).thenReturn(path);
 	bucketArchiver.archiveBucket(bucket);
 	verify(bucketTransferer).transferBucketToPath(bucket, path);
+    }
+
+    private URI getTestUri() {
+	try {
+	    return new URI("file:/some/path");
+	} catch (URISyntaxException e) {
+	    UtilsTestNG.failForException("Could not create URI: ", e);
+	    return null;
+	}
     }
 }
