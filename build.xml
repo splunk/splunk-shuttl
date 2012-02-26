@@ -663,9 +663,12 @@
 		<antcall target="do-install-shep-splunk-app" />
 	</target>
 
-	<target name="checkIfAlreadyInstalledShepApp">
+	<target name="set-shep-app-home" depends="set-splunk-home">
 		<property name="splunk.apps.home" value="${splunk.home}/etc/apps" />
 		<property name="shep.app.home" value="${splunk.apps.home}/shep" />
+	</target>
+
+	<target name="checkIfAlreadyInstalledShepApp" depends="set-shep-app-home">
 		<condition property="isNotInstalledShep">
 			<not>
 				<available file="${shep.app.home}" type="dir" />
@@ -680,6 +683,18 @@
 			<arg value="${splunk-app.tar}" />
 			<arg line="-C ${splunk.apps.home}" />
 		</exec>
+	</target>
+
+	<target name="re-install-shep-splunk-app" depends="set-splunk-home">
+		<antcall>
+			<target name="splunk-stop" />
+			<target name="remove-shep-splunk-app" />
+			<target name="splunk-configure-and-start" />
+		</antcall>
+	</target>
+
+	<target name="remove-shep-splunk-app" depends="set-shep-app-home">
+		<delete dir="${shep.app.home}" />
 	</target>
 
 	<target name="splunk-start">

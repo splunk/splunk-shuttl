@@ -12,17 +12,16 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.testutil.ShellClassRunner;
 
-@Test(groups = { "fast" })
 public class BucketFreezerTest {
 
     private ShellClassRunner shellClassRunner;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "slow" })
     public void setUp() {
 	shellClassRunner = new ShellClassRunner();
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "slow" })
     public void tearDown() {
 	deleteDirectory(getTestDirectory());
     }
@@ -36,23 +35,23 @@ public class BucketFreezerTest {
 	}
     }
 
-    @Test
+    @Test(groups = { "fast" })
     public void testDirectory_shouldNot_exist() {
 	assertFalse(getTestDirectory().exists());
     }
 
-    @Test
+    @Test(groups = { "slow" })
     public void should_returnExitStatusZero_when_runWithOneArgument_where_theArgumentIsAnExistingDirectory() {
 	File directory = createTestDirectory();
 	assertEquals(0, runBucketFreezerMain(directory.getAbsolutePath()));
     }
 
-    @Test
+    @Test(groups = { "slow" })
     public void should_returnExitStatus_1_when_runWithZeroArguments() {
 	assertEquals(1, runBucketFreezerMain());
     }
 
-    @Test
+    @Test(groups = { "slow" })
     public void should_returnExitStatus_2_when_runWithMoreThanOneArgument() {
 	assertEquals(2, runBucketFreezerMain("one", "two"));
     }
@@ -62,7 +61,7 @@ public class BucketFreezerTest {
 		.getExitCode();
     }
 
-    @Test
+    @Test(groups = { "slow" })
     public void should_returnExitStatus_3_when_runWithArgumentThatIsNotADirectory()
 	    throws IOException {
 	File file = File.createTempFile("ArchiveTest", ".tmp");
@@ -71,8 +70,8 @@ public class BucketFreezerTest {
 	assertEquals(3, runBucketFreezerMain(file.getAbsolutePath()));
     }
 
-    @Test
-    public void should_moveDirectory_to_aSafeLocation_when_givenPath() {
+    @Test(groups = { "fast" })
+    public void should_moveDirectoryToaSafeLocation_when_givenPath() {
 	String safeLocation = System.getProperty("user.home") + "/"
 		+ getClass().getName();
 	File safeLocationDirectory = new File(safeLocation);
