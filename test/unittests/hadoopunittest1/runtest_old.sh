@@ -27,7 +27,7 @@ testFolder=/hadoopunittest1
 $HADOOP fs -put "$script_dir/file01" "$testFolder/input/file01"
 
 # Test
-$HADOOP jar $SHEPDIR/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapreduce.lib.rest.tests.WordCount "$testFolder/input" "$testFolder/output$1"
+$HADOOP jar $SHEPDIR/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapred.lib.rest.tests.WordCount "$testFolder/input" "$testFolder/output$1"
 
 expected_splunk_out="\
 FIELDNAME

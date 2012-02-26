@@ -29,7 +29,7 @@ $HADOOP fs -put "$script_dir/sdata1" "$testFolder/splunkdatatest1"
 $HADOOP fs -put "$script_dir/sdata2" "$testFolder/splunkdatatest2"
 
 # Test
-$HADOOP jar $SHEPDIR/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapreduce.lib.rest.tests.SplunkEventReader "$testFolder/splunkdata*" "$testFolder/output$1"
+$HADOOP jar $SHEPDIR/build/jar/splunk_hadoop_unittests.jar com.splunk.shep.mapred.lib.rest.tests.SplunkEventReader "$testFolder/splunkdata*" "$testFolder/output$1"
 
 $HADOOP fs -get "$testFolder/output$1/_SUCCESS"  _SUCCESS
 # for debugging

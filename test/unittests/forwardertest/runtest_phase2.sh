@@ -37,6 +37,7 @@ sleep  30
 expected_splunk_out="\
 ev
 --
+ 5
  5"
 
 actual_splunk_out=$($SPLUNK search 'index="_internal" source="HadoopConnector" "group=per_source_thruput" series=source::*testdata-ts | table ev')

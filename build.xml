@@ -772,14 +772,14 @@
 	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
 		<jar destfile="${name.versioned.path}" basedir="${builddir}/classes">
-			<exclude name="com/splunk/shep/mapreduce/lib/rest/tests/**" />
+			<exclude name="com/splunk/shep/mapred/lib/rest/tests/**" />
 			<exclude name="edu/jhu/nlp/**" />
 			<manifest>
 				<attribute name="Main-Class" value="com.splunk.shep.server.ShepJettyServer" />
 			</manifest>
 		</jar>
 		<jar destfile="${hadoop.unittest.jar.file}" basedir="${builddir}/classes">
-			<include name="com/splunk/shep/mapreduce/lib/rest/tests/**" />
+			<include name="com/splunk/shep/mapred/lib/rest/tests/**" />
 			<include name="edu/jhu/nlp/**" />
 		</jar>
 	</target>
