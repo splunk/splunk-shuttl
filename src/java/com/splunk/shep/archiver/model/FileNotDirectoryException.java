@@ -7,6 +7,10 @@ import java.io.IOException;
  */
 public class FileNotDirectoryException extends IOException {
 
+    public FileNotDirectoryException(String string) {
+	super(string);
+    }
+
     /**
      * Default generated serial version uid.
      */
