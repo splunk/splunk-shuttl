@@ -3,9 +3,11 @@ package com.splunk.shep.testutil;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 @Test(groups = { "fast" })
@@ -40,10 +42,19 @@ public class UtilsFileTest {
 	assertTrue(dirName.contains(getClass().getSimpleName()));
     }
 
-    // public void
-    // createNamedTempDirectory_withFileAsParentParameter_createsTheDirectoryInParent()
-    // {
-    // UtilsFile.createNamedTempDirectory("parent");
-    // UtilsFile.createNamedTempDirectory(new File("parent")
-    // }
+    public void createNamedTempDirectory_withFileAsParentParameter_createsTheDirectoryInParent()
+	    throws IOException {
+	File parent = UtilsFile.createPrefixedTempDirectory("parent");
+	File child = UtilsFile.createDirectoryInParent(parent, "child");
+	assertEquals(parent.listFiles()[0], child);
+	File childsChild = UtilsFile.createDirectoryInParent(child,
+		"childsChild");
+	assertEquals(child.listFiles()[0], childsChild);
+
+	// Teardown
+	FileUtils.deleteDirectory(parent);
+	assertTrue(!childsChild.exists());
+	assertTrue(!child.exists());
+	assertTrue(!parent.exists());
+    }
 }

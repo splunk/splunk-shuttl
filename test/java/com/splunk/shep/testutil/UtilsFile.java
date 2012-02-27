@@ -117,4 +117,19 @@ public class UtilsFile {
 	return dir;
     }
 
+    /**
+     * Creates directory in the parent with the name of the String. <br/>
+     * Note: This file is not temporary and must be removed.
+     * 
+     * @param parent
+     *            where the child directory will live.
+     * @param string
+     *            name of the child
+     * @return the created directory.
+     */
+    public static File createDirectoryInParent(File parent, String string) {
+	File child = new File(parent, string);
+	child.mkdir();
+	return child;
+    }
 }
