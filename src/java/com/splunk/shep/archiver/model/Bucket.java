@@ -27,9 +27,10 @@ public class Bucket {
     public Bucket(File directory) throws FileNotFoundException,
 	    FileNotDirectoryException {
 	if (!directory.exists()) {
-	    throw new FileNotFoundException();
+	    throw new FileNotFoundException("Could not find file: " + directory);
 	} else if (!directory.isDirectory()) {
-	    throw new FileNotDirectoryException();
+	    throw new FileNotDirectoryException("File " + directory
+		    + " is not a directory");
 	}
 	this.directory = directory;
     }

@@ -68,7 +68,7 @@ public class BucketArchiverTest {
 	when(pathResolver.resolveArchivePath(bucket))
 		.thenReturn(path);
 	bucketArchiver.archiveBucket(bucket);
-	verify(bucketTransferer).transferBucketToPath(bucket, path);
+	verify(bucketTransferer).transferBucketToArchive(bucket, path);
     }
 
     private URI getTestUri() {

@@ -1,8 +1,13 @@
 package com.splunk.shep.archiver.archive;
 
+import java.io.IOException;
 import java.net.URI;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
+import com.splunk.shep.archiver.fileSystem.HadoopFileSystemArchive;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
 
@@ -43,7 +48,7 @@ public class BucketArchiver {
 	Bucket exportedBucket = bucketExporter.getBucketExportedToFormat(
 		bucket, bucketFormat);
 	URI path = pathResolver.resolveArchivePath(exportedBucket);
-	bucketTransferer.transferBucketToPath(bucket, path);
+	bucketTransferer.transferBucketToArchive(bucket, path);
     }
 
     /**
@@ -54,9 +59,21 @@ public class BucketArchiver {
      *         configuration files.
      */
     public static BucketArchiver create() {
+	FileSystem hadoopFileSystem = getHadoopFileSystem();
+	ArchiveFileSystem archiveFileSystem = new HadoopFileSystemArchive(
+		hadoopFileSystem);
 	ArchiveConfiguration config = new ArchiveConfiguration();
 	return new BucketArchiver(config, new BucketExporter(),
-		new PathResolver(config), new BucketTransferer());
+		new PathResolver(config), new BucketTransferer(
+			archiveFileSystem));
     }
 
+    private static FileSystem getHadoopFileSystem() {
+	try {
+	    return FileSystem.get(new Configuration());
+	} catch (IOException e) {
+	    e.printStackTrace();
+	    throw new RuntimeException(e);
+	}
+    }
 }

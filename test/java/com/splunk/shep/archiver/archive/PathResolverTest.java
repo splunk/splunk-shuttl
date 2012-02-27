@@ -37,8 +37,8 @@ public class PathResolverTest {
 
 	// Verification
 	URI expected = getURISafe("file:/" + archiveRoot + "/" + clusterName
-		+ "/" + serverName + "/" + bucketName + "/" + bucketIndex + "/"
-		+ bucketFormat);
+		+ "/" + serverName + "/" + bucketIndex + "/" + bucketFormat
+		+ "/" + bucketName);
 	assertEquals(expected, archivePath);
     }
 
