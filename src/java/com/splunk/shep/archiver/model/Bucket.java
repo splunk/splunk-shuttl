@@ -2,7 +2,6 @@ package com.splunk.shep.archiver.model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import com.splunk.shep.archiver.archive.BucketFormat;
 
@@ -27,13 +26,19 @@ public class Bucket {
      */
     public Bucket(File directory) throws FileNotFoundException,
 	    FileNotDirectoryException {
+	verifyExistingDirectory(directory);
+	this.directory = directory;
+    }
+
+    private void verifyExistingDirectory(File directory)
+	    throws FileNotFoundException, FileNotDirectoryException {
 	if (!directory.exists()) {
-	    throw new FileNotFoundException("Could not find file: " + directory);
+	    throw new FileNotFoundException("Could not find directory: "
+		    + directory);
 	} else if (!directory.isDirectory()) {
-	    throw new FileNotDirectoryException("File " + directory
+	    throw new FileNotDirectoryException("Directory " + directory
 		    + " is not a directory");
 	}
-	this.directory = directory;
     }
 
     public File getDirectory() {
@@ -67,11 +72,19 @@ public class Bucket {
 	return format;
     }
 
-    public Bucket moveBucketToDir(File directoryToMoveTo) {
+    public Bucket moveBucketToDir(File directoryToMoveTo)
+	    throws FileNotFoundException, FileNotDirectoryException {
+	verifyExistingDirectory(directoryToMoveTo);
 	File newBucketDir = createNewBucketPathInDirectory(directoryToMoveTo);
-	File directoryCopy = directory.getAbsoluteFile();
-	directoryCopy.renameTo(newBucketDir);
-	return getBucketWithoutExceptions(newBucketDir);
+	verifyExistingDirectory(newBucketDir);
+	moveTheContentsOfThisBucketToNewBucket(newBucketDir);
+	return new Bucket(newBucketDir);
+    }
+
+    private void moveTheContentsOfThisBucketToNewBucket(File newBucketDir) {
+	if (!directory.renameTo(newBucketDir))
+	    throw new RuntimeException("could not rename : " + directory
+		    + " to " + newBucketDir);
     }
 
     private File createNewBucketPathInDirectory(File newDirectory) {
@@ -80,16 +93,6 @@ public class Bucket {
 	File newBucketDir = new File(newDirectory, bucketPathInformation);
 	newBucketDir.mkdirs();
 	return newBucketDir;
-    }
-
-    private Bucket getBucketWithoutExceptions(File newBucketDir) {
-	try {
-	    return new Bucket(newBucketDir);
-	} catch (IOException e) {
-	    e.printStackTrace();
-	    throw new IllegalStateException(
-		    "Internal bucket call. Should be able to create it self", e);
-	}
     }
 
     public static Bucket createWithAbsolutePath(String path)
