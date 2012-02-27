@@ -3,7 +3,7 @@
 	<property file="build.properties" />
 	<property file="default.properties" />
 
-	<property environment="env"/>
+	<property environment="env" />
 	<property name="user" value="${env.USER}" />
 
 	<!-- project filesystem properties -->
@@ -54,7 +54,8 @@
 	<property name="hive.download.path" value="${hive.download.dir}/${hive.download.name}" />
 	<property name="hive.extracted.dir" value="${build-cache}" />
 	<property name="hive.extracted.path" value="${hive.extracted.dir}/${hive.versname}" />
-	<property name="hive.home" value="${hive.extracted.path}" /> <!-- NOTE: unlike hadoop, will ignore env.HIVE_HOME -->
+	<property name="hive.home" value="${hive.extracted.path}" />
+	<!-- NOTE: unlike hadoop, will ignore env.HIVE_HOME -->
 	<property name="hive.extracted.conf.dir" value="${hive.extracted.path}/conf" />
 	<property name="hive.download.url" value="${hive.download.url.prefix}/${hive.basename}/${hive.versname}/${hive.fullname}" />
 	<property name="hive.home" value="${hive.extracted.path}" />
@@ -104,7 +105,7 @@
 		<!-- should not create things in the clean target? -->
 		<antcall target="clean-build-cache" />
 	</target>
-	
+
 	<target name="delete-built-classes">
 		<delete dir="${classdir}" />
 		<mkdir dir="${classdir}" />
@@ -192,7 +193,7 @@
 
 	<!-- compile all code, may in the future want to split out test and source builds -->
 	<target name="compile" depends="ivy-resolve, do-compile" />
-	<target name="do-compile" >
+	<target name="do-compile">
 		<javac srcdir="${srcdir};${testdir}" destdir="${classdir}" includeAntRuntime="false" debug="true">
 			<classpath refid="build.classpath" />
 		</javac>
@@ -352,11 +353,11 @@
 	</target>
 
 	<target name="checkIfHiveIsDownloaded">
-		<available file="${hive.download.path}" type="file" property="hive.isDownloaded"/>
+		<available file="${hive.download.path}" type="file" property="hive.isDownloaded" />
 		<echo>hive.isDownloaded is ${hive.isDownloaded}</echo>
 		<echo>hive.download.path is ${hive.download.path}</echo>
 	</target>
-	
+
 	<!-- Hive -->
 	<target name="hive-setup" depends="set-hadoop-home">
 		<!-- create the dirs in hdfs; hive keys off of hadoop.home  -->
@@ -370,7 +371,7 @@
 			<arg value="fs" />
 			<arg value="-mkdir" />
 			<arg value="/user/hive/warehouse" />
-		</exec>	
+		</exec>
 		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
 			<arg value="fs" />
 			<arg value="-chmod" />
@@ -391,7 +392,7 @@
 		<echo>hive.home=${hive.home} hive.server.port=${hive.server.port} screenvalue = ${hive.basename}-${user}
 		</echo>
 		<exec executable="screen" dir="${hive.home}" osfamily="unix">
-			<env key="HADOOP_HOME" value="${hadoop.home}"/>
+			<env key="HADOOP_HOME" value="${hadoop.home}" />
 			<arg value="-S" />
 			<arg value="${hive.basename}-${env.USER}" />
 			<arg value="-d" />
@@ -407,15 +408,15 @@
 	<!-- Stop hive server; quiting screen session may leave hive processes behind, kill those too -->
 	<target name="hive-stop" depends="set-hadoop-home">
 		<exec executable="screen" dir="${hive.home}" osfamily="unix">
-			<env key="HADOOP_HOME" value="${hadoop.home}"/>
+			<env key="HADOOP_HOME" value="${hadoop.home}" />
 			<arg value="-S" />
 			<arg value="${hive.basename}-${env.USER}" />
 			<arg value="-X" />
 			<arg value="quit" />
 		</exec>
-		<exec executable="bin/hiv3-kill.sh" osfamily="unix"/>
+		<exec executable="bin/hiv3-kill.sh" osfamily="unix" />
 	</target>
- 
+
 	<!-- Hadoop -->
 	<target name="hadoop-setup" depends="set-hadoop-home">
 		<antcall>
@@ -600,10 +601,10 @@
 			<target name="hadoop-stop" />
 		</antcall>
 	</target>
-	
+
 	<target name="shep-teardown">
 		<exec executable="curl">
-			<arg value="-s"/>
+			<arg value="-s" />
 			<arg line="http://localhost:9090/shep/rest/server/shutdown" />
 		</exec>
 	</target>
@@ -867,28 +868,28 @@
 			<classpath refid="build.classpath" />
 		</java>
 	</target>
-	
+
 	<!-- Run by hooks -->
-	<target name="pre-commit" depends="delete-built-classes, do-compile, do-fast-tests" >
-		<fail if="testng.failed" message="Fast tests have failed."/>
+	<target name="pre-commit" depends="delete-built-classes, do-compile, do-fast-tests">
+		<fail if="testng.failed" message="Fast tests have failed." />
 	</target>
-	
+
 	<!--hadoop unit test -->
-	<property name="report.dir"  value="${builddir}/junitreport"/>
+	<property name="report.dir" value="${builddir}/junitreport" />
 	<target name="hadoop-test" depends="compile">
-		<mkdir dir="${report.dir}"/>
-        <junit printsummary="yes">
-            <classpath>
-                <path refid="build.classpath"/>
-            </classpath>
-        	<formatter type="xml"/>
-            <batchtest fork="yes" todir="${report.dir}">
-                <fileset dir="${testdir}" includes="**/Test*.java"/>
-            </batchtest>
-        </junit>
-        <junitreport todir="${report.dir}">
-            <fileset dir="${report.dir}" includes="TEST-*.xml"/>
-            <report todir="${report.dir}"/>
-        </junitreport>
-    </target>
+		<mkdir dir="${report.dir}" />
+		<junit printsummary="yes">
+			<classpath>
+				<path refid="build.classpath" />
+			</classpath>
+			<formatter type="xml" />
+			<batchtest fork="yes" todir="${report.dir}">
+				<fileset dir="${testdir}" includes="**/Test*.java" />
+			</batchtest>
+		</junit>
+		<junitreport todir="${report.dir}">
+			<fileset dir="${report.dir}" includes="TEST-*.xml" />
+			<report todir="${report.dir}" />
+		</junitreport>
+	</target>
 </project>
