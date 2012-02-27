@@ -106,7 +106,7 @@
 		<antcall target="clean-build-cache" />
 	</target>
 
-	<target name="delete-built-classes">
+	<target name="clean-built-classes">
 		<delete dir="${classdir}" />
 		<mkdir dir="${classdir}" />
 	</target>
@@ -870,7 +870,7 @@
 	</target>
 
 	<!-- Run by hooks -->
-	<target name="pre-commit" depends="delete-built-classes, do-compile, do-fast-tests">
+	<target name="pre-commit" depends="clean-built-classes, do-compile, do-fast-tests">
 		<fail if="testng.failed" message="Fast tests have failed." />
 	</target>
 
