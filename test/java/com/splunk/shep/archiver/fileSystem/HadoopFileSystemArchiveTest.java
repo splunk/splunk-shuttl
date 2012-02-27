@@ -3,8 +3,10 @@ package com.splunk.shep.archiver.fileSystem;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -17,6 +19,10 @@ import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.UtilsFile;
 import com.splunk.shep.testutil.UtilsTestNG;
 
+/**
+ * Using the method naming convention:
+ * [metodNamn]_[stateUnderTest]_[expectedOutcome]
+ */
 @Test(groups = { "fast" })
 public class HadoopFileSystemArchiveTest {
 
@@ -35,20 +41,41 @@ public class HadoopFileSystemArchiveTest {
 	hadoopFileSystemPutter.deleteMyFiles();
     }
 
-    public void HadoopFileSystemArchive() {
+    public void HadoopFileSystemArchive_notInitialized_aNonNullInstanceIsCreated() {
 	assertNotNull(hadoopFileSystemArchive);
     }
 
-    @Test(enabled = false)
-    public void getFile() throws IOException {
+    public void getFile_expectedBehavior_noErrors() throws IOException {
 	File testFile = UtilsFile.createTestFileWithRandomContent();
 	hadoopFileSystemPutter.putFile(testFile);
 	Path hadoopPath = hadoopFileSystemPutter.getPathForFile(testFile);
 	URI fileSystemPath = hadoopPath.toUri();
-	File retrivedFile = UtilsFile.createTestFile();
+	File retrivedFile = UtilsFile.createTestFilePath();
 
 	hadoopFileSystemArchive.getFile(retrivedFile, fileSystemPath);
 	UtilsTestNG.assertFileContentsEqual(testFile, retrivedFile);
+    }
+
+    @Test(expectedExceptions = FileNotFoundException.class)
+    public void getFile_whenRemotefileDoNotExist_FileNotFoundException()
+	    throws IOException,
+	    URISyntaxException {
+	URI fileSystemPath = new URI("file:///random/path/to/non/existing/file");
+	File retrivedFile = UtilsFile.createTestFilePath();
+
+	hadoopFileSystemArchive.getFile(retrivedFile, fileSystemPath);
+    }
+
+    @Test(expectedExceptions = FileOverwriteException.class)
+    public void getFile_whenLocalFileAllreadyExist_FileOverwriteException()
+	    throws IOException, URISyntaxException {
+	File testFile = UtilsFile.createTestFileWithRandomContent();
+	hadoopFileSystemPutter.putFile(testFile);
+	Path hadoopPath = hadoopFileSystemPutter.getPathForFile(testFile);
+	URI fileSystemPath = hadoopPath.toUri();
+	File retrivedFile = UtilsFile.createTestFileWithRandomContent();
+
+	hadoopFileSystemArchive.getFile(retrivedFile, fileSystemPath);
     }
 
     @Test(enabled = false)

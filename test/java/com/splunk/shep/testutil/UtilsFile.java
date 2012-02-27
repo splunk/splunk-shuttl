@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
+import org.testng.AssertJUnit;
 
 /**
  * All the utils regarding files goes in here. If there are exceptions while
@@ -28,8 +29,10 @@ public class UtilsFile {
     }
 
     /**
-     * @return a temporary file, the file will be deleted when the VM
-     *         terminates.
+     * @return a temporary, existing, empty file that will be deleted when the
+     *         VM terminates.
+     * 
+     * @see #createTestFilePath()
      */
     public static File createTestFile() {
 	File testFile = null;
@@ -40,7 +43,18 @@ public class UtilsFile {
 	    UtilsTestNG.failForException("Couldn't create a test file.", e);
 	}
 	return testFile;
+    }
 
+    /**
+     * @return a temporary file path. The returned file doesn't exist, but the
+     *         the path to the file was valid at the time of this method call.
+     * 
+     * @see #createTestFile()
+     */
+    public static File createTestFilePath() {
+	File testFile = createTestFile();
+	AssertJUnit.assertTrue(testFile.delete());
+	return testFile;
     }
 
     /**

@@ -1,12 +1,13 @@
 package com.splunk.shep.testutil;
 
+import static org.testng.AssertJUnit.*;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 
 /**
@@ -41,19 +42,13 @@ public class UtilsTestNG {
      * Asserts that the contents of specified files are equal.
      */
     public static void assertFileContentsEqual(File expected, File actual) {
-	FileInputStream expectedFileStream = null;
-	FileInputStream actualFileSream = null;
+	assertTrue(expected.toString() + " doesn't exist.", expected.exists());
+	assertTrue(actual.toString() + " doesn't exist.", actual.exists());
+	
 	try {
-	    expectedFileStream = new FileInputStream(expected);
-	    actualFileSream = new FileInputStream(actual);
-
-	    AssertJUnit.assertTrue(IOUtils.contentEquals(expectedFileStream,
-		    actualFileSream));
+	    assertTrue(FileUtils.contentEquals(expected, actual));
 	} catch (IOException e) {
 	    failForException("Can't compare contents of files.", e);
-	} finally {
-	    IOUtils.closeQuietly(expectedFileStream);
-	    IOUtils.closeQuietly(actualFileSream);
 	}
 
     }
