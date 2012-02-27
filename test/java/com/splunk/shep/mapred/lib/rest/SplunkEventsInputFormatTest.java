@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.mapred.lib.rest.tests.WikiLinkCount;
-import com.splunk.shep.testutil.FileSystemUtils;
+import com.splunk.shep.testutil.UtilsFileSystem;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 
 public class SplunkEventsInputFormatTest {
@@ -43,7 +43,7 @@ public class SplunkEventsInputFormatTest {
 
     @BeforeMethod(groups = { "slow" })
     public void setUp() {
-	fileSystem = FileSystemUtils.getLocalFileSystem();
+	fileSystem = UtilsFileSystem.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 

@@ -14,9 +14,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.UtilsFile;
+import com.splunk.shep.testutil.UtilsFileSystem;
 import com.splunk.shep.testutil.UtilsTestNG;
 
 /**
@@ -26,12 +26,13 @@ import com.splunk.shep.testutil.UtilsTestNG;
 @Test(groups = { "fast" })
 public class HadoopFileSystemArchiveTest {
 
+    private FileSystem fileSystem;
     private HadoopFileSystemArchive hadoopFileSystemArchive;
     private HadoopFileSystemPutter hadoopFileSystemPutter;
 
     @BeforeMethod
     public void beforeMethod() {
-	FileSystem fileSystem = FileSystemUtils.getLocalFileSystem();
+	fileSystem = UtilsFileSystem.getLocalFileSystem();
 	hadoopFileSystemArchive = new HadoopFileSystemArchive(fileSystem);
 	hadoopFileSystemPutter = HadoopFileSystemPutter.create(fileSystem);
     }

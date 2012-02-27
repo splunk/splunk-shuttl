@@ -36,7 +36,7 @@ import com.splunk.Job;
 import com.splunk.Service;
 import com.splunk.shep.mapred.lib.rest.SplunkConfiguration;
 import com.splunk.shep.mapred.lib.rest.tests.SplunkRecord;
-import com.splunk.shep.testutil.FileSystemUtils;
+import com.splunk.shep.testutil.UtilsFileSystem;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
 import com.splunk.shep.testutil.SplunkTestUtils;
@@ -52,7 +52,7 @@ public class SplunkInputFormatTest {
 
     @BeforeMethod(groups = { "slow" })
     public void setUp() throws IOException {
-	fileSystem = FileSystemUtils.getLocalFileSystem();
+	fileSystem = UtilsFileSystem.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 

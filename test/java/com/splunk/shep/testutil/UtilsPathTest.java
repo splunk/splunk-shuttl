@@ -10,7 +10,7 @@ public class UtilsPathTest {
 
     @Test(groups = { "fast" })
     public void safePath_should_beSeparated_by_HomeDirectoryAndNameOfTestCase_toAchieve_nicerStructure() {
-	FileSystem fileSystem = FileSystemUtils.getLocalFileSystem();
+	FileSystem fileSystem = UtilsFileSystem.getLocalFileSystem();
 	Path safePath = UtilsPath.getSafeDirectory(fileSystem);
 	Path expected = new Path(fileSystem.getHomeDirectory() + "/"
 		+ this.getClass().getName());

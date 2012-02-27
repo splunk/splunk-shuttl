@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import com.splunk.Args;
 import com.splunk.Index;
 import com.splunk.Service;
-import com.splunk.shep.testutil.FileSystemUtils;
+import com.splunk.shep.testutil.UtilsFileSystem;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
 
@@ -100,7 +100,7 @@ public class OutputHdfsLocalTest {
 
     @BeforeMethod(groups = { "slow" })
     public void setUp() throws IOException {
-	fileSystem = FileSystemUtils.getLocalFileSystem();
+	fileSystem = UtilsFileSystem.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
 	Path pathForFile = putter.getPathForFile(getOutputFile());
 	fileSystem.mkdirs(pathForFile.getParent());

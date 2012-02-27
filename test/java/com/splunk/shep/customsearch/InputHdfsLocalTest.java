@@ -17,7 +17,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.testutil.FileSystemUtils;
+import com.splunk.shep.testutil.UtilsFileSystem;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
 
@@ -69,7 +69,7 @@ public class InputHdfsLocalTest {
 
     @BeforeMethod(groups = { "slow" })
     public void beforeMethod() throws IOException {
-	fileSystem = FileSystemUtils.getLocalFileSystem();
+	fileSystem = UtilsFileSystem.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
 	putFileWithTestInputOnHadoop();
     }
