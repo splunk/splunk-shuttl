@@ -17,6 +17,7 @@ import com.splunk.shep.testutil.UtilsFile;
 public class BucketTest {
 
     File rootTestDirectory;
+    String index = "index";
 
     @AfterMethod(groups = { "fast" })
     public void tearDown() throws IOException {
@@ -26,13 +27,12 @@ public class BucketTest {
 
     public void constructor_takingAbsolutePathToABucket_setIndex()
 	    throws IOException {
-	String index = "index";
-	String bucketPath = getBucketPathWithIndex(index);
+	String bucketPath = getBucketPathWithIndex();
 	Bucket bucket = Bucket.createWithAbsolutePath(bucketPath);
 	assertEquals(index, bucket.getIndex());
     }
 
-    private String getBucketPathWithIndex(String index) {
+    private String getBucketPathWithIndex() {
 	return getBucketDirectoryWithIndex(index).getAbsolutePath();
     }
 
@@ -52,8 +52,7 @@ public class BucketTest {
 
     public void constructor_absolutePathToBucketEndingWithSlash_setIndex()
 	    throws IOException {
-	String index = "index";
-	String bucketPath = getBucketPathWithIndex(index) + "/";
+	String bucketPath = getBucketPathWithIndex() + "/";
 	Bucket bucket = Bucket.createWithAbsolutePath(bucketPath);
 	assertEquals(index, bucket.getIndex());
     }
@@ -82,7 +81,7 @@ public class BucketTest {
 
     public void createWithAbsolutePath_rawdataDirectoryExistsInsideBucket_getFormatReturnsSplunkBucket()
 	    throws IOException {
-	File bucketDir = getBucketDirectoryWithIndex("index");
+	File bucketDir = getBucketDirectoryWithIndex(index);
 	File rawdata = UtilsFile.createDirectoryInParent(bucketDir, "rawdata");
 	assertTrue(rawdata.exists());
 	Bucket bucket = Bucket.createWithAbsolutePath(bucketDir
@@ -96,22 +95,30 @@ public class BucketTest {
      */
     public void createWithAbsolutePath_rawdataNotInBucket_bucketFormatIsUnknown()
 	    throws IOException {
-	Bucket bucket = Bucket
-		.createWithAbsolutePath(getBucketPathWithIndex("index"));
+	Bucket bucket = Bucket.createWithAbsolutePath(getBucketPathWithIndex());
 	assertEquals(BucketFormat.UNKNOWN, bucket.getFormat());
     }
 
-    public void createWithAbsolutePath_validBucketPathInput_bucketNameIsLastDirectoryInPath()
+    public void createWithAbsolutePath_givenExistingDirectory_bucketNameIsLastDirectoryInPath()
 	    throws IOException {
-	String bucketPath = getBucketPathWithIndex("index"); // REFACTOR THIS!
+	String bucketPath = getBucketPathWithIndex();
 	String expectedName = getBucketName();
 	Bucket bucket = Bucket.createWithAbsolutePath(bucketPath);
 	assertEquals(expectedName, bucket.getName());
     }
 
+    public void createWithAbsolutePath_givenExistingDirectory_getDirectoryShouldReturnThatDirectoryWithTheSameAbsolutePath()
+	    throws IOException {
+	File existingDirectory = getBucketDirectoryWithIndex(index);
+	assertTrue(existingDirectory.exists());
+	Bucket bucket = Bucket.createWithAbsolutePath(existingDirectory
+		.getAbsolutePath());
+	assertEquals(existingDirectory.getAbsolutePath(), bucket.getDirectory()
+		.getAbsolutePath());
+    }
+
     public void BucketTest_getBucketPathWithIndex_withNonEmptyIndex_endsWithExpectedPathEnding() {
-	String index = "someIndex";
-	String bucketPath = getBucketPathWithIndex(index);
+	String bucketPath = getBucketPathWithIndex();
 	String expectedBucketPathEnding = index
 		+ "/db/db_1326857236_1300677707_0";
 	assertTrue(bucketPath.endsWith(expectedBucketPathEnding));

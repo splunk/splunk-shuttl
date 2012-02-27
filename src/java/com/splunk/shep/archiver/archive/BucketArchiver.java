@@ -40,9 +40,9 @@ public class BucketArchiver {
 
     public void archiveBucket(Bucket bucket) {
 	BucketFormat bucketFormat = archiveConfiguration.getArchiveFormat();
-	bucketExporter.getBucketExportedToFormat(bucket, bucketFormat);
-	URI path = pathResolver.resolveArchivePathWithBucketAndFormat(bucket,
-		bucketFormat);
+	Bucket exportedBucket = bucketExporter.getBucketExportedToFormat(
+		bucket, bucketFormat);
+	URI path = pathResolver.resolveArchivePath(exportedBucket);
 	bucketTransferer.transferBucketToPath(bucket, path);
     }
 
@@ -54,9 +54,9 @@ public class BucketArchiver {
      *         configuration files.
      */
     public static BucketArchiver create() {
-	return new BucketArchiver(new ArchiveConfiguration(),
-		new BucketExporter(), new PathResolver(),
-		new BucketTransferer());
+	ArchiveConfiguration config = new ArchiveConfiguration();
+	return new BucketArchiver(config, new BucketExporter(),
+		new PathResolver(config), new BucketTransferer());
     }
 
 }

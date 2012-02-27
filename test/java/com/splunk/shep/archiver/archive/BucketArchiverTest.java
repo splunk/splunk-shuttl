@@ -57,15 +57,16 @@ public class BucketArchiverTest {
 		exporter.getBucketExportedToFormat(eq(bucket),
 			any(BucketFormat.class))).thenReturn(bucket);
 	bucketArchiver.archiveBucket(bucket);
-	verify(pathResolver).resolveArchivePathWithBucketAndFormat(bucket,
-		format);
+	verify(pathResolver).resolveArchivePath(bucket);
     }
 
     public void archiveBucket_shouldLetBucketSender_TransferTheBucket() {
 	URI path = getTestUri();
 	when(
-		pathResolver.resolveArchivePathWithBucketAndFormat(eq(bucket),
-			any(BucketFormat.class))).thenReturn(path);
+		exporter.getBucketExportedToFormat(eq(bucket),
+			any(BucketFormat.class))).thenReturn(bucket);
+	when(pathResolver.resolveArchivePath(bucket))
+		.thenReturn(path);
 	bucketArchiver.archiveBucket(bucket);
 	verify(bucketTransferer).transferBucketToPath(bucket, path);
     }

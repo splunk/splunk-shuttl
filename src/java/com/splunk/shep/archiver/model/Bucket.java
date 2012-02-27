@@ -10,58 +10,60 @@ import com.splunk.shep.archiver.archive.BucketFormat;
  */
 public class Bucket {
 
-    private final String name;
-    private final String index;
-    private final BucketFormat format;
+    private final File directory;
 
     /**
      * Bucket with an index and format<br/>
      * Use static method {@link Bucket#createWithAbsolutePath(String)} to create
      * a bucket out of an absolute path.
      * 
-     * @param index
-     *            the bucket came from
-     * @param index2
-     * @param format
-     *            the bucket is in
+     * @param directory
+     *            that is the bucket
+     * @throws FileNotFoundException
+     *             if the file doesn't exist
+     * @throws FileNotDirectoryException
+     *             if the file is not a directory
      */
-    public Bucket(String name, String index, BucketFormat format) {
-	this.name = name;
-	this.index = index;
-	this.format = format;
+    public Bucket(File directory) throws FileNotFoundException,
+	    FileNotDirectoryException {
+	if (!directory.exists()) {
+	    throw new FileNotFoundException();
+	} else if (!directory.isDirectory()) {
+	    throw new FileNotDirectoryException();
+	}
+	this.directory = directory;
+    }
+
+    public File getDirectory() {
+	return directory;
     }
 
     public String getName() {
-	return name;
+	return directory.getName();
     }
 
     public String getIndex() {
-	return index;
+	return directory.getParentFile().getParentFile().getName();
     }
 
     public BucketFormat getFormat() {
+	return getFormatFromDirectory(directory);
+    }
+
+    private BucketFormat getFormatFromDirectory(File directory) {
+	File rawdataInDirectory = new File(directory, "rawdata");
+	BucketFormat format;
+	if (rawdataInDirectory.exists()) {
+	    format = BucketFormat.SPLUNK_BUCKET;
+	} else {
+	    format = BucketFormat.UNKNOWN;
+	}
 	return format;
     }
 
     public static Bucket createWithAbsolutePath(String path)
 	    throws FileNotFoundException, FileNotDirectoryException {
 	File directory = new File(path);
-	if (!directory.exists()) {
-	    throw new FileNotFoundException();
-	} else if (!directory.isDirectory()) {
-	    throw new FileNotDirectoryException();
-	} else {
-	    String index = directory.getParentFile().getParentFile().getName();
-	    String name = directory.getName();
-	    File rawdata = new File(directory, "rawdata");
-	    BucketFormat format;
-	    if (rawdata.exists()) {
-		format = BucketFormat.SPLUNK_BUCKET;
-	    } else {
-		format = BucketFormat.UNKNOWN;
-	    }
-	    return new Bucket(name, index, format);
-	}
+	return new Bucket(directory);
     }
-
 }
