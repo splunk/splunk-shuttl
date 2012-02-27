@@ -76,8 +76,12 @@ public class UtilsFile {
     }
 
     private static File createNonExistingDirectory() {
+	return createNonExistingDirectoryWithPrefix("test-dir");
+    }
+
+    private static File createNonExistingDirectoryWithPrefix(String prefix) {
 	Class<?> callerToThisMethod = MethodCallerHelper.getCallerToMyMethod();
-	String tempDirName = callerToThisMethod.getSimpleName() + "-test-dir";
+	String tempDirName = prefix + "-" + callerToThisMethod.getSimpleName();
 	File dir = new File(tempDirName);
 	while (dir.exists()) {
 	    tempDirName += "-" + RandomStringUtils.randomAlphanumeric(2);
@@ -104,12 +108,13 @@ public class UtilsFile {
      *            name of the temp directory
      * @return temporary directory that's deleted when the VM terminates.
      */
-    public static File createNamedTempDirectory(String string) {
-	File dir = new File(string);
+    public static File createPrefixedTempDirectory(String string) {
+	File dir = createNonExistingDirectoryWithPrefix(string);
 	if (dir.exists()) {
 	    throw new RuntimeException(new FileExistsException());
 	}
 	createTempDirectory(dir);
 	return dir;
     }
+
 }

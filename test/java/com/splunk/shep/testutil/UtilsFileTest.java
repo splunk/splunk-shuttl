@@ -30,14 +30,20 @@ public class UtilsFileTest {
     }
 
     public void createNamedTempDirectory_fileDoesNotExist_getsCreated() {
-	File dir = UtilsFile.createNamedTempDirectory("NameOfTheDirectory");
+	File dir = UtilsFile.createPrefixedTempDirectory("NameOfTheDirectory");
 	assertTrue(dir.exists());
     }
 
-    @Test(expectedExceptions = { RuntimeException.class })
-    public void createNamedTempDirectory_twice_throwsRuntimeException() {
-	String name = "someName";
-	UtilsFile.createNamedTempDirectory(name);
-	UtilsFile.createNamedTempDirectory(name);
+    public void createNamedTempDirectory_containsNameOfThisClass_toProvideUniquenessToTheDirectory() {
+	File dir = UtilsFile.createPrefixedTempDirectory("someName");
+	String dirName = dir.getName();
+	assertTrue(dirName.contains(getClass().getSimpleName()));
     }
+
+    // public void
+    // createNamedTempDirectory_withFileAsParentParameter_createsTheDirectoryInParent()
+    // {
+    // UtilsFile.createNamedTempDirectory("parent");
+    // UtilsFile.createNamedTempDirectory(new File("parent")
+    // }
 }
