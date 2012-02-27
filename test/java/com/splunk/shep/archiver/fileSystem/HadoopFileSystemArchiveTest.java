@@ -157,7 +157,7 @@ public class HadoopFileSystemArchiveTest {
 	hadoopFileSystemArchive.putFile(testFile, pathToRemoteFile);
     }
 
-    public void putFile_whenRemoteFileExists_RemoteFileShouldNotBeOverwriten()
+    public void putFile_whenRemoteFileExists_remoteFileShouldNotBeOverwriten()
 	    throws IOException {
 	File fileThatWouldBeOwerwriten = UtilsFile
 		.createTestFileWithRandomContent();
