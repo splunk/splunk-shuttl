@@ -25,14 +25,11 @@ public class HadoopFileSystemPutter {
 
     private final FileSystem fileSystem;
     private final SafePathCreator safePathCreator;
-    private final MethodCallerHelper methodCallerHelper;
 
     public HadoopFileSystemPutter(FileSystem fileSystem,
-	    SafePathCreator safePathCreator,
-	    MethodCallerHelper methodCallerHelper) {
+	    SafePathCreator safePathCreator) {
 	this.fileSystem = fileSystem;
 	this.safePathCreator = safePathCreator;
-	this.methodCallerHelper = methodCallerHelper;
     }
 
     public void putFile(File source) {
@@ -57,7 +54,7 @@ public class HadoopFileSystemPutter {
     }
 
     private Path getSafePathForClassPuttingFile() {
-	Class<?> callerToThisMethod = methodCallerHelper.getCallerToMyMethod();
+	Class<?> callerToThisMethod = MethodCallerHelper.getCallerToMyMethod();
 	Path safeDirectory = safePathCreator.getSafeDirectory(fileSystem,
 		callerToThisMethod);
 	return safeDirectory;
@@ -92,8 +89,7 @@ public class HadoopFileSystemPutter {
     }
 
     public static HadoopFileSystemPutter create(FileSystem fileSystem) {
-	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.create(),
-		MethodCallerHelper.create());
+	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.create());
     }
 
     public Path getPathForFileName(String fileName) {
