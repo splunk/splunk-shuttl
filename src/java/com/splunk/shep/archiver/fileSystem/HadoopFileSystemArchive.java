@@ -20,7 +20,11 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
     @Override
     public void putFile(File fileOnLocalFileSystem, URI fileOnArchiveFileSystem)
 	    throws FileNotFoundException, FileOverwriteException, IOException {
-
+	throwExceptionIfFileDoNotExist(fileOnLocalFileSystem);
+	Path hadoopPath = createPathFromURI(fileOnArchiveFileSystem);
+	throwExceptionIfRemotePathAllreadyExist(hadoopPath);
+	Path localPath = createPathFromFile(fileOnLocalFileSystem);
+	hadoopFileSystem.copyFromLocalFile(localPath, hadoopPath);
     }
 
     @Override
@@ -29,6 +33,7 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 	throwExceptionIfFileAllreadyExist(fileOnLocalFileSystem);
 	Path localPath = createPathFromFile(fileOnLocalFileSystem);
 	Path hadoopPath = createPathFromURI(fileOnArchiveFileSystem);
+	// FileNotFoundException is already thrown by copyToLocalFile.
 	hadoopFileSystem.copyToLocalFile(hadoopPath, localPath);
     }
 
@@ -46,6 +51,13 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 	return createPathFromURI(file.toURI());
     }
 
+    private void throwExceptionIfFileDoNotExist(File file)
+	    throws FileNotFoundException {
+	if (!file.exists()) {
+	    throw new FileNotFoundException(file.toString() + " doesn't exist.");
+	}
+    }
+
     private void throwExceptionIfFileAllreadyExist(File file)
 	    throws FileOverwriteException {
 	if (file.exists()) {
@@ -53,4 +65,13 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 		    + " allready exist.");
 	}
     }
+
+    private void throwExceptionIfRemotePathAllreadyExist(Path path)
+	    throws IOException {
+	if (hadoopFileSystem.exists(path)) {
+	    throw new FileOverwriteException(path.toString()
+		    + " allready exist.");
+	}
+    }
+
 }

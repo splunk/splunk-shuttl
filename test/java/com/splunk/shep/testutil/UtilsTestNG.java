@@ -39,17 +39,27 @@ public class UtilsTestNG {
     }
 
     /**
-     * Asserts that the contents of specified files are equal.
+     * Same as calling {@link #assertFileContentsEqual(String, File, File)} with
+     * "" as message
      */
     public static void assertFileContentsEqual(File expected, File actual) {
+	assertFileContentsEqual("", expected, actual);
+    }
+
+    /**
+     * Asserts that the contents of specified files are equal. Failing the test
+     * with specified message if not.
+     */
+    public static void assertFileContentsEqual(String message, File expected,
+	    File actual) {
 	assertTrue(expected.toString() + " doesn't exist.", expected.exists());
 	assertTrue(actual.toString() + " doesn't exist.", actual.exists());
+	message = message == null ? "" : message;
 	
 	try {
-	    assertTrue(FileUtils.contentEquals(expected, actual));
+	    assertTrue(message, FileUtils.contentEquals(expected, actual));
 	} catch (IOException e) {
 	    failForException("Can't compare contents of files.", e);
 	}
-
     }
 }
