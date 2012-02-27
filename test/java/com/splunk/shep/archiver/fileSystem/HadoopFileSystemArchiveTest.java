@@ -79,6 +79,30 @@ public class HadoopFileSystemArchiveTest {
 	hadoopFileSystemArchive.getFile(retrivedFile, fileSystemPath);
     }
 
+    public void getFile_whenLocalFileAllreadyExist_localFileIsNotOverwritten()
+	    throws IOException, URISyntaxException {
+	File testFile = UtilsFile.createTestFileWithRandomContent();
+	hadoopFileSystemPutter.putFile(testFile);
+	Path hadoopPath = hadoopFileSystemPutter.getPathForFile(testFile);
+	URI fileSystemPath = hadoopPath.toUri();
+	File fileThatCouldBeOverwritten = UtilsFile
+		.createTestFileWithRandomContent();
+	File originalFile = UtilsFile
+		.createTestFileWithContentsOfFile(fileThatCouldBeOverwritten);
+
+	try {
+	    // Test
+	    hadoopFileSystemArchive.getFile(fileThatCouldBeOverwritten,
+		    fileSystemPath);
+	} catch (Exception e) { // Intentionally ignoring.
+	}
+
+	// Confirm
+	UtilsTestNG.assertFileContentsEqual(originalFile,
+		fileThatCouldBeOverwritten);
+
+    }
+
     @Test(enabled = false)
     public void listPath() {
 	throw new RuntimeException("Test not implemented");
@@ -92,8 +116,8 @@ public class HadoopFileSystemArchiveTest {
 
 	// Test
 	hadoopFileSystemArchive.putFile(testFile, fileSystemPath);
-	
-	//Confirm
+
+	// Confirm
 	File retrivedFile = UtilsFileSystem.getFileFromFileSystem(fileSystem,
 		hadoopPath);
 	UtilsTestNG.assertFileContentsEqual(testFile, retrivedFile);
