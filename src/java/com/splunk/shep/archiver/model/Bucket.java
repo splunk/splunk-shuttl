@@ -10,9 +10,6 @@ import com.splunk.shep.archiver.archive.BucketFormat;
  */
 public class Bucket {
 
-    private final String name;
-    private final String index;
-    private final BucketFormat format;
     private final File directory;
 
     /**
@@ -20,58 +17,40 @@ public class Bucket {
      * Use static method {@link Bucket#createWithAbsolutePath(String)} to create
      * a bucket out of an absolute path.
      * 
-     * @param name
-     *            of the bucket
-     * @param index
-     *            the bucket came from
-     * @param format
-     *            the bucket is in
      * @param directory
      *            that is the bucket
+     * @throws FileNotFoundException
+     *             if the file doesn't exist
+     * @throws FileNotDirectoryException
+     *             if the file is not a directory
      */
-    public Bucket(String name, String index, BucketFormat format, File directory) {
-	this.name = name;
-	this.index = index;
-	this.format = format;
+    public Bucket(File directory) throws FileNotFoundException,
+	    FileNotDirectoryException {
+	if (!directory.exists()) {
+	    throw new FileNotFoundException();
+	} else if (!directory.isDirectory()) {
+	    throw new FileNotDirectoryException();
+	}
 	this.directory = directory;
-    }
-
-    public String getName() {
-	return name;
-    }
-
-    public String getIndex() {
-	return index;
-    }
-
-    public BucketFormat getFormat() {
-	return format;
     }
 
     public File getDirectory() {
 	return directory;
     }
 
-    public static Bucket createWithAbsolutePath(String path)
-	    throws FileNotFoundException, FileNotDirectoryException {
-	File directory = new File(path);
-	if (!directory.exists()) {
-	    throw new FileNotFoundException();
-	} else if (!directory.isDirectory()) {
-	    throw new FileNotDirectoryException();
-	} else {
-	    return createBucketWithDirectory(directory);
-	}
+    public String getName() {
+	return directory.getName();
     }
 
-    private static Bucket createBucketWithDirectory(File directory) {
-	String name = directory.getName();
-	String index = directory.getParentFile().getParentFile().getName();
-	BucketFormat format = getFormatFromDirectory(directory);
-	return new Bucket(name, index, format, directory);
+    public String getIndex() {
+	return directory.getParentFile().getParentFile().getName();
     }
 
-    private static BucketFormat getFormatFromDirectory(File directory) {
+    public BucketFormat getFormat() {
+	return getFormatFromDirectory(directory);
+    }
+
+    private BucketFormat getFormatFromDirectory(File directory) {
 	File rawdataInDirectory = new File(directory, "rawdata");
 	BucketFormat format;
 	if (rawdataInDirectory.exists()) {
@@ -82,4 +61,9 @@ public class Bucket {
 	return format;
     }
 
+    public static Bucket createWithAbsolutePath(String path)
+	    throws FileNotFoundException, FileNotDirectoryException {
+	File directory = new File(path);
+	return new Bucket(directory);
+    }
 }
