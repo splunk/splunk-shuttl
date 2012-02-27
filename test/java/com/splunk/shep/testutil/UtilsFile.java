@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 import org.apache.commons.io.FileExistsException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.testng.AssertJUnit;
@@ -145,5 +146,21 @@ public class UtilsFile {
 	File child = new File(parent, string);
 	child.mkdir();
 	return child;
+    }
+
+    /**
+     * @return a new file having same contents (but different path) as the
+     *         specified file.
+     */
+    public static File createTestFileWithContentsOfFile(File file) {
+	File newFile = createTestFile();
+	try {
+	    FileUtils.copyFile(file, newFile);
+	} catch (IOException e) {
+	    UtilsTestNG.failForException(
+		    "Couldn't create file with contents of " + file.toString(),
+		    e);
+	}
+	return newFile;
     }
 }

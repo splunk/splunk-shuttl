@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 @Test(groups = { "fast" })
@@ -56,5 +57,17 @@ public class UtilsFileTest {
 	assertTrue(!childsChild.exists());
 	assertTrue(!child.exists());
 	assertTrue(!parent.exists());
+    }
+
+    public void createTestFileWithContentsOfFile_validInput_diffrentPaths() {
+	File file = UtilsFile.createTestFileWithRandomContent();
+	File newFile = UtilsFile.createTestFileWithContentsOfFile(file);
+	AssertJUnit.assertFalse(file.getPath().equals(newFile.getPath()));
+    }
+
+    public void createTestFileWithContentsOfFile_validInput_sameContent() {
+	File file = UtilsFile.createTestFileWithRandomContent();
+	File newFile = UtilsFile.createTestFileWithContentsOfFile(file);
+	UtilsTestNG.assertFileContentsEqual(file, newFile);
     }
 }
