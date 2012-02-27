@@ -6,7 +6,6 @@
 /bin/
 
 # Eclipse files
-.project
 .settings
 /eclipse-bin/
 /build-cache/
