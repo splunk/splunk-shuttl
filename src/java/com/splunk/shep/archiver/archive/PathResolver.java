@@ -6,8 +6,7 @@ import com.splunk.shep.archiver.model.Bucket;
 
 public class PathResolver {
 
-    public URI resolveArchivePathWithBucketAndFormat(Bucket bucket,
-	    BucketFormat string) {
+    public URI resolveArchivePath(Bucket bucket) {
 	throw new UnsupportedOperationException();
     }
 
