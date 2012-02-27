@@ -3,7 +3,7 @@ package com.splunk.shep.archiver.model;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import com.splunk.shep.archiver.archive.ArchiveFormat;
+import com.splunk.shep.archiver.archive.BucketFormat;
 
 /**
  * Model representing a Splunk bucket
@@ -11,14 +11,24 @@ import com.splunk.shep.archiver.archive.ArchiveFormat;
 public class Bucket {
 
     private final String index;
-    private final ArchiveFormat format;
+    private final BucketFormat format;
 
-    protected Bucket(String index, ArchiveFormat format) {
+    /**
+     * Bucket with an index and format<br/>
+     * Use static method {@link Bucket#createWithAbsolutePath(String)} to create
+     * a bucket out of an absolute path.
+     * 
+     * @param index
+     *            the bucket came from
+     * @param format
+     *            the bucket is in
+     */
+    public Bucket(String index, BucketFormat format) {
 	this.index = index;
 	this.format = format;
     }
 
-    public ArchiveFormat getFormat() {
+    public BucketFormat getFormat() {
 	return format;
     }
 
@@ -36,11 +46,11 @@ public class Bucket {
 	} else {
 	    String index = directory.getParentFile().getParentFile().getName();
 	    File rawdata = new File(directory, "rawdata");
-	    ArchiveFormat format;
+	    BucketFormat format;
 	    if (rawdata.exists()) {
-		format = ArchiveFormat.SPLUNK_BUCKET;
+		format = BucketFormat.SPLUNK_BUCKET;
 	    } else {
-		format = ArchiveFormat.UNKNOWN;
+		format = BucketFormat.UNKNOWN;
 	    }
 	    return new Bucket(index, format);
 	}

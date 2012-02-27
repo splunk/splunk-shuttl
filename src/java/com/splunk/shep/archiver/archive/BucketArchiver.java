@@ -39,10 +39,10 @@ public class BucketArchiver {
     }
 
     public void archiveBucket(Bucket bucket) {
-	ArchiveFormat archiveFormat = archiveConfiguration.getArchiveFormat();
-	bucketExporter.getBucketExportedToFormat(bucket, archiveFormat);
+	BucketFormat bucketFormat = archiveConfiguration.getArchiveFormat();
+	bucketExporter.getBucketExportedToFormat(bucket, bucketFormat);
 	URI path = pathResolver.resolveArchivePathWithBucketAndFormat(bucket,
-		archiveFormat);
+		bucketFormat);
 	bucketTransferer.transferBucketToPath(bucket, path);
     }
 

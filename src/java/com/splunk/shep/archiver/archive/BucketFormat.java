@@ -1,5 +1,5 @@
 package com.splunk.shep.archiver.archive;
 
-public enum ArchiveFormat {
+public enum BucketFormat {
     SPLUNK_BUCKET, UNKNOWN
 }

@@ -10,7 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.ArchiveFormat;
+import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.testutil.UtilsFile;
 
 @Test(groups = { "fast" })
@@ -83,7 +83,18 @@ public class BucketTest {
 	assertTrue(rawdata.exists());
 	Bucket bucket = Bucket.createWithAbsolutePath(bucketDir
 		.getAbsolutePath());
-	assertEquals(bucket.getFormat(), ArchiveFormat.SPLUNK_BUCKET);
+	assertEquals(bucket.getFormat(), BucketFormat.SPLUNK_BUCKET);
+    }
+
+    /**
+     * Until We've implemented more bucket formats, this is what happens.<br/>
+     * This test should probably be removed when we get more formats.
+     */
+    public void createWithAbsolutePath_rawdataNotInBucket_bucketFormatIsUnknown()
+	    throws IOException {
+	Bucket bucket = Bucket
+		.createWithAbsolutePath(getBucketPathWithIndex("index"));
+	assertEquals(BucketFormat.UNKNOWN, bucket.getFormat());
     }
 
     public void BucketTest_getBucketPathWithIndex_withNonEmptyIndex_endsWithExpectedPathEnding() {
