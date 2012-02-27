@@ -33,10 +33,10 @@ public class HadoopFileSystemPutter {
 	if (!source.exists())
 	    throw new LocalFileNotFound();
 	else
-	    putFileOnHadoopFileSystemHadnlingIOExceptions(source);
+	    putFileOnHadoopFileSystemHandlingIOExceptions(source);
     }
 
-    private void putFileOnHadoopFileSystemHadnlingIOExceptions(File src) {
+    private void putFileOnHadoopFileSystemHandlingIOExceptions(File src) {
 	try {
 	    fileSystem.copyFromLocalFile(new Path(src.getPath()),
 		    getSafePathOnFileSystemForFile(src));
