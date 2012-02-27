@@ -183,4 +183,18 @@ public class HadoopFileSystemArchiveTest {
 		fileThatWouldBeOwerwriten, fileAfterPut);
 
     }
+
+    public void putFile_withDirectoryContainingAnotherDirectory_bothDirectoriesExistsInTheArchive()
+	    throws URISyntaxException, FileNotFoundException,
+	    FileOverwriteException, IOException {
+	File parent = UtilsFile.createTempDirectory();
+	String childFileName = "childDir";
+	UtilsFile.createDirectoryInParent(parent, childFileName);
+	Path parentPathOnHadoop = hadoopFileSystemPutter.getPathForFile(parent);
+	hadoopFileSystemArchive.putFile(parent, parentPathOnHadoop.toUri());
+	assertTrue(fileSystem.exists(parentPathOnHadoop));
+	Path childPath = new Path(parentPathOnHadoop, childFileName);
+	assertTrue(fileSystem.exists(childPath));
+    }
+
 }
