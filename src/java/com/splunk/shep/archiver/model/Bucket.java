@@ -51,17 +51,26 @@ public class Bucket {
 	} else if (!directory.isDirectory()) {
 	    throw new FileNotDirectoryException();
 	} else {
-	    String index = directory.getParentFile().getParentFile().getName();
-	    String name = directory.getName();
-	    File rawdata = new File(directory, "rawdata");
-	    BucketFormat format;
-	    if (rawdata.exists()) {
-		format = BucketFormat.SPLUNK_BUCKET;
-	    } else {
-		format = BucketFormat.UNKNOWN;
-	    }
-	    return new Bucket(name, index, format);
+	    return createBucketWithDirectory(directory);
 	}
+    }
+
+    private static Bucket createBucketWithDirectory(File directory) {
+	String name = directory.getName();
+	String index = directory.getParentFile().getParentFile().getName();
+	BucketFormat format = getFormatFromDirectory(directory);
+	return new Bucket(name, index, format);
+    }
+
+    private static BucketFormat getFormatFromDirectory(File directory) {
+	File rawdataInDirectory = new File(directory, "rawdata");
+	BucketFormat format;
+	if (rawdataInDirectory.exists()) {
+	    format = BucketFormat.SPLUNK_BUCKET;
+	} else {
+	    format = BucketFormat.UNKNOWN;
+	}
+	return format;
     }
 
 }
