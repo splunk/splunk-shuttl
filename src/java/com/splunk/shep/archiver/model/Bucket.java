@@ -13,7 +13,17 @@ public class Bucket {
     private final String index;
     private final ArchiveFormat format;
 
-    protected Bucket(String index, ArchiveFormat format) {
+    /**
+     * Bucket with an index and format<br/>
+     * Use static method {@link Bucket#createWithAbsolutePath(String)} to create
+     * a bucket out of an absolute path.
+     * 
+     * @param index
+     *            the bucket came from
+     * @param format
+     *            the bucket is in
+     */
+    public Bucket(String index, ArchiveFormat format) {
 	this.index = index;
 	this.format = format;
     }
