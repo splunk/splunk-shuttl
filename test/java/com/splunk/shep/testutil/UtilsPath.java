@@ -8,7 +8,7 @@ import org.apache.hadoop.fs.Path;
  * exceptions while doing any operations the tests will fail with appropriate
  * message.
  */
-public class UtilPath {
+public class UtilsPath {
 
     /**
      * Same as calling {@link #getSafeDirectory(FileSystem, Class)} with

@@ -52,7 +52,7 @@ public class HadoopFileSystemPutter {
 
     private Path getSafePathForClassPuttingFile() {
 	Class<?> callerToThisMethod = MethodCallerHelper.getCallerToMyMethod();
-	Path safeDirectory = UtilPath.getSafeDirectory(fileSystem,
+	Path safeDirectory = UtilsPath.getSafeDirectory(fileSystem,
 		callerToThisMethod);
 	return safeDirectory;
     }
