@@ -78,8 +78,9 @@ public class BucketFreezerTest {
 	File dirToBeMoved = createTestDirectory();
 
 	BucketFreezer bucketFreezer = new BucketFreezer(safeLocation);
-	bucketFreezer.freezeBucket(dirToBeMoved.getAbsolutePath());
-	assertEquals(0, bucketFreezer.getExitStatus());
+	int exitStatus = bucketFreezer.freezeBucket(dirToBeMoved
+		.getAbsolutePath());
+	assertEquals(0, exitStatus);
 
 	assertTrue(!dirToBeMoved.exists());
 	File dirInSafeLocation = new File(safeLocationDirectory,

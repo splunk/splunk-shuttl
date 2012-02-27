@@ -8,7 +8,6 @@ public class BucketFreezer {
 	    .getProperty("user.home") + "/" + BucketFreezer.class.getName();
 
     private final String safeLocationForBuckets;
-    private int exit = -1;
 
     public BucketFreezer() {
 	this.safeLocationForBuckets = DEFAULT_SAFE_LOCATION;
@@ -18,22 +17,36 @@ public class BucketFreezer {
 	this.safeLocationForBuckets = safeLocationForBuckets;
     }
 
-    public void freezeBucket(String path) {
+    public int freezeBucket(String path) {
+	int status = 0;
 	File directory = new File(path);
-	if (!directory.isDirectory())
-	    exit = 3;
-	else
-	    moveDirectoryToASafeLocation(directory);
+	if (!directory.isDirectory()) {
+	    status = 3;
+	} else {
+	    File safeLocation = moveDirectoryToASafeLocation(directory);
+	    if (safeLocation != null) {
+		doRestCall(safeLocation);
+	    } else {
+		status = 4;
+	    }
+	}
+	return status;
     }
 
-    private void moveDirectoryToASafeLocation(File directory) {
+    private void doRestCall(File safeLocation) {
+	// TODO Auto-generated method stub
+
+    }
+
+    private File moveDirectoryToASafeLocation(File directory) {
 	File safeLocation = createSafeLocation();
 	File locationToMoveTo = new File(safeLocation, directory.getName());
 	boolean isMoved = directory.renameTo(locationToMoveTo);
-	if (!isMoved)
-	    exit = 4;
-	else
-	    exit = 0;
+	if (!isMoved) {
+	    locationToMoveTo = null;
+	}
+	return locationToMoveTo;
+
     }
 
     private File createSafeLocation() {
@@ -42,18 +55,13 @@ public class BucketFreezer {
 	return safeLocation;
     }
 
-    public int getExitStatus() {
-	return exit;
-    }
-
     public static void main(String[] args) {
 	if (args.length == 0)
 	    System.exit(1);
 	if (args.length >= 2)
 	    System.exit(2);
 	BucketFreezer archiveBucket = new BucketFreezer();
-	archiveBucket.freezeBucket(args[0]);
-	int exitStatus = archiveBucket.getExitStatus();
+	int exitStatus = archiveBucket.freezeBucket(args[0]);
 	System.exit(exitStatus);
     }
 
