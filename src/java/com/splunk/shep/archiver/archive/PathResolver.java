@@ -16,8 +16,8 @@ public class PathResolver {
     public URI resolveArchivePath(Bucket bucket) {
 	String uri = "file:/" + configuration.getArchivingRoot() + "/"
 		+ configuration.getClusterName() + "/"
-		+ configuration.getServerName() + "/" + bucket.getName() + "/"
-		+ bucket.getIndex() + "/" + bucket.getFormat();
+		+ configuration.getServerName() + "/" + bucket.getIndex() + "/"
+		+ bucket.getFormat() + "/" + bucket.getName();
 	return getUriSafe(uri);
     }
 
