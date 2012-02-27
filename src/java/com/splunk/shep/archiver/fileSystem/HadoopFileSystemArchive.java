@@ -24,7 +24,7 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 	Path hadoopPath = createPathFromURI(fileOnArchiveFileSystem);
 	throwExceptionIfRemotePathAllreadyExist(hadoopPath);
 	Path localPath = createPathFromFile(fileOnLocalFileSystem);
-	hadoopFileSystem.copyFromLocalFile(localPath, hadoopPath);
+	hadoopFileSystem.copyFromLocalFile(false, false, localPath, hadoopPath);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 	Path localPath = createPathFromFile(fileOnLocalFileSystem);
 	Path hadoopPath = createPathFromURI(fileOnArchiveFileSystem);
 	// FileNotFoundException is already thrown by copyToLocalFile.
-	hadoopFileSystem.copyToLocalFile(hadoopPath, localPath);
+	hadoopFileSystem.copyToLocalFile(false, hadoopPath, localPath);
     }
 
     @Override
