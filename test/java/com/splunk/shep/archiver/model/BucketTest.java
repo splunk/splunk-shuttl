@@ -86,6 +86,17 @@ public class BucketTest {
 	assertEquals(bucket.getFormat(), ArchiveFormat.SPLUNK_BUCKET);
     }
 
+    /**
+     * Until We've implemented more bucket formats, this is what happens.<br/>
+     * This test should probably be removed when we get more formats.
+     */
+    public void createWithAbsolutePath_rawdataNotInBucket_bucketFormatIsUnknown()
+	    throws IOException {
+	Bucket bucket = Bucket
+		.createWithAbsolutePath(getBucketPathWithIndex("index"));
+	assertEquals(ArchiveFormat.UNKNOWN, bucket.getFormat());
+    }
+
     public void BucketTest_getBucketPathWithIndex_withNonEmptyIndex_endsWithExpectedPathEnding() {
 	String index = "someIndex";
 	String bucketPath = getBucketPathWithIndex(index);
