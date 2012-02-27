@@ -21,7 +21,7 @@ public class BucketExporterTest {
     // TODO, when Bucket is implemented, change this test to use the real bucket
     // class instead of mocking it.
     public void getBucketExportedToFormat_whenBucketIsAlreadyInThatFormat_returnTheSameBucket() {
-	ArchiveFormat format = ArchiveFormat.SPLUNK_BUCKET;
+	BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 	Bucket bucket = mock(Bucket.class);
 	when(bucket.getFormat()).thenReturn(format);
 	Bucket exportedToFormat = bucketExporter.getBucketExportedToFormat(
@@ -32,6 +32,6 @@ public class BucketExporterTest {
     @Test(expectedExceptions = { UnknownBucketFormatException.class })
     public void getBucketExportedToFormat_formatIsUnknown_throwUnknownBucketFormatException() {
 	Bucket bucket = mock(Bucket.class);
-	bucketExporter.getBucketExportedToFormat(bucket, ArchiveFormat.UNKNOWN);
+	bucketExporter.getBucketExportedToFormat(bucket, BucketFormat.UNKNOWN);
     }
 }

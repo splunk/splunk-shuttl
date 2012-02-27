@@ -10,7 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.ArchiveFormat;
+import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.testutil.UtilsFile;
 
 @Test(groups = { "fast" })
@@ -83,7 +83,7 @@ public class BucketTest {
 	assertTrue(rawdata.exists());
 	Bucket bucket = Bucket.createWithAbsolutePath(bucketDir
 		.getAbsolutePath());
-	assertEquals(bucket.getFormat(), ArchiveFormat.SPLUNK_BUCKET);
+	assertEquals(bucket.getFormat(), BucketFormat.SPLUNK_BUCKET);
     }
 
     /**
@@ -94,7 +94,7 @@ public class BucketTest {
 	    throws IOException {
 	Bucket bucket = Bucket
 		.createWithAbsolutePath(getBucketPathWithIndex("index"));
-	assertEquals(ArchiveFormat.UNKNOWN, bucket.getFormat());
+	assertEquals(BucketFormat.UNKNOWN, bucket.getFormat());
     }
 
     public void BucketTest_getBucketPathWithIndex_withNonEmptyIndex_endsWithExpectedPathEnding() {
