@@ -32,7 +32,7 @@ public class BucketArchiverTest {
 	bucketArchiver = new BucketArchiver(config, exporter, pathResolver,
 		bucketTransferer);
 
-	bucket = new Bucket();
+	bucket = mock(Bucket.class);
     }
 
     public void archiveBucket_shouldGetArchiveFormat() {
