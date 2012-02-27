@@ -24,7 +24,7 @@ set -u
 
 main()
 {
-    stash_identifier="This stash entry is for creating a clean working space for pre-commit testing"
+    stash_identifier="$(create_stash_id)"
     trap 'pop "${stash_identifier}"; exit' INT TERM EXIT
         stash "${stash_identifier}"
         compile_and_test_code || {
@@ -33,6 +33,13 @@ main()
         }
         pop "${stash_identifier}"
     trap - INT TERM EXIT
+}
+
+create_stash_id()
+{
+    time_in_seconds="$(date +%s)"
+    id_string="This stash entry is for creating a clean working space for pre-commit testing : ${time_in_seconds}"
+    echo "${id_string}"
 }
 
 stash()
