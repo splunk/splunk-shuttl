@@ -60,4 +60,37 @@ public class UtilsFile {
 	}
     }
 
+    /**
+     * Creates a temporary directory with a unique name. <br/>
+     * The name of the directory includes the file class name of the caller to
+     * the method, so it's easier to track leakage if it some how persists
+     * between runs.
+     * 
+     * @return temporary directory that's deleted when the VM terminates.
+     */
+    public static File createTempDirectory() {
+	File dir = createNonExistingDirectory();
+	createDirectory(dir);
+	dir.deleteOnExit();
+	return dir;
+    }
+
+    private static File createNonExistingDirectory() {
+	Class<?> callerToThisMethod = MethodCallerHelper.getCallerToMyMethod();
+	String tempDirName = callerToThisMethod.getSimpleName() + "-test-dir";
+	File dir = new File(tempDirName);
+	while (dir.exists()) {
+	    tempDirName += "-" + RandomStringUtils.randomAlphanumeric(2);
+	    dir = new File(tempDirName);
+	}
+	return dir;
+    }
+
+    private static void createDirectory(File dir) {
+	if (!dir.mkdir()) {
+	    UtilsTestNG.failForException(
+		    "Could not create directory: " + dir.getAbsolutePath(),
+		    new RuntimeException());
+	}
+    }
 }
