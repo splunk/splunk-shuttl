@@ -99,12 +99,22 @@ public class BucketTest {
 	assertEquals(BucketFormat.UNKNOWN, bucket.getFormat());
     }
 
-    public void createWithAbsolutePath_validBucketPathInput_bucketNameIsLastDirectoryInPath()
+    public void createWithAbsolutePath_givenExistingDirectory_bucketNameIsLastDirectoryInPath()
 	    throws IOException {
 	String bucketPath = getBucketPathWithIndex();
 	String expectedName = getBucketName();
 	Bucket bucket = Bucket.createWithAbsolutePath(bucketPath);
 	assertEquals(expectedName, bucket.getName());
+    }
+
+    public void createWithAbsolutePath_givenExistingDirectory_getDirectoryShouldReturnThatDirectoryWithTheSameAbsolutePath()
+	    throws IOException {
+	File existingDirectory = getBucketDirectoryWithIndex(index);
+	assertTrue(existingDirectory.exists());
+	Bucket bucket = Bucket.createWithAbsolutePath(existingDirectory
+		.getAbsolutePath());
+	assertEquals(existingDirectory.getAbsolutePath(), bucket.getDirectory()
+		.getAbsolutePath());
     }
 
     public void BucketTest_getBucketPathWithIndex_withNonEmptyIndex_endsWithExpectedPathEnding() {

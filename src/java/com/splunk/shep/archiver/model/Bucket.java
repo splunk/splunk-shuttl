@@ -13,22 +13,27 @@ public class Bucket {
     private final String name;
     private final String index;
     private final BucketFormat format;
+    private final File directory;
 
     /**
      * Bucket with an index and format<br/>
      * Use static method {@link Bucket#createWithAbsolutePath(String)} to create
      * a bucket out of an absolute path.
      * 
+     * @param name
+     *            of the bucket
      * @param index
      *            the bucket came from
-     * @param index2
      * @param format
      *            the bucket is in
+     * @param directory
+     *            that is the bucket
      */
-    public Bucket(String name, String index, BucketFormat format) {
+    public Bucket(String name, String index, BucketFormat format, File directory) {
 	this.name = name;
 	this.index = index;
 	this.format = format;
+	this.directory = directory;
     }
 
     public String getName() {
@@ -41,6 +46,10 @@ public class Bucket {
 
     public BucketFormat getFormat() {
 	return format;
+    }
+
+    public File getDirectory() {
+	return directory;
     }
 
     public static Bucket createWithAbsolutePath(String path)
@@ -59,7 +68,7 @@ public class Bucket {
 	String name = directory.getName();
 	String index = directory.getParentFile().getParentFile().getName();
 	BucketFormat format = getFormatFromDirectory(directory);
-	return new Bucket(name, index, format);
+	return new Bucket(name, index, format, directory);
     }
 
     private static BucketFormat getFormatFromDirectory(File directory) {
