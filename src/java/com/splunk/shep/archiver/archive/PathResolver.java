@@ -1,13 +1,32 @@
 package com.splunk.shep.archiver.archive;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import com.splunk.shep.archiver.model.Bucket;
 
 public class PathResolver {
 
-    public URI resolveArchivePath(Bucket bucket) {
-	throw new UnsupportedOperationException();
+    private final ArchiveConfiguration configuration;
+
+    public PathResolver(ArchiveConfiguration configuration) {
+	this.configuration = configuration;
     }
 
+    public URI resolveArchivePath(Bucket bucket) {
+	String uri = "file:/" + configuration.getArchivingRoot() + "/"
+		+ configuration.getClusterName() + "/"
+		+ configuration.getServerName() + "/" + bucket.getName() + "/"
+		+ bucket.getIndex() + "/" + bucket.getFormat();
+	return getUriSafe(uri);
+    }
+
+    private URI getUriSafe(String uri) {
+	try {
+	    return new URI(uri);
+	} catch (URISyntaxException e) {
+	    e.printStackTrace();
+	    throw new RuntimeException(e);
+	}
+    }
 }
