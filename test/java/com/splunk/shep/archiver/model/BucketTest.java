@@ -42,8 +42,12 @@ public class BucketTest {
 		index);
 	File dbDir = UtilsFile.createDirectoryInParent(indexDir, "db");
 	File bucketDir = UtilsFile.createDirectoryInParent(dbDir,
-		"db_1326857236_1300677707_0");
+		getBucketName());
 	return bucketDir;
+    }
+
+    private String getBucketName() {
+	return "db_1326857236_1300677707_0";
     }
 
     public void constructor_absolutePathToBucketEndingWithSlash_setIndex()
@@ -95,6 +99,14 @@ public class BucketTest {
 	Bucket bucket = Bucket
 		.createWithAbsolutePath(getBucketPathWithIndex("index"));
 	assertEquals(BucketFormat.UNKNOWN, bucket.getFormat());
+    }
+
+    public void createWithAbsolutePath_validBucketPathInput_bucketNameIsLastDirectoryInPath()
+	    throws IOException {
+	String bucketPath = getBucketPathWithIndex("index"); // REFACTOR THIS!
+	String expectedName = getBucketName();
+	Bucket bucket = Bucket.createWithAbsolutePath(bucketPath);
+	assertEquals(expectedName, bucket.getName());
     }
 
     public void BucketTest_getBucketPathWithIndex_withNonEmptyIndex_endsWithExpectedPathEnding() {

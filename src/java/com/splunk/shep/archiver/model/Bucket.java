@@ -10,6 +10,7 @@ import com.splunk.shep.archiver.archive.BucketFormat;
  */
 public class Bucket {
 
+    private final String name;
     private final String index;
     private final BucketFormat format;
 
@@ -20,20 +21,26 @@ public class Bucket {
      * 
      * @param index
      *            the bucket came from
+     * @param index2
      * @param format
      *            the bucket is in
      */
-    public Bucket(String index, BucketFormat format) {
+    public Bucket(String name, String index, BucketFormat format) {
+	this.name = name;
 	this.index = index;
 	this.format = format;
     }
 
-    public BucketFormat getFormat() {
-	return format;
+    public String getName() {
+	return name;
     }
 
     public String getIndex() {
 	return index;
+    }
+
+    public BucketFormat getFormat() {
+	return format;
     }
 
     public static Bucket createWithAbsolutePath(String path)
@@ -45,6 +52,7 @@ public class Bucket {
 	    throw new FileNotDirectoryException();
 	} else {
 	    String index = directory.getParentFile().getParentFile().getName();
+	    String name = directory.getName();
 	    File rawdata = new File(directory, "rawdata");
 	    BucketFormat format;
 	    if (rawdata.exists()) {
@@ -52,7 +60,7 @@ public class Bucket {
 	    } else {
 		format = BucketFormat.UNKNOWN;
 	    }
-	    return new Bucket(index, format);
+	    return new Bucket(name, index, format);
 	}
     }
 
