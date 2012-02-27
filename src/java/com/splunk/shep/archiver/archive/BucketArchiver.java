@@ -43,7 +43,7 @@ public class BucketArchiver {
 	Bucket exportedBucket = bucketExporter.getBucketExportedToFormat(
 		bucket, bucketFormat);
 	URI path = pathResolver.resolveArchivePath(exportedBucket);
-	bucketTransferer.transferBucketToPath(bucket, path);
+	bucketTransferer.transferBucketToArchive(bucket, path);
     }
 
     /**
