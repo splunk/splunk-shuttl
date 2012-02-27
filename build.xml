@@ -217,16 +217,18 @@
 
 	<!-- run test via testNG -->
 	<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="ant.libs.classpath" />
-	<target name="test" depends="compile">
+	<target name="test" depends="clean-built-classes-then-compile">
 		<antcall target="fast-tests" />
 		<antcall target="slow-tests" />
 	</target>
 
-	<target name="test-all" depends="compile">
+	<target name="test-all" depends="clean-built-classes-then-compile">
 		<antcall target="test" />
 		<antcall target="super-slow-tests" />
 		<antcall target="hadoop-test" />
 	</target>
+
+	<target name="clean-built-classes-then-compile" depends="clean-built-classes, compile" />
 
 	<propertyset id="testng">
 		<propertyref name="splunk.username" />
