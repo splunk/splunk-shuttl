@@ -6,7 +6,6 @@
 /bin/
 
 # Eclipse files
-.classpath
 .project
 .settings
 /eclipse-bin/
