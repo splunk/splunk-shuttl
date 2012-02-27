@@ -5,7 +5,8 @@
 /build/
 /bin/
 
-# Eclipse compile output
+# Eclipse files
+.settings
 /eclipse-bin/
 /build-cache/
 
