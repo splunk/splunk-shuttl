@@ -47,7 +47,7 @@ public class HadoopFileSystemArchiveTest {
 	assertNotNull(hadoopFileSystemArchive);
     }
 
-    public void getFile_expectedBehavior_noErrors() throws IOException {
+    public void getFile_validInput_fileShouldBeRetrived() throws IOException {
 	File testFile = UtilsFile.createTestFileWithRandomContent();
 	hadoopFileSystemPutter.putFile(testFile);
 	Path hadoopPath = hadoopFileSystemPutter.getPathForFile(testFile);
