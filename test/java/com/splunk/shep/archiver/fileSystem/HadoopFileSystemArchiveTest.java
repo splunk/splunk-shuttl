@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.testng.annotations.AfterMethod;
@@ -191,6 +192,7 @@ public class HadoopFileSystemArchiveTest {
 	assertTrue(fileSystem.exists(parentPathOnHadoop));
 	Path childPath = new Path(parentPathOnHadoop, childFileName);
 	assertTrue(fileSystem.exists(childPath));
+	FileUtils.deleteDirectory(parent);
     }
 
     public void listPath_listingAPathThatPointsToADirectory_aListThatContainsThePathsInsideSpecifiedDirectory()
