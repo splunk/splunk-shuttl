@@ -70,4 +70,16 @@ public class UtilsFileTest {
 	File newFile = UtilsFile.createTestFileWithContentsOfFile(file);
 	UtilsTestNG.assertFileContentsEqual(file, newFile);
     }
+
+    public void createFileInParent_givenNameOfFile_createFileInParent()
+	    throws IOException {
+	String childFileName = "child";
+	File parent = UtilsFile.createTempDirectory();
+	File child = UtilsFile.createFileInParent(parent, childFileName);
+	assertEquals(parent, child.getParentFile());
+	assertEquals(childFileName, child.getName());
+
+	// Teardown
+	FileUtils.deleteDirectory(parent);
+    }
 }

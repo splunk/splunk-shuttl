@@ -148,6 +148,17 @@ public class UtilsFile {
 	return child;
     }
 
+    public static File createFileInParent(File parent, String fileName) {
+	File child = new File(parent, fileName);
+	try {
+	    child.createNewFile();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	    UtilsTestNG.failForException("Could not create file: " + child, e);
+	}
+	return child;
+    }
+
     /**
      * @return a new file having same contents (but different path) as the
      *         specified file.
