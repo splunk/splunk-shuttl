@@ -44,6 +44,8 @@ public class HadoopFileSystemArchiveTest {
     }
 
     public void HadoopFileSystemArchive_notInitialized_aNonNullInstanceIsCreated() {
+	// Test done in before
+	// Confirm
 	assertNotNull(hadoopFileSystemArchive);
     }
 
@@ -54,21 +56,25 @@ public class HadoopFileSystemArchiveTest {
 	URI fileSystemPath = hadoopPath.toUri();
 	File retrivedFile = UtilsFile.createTestFilePath();
 
+	// Test
 	hadoopFileSystemArchive.getFile(retrivedFile, fileSystemPath);
+
+	// Confirm
 	UtilsTestNG.assertFileContentsEqual(testFile, retrivedFile);
     }
 
     @Test(expectedExceptions = FileNotFoundException.class)
-    public void getFile_whenRemotefileDoNotExist_FileNotFoundException()
+    public void getFile_whenRemotefileDoNotExist_fileNotFoundException()
 	    throws IOException, URISyntaxException {
 	URI fileSystemPath = new URI("file:///random/path/to/non/existing/file");
 	File retrivedFile = UtilsFile.createTestFilePath();
 
+	// Test
 	hadoopFileSystemArchive.getFile(retrivedFile, fileSystemPath);
     }
 
     @Test(expectedExceptions = FileOverwriteException.class)
-    public void getFile_whenLocalFileAllreadyExist_FileOverwriteException()
+    public void getFile_whenLocalFileAllreadyExist_fileOverwriteException()
 	    throws IOException, URISyntaxException {
 	File testFile = UtilsFile.createTestFileWithRandomContent();
 	hadoopFileSystemPutter.putFile(testFile);
@@ -76,6 +82,7 @@ public class HadoopFileSystemArchiveTest {
 	URI fileSystemPath = hadoopPath.toUri();
 	File retrivedFile = UtilsFile.createTestFileWithRandomContent();
 
+	// Test
 	hadoopFileSystemArchive.getFile(retrivedFile, fileSystemPath);
     }
 
@@ -125,17 +132,18 @@ public class HadoopFileSystemArchiveTest {
     }
 
     @Test(expectedExceptions = FileNotFoundException.class)
-    public void putFile_whenLocalFileDoNotExist_FileNotFoundException()
+    public void putFile_whenLocalFileDoNotExist_fileNotFoundException()
 	    throws IOException {
 	File testFile = UtilsFile.createTestFilePath();
 	Path hadoopPath = UtilsPath.getSafeDirectory(fileSystem);
 	URI fileSystemPath = hadoopPath.toUri();
 
+	// Test
 	hadoopFileSystemArchive.putFile(testFile, fileSystemPath);
     }
 
     @Test(expectedExceptions = FileOverwriteException.class)
-    public void putFile_whenRemoteFileExists_FileOverwriteException()
+    public void putFile_whenRemoteFileExists_fileOverwriteException()
 	    throws IOException {
 	File fileThatWouldBeOwerwriten = UtilsFile
 		.createTestFileWithRandomContent();
@@ -145,6 +153,7 @@ public class HadoopFileSystemArchiveTest {
 	URI pathToRemoteFile = hadoopPath.toUri();
 	File testFile = UtilsFile.createTestFileWithRandomContent();
 
+	// Test
 	hadoopFileSystemArchive.putFile(testFile, pathToRemoteFile);
     }
 
@@ -160,10 +169,13 @@ public class HadoopFileSystemArchiveTest {
 	File testFile = UtilsFile.createTestFileWithRandomContent();
 
 	try {
+	    // Test
 	    hadoopFileSystemArchive.putFile(testFile, pathToRemoteFile);
 	} catch (FileOverwriteException e) {
 	    // Intentionally ignoring.
 	}
+
+	// Confirm
 	File fileAfterPut = UtilsFile.createTestFilePath();
 	hadoopFileSystemArchive.getFile(fileAfterPut, pathToRemoteFile);
 	UtilsTestNG.assertFileContentsEqual(
