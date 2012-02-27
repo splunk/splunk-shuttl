@@ -29,6 +29,6 @@ public class UtilsPath {
      * 
      */
     public static Path getSafeDirectory(FileSystem fileSystem, Class<?> clazz) {
-	return new Path(fileSystem.getHomeDirectory() + "/" + clazz.getName());
+	return new Path(fileSystem.getHomeDirectory(), clazz.getName());
     }
 }

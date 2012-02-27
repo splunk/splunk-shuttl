@@ -39,8 +39,8 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 
     @Override
     public List<URI> listPath(URI pathToBeListed) throws IOException {
-	// TODO Auto-generated method stub
-	return null;
+	Path hadoopPath = createPathFromURI(pathToBeListed);
+	return new FileStatusBackedList(hadoopFileSystem.listStatus(hadoopPath));
     }
 
     private Path createPathFromURI(URI uri) {
