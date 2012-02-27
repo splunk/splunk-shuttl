@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.testng.AssertJUnit;
@@ -74,4 +75,75 @@ public class UtilsFile {
 	}
     }
 
+    /**
+     * Creates a temporary directory with a unique name. <br/>
+     * The name of the directory includes the file class name of the caller to
+     * the method, so it's easier to track leakage if it some how persists
+     * between runs.
+     * 
+     * @return temporary directory that's deleted when the VM terminates.
+     */
+    public static File createTempDirectory() {
+	File dir = createNonExistingDirectory();
+	createTempDirectory(dir);
+	return dir;
+    }
+
+    private static File createNonExistingDirectory() {
+	return createNonExistingDirectoryWithPrefix("test-dir");
+    }
+
+    private static File createNonExistingDirectoryWithPrefix(String prefix) {
+	Class<?> callerToThisMethod = MethodCallerHelper.getCallerToMyMethod();
+	String tempDirName = prefix + "-" + callerToThisMethod.getSimpleName();
+	File dir = new File(tempDirName);
+	while (dir.exists()) {
+	    tempDirName += "-" + RandomStringUtils.randomAlphanumeric(2);
+	    dir = new File(tempDirName);
+	}
+	return dir;
+    }
+
+    private static void createTempDirectory(File dir) {
+	if (!dir.mkdir()) {
+	    UtilsTestNG.failForException(
+		    "Could not create directory: " + dir.getAbsolutePath(),
+		    new RuntimeException());
+	}
+	dir.deleteOnExit();
+    }
+
+    /**
+     * Creates a temp directory with a name of the parameter. <br/>
+     * Wraps the FileExistException in a {@link RuntimeException} to avoid the
+     * try/catch.
+     * 
+     * @param string
+     *            name of the temp directory
+     * @return temporary directory that's deleted when the VM terminates.
+     */
+    public static File createPrefixedTempDirectory(String string) {
+	File dir = createNonExistingDirectoryWithPrefix(string);
+	if (dir.exists()) {
+	    throw new RuntimeException(new FileExistsException());
+	}
+	createTempDirectory(dir);
+	return dir;
+    }
+
+    /**
+     * Creates directory in the parent with the name of the String. <br/>
+     * Note: This file is not temporary and must be removed.
+     * 
+     * @param parent
+     *            where the child directory will live.
+     * @param string
+     *            name of the child
+     * @return the created directory.
+     */
+    public static File createDirectoryInParent(File parent, String string) {
+	File child = new File(parent, string);
+	child.mkdir();
+	return child;
+    }
 }

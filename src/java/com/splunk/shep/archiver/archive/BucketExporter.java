@@ -4,8 +4,11 @@ import com.splunk.shep.archiver.model.Bucket;
 
 public class BucketExporter {
 
-    public void exportBucketToFormat(Bucket bucket, ArchiveFormat format) {
-	throw new UnsupportedOperationException();
+    public Bucket getBucketExportedToFormat(Bucket bucket, ArchiveFormat format) {
+	if (bucket.getFormat().equals(format))
+	    return bucket;
+	else
+	    throw new UnsupportedOperationException();
     }
 
 }

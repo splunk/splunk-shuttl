@@ -32,7 +32,7 @@ public class BucketArchiverTest {
 	bucketArchiver = new BucketArchiver(config, exporter, pathResolver,
 		bucketTransferer);
 
-	bucket = new Bucket();
+	bucket = mock(Bucket.class);
     }
 
     public void archiveBucket_shouldGetArchiveFormat() {
@@ -47,12 +47,15 @@ public class BucketArchiverTest {
 	// Test
 	bucketArchiver.archiveBucket(bucket);
 	// Verification
-	verify(exporter).exportBucketToFormat(bucket, format);
+	verify(exporter).getBucketExportedToFormat(bucket, format);
     }
 
     public void archiveBucket_shouldResolveArchivePathWithIndexBucketAndFormat() {
 	ArchiveFormat format = ArchiveFormat.SPLUNK_BUCKET;
 	when(config.getArchiveFormat()).thenReturn(format);
+	when(
+		exporter.getBucketExportedToFormat(eq(bucket),
+			any(ArchiveFormat.class))).thenReturn(bucket);
 	bucketArchiver.archiveBucket(bucket);
 	verify(pathResolver).resolveArchivePathWithBucketAndFormat(bucket,
 		format);
