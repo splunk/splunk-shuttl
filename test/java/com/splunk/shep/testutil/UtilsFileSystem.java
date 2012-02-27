@@ -43,20 +43,4 @@ public class UtilsFileSystem {
 	}
 	return retrivedFile;
     }
-
-    /**
-     * Puts specified file to a safe place on specified file system and return
-     * the path.
-     */
-    public static Path putFileToFileSystem(FileSystem fileSystem, File fileToPut) {
-	Path remotePath = UtilsPath.getSafeDirectory(fileSystem, MethodCallerHelper.getCallerToMyMethod());
-	Path localFilePath = new Path(fileToPut.toURI());
-	try {
-	    fileSystem.copyFromLocalFile(localFilePath, remotePath);
-	} catch (IOException e) {
-	    UtilsTestNG.failForException("Can't put file to remote filesystem",
-		    e);
-	}
-	return remotePath;
-    }
 }
