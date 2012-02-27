@@ -2,6 +2,7 @@ package com.splunk.shep.archiver.model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import com.splunk.shep.archiver.archive.BucketFormat;
 
@@ -43,6 +44,10 @@ public class Bucket {
 	return directory.getName();
     }
 
+    private String getDB() {
+	return directory.getParentFile().getName();
+    }
+
     public String getIndex() {
 	return directory.getParentFile().getParentFile().getName();
     }
@@ -62,9 +67,35 @@ public class Bucket {
 	return format;
     }
 
+    public Bucket moveBucketToDir(File directoryToMoveTo) {
+	File newBucketDir = createNewBucketPathInDirectory(directoryToMoveTo);
+	File directoryCopy = directory.getAbsoluteFile();
+	directoryCopy.renameTo(newBucketDir);
+	return getBucketWithoutExceptions(newBucketDir);
+    }
+
+    private File createNewBucketPathInDirectory(File newDirectory) {
+	String bucketPathInformation = getIndex() + File.separator + getDB()
+		+ File.separator + getName();
+	File newBucketDir = new File(newDirectory, bucketPathInformation);
+	newBucketDir.mkdirs();
+	return newBucketDir;
+    }
+
+    private Bucket getBucketWithoutExceptions(File newBucketDir) {
+	try {
+	    return new Bucket(newBucketDir);
+	} catch (IOException e) {
+	    e.printStackTrace();
+	    throw new IllegalStateException(
+		    "Internal bucket call. Should be able to create it self", e);
+	}
+    }
+
     public static Bucket createWithAbsolutePath(String path)
 	    throws FileNotFoundException, FileNotDirectoryException {
 	File directory = new File(path);
 	return new Bucket(directory);
     }
+
 }
