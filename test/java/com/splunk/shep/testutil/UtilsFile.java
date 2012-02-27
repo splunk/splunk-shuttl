@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 
@@ -70,8 +71,7 @@ public class UtilsFile {
      */
     public static File createTempDirectory() {
 	File dir = createNonExistingDirectory();
-	createDirectory(dir);
-	dir.deleteOnExit();
+	createTempDirectory(dir);
 	return dir;
     }
 
@@ -86,11 +86,30 @@ public class UtilsFile {
 	return dir;
     }
 
-    private static void createDirectory(File dir) {
+    private static void createTempDirectory(File dir) {
 	if (!dir.mkdir()) {
 	    UtilsTestNG.failForException(
 		    "Could not create directory: " + dir.getAbsolutePath(),
 		    new RuntimeException());
 	}
+	dir.deleteOnExit();
+    }
+
+    /**
+     * Creates a temp directory with a name of the parameter. <br/>
+     * Wraps the FileExistException in a {@link RuntimeException} to avoid the
+     * try/catch.
+     * 
+     * @param string
+     *            name of the temp directory
+     * @return temporary directory that's deleted when the VM terminates.
+     */
+    public static File createNamedTempDirectory(String string) {
+	File dir = new File(string);
+	if (dir.exists()) {
+	    throw new RuntimeException(new FileExistsException());
+	}
+	createTempDirectory(dir);
+	return dir;
     }
 }

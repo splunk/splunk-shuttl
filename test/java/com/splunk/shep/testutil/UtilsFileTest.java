@@ -28,4 +28,16 @@ public class UtilsFileTest {
 	String dirName = tempDir.getName();
 	assertTrue(dirName.contains(getClass().getSimpleName()));
     }
+
+    public void createNamedTempDirectory_fileDoesNotExist_getsCreated() {
+	File dir = UtilsFile.createNamedTempDirectory("NameOfTheDirectory");
+	assertTrue(dir.exists());
+    }
+
+    @Test(expectedExceptions = { RuntimeException.class })
+    public void createNamedTempDirectory_twice_throwsRuntimeException() {
+	String name = "someName";
+	UtilsFile.createNamedTempDirectory(name);
+	UtilsFile.createNamedTempDirectory(name);
+    }
 }
