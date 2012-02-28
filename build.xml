@@ -701,7 +701,7 @@
 		<delete dir="${shep.app.home}" />
 	</target>
 
-	<target name="splunk-start">
+	<target name="splunk-start" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="start --accept-license --no-prompt --answer-yes splunkd" />
 		</exec>
@@ -713,13 +713,13 @@
 		</exec>
 	</target>
 
-	<target name="splunk-stop">
+	<target name="splunk-stop" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="stop -f" />
 		</exec>
 	</target>
 
-	<target name="splunk-restart">
+	<target name="splunk-restart" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="restart" />
 		</exec>
@@ -757,7 +757,7 @@
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
 	</target>
 
-	<target name="splunk-clean-all">
+	<target name="splunk-clean-all" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="clean all -f" />
 		</exec>
