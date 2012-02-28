@@ -265,7 +265,7 @@
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="slow" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
-			<classfileset dir="${classdir}" includes="**/*.class" />
+			<classfileset dir="${classdir}" includes="**/SplunkInputFormatTest.class" />
 		</testng>
 	</target>
 
@@ -878,15 +878,26 @@
 
 	<!--hadoop unit test -->
 	<property name="report.dir" value="${builddir}/junitreport" />
-	<target name="hadoop-test" depends="compile">
+	<target name="unittest" depends="compile">
 		<mkdir dir="${report.dir}" />
 		<junit printsummary="yes">
+			<!--jvmarg value="-Dlog4j.configuration=log4j.properties"/-->
+			<!--http://mail-archives.apache.org/mod_mbox/logging-log4j-user/200504.mbox/%3CF03963E938150F4E871144DAF11F825A416AF0@ITSERVER3.corporate.broadsource.com%3E -->
+			<!--sysproperty key="log4j.configuration" value="file:///Users/hyan/code/splunk/splunk-shep/package/bin/log4j.properties"/-->
+			<!-- http://jfkbits.blogspot.com/2006/06/passing-system-properties-from-ants.html -->
+			<!-- to get logs to junit report, use this command:
+				ant hadoop-test -Dlog4j.configuration=<the absolute url of your log4j file>
+				for example: file:///Users/hyan/code/splunk/splunk-shep/package/bin/log4j.properties 
+			-->
+			<syspropertyset>
+			   <propertyref prefix="log4j.configuration" />
+			</syspropertyset>
 			<classpath>
 				<path refid="build.classpath" />
 			</classpath>
 			<formatter type="xml" />
 			<batchtest fork="yes" todir="${report.dir}">
-				<fileset dir="${testdir}" includes="**/Test*.java" />
+				<fileset dir="${testdir}" includes="**/TestHDFSSink.java" />
 			</batchtest>
 		</junit>
 		<junitreport todir="${report.dir}">
