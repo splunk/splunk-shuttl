@@ -50,20 +50,16 @@ public class ConsoleSink implements DataSink {
     @Override
     public void send(byte[] rawBytes, String sourceType, String source,
 	    String host, long time) throws Exception {
-	logger.debug("ConsoleSink: " + "bytes " + new String(rawBytes, "UTF-8"));
-	logger.debug("ConsoleSink: " + "bytes " + sourceType + " " + source
-		+ " " + host
-		+ " " + time);
-
+	logger.debug(HDFSEvent.build(new String(rawBytes, "UTF-8"), source,
+		sourceType,
+		host, time));
     }
 
     @Override
     public void send(String data, String sourceType, String source,
 	    String host, long time) throws Exception {
-	logger.debug("ConsoleSink: " + "bytes str:" + data);
-	logger.debug("ConsoleSink: " + "bytes str" + sourceType + " " + source
-		+ " " + host
-		+ " " + time);
+	logger.debug(HDFSEvent.build(data, source, sourceType,
+		host, time));
     }
 
     @Override
