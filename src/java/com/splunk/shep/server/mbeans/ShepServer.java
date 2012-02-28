@@ -35,6 +35,8 @@ public class ShepServer implements ShepServerMBean {
     private int defHadoopClusterPort = -1;
     private ArrayList<ServerConf.HadoopCluster> clusterlist;
     private String SERVERCONF_XML = "etc/apps/shep/conf/server.xml";
+    private String httpHost = "localhost";
+    private int httpPort = 9090;
     ServerConf conf;
 
     public ShepServer() throws ShepMBeanException {
@@ -44,6 +46,8 @@ public class ShepServer implements ShepServerMBean {
 	    Unmarshaller um = context.createUnmarshaller();
 	    this.conf = (ServerConf) um.unmarshal(new FileReader(
 		    splunkhome + SERVERCONF_XML));
+	    this.httpHost = conf.getHttpHost();
+	    this.httpPort = conf.getHttpPort();
 	    this.clusterlist = conf.getClusterlist();
 	    for (ServerConf.HadoopCluster cluster : this.clusterlist) {
 		if (cluster.isDefcluster()) {
@@ -91,6 +95,16 @@ public class ShepServer implements ShepServerMBean {
 
     public void setDefHadoopClusterPort(int defHadoopClusterPort) {
 	this.defHadoopClusterPort = defHadoopClusterPort;
+    }
+
+    @Override
+    public String getHttpHost() {
+	return this.httpHost;
+    }
+
+    @Override
+    public int getHttpPort() {
+	return this.httpPort;
     }
 
 }
