@@ -1,4 +1,4 @@
-#Tue Nov 29 01:31:10 PST 2011
+#Mon Feb 27 18:07:44 PST 2012
 eclipse.preferences.version=1
 org.eclipse.jdt.core.codeComplete.argumentPrefixes=
 org.eclipse.jdt.core.codeComplete.argumentSuffixes=
@@ -10,6 +10,9 @@ org.eclipse.jdt.core.codeComplete.staticFieldPrefixes=
 org.eclipse.jdt.core.codeComplete.staticFieldSuffixes=
 org.eclipse.jdt.core.codeComplete.staticFinalFieldPrefixes=
 org.eclipse.jdt.core.codeComplete.staticFinalFieldSuffixes=
+org.eclipse.jdt.core.compiler.taskCaseSensitive=enabled
+org.eclipse.jdt.core.compiler.taskPriorities=NORMAL,HIGH,NORMAL,HIGH,HIGH
+org.eclipse.jdt.core.compiler.taskTags=TODO,FIXME,XXX,LOG,CONFIG
 org.eclipse.jdt.core.formatter.align_type_members_on_columns=false
 org.eclipse.jdt.core.formatter.alignment_for_arguments_in_allocation_expression=16
 org.eclipse.jdt.core.formatter.alignment_for_arguments_in_annotation=0
