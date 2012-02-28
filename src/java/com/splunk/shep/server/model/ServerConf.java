@@ -30,6 +30,24 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(namespace = "com.splunk.shep.server.model")
 public class ServerConf {
     private ArrayList<HadoopCluster> clusterlist;
+    private String httpHost;
+    private int httpPort;
+
+    public String getHttpHost() {
+	return httpHost;
+    }
+
+    public void setHttpHost(String httpHost) {
+	this.httpHost = httpHost;
+    }
+
+    public int getHttpPort() {
+	return httpPort;
+    }
+
+    public void setHttpPort(int httpPort) {
+	this.httpPort = httpPort;
+    }
 
     @XmlElementWrapper(name = "clusterlist")
     @XmlElement(name = "hadoopcluster")

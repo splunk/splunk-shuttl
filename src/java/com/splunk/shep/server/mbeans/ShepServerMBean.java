@@ -48,4 +48,16 @@ public interface ShepServerMBean {
      * @return String HDFS cluster host name (namenode)
      */
     public int getHadoopClusterPort(String name);
+
+    /**
+     * 
+     * @return String HTTP/REST Listener Host
+     */
+    public String getHttpHost();
+
+    /**
+     * 
+     * @return int HTTP/REST Listener port
+     */
+    public int getHttpPort();
 }
