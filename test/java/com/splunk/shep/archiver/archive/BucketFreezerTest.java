@@ -4,6 +4,7 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
@@ -71,23 +72,33 @@ public class BucketFreezerTest {
     }
 
     @Test(groups = { "fast" })
-    public void should_moveDirectoryToaSafeLocation_when_givenPath() {
+    public void should_moveDirectoryToaSafeLocation_when_givenPath()
+	    throws IOException {
 	String safeLocation = System.getProperty("user.home") + "/"
 		+ getClass().getName();
 	File safeLocationDirectory = new File(safeLocation);
+	assertTrue(!safeLocationDirectory.exists());
+
+	BucketFreezer bucketFreezer = new BucketFreezer(
+		safeLocationDirectory.getAbsolutePath());
 	File dirToBeMoved = createTestDirectory();
 
-	BucketFreezer bucketFreezer = new BucketFreezer(safeLocation);
+	// Test
 	int exitStatus = bucketFreezer.freezeBucket(dirToBeMoved
 		.getAbsolutePath());
 	assertEquals(0, exitStatus);
 
+	// Verify
 	assertTrue(!dirToBeMoved.exists());
-	File dirInSafeLocation = new File(safeLocationDirectory,
-		dirToBeMoved.getName());
-	assertTrue(dirInSafeLocation.exists());
-	assertTrue(dirInSafeLocation.delete());
 	assertTrue(safeLocationDirectory.exists());
+	assertTrue(isDirectoryWithChildren(safeLocationDirectory));
+	FileUtils.deleteDirectory(safeLocationDirectory);
+    }
+
+    private boolean isDirectoryWithChildren(File directory) {
+	File[] listFiles = directory.listFiles();
+	System.out.println(Arrays.toString(listFiles));
+	return listFiles.length > 0;
     }
 
     private File getTestDirectory() {
