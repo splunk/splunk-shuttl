@@ -1,5 +1,7 @@
 package com.splunk.shep.archiver.archive;
 
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -7,7 +9,14 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.message.BasicHttpResponse;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -16,6 +25,18 @@ import com.splunk.shep.testutil.ShellClassRunner;
 public class BucketFreezerTest {
 
     private ShellClassRunner shellClassRunner;
+    private static HttpClient okReturningHttpClient = null;
+
+    @BeforeClass(groups = { "fast" })
+    public void beforeClass() throws ClientProtocolException, IOException {
+	if (BucketFreezerTest.okReturningHttpClient == null) {
+	    okReturningHttpClient = mock(HttpClient.class);
+	    StatusLine statusLine = mock(StatusLine.class);
+	    when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
+	    when(okReturningHttpClient.execute(any(HttpUriRequest.class)))
+		    .thenReturn(new BasicHttpResponse(statusLine));
+	}
+    }
 
     @BeforeMethod(groups = { "slow" })
     public void setUp() {
@@ -71,28 +92,40 @@ public class BucketFreezerTest {
 	assertEquals(3, runBucketFreezerMain(file.getAbsolutePath()));
     }
 
+
+    @Test(groups = { "fast" })
+    public void createWithDeafultSafeLocationAndHTTPClient_initialize_nonNullValue() {
+	assertNotNull(BucketFreezer
+		.createWithDeafultSafeLocationAndHTTPClient());
+    }
+
     @Test(groups = { "fast" })
     public void should_moveDirectoryToaSafeLocation_when_givenPath()
 	    throws IOException {
-	String safeLocation = System.getProperty("user.home") + "/"
-		+ getClass().getName();
-	File safeLocationDirectory = new File(safeLocation);
-	assertTrue(!safeLocationDirectory.exists());
+	File safeLocationDirectory = null;
+	try {
+	    String safeLocation = System.getProperty("user.home") + "/"
+		    + getClass().getName();
+	    safeLocationDirectory = new File(safeLocation);
+	    assertTrue(!safeLocationDirectory.exists());
 
-	BucketFreezer bucketFreezer = new BucketFreezer(
-		safeLocationDirectory.getAbsolutePath());
-	File dirToBeMoved = createTestDirectory();
+	    BucketFreezer bucketFreezer = new BucketFreezer(
+		    safeLocationDirectory.getAbsolutePath(),
+		    BucketFreezerTest.okReturningHttpClient);
+	    File dirToBeMoved = createTestDirectory();
 
-	// Test
-	int exitStatus = bucketFreezer.freezeBucket(dirToBeMoved
-		.getAbsolutePath());
-	assertEquals(0, exitStatus);
+	    // Test
+	    int exitStatus = bucketFreezer.freezeBucket(dirToBeMoved
+		    .getAbsolutePath());
+	    assertEquals(0, exitStatus);
 
-	// Verify
-	assertTrue(!dirToBeMoved.exists());
-	assertTrue(safeLocationDirectory.exists());
-	assertTrue(isDirectoryWithChildren(safeLocationDirectory));
-	FileUtils.deleteDirectory(safeLocationDirectory);
+	    // Verify
+	    assertTrue(!dirToBeMoved.exists());
+	    assertTrue(safeLocationDirectory.exists());
+	    assertTrue(isDirectoryWithChildren(safeLocationDirectory));
+	} finally {
+	    FileUtils.deleteDirectory(safeLocationDirectory);
+	}
     }
 
     private boolean isDirectoryWithChildren(File directory) {
