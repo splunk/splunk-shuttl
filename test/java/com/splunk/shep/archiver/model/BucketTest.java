@@ -4,9 +4,12 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
@@ -147,6 +150,47 @@ public class BucketTest {
 	bucket.moveBucketToDir(directoryToMoveTo);
 	assertTrue(!bucket.getDirectory().exists());
 
+	FileUtils.deleteDirectory(directoryToMoveTo);
+    }
+
+    @Test(expectedExceptions = { FileNotDirectoryException.class })
+    public void moveBucket_givenNonDirectory_throwFileNotDirectoryException()
+	    throws FileNotFoundException, FileNotDirectoryException {
+	File file = UtilsFile.createTestFile();
+	Bucket bucket = getValidBucket();
+	bucket.moveBucketToDir(file);
+    }
+
+    @Test(expectedExceptions = { FileNotFoundException.class })
+    public void moveBucket_givenNonExistingDirectory_throwFileNotFoundException()
+	    throws FileNotFoundException, FileNotDirectoryException {
+	File nonExistingDir = new File("non-existing-dir");
+	getValidBucket().moveBucketToDir(nonExistingDir);
+    }
+
+    public void moveBucket_givenDirectoryWithContents_contentShouldBeMoved()
+	    throws IOException {
+	// Setup
+	Bucket bucket = getValidBucket();
+	String contentsFileName = "contents";
+	// Creation
+	File contents = UtilsFile.createFileInParent(bucket.getDirectory(),
+		contentsFileName);
+	UtilsFile.populateFileWithRandomContent(contents);
+	File directoryToMoveTo = UtilsFile.createTempDirectory();
+	List<String> contentLines = IOUtils.readLines(new FileReader(contents));
+
+	// Test
+	Bucket movedBucket = bucket.moveBucketToDir(directoryToMoveTo);
+	File movedContents = new File(movedBucket.getDirectory(),
+		contentsFileName);
+	assertTrue(movedContents.exists());
+	assertTrue(!contents.exists());
+	List<String> movedContentLines = IOUtils.readLines(new FileReader(
+		movedContents));
+	assertEquals(contentLines, movedContentLines);
+
+	// Teardown
 	FileUtils.deleteDirectory(directoryToMoveTo);
     }
 
