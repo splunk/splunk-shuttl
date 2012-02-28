@@ -70,7 +70,7 @@ clear_file() {
 
 run_tests() {
   nr_tests=0
-  for test in `find ./test/ -name runtest.sh`
+  for test in `find ./test -name runtest.sh`
   do
     run_test $test
     nr_tests=$((nr_tests+1))
