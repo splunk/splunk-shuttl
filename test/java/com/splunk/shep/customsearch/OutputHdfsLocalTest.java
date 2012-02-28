@@ -1,7 +1,6 @@
 package com.splunk.shep.customsearch;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +24,9 @@ import org.testng.annotations.Test;
 import com.splunk.Args;
 import com.splunk.Index;
 import com.splunk.Service;
-import com.splunk.shep.testutil.UtilsFileSystem;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
+import com.splunk.shep.testutil.UtilsFileSystem;
 
 public class OutputHdfsLocalTest {
 
@@ -50,7 +49,7 @@ public class OutputHdfsLocalTest {
 		splunkPassword, splunkHost, splunkMGMTPort);
 	Service loggedInService = parameters.getLoggedInService();
 	putDataInSplunk(loggedInService);
-	Thread.sleep(1000);
+	Thread.sleep(5000);
 	runCustomSearchCommand(splunkUsername, splunkPassword, loggedInService
 		.getSettings().getSplunkHome());
     }
