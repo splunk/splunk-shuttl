@@ -1,6 +1,5 @@
 package com.splunk.shep.archiver.archive;
 
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -9,42 +8,31 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.message.BasicHttpResponse;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.testutil.ShellClassRunner;
+import com.splunk.shep.testutil.UtilsFile;
+import com.splunk.shep.testutil.UtilsMockito;
 
+@Test(groups = {"fast"})
 public class BucketFreezerTest {
 
-    private ShellClassRunner shellClassRunner;
-    private static HttpClient okReturningHttpClient = null;
+    private Runtime runtimeMock;
+    private HttpClient okReturningHttpClient = null;
 
-    @BeforeClass(groups = { "fast" })
+    @BeforeClass
     public void beforeClass() throws ClientProtocolException, IOException {
-	if (BucketFreezerTest.okReturningHttpClient == null) {
-	    okReturningHttpClient = mock(HttpClient.class);
-	    StatusLine statusLine = mock(StatusLine.class);
-	    when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
-	    when(okReturningHttpClient.execute(any(HttpUriRequest.class)))
-		    .thenReturn(new BasicHttpResponse(statusLine));
-	}
+	okReturningHttpClient = UtilsMockito
+		.createAlwaysOKReturningHTTPClientMock();
+	runtimeMock = mock(Runtime.class);
     }
 
-    @BeforeMethod(groups = { "slow" })
-    public void setUp() {
-	shellClassRunner = new ShellClassRunner();
-    }
-
-    @AfterMethod(groups = { "slow" })
-    public void tearDown() {
+    @AfterMethod(groups = { "fast" })
+    public void tearDownFast() {
+	reset(runtimeMock);
 	deleteDirectory(getTestDirectory());
     }
 
@@ -57,49 +45,55 @@ public class BucketFreezerTest {
 	}
     }
 
-    @Test(groups = { "fast" })
     public void testDirectory_shouldNot_exist() {
 	assertFalse(getTestDirectory().exists());
     }
 
-    @Test(groups = { "slow" })
-    public void should_returnExitStatusZero_when_runWithOneArgument_where_theArgumentIsAnExistingDirectory() {
+    public void main_existingDirecotry_returnCode0() {
 	File directory = createTestDirectory();
-	assertEquals(0, runBucketFreezerMain(directory.getAbsolutePath()));
+	runMainWithDepentencies_withArguments(directory.getAbsolutePath());
+	verify(runtimeMock).exit(0);
     }
 
-    @Test(groups = { "slow" })
-    public void should_returnExitStatus_1_when_runWithZeroArguments() {
-	assertEquals(1, runBucketFreezerMain());
+
+    public void main_noArguments_returnCode1() {
+	runMainWithDepentencies_withArguments();
+	verify(runtimeMock).exit(1);
     }
 
-    @Test(groups = { "slow" })
-    public void should_returnExitStatus_2_when_runWithMoreThanOneArgument() {
-	assertEquals(2, runBucketFreezerMain("one", "two"));
+    public void main_moreThanOneArgument_returnCode2() {
+	runMainWithDepentencies_withArguments("one", "two");
+	verify(runtimeMock).exit(2);
     }
 
-    private int runBucketFreezerMain(String... args) {
-	return shellClassRunner.runClassWithArgs(BucketFreezer.class, args)
-		.getExitCode();
-    }
-
-    @Test(groups = { "slow" })
-    public void should_returnExitStatus_3_when_runWithArgumentThatIsNotADirectory()
+    public void main_fileNotADirectory_returnCode3()
 	    throws IOException {
 	File file = File.createTempFile("ArchiveTest", ".tmp");
 	file.deleteOnExit();
 	assertTrue(!file.isDirectory());
-	assertEquals(3, runBucketFreezerMain(file.getAbsolutePath()));
+	runMainWithDepentencies_withArguments(file.getAbsolutePath());
+	verify(runtimeMock).exit(3);
     }
 
+    public void main_nonExistingFile_returnCode4()
+	    throws IOException {
+	File file = UtilsFile.createTestFilePath();
+	runMainWithDepentencies_withArguments(file.getAbsolutePath());
+	verify(runtimeMock).exit(4);
+    }
 
-    @Test(groups = { "fast" })
+    private void runMainWithDepentencies_withArguments(String... args) {
+	BucketFreezer bucketFreezer = BucketFreezer
+		.createWithDeafultSafeLocationAndHTTPClient();
+	bucketFreezer.httpClient = okReturningHttpClient;
+	BucketFreezer.runMainWithDepentencies(runtimeMock, bucketFreezer, args);
+    }
+
     public void createWithDeafultSafeLocationAndHTTPClient_initialize_nonNullValue() {
 	assertNotNull(BucketFreezer
 		.createWithDeafultSafeLocationAndHTTPClient());
     }
 
-    @Test(groups = { "fast" })
     public void should_moveDirectoryToaSafeLocation_when_givenPath()
 	    throws IOException {
 	File safeLocationDirectory = null;
@@ -111,7 +105,7 @@ public class BucketFreezerTest {
 
 	    BucketFreezer bucketFreezer = new BucketFreezer(
 		    safeLocationDirectory.getAbsolutePath(),
-		    BucketFreezerTest.okReturningHttpClient);
+		    okReturningHttpClient);
 	    File dirToBeMoved = createTestDirectory();
 
 	    // Test

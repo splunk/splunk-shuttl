@@ -22,7 +22,7 @@ public class BucketFreezer {
 	    .getProperty("user.home") + "/" + BucketFreezer.class.getName();
 
     private final String safeLocationForBuckets;
-    private HttpClient httpClient;
+    /* package-private */HttpClient httpClient;
 
     protected BucketFreezer(String safeLocationForBuckets, HttpClient httpClient) {
 	this.safeLocationForBuckets = safeLocationForBuckets;
@@ -33,9 +33,10 @@ public class BucketFreezer {
 	try {
 	    moveAndArchiveBucket(path);
 	    return 0;
-	} catch (IOException e) {
-	    System.err.println(e.getMessage());
+	} catch (FileNotDirectoryException e) {
 	    return 3;
+	} catch (FileNotFoundException e) {
+	    return 4;
 	}
     }
 
@@ -99,15 +100,21 @@ public class BucketFreezer {
 	return new BucketFreezer(DEFAULT_SAFE_LOCATION, new DefaultHttpClient());
     }
 
-    public static void main(String[] args) {
-	if (args.length == 0)
-	    System.exit(1);
-	if (args.length >= 2)
-	    System.exit(2);
-	BucketFreezer archiveBucket = BucketFreezer
-		.createWithDeafultSafeLocationAndHTTPClient();
-	int exitStatus = archiveBucket.freezeBucket(args[0]);
-	System.exit(exitStatus);
+    /* package-private */static void runMainWithDepentencies(Runtime runtime,
+	    BucketFreezer bucketFreezer, String... args) {
+	if (args.length == 0) {
+	    runtime.exit(1);
+	} else if (args.length >= 2) {
+	    runtime.exit(2);
+	} else {
+	    runtime.exit(bucketFreezer.freezeBucket(args[0]));
+	}
+    }
+
+    public static void main(String... args) {
+	runMainWithDepentencies(Runtime.getRuntime(),
+		BucketFreezer.createWithDeafultSafeLocationAndHTTPClient(),
+		args);
     }
 
 }
