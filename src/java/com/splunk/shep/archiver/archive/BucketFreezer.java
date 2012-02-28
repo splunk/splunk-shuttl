@@ -1,6 +1,11 @@
 package com.splunk.shep.archiver.archive;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
 public class BucketFreezer {
 
@@ -18,41 +23,31 @@ public class BucketFreezer {
     }
 
     public int freezeBucket(String path) {
-	int status = 0;
-	File directory = new File(path);
-	if (!directory.isDirectory()) {
-	    status = 3;
-	} else {
-	    File safeLocation = moveDirectoryToASafeLocation(directory);
-	    if (safeLocation != null) {
-		doRestCall(safeLocation);
-	    } else {
-		status = 4;
-	    }
+	try {
+	    moveAndArchiveBucket(path);
+	    return 0;
+	} catch (IOException e) {
+	    System.err.println(e.getMessage());
+	    return 3;
 	}
-	return status;
     }
 
-    private void doRestCall(File safeLocation) {
-	// TODO Auto-generated method stub
-
-    }
-
-    private File moveDirectoryToASafeLocation(File directory) {
-	File safeLocation = createSafeLocation();
-	File locationToMoveTo = new File(safeLocation, directory.getName());
-	boolean isMoved = directory.renameTo(locationToMoveTo);
-	if (!isMoved) {
-	    locationToMoveTo = null;
-	}
-	return locationToMoveTo;
-
+    private void moveAndArchiveBucket(String path)
+	    throws FileNotFoundException, FileNotDirectoryException {
+	Bucket bucket = Bucket.createWithAbsolutePath(path);
+	Bucket safeBucket = bucket.moveBucketToDir(createSafeLocation());
+	doRestCall(safeBucket);
     }
 
     private File createSafeLocation() {
 	File safeLocation = new File(safeLocationForBuckets);
 	safeLocation.mkdirs();
 	return safeLocation;
+    }
+
+    private void doRestCall(Bucket bucket) {
+	// TODO Auto-generated method stub
+
     }
 
     public static void main(String[] args) {
