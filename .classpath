@@ -10,8 +10,16 @@
 			<attribute name="javadoc_location" value="http://testng.org/javadocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/httpclient-4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/httpcore-4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.1.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/httpcore-4.1.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hc.apache.org/httpcomponents-core-ga/httpcore/apidocs"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/xerces-impl-2.9.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.1.jar">
 		<attributes>
