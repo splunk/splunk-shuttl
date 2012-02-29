@@ -92,7 +92,8 @@ public class BucketFreezer {
 	// CONFIG configure the host, port, request URL with a general
 	// solution.
 	HttpGet request = new HttpGet(
-		"http://localhost:9090/shep/rest/archiver/bucket/archive?path=/path/to/bucket");
+		"http://localhost:9090/shep/rest/archiver/bucket/archive?path="
+			+ bucket.getDirectory().getAbsolutePath());
 	return request;
     }
 
