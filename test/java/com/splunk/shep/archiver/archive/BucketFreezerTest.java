@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.testutil.UtilsFile;
 import com.splunk.shep.testutil.UtilsMockito;
 
-@Test(groups = {"fast"})
+@Test(groups = { "fast" })
 public class BucketFreezerTest {
 
     private Runtime runtimeMock;
@@ -49,12 +49,15 @@ public class BucketFreezerTest {
 	assertFalse(getTestDirectory().exists());
     }
 
-    public void main_existingDirecotry_returnCode0() {
+    public void main_existingDirecotry_returnCode0() throws IOException {
 	File directory = createTestDirectory();
 	runMainWithDepentencies_withArguments(directory.getAbsolutePath());
 	verify(runtimeMock).exit(0);
+	// This deletion assumes and knows too much. When we remove
+	// BucketFreezer, this will be ok tho.
+	FileUtils
+		.deleteDirectory(new File(BucketFreezer.DEFAULT_SAFE_LOCATION));
     }
-
 
     public void main_noArguments_returnCode1() {
 	runMainWithDepentencies_withArguments();
@@ -66,8 +69,7 @@ public class BucketFreezerTest {
 	verify(runtimeMock).exit(2);
     }
 
-    public void main_fileNotADirectory_returnCode3()
-	    throws IOException {
+    public void main_fileNotADirectory_returnCode3() throws IOException {
 	File file = File.createTempFile("ArchiveTest", ".tmp");
 	file.deleteOnExit();
 	assertTrue(!file.isDirectory());
@@ -75,8 +77,7 @@ public class BucketFreezerTest {
 	verify(runtimeMock).exit(3);
     }
 
-    public void main_nonExistingFile_returnCode4()
-	    throws IOException {
+    public void main_nonExistingFile_returnCode4() {
 	File file = UtilsFile.createTestFilePath();
 	runMainWithDepentencies_withArguments(file.getAbsolutePath());
 	verify(runtimeMock).exit(4);
