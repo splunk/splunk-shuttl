@@ -1,6 +1,7 @@
 package com.splunk.shep.server.mbeans.rest;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -47,13 +48,29 @@ public class BucketArchiverRest {
 
 	@Override
 	public void run() {
+	    Bucket bucket = createBucketWithErrorHandling();
+	    BucketArchiver.create().archiveBucket(bucket);
+	    deleteBucketWithErrorHandling(bucket);
+	}
+
+	private Bucket createBucketWithErrorHandling() {
+	    Bucket bucket;
 	    try {
-		BucketArchiver.create().archiveBucket(
-			Bucket.createWithAbsolutePath(pathToBucket));
+		bucket = Bucket.createWithAbsolutePath(pathToBucket);
 	    } catch (FileNotFoundException e) {
 		e.printStackTrace();
 		throw new RuntimeException(e);
 	    } catch (FileNotDirectoryException e) {
+		e.printStackTrace();
+		throw new RuntimeException(e);
+	    }
+	    return bucket;
+	}
+
+	private void deleteBucketWithErrorHandling(Bucket bucket) {
+	    try {
+		bucket.deleteBucket();
+	    } catch (IOException e) {
 		e.printStackTrace();
 		throw new RuntimeException(e);
 	    }
