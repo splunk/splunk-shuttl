@@ -72,6 +72,8 @@ public class BucketFreezer {
 	case HttpStatus.SC_OK:
 	    // LOG
 	    break;
+	case HttpStatus.SC_NO_CONTENT:
+	    break;
 	default:
 	    // LOG
 	    throw new RuntimeException("Got the response code " + statusCode
