@@ -1,6 +1,6 @@
 package com.splunk.shep.mapred.lib.rest;
 
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,12 +34,10 @@ import org.testng.annotations.Test;
 
 import com.splunk.Job;
 import com.splunk.Service;
-import com.splunk.shep.mapred.lib.rest.SplunkConfiguration;
-import com.splunk.shep.mapred.lib.rest.SplunkOutputFormat;
-import com.splunk.shep.testutil.UtilsFileSystem;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
 import com.splunk.shep.testutil.SplunkTestUtils;
+import com.splunk.shep.testutil.UtilsFileSystem;
 
 public class SplunkOutputFormatTest {
 
