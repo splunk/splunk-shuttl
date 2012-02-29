@@ -11,6 +11,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
@@ -29,7 +30,7 @@ public class UtilsBucketTest {
 	FileUtils.deleteDirectory(tempDirectory);
     }
 
-    public void createBucketInDirectory_defaultState_createBucketDirectoryWhichCanCreateABucketObject() {
+    public void createBucketDirectoriesInDirectory_defaultState_createBucketDirectoryWhichCanCreateABucketObject() {
 	try {
 	    createBucketWithUtilsBucket();
 	} catch (Exception e) {
@@ -40,7 +41,8 @@ public class UtilsBucketTest {
 
     private Bucket createBucketWithUtilsBucket() throws FileNotFoundException,
 	    FileNotDirectoryException {
-	File bucketDir = UtilsBucket.createBucketInDirectory(tempDirectory);
+	File bucketDir = UtilsBucket
+		.createBucketDirectoriesInDirectory(tempDirectory);
 	Bucket bucket = new Bucket(bucketDir);
 	return bucket;
     }
@@ -55,5 +57,32 @@ public class UtilsBucketTest {
 	    throws FileNotFoundException, FileNotDirectoryException {
 	Bucket bucket = createBucketWithUtilsBucket();
 	assertEquals(bucket.getName(), UtilsBucket.getBucketName());
+    }
+
+    public void createBucketInDirectory_withExistingDir_validIndexFormatAndBucketName() {
+	Bucket bucket = UtilsBucket.createBucketInDirectory(tempDirectory);
+	assertEquals(UtilsBucket.getIndex(), bucket.getIndex());
+	assertEquals(UtilsBucket.getBucketName(), bucket.getName());
+	assertEquals(BucketFormat.UNKNOWN, bucket.getFormat());
+	assertTrue(bucket.getDirectory().exists());
+    }
+
+    public void createBucketPathInDirectory_defaultState_endsWithIndexDBAndBucketName() {
+	String bucketPath = UtilsBucket
+		.createBucketPathInDirectory(tempDirectory);
+	String expectedBucketPathEnding = UtilsBucket.getIndex() + "/"
+		+ UtilsBucket.getDB() + "/" + UtilsBucket.getBucketName();
+	assertTrue(bucketPath.endsWith(expectedBucketPathEnding));
+    }
+
+    public void createBucketPathInDirectory_defaultState_canCreateBucketFromReturnedPath() {
+	String createBucketPath = UtilsBucket
+		.createBucketPathInDirectory(tempDirectory);
+	try {
+	    Bucket.createWithAbsolutePath(createBucketPath);
+	} catch (Exception e) {
+	    UtilsTestNG.failForException("Could not create bucket"
+		    + " from UtilsBucket.getBucketPath", e);
+	}
     }
 }
