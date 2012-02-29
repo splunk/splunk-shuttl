@@ -87,15 +87,15 @@ public class BucketFreezer {
 	// TODO this method should handle the errors in case the bucket transfer
 	// fails. In this state there is no way of telling if the bucket was
 	// actually trasfered or not.
-	throw new RuntimeException(e);
+	throw new RuntimeException("Got IOException" + e);
     }
 
     private HttpUriRequest createBucketArchiveRequest(Bucket bucket) {
 	// CONFIG configure the host, port, request URL with a general
 	// solution.
-	HttpGet request = new HttpGet(
-		"http://localhost:9090/shep/rest/archiver/bucket/archive?path="
-			+ bucket.getDirectory().getAbsolutePath());
+	String requestString = "http://localhost:9090/shep/rest/archiver/bucket/archive?path="
+		+ bucket.getDirectory().getAbsolutePath();
+	HttpGet request = new HttpGet(requestString);
 	return request;
     }
 
