@@ -1,6 +1,7 @@
 package com.splunk.shep.testutil;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -17,16 +18,16 @@ public class ShellClassRunner {
 
 	Process exec = doRunArchiveBucket(classpath, fullClassName, args);
 	exitCode = getStatusCode(exec);
-	stdOut = readStdIn(exec);
+	stdOut = readInputStream(exec.getInputStream());
 	return this;
     }
 
     private Process doRunArchiveBucket(String classpath, String fullClassName,
 	    String[] args) {
 	try {
-	    return Runtime.getRuntime().exec(
-		    "java -cp " + classpath + " " + fullClassName + " "
-			    + getSpaceSeparatedArgs(args));
+	    String execString = "java -cp " + classpath + ":lib/* "
+		    + fullClassName + " " + getSpaceSeparatedArgs(args);
+	    return Runtime.getRuntime().exec(execString);
 	} catch (IOException e) {
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
@@ -63,9 +64,9 @@ public class ShellClassRunner {
 	return exitCode;
     }
 
-    private List<String> readStdIn(Process exec) {
+    private List<String> readInputStream(InputStream inputStream) {
 	try {
-	    return IOUtils.readLines(exec.getInputStream());
+	    return IOUtils.readLines(inputStream);
 	} catch (IOException e) {
 	    e.printStackTrace();
 	    throw new RuntimeException(e);

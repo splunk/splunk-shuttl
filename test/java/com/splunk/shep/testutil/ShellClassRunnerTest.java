@@ -11,7 +11,8 @@ import org.testng.annotations.Test;
 @Test(groups = { "slow" })
 public class ShellClassRunnerTest {
 
-    private static final Integer EXIT_CODE = 1;
+    public static final Integer EXIT_CODE = 1;
+
     private static final Integer EXIT_CODE_FOR_ONE_ARGUMENT = 2;
     private ShellClassRunner shellClassRunner;
 
@@ -72,4 +73,8 @@ public class ShellClassRunnerTest {
 	}
     }
 
+    public void should_beAbleToRunClass_withExternalDependencies() {
+	shellClassRunner.runClassWithArgs(ClassWithExternalDependencies.class);
+	assertEquals(EXIT_CODE, shellClassRunner.getExitCode());
+    }
 }
