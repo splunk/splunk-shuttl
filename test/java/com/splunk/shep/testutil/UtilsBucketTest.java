@@ -85,4 +85,10 @@ public class UtilsBucketTest {
 		    + " from UtilsBucket.getBucketPath", e);
 	}
     }
+
+    public void createBucketWithSplunkBucketFormatInDirectory_defaultState_createdBucketWithA_rawdata_DirectoryInsideTheBucket() {
+	Bucket bucket = UtilsBucket
+		.createBucketWithSplunkBucketFormatInDirectory(tempDirectory);
+	assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
+    }
 }

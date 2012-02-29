@@ -42,4 +42,15 @@ public class UtilsBucket {
     public static String createBucketPathInDirectory(File parent) {
 	return createBucketDirectoriesInDirectory(parent).getAbsolutePath();
     }
+
+    /**
+     * @param tempDirectory
+     * @return
+     */
+    public static Bucket createBucketWithSplunkBucketFormatInDirectory(
+	    File parent) {
+	Bucket bucket = createBucketInDirectory(parent);
+	UtilsFile.createDirectoryInParent(bucket.getDirectory(), "rawdata");
+	return bucket;
+    }
 }
