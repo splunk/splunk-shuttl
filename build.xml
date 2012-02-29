@@ -265,7 +265,7 @@
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="slow" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
-			<classfileset dir="${classdir}" includes="**/*Test.class" />
+			<classfileset dir="${classdir}" includes="**/*.class" />
 		</testng>
 	</target>
 
