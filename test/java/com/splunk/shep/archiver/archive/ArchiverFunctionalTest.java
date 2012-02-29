@@ -24,7 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.model.Bucket;
-import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
+import com.splunk.shep.testutil.ShellClassRunner;
 import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsFile;
 
@@ -42,14 +42,14 @@ public class ArchiverFunctionalTest {
 
 	try {
 	    // Test
-	    // BucketFreezer.main(bucketDirectory.getAbsolutePath());
-	    new BucketArchiverRest().archiveBucket(bucketDirectory
-		    .getAbsolutePath());
+	    ShellClassRunner shellClassRunner = new ShellClassRunner();
+	    shellClassRunner.runClassWithArgs(BucketFreezer.class,
+		    bucketDirectory.getAbsolutePath());
 
 	    // Wait for it..
-	    int timeInMillis = 1000;
+	    int timeInMillis = 500;
 	    System.out.println(ArchiverFunctionalTest.class.getSimpleName()
-		    + "sleeping for: " + timeInMillis + "ms");
+		    + " sleeping for: " + timeInMillis + "ms");
 	    Thread.sleep(timeInMillis);
 
 	    // Verify
