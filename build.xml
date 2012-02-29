@@ -225,7 +225,7 @@
 	<target name="test-all" depends="clean-built-classes-then-compile">
 		<antcall target="test" />
 		<antcall target="super-slow-tests" />
-		<antcall target="hadoop-test" />
+<!--		<antcall target="in-memory-test" /> -->
 	</target>
 
 	<target name="clean-built-classes-then-compile" depends="clean-built-classes, compile" />
@@ -878,7 +878,7 @@
 
 	<!--hadoop unit test -->
 	<property name="report.dir" value="${builddir}/junitreport" />
-	<target name="unittest" depends="compile">
+	<target name="in-memory-test" depends="compile">
 		<mkdir dir="${report.dir}" />
 		<junit printsummary="yes">
 			<!--jvmarg value="-Dlog4j.configuration=log4j.properties"/-->
