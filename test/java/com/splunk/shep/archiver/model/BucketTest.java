@@ -191,4 +191,19 @@ public class BucketTest {
 	FileUtils.deleteDirectory(directoryToMoveTo);
     }
 
+    public void deleteBucket_createdValidBucket_bucketRemovedFromFileSystem()
+	    throws IOException {
+	Bucket createdBucket = createBucket();
+	createdBucket.deleteBucket();
+	assertTrue(!createdBucket.getDirectory().exists());
+    }
+
+    public void deleteBucket_createdValidBucket_onlyBucketFolderRemovedFromFileSystem()
+	    throws IOException {
+	Bucket createdBucket = createBucket();
+	File bucketParent = createdBucket.getDirectory().getParentFile();
+	createdBucket.deleteBucket();
+	assertTrue(!createdBucket.getDirectory().exists());
+	assertTrue(bucketParent.exists());
+    }
 }

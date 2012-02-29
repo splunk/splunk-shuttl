@@ -2,6 +2,9 @@ package com.splunk.shep.archiver.model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 
 import com.splunk.shep.archiver.archive.BucketFormat;
 
@@ -99,6 +102,16 @@ public class Bucket {
 	    throws FileNotFoundException, FileNotDirectoryException {
 	File directory = new File(path);
 	return new Bucket(directory);
+    }
+
+    /**
+     * Deletes the bucket from the file system.
+     * 
+     * @throws IOException
+     *             if it's not possible to delete the directory
+     */
+    public void deleteBucket() throws IOException {
+	FileUtils.deleteDirectory(getDirectory());
     }
 
 }
