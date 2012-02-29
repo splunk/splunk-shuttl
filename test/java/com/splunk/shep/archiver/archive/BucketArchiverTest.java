@@ -65,8 +65,7 @@ public class BucketArchiverTest {
 	when(
 		exporter.getBucketExportedToFormat(eq(bucket),
 			any(BucketFormat.class))).thenReturn(bucket);
-	when(pathResolver.resolveArchivePath(bucket))
-		.thenReturn(path);
+	when(pathResolver.resolveArchivePath(bucket)).thenReturn(path);
 	bucketArchiver.archiveBucket(bucket);
 	verify(bucketTransferer).transferBucketToArchive(bucket, path);
     }
