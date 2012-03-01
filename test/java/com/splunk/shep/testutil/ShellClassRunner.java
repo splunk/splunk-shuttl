@@ -3,6 +3,7 @@ package com.splunk.shep.testutil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
@@ -25,8 +26,9 @@ public class ShellClassRunner {
     private Process doRunArchiveBucket(String classpath, String fullClassName,
 	    String[] args) {
 	try {
-	    String execString = "java -cp " + classpath + ":lib/* "
-		    + fullClassName + " " + getSpaceSeparatedArgs(args);
+	    String execString = getJavaExecutablePath() + " -cp " + classpath
+		    + ":lib/* " + fullClassName + " "
+		    + getSpaceSeparatedArgs(args);
 	    return Runtime.getRuntime().exec(execString);
 	} catch (IOException e) {
 	    e.printStackTrace();
@@ -77,4 +79,15 @@ public class ShellClassRunner {
 	return stdOut;
     }
 
+    /**
+     * @return
+     */
+    /* package-private */String getJavaExecutablePath() {
+	Map<String, String> env = System.getenv();
+	if (env.containsKey("JAVA_HOME")) {
+	    return env.get("JAVA_HOME") + "/bin/java";
+	} else {
+	    return "java";
+	}
+    }
 }
