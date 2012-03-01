@@ -1,15 +1,9 @@
 package com.splunk.shep.archiver.archive;
 
-import java.io.IOException;
 import java.net.URI;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
-import com.splunk.shep.archiver.fileSystem.HadoopFileSystemArchive;
 import com.splunk.shep.archiver.model.Bucket;
-import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
 
 /**
  * Archives buckets the way that it is configured to archive them.
@@ -23,7 +17,8 @@ public class BucketArchiver {
 
     /**
      * Constructor following dependency injection pattern, makes it easier to
-     * test.
+     * test.<br/>
+     * Use {@link BucketArchiverFactory} for creating a {@link BucketArchiver}.
      * 
      * @param config
      *            to be used by the archiver
@@ -34,7 +29,7 @@ public class BucketArchiver {
      * @param bucketTransferer
      *            to transfer the bucket to an {@link ArchiveFileSystem}
      */
-    protected BucketArchiver(ArchiveConfiguration config,
+    /* package-private */BucketArchiver(ArchiveConfiguration config,
 	    BucketExporter exporter, PathResolver pathResolver,
 	    BucketTransferer bucketTransferer) {
 	this.archiveConfiguration = config;
@@ -52,28 +47,11 @@ public class BucketArchiver {
     }
 
     /**
-     * The REST end point {@link BucketArchiverRest} needs to be able to create
-     * {@link BucketArchiver} without any arguments.
+     * Used to clean up the archived buckets when testing.
      * 
-     * @return default setup of the BucketArchiver that is configured by
-     *         configuration files.
+     * @return {@link PathResolver} for the {@link BucketArchiver}.
      */
-    public static BucketArchiver create() {
-	FileSystem hadoopFileSystem = getHadoopFileSystem();
-	ArchiveFileSystem archiveFileSystem = new HadoopFileSystemArchive(
-		hadoopFileSystem);
-	ArchiveConfiguration config = new ArchiveConfiguration();
-	return new BucketArchiver(config, new BucketExporter(),
-		new PathResolver(config), new BucketTransferer(
-			archiveFileSystem));
-    }
-
-    private static FileSystem getHadoopFileSystem() {
-	try {
-	    return FileSystem.get(new Configuration());
-	} catch (IOException e) {
-	    e.printStackTrace();
-	    throw new RuntimeException(e);
-	}
+    /* package-private */PathResolver getPathResolver() {
+	return pathResolver;
     }
 }

@@ -4,26 +4,37 @@ import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.archiver.fileSystem.WritableFileSystem;
 import com.splunk.shep.archiver.model.Bucket;
-import com.splunk.shep.testutil.UtilsTestNG;
 
 @Test(groups = { "fast" })
 public class PathResolverTest {
 
-    public void resolveArchivePath_givenValidBucket_combineArchiveConfigurationAndBucketToReturnArchivePath() {
-	ArchiveConfiguration config = mock(ArchiveConfiguration.class);
-	Bucket bucket = mock(Bucket.class);
+    private ArchiveConfiguration configuration;
+    private PathResolver pathResolver;
+    private Bucket bucket;
+    private WritableFileSystem writableFileSystem;
 
+    @BeforeMethod(groups = { "fast" })
+    public void setUp() {
+	configuration = mock(ArchiveConfiguration.class);
+	writableFileSystem = mock(WritableFileSystem.class);
+	pathResolver = new PathResolver(configuration, writableFileSystem);
+
+	bucket = mock(Bucket.class);
+    }
+
+    public void resolveArchivePath_givenValidBucket_combineBucketAndConfigurationToCreateTheEndingArchivePath() {
 	String archiveRoot = "archiving_root";
-	when(config.getArchivingRoot()).thenReturn(archiveRoot);
+	when(configuration.getArchivingRoot()).thenReturn(archiveRoot);
 	String clusterName = "cluster_name";
-	when(config.getClusterName()).thenReturn(clusterName);
+	when(configuration.getClusterName()).thenReturn(clusterName);
 	String serverName = "server_name";
-	when(config.getServerName()).thenReturn(serverName);
+	when(configuration.getServerName()).thenReturn(serverName);
 	String bucketName = "bucket_name_id";
 	when(bucket.getName()).thenReturn(bucketName);
 	String bucketIndex = "index";
@@ -32,25 +43,24 @@ public class PathResolverTest {
 	when(bucket.getFormat()).thenReturn(bucketFormat);
 
 	// Test
-	PathResolver pathResolver = new PathResolver(config);
 	URI archivePath = pathResolver.resolveArchivePath(bucket);
 
 	// Verification
-	URI expected = getURISafe("file:/" + archiveRoot + "/" + clusterName
-		+ "/" + serverName + "/" + bucketIndex + "/" + bucketFormat
-		+ "/" + bucketName);
-	assertEquals(expected, archivePath);
+	String archivePathEnding = archiveRoot + "/" + clusterName + "/"
+		+ serverName + "/" + bucketIndex + "/" + bucketFormat + "/"
+		+ bucketName;
+	assertTrue(archivePath.getPath().endsWith(archivePathEnding));
     }
 
-    private URI getURISafe(String uri) {
-	try {
-	    return new URI(uri);
-	} catch (URISyntaxException e) {
-	    e.printStackTrace();
-	    UtilsTestNG.failForException("Could not create URI with String: "
-		    + uri, e);
-	    return null;
-	}
-    }
+    public void resolveArchivePath_givenWritableFileSystemUri_uriStartsWithFileSchemeAndWritablePath() {
+	// Setup
+	when(writableFileSystem.getWritableUri()).thenReturn(
+		URI.create("hdfs://somehost:someport"));
+	// Test
+	URI archivePath = pathResolver.resolveArchivePath(bucket);
 
+	// Verify
+	assertEquals(writableFileSystem.getWritableUri()
+		.getScheme(), archivePath.getScheme());
+    }
 }

@@ -21,6 +21,10 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.model.Bucket;
@@ -31,20 +35,40 @@ import com.splunk.shep.testutil.UtilsFile;
 @Test(enabled = false, groups = { "slow" })
 public class ArchiverFunctionalTest {
 
+    private FileSystem fileSystem;
+
+    @BeforeMethod(groups = { "super-slow" })
+    // @Parameters(value = { "hadoop.host", "hadoop.port" })
+    // public void setUp(String hadoopHost, String hadoopPort) throws
+    // IOException {
+    public void setUp() throws IOException {
+	String hadoopHost = "localhost";
+	String hadoopPort = "9000"; // THIS IS NOT OK.!
+	fileSystem = FileSystem.get(
+		URI.create("hdfs://" + hadoopHost + ":" + hadoopPort),
+		new Configuration());
+    }
+
     public void Archiver_givenExistingBucket_archiveIt()
 	    throws InterruptedException, IOException {
-	// Setup
-	File tempDirectory = UtilsFile.createTempDirectory();
-	Bucket bucket = UtilsBucket
-		.createBucketWithSplunkBucketFormatInDirectory(tempDirectory);
-	File bucketDirectory = bucket.getDirectory();
-	File archivedBucketDirectory = getArchivedBucketDirectory(bucket);
+	File tempDirectory = null;
+	Path archivedPath = null;
 
+	// Setup
 	try {
+	    tempDirectory = UtilsFile.createTempDirectory();
+	    Bucket bucket = UtilsBucket
+		    .createBucketWithSplunkBucketFormatInDirectory(tempDirectory);
+	    File bucketDirectory = bucket.getDirectory();
+	    URI archivedUri = getArchivedBucketURI(bucket);
+	    archivedPath = new Path(archivedUri);
+
 	    // Test
 	    ShellClassRunner shellClassRunner = new ShellClassRunner();
 	    shellClassRunner.runClassWithArgs(BucketFreezer.class,
 		    bucketDirectory.getAbsolutePath());
+	    // new BucketArchiverRest.BucketArchiverRunner(
+	    // bucketDirectory.getAbsolutePath());
 
 	    // Wait for it..
 	    int timeInMillis = 500;
@@ -54,11 +78,15 @@ public class ArchiverFunctionalTest {
 
 	    // Verify
 	    assertTrue(!bucketDirectory.exists());
-	    assertTrue(archivedBucketDirectory.exists());
+	    assertTrue(fileSystem.exists(archivedPath));
 	} finally {
-	    FileUtils.deleteDirectory(tempDirectory);
-	    FileUtils.deleteDirectory(archivedBucketDirectory.getParentFile()
-		    .getParentFile().getParentFile().getParentFile());
+	    if (tempDirectory != null) {
+		FileUtils.deleteDirectory(tempDirectory);
+	    }
+	    if (archivedPath != null) {
+		fileSystem.delete(archivedPath.getParent().getParent()
+			.getParent().getParent().getParent(), true);
+	    }
 	    // This deletion assumes and knows too much. When we remove
 	    // BucketFreezer, this will be ok tho.
 	    FileUtils.deleteDirectory(new File(
@@ -66,11 +94,13 @@ public class ArchiverFunctionalTest {
 	}
     }
 
-    private File getArchivedBucketDirectory(Bucket bucket) {
-	PathResolver pathResolver = new PathResolver(new ArchiveConfiguration());
-	URI resolvedArchivePath = pathResolver.resolveArchivePath(bucket);
-	File archivedBucket = new File(resolvedArchivePath);
-	return archivedBucket;
+    /**
+     * @param bucket
+     * @return
+     */
+    private URI getArchivedBucketURI(Bucket bucket) {
+	PathResolver pathResolver = BucketArchiverFactory
+		.createDefaultArchiver().getPathResolver();
+	return pathResolver.resolveArchivePath(bucket);
     }
-
 }
