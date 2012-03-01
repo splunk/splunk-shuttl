@@ -392,7 +392,7 @@ public class S2SEventParser {
 	    else
 		sourceValue = value;
 
-	    if (sourceValue.indexOf("HadoopConnector") >= 0)
+	    if (sourceValue.indexOf("Shep") >= 0)
 		return -1; // drop connector log messages.
 
 	    if (sourceValue.equals("source::fwd-hb")
