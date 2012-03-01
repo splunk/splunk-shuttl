@@ -77,4 +77,27 @@ public class ShellClassRunnerTest {
 	shellClassRunner.runClassWithArgs(ClassWithExternalDependencies.class);
 	assertEquals(EXIT_CODE, shellClassRunner.getExitCode());
     }
+
+    public void getJavaExecutablePath_withNoJAVA_HOME_executablePathIsjava() {
+	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+	    @Override
+	    public void run() {
+		assertEquals("java", shellClassRunner.getJavaExecutablePath());
+	    }
+	});
+    }
+
+    public void getJavaExecutablePath_withJAVA_HOMEset_executablePathIsFromJavaHome() {
+	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+	    @Override
+	    public void run() {
+		String javaHome = "/java/home";
+		UtilsEnvironment.setEnvironmentVariable("JAVA_HOME", javaHome);
+		assertEquals(javaHome + "/bin/java",
+			shellClassRunner.getJavaExecutablePath());
+	    }
+	});
+    }
 }

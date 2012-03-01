@@ -10,6 +10,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.splunk.shep.archiver.archive.BucketArchiver;
+import com.splunk.shep.archiver.archive.BucketArchiverFactory;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
@@ -49,7 +50,9 @@ public class BucketArchiverRest {
 	@Override
 	public void run() {
 	    Bucket bucket = createBucketWithErrorHandling();
-	    BucketArchiver.create().archiveBucket(bucket);
+	    BucketArchiver bucketArchiver = BucketArchiverFactory
+		    .createDefaultArchiver();
+	    bucketArchiver.archiveBucket(bucket);
 	    deleteBucketWithErrorHandling(bucket);
 	}
 
