@@ -215,14 +215,11 @@ public class SplunkInputFormatTest {
 	public void map(LongWritable key, SplunkRecord value,
 		OutputCollector<Text, IntWritable> output, Reporter reporter)
 		throws IOException {
-	    System.out.println("SplunkInputFormatTest.Map: key:" + key
-		    + ", value:" + value);
 	    String line = value.getMap().get("_raw");
 	    if (line == null) {
 		System.out.println("_raw is null");
 		return;
 	    }
-	    System.out.println("SplunkInputFormatTest.Map: line: " + line);
 	    StringTokenizer tokenizer = new StringTokenizer(line);
 	    while (tokenizer.hasMoreTokens()) {
 		word.set(tokenizer.nextToken());
@@ -241,8 +238,6 @@ public class SplunkInputFormatTest {
 		sum += values.next().get();
 	    }
 	    output.collect(key, new IntWritable(sum));
-	    System.out.println("SplunkInputFormatTest.Reduce: key: " + key
-		    + ", value:" + sum);
 	}
     }
 }
