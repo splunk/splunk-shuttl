@@ -1,5 +1,7 @@
 package com.splunk.shep.archiver.archive;
 
+import static com.splunk.shep.archiver.ArchiverLogger.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -56,6 +58,8 @@ public class BucketFreezer {
     private void doRestCall(Bucket bucket) {
 	HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
 	try {
+	    will("Send an archive bucket request", "request",
+		    archiveBucketRequest);
 	    HttpResponse response = httpClient.execute(archiveBucketRequest); // LOG
 	    handleResponseCodeFromDoingArchiveBucketRequest(response
 		    .getStatusLine().getStatusCode());
@@ -70,12 +74,14 @@ public class BucketFreezer {
 	// TODO handle the different status codes
 	switch (statusCode) {
 	case HttpStatus.SC_OK:
-	    // LOG
-	    break;
 	case HttpStatus.SC_NO_CONTENT:
+	    done("Got http response from archiveBucketRequest", "status_code",
+		    statusCode);
 	    break;
 	default:
-	    // LOG
+	    did("Got http response from archiveBucketRequest",
+		    "unhadled status code", "that the status code was handled",
+		    "status_code", statusCode);
 	    throw new RuntimeException("Got the response code " + statusCode
 		    + " from making the archiveBucketRequest.");
 	}
@@ -83,7 +89,8 @@ public class BucketFreezer {
 
     private void hadleIOExceptionGenereratedByDoingArchiveBucketRequest(
 	    IOException e) {
-	// LOG
+	did("ArchiveBucket request generated unhadled IOException",
+		"Exception", e);
 	// TODO this method should handle the errors in case the bucket transfer
 	// fails. In this state there is no way of telling if the bucket was
 	// actually trasfered or not.
