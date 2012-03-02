@@ -43,11 +43,11 @@ public class BucketFreezer {
     private void moveAndArchiveBucket(String path)
 	    throws FileNotFoundException, FileNotDirectoryException {
 	Bucket bucket = Bucket.createWithAbsolutePath(path);
-	Bucket safeBucket = bucket.moveBucketToDir(createSafeLocation());
+	Bucket safeBucket = bucket.moveBucketToDir(getSafeLocation());
 	doRestCall(safeBucket);
     }
 
-    private File createSafeLocation() {
+    private File getSafeLocation() {
 	File safeLocation = new File(safeLocationForBuckets);
 	safeLocation.mkdirs();
 	return safeLocation;
