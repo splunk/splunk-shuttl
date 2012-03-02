@@ -52,14 +52,14 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
     private static Logger logger = Logger.getLogger(SplunkInputFormat.class);
 
     protected class SplunkRecordReader implements RecordReader<LongWritable, V> {
-	private Class<V> inputClass;
-	private JobConf job;
-	private SplunkInputSplit split;
-	private long pos = 0;
-	private SplunkXMLStream parser = null;
-	private Service service;
-	private Args queryArgs;
-	private InputStream stream;
+	protected Class<V> inputClass;
+	protected JobConf job;
+	protected SplunkInputSplit split;
+	protected long pos = 0;
+	protected SplunkXMLStream parser = null;
+	protected Service service;
+	protected Args queryArgs;
+	protected InputStream stream;
 
 	/**
 	 * @param split
@@ -81,24 +81,29 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	    initRecordReader();
 	}
 
-	private void initRecordReader() {
+	protected void initRecordReader() {
 	    String searchString = job.get(SplunkConfiguration.QUERY);
 	    if (!searchString.contains("search")) {
 		searchString = "search " + searchString;
+		job.set(SplunkConfiguration.QUERY, searchString);
 	    }
 	    stream = service.export(searchString, queryArgs);
 	}
 
-	private void configureCredentials() {
+	protected void configureCredentials() {
 	    Args args = new Args();
 	    args.put("username", job.get(SplunkConfiguration.USERNAME));
 	    args.put("password", job.get(SplunkConfiguration.PASSWORD));
 	    args.put("host", job.get(SplunkConfiguration.SPLUNKHOST));
 	    args.put("port", job.getInt(SplunkConfiguration.SPLUNKPORT, 8089));
-	    service = Service.connect(args);
+	    service = getService(args);
 	}
 
-	private void addQueryParameters() {
+	protected Service getService(Args args) {
+	    return Service.connect(args);
+	}
+
+	protected void addQueryParameters() {
 	    if (job.getInt(SplunkConfiguration.INDEXBYHOST, 0) == 0) {
 		queryArgs.put(SplunkConfiguration.TIMEFORMAT,
 			job.get(SplunkConfiguration.TIMEFORMAT));
@@ -122,7 +127,8 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	}
 
 	public V createValue() {
-	    return ReflectionUtils.newInstance(inputClass, job);
+	    V v = ReflectionUtils.newInstance(inputClass, job);
+	    return v;
 	}
 
 	public long getPos() throws IOException {
@@ -135,22 +141,23 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	}
 
 	public boolean next(LongWritable key, V value) throws IOException {
-
 	    if (parser == null) {
-		try {
-		    parser = new SplunkXMLStream(stream);
-		} catch (Exception e) {
-		    throw new RuntimeException(
-			    "Failed to retrieve results stream");
-		}
+		parser = getParser(stream);
 	    }
-	    logger.trace("next");
 	    pos++;
 	    HashMap<String, String> map = parser.nextResult();
 	    if (map == null)
 		return false;
 	    value.setMap(map);
 	    return true;
+	}
+
+	protected SplunkXMLStream getParser(InputStream stream) {
+	    try {
+		return new SplunkXMLStream(stream);
+	    } catch (Exception e) {
+		throw new RuntimeException("Failed to retrieve results stream");
+	    }
 	}
     }
 
@@ -245,6 +252,7 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	    return new SplunkRecordReader((SplunkInputSplit) split, inputClass,
 		    job);
 	} catch (Exception ex) {
+	    logger.error(ex);
 	    throw new IOException(ex.getMessage());
 	}
     }
