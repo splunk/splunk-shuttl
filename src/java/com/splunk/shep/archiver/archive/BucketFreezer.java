@@ -57,7 +57,7 @@ public class BucketFreezer {
 	HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
 	try {
 	    HttpResponse response = httpClient.execute(archiveBucketRequest); // LOG
-	    hadnleResponseCodeFromDoingArchiveBucketRequest(response
+	    handleResponseCodeFromDoingArchiveBucketRequest(response
 		    .getStatusLine().getStatusCode());
 	} catch (ClientProtocolException e) {
 	    hadleIOExceptionGenereratedByDoingArchiveBucketRequest(e);
@@ -66,7 +66,7 @@ public class BucketFreezer {
 	}
     }
 
-    private void hadnleResponseCodeFromDoingArchiveBucketRequest(int statusCode) {
+    private void handleResponseCodeFromDoingArchiveBucketRequest(int statusCode) {
 	// TODO handle the different status codes
 	switch (statusCode) {
 	case HttpStatus.SC_OK:
