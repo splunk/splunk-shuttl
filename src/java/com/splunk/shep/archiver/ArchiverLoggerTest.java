@@ -10,6 +10,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+@Test(groups = { "fast" })
 public class ArchiverLoggerTest {
 
     PrintWriter realPrintWriter;
@@ -31,8 +32,7 @@ public class ArchiverLoggerTest {
 	ArchiverLogger.logger = new PrintWriter(logWriter);
     }
 
-    @Test
-    public void did_validArguments_expectedOutPut() {
+    public void did_validArguments_expectedOutput() {
 	ArchiverLogger.did("didStuff", "happenedStuff", "expectedStuff");
 	String result = logWriter.toString();
 	assertTrue(
@@ -41,20 +41,58 @@ public class ArchiverLoggerTest {
 
     }
 
-    @Test
-    public void done_validArguments_expectedOutPut() {
+    public void did_withAdditionalKeyValues_expectedOutput() {
+	ArchiverLogger.did("didStuff", "happenedStuff", "expectedStuff", "btw",
+		"200");
+	String result = logWriter.toString();
+	assertTrue(
+		"Loged message was " + result,
+		result.matches("\\[.+?\\] did=\"didStuff\" happened=\"happenedStuff\" expected=\"expectedStuff\" btw=\"200\"\n"));
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void did_ilegalNumberOfArguments_illegalArgumentException() {
+	ArchiverLogger.did("didStuff", "happenedStuff", "expectedStuff",
+		"more stuff");
+    }
+
+    public void done_noAdditionalKeyValues_expectedOutput() {
 	ArchiverLogger.done("doneStuff");
 	String result = logWriter.toString();
 	assertTrue("Loged message was " + result,
 		result.matches("\\[.+?\\] done=\"doneStuff\"\n"));
     }
 
-    @Test
-    public void will_validArguments_expectedOutPut() {
+    public void done_withAdditionalKeyValues_expectedOutput() {
+	ArchiverLogger.done("doneStuff", "btw", "200");
+	String result = logWriter.toString();
+	assertTrue("Loged message was " + result,
+		result.matches("\\[.+?\\] done=\"doneStuff\" btw=\"200\"\n"));
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void done_ilegalNumberOfArguments_illegalArgumentException() {
+	ArchiverLogger.done("doneStuff", "btw");
+    }
+
+    public void will_validArguments_expectedOutput() {
 	ArchiverLogger.will("willStuff");
 	String result = logWriter.toString();
 	assertTrue("Loged message was " + result,
 		result.matches("\\[.+?\\] will=\"willStuff\"\n"));
 
+    }
+
+    public void will_withAdditionalKeyValues_expectedOutput() {
+	ArchiverLogger.will("willStuff", "args", "stuff stuff stuff");
+	String result = logWriter.toString();
+	assertTrue(
+		"Loged message was " + result,
+		result.matches("\\[.+?\\] will=\"willStuff\" args=\"stuff stuff stuff\"\n"));
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void will_ilegalNumberOfArguments_illegalArgumentException() {
+	ArchiverLogger.will("willStuff", "btw");
     }
 }

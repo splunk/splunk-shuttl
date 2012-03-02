@@ -33,24 +33,36 @@ public class ArchiverLogger {
      * Logs: will="$message" Use this before doing a time consuming action like
      * a async call.
      */
-    public static void will(String message) {
-	log(pairKeysWithValues("will", message));
+    public static void will(String message, String... keyAndValues) {
+	combineAdditionalKeyValuesAndLog(keyAndValues, "will", message);
     }
 
     /**
      * Logs: done="$message" Use this after completing a task.
      */
-    public static void done(String message) {
-	log(pairKeysWithValues("done", message));
+    public static void done(String message, String... keyAndValues) {
+	combineAdditionalKeyValuesAndLog(keyAndValues, "done", message);
     }
 
     /**
      * Logs: did="$did" happened="$happened" expected="$expected" Use this when
      * an error occurs.
      */
-    public static void did(String did, String happened, String expected) {
-	log(pairKeysWithValues("did", did, "happened", happened, "expected",
-		expected));
+    public static void did(String did, String happened, String expected,
+	    String... keyAndValues) {
+	combineAdditionalKeyValuesAndLog(keyAndValues, "did", did, "happened",
+		happened, "expected", expected);
+    }
+
+    private static void combineAdditionalKeyValuesAndLog(
+	    String[] additionalKeyValues, String... logSpecificKeyValues) {
+	String[] allKeyValues = new String[additionalKeyValues.length
+		+ logSpecificKeyValues.length];
+	System.arraycopy(logSpecificKeyValues, 0, allKeyValues, 0,
+		logSpecificKeyValues.length);
+	System.arraycopy(additionalKeyValues, 0, allKeyValues,
+		logSpecificKeyValues.length, additionalKeyValues.length);
+	log(pairKeysWithValues(allKeyValues));
     }
 
     private static String pairKeysWithValues(String... strings) {
