@@ -4,6 +4,7 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -56,6 +57,20 @@ public class ArchiverLoggerTest {
 		"more stuff");
     }
 
+    public void did_nonObjectArguments_expectedOutput() {
+	Date currentDate = new Date();
+
+	// Test
+	ArchiverLogger.did(currentDate, "btw", 200, "btw", 5.6f);
+
+	// Verify
+	String result = logWriter.toString();
+	assertTrue(
+		"Loged message was " + result,
+		result.matches("\\[.+?\\] did=\"" + currentDate.toString()
+			+ "\" happened=\"btw\" expected=\"200\" btw=\"5.6\"\n"));
+    }
+
     public void done_noAdditionalKeyValues_expectedOutput() {
 	ArchiverLogger.done("doneStuff");
 	String result = logWriter.toString();
@@ -73,6 +88,20 @@ public class ArchiverLoggerTest {
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void done_ilegalNumberOfArguments_illegalArgumentException() {
 	ArchiverLogger.done("doneStuff", "btw");
+    }
+
+    public void done_nonObjectArguments_expectedOutput() {
+	Date currentDate = new Date();
+
+	// Test
+	ArchiverLogger.done(currentDate, "btw", 200);
+
+	// Verify
+	String result = logWriter.toString();
+	assertTrue(
+		"Loged message was " + result,
+		result.matches("\\[.+?\\] done=\"" + currentDate.toString()
+			+ "\" btw=\"200\"\n"));
     }
 
     public void will_validArguments_expectedOutput() {
@@ -94,5 +123,19 @@ public class ArchiverLoggerTest {
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void will_ilegalNumberOfArguments_illegalArgumentException() {
 	ArchiverLogger.will("willStuff", "btw");
+    }
+
+    public void will_nonObjectArguments_expectedOutput() {
+	Date currentDate = new Date();
+
+	// Test
+	ArchiverLogger.will("willStuff", currentDate, 5);
+
+	// Verify
+	String result = logWriter.toString();
+	assertTrue(
+		"Loged message was " + result,
+		result.matches("\\[.+?\\] will=\"willStuff\" "
+			+ currentDate.toString() + "=\"5\"\n"));
     }
 }

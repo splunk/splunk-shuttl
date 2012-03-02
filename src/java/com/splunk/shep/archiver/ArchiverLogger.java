@@ -33,14 +33,14 @@ public class ArchiverLogger {
      * Logs: will="$message" Use this before doing a time consuming action like
      * a async call.
      */
-    public static void will(String message, String... keyAndValues) {
+    public static void will(Object message, Object... keyAndValues) {
 	combineAdditionalKeyValuesAndLog(keyAndValues, "will", message);
     }
 
     /**
      * Logs: done="$message" Use this after completing a task.
      */
-    public static void done(String message, String... keyAndValues) {
+    public static void done(Object message, Object... keyAndValues) {
 	combineAdditionalKeyValuesAndLog(keyAndValues, "done", message);
     }
 
@@ -48,15 +48,15 @@ public class ArchiverLogger {
      * Logs: did="$did" happened="$happened" expected="$expected" Use this when
      * an error occurs.
      */
-    public static void did(String did, String happened, String expected,
-	    String... keyAndValues) {
+    public static void did(Object did, Object happened, Object expected,
+	    Object... keyAndValues) {
 	combineAdditionalKeyValuesAndLog(keyAndValues, "did", did, "happened",
 		happened, "expected", expected);
     }
 
     private static void combineAdditionalKeyValuesAndLog(
-	    String[] additionalKeyValues, String... logSpecificKeyValues) {
-	String[] allKeyValues = new String[additionalKeyValues.length
+	    Object[] additionalKeyValues, Object... logSpecificKeyValues) {
+	Object[] allKeyValues = new Object[additionalKeyValues.length
 		+ logSpecificKeyValues.length];
 	System.arraycopy(logSpecificKeyValues, 0, allKeyValues, 0,
 		logSpecificKeyValues.length);
@@ -65,18 +65,18 @@ public class ArchiverLogger {
 	log(pairKeysWithValues(allKeyValues));
     }
 
-    private static String pairKeysWithValues(String... strings) {
+    private static String pairKeysWithValues(Object... messages) {
 	StringBuffer sb = new StringBuffer();
 	try {
-	    sb.append(strings[0]);
+	    sb.append(messages[0]);
 	    sb.append("=\"");
-	    sb.append(strings[1]);
+	    sb.append(messages[1]);
 	    sb.append("\"");
-	    for (int i = 2; i < strings.length; i += 2) {
+	    for (int i = 2; i < messages.length; i += 2) {
 		sb.append(" ");
-		sb.append(strings[i]);
+		sb.append(messages[i]);
 		sb.append("=\"");
-		sb.append(strings[i + 1]);
+		sb.append(messages[i + 1]);
 		sb.append("\"");
 	    }
 	} catch (ArrayIndexOutOfBoundsException e) {
