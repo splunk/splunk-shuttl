@@ -156,6 +156,7 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
 	    try {
 		return new SplunkXMLStream(stream);
 	    } catch (Exception e) {
+		logger.error(e);
 		throw new RuntimeException("Failed to retrieve results stream");
 	    }
 	}

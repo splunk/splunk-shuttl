@@ -16,13 +16,10 @@ package com.splunk.shep.mapred.lib.rest;
 
 import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.QUERY1;
 import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.QUERY2;
-import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.mockValue;
-import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.oneShotDataToSplunk;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,7 +28,6 @@ import java.util.StringTokenizer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -44,6 +40,7 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
+import org.apache.hadoop.mapred.MiniMRCluster;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
@@ -63,39 +60,38 @@ import com.splunk.shep.testutil.SplunkServiceParameters;
 public class TestSplunkInputFormat {
     private static SplunkServiceParameters testParameters;
     private static MiniDFSCluster dfsCluster;
-    // private Path input = new Path("input");
+    private static MiniMRCluster mrCluster = null;
     private Path output = null;
-    // private Path output1 = new Path("output1");
-    // private Path output2 = new Path("output2");
     private static Log LOG = LogFactory.getLog(TestSplunkInputFormat.class);
 
     @BeforeClass
     public static void setUp() throws IOException, ParseException {
-	Configuration conf = new Configuration();
-	dfsCluster = new MiniDFSCluster(conf, 1, true, null);
+	// Configuration conf = new Configuration();
+	JobConf conf = new JobConf();
+	if (System.getProperty("hadoop.log.dir") == null) {
+	    System.setProperty("hadoop.log.dir", "/tmp");
+	}
+	// https://issues.apache.org/jira/browse/HADOOP-565
+	// https://issues.apache.org/jira/browse/MAPREDUCE-3169
+	// https://issues.apache.org/jira/browse/MAPREDUCE-2285
+	dfsCluster = new MiniDFSCluster(conf, 2, true, null);
+	// numDir = 1 set the property mapred.local.dir
+	mrCluster = new MiniMRCluster(0, 0, 2, dfsCluster.getFileSystem()
+		.getUri().toString(), 1, null, null, null, conf);
+
 	String splunkHost = "localhost";
 	String splunkMGMTPort = "8089";
 	String splunkUsername = "admin";
 	String splunkPassword = "changeme";
 	testParameters = new SplunkServiceParameters(splunkUsername,
 		splunkPassword, splunkHost, splunkMGMTPort);
-
-	// we can also get this from the test file wordfile-timestamp
-	HashMap<String, String> value1 = mockValue("this is a test",
-		"2011-09-19 17:04:15");
-	HashMap<String, String> value2 = mockValue("this is a test",
-		"2011-09-19 17:04:14");
-	HashMap<String, String> value3 = mockValue("this is a test",
-		"2011-09-19 17:04:13");
-
-	String index = "main";
-	List<HashMap<String, String>> values = Arrays.asList(value1, value2,
-		value3);
-	oneShotDataToSplunk(index, values);
     }
 
     @AfterClass
     public static void tearDown() {
+	if (mrCluster != null) {
+	    mrCluster.shutdown();
+	}
 	if (dfsCluster != null) {
 	    dfsCluster.shutdown();
 	}
@@ -119,7 +115,8 @@ public class TestSplunkInputFormat {
     }
 
     private void runMapReduceJob(String query) throws IOException {
-	JobConf job = new JobConf(dfsCluster.getFileSystem().getConf());
+	// JobConf job = new JobConf(dfsCluster.getFileSystem().getConf());
+	JobConf job = mrCluster.createJobConf();
 	configureJobConf(job, query);
 	JobClient.runJob(job);
     }
@@ -134,6 +131,7 @@ public class TestSplunkInputFormat {
 	job.set(SplunkConfiguration.SPLUNKEVENTREADER,
 		SplunkRecord.class.getName());
 
+	job.setJobName(this.getClass().getName());
 	job.setOutputKeyClass(Text.class);
 	job.setOutputValueClass(IntWritable.class);
 
@@ -191,7 +189,7 @@ public class TestSplunkInputFormat {
 		throws IOException {
 	    String line = value.getMap().get("_raw");
 	    if (line == null) {
-		System.out.println("_raw is null");
+		LOG.debug("_raw is null");
 		return;
 	    }
 	    StringTokenizer tokenizer = new StringTokenizer(line);

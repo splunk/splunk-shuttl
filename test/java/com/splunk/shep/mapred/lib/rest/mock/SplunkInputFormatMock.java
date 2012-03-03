@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,15 +53,39 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
     public static final String QUERY1 = "search index=main source=*wordfile-timestamp";
     public static final String QUERY2 = "search index=main source=*wordfile-timestamp  17:04:15";
     public static final String MAIN_INDEX = "main";
-    private static Map<String, List<HashMap<String, String>>> splunkIndices = new HashMap<String, List<HashMap<String, String>>>();
+    private static final Map<String, List<HashMap<String, String>>> splunkIndices = new HashMap<String, List<HashMap<String, String>>>();
 
-    public static void oneShotDataToSplunk(String index,
-	    List<HashMap<String, String>> values) {
-	splunkIndices.put(index, values);
+    static {
+	List<HashMap<String, String>> values = populateTestData();
+	mockOneShotDataToSplunk(MAIN_INDEX, values);
     }
 
-    public static HashMap<String, String> mockValue(String text, String time)
-		throws ParseException {
+    private static List<HashMap<String, String>> populateTestData() {
+	try {
+	    // we can also get this from the test file wordfile-timestamp
+	    HashMap<String, String> value1 = mockValue("this is a test",
+		    "2011-09-19 17:04:15");
+	    HashMap<String, String> value2 = mockValue("this is a test",
+		    "2011-09-19 17:04:14");
+	    HashMap<String, String> value3 = mockValue("this is a test",
+		    "2011-09-19 17:04:13");
+	    return Arrays.asList(value1, value2, value3);
+	} catch (ParseException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	    throw new RuntimeException("Failed to populateTestData");
+	}
+    }
+
+    private static void mockOneShotDataToSplunk(String index,
+	    List<HashMap<String, String>> values) {
+	splunkIndices.put(index, values);
+	System.err.println("mockOneShotDataToSplunk.splunkIndices:"
+		+ splunkIndices);
+    }
+
+    private static HashMap<String, String> mockValue(String text, String time)
+	    throws ParseException {
 	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	String raw = time + " " + text;
 	SimpleDateFormat format1 = new SimpleDateFormat(
@@ -104,6 +129,7 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
 	    try {
 		return mockParser();
 	    } catch (Exception e) {
+		LOG.error(e);
 		throw new RuntimeException("Failed to retrieve results stream");
 	    }
 	}
@@ -122,6 +148,7 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
 	    if (QUERY1.equals(query)) {
 		HashMap<String, String>[] values = (HashMap<String, String>[]) splunkIndices
 			.get(MAIN_INDEX).toArray();
+		System.err.println("values:" + Arrays.toString(values));
 		HashMap<String, String> value0 = values[0];
 		HashMap[] moreValues = new HashMap[values.length];
 		for (int i = 1; i < values.length; i++) {
@@ -131,7 +158,7 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
 		when(parser.nextResult()).thenReturn(value0, moreValues);
 	    } else if (QUERY2.equals(query)) {
 		when(parser.nextResult()).thenReturn(
-			splunkIndices.get(MAIN_INDEX).get(0), null);
+			splunkIndices.get(MAIN_INDEX).get(0), (HashMap) null);
 	    } else {
 		throw new IOException(
 			"unsupport test search query, add the mock object to mockParser method before testing this search scenario");
@@ -139,7 +166,6 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
 
 	    return parser;
 	}
-
     }
 
     @Override
@@ -148,6 +174,8 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
 	try {
 	    Class inputClass = Class.forName(job
 		    .get(SplunkConfiguration.SPLUNKEVENTREADER));
+	    System.err.println("getRecordReader.splunkIndices.size="
+		    + SplunkInputFormatMock.splunkIndices.size());
 	    return new SplunkRecordReaderMock((SplunkInputSplit) split,
 		    inputClass, job);
 	} catch (Exception ex) {
