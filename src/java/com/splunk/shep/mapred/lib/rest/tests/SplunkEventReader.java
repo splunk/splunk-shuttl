@@ -51,6 +51,8 @@ public class SplunkEventReader {
 	}
 
 	private FEvent getEventObject(String item) throws Exception {
+	    System.out.println("SplunkEventReader.getEventObject: json str: "
+		    + item);
 	    JsonFactory f = new JsonFactory();
 	    JsonParser jp = f.createJsonParser(item);
 	    FEvent event = new FEvent();

@@ -34,7 +34,6 @@ import org.testng.annotations.Test;
 
 import com.splunk.Job;
 import com.splunk.Service;
-import com.splunk.shep.mapred.lib.rest.SplunkConfiguration;
 import com.splunk.shep.mapred.lib.rest.tests.SplunkRecord;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
@@ -239,7 +238,6 @@ public class SplunkInputFormatTest {
 		sum += values.next().get();
 	    }
 	    output.collect(key, new IntWritable(sum));
-
 	}
     }
 }

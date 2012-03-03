@@ -45,4 +45,12 @@ public class SplunkRecord implements Writable, SplunkWritable {
     public void write(DataOutput arg0) throws IOException {
 	// TODO Auto-generated method stub
     }
+
+    @Override
+    public String toString() {
+	if (map == null) {
+	    return null;
+	}
+	return map.toString();
+    }
 }
