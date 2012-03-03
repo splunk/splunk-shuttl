@@ -18,23 +18,37 @@ public class PathResolverTest {
     private PathResolver pathResolver;
     private Bucket bucket;
     private WritableFileSystem writableFileSystem;
+    private String archiveRoot;
+    private String clusterName;
+    private String serverName;
+    private String writableUri;
 
     @BeforeMethod(groups = { "fast" })
     public void setUp() {
 	configuration = mock(ArchiveConfiguration.class);
 	writableFileSystem = mock(WritableFileSystem.class);
 	pathResolver = new PathResolver(configuration, writableFileSystem);
-
+	stubArchiveConfiguration();
+	stubWritableFileSystem();
 	bucket = mock(Bucket.class);
     }
 
-    public void resolveArchivePath_givenValidBucket_combineBucketAndConfigurationToCreateTheEndingArchivePath() {
-	String archiveRoot = "archiving_root";
+    private void stubWritableFileSystem() {
+	writableUri = "hdfs://somehost:someport";
+	when(writableFileSystem.getWritableUri()).thenReturn(
+		URI.create(writableUri));
+    }
+
+    private void stubArchiveConfiguration() {
+	archiveRoot = "archiving_root";
 	when(configuration.getArchivingRoot()).thenReturn(archiveRoot);
-	String clusterName = "cluster_name";
+	clusterName = "cluster_name";
 	when(configuration.getClusterName()).thenReturn(clusterName);
-	String serverName = "server_name";
+	serverName = "server_name";
 	when(configuration.getServerName()).thenReturn(serverName);
+    }
+
+    public void resolveArchivePath_givenValidBucket_combineBucketAndConfigurationToCreateTheEndingArchivePath() {
 	String bucketName = "bucket_name_id";
 	when(bucket.getName()).thenReturn(bucketName);
 	String bucketIndex = "index";
@@ -52,15 +66,28 @@ public class PathResolverTest {
 	assertTrue(archivePath.getPath().endsWith(archivePathEnding));
     }
 
-    public void resolveArchivePath_givenWritableFileSystemUri_uriStartsWithFileSchemeAndWritablePath() {
-	// Setup
-	when(writableFileSystem.getWritableUri()).thenReturn(
-		URI.create("hdfs://somehost:someport"));
+    public void resolveArchivePath_givenWritableFileSystemUri_uriStartsWithWritablePath() {
 	// Test
 	URI archivePath = pathResolver.resolveArchivePath(bucket);
 
 	// Verify
-	assertEquals(writableFileSystem.getWritableUri()
-		.getScheme(), archivePath.getScheme());
+	assertTrue(archivePath.toString().startsWith(
+		writableFileSystem.getWritableUri().toString()));
     }
+
+    public void getPathToIndexes_givenNothing_returnsPathThatEndsWithThePathToWhereIndexesLive() {
+	URI indexesHome = pathResolver.getIndexesHome();
+
+	String indexesHomeEnding = archiveRoot + "/" + clusterName + "/"
+		+ serverName;
+	assertTrue(indexesHome.getPath().endsWith(indexesHomeEnding));
+    }
+
+    public void getPathToIndexes_givenNothing_returnsPathThatStartsWithWritablePath() {
+	URI indexesHome = pathResolver.getIndexesHome();
+
+	assertTrue(indexesHome.toString().startsWith(
+		writableFileSystem.getWritableUri().toString()));
+    }
+
 }

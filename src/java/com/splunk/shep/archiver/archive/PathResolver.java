@@ -37,10 +37,30 @@ public class PathResolver {
      */
     public URI resolveArchivePath(Bucket bucket) {
 	URI writableUri = writableFileSystem.getWritableUri();
-	String uri = configuration.getArchivingRoot() + "/"
+	String archivePathForBucket = getArchivingPath() + "/"
+		+ bucket.getIndex() + "/" + bucket.getFormat() + "/"
+		+ bucket.getName();
+	return URI.create(writableUri + archivePathForBucket);
+    }
+
+    /**
+     * Returns a path using configurated values to where buckets can be
+     * archived. Needed to avoid collisions between clusters and
+     * servers/indexers.
+     * 
+     * @return Archiving path that starts with "/"
+     */
+    private String getArchivingPath() {
+	return "/" + configuration.getArchivingRoot() + "/"
 		+ configuration.getClusterName() + "/"
-		+ configuration.getServerName() + "/" + bucket.getIndex() + "/"
-		+ bucket.getFormat() + "/" + bucket.getName();
-	return URI.create(writableUri + "/" + uri);
+		+ configuration.getServerName();
+    }
+
+    /**
+     * @return TODO
+     */
+    public URI getIndexesHome() {
+	return URI.create(writableFileSystem.getWritableUri()
+		+ getArchivingPath());
     }
 }
