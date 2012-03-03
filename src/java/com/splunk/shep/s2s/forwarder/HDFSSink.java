@@ -39,6 +39,7 @@ import com.splunk.shep.s2s.DataSink;
 
 public class HDFSSink implements DataSink {
     public static final long HadoopFileSize = 63000000;
+    public static final int MaxDataLoggingSize = 100000;
     private String ip = new String("localhost");
     private String port = new String("54310");
     private String path = new String("/spl");
@@ -479,19 +480,7 @@ public class HDFSSink implements DataSink {
 	    String host, long time) throws Exception {
 	String message = HDFSEvent.build(rawBytes, sourceType, source, host,
 		time);
-	logger.debug("Sending " + message);
-
-	if (ofstream == null) {
-	    logger.warn("Cannot write: need to set connection.");
-	    start();
-
-	    if (ofstream == null) {
-		logger.error("Failed writing data: connection not set.");
-		return;
-	    }
-	}
-
-	write(message);
+	writeToHDFS(message);
     }
 
     // Implementation of DataSink interface method.
@@ -504,6 +493,10 @@ public class HDFSSink implements DataSink {
     public void write(String data, String sourceType, String source,
 	    String host, long time) throws Exception {
 	String message = HDFSEvent.build(data, sourceType, source, host, time);
+	writeToHDFS(message);
+    }
+
+    private void writeToHDFS(String message) throws Exception {
 	logger.debug("Sending " + message);
 
 	if (ofstream == null) {
@@ -511,7 +504,15 @@ public class HDFSSink implements DataSink {
 	    start();
 
 	    if (ofstream == null) {
-		logger.error("Failed writing data: connection not set.");
+		if (message.length() > MaxDataLoggingSize) {
+		    logger.error("Failed connecting hdfs - dropped data (size="
+			    + message.length() + "): "
+			    + message.substring(0, MaxDataLoggingSize - 1)
+			    + " ...");
+		} else {
+		    logger.error("Failed connecting hdfs - dropped data (size="
+			    + message.length() + "): " + message);
+		}
 		return;
 	    }
 	}
@@ -528,6 +529,13 @@ public class HDFSSink implements DataSink {
 	} catch (IOException e) {
 	    logger.error("IOException during sending data: " + e.toString()
 		    + "\nStacktrace:\n" + e.getStackTrace().toString());
+	    if (data.length() > MaxDataLoggingSize) {
+		logger.error("Dropped data (size=" + data.length() + "): "
+			+ data.substring(0, MaxDataLoggingSize - 1) + " ...");
+	    } else {
+		logger.error("Dropped data (size=" + data.length() + "): "
+			+ data);
+	    }
 	}
     }
 
@@ -546,7 +554,8 @@ public class HDFSSink implements DataSink {
 	    start();
 
 	    if (ofstream == null) {
-		logger.error("Failed writing data: connection not set.");
+		logger.error("Failed writing data of " + rawBytes.length
+			+ " bytes: HDFS connection not set.");
 		return;
 	    }
 	}
