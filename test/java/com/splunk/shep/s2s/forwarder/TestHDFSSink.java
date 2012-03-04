@@ -31,6 +31,7 @@ public class TestHDFSSink {
 	FileSystem fs = dfsCluster.getFileSystem();
 	sink.setConf(conf);
 	sink.setFileSystem(fs);
+	sink.setIp("127.0.0.1");
 	sink.setPort("" + dfsCluster.getNameNodePort());
 	sink.start(filePath);
 	sink.init();
