@@ -66,13 +66,11 @@ public class SplunkOutputFormat<K, V> extends OutputFormat<K, V> {
 	private static final String SPACE = " ";
 
 	protected SplunkRecordWriter() {
-	    System.out.println("SplunkRecordWriter Constructor!!!");
+
 	}
 
 	@Override
 	public void write(K key, V value) throws IOException {
-	    System.out.println("key " + key + " value " + value);
-
 	    StringBuilder sbuf = new StringBuilder();
 	    sbuf.append(new Date().toString());
 	    sbuf.append(SPACE); // space separator for Splunk
@@ -165,13 +163,12 @@ public class SplunkOutputFormat<K, V> extends OutputFormat<K, V> {
     @Override
     public void checkOutputSpecs(JobContext context) throws IOException,
 	    InterruptedException {
-	System.out.println("enter checkOutputSpecs");
+
     }
 
     @Override
     public OutputCommitter getOutputCommitter(TaskAttemptContext context)
 	    throws IOException, InterruptedException {
-	System.out.println("enter getOutputCommitter");
 	if (committer == null) {
 	    Path output = getOutputPath(context);
 	    committer = new FileOutputCommitter(output, context);
