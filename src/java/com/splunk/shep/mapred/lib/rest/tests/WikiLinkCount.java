@@ -34,7 +34,8 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
 
-import com.splunk.shep.mapred.lib.rest.SplunkConfiguration;
+import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
+import com.splunk.shep.mapreduce.lib.rest.tests.SplunkRecord;
 
 public class WikiLinkCount {
 

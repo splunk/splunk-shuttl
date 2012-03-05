@@ -1,41 +1,35 @@
-package com.splunk.shep.mapred.lib.rest;
+package com.splunk.shep.mapreduce.lib.rest;
 
+import static org.junit.Assert.assertTrue;
 import static org.testng.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.splunk.Job;
 import com.splunk.Service;
-import com.splunk.shep.mapreduce.lib.rest.MapRedRestTestConstants;
-import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
 import com.splunk.shep.mapreduce.lib.rest.tests.SplunkRecord;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
@@ -67,7 +61,8 @@ public class SplunkInputFormatTest {
 	    "splunk.password" })
     public void should_runAMapReduceJob_by_usingSplunkAsAnInputToHadoop(
 	    String splunkHost, String splunkMGMTPort, String splunkUsername,
-	    String splunkPassword) throws InterruptedException, IOException {
+	    String splunkPassword) throws InterruptedException, IOException,
+	    ClassNotFoundException {
 	testParameters = new SplunkServiceParameters(splunkUsername,
 		splunkPassword, splunkHost, splunkMGMTPort);
 	Service loggedInService = testParameters.getLoggedInService();
@@ -137,16 +132,17 @@ public class SplunkInputFormatTest {
     }
 
     private boolean isTestFileAlreadyIndexed(Service splunk) {
-	Job search = splunk.getJobs().create(
+	com.splunk.Job search = splunk.getJobs().create(
 		"search index=main source=*wordfile-timestamp");
 	SplunkTestUtils.waitWhileJobFinishes(search);
 	return search.getResultCount() > 0;
     }
 
-    private void runMapReduceJob() throws IOException {
-	JobConf job = new JobConf(); // cluster.createJobConf();
+    private void runMapReduceJob() throws IOException, InterruptedException,
+	    ClassNotFoundException {
+	Job job = new Job();
 	configureJobConf(job);
-	JobClient.runJob(job);
+	assertTrue(job.waitForCompletion(true));
     }
 
     private Path getOutput() {
@@ -161,28 +157,28 @@ public class SplunkInputFormatTest {
 	return putter.getPathOfMyFiles();
     }
 
-    private void configureJobConf(JobConf job) {
+    private void configureJobConf(Job job) throws IOException {
+	Configuration conf = job.getConfiguration();
 	job.setJobName(SplunkInputFormatTest.class.getSimpleName());
-	SplunkConfiguration.setConnInfo(job, testParameters.host,
+	SplunkConfiguration.setConnInfo(conf, testParameters.host,
 		testParameters.mgmtPort, testParameters.username,
 		testParameters.password);
 	String query = "source::*wordfile-timestamp";
 	String indexer1 = "localhost";
 
-	SplunkConfiguration.setSplunkQueryByIndexers(job, query,
+	SplunkConfiguration.setSplunkQueryByIndexers(conf, query,
 		new String[] { indexer1 });
-	job.set(SplunkConfiguration.SPLUNKEVENTREADER,
+	conf.set(SplunkConfiguration.SPLUNKEVENTREADER,
 		SplunkRecord.class.getName());
 
 	job.setOutputKeyClass(Text.class);
 	job.setOutputValueClass(IntWritable.class);
 
-	job.setMapperClass(Map.class);
-	job.setCombinerClass(Reduce.class);
-	job.setReducerClass(Reduce.class);
+	job.setMapperClass(TestMapper.class);
+	job.setReducerClass(TestReducer.class);
 
-	job.setInputFormat(com.splunk.shep.mapred.lib.rest.SplunkInputFormat.class);
-	job.setOutputFormat(TextOutputFormat.class);
+	job.setInputFormatClass(SplunkInputFormat.class);
+	job.setOutputFormatClass(TextOutputFormat.class);
 
 	FileInputFormat.setInputPaths(job, getInput());
 	FileOutputFormat.setOutputPath(job, getOutput());
@@ -190,7 +186,7 @@ public class SplunkInputFormatTest {
 
     private void verifyOutput() throws IOException {
 	FSDataInputStream open = fileSystem.open(new Path(getOutput(),
-		"part-00000"));
+		"part-r-00000"));
 	Set<String> expected = new HashSet<String>();
 	expected.add("17:04:15	1");
 	expected.add("17:04:14	1");
@@ -209,14 +205,14 @@ public class SplunkInputFormatTest {
 	assertEquals(actual, expected);
     }
 
-    public static class Map extends MapReduceBase implements
+    public static class TestMapper extends
 	    Mapper<LongWritable, SplunkRecord, Text, IntWritable> {
 	private final static IntWritable one = new IntWritable(1);
 	private Text word = new Text();
 
-	public void map(LongWritable key, SplunkRecord value,
-		OutputCollector<Text, IntWritable> output, Reporter reporter)
-		throws IOException {
+	@Override
+	public void map(LongWritable key, SplunkRecord value, Context context)
+		throws IOException, InterruptedException {
 	    String line = value.getMap().get("_raw");
 	    if (line == null) {
 		System.out.println("_raw is null");
@@ -225,21 +221,21 @@ public class SplunkInputFormatTest {
 	    StringTokenizer tokenizer = new StringTokenizer(line);
 	    while (tokenizer.hasMoreTokens()) {
 		word.set(tokenizer.nextToken());
-		output.collect(word, one);
+		context.write(word, one);
 	    }
 	}
     }
 
-    public static class Reduce extends MapReduceBase implements
+    public static class TestReducer extends
 	    Reducer<Text, IntWritable, Text, IntWritable> {
-	public void reduce(Text key, Iterator<IntWritable> values,
-		OutputCollector<Text, IntWritable> output, Reporter reporter)
-		throws IOException {
+	@Override
+	public void reduce(Text key, Iterable<IntWritable> values,
+		Context context) throws IOException, InterruptedException {
 	    int sum = 0;
-	    while (values.hasNext()) {
-		sum += values.next().get();
+	    for (IntWritable v : values) {
+		sum += v.get();
 	    }
-	    output.collect(key, new IntWritable(sum));
+	    context.write(key, new IntWritable(sum));
 	}
     }
 }

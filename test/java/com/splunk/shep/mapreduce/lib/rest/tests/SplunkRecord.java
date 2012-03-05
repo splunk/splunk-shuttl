@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.mapred.lib.rest.tests;
+package com.splunk.shep.mapreduce.lib.rest.tests;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.apache.hadoop.io.Writable;
 
-import com.splunk.shep.mapred.lib.rest.SplunkWritable;
+import com.splunk.shep.mapreduce.lib.rest.SplunkWritable;
 
 public class SplunkRecord implements Writable, SplunkWritable {
     Map<String, String> map = null;
@@ -44,5 +44,13 @@ public class SplunkRecord implements Writable, SplunkWritable {
     @Override
     public void write(DataOutput arg0) throws IOException {
 	// TODO Auto-generated method stub
+    }
+
+    @Override
+    public String toString() {
+	if (map == null) {
+	    return null;
+	}
+	return map.toString();
     }
 }

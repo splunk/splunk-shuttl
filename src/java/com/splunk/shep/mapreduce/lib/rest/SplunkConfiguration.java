@@ -13,15 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.mapred.lib.rest;
+package com.splunk.shep.mapreduce.lib.rest;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * Convenience methods to configure for Splunk access
@@ -56,7 +57,7 @@ public class SplunkConfiguration {
     private String splunkIndex = SPLUNKDEFAULTINDEX;
     private int mgmtPort = SPLUNKDEFAULTPORT;
 
-    private static Logger logger = Logger.getLogger(SplunkConfiguration.class);
+    private static Log LOG = LogFactory.getLog(SplunkConfiguration.class);
 
     public SplunkConfiguration(String confpath) throws FileNotFoundException,
 	    IOException {
@@ -66,7 +67,7 @@ public class SplunkConfiguration {
     /**
      * Method to convenienty set various connection parameters
      * 
-     * @param job
+     * @param conf
      *            Job Configuration
      * @param host
      *            Splunk Host name
@@ -77,75 +78,78 @@ public class SplunkConfiguration {
      * @param password
      *            Splunk password
      */
-    public static void setConnInfo(JobConf job, String host, int port,
+    public static void setConnInfo(Configuration conf, String host, int port,
 	    String username, String password) {
-	job.set(SPLUNKHOST, host);
-	job.setInt(SPLUNKPORT, port);
-	job.set(USERNAME, username);
-	job.set(PASSWORD, password);
-	job.set(SPLUNKSOURCETYPE, SPLUNKDEFAULTSOURCETYPE);
-	job.set(SPLUNKINDEX, SPLUNKDEFAULTINDEX);
+	conf.set(SPLUNKHOST, host);
+	conf.setInt(SPLUNKPORT, port);
+	conf.set(USERNAME, username);
+	conf.set(PASSWORD, password);
+	conf.set(SPLUNKSOURCETYPE, SPLUNKDEFAULTSOURCETYPE);
+	conf.set(SPLUNKINDEX, SPLUNKDEFAULTINDEX);
     }
 
-    public static void setConnInfo(JobConf job, String username, String password) {
-	job.set(SPLUNKHOST, SPLUNKDEFAULTHOST);
-	job.setInt(SPLUNKPORT, SPLUNKDEFAULTPORT);
-	job.set(USERNAME, username);
-	job.set(PASSWORD, password);
-	job.set(SPLUNKSOURCETYPE, SPLUNKDEFAULTSOURCETYPE);
-	job.set(SPLUNKINDEX, SPLUNKDEFAULTINDEX);
+    public static void setConnInfo(Configuration conf, String username,
+	    String password) {
+	conf.set(SPLUNKHOST, SPLUNKDEFAULTHOST);
+	conf.setInt(SPLUNKPORT, SPLUNKDEFAULTPORT);
+	conf.set(USERNAME, username);
+	conf.set(PASSWORD, password);
+	conf.set(SPLUNKSOURCETYPE, SPLUNKDEFAULTSOURCETYPE);
+	conf.set(SPLUNKINDEX, SPLUNKDEFAULTINDEX);
     }
 
-    public static void setJobConf(JobConf job, String host, int port,
+    public static void setJobConf(Configuration conf, String host, int port,
 	    String sourcetype, String index, String username, String password) {
-	job.set(SPLUNKHOST, host);
-	job.setInt(SPLUNKPORT, port);
-	job.set(USERNAME, username);
-	job.set(PASSWORD, password);
-	job.set(SPLUNKSOURCETYPE, sourcetype);
-	job.set(SPLUNKINDEX, index);
+	conf.set(SPLUNKHOST, host);
+	conf.setInt(SPLUNKPORT, port);
+	conf.set(USERNAME, username);
+	conf.set(PASSWORD, password);
+	conf.set(SPLUNKSOURCETYPE, sourcetype);
+	conf.set(SPLUNKINDEX, index);
     }
 
-    public void setJobConf(JobConf job, String username, String password) {
-	job.set(SPLUNKHOST, host);
-	job.set(SPLUNKSOURCETYPE, sourceType);
-	job.set(SPLUNKINDEX, splunkIndex);
-	job.setInt(SPLUNKPORT, mgmtPort);
-	job.set(USERNAME, username);
-	job.set(PASSWORD, password);
+    public void setJobConf(Configuration conf, String username, String password) {
+	conf.set(SPLUNKHOST, host);
+	conf.set(SPLUNKSOURCETYPE, sourceType);
+	conf.set(SPLUNKINDEX, splunkIndex);
+	conf.setInt(SPLUNKPORT, mgmtPort);
+	conf.set(USERNAME, username);
+	conf.set(PASSWORD, password);
     }
 
     /**
      * Method to specify the Splunk search query
      * 
-     * @param job
+     * @param conf
      *            Job Configuration
      * @param query
      *            Splunk search query string
      * @param indexers
      *            Array of Splunk Indexer host names
      */
-    public static void setSplunkQueryByIndexers(JobConf job, String query,
+    public static void setSplunkQueryByIndexers(Configuration conf,
+	    String query,
 	    String indexers[]) {
-	setSplunkQueryByIndexers(job, query, indexers, indexers.length);
+	setSplunkQueryByIndexers(conf, query, indexers, indexers.length);
     }
 
-    private static void setSplunkQueryByIndexers(JobConf job, String query,
+    private static void setSplunkQueryByIndexers(Configuration conf,
+	    String query,
 	    String indexers[], int numsplits) {
-	logger.trace("query " + query + " num of splits " + indexers.length);
-	job.set(QUERY, query);
-	job.setInt(INDEXBYHOST, 1);
-	job.setInt(NUMSPLITS, numsplits);
+	LOG.trace("query " + query + " num of splits " + indexers.length);
+	conf.set(QUERY, query);
+	conf.setInt(INDEXBYHOST, 1);
+	conf.setInt(NUMSPLITS, numsplits);
 	for (int i = 0; i < indexers.length; i++) {
 	    if (indexers.length > 0) {
-		job.set(INDEXHOST + i, indexers[i]);
+		conf.set(INDEXHOST + i, indexers[i]);
 	    }
 	}
 
 	// distribute the splits across the indexers
 	if (numsplits > indexers.length) {
 	    for (int i = indexers.length; i < numsplits; i++) {
-		job.set(INDEXHOST + i, indexers[i % indexers.length]);
+		conf.set(INDEXHOST + i, indexers[i % indexers.length]);
 	    }
 	}
     }

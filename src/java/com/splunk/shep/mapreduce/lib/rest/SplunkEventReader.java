@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.mapred.lib.rest.tests;
+package com.splunk.shep.mapreduce.lib.rest;
 
 import java.io.IOException;
 
@@ -20,39 +20,39 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 
+import com.splunk.shep.mapred.lib.rest.tests.WikiLinkCount;
+
+/**
+ * 
+ * @author hyan
+ * 
+ */
 public class SplunkEventReader {
-    public static class Map extends MapReduceBase implements
+    public static class SplunkEventReaderMap extends
 	    Mapper<LongWritable, Text, Text, NullWritable> {
 
-	public void map(LongWritable key, Text value,
-		OutputCollector<Text, NullWritable> output, Reporter reporter)
+	public void map(LongWritable key, Text value, Context context)
 		throws IOException {
 	    NullWritable nullwr = NullWritable.get();
 	    try {
 		FEvent event = getEventObject(value.toString());
 		value.set(event.getBody());
-		output.collect(value, nullwr);
+		context.write(value, nullwr);
 	    } catch (Exception e) {
 		throw new IOException(e);
 	    }
 	}
 
 	private FEvent getEventObject(String item) throws Exception {
-	    System.out.println("SplunkEventReader.getEventObject: json str: "
-		    + item);
 	    JsonFactory f = new JsonFactory();
 	    JsonParser jp = f.createJsonParser(item);
 	    FEvent event = new FEvent();
@@ -88,22 +88,25 @@ public class SplunkEventReader {
     }
 
     public static void main(String[] args) throws Exception {
-	JobConf conf = new JobConf(WikiLinkCount.class);
-	conf.setJobName("SplunkEventReader");
-	conf.setOutputKeyClass(Text.class);
-	conf.setOutputValueClass(NullWritable.class);
+	Job job = new Job();
+	// FIXME job is WikiLinkCount or SplunkEventReader?
+	job.setJarByClass(WikiLinkCount.class);
+	job.setJobName("SplunkEventReader");
+	// JobConf conf = new JobConf(WikiLinkCount.class);
+	// conf.setJobName("SplunkEventReader");
+	job.setOutputKeyClass(Text.class);
+	job.setOutputValueClass(NullWritable.class);
 
-	conf.setMapperClass(Map.class);
+	job.setMapperClass(SplunkEventReaderMap.class);
 
-	conf.setInputFormat(com.splunk.shep.mapred.lib.rest.SplunkEventsInputFormat.class);
-	conf.setOutputFormat(TextOutputFormat.class);
+	job.setInputFormatClass(SplunkEventsInputFormat.class);
+	job.setOutputFormatClass(TextOutputFormat.class);
 
-	FileInputFormat.setInputPaths(conf, new Path(args[0]));
-	FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+	FileInputFormat.setInputPaths(job, new Path(args[0]));
+	FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
-	JobClient.runJob(conf);
+	System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
-
 }
 
 class FEvent {

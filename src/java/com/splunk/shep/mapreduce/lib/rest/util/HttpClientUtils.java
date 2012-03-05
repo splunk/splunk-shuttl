@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.mapred.lib.rest.util;
+package com.splunk.shep.mapreduce.lib.rest.util;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;

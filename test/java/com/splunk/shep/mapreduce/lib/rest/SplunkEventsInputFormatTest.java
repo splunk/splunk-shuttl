@@ -1,5 +1,6 @@
-package com.splunk.shep.mapred.lib.rest;
+package com.splunk.shep.mapreduce.lib.rest;
 
+import static org.junit.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
@@ -8,21 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
@@ -30,8 +28,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.mapred.lib.rest.tests.WikiLinkCount;
-import com.splunk.shep.mapreduce.lib.rest.MapRedRestTestConstants;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 
@@ -55,7 +51,7 @@ public class SplunkEventsInputFormatTest {
 
     @Test(groups = { "slow" })
     public void should_getExpectedOutput_when_havingSplunkEventsInputFormat_as_inputFormat()
-	    throws IOException {
+	    throws IOException, InterruptedException, ClassNotFoundException {
 	putFilesOnHadoop();
 
 	runMapReduceJob();
@@ -83,24 +79,25 @@ public class SplunkEventsInputFormatTest {
 		+ fileName);
     }
 
-    private void runMapReduceJob() throws IOException {
+    private void runMapReduceJob() throws IOException, InterruptedException,
+	    ClassNotFoundException {
+	Job job = new Job();
+	Configuration conf = job.getConfiguration();
+	job.setJobName(this.getClass().getSimpleName());
+	job.setOutputKeyClass(Text.class);
+	job.setOutputValueClass(NullWritable.class);
 
-	JobConf conf = new JobConf(WikiLinkCount.class);
-	conf.setJobName(this.getClass().getSimpleName());
-	conf.setOutputKeyClass(Text.class);
-	conf.setOutputValueClass(NullWritable.class);
+	job.setMapperClass(Map.class);
 
-	conf.setMapperClass(Map.class);
-
-	conf.setInputFormat(com.splunk.shep.mapred.lib.rest.SplunkEventsInputFormat.class);
-	conf.setOutputFormat(TextOutputFormat.class);
+	job.setInputFormatClass(SplunkEventsInputFormat.class);
+	job.setOutputFormatClass(TextOutputFormat.class);
 
 	Path pathForFirst = putter.getPathForFile(getFirstFile());
 	Path pathForSecondFile = putter.getPathForFile(getSecondFile());
-	FileInputFormat.setInputPaths(conf, pathForFirst, pathForSecondFile);
-	FileOutputFormat.setOutputPath(conf, getOutputPath());
+	FileInputFormat.setInputPaths(job, pathForFirst, pathForSecondFile);
+	FileOutputFormat.setOutputPath(job, getOutputPath());
 
-	JobClient.runJob(conf);
+	assertTrue(job.waitForCompletion(true));
     }
 
     private Path getOutputPath() {
@@ -110,7 +107,7 @@ public class SplunkEventsInputFormatTest {
     private void verifyOutput() throws IOException {
 	List<String> expectedLines = getExpectedLines();
 	FSDataInputStream inputStream = fileSystem.open(new Path(
-		getOutputPath(), "part-00000"));
+		getOutputPath(), "part-r-00000"));
 	List<String> readLines = IOUtils.readLines(inputStream);
 	assertEquals(readLines, expectedLines);
     }
@@ -141,17 +138,17 @@ public class SplunkEventsInputFormatTest {
 	return expectedLines;
     }
 
-    public static class Map extends MapReduceBase implements
+    public static class Map extends
 	    Mapper<LongWritable, Text, Text, NullWritable> {
 
-	public void map(LongWritable key, Text value,
-		OutputCollector<Text, NullWritable> output, Reporter reporter)
+	@Override
+	public void map(LongWritable key, Text value, Context context)
 		throws IOException {
 	    NullWritable nullwr = NullWritable.get();
 	    try {
 		FEvent event = getEventObject(value.toString());
 		value.set(event.getBody());
-		output.collect(value, nullwr);
+		context.write(value, nullwr);
 	    } catch (Exception e) {
 		throw new IOException(e);
 	    }

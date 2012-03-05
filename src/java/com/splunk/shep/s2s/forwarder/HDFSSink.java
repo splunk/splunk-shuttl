@@ -39,11 +39,12 @@ import com.splunk.shep.s2s.DataSink;
 
 public class HDFSSink implements DataSink {
     public static final long HadoopFileSize = 63000000;
+    public static final int MaxDataLoggingSize = 100000;
     private String ip = new String("localhost");
     private String port = new String("54310");
     private String path = new String("/spl");
 
-    private Configuration conf = new Configuration();
+    private Configuration conf = null;
     private FileSystem fileSystem = null;
     private Path destination = null;
     private FSDataOutputStream ofstream = null;
@@ -59,7 +60,7 @@ public class HDFSSink implements DataSink {
     private String currentFilePath = new String("");
     private String myname;
 
-    private Logger logger = Logger.getLogger(getClass());
+    private static Logger logger = Logger.getLogger(HDFSSink.class);
 
     public HDFSSink() {
     }
@@ -121,11 +122,15 @@ public class HDFSSink implements DataSink {
 	init();
     }
 
-    private void init() throws Exception {
+    public void init() throws Exception {
 	try {
-	    conf = new Configuration();
+	    if (conf == null) {
+		conf = new Configuration();
+	    }
 	    String uri = new String("hdfs://") + ip + ':' + port;
-	    fileSystem = FileSystem.get(URI.create(uri), conf);
+	    if (fileSystem == null) {
+		fileSystem = FileSystem.get(URI.create(uri), conf);
+	    }
 	} catch (Exception e) {
 	    logger.error("Exception in setting HDFS configuration: "
 		    + e.toString());
@@ -166,9 +171,10 @@ public class HDFSSink implements DataSink {
 	    logger.info("Write to: " + currentFilePath);
 
 	} catch (Exception e) {
-	    logger.error("Exception in setting Hadoop connection: "
-		    + e.toString() + "\nStacktrace:\n"
-		    + e.getStackTrace().toString());
+	    logger.error(
+		    "Exception in setting Hadoop connection: " + e.toString()
+			    + "\nStacktrace:\n" + e.getStackTrace().toString(),
+		    e);
 	}
     }
 
@@ -309,8 +315,16 @@ public class HDFSSink implements DataSink {
 	    logger.info("Appending disabled.");
     }
 
+    public void setPort(String port) {
+	this.port = port;
+    }
+
     public String getPort() {
 	return port;
+    }
+
+    public void setIp(String ip) {
+	this.ip = ip;
     }
 
     public String getIp() {
@@ -471,6 +485,7 @@ public class HDFSSink implements DataSink {
     public void send(byte[] rawBytes, String sourceType, String source,
 	    String host, long time) throws Exception {
 	String msg = new String(rawBytes);
+	logger.trace("msg: " + msg);
 	write(msg, sourceType, source, host, time);
 	checkFileSize();
     }
@@ -479,24 +494,13 @@ public class HDFSSink implements DataSink {
 	    String host, long time) throws Exception {
 	String message = HDFSEvent.build(rawBytes, sourceType, source, host,
 		time);
-	logger.debug("Sending " + message);
-
-	if (ofstream == null) {
-	    logger.warn("Cannot write: need to set connection.");
-	    start();
-
-	    if (ofstream == null) {
-		logger.error("Failed writing data: connection not set.");
-		return;
-	    }
-	}
-
-	write(message);
+	writeToHDFS(message);
     }
 
     // Implementation of DataSink interface method.
     public void send(String data, String sourceType, String source,
 	    String host, long time) throws Exception {
+	logger.trace("data: " + data);
 	write(data, sourceType, source, host, time);
 	checkFileSize();
     }
@@ -504,6 +508,10 @@ public class HDFSSink implements DataSink {
     public void write(String data, String sourceType, String source,
 	    String host, long time) throws Exception {
 	String message = HDFSEvent.build(data, sourceType, source, host, time);
+	writeToHDFS(message);
+    }
+
+    private void writeToHDFS(String message) throws Exception {
 	logger.debug("Sending " + message);
 
 	if (ofstream == null) {
@@ -511,7 +519,15 @@ public class HDFSSink implements DataSink {
 	    start();
 
 	    if (ofstream == null) {
-		logger.error("Failed writing data: connection not set.");
+		if (message.length() > MaxDataLoggingSize) {
+		    logger.error("Failed connecting hdfs - dropped data (size="
+			    + message.length() + "): "
+			    + message.substring(0, MaxDataLoggingSize - 1)
+			    + " ...");
+		} else {
+		    logger.error("Failed connecting hdfs - dropped data (size="
+			    + message.length() + "): " + message);
+		}
 		return;
 	    }
 	}
@@ -528,6 +544,13 @@ public class HDFSSink implements DataSink {
 	} catch (IOException e) {
 	    logger.error("IOException during sending data: " + e.toString()
 		    + "\nStacktrace:\n" + e.getStackTrace().toString());
+	    if (data.length() > MaxDataLoggingSize) {
+		logger.error("Dropped data (size=" + data.length() + "): "
+			+ data.substring(0, MaxDataLoggingSize - 1) + " ...");
+	    } else {
+		logger.error("Dropped data (size=" + data.length() + "): "
+			+ data);
+	    }
 	}
     }
 
@@ -546,7 +569,8 @@ public class HDFSSink implements DataSink {
 	    start();
 
 	    if (ofstream == null) {
-		logger.error("Failed writing data: connection not set.");
+		logger.error("Failed writing data of " + rawBytes.length
+			+ " bytes: HDFS connection not set.");
 		return;
 	    }
 	}
@@ -585,7 +609,7 @@ public class HDFSSink implements DataSink {
 
     // Read a line of current file.
     // Return null if end of data.
-    private String readLine() {
+    public String readLine() {
 	try {
 	    if (ifstream == null)
 		setInputFile();
@@ -612,7 +636,7 @@ public class HDFSSink implements DataSink {
 	} catch (Exception e) {
 	    logger.error("IOException in reading hdfs file " + path + ": "
 		    + e.toString() + "\nStacktrace\n"
-		    + e.getStackTrace().toString());
+			    + e.getStackTrace().toString(), e);
 	}
 
 	return msg;
@@ -656,7 +680,7 @@ public class HDFSSink implements DataSink {
 	
 	for (int i = 0; i < 60; i++) {
 	    String msg = "Message line " + i;
-	    System.out.println("Sending msg: " + msg);
+	    logger.info("Sending msg: " + msg);
 	    writter.send(msg, "HdfsIO main", "HDFS IO", "localhost",
 			999888);
 	    Thread.sleep(10000);
@@ -723,6 +747,38 @@ public class HDFSSink implements DataSink {
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	}
+    }
+
+    public Configuration getConf() {
+	return conf;
+    }
+
+    public void setConf(Configuration conf) {
+	this.conf = conf;
+    }
+
+    public FileSystem getFileSystem() {
+	return fileSystem;
+    }
+
+    public void setFileSystem(FileSystem fileSystem) {
+	this.fileSystem = fileSystem;
+    }
+
+    public String getPath() {
+	return path;
+    }
+
+    public void setPath(String path) {
+	this.path = path;
+    }
+
+    public Path getDestination() {
+	return destination;
+    }
+
+    public void setDestination(Path destination) {
+	this.destination = destination;
     }
 
     public static void main(String[] args) throws IOException {

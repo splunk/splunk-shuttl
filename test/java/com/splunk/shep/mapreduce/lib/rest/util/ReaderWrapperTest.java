@@ -1,4 +1,4 @@
-package com.splunk.shep.mapred.lib.rest.util;
+package com.splunk.shep.mapreduce.lib.rest.util;
 
 import static org.testng.Assert.assertEquals;
 
@@ -7,8 +7,8 @@ import java.io.StringReader;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.mapred.lib.rest.util.ContentReader;
-import com.splunk.shep.mapred.lib.rest.util.ReaderWrapper;
+import com.splunk.shep.mapreduce.lib.rest.util.ContentReader;
+import com.splunk.shep.mapreduce.lib.rest.util.ReaderWrapper;
 
 public class ReaderWrapperTest {
 

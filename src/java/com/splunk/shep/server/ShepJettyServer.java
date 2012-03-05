@@ -17,9 +17,12 @@ package com.splunk.shep.server;
 import java.io.File;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.xml.XmlConfiguration;
+
+import com.splunk.shep.server.mbeans.ShepServer;
 
 /**
  * Main class that starts up Shep with the integrated Jetty server
@@ -36,6 +39,17 @@ public class ShepJettyServer {
 		    "../jetty/shep.xml").toURL());
 	    configuration.configure(server);
 	    server.setHandler(new WebAppContext("../webapps/shep", "/shep"));
+	    ShepServer servermbean = new ShepServer();
+	    Connector connectors[] = server.getConnectors();
+	    for (Connector c : connectors) {
+		logger.debug("Connector Name: " + c.getName());
+		logger.debug("  host: " + c.getHost());
+		logger.debug("  port: " + c.getPort());
+		if (c.getName().equals("Splunk.Shep.Http")) {
+		    c.setHost(servermbean.getHttpHost());
+		    c.setPort(servermbean.getHttpPort());
+		}
+	    }
 	    server.start();
 	} catch (Exception e) {
 	    logger.error("Error during startup", e);
