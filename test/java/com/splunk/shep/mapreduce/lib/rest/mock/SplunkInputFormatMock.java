@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.mapred.lib.rest.mock;
+package com.splunk.shep.mapreduce.lib.rest.mock;
 
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
@@ -30,16 +30,16 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.mapred.InputSplit;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.RecordReader;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import com.splunk.Args;
 import com.splunk.Service;
-import com.splunk.shep.mapred.lib.rest.SplunkInputFormat;
 import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
+import com.splunk.shep.mapreduce.lib.rest.SplunkInputFormat;
 import com.splunk.shep.mapreduce.lib.rest.SplunkWritable;
 import com.splunk.shep.mapreduce.lib.rest.SplunkXMLStream;
 
@@ -80,8 +80,6 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
     private static void mockOneShotDataToSplunk(String index,
 	    List<HashMap<String, String>> values) {
 	splunkIndices.put(index, values);
-	System.err.println("mockOneShotDataToSplunk.splunkIndices:"
-		+ splunkIndices);
     }
 
     private static HashMap<String, String> mockValue(String text, String time)
@@ -113,10 +111,9 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
     }
 
     protected class SplunkRecordReaderMock extends SplunkRecordReader {
-	protected SplunkRecordReaderMock(
-		com.splunk.shep.mapred.lib.rest.SplunkInputFormat.SplunkInputSplit split,
-		Class<V> inputClass, JobConf job) {
-	    super(split, inputClass, job);
+	protected SplunkRecordReaderMock(SplunkInputSplit split,
+		Class<V> inputClass, Configuration conf) {
+	    super(split, inputClass, conf);
 	}
 
 	@Override
@@ -143,12 +140,11 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
 	}
 
 	private SplunkXMLStream mockParser() throws IOException, ParseException {
-	    String query = job.get(SplunkConfiguration.QUERY);
+	    String query = conf.get(SplunkConfiguration.QUERY);
 	    parser = mock(SplunkXMLStream.class);
 	    if (QUERY1.equals(query)) {
 		HashMap<String, String>[] values = (HashMap<String, String>[]) splunkIndices
 			.get(MAIN_INDEX).toArray();
-		System.err.println("values:" + Arrays.toString(values));
 		HashMap<String, String> value0 = values[0];
 		HashMap[] moreValues = new HashMap[values.length];
 		for (int i = 1; i < values.length; i++) {
@@ -169,15 +165,15 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
     }
 
     @Override
-    public RecordReader<LongWritable, V> getRecordReader(InputSplit split,
-	    JobConf job, Reporter arg2) throws IOException {
+    public RecordReader<LongWritable, V> createRecordReader(InputSplit split,
+	    TaskAttemptContext context) throws IOException,
+	    InterruptedException {
 	try {
-	    Class inputClass = Class.forName(job
+	    Configuration conf = context.getConfiguration();
+	    Class inputClass = Class.forName(conf
 		    .get(SplunkConfiguration.SPLUNKEVENTREADER));
-	    System.err.println("getRecordReader.splunkIndices.size="
-		    + SplunkInputFormatMock.splunkIndices.size());
 	    return new SplunkRecordReaderMock((SplunkInputSplit) split,
-		    inputClass, job);
+		    inputClass, conf);
 	} catch (Exception ex) {
 	    LOG.error(ex);
 	    throw new IOException(ex.getMessage());

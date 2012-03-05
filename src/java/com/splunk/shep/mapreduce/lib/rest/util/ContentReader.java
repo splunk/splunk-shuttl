@@ -1,4 +1,4 @@
-package com.splunk.shep.mapred.lib.rest.util;
+package com.splunk.shep.mapreduce.lib.rest.util;
 
 import java.io.IOException;
 import java.io.Reader;

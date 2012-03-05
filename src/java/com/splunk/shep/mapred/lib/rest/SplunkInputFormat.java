@@ -37,6 +37,9 @@ import org.apache.log4j.Logger;
 
 import com.splunk.Args;
 import com.splunk.Service;
+import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
+import com.splunk.shep.mapreduce.lib.rest.SplunkWritable;
+import com.splunk.shep.mapreduce.lib.rest.SplunkXMLStream;
 
 /**
  * This InputFormat uses a search to pull data from Splunk No progress is
@@ -52,10 +55,11 @@ public class SplunkInputFormat<V extends SplunkWritable> implements
     private static Logger logger = Logger.getLogger(SplunkInputFormat.class);
 
     protected class SplunkRecordReader implements RecordReader<LongWritable, V> {
-	protected Class<V> inputClass;
+	private Class<V> inputClass;
+	private SplunkInputSplit split;
+	private long pos = 0;
+
 	protected JobConf job;
-	protected SplunkInputSplit split;
-	protected long pos = 0;
 	protected SplunkXMLStream parser = null;
 	protected Service service;
 	protected Args queryArgs;

@@ -1,4 +1,4 @@
-package com.splunk.shep.mapred.lib.rest;
+package com.splunk.shep.mapreduce.lib.rest;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -28,7 +28,7 @@ public class SplunkXMLStreamTest {
     }
 
     private File getTestXMLFile() {
-	String splunkSearchResultsXMLPath = "test/java/com/splunk/shep/mapred/lib/rest/SplunkSearchResults.xml";
+	String splunkSearchResultsXMLPath = "test/java/com/splunk/shep/mapreduce/lib/rest/SplunkSearchResults.xml";
 	String osSafePathToXML = splunkSearchResultsXMLPath.replaceAll("/", ""
 		+ File.separatorChar);
 	return new File(osSafePathToXML);
