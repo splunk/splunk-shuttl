@@ -29,4 +29,11 @@ JKSNMAPR=`ls ../lib/jackson-mapper-asl*.jar`
 LOG4J=`ls ../lib/log4j*.jar`
 SPLUNK_JARS=./*
 HADOOP_LAUNCH_JARS=$CMNSHTTP:$JKSNCORE:$JKSNMAPR:$LOG4J
-$JAVA_HOME/bin/java -cp $HADOOP_CLIENT_JARS:$HADOOP_LAUNCH_JARS:$SPLUNK_JARS $@
+
+if [ "$JAVA_HOME" = "" ]; then
+  JAVA=java #Rely on that java is in path.
+else
+  JAVA="$JAVA_HOME"/bin/java #Use JAVA_HOME.
+fi
+
+$JAVA -cp $HADOOP_CLIENT_JARS:$HADOOP_LAUNCH_JARS:$SPLUNK_JARS $@
