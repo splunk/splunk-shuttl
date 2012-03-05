@@ -33,7 +33,6 @@ public class WordCount {
 
 	public void map(LongWritable key, Text value, Context context)
 		throws IOException, InterruptedException {
-	    System.out.println("key:" + key + ", value:" + value);
 	    StringTokenizer itr = new StringTokenizer(value.toString());
 	    while (itr.hasMoreTokens()) {
 		word.set(itr.nextToken());
@@ -48,7 +47,6 @@ public class WordCount {
 
 	public void reduce(Text key, Iterable<IntWritable> values,
 		Context context) throws IOException, InterruptedException {
-	    System.out.println("key:" + key + ", values:" + values);
 	    int sum = 0;
 	    for (IntWritable val : values) {
 		sum += val.get();

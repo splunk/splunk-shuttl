@@ -8,17 +8,13 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -28,6 +24,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.Service;
+import com.splunk.shep.mapreduce.lib.rest.tests.WordCount;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
@@ -87,9 +84,7 @@ public class SplunkOutputFormatTest {
 	    ClassNotFoundException {
 	Job mapReduceJob = getConfiguredJob();
 	configureJobInputAndOutputPaths(mapReduceJob);
-	System.out.println("going to run job");
 	assertTrue(mapReduceJob.waitForCompletion(true));
-	System.out.println("job finished");
     }
 
     private Job getConfiguredJob() throws IOException {
@@ -100,10 +95,11 @@ public class SplunkOutputFormatTest {
 		testParameters.mgmtPort, testParameters.username,
 		testParameters.password);
 
+	job.setJarByClass(WordCount.class);
 	job.setOutputKeyClass(Text.class);
 	job.setOutputValueClass(IntWritable.class);
-	job.setMapperClass(TokenizerMapper.class);
-	job.setReducerClass(IntSumReducer.class);
+	job.setMapperClass(WordCount.TokenizerMapper.class);
+	job.setReducerClass(WordCount.IntSumReducer.class);
 	job.setInputFormatClass(TextInputFormat.class);
 	job.setOutputFormatClass(SplunkOutputFormat.class);
 
@@ -183,39 +179,6 @@ public class SplunkOutputFormatTest {
 	expectedWordCountResults.add("Hello 2");
 	expectedWordCountResults.add("World 2");
 	return expectedWordCountResults;
-    }
-
-    private static class TokenizerMapper extends
-	    Mapper<LongWritable, Text, Text, IntWritable> {
-
-	private final static IntWritable one = new IntWritable(1);
-	private Text word = new Text();
-
-	public void map(LongWritable key, Text value, Context context)
-		throws IOException, InterruptedException {
-	    System.out.println("key:" + key + ", value:" + value);
-	    StringTokenizer itr = new StringTokenizer(value.toString());
-	    while (itr.hasMoreTokens()) {
-		word.set(itr.nextToken());
-		context.write(word, one);
-	    }
-	}
-    }
-
-    private static class IntSumReducer extends
-	    Reducer<Text, IntWritable, Text, IntWritable> {
-	private IntWritable result = new IntWritable();
-
-	public void reduce(Text key, Iterable<IntWritable> values,
-		Context context) throws IOException, InterruptedException {
-	    System.out.println("key:" + key + ", values:" + values);
-	    int sum = 0;
-	    for (IntWritable val : values) {
-		sum += val.get();
-	    }
-	    result.set(sum);
-	    context.write(key, result);
-	}
     }
 
 }
