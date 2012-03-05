@@ -570,14 +570,14 @@
 	</target>
 
 	<!-- Stop, copy and start -->
-	<target name="hadoop-boot">
+	<target name="hadoop-boot" depends="set-hadoop-home">
 		<antcall>
 			<target name="hadoop-start" />
 			<target name="hadoop-unsafe-mode" />
 		</antcall>
 	</target>
 
-	<target name="hadoop-stop">
+	<target name="hadoop-stop" depends="set-hadoop-home">
 		<exec executable="${hadoop.home}/bin/stop-all.sh" osfamily="unix" />
 	</target>
 
