@@ -13,6 +13,7 @@ import com.splunk.shep.archiver.archive.BucketFormat;
  */
 public class Bucket {
 
+    private final BucketFormat format;
     private final File directory;
     private final String indexName;
 
@@ -33,6 +34,7 @@ public class Bucket {
 	verifyExistingDirectory(directory);
 	this.directory = directory;
 	this.indexName = indexName;
+	this.format = BucketFormat.getFormatFromDirectory(directory);
     }
 
     /**
@@ -77,17 +79,6 @@ public class Bucket {
     }
 
     public BucketFormat getFormat() {
-	return getFormatFromDirectory(directory);
-    }
-
-    private BucketFormat getFormatFromDirectory(File directory) {
-	File rawdataInDirectory = new File(directory, "rawdata");
-	BucketFormat format;
-	if (rawdataInDirectory.exists()) {
-	    format = BucketFormat.SPLUNK_BUCKET;
-	} else {
-	    format = BucketFormat.UNKNOWN;
-	}
 	return format;
     }
 

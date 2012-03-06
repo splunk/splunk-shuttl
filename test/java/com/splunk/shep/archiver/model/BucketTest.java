@@ -1,5 +1,6 @@
 package com.splunk.shep.archiver.model;
 
+import static com.splunk.shep.testutil.UtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -200,5 +201,14 @@ public class BucketTest {
 	Bucket bucket1 = new Bucket(index, absolutePath);
 	Bucket bucket2 = new Bucket(index, absolutePath);
 	assertEquals(bucket1, bucket2);
+    }
+
+    public void getFormat_afterHaveBeingMoved_returnTheSameValueAsBeforeTheMove()
+	    throws IOException {
+	rootTestDirectory = createTempDirectory();
+	Bucket bucket = UtilsBucket.createTestBucket();
+	BucketFormat format = bucket.getFormat();
+	bucket.moveBucketToDir(rootTestDirectory);
+	assertEquals(format, bucket.getFormat());
     }
 }
