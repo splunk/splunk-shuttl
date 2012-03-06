@@ -97,9 +97,9 @@ public class BucketFreezer {
 	    handleResponseCodeFromDoingArchiveBucketRequest(response
 		    .getStatusLine().getStatusCode(), bucket);
 	} catch (ClientProtocolException e) {
-	    hadleIOExceptionGenereratedByDoingArchiveBucketRequest(e);
+	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e);
 	} catch (IOException e) {
-	    hadleIOExceptionGenereratedByDoingArchiveBucketRequest(e);
+	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e);
 	}
     }
 
@@ -127,12 +127,14 @@ public class BucketFreezer {
 	} catch (FileNotFoundException e) {
 	    did("Move bucket to directory to failed buckets location",
 		    "Got FileNotFoundException: " + e, "move to succeed",
-		    "failed_buckets_location", failedBucketsLocation);
+		    "failed_buckets_location", failedBucketsLocation,
+		    "exception", e);
 	    throw new RuntimeException(e);
 	} catch (FileNotDirectoryException e) {
 	    did("Move bucket to directory to failed buckets location",
 		    "Got FileNotDirectoryException: " + e, "move to succeed",
-		    "failed_buckets_location", failedBucketsLocation);
+		    "failed_buckets_location", failedBucketsLocation,
+		    "exception", e);
 	    throw new RuntimeException(e);
 	}
     }
@@ -147,13 +149,13 @@ public class BucketFreezer {
 	return file;
     }
 
-    private void hadleIOExceptionGenereratedByDoingArchiveBucketRequest(
+    private void handleIOExceptionGenereratedByDoingArchiveBucketRequest(
 	    IOException e) {
-	did("ArchiveBucket request generated unhadled IOException",
-		"Exception", e);
+	did("Archive bucket request", "got IOException", "request to succeed",
+		"exception", e);
 	// TODO this method should handle the errors in case the bucket transfer
 	// fails. In this state there is no way of telling if the bucket was
-	// actually trasfered or not.
+	// actually transfered or not.
 	throw new RuntimeException("Got IOException" + e);
     }
 
