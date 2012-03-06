@@ -90,5 +90,4 @@ public class UtilsBucket {
 		randomBucketName());
 	return formatDirectoryToBeABucket(child);
     }
-
 }
