@@ -114,10 +114,7 @@ public class BucketFreezerTest {
 	    throws IOException {
 	File safeLocationDirectory = null;
 	try {
-	    String safeLocation = System.getProperty("user.home") + "/"
-		    + getClass().getName();
-	    safeLocationDirectory = new File(safeLocation);
-	    assertTrue(!safeLocationDirectory.exists());
+	    safeLocationDirectory = UtilsFile.createTempDirectory();
 
 	    BucketFreezer bucketFreezer = new BucketFreezer(
 		    safeLocationDirectory.getAbsolutePath(),
@@ -134,7 +131,34 @@ public class BucketFreezerTest {
 	    assertTrue(safeLocationDirectory.exists());
 	    assertTrue(isDirectoryWithChildren(safeLocationDirectory));
 	} finally {
-	    FileUtils.deleteDirectory(safeLocationDirectory);
+	    if (safeLocationDirectory != null) {
+		FileUtils.deleteDirectory(safeLocationDirectory);
+	    }
+	}
+    }
+
+    public void freezeBucket_givenNonExistingSafeLocation_createSafeLocation()
+	    throws IOException {
+	File nonExistingSafeLocation = null;
+	try {
+	    String safeLocation = System.getProperty("user.home") + "/"
+		    + getClass().getName();
+	    nonExistingSafeLocation = new File(safeLocation);
+	    assertTrue(!nonExistingSafeLocation.exists());
+	    BucketFreezer bucketFreezer = new BucketFreezer(safeLocation,
+		    okReturningHttpClient);
+	    File dirToBeMoved = createTestDirectory();
+
+	    // Test
+	    bucketFreezer.freezeBucket(dirToBeMoved.getAbsolutePath());
+
+	    // Verify
+	    assertTrue(!dirToBeMoved.exists());
+	    assertTrue(nonExistingSafeLocation.exists());
+	} finally {
+	    if (nonExistingSafeLocation != null) {
+		FileUtils.deleteDirectory(nonExistingSafeLocation);
+	    }
 	}
     }
 
