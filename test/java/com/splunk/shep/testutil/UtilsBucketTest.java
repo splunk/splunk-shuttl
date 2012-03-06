@@ -78,4 +78,10 @@ public class UtilsBucketTest {
 		    .failForException("Coudn't create a valid bucket dir", e);
 	}
     }
+
+    public void createBucketInDirectory_givenDirectory_createsBucketInThatDirectory() {
+	File parent = UtilsFile.createTempDirectory();
+	Bucket bucketCreated = UtilsBucket.createBucketInDirectory(parent);
+	assertEquals(parent, bucketCreated.getDirectory().getParentFile());
+    }
 }

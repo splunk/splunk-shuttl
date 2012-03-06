@@ -38,8 +38,13 @@ public class UtilsBucket {
      */
     public static Bucket createTestBucketWithIndexAndName(String index,
 	    String bucketName) {
-	Bucket testBucket = null;
 	File bucketDir = createFileFormatedAsBucket(bucketName);
+	return createBucketWithIndexInDirectory(index, bucketDir);
+    }
+
+    private static Bucket createBucketWithIndexInDirectory(String index,
+	    File bucketDir) {
+	Bucket testBucket = null;
 	try {
 	    testBucket = new Bucket(index, bucketDir);
 	} catch (Exception e) {
@@ -50,7 +55,6 @@ public class UtilsBucket {
 	AssertJUnit.assertNotNull(testBucket);
 
 	return testBucket;
-
     }
 
     /**
@@ -58,8 +62,33 @@ public class UtilsBucket {
      */
     public static File createFileFormatedAsBucket(String bucketName) {
 	File bucketDir = UtilsFile.createTmpDirectoryWithName(bucketName);
+	return formatDirectoryToBeABucket(bucketDir);
+    }
+
+    private static File formatDirectoryToBeABucket(File bucketDir) {
 	UtilsFile.createDirectoryInParent(bucketDir, "rawdata");
 	return bucketDir;
+    }
+
+    /**
+     * @param parent
+     *            directory to create bucket in.
+     * @return bucket created in parent.
+     */
+    public static Bucket createBucketInDirectory(File parent) {
+	File bucketDir = createFileFormatedAsBucketInDirectory(parent);
+	return createBucketWithIndexInDirectory(randomIndexName(), bucketDir);
+    }
+
+    /**
+     * @param parent
+     *            to create the bucket in.
+     * @return File with the format of a bucket
+     */
+    private static File createFileFormatedAsBucketInDirectory(File parent) {
+	File child = UtilsFile.createDirectoryInParent(parent,
+		randomBucketName());
+	return formatDirectoryToBeABucket(child);
     }
 
 }
