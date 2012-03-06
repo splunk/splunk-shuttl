@@ -144,7 +144,8 @@ public class UtilsFile {
      */
     public static File createDirectoryInParent(File parent, String string) {
 	File child = new File(parent, string);
-	child.mkdir();
+	AssertJUnit.assertTrue("Failed to create directory: " + child,
+		child.mkdir());
 	return child;
     }
 
