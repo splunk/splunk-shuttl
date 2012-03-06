@@ -20,9 +20,22 @@ public class UtilsMockito {
      *         the execute code is called.
      */
     public static HttpClient createAlwaysOKReturningHTTPClientMock() {
+	return createHttpClientMockReturningHttpStatus(HttpStatus.SC_OK);
+    }
+
+    /**
+     * @return an HttpCLient that always returns HTTP OK coded responses when
+     *         the execute code is called.
+     */
+    public static HttpClient createInternalServerErrorHttpClientMock() {
+	return createHttpClientMockReturningHttpStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+    }
+
+    private static HttpClient createHttpClientMockReturningHttpStatus(
+	    int httpStatus) {
 	HttpClient httpClient = mock(HttpClient.class);
 	StatusLine statusLine = mock(StatusLine.class);
-	when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
+	when(statusLine.getStatusCode()).thenReturn(httpStatus);
 	try {
 	    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(
 		    new BasicHttpResponse(statusLine));
@@ -31,5 +44,6 @@ public class UtilsMockito {
 		    "Couldn't assign return value for execute", e);
 	}
 	return httpClient;
+
     }
 }
