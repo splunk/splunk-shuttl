@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
+import static com.splunk.shep.testutil.UtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -77,9 +78,33 @@ public class FailedBucketTransfersTest {
 	assertTrue(failedBuckets.contains(failedBucket2));
     }
 
-    /**
-     * @return
-     */
+    // This test knows too much about the inner structure of the moved buckets.
+    // The test should probably be removed if/when it fails.
+    public void moveFailedBucket_givenBucket_movedBucketTo_FailedLocation_Index_BucketName() {
+	assertTrue(isDirectoryEmpty(failedBucketLocation));
+	Bucket failedBucket = UtilsBucket.createTestBucket();
+	File movedBucket = new File(failedBucketLocation.getAbsolutePath()
+		+ File.separator + failedBucket.getIndex() + File.separator
+		+ failedBucket.getName());
+	assertTrue(!movedBucket.exists());
+
+	failedBucketTransfers.moveFailedBucket(failedBucket);
+	assertTrue(!isDirectoryEmpty(failedBucketLocation));
+	assertTrue(movedBucket.exists());
+    }
+
+    public void getFailedBuckets_afterSuccessfullyMovedABucketUsingMoveFailedBucket_getBucketThatFailedAndMoved() {
+	Bucket failedBucket = UtilsBucket.createTestBucket();
+	failedBucketTransfers.moveFailedBucket(failedBucket);
+
+	List<Bucket> failedBuckets = failedBucketTransfers.getFailedBuckets();
+	assertEquals(1, failedBuckets.size());
+	Bucket actualBucket = failedBuckets.get(0);
+	assertEquals(failedBucket.getIndex(), actualBucket.getIndex());
+	assertEquals(failedBucket.getName(), actualBucket.getName());
+	assertEquals(failedBucket.getFormat(), actualBucket.getFormat());
+    }
+
     private Bucket createFailedBucket(String index) {
 	File directoryRepresentingIndex = UtilsFile.createDirectoryInParent(
 		failedBucketLocation, index);
