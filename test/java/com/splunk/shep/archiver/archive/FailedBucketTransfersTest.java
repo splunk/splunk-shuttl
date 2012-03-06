@@ -31,7 +31,7 @@ import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsFile;
 
 @Test(groups = { "fast" })
-public class FailedBucketsHandlerTest {
+public class FailedBucketTransfersTest {
 
     FailedBucketTransfers failedBucketTransfers;
     File failedBucketLocation;
