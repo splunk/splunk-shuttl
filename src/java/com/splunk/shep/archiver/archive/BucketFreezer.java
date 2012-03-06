@@ -113,20 +113,27 @@ public class BucketFreezer {
 		    statusCode);
 	    break;
 	default:
-	    did("Got http response from archiveBucketRequest",
-		    "unhadled status code", "that the status code was handled",
+	    will("Move bucket to failed buckets location because of failed HttpStatus",
+		    "failed_buckets_location", failedBucketsLocation,
 		    "status_code", statusCode);
 	    moveBucketToFailedBucketsLocation(bucket);
 	}
     }
 
     private void moveBucketToFailedBucketsLocation(Bucket bucket) {
+	File failedBucketsLocation = getFailedBucketsLocation();
 	try {
-	    bucket.moveBucketToDir(getFailedBucketsLocation());
+	    bucket.moveBucketToDir(failedBucketsLocation);
 	} catch (FileNotFoundException e) {
-	    e.printStackTrace();
+	    did("Move bucket to directory to failed buckets location",
+		    "Got FileNotFoundException: " + e, "move to succeed",
+		    "failed_buckets_location", failedBucketsLocation);
+	    throw new RuntimeException(e);
 	} catch (FileNotDirectoryException e) {
-	    e.printStackTrace();
+	    did("Move bucket to directory to failed buckets location",
+		    "Got FileNotDirectoryException: " + e, "move to succeed",
+		    "failed_buckets_location", failedBucketsLocation);
+	    throw new RuntimeException(e);
 	}
     }
 
