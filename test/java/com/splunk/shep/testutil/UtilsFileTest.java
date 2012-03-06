@@ -91,4 +91,31 @@ public class UtilsFileTest {
 	assertTrue(file.isDirectory());
 	assertEquals("this is the name of the file", file.getName());
     }
+
+    public void isDirectoryEmpty_givenNewTempDirectory_empty() {
+	File tempDirectory = UtilsFile.createTempDirectory();
+	assertTrue(UtilsFile.isDirectoryEmpty(tempDirectory));
+    }
+
+    public void isDirectoryEmpty_givenDirectoryWithAChildDirectory_notEmpty()
+	    throws IOException {
+	File dirWithChildDir = UtilsFile.createTempDirectory();
+	try {
+	    UtilsFile.createDirectoryInParent(dirWithChildDir, "childDir");
+	    assertTrue(!UtilsFile.isDirectoryEmpty(dirWithChildDir));
+	} finally {
+	    FileUtils.deleteDirectory(dirWithChildDir);
+	}
+    }
+
+    public void isDirectoryEmpty_givenDirectoryWithAChildFile_notEmpty()
+	    throws IOException {
+	File dirWithChildFile = UtilsFile.createTempDirectory();
+	try {
+	    UtilsFile.createFileInParent(dirWithChildFile, "childFile");
+	    assertTrue(!UtilsFile.isDirectoryEmpty(dirWithChildFile));
+	} finally {
+	    FileUtils.deleteDirectory(dirWithChildFile);
+	}
+    }
 }

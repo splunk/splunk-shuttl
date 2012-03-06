@@ -1,11 +1,11 @@
 package com.splunk.shep.archiver.archive;
 
+import static com.splunk.shep.testutil.UtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
@@ -130,7 +130,7 @@ public class BucketFreezerTest {
 	    // Verify
 	    assertTrue(!dirToBeMoved.exists());
 	    assertTrue(safeLocationDirectory.exists());
-	    assertTrue(isDirectoryWithChildren(safeLocationDirectory));
+	    assertTrue(!isDirectoryEmpty(safeLocationDirectory));
 	} finally {
 	    if (safeLocationDirectory != null) {
 		FileUtils.deleteDirectory(safeLocationDirectory);
@@ -165,12 +165,12 @@ public class BucketFreezerTest {
 	    BucketFreezer bucketFreezer = new BucketFreezer(getSafeLocation(),
 		    failingHttpClient, failedBucketLocation.getAbsolutePath());
 	    File dirToBeMoved = createTestDirectory();
-	    assertFalse(isDirectoryWithChildren(failedBucketLocation));
+	    assertFalse(!isDirectoryEmpty(failedBucketLocation));
 
 	    // Test
 	    bucketFreezer.freezeBucket("index", dirToBeMoved.getAbsolutePath());
 
-	    assertTrue(isDirectoryWithChildren(failedBucketLocation));
+	    assertTrue(!isDirectoryEmpty(failedBucketLocation));
 	} finally {
 	    if (failedBucketLocation != null) {
 		FileUtils.deleteDirectory(failedBucketLocation);
@@ -200,12 +200,6 @@ public class BucketFreezerTest {
 		FileUtils.deleteDirectory(nonExistingLocation);
 	    }
 	}
-    }
-
-    private boolean isDirectoryWithChildren(File directory) {
-	File[] listFiles = directory.listFiles();
-	System.out.println(Arrays.toString(listFiles));
-	return listFiles.length > 0;
     }
 
     /**

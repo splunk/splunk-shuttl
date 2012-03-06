@@ -1,5 +1,7 @@
 package com.splunk.shep.testutil;
 
+import static org.testng.AssertJUnit.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -193,5 +195,14 @@ public class UtilsFile {
 	}
 	newFile.deleteOnExit();
 	return newFile;
+    }
+
+    /**
+     * @return wether or not the directory has files in it.
+     */
+    public static boolean isDirectoryEmpty(File directory) {
+	assertTrue(directory.isDirectory());
+	File[] listFiles = directory.listFiles();
+	return listFiles.length == 0;
     }
 }
