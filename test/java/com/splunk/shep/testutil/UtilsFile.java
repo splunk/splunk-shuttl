@@ -86,8 +86,24 @@ public class UtilsFile {
      */
     public static File createTempDirectory() {
 	File dir = createNonExistingDirectory();
-	createTempDirectory(dir);
+	createDirectory(dir);
 	return dir;
+    }
+
+    /**
+     * Creates a directory by first invoking createTempDirectory() and then
+     * creating a new directory inside that with specified name. This is done
+     * the prevent collisions when same name is used.
+     * 
+     * @param name
+     *            The name of the directory to be created.
+     * @return A directory with specified name that will be removed on JVM exit
+     */
+    public static File createTmpDirectoryWithName(String name) {
+	File tmpDirectory = new File(createTempDirectory(), name);
+	createDirectory(tmpDirectory);
+	tmpDirectory.deleteOnExit();
+	return tmpDirectory;
     }
 
     private static File createNonExistingDirectory() {
@@ -105,7 +121,7 @@ public class UtilsFile {
 	return dir;
     }
 
-    private static void createTempDirectory(File dir) {
+    private static void createDirectory(File dir) {
 	if (!dir.mkdir()) {
 	    UtilsTestNG.failForException(
 		    "Could not create directory: " + dir.getAbsolutePath(),
@@ -128,7 +144,7 @@ public class UtilsFile {
 	if (dir.exists()) {
 	    throw new RuntimeException(new FileExistsException());
 	}
-	createTempDirectory(dir);
+	createDirectory(dir);
 	return dir;
     }
 

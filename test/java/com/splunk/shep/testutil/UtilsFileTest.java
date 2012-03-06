@@ -82,4 +82,13 @@ public class UtilsFileTest {
 	// Teardown
 	FileUtils.deleteDirectory(parent);
     }
+
+    public void createTmpDirectoryWithName_givenAName_createAnExistingDirectoryWithSPecifiedName() {
+	File file = UtilsFile
+		.createTmpDirectoryWithName("this is the name of the file");
+
+	assertTrue(file.exists());
+	assertTrue(file.isDirectory());
+	assertEquals("this is the name of the file", file.getName());
+    }
 }
