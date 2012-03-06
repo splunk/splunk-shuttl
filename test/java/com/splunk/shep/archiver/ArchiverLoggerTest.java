@@ -6,9 +6,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 @Test(groups = { "fast" })
@@ -17,12 +17,12 @@ public class ArchiverLoggerTest {
     PrintWriter realPrintWriter;
     StringWriter logWriter;
 
-    @BeforeClass
+    @BeforeSuite
     public void beforeClass() {
 	realPrintWriter = ArchiverLogger.logger;
     }
 
-    @AfterClass
+    @AfterSuite
     public void afterClass() {
 	ArchiverLogger.logger = realPrintWriter;
     }
