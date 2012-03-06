@@ -21,14 +21,27 @@ public class BucketFreezer {
 
     // CONFIG get this value from the config.
     public static final String DEFAULT_SAFE_LOCATION = System
-	    .getProperty("user.home") + "/" + BucketFreezer.class.getName();
+	    .getProperty("user.home")
+	    + "/"
+	    + BucketFreezer.class.getName()
+	    + "-safe-buckets";
+
+    // CONFIG
+    public static final String DEFAULT_FAIL_LOCATION = System
+	    .getProperty("user.home")
+	    + "/"
+	    + BucketFreezer.class.getName()
+	    + "-failed-buckets";
 
     private final String safeLocationForBuckets;
+    private final String failedBucketsLocation;
     /* package-private */HttpClient httpClient;
 
-    protected BucketFreezer(String safeLocationForBuckets, HttpClient httpClient) {
+    protected BucketFreezer(String safeLocationForBuckets,
+	    HttpClient httpClient, String failedBucketsLocation) {
 	this.safeLocationForBuckets = safeLocationForBuckets;
 	this.httpClient = httpClient;
+	this.failedBucketsLocation = failedBucketsLocation;
     }
 
     public static final int EXIT_OK = 0;
@@ -72,9 +85,7 @@ public class BucketFreezer {
     }
 
     private File getSafeLocationRoot() {
-	File safeLocation = new File(safeLocationForBuckets);
-	safeLocation.mkdirs();
-	return safeLocation;
+	return createDirectory(safeLocationForBuckets);
     }
 
     private void doRestCall(Bucket bucket) {
@@ -84,7 +95,7 @@ public class BucketFreezer {
 		    archiveBucketRequest);
 	    HttpResponse response = httpClient.execute(archiveBucketRequest); // LOG
 	    handleResponseCodeFromDoingArchiveBucketRequest(response
-		    .getStatusLine().getStatusCode());
+		    .getStatusLine().getStatusCode(), bucket);
 	} catch (ClientProtocolException e) {
 	    hadleIOExceptionGenereratedByDoingArchiveBucketRequest(e);
 	} catch (IOException e) {
@@ -92,7 +103,8 @@ public class BucketFreezer {
 	}
     }
 
-    private void handleResponseCodeFromDoingArchiveBucketRequest(int statusCode) {
+    private void handleResponseCodeFromDoingArchiveBucketRequest(
+	    int statusCode, Bucket bucket) {
 	// TODO handle the different status codes
 	switch (statusCode) {
 	case HttpStatus.SC_OK:
@@ -104,9 +116,28 @@ public class BucketFreezer {
 	    did("Got http response from archiveBucketRequest",
 		    "unhadled status code", "that the status code was handled",
 		    "status_code", statusCode);
-	    throw new RuntimeException("Got the response code " + statusCode
-		    + " from making the archiveBucketRequest.");
+	    moveBucketToFailedBucketsLocation(bucket);
 	}
+    }
+
+    private void moveBucketToFailedBucketsLocation(Bucket bucket) {
+	try {
+	    bucket.moveBucketToDir(getFailedBucketsLocation());
+	} catch (FileNotFoundException e) {
+	    e.printStackTrace();
+	} catch (FileNotDirectoryException e) {
+	    e.printStackTrace();
+	}
+    }
+
+    private File getFailedBucketsLocation() {
+	return createDirectory(failedBucketsLocation);
+    }
+
+    private File createDirectory(String path) {
+	File file = new File(path);
+	file.mkdirs();
+	return file;
     }
 
     private void hadleIOExceptionGenereratedByDoingArchiveBucketRequest(
@@ -131,7 +162,8 @@ public class BucketFreezer {
     }
 
     public static BucketFreezer createWithDeafultSafeLocationAndHTTPClient() {
-	return new BucketFreezer(DEFAULT_SAFE_LOCATION, new DefaultHttpClient());
+	return new BucketFreezer(DEFAULT_SAFE_LOCATION,
+		new DefaultHttpClient(), DEFAULT_FAIL_LOCATION);
     }
 
     /**
