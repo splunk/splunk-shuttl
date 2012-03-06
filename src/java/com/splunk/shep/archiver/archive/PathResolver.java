@@ -2,11 +2,12 @@ package com.splunk.shep.archiver.archive;
 
 import java.net.URI;
 
+import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shep.archiver.fileSystem.WritableFileSystem;
 import com.splunk.shep.archiver.model.Bucket;
 
 /**
- * Resolves paths on a file system for buckets.
+ * Resolves paths on a {@link ArchiveFileSystem} for buckets.
  */
 public class PathResolver {
 
@@ -44,9 +45,8 @@ public class PathResolver {
     }
 
     /**
-     * Returns a path using configurated values to where buckets can be
-     * archived. Needed to avoid collisions between clusters and
-     * servers/indexers.
+     * Returns a path using configured values to where buckets can be archived.
+     * Needed to avoid collisions between clusters and servers/indexers.
      * 
      * @return Archiving path that starts with "/"
      */
@@ -57,7 +57,8 @@ public class PathResolver {
     }
 
     /**
-     * @return TODO
+     * @return Indexes home, which is where on the {@link ArchiveFileSystem}
+     *         that you can list indexes.
      */
     public URI getIndexesHome() {
 	return URI.create(writableFileSystem.getWritableUri()
