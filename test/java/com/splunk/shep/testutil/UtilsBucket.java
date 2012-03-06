@@ -76,8 +76,18 @@ public class UtilsBucket {
      * @return bucket created in parent.
      */
     public static Bucket createBucketInDirectory(File parent) {
+	return createBucketInDirectoryWithIndex(parent, randomIndexName());
+    }
+
+    /**
+     * @param parent
+     *            directory to create bucket in.
+     * @return bucket created in parent.
+     */
+    public static Bucket createBucketInDirectoryWithIndex(File parent,
+	    String index) {
 	File bucketDir = createFileFormatedAsBucketInDirectory(parent);
-	return createBucketWithIndexInDirectory(randomIndexName(), bucketDir);
+	return createBucketWithIndexInDirectory(index, bucketDir);
     }
 
     /**

@@ -29,8 +29,7 @@ public class Bucket {
      *             if the file is not a directory
      */
     public Bucket(String indexName, File directory)
-	    throws FileNotFoundException,
-	    FileNotDirectoryException {
+	    throws FileNotFoundException, FileNotDirectoryException {
 	verifyExistingDirectory(directory);
 	this.directory = directory;
 	this.indexName = indexName;
@@ -105,7 +104,6 @@ public class Bucket {
 	return new Bucket(getIndex(), newName);
     }
 
-
     /**
      * Deletes the bucket from the file system.
      * 
@@ -114,6 +112,29 @@ public class Bucket {
      */
     public void deleteBucket() throws IOException {
 	FileUtils.deleteDirectory(getDirectory());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+	if (obj == null)
+	    return false;
+	if (getClass() != obj.getClass())
+	    return false;
+	Bucket other = (Bucket) obj;
+	if (directory == null) {
+	    if (other.directory != null)
+		return false;
+	} else if (!directory.getAbsolutePath().equals(
+		other.directory.getAbsolutePath()))
+	    return false;
+	if (indexName == null) {
+	    if (other.indexName != null)
+		return false;
+	} else if (!indexName.equals(other.indexName))
+	    return false;
+	return true;
     }
 
 }

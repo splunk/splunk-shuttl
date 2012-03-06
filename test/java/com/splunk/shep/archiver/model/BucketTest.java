@@ -108,8 +108,7 @@ public class BucketTest {
 	Bucket movedBucket = bucket.moveBucketToDir(directoryToMoveTo);
 
 	boolean isMovedBucketAChildOfDirectoryMovedTo = movedBucket
-		.getDirectory()
-		.getAbsolutePath()
+		.getDirectory().getAbsolutePath()
 		.contains(directoryToMoveTo.getAbsolutePath());
 	assertTrue(isMovedBucketAChildOfDirectoryMovedTo);
 
@@ -190,5 +189,16 @@ public class BucketTest {
 	createdBucket.deleteBucket();
 	assertTrue(!createdBucket.getDirectory().exists());
 	assertTrue(bucketParent.exists());
+    }
+
+    public void equals_givenTwoBucketsCreatedWithSameIndexAndSameAbsolutePath_equalEachother()
+	    throws IOException {
+	Bucket testBucket = UtilsBucket.createTestBucket();
+	String index = testBucket.getIndex();
+	String absolutePath = testBucket.getDirectory().getAbsolutePath();
+
+	Bucket bucket1 = new Bucket(index, absolutePath);
+	Bucket bucket2 = new Bucket(index, absolutePath);
+	assertEquals(bucket1, bucket2);
     }
 }

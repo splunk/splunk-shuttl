@@ -57,13 +57,33 @@ public class FailedBucketTransfersTest {
 
     public void getFailedBuckets_givenBucketInFailedLocation_returnsListContainingTheFailedBucket()
 	    throws FileNotFoundException, IOException {
-	File directoryRepresentingIndex = UtilsFile.createDirectoryInParent(
-		failedBucketLocation, "index");
-	Bucket failedBucket = UtilsBucket
-		.createBucketInDirectory(directoryRepresentingIndex);
+	Bucket failedBucket = createFailedBucket("index");
 	List<Bucket> failedBuckets = failedBucketTransfers.getFailedBuckets();
 	assertEquals(1, failedBuckets.size());
-	assertEquals(failedBucket.getDirectory().getAbsolutePath(),
-		failedBuckets.get(0).getDirectory().getAbsolutePath());
+	assertEquals(failedBucket, failedBuckets.get(0));
+    }
+
+    public void getFailedBuckets_givenNoBucketsInFailedLocation_emptyList() {
+	List<Bucket> failedBuckets = failedBucketTransfers.getFailedBuckets();
+	assertTrue(failedBuckets.isEmpty());
+    }
+
+    public void getFailedBuckets_givenTwoBucketsInFailedLocation_listWithTheTwoBuckets() {
+	Bucket failedBucket1 = createFailedBucket("a");
+	Bucket failedBucket2 = createFailedBucket("b");
+	List<Bucket> failedBuckets = failedBucketTransfers.getFailedBuckets();
+	assertEquals(2, failedBuckets.size());
+	assertTrue(failedBuckets.contains(failedBucket1));
+	assertTrue(failedBuckets.contains(failedBucket2));
+    }
+
+    /**
+     * @return
+     */
+    private Bucket createFailedBucket(String index) {
+	File directoryRepresentingIndex = UtilsFile.createDirectoryInParent(
+		failedBucketLocation, index);
+	return UtilsBucket.createBucketInDirectoryWithIndex(
+		directoryRepresentingIndex, index);
     }
 }
