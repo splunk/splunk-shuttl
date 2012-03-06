@@ -14,12 +14,13 @@ import com.splunk.shep.archiver.archive.BucketFormat;
 public class Bucket {
 
     private final File directory;
+    private final String indexName;
 
     /**
      * Bucket with an index and format<br/>
-     * Use static method {@link Bucket#createWithAbsolutePath(String)} to create
-     * a bucket out of an absolute path.
      * 
+     * @param indexName
+     *            The name of the index that this bucket belongs to.
      * @param directory
      *            that is the bucket
      * @throws FileNotFoundException
@@ -27,10 +28,21 @@ public class Bucket {
      * @throws FileNotDirectoryException
      *             if the file is not a directory
      */
-    public Bucket(File directory) throws FileNotFoundException,
+    public Bucket(String indexName, File directory)
+	    throws FileNotFoundException,
 	    FileNotDirectoryException {
 	verifyExistingDirectory(directory);
 	this.directory = directory;
+	this.indexName = indexName;
+    }
+
+    /**
+     * Invokes #Bucket(String, File), by creating a file from specified
+     * bucketPath
+     */
+    public Bucket(String indexName, String bucketPath)
+	    throws FileNotFoundException, FileNotDirectoryException {
+	this(indexName, new File(bucketPath));
     }
 
     private void verifyExistingDirectory(File directory)
@@ -44,20 +56,25 @@ public class Bucket {
 	}
     }
 
+    /**
+     * @return The directory that this bucket has its data in.
+     */
     public File getDirectory() {
 	return directory;
     }
 
+    /**
+     * @return The name of this bucket.
+     */
     public String getName() {
 	return directory.getName();
     }
 
-    private String getDB() {
-	return directory.getParentFile().getName();
-    }
-
+    /**
+     * @return The name of the index that this bucket belong to.
+     */
     public String getIndex() {
-	return directory.getParentFile().getParentFile().getName();
+	return indexName;
     }
 
     public BucketFormat getFormat() {
@@ -78,31 +95,16 @@ public class Bucket {
     public Bucket moveBucketToDir(File directoryToMoveTo)
 	    throws FileNotFoundException, FileNotDirectoryException {
 	verifyExistingDirectory(directoryToMoveTo);
-	File newBucketDir = createNewBucketPathInDirectory(directoryToMoveTo);
-	verifyExistingDirectory(newBucketDir);
-	moveTheContentsOfThisBucketToNewBucket(newBucketDir);
-	return new Bucket(newBucketDir);
+	File newName = new File(directoryToMoveTo.getAbsolutePath(),
+		directory.getName());
+
+	if (!directory.renameTo(newName)) {
+	    throw new RuntimeException("Can't move bucket on this file system");
+	}
+
+	return new Bucket(getIndex(), newName);
     }
 
-    private void moveTheContentsOfThisBucketToNewBucket(File newBucketDir) {
-	if (!directory.renameTo(newBucketDir))
-	    throw new RuntimeException("could not rename : " + directory
-		    + " to " + newBucketDir);
-    }
-
-    private File createNewBucketPathInDirectory(File newDirectory) {
-	String bucketPathInformation = getIndex() + File.separator + getDB()
-		+ File.separator + getName();
-	File newBucketDir = new File(newDirectory, bucketPathInformation);
-	newBucketDir.mkdirs();
-	return newBucketDir;
-    }
-
-    public static Bucket createWithAbsolutePath(String path)
-	    throws FileNotFoundException, FileNotDirectoryException {
-	File directory = new File(path);
-	return new Bucket(directory);
-    }
 
     /**
      * Deletes the bucket from the file system.

@@ -29,38 +29,23 @@ public class BucketTest {
 	    FileUtils.deleteDirectory(rootTestDirectory);
     }
 
-    public void constructor_takingAbsolutePathToABucket_setIndex()
+    public void getIndex_validArguments_correctIndexName() throws IOException {
+	File file = UtilsFile.createTempDirectory();
+	Bucket bucket = new Bucket("index-name", file);
+	assertEquals("index-name", bucket.getIndex());
+    }
+
+    public void getIndex_absolutePathToBucketEndingWithSlash_correctIndexName()
 	    throws IOException {
-	String bucketPath = createBucketPath();
-	Bucket bucket = Bucket.createWithAbsolutePath(bucketPath);
-	assertEquals(UtilsBucket.getIndex(), bucket.getIndex());
-    }
-
-    private String createBucketPath() {
-	return UtilsBucket.createBucketDirectoriesInDirectory(
-		createRootTestDirectory()).getAbsolutePath();
-    }
-
-    private File createRootTestDirectory() {
-	rootTestDirectory = UtilsFile.createTempDirectory();
-	return rootTestDirectory;
-    }
-
-    private Bucket createBucket() {
-	return UtilsBucket.createBucketInDirectory(createRootTestDirectory());
-    }
-
-    public void constructor_absolutePathToBucketEndingWithSlash_setIndex()
-	    throws IOException {
-	String bucketPath = createBucketPath() + "/";
-	Bucket bucket = Bucket.createWithAbsolutePath(bucketPath);
-	assertEquals(UtilsBucket.getIndex(), bucket.getIndex());
+	File file = UtilsFile.createTempDirectory();
+	Bucket bucket = new Bucket("index-name", file.getAbsolutePath() + "/");
+	assertEquals("index-name", bucket.getIndex());
     }
 
     public void createWithAbsolutePath_takingStringToAnExistingDirectory_notNullBucket()
 	    throws IOException {
 	File tempDir = UtilsFile.createTempDirectory();
-	assertNotNull(Bucket.createWithAbsolutePath(tempDir.getAbsolutePath()));
+	assertNotNull(new Bucket("indexName", tempDir));
     }
 
     @Test(expectedExceptions = { FileNotFoundException.class })
@@ -68,7 +53,7 @@ public class BucketTest {
 	    throws IOException {
 	File nonExistingFile = new File("does-not-exist");
 	assertTrue(!nonExistingFile.exists());
-	Bucket.createWithAbsolutePath(nonExistingFile.getAbsolutePath());
+	new Bucket("index-name", nonExistingFile);
     }
 
     @Test(expectedExceptions = { FileNotDirectoryException.class })
@@ -76,17 +61,13 @@ public class BucketTest {
 	    throws IOException {
 	File file = UtilsFile.createTestFile();
 	assertTrue(file.isFile());
-	Bucket.createWithAbsolutePath(file.getAbsolutePath());
+	new Bucket("index-name", file);
     }
 
     public void createWithAbsolutePath_rawdataDirectoryExistsInsideBucket_getFormatReturnsSplunkBucket()
 	    throws IOException {
-	File bucketDir = UtilsBucket
-		.createBucketDirectoriesInDirectory(createRootTestDirectory());
-	File rawdata = UtilsFile.createDirectoryInParent(bucketDir, "rawdata");
-	assertTrue(rawdata.exists());
-	Bucket bucket = Bucket.createWithAbsolutePath(bucketDir
-		.getAbsolutePath());
+	Bucket fakeBucket = UtilsBucket.createTestBucket();
+	Bucket bucket = new Bucket("index-name", fakeBucket.getDirectory());
 	assertEquals(bucket.getFormat(), BucketFormat.SPLUNK_BUCKET);
     }
 
@@ -96,57 +77,62 @@ public class BucketTest {
      */
     public void createWithAbsolutePath_rawdataNotInBucket_bucketFormatIsUnknown()
 	    throws IOException {
-	Bucket bucket = Bucket.createWithAbsolutePath(createBucketPath());
+	File file = UtilsFile.createTempDirectory();
+	Bucket bucket = new Bucket("index-name", file);
 	assertEquals(BucketFormat.UNKNOWN, bucket.getFormat());
     }
 
-    public void createWithAbsolutePath_givenExistingDirectory_bucketNameIsLastDirectoryInPath()
+    public void getName_givenExistingDirectory_correctBucketName()
 	    throws IOException {
-	String bucketPath = createBucketPath();
-	String expectedName = UtilsBucket.getBucketName();
-	Bucket bucket = Bucket.createWithAbsolutePath(bucketPath);
-	assertEquals(expectedName, bucket.getName());
+	Bucket fakeBucket = UtilsBucket.createTestBucketWithIndexAndName(
+		"index-name", "db_12351235_12351290_1");
+	Bucket bucket = new Bucket("index-name", fakeBucket.getDirectory());
+	assertEquals("db_12351235_12351290_1", bucket.getName());
+
     }
 
     public void createWithAbsolutePath_givenExistingDirectory_getDirectoryShouldReturnThatDirectoryWithTheSameAbsolutePath()
 	    throws IOException {
 	File existingDirectory = UtilsBucket
-		.createBucketDirectoriesInDirectory(createRootTestDirectory());
-	assertTrue(existingDirectory.exists());
-	Bucket bucket = Bucket.createWithAbsolutePath(existingDirectory
-		.getAbsolutePath());
+		.createFileFormatedAsBucket("db_12351235_12351290_1");
+	Bucket bucket = new Bucket("index-name", existingDirectory);
 	assertEquals(existingDirectory.getAbsolutePath(), bucket.getDirectory()
 		.getAbsolutePath());
     }
 
     public void moveBucket_givenExistingDirectory_keepIndexFormatAndBucketName()
 	    throws IOException {
-	Bucket bucket = createBucket();
+	Bucket bucket = UtilsBucket.createTestBucket();
 	File directoryToMoveTo = UtilsFile.createTempDirectory();
+
 	Bucket movedBucket = bucket.moveBucketToDir(directoryToMoveTo);
+
 	boolean isMovedBucketAChildOfDirectoryMovedTo = movedBucket
-		.getDirectory().getAbsolutePath()
+		.getDirectory()
+		.getAbsolutePath()
 		.contains(directoryToMoveTo.getAbsolutePath());
 	assertTrue(isMovedBucketAChildOfDirectoryMovedTo);
 
 	// Sanity checks.
-	assertEquals(bucket.getIndex(), movedBucket.getIndex());
-	assertEquals(bucket.getFormat(), movedBucket.getFormat());
-	assertEquals(bucket.getName(), movedBucket.getName());
+	Assert.assertEquals(movedBucket.getName(), bucket.getName());
+	Assert.assertEquals(movedBucket.getIndex(), bucket.getIndex());
 	Assert.assertNotEquals(bucket.getDirectory().getAbsolutePath(),
 		movedBucket.getDirectory().getAbsolutePath());
 
-	// TearDown
+	// Teardown
 	FileUtils.deleteDirectory(directoryToMoveTo);
     }
 
     public void moveBucket_givenExistingDirectory_removeOldBucket()
 	    throws IOException {
-	Bucket bucket = createBucket();
+	Bucket bucket = UtilsBucket.createTestBucket();
 	File directoryToMoveTo = UtilsFile.createTempDirectory();
+	File oldPath = new File(bucket.getDirectory().getAbsolutePath());
 	bucket.moveBucketToDir(directoryToMoveTo);
-	assertTrue(!bucket.getDirectory().exists());
 
+	Assert.assertFalse(oldPath.exists());
+
+	// Teardown
 	FileUtils.deleteDirectory(directoryToMoveTo);
     }
 
@@ -154,21 +140,20 @@ public class BucketTest {
     public void moveBucket_givenNonDirectory_throwFileNotDirectoryException()
 	    throws FileNotFoundException, FileNotDirectoryException {
 	File file = UtilsFile.createTestFile();
-	Bucket bucket = createBucket();
-	bucket.moveBucketToDir(file);
+	UtilsBucket.createTestBucket().moveBucketToDir(file);
     }
 
     @Test(expectedExceptions = { FileNotFoundException.class })
     public void moveBucket_givenNonExistingDirectory_throwFileNotFoundException()
 	    throws FileNotFoundException, FileNotDirectoryException {
 	File nonExistingDir = new File("non-existing-dir");
-	createBucket().moveBucketToDir(nonExistingDir);
+	UtilsBucket.createTestBucket().moveBucketToDir(nonExistingDir);
     }
 
     public void moveBucket_givenDirectoryWithContents_contentShouldBeMoved()
 	    throws IOException {
 	// Setup
-	Bucket bucket = createBucket();
+	Bucket bucket = UtilsBucket.createTestBucket();
 	String contentsFileName = "contents";
 	// Creation
 	File contents = UtilsFile.createFileInParent(bucket.getDirectory(),
@@ -179,8 +164,8 @@ public class BucketTest {
 
 	// Test
 	Bucket movedBucket = bucket.moveBucketToDir(directoryToMoveTo);
-	File movedContents = new File(movedBucket.getDirectory(),
-		contentsFileName);
+	File movedContents = new File(movedBucket.getDirectory()
+		.getAbsolutePath(), contentsFileName);
 	assertTrue(movedContents.exists());
 	assertTrue(!contents.exists());
 	List<String> movedContentLines = IOUtils.readLines(new FileReader(
@@ -193,14 +178,14 @@ public class BucketTest {
 
     public void deleteBucket_createdValidBucket_bucketRemovedFromFileSystem()
 	    throws IOException {
-	Bucket createdBucket = createBucket();
+	Bucket createdBucket = UtilsBucket.createTestBucket();
 	createdBucket.deleteBucket();
 	assertTrue(!createdBucket.getDirectory().exists());
     }
 
     public void deleteBucket_createdValidBucket_onlyBucketFolderRemovedFromFileSystem()
 	    throws IOException {
-	Bucket createdBucket = createBucket();
+	Bucket createdBucket = UtilsBucket.createTestBucket();
 	File bucketParent = createdBucket.getDirectory().getParentFile();
 	createdBucket.deleteBucket();
 	assertTrue(!createdBucket.getDirectory().exists());

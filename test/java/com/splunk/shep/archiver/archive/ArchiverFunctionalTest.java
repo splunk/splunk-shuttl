@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.ShellClassRunner;
 import com.splunk.shep.testutil.UtilsBucket;
-import com.splunk.shep.testutil.UtilsFile;
 
 @Test(enabled = false, groups = { "slow" })
 public class ArchiverFunctionalTest {
@@ -51,14 +50,11 @@ public class ArchiverFunctionalTest {
 
     public void Archiver_givenExistingBucket_archiveIt()
 	    throws InterruptedException, IOException {
-	File tempDirectory = null;
 	Path archivedPath = null;
 
 	// Setup
 	try {
-	    tempDirectory = UtilsFile.createTempDirectory();
-	    Bucket bucket = UtilsBucket
-		    .createBucketWithSplunkBucketFormatInDirectory(tempDirectory);
+	    Bucket bucket = UtilsBucket.createTestBucket();
 	    File bucketDirectory = bucket.getDirectory();
 	    URI archivedUri = getArchivedBucketURI(bucket);
 	    archivedPath = new Path(archivedUri);
@@ -66,7 +62,7 @@ public class ArchiverFunctionalTest {
 	    // Test
 	    ShellClassRunner shellClassRunner = new ShellClassRunner();
 	    shellClassRunner.runClassWithArgs(BucketFreezer.class,
-		    bucketDirectory.getAbsolutePath());
+		    bucket.getIndex(), bucketDirectory.getAbsolutePath());
 	    // new BucketArchiverRest.BucketArchiverRunner(
 	    // bucketDirectory.getAbsolutePath());
 
@@ -80,9 +76,6 @@ public class ArchiverFunctionalTest {
 	    assertTrue(!bucketDirectory.exists());
 	    assertTrue(fileSystem.exists(archivedPath));
 	} finally {
-	    if (tempDirectory != null) {
-		FileUtils.deleteDirectory(tempDirectory);
-	    }
 	    if (archivedPath != null) {
 		fileSystem.delete(archivedPath.getParent().getParent()
 			.getParent().getParent().getParent(), true);

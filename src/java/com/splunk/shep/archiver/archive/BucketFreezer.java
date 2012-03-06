@@ -31,25 +31,47 @@ public class BucketFreezer {
 	this.httpClient = httpClient;
     }
 
-    public int freezeBucket(String path) {
+    public static final int EXIT_OK = 0;
+    public static final int EXIT_INCORRECT_ARGUMENTS = -1;
+    public static final int EXIT_FILE_NOT_A_DIRECTORY = -2;
+    public static final int EXIT_FILE_NOT_FOUND = -3;
+
+    /**
+     * Freezez the bucket on the speicifed path and belonging to speicifed
+     * index.
+     * 
+     * @param indexName
+     *            The name of the index that this bucket belongs to
+     * @param path
+     *            The path of the bucket on the local file stystem
+     * @return An exit code depending on the outcome.
+     */
+    public int freezeBucket(String indexName, String path) {
 	try {
-	    moveAndArchiveBucket(path);
-	    return 0;
+	    moveAndArchiveBucket(indexName, path);
+	    return EXIT_OK;
 	} catch (FileNotDirectoryException e) {
-	    return 3;
+	    return EXIT_FILE_NOT_A_DIRECTORY;
 	} catch (FileNotFoundException e) {
-	    return 4;
+	    return EXIT_FILE_NOT_FOUND;
 	}
     }
 
-    private void moveAndArchiveBucket(String path)
+    private void moveAndArchiveBucket(String indexName, String path)
 	    throws FileNotFoundException, FileNotDirectoryException {
-	Bucket bucket = Bucket.createWithAbsolutePath(path);
-	Bucket safeBucket = bucket.moveBucketToDir(getSafeLocation());
-	doRestCall(safeBucket);
+	Bucket bucket = new Bucket(indexName, path);
+	bucket = bucket.moveBucketToDir(getSafeLocationForBucket(bucket));
+	doRestCall(bucket);
     }
 
-    private File getSafeLocation() {
+    private File getSafeLocationForBucket(Bucket bucket) {
+	File safeBucketLocation = new File(getSafeLocationRoot(),
+		bucket.getIndex());
+	safeBucketLocation.mkdirs();
+	return safeBucketLocation;
+    }
+
+    private File getSafeLocationRoot() {
 	File safeLocation = new File(safeLocationForBuckets);
 	safeLocation.mkdirs();
 	return safeLocation;
@@ -101,7 +123,9 @@ public class BucketFreezer {
 	// CONFIG configure the host, port, request URL with a general
 	// solution.
 	String requestString = "http://localhost:9090/shep/rest/archiver/bucket/archive?path="
-		+ bucket.getDirectory().getAbsolutePath();
+		+ bucket.getDirectory().getAbsolutePath()
+		+ "&index="
+		+ bucket.getIndex();
 	HttpGet request = new HttpGet(requestString);
 	return request;
     }
@@ -110,14 +134,16 @@ public class BucketFreezer {
 	return new BucketFreezer(DEFAULT_SAFE_LOCATION, new DefaultHttpClient());
     }
 
+    /**
+     * This method is used by the real main and only exists so that it can be
+     * tested using test doubles.
+     */
     /* package-private */static void runMainWithDepentencies(Runtime runtime,
 	    BucketFreezer bucketFreezer, String... args) {
-	if (args.length == 0) {
-	    runtime.exit(1);
-	} else if (args.length >= 2) {
-	    runtime.exit(2);
+	if (args.length != 2) {
+	    runtime.exit(EXIT_INCORRECT_ARGUMENTS);
 	} else {
-	    runtime.exit(bucketFreezer.freezeBucket(args[0]));
+	    runtime.exit(bucketFreezer.freezeBucket(args[0], args[1]));
 	}
     }
 

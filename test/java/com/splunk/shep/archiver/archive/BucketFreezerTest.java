@@ -51,7 +51,8 @@ public class BucketFreezerTest {
 
     public void main_existingDirecotry_returnCode0() throws IOException {
 	File directory = createTestDirectory();
-	runMainWithDepentencies_withArguments(directory.getAbsolutePath());
+	runMainWithDepentencies_withArguments("index-name",
+		directory.getAbsolutePath());
 	verify(runtimeMock).exit(0);
 	// This deletion assumes and knows too much. When we remove
 	// BucketFreezer, this will be ok tho.
@@ -59,28 +60,42 @@ public class BucketFreezerTest {
 		.deleteDirectory(new File(BucketFreezer.DEFAULT_SAFE_LOCATION));
     }
 
-    public void main_noArguments_returnCode1() {
+    public void main_noArguments_returnCodeMinus1() {
 	runMainWithDepentencies_withArguments();
-	verify(runtimeMock).exit(1);
+	verify(runtimeMock).exit(-1);
     }
 
-    public void main_moreThanOneArgument_returnCode2() {
-	runMainWithDepentencies_withArguments("one", "two");
-	verify(runtimeMock).exit(2);
+    public void main_oneArgument_returnCodeMinus1() {
+	runMainWithDepentencies_withArguments("index-name");
+	verify(runtimeMock).exit(-1);
     }
 
-    public void main_fileNotADirectory_returnCode3() throws IOException {
+    public void main_threeArguments_returnCodeMinus1() {
+	runMainWithDepentencies_withArguments("index-name", "/path/to/file",
+		"too-many-arguments");
+	verify(runtimeMock).exit(-1);
+    }
+
+    public void main_tooManyArguments_returnCodeMinus1() {
+	runMainWithDepentencies_withArguments("index-name", "/path/to/file",
+		"too-many-arguments", "too", "many", "arguments");
+	verify(runtimeMock).exit(-1);
+    }
+
+    public void main_fileNotADirectory_returnCodeMinus2() throws IOException {
 	File file = File.createTempFile("ArchiveTest", ".tmp");
 	file.deleteOnExit();
 	assertTrue(!file.isDirectory());
-	runMainWithDepentencies_withArguments(file.getAbsolutePath());
-	verify(runtimeMock).exit(3);
+	runMainWithDepentencies_withArguments("index-name",
+		file.getAbsolutePath());
+	verify(runtimeMock).exit(-2);
     }
 
-    public void main_nonExistingFile_returnCode4() {
+    public void main_nonExistingFile_returnMinus3() {
 	File file = UtilsFile.createTestFilePath();
-	runMainWithDepentencies_withArguments(file.getAbsolutePath());
-	verify(runtimeMock).exit(4);
+	runMainWithDepentencies_withArguments("index-name",
+		file.getAbsolutePath());
+	verify(runtimeMock).exit(-3);
     }
 
     private void runMainWithDepentencies_withArguments(String... args) {
@@ -110,8 +125,8 @@ public class BucketFreezerTest {
 	    File dirToBeMoved = createTestDirectory();
 
 	    // Test
-	    int exitStatus = bucketFreezer.freezeBucket(dirToBeMoved
-		    .getAbsolutePath());
+	    int exitStatus = bucketFreezer.freezeBucket("index-name",
+		    dirToBeMoved.getAbsolutePath());
 	    assertEquals(0, exitStatus);
 
 	    // Verify

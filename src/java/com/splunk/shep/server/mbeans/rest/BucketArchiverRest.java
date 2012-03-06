@@ -30,21 +30,24 @@ public class BucketArchiverRest {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/bucket/archive")
-    public void archiveBucket(@QueryParam("path") String path) {
-	archiveBucketOnAnotherThread(path);
+    public void archiveBucket(@QueryParam("path") String path,
+	    @QueryParam("index") String indexName) {
+	archiveBucketOnAnotherThread(indexName, path);
     }
 
-    private void archiveBucketOnAnotherThread(String path) {
-	Runnable r = new BucketArchiverRunner(path);
+    private void archiveBucketOnAnotherThread(String indexName, String path) {
+	Runnable r = new BucketArchiverRunner(indexName, path);
 	new Thread(r).run();
     }
 
     private static class BucketArchiverRunner implements Runnable {
 
 	private final String pathToBucket;
+	private final String indexName;
 
-	public BucketArchiverRunner(String pathToBucket) {
+	public BucketArchiverRunner(String indexName, String pathToBucket) {
 	    this.pathToBucket = pathToBucket;
+	    this.indexName = indexName;
 	}
 
 	@Override
@@ -59,7 +62,7 @@ public class BucketArchiverRest {
 	private Bucket createBucketWithErrorHandling() {
 	    Bucket bucket;
 	    try {
-		bucket = Bucket.createWithAbsolutePath(pathToBucket);
+		bucket = new Bucket(indexName, pathToBucket);
 	    } catch (FileNotFoundException e) {
 		e.printStackTrace();
 		throw new RuntimeException(e);

@@ -162,6 +162,7 @@ public class UtilsFile {
 	File child = new File(parent, string);
 	AssertJUnit.assertTrue("Failed to create directory: " + child,
 		child.mkdir());
+	child.deleteOnExit();
 	return child;
     }
 
@@ -173,6 +174,7 @@ public class UtilsFile {
 	    e.printStackTrace();
 	    UtilsTestNG.failForException("Could not create file: " + child, e);
 	}
+	child.deleteOnExit();
 	return child;
     }
 
@@ -189,6 +191,7 @@ public class UtilsFile {
 		    "Couldn't create file with contents of " + file.toString(),
 		    e);
 	}
+	newFile.deleteOnExit();
 	return newFile;
     }
 }
