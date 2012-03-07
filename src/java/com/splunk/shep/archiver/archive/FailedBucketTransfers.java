@@ -45,6 +45,34 @@ public class FailedBucketTransfers {
     }
 
     /**
+     * Move a bucket which failed to be archived, to a location where it can
+     * later be picked up and transfered again.
+     * 
+     * @param bucket
+     *            that failed to archive.
+     */
+    public void moveFailedBucket(Bucket failedBucket) {
+	try {
+	    moveBucketToFailedBucketsLocationAndPerserveItsIndex(failedBucket);
+	} catch (FileNotFoundException e) {
+	    e.printStackTrace();
+	    throw new RuntimeException(e);
+	} catch (FileNotDirectoryException e) {
+	    e.printStackTrace();
+	    throw new RuntimeException(e);
+	}
+    }
+
+    private void moveBucketToFailedBucketsLocationAndPerserveItsIndex(
+	    Bucket bucket) throws FileNotFoundException,
+	    FileNotDirectoryException {
+	File indexDirectory = new File(getFailedBucketsLocation(),
+		bucket.getIndex());
+	indexDirectory.mkdirs();
+	bucket.moveBucketToDir(indexDirectory);
+    }
+
+    /**
      * @return list of buckets in the failed buckets location that can be
      *         transfered
      */
@@ -82,34 +110,6 @@ public class FailedBucketTransfers {
 
     private File getFailedBucketsLocation() {
 	return new File(failedBucketsLocationPath);
-    }
-
-    /**
-     * Move a bucket which failed to be archived, to a location where it can
-     * later be picked up and transfered again.
-     * 
-     * @param bucket
-     *            that failed to archive.
-     */
-    public void moveFailedBucket(Bucket failedBucket) {
-	try {
-	    moveBucketToFailedBucketsLocationAndPerserveItsIndex(failedBucket);
-	} catch (FileNotFoundException e) {
-	    e.printStackTrace();
-	    throw new RuntimeException(e);
-	} catch (FileNotDirectoryException e) {
-	    e.printStackTrace();
-	    throw new RuntimeException(e);
-	}
-    }
-
-    private void moveBucketToFailedBucketsLocationAndPerserveItsIndex(
-	    Bucket bucket)
-	    throws FileNotFoundException, FileNotDirectoryException {
-	File indexDirectory = new File(getFailedBucketsLocation(),
-		bucket.getIndex());
-	indexDirectory.mkdirs();
-	bucket.moveBucketToDir(indexDirectory);
     }
 
 }
