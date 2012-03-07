@@ -1,0 +1,25 @@
+<view autoCancelInterval="90" onunloadCancelJobs="true" template="dashboard.html">
+  <label>Archiving</label>
+  <module name="AccountBar" layoutPanel="appHeader"/>
+  <module name="AppBar" layoutPanel="navigationHeader"/>
+  <module name="Message" layoutPanel="messaging">
+    <param name="filter">*</param>
+    <param name="clearOnJobDispatch">False</param>
+    <param name="maxSize">1</param>
+  </module>
+  <module name="Message" layoutPanel="messaging">
+    <param name="filter">splunk.search.job</param>
+    <param name="clearOnJobDispatch">True</param>
+    <param name="maxSize">1</param>
+  </module>
+  <module name="TitleBar" layoutPanel="viewHeader">
+    <param name="actionsMenuFilter">dashboard</param>
+  </module>
+
+<module name="TimeRangePicker" layoutPanel="mainSearchControls"> <!-- common time range picker -->
+	<param name="selected">Today</param>
+	<param name="searchWhenChanged">True</param>
+
+</module> <!-- common time range picker -->
+
+</view>
