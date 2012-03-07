@@ -45,7 +45,7 @@
 	<!--
 	<property name="hive.download.url.prefix" value="http://www.gtlib.gatech.edu/pub/apache" />
 	-->
-	<property name="hive.download.url.prefix" value="http://mirror.cc.columbia.edu/pub/software/apache" />
+	<property name="hive.download.url.prefix" value="http://archive.apache.org/dist" />
 	<property name="hive.basename" value="hive" />
 	<property name="hive.versname" value="${hive.basename}-${hive.version}" />
 	<property name="hive.fullname" value="${hive.versname}.tar.gz" />
