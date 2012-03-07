@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -35,6 +33,7 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.log4j.Logger;
 
 /**
  * 
@@ -43,7 +42,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
  */
 public class SplunkEventsInputFormat extends
 	FileInputFormat<LongWritable, Text> {
-    private static Log LOG = LogFactory.getLog(SplunkEventsInputFormat.class);
+    private static Logger LOG = Logger.getLogger(SplunkEventsInputFormat.class);
 
     public class SplunkJsonRecordReader extends
 	    RecordReader<LongWritable, Text> {
