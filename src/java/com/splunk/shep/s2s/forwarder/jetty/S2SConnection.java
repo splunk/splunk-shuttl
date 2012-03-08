@@ -39,7 +39,7 @@ public class S2SConnection implements Connection {
     Connector connector;
     EndPoint endpoint;
     Server server;
-    S2SChannel s2schannel;
+    S2SChannel s2schannel = null;
 
     ByteArrayBuffer buffer = new ByteArrayBuffer(new byte[4096]);
 
@@ -50,6 +50,9 @@ public class S2SConnection implements Connection {
 	this.connector = connector;
 	this.endpoint = endpoint;
 	this.server = server;
+    }
+
+    private void initChannel() {
 	try {
 	    S2SConnector myconnector = (S2SConnector) this.connector;
 	    String sinkclass = myconnector.getDataSink();
@@ -83,10 +86,14 @@ public class S2SConnection implements Connection {
 	try {
 	    int read = this.endpoint.fill(buffer);
 	    if (read != 0) {
+		if (this.s2schannel == null) {
+		    initChannel();
+		}
 		byte buf[] = this.buffer.asArray();
 		this.s2schannel.dataAvailable(buf, 0, buf.length);
 	    }
 	} catch (java.net.SocketException se) {
+	    logger.debug("handle socket exception", se);
 	    this.endpoint.close();
 	} catch (InvalidSignatureException ise) {
 	    this.endpoint.close();

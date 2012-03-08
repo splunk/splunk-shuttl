@@ -45,7 +45,7 @@
 	<!--
 	<property name="hive.download.url.prefix" value="http://www.gtlib.gatech.edu/pub/apache" />
 	-->
-	<property name="hive.download.url.prefix" value="http://mirror.cc.columbia.edu/pub/software/apache" />
+	<property name="hive.download.url.prefix" value="http://archive.apache.org/dist" />
 	<property name="hive.basename" value="hive" />
 	<property name="hive.versname" value="${hive.basename}-${hive.version}" />
 	<property name="hive.fullname" value="${hive.versname}.tar.gz" />
@@ -923,4 +923,17 @@
 			<report todir="${report.dir}" />
 		</junitreport>
 	</target>
+
+	<target name="doc">
+		<javadoc destdir="build/docs/api" 
+			version="true" 
+			use="true" 
+			windowtitle="Shep" >
+			<packageset dir="src/java" defaultexcludes="yes">
+				<exclude name="com/splunk/**/tests/**"/>
+				<include name="com/splunk/**"/>
+			</packageset>
+		</javadoc>
+	</target>
+
 </project>

@@ -1,6 +1,16 @@
 <nav>
-    <view name="events" default="true" />
-    <view name="sources" />
-    <view name="sourcetypes" />
-    <view name="hosts" />
+	<collection label="Forwarding">
+	    <view name="events" />
+	    <view name="sources" />
+	    <view name="sourcetypes" />
+	    <view name="hosts" />
+    </collection>
+    
+    <collection label="REST">
+        <view name="rests"/>
+    </collection>
+    
+    <collection label="Archiving">
+        <view name="archivings"/>
+    </collection>
 </nav>
