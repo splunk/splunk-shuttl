@@ -1,0 +1,43 @@
+// Copyright (C) 2011 Splunk Inc.
+//
+// Splunk Inc. licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package com.splunk.shep.archiver.util;
+
+import static com.splunk.shep.archiver.ArchiverLogger.*;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+
+/**
+ * File utils for production code. Using the name UtilsFile instead of FileUtils
+ * to avoid naming collisions with {@link FileUtils}.
+ */
+public class UtilsFile {
+
+    /**
+     * Creates a {@link File} and its parents without throwing exceptions. See
+     * {@link FileUtils#touch(File)}
+     */
+    public static void touch(File file) {
+	try {
+	    FileUtils.touch(file);
+	} catch (IOException e) {
+	    did("Tried to create file and its parents", "Got IOException",
+		    "The file to be created", "file", file, "exception", e);
+	    throw new RuntimeException(e);
+	}
+    }
+}
