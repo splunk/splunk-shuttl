@@ -54,8 +54,10 @@ public class SimpleFileLock {
     }
 
     /**
-     * @return FileLock if was successfully locked. Returns null otherwise.
-     * @throws ClosedChannelException
+     * @return true if lock was acquired, false otherwise.
+     * @throws LockAlreadyClosedException
+     *             if this lock was already closed by
+     *             {@link SimpleFileLock#closeLock()}
      */
     public boolean tryLock() {
 	try {
