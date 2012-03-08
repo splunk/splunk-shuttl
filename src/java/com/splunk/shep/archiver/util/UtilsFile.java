@@ -17,6 +17,8 @@ package com.splunk.shep.archiver.util;
 import static com.splunk.shep.archiver.ArchiverLogger.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
@@ -37,6 +39,22 @@ public class UtilsFile {
 	} catch (IOException e) {
 	    did("Tried to create file and its parents", "Got IOException",
 		    "The file to be created", "file", file, "exception", e);
+	    throw new RuntimeException(e);
+	}
+    }
+
+    /**
+     * @return {@link FileOutputStream} for the file sent in. Logs and throws a
+     *         RuntimeException if something goes wrong.
+     */
+
+    public static FileOutputStream getFileOutputStreamSilent(File file) {
+	try {
+	    return new FileOutputStream(file);
+	} catch (FileNotFoundException e) {
+	    did("Created a FileOuputStream for file: " + file.getAbsolutePath(),
+		    "Got FileNotFoundException", "File to exist", "file", file,
+		    "exception", e);
 	    throw new RuntimeException(e);
 	}
     }

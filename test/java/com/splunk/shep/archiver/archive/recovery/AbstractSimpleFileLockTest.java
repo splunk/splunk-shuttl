@@ -22,24 +22,27 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.SimpleFileLock;
 import com.splunk.shep.archiver.archive.recovery.SimpleFileLock.LockAlreadyClosedException;
 import com.splunk.shep.testutil.UtilsFile;
 
 /**
- * Fixture: Creates the SimpleFileLock from the construction method
- * {@link SimpleFileLock#createFromFile(java.io.File)}
+ * Fixture: Abstract. Gets an instance of {@link SimpleFileLock} from
+ * {@link SimpleFileLockFromTest#getSimpleFileLock}.
  */
 @Test(groups = { "fast" })
-public class SimpleFileLockFromFileTest {
+public abstract class AbstractSimpleFileLockTest {
 
     SimpleFileLock simpleFileLock;
 
     @BeforeMethod(groups = { "fast" })
     public void setUp() {
-	simpleFileLock = SimpleFileLock.createFromFile(UtilsFile
-		.createTestFile());
+	simpleFileLock = getSimpleFileLock();
     }
+
+    /**
+     * @return an implementation of {@link SimpleFileLock}. Could be a subclass.
+     */
+    protected abstract SimpleFileLock getSimpleFileLock();
 
     @AfterMethod(groups = { "fast" })
     public void tearDown() {

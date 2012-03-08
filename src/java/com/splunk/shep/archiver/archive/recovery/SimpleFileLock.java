@@ -17,8 +17,6 @@ package com.splunk.shep.archiver.archive.recovery;
 import static com.splunk.shep.archiver.ArchiverLogger.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
@@ -42,19 +40,9 @@ public class SimpleFileLock {
      */
     public static SimpleFileLock createFromFile(File file) {
 	UtilsFile.touch(file);
-	FileChannel channel = getFileOutputStreamSilent(file).getChannel();
+	FileChannel channel = UtilsFile.getFileOutputStreamSilent(file)
+		.getChannel();
 	return new SimpleFileLock(channel);
-    }
-
-    private static FileOutputStream getFileOutputStreamSilent(File file) {
-	try {
-	    return new FileOutputStream(file);
-	} catch (FileNotFoundException e) {
-	    did("Created a FileOuputStream for file: " + file.getAbsolutePath(),
-		    "Got FileNotFoundException", "File to exist", "file", file,
-		    "exception", e);
-	    throw new RuntimeException(e);
-	}
     }
 
     /**
