@@ -128,4 +128,15 @@ public class Bucket {
 	return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+	return "Bucket [format=" + format + ", directory=" + directory
+		+ ", indexName=" + indexName + "]";
+    }
+
 }
