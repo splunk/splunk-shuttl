@@ -22,8 +22,6 @@ import java.io.Writer;
 import java.net.Socket;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.JobContext;
@@ -32,6 +30,7 @@ import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter;
+import org.apache.log4j.Logger;
 
 import com.splunk.Args;
 import com.splunk.Index;
@@ -53,7 +52,7 @@ public class SplunkOutputFormat<K, V> extends OutputFormat<K, V> {
     public final static String USERNAME = SplunkConfiguration.USERNAME;
     public final static String PASSWORD = SplunkConfiguration.PASSWORD;
 
-    private static Log LOG = LogFactory.getLog(SplunkOutputFormat.class);
+    private static Logger LOG = Logger.getLogger(SplunkOutputFormat.class);
     private FileOutputCommitter committer = null;
     private Service service = null;
     private Socket stream = null;

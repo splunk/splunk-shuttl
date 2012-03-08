@@ -25,6 +25,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shep.metrics.ShepMetricsHelper;
+
 /**
  * Exposes the Server MBean over REST
  * 
@@ -39,6 +41,9 @@ public class ShepServerRest {
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/defaulthost")
     public String getDefHadoopClusterHostText() {
+	String logMessage = " Metrics - group=REST series=source::defaulthost_text_plain call=1";
+	ShepMetricsHelper.update(logger, logMessage);
+
 	try {
 	    return (getAttribute("DefHadoopClusterHost"));
 	} catch (Exception e) {
@@ -52,6 +57,9 @@ public class ShepServerRest {
     @Produces(MediaType.TEXT_HTML)
     @Path("/defaulthost")
     public String getDefHadoopClusterHostHTML() {
+	String logMessage = " Metrics - group=REST series=source::defaulthost_text_html call=1";
+	ShepMetricsHelper.update(logger, logMessage);
+
 	try {
 	    return "<html> " + "<title>" + "Shep Rest Endpoint" + "</title>"
 		+ "<body><h1>" + getAttribute("DefHadoopClusterHost")
@@ -66,6 +74,9 @@ public class ShepServerRest {
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/defaultport")
     public String getDefHadoopClusterPortText() {
+	String logMessage = " Metrics - group=REST series=source::defaultport_text_plain call=1";
+	ShepMetricsHelper.update(logger, logMessage);
+
 	try {
 	    return (getAttribute("DefHadoopClusterPort"));
 	} catch (Exception e) {
@@ -79,6 +90,9 @@ public class ShepServerRest {
     @Produces(MediaType.TEXT_HTML) 
     @Path("/defaultport")
     public String getDefHadoopClusterPortHTML() { 
+	String logMessage = " Metrics - group=REST series=source::default_text_html call=1";
+	ShepMetricsHelper.update(logger, logMessage);
+
 	try {
 	    return "<html> " + "<title>" + "Shep Rest Endpoint" + "</title>"
 		+ "<body><h1>" + getAttribute("DefHadoopClusterPort")
@@ -96,6 +110,9 @@ public class ShepServerRest {
     @Produces(MediaType.TEXT_HTML)
     @Path("/shutdown")
     public void shutdownHTML() {
+	String logMessage = " Metrics - group=REST series=source::shutdown_text_html call=1";
+	ShepMetricsHelper.update(logger, logMessage);
+
 	logger.info("Shep shutting down ..");
 	System.exit(0);
     }
