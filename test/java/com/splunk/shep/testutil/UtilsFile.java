@@ -87,7 +87,7 @@ public class UtilsFile {
      * @return temporary directory that's deleted when the VM terminates.
      */
     public static File createTempDirectory() {
-	File dir = createNonExistingDirectory();
+	File dir = getUniquelyNamedFile();
 	createDirectory(dir);
 	return dir;
     }
@@ -113,13 +113,14 @@ public class UtilsFile {
 	return tmpDirectory;
     }
 
-    private static File createNonExistingDirectory() {
-	return createNonExistingDirectoryWithPrefix("test-dir");
+    private static File getUniquelyNamedFile() {
+	return getUniquelyNamedFileWithPrefix("test-dir");
     }
 
-    private static File createNonExistingDirectoryWithPrefix(String prefix) {
+    private static File getUniquelyNamedFileWithPrefix(String prefix) {
 	Class<?> callerToThisMethod = MethodCallerHelper.getCallerToMyMethod();
-	String tempDirName = prefix + "-" + callerToThisMethod.getSimpleName();
+	String tempDirName = FileUtils.getUserDirectoryPath() + File.separator
+		+ prefix + "-" + callerToThisMethod.getSimpleName();
 	File dir = new File(tempDirName);
 	while (dir.exists()) {
 	    tempDirName += "-" + RandomStringUtils.randomAlphanumeric(2);
@@ -134,7 +135,12 @@ public class UtilsFile {
 		    "Could not create directory: " + dir.getAbsolutePath(),
 		    new RuntimeException());
 	}
-	dir.deleteOnExit();
+	try {
+	    FileUtils.forceDeleteOnExit(dir);
+	} catch (IOException e) {
+	    UtilsTestNG.failForException("Could not force delete on exit: "
+		    + dir.getAbsolutePath(), new RuntimeException(e));
+	}
     }
 
     /**
@@ -147,7 +153,7 @@ public class UtilsFile {
      * @return temporary directory that's deleted when the VM terminates.
      */
     public static File createPrefixedTempDirectory(String string) {
-	File dir = createNonExistingDirectoryWithPrefix(string);
+	File dir = getUniquelyNamedFileWithPrefix(string);
 	if (dir.exists()) {
 	    throw new RuntimeException(new FileExistsException());
 	}
