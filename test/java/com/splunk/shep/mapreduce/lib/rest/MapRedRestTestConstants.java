@@ -1,4 +1,4 @@
-package com.splunk.shep.mapred.lib.rest;
+package com.splunk.shep.mapreduce.lib.rest;
 
 import static org.testng.Assert.assertEquals;
 
@@ -6,11 +6,11 @@ import org.testng.annotations.Test;
 
 public class MapRedRestTestConstants {
 
-    public static final String TEST_RESOURCES_PATH = "test/java/com/splunk/shep/mapred/lib/rest";
+    public static final String TEST_RESOURCES_PATH = "test/java/com/splunk/shep/mapreduce/lib/rest";
 
     @Test(groups = { "fast" })
     public void testResourcesPathConstant_should_equal_theFolderOfThePackageWhereThisClassLives() {
 	assertEquals(TEST_RESOURCES_PATH,
-		"test/java/com/splunk/shep/mapred/lib/rest");
+		"test/java/com/splunk/shep/mapreduce/lib/rest");
     }
 }

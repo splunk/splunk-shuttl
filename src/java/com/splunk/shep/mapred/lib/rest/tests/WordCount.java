@@ -34,7 +34,7 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextInputFormat;
 
-import com.splunk.shep.mapred.lib.rest.SplunkConfiguration;
+import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
 
 public class WordCount {
 

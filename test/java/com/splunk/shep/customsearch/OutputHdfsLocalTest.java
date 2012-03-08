@@ -50,7 +50,7 @@ public class OutputHdfsLocalTest {
 		splunkPassword, splunkHost, splunkMGMTPort);
 	Service loggedInService = parameters.getLoggedInService();
 	putDataInSplunk(loggedInService);
-	Thread.sleep(1000);
+	Thread.sleep(5000);
 	runCustomSearchCommand(splunkUsername, splunkPassword, loggedInService
 		.getSettings().getSplunkHome());
     }

@@ -97,21 +97,21 @@ public class SplunkEventsInputFormat extends
 	    }
 	    return true;
 	}
+    }
 
-	public InputSplit[] getSplits(JobConf job, int numSplits)
-		throws IOException {
-	    ArrayList<FileSplit> splits = new ArrayList<FileSplit>();
-	    for (FileStatus status : listStatus(job)) {
-		Path fileName = status.getPath();
-		if (status.isDir()) {
-		    throw new IOException("Not a file: " + fileName);
-		}
-		logger.trace("Adding split: " + fileName);
-		splits.add(new FileSplit(fileName, 0, status.getLen(),
-			new String[] {}));
+    public InputSplit[] getSplits(JobConf job, int numSplits)
+	    throws IOException {
+	ArrayList<FileSplit> splits = new ArrayList<FileSplit>();
+	for (FileStatus status : listStatus(job)) {
+	    Path fileName = status.getPath();
+	    if (status.isDir()) {
+		throw new IOException("Not a file: " + fileName);
 	    }
-	    return splits.toArray(new FileSplit[splits.size()]);
+	    logger.trace("Adding split: " + fileName);
+	    splits.add(new FileSplit(fileName, 0, status.getLen(),
+		    new String[] {}));
 	}
+	return splits.toArray(new FileSplit[splits.size()]);
     }
 
     public void configure(JobConf conf) {

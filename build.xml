@@ -45,7 +45,7 @@
 	<!--
 	<property name="hive.download.url.prefix" value="http://www.gtlib.gatech.edu/pub/apache" />
 	-->
-	<property name="hive.download.url.prefix" value="http://mirror.cc.columbia.edu/pub/software/apache" />
+	<property name="hive.download.url.prefix" value="http://archive.apache.org/dist" />
 	<property name="hive.basename" value="hive" />
 	<property name="hive.versname" value="${hive.basename}-${hive.version}" />
 	<property name="hive.fullname" value="${hive.versname}.tar.gz" />
@@ -225,7 +225,7 @@
 	<target name="test-all" depends="clean-built-classes-then-compile">
 		<antcall target="test" />
 		<antcall target="super-slow-tests" />
-		<antcall target="in-memory-test" /> 
+		<antcall target="in-memory-test" />
 	</target>
 
 	<target name="clean-built-classes-then-compile" depends="clean-built-classes, compile" />
@@ -570,14 +570,14 @@
 	</target>
 
 	<!-- Stop, copy and start -->
-	<target name="hadoop-boot">
+	<target name="hadoop-boot" depends="set-hadoop-home">
 		<antcall>
 			<target name="hadoop-start" />
 			<target name="hadoop-unsafe-mode" />
 		</antcall>
 	</target>
 
-	<target name="hadoop-stop">
+	<target name="hadoop-stop" depends="set-hadoop-home">
 		<exec executable="${hadoop.home}/bin/stop-all.sh" osfamily="unix" />
 	</target>
 
@@ -701,7 +701,7 @@
 		<delete dir="${shep.app.home}" />
 	</target>
 
-	<target name="splunk-start">
+	<target name="splunk-start" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="start --accept-license --no-prompt --answer-yes splunkd" />
 		</exec>
@@ -713,13 +713,13 @@
 		</exec>
 	</target>
 
-	<target name="splunk-stop">
+	<target name="splunk-stop" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="stop -f" />
 		</exec>
 	</target>
 
-	<target name="splunk-restart">
+	<target name="splunk-restart" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="restart" />
 		</exec>
@@ -757,7 +757,7 @@
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
 	</target>
 
-	<target name="splunk-clean-all">
+	<target name="splunk-clean-all" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="clean all -f" />
 		</exec>
@@ -799,7 +799,6 @@
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,jar">
 		<antcall target="create-splunk-app" />
-		<copy tofile="${stage.dir}-${buildVersionSuffix}.tgz" file="${splunk-app.tar}" />
 	</target>
 
 	<target name="create-splunk-app" depends="jar">
@@ -807,6 +806,7 @@
 			<target name="stage-splunk-app" />
 			<target name="tar-splunk-app" />
 		</antcall>
+		<copy tofile="${stage.dir}-${buildVersionSuffix}.tgz" file="${splunk-app.tar}" />
 	</target>
 
 	<target name="stage-splunk-app">
@@ -890,14 +890,14 @@
 				for example: file:///Users/hyan/code/splunk/splunk-shep/package/bin/log4j.properties 
 			-->
 			<syspropertyset>
-			   <propertyref prefix="log4j.configuration" />
+				<propertyref prefix="log4j.configuration" />
 			</syspropertyset>
 			<classpath>
 				<path refid="build.classpath" />
 			</classpath>
 			<formatter type="xml" />
 			<batchtest fork="yes" todir="${report.dir}">
-				<fileset dir="${testdir}" includes="**/TestHDFSSink.java" />
+				<fileset dir="${classdir}" excludes="**/*$*" includes="**/Test*.class" />
 			</batchtest>
 		</junit>
 		<junitreport todir="${report.dir}">
@@ -905,4 +905,17 @@
 			<report todir="${report.dir}" />
 		</junitreport>
 	</target>
+
+	<target name="doc">
+		<javadoc destdir="build/docs/api" 
+			version="true" 
+			use="true" 
+			windowtitle="Shep" >
+			<packageset dir="src/java" defaultexcludes="yes">
+				<exclude name="com/splunk/**/tests/**"/>
+				<include name="com/splunk/**"/>
+			</packageset>
+		</javadoc>
+	</target>
+
 </project>

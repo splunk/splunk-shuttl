@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.mapred.lib.rest;
+package com.splunk.shep.mapreduce.lib.rest;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,18 +22,19 @@ import java.io.Writer;
 import java.net.Socket;
 import java.util.Date;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.OutputFormat;
-import org.apache.hadoop.mapred.RecordWriter;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.OutputCommitter;
+import org.apache.hadoop.mapreduce.OutputFormat;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter;
 import org.apache.log4j.Logger;
 
 import com.splunk.Args;
 import com.splunk.Index;
 import com.splunk.Service;
-import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
 
 /**
  * An OutputFormat that send reduce output to Splunk as a simple event with
@@ -42,21 +43,17 @@ import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
  * 
  * @param <K>
  * @param <V>
- * @author kpakkirisamy
+ * @author kpakkirisamy, hyan
  */
 
-public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
-    private static final String SPLUNK_SMPLRCVR_ENDPT = "/services/receivers/simple";
-    private static final int SPLUNK_MGMTPORT_DEFAULT = SplunkConfiguration.SPLUNKDEFAULTPORT;
-    private static final String HADOOP_EVENT = "hadoop_event"; // event can be
-							       // configured on
-							       // the Splunk
-							       // side
+public class SplunkOutputFormat<K, V> extends OutputFormat<K, V> {
     public final static String SPLUNKHOST = SplunkConfiguration.SPLUNKHOST;
     public final static String SPLUNKPORT = SplunkConfiguration.SPLUNKPORT;
     public final static String USERNAME = SplunkConfiguration.USERNAME;
     public final static String PASSWORD = SplunkConfiguration.PASSWORD;
-    private static Logger logger = Logger.getLogger(SplunkOutputFormat.class);
+
+    private static Logger LOG = Logger.getLogger(SplunkOutputFormat.class);
+    private FileOutputCommitter committer = null;
     private Service service = null;
     private Socket stream = null;
     private Writer writerOut;
@@ -64,21 +61,15 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
     /**
      * A RecordWriter that writes the reduce output to Splunk
      */
-    protected class SplunkRecordWriter implements RecordWriter<K, V> {
+    protected class SplunkRecordWriter extends RecordWriter<K, V> {
 	private static final String SPACE = " ";
 
 	protected SplunkRecordWriter() {
-	    System.out.println("SplunkRecordWriter Constructor!!!");
+
 	}
 
-	public void close(Reporter reporter) throws IOException {
-	    writerOut.flush();
-	    writerOut.close();
-	}
-
+	@Override
 	public void write(K key, V value) throws IOException {
-	    logger.trace("key " + key + " value " + value);
-
 	    StringBuilder sbuf = new StringBuilder();
 	    sbuf.append(new Date().toString());
 	    sbuf.append(SPACE); // space separator for Splunk
@@ -89,36 +80,44 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
 	    String eventString = sbuf.toString();
 	    writerOut.write(eventString);
 	}
+
+	@Override
+	public void close(TaskAttemptContext context) throws IOException,
+		InterruptedException {
+	    writerOut.close();
+	}
     }
 
-    private void loginSplunk(JobConf job) {
+    private void loginSplunk(Configuration conf, String jobName) {
 	try {
 	    if (service == null) {
 		// build up login
 		Args args = new Args();
-		args.put("username", job.get(SplunkConfiguration.USERNAME));
-		args.put("password", job.get(SplunkConfiguration.PASSWORD));
-		args.put("host", job.get(SplunkConfiguration.SPLUNKHOST));
+		args.put("username", conf.get(SplunkConfiguration.USERNAME));
+		args.put("password", conf.get(SplunkConfiguration.PASSWORD));
+		args.put("host", conf.get(SplunkConfiguration.SPLUNKHOST));
 		args.put("port",
-			job.getInt(SplunkConfiguration.SPLUNKPORT, 8089));
+			conf.getInt(SplunkConfiguration.SPLUNKPORT, 8089));
 		service = Service.connect(args);
 	    }
 	    if (stream == null) {
 		// create an http stream input into an index configured by
 		// JobConf.
 		Index index = service.getIndexes().get(
-			job.get(SplunkConfiguration.SPLUNKINDEX));
+			conf.get(SplunkConfiguration.SPLUNKINDEX));
 		Args attachArgs = new Args();
-		attachArgs.put("source", job.getJobName());
+		attachArgs.put("source", jobName);
 		attachArgs.put("sourcetype",
-			job.get(SplunkConfiguration.SPLUNKSOURCETYPE));
+			conf.get(SplunkConfiguration.SPLUNKSOURCETYPE));
 		stream = index.attach(attachArgs);
 		OutputStream ostream = stream.getOutputStream();
 		writerOut = new OutputStreamWriter(ostream, "UTF8");
 	    }
 	} catch (Exception e) {
+	    LOG.error(e);
+	    e.printStackTrace();
 	    throw new RuntimeException("Failed to connect to splunk, "
-		    + "or connect to streaming socket");
+		    + "or connect to streaming socket", e);
 	}
     }
 
@@ -136,10 +135,10 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
      * @return a {@link RecordWriter} to write the output for the job.
      * @throws IOException
      */
-    public RecordWriter<K, V> getRecordWriter(FileSystem ignored, JobConf job,
-	    String name, Progressable progress) throws IOException {
-
-	loginSplunk(job);
+    @Override
+    public RecordWriter<K, V> getRecordWriter(TaskAttemptContext context)
+	    throws IOException, InterruptedException {
+	loginSplunk(context.getConfiguration(), context.getJobName());
 
 	return new SplunkRecordWriter();
     }
@@ -160,7 +159,25 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
      * @throws IOException
      *             when output should not be attempted
      */
-    public void checkOutputSpecs(FileSystem ignored, JobConf job)
-	    throws IOException {
+    @Override
+    public void checkOutputSpecs(JobContext context) throws IOException,
+	    InterruptedException {
+
     }
+
+    @Override
+    public OutputCommitter getOutputCommitter(TaskAttemptContext context)
+	    throws IOException, InterruptedException {
+	if (committer == null) {
+	    Path output = getOutputPath(context);
+	    committer = new FileOutputCommitter(output, context);
+	}
+	return committer;
+    }
+
+    public static Path getOutputPath(JobContext job) {
+	String name = job.getConfiguration().get("mapred.output.dir");
+	return name == null ? null : new Path(name);
+    }
+
 }

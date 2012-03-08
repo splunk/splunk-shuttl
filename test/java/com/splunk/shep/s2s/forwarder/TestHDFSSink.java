@@ -14,15 +14,13 @@ import org.junit.Test;
 public class TestHDFSSink {
     private static Log LOG = LogFactory.getLog(TestHDFSSink.class);
     private static MiniDFSCluster dfsCluster;
-    private static Configuration conf;
-    private static FileSystem fs;
     private static HDFSSink sink;
     private static String filePath = "splunkeventdata";
 
     @BeforeClass
     public static void setUp() throws Exception {
 	sink = new HDFSSink();
-	conf = new Configuration();
+	Configuration conf = new Configuration();
 	// int port = Integer.parseInt(sink.getPort());
 	// conf.set("fs.default.name",
 	// String.format("hdfs://%s:%d", sink.getIp(), port));
@@ -30,9 +28,10 @@ public class TestHDFSSink {
 	// dfsCluster = new MiniDFSCluster(port, conf, 2, true, true, true,
 	// null,
 	// null, null, null);
-	fs = dfsCluster.getFileSystem();
+	FileSystem fs = dfsCluster.getFileSystem();
 	sink.setConf(conf);
 	sink.setFileSystem(fs);
+	sink.setIp("127.0.0.1");
 	sink.setPort("" + dfsCluster.getNameNodePort());
 	sink.start(filePath);
 	sink.init();
@@ -47,7 +46,6 @@ public class TestHDFSSink {
 
     @Test
     public void testHDFSSink() throws Exception {
-
 	String data1 = "2011-09-19 17:04:11 this is line1";
 	String sourceType = "mySourceType";
 	String source = "mySource";

@@ -30,17 +30,17 @@ Prerequisites
 
 ### Hadoop
 
-Currently the Hadoop version used is 0.20.203.0
+Currently the Hadoop version used is 1.0 
 
 You can download it from one of the mirror sites listed [here][hadoop-download].
 And see the [Hadoop documentation][] for instructions on installing and more.
 
-[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz
-[Hadoop documentation]:http://hadoop.apache.org/common/docs/r0.20.203.0/
+[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.0.0
+[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.0.0/
 
 ### Splunk
 
-Currently the Splunk version used is 4.2.4
+Currently the Splunk version used is 4.3.1
 
 You can download it from [here][splunk-download]
 And see the [Splunk documentation][] for instructions on installing and more.
@@ -143,4 +143,6 @@ Now run:
 	$ `ant clean-all`
 	$ `ant test`
 
-Currently supports version 203 and 205 for downloading. Tests are not working on 205 yet
+Currently supports version 1.0.0
+
+
