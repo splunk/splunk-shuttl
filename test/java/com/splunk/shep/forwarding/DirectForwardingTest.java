@@ -14,8 +14,6 @@
 // limitations under the License.
 package com.splunk.shep.forwarding;
 
-import static org.testng.Assert.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +30,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -78,6 +77,7 @@ public class DirectForwardingTest {
         } else {
             indexes.create(name);
             indexes.refresh();
+	    System.out.println("Index " + name + " created");
         }
 
         Index index = indexes.get(name);
@@ -89,6 +89,7 @@ public class DirectForwardingTest {
     @BeforeClass(groups = { "system", "known-failures" })
     public void setUp(String splunkHost, String splunkMgmtPort,
 	    String splunkUser, String splunkPass) throws IOException {
+	System.out.println("SetUp for Direct forwarding tests");
 	splunkServiceParams = new SplunkServiceParameters(splunkUser,
 		splunkPass, splunkHost, splunkMgmtPort, "shep");
 	splunkService = splunkServiceParams.getLoggedInService();
@@ -97,6 +98,7 @@ public class DirectForwardingTest {
 
     @Test(groups = { "system" })
     public void monitorFileInSplunk() {
+	System.out.println("Running monitorFileInSplunk");
         String indexName = "directfwd";
         Index index = createSplunkIndex(indexName);
 
@@ -112,20 +114,23 @@ public class DirectForwardingTest {
 
         // wait at most 1 minute for indexing to complete
         waitForIndexing(index, 100, 60);
-	assertEquals(index.getTotalEventCount(), 100);
+	Assert.assertEquals(index.getTotalEventCount(), 100);
 
         // check that events are searchable
         String query = "search index=directfwd";
         Job job;
         job = splunkService.getJobs().create(query, null);
         SplunkTestUtils.waitWhileJobFinishes(job);
-	assertEquals(job.getEventCount(), 100);
+	Assert.assertEquals(job.getEventCount(), 100);
     }
 
     @Test(groups = { "system" }, dependsOnMethods = { "monitorFileInSplunk" })
-    public void checkTotalEventsSearch() throws IOException {
+    public void checkTotalEventsSearch() throws IOException, InterruptedException {
+	// Wait 30 seconds for events to get forwarded
+	Thread.sleep(30000);
+	
         SavedSearchCollection savedSearches = splunkService.getSavedSearches();
-        assertTrue(savedSearches.containsKey("HC total events"));
+	Assert.assertTrue(savedSearches.containsKey("HC total events"));
         SavedSearch savedSearch = savedSearches.get("HC total events");
         Job job = savedSearch.dispatch();
         SplunkTestUtils.waitWhileJobFinishes(job);
@@ -134,11 +139,11 @@ public class DirectForwardingTest {
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String,Integer>> results = mapper.readValue(is, 
         	new TypeReference<List<HashMap<String,Integer>>>() { });
-	assertEquals(results.size(), 1, "Search doesn't return 1 result");
-	assertTrue(results.get(0).containsKey("Total Events"),
+	Assert.assertEquals(results.size(), 1, "Search doesn't return 1 result");
+	Assert.assertTrue(results.get(0).containsKey("Total Events"),
 		"Total Events key doesn't exist in search results");
         int totalEvents = results.get(0).get("Total Events");
-	assertEquals(totalEvents, 100,
+	Assert.assertEquals(totalEvents, 100,
 		"HC total events saved search returns incorrect results");
     }
 
@@ -151,9 +156,10 @@ public class DirectForwardingTest {
 	URI hdfsFile = new URI("hdsf", null, hadoopHost,
 		Integer.parseInt(hadoopPort), "/splunkeventdata*", null, null);
 	Path pattern = new Path(hdfsFile);
-	assertTrue(fileSystem != null, "fileSystem is null");
+	Assert.assertTrue(fileSystem != null, "fileSystem is null");
 	FileStatus fs[] = fileSystem.globStatus(pattern);
-	assertTrue(fs.length > 0, "No files exist which match the pattern: " + pattern);
+	Assert.assertTrue(fs.length > 0,
+		"No files exist which match the pattern: " + pattern);
 	FileStatus latest = fs[0];
 	for (int i = 1; i < fs.length; i++) {
 	    if (fs[i].getModificationTime() > latest.getModificationTime()) {
@@ -172,7 +178,7 @@ public class DirectForwardingTest {
 	}
 	String msg = "HADOOP-271: Incorrect number of events in " + latest.getPath() + ":"
 		+ readLines;
-	assertEquals(numberOfEvents, 100, msg);
+	Assert.assertEquals(numberOfEvents, 100, msg);
     }
 
 }
