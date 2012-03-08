@@ -84,11 +84,19 @@ public class FailedBucketTransfers {
 	// This will fail when the buckets structure has changed.
 	if (listFiles != null) {
 	    for (File file : listFiles) {
-		Bucket bucket = getBucketFromFailedBucketsLocation(file);
-		failedBuckets.add(bucket);
+		if (file.isFile()) {
+		    continue; // Ignore regular files.
+		} else {
+		    addFailedBucket(failedBuckets, file);
+		}
 	    }
 	}
 	return failedBuckets;
+    }
+
+    private void addFailedBucket(ArrayList<Bucket> failedBuckets, File file) {
+	Bucket bucket = getBucketFromFailedBucketsLocation(file);
+	failedBuckets.add(bucket);
     }
 
     private Bucket getBucketFromFailedBucketsLocation(File file) {

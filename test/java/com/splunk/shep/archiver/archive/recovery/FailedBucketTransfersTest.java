@@ -105,6 +105,13 @@ public class FailedBucketTransfersTest {
 	assertEquals(failedBucket.getFormat(), actualBucket.getFormat());
     }
 
+    public void getFailedBuckets_afterCreatingLockInFailedLocation_emptyList() {
+	File lock = UtilsFile.createFileInParent(failedBucketLocation, "lock");
+	assertTrue(lock.isFile());
+	List<Bucket> failedBuckets = failedBucketTransfers.getFailedBuckets();
+	assertTrue(failedBuckets.isEmpty());
+    }
+
     private Bucket createFailedBucket(String index) {
 	File directoryRepresentingIndex = UtilsFile.createDirectoryInParent(
 		failedBucketLocation, index);
