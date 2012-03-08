@@ -104,7 +104,12 @@ public class UtilsFile {
     public static File createTmpDirectoryWithName(String name) {
 	File tmpDirectory = new File(createTempDirectory(), name);
 	createDirectory(tmpDirectory);
-	tmpDirectory.deleteOnExit();
+	try {
+	    FileUtils.forceDeleteOnExit(tmpDirectory);
+	} catch (IOException e) {
+	    UtilsTestNG.failForException(
+		    "Could not force delete tmpDirectory: " + tmpDirectory, e);
+	}
 	return tmpDirectory;
     }
 
