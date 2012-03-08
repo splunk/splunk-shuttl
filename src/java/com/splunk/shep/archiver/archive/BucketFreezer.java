@@ -14,6 +14,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
@@ -34,14 +35,14 @@ public class BucketFreezer {
 	    + "-failed-buckets";
 
     private final String safeLocationForBuckets;
-    private final String failedBucketsLocation;
     /* package-private */HttpClient httpClient;
+    private final FailedBucketTransfers failedBucketTransfers;
 
     protected BucketFreezer(String safeLocationForBuckets,
-	    HttpClient httpClient, String failedBucketsLocation) {
+	    HttpClient httpClient, FailedBucketTransfers failedBucketTransfers) {
 	this.safeLocationForBuckets = safeLocationForBuckets;
 	this.httpClient = httpClient;
-	this.failedBucketsLocation = failedBucketsLocation;
+	this.failedBucketTransfers = failedBucketTransfers;
     }
 
     public static final int EXIT_OK = 0;
@@ -114,33 +115,9 @@ public class BucketFreezer {
 	    break;
 	default:
 	    will("Move bucket to failed buckets location because of failed HttpStatus",
-		    "failed_buckets_location", failedBucketsLocation,
-		    "status_code", statusCode);
-	    moveBucketToFailedBucketsLocation(bucket);
+		    "bucket", bucket, "status_code", statusCode);
+	    failedBucketTransfers.moveFailedBucket(bucket);
 	}
-    }
-
-    private void moveBucketToFailedBucketsLocation(Bucket bucket) {
-	File failedBucketsLocation = getFailedBucketsLocation();
-	try {
-	    bucket.moveBucketToDir(failedBucketsLocation);
-	} catch (FileNotFoundException e) {
-	    did("Move bucket to directory to failed buckets location",
-		    "Got FileNotFoundException: " + e, "move to succeed",
-		    "failed_buckets_location", failedBucketsLocation,
-		    "exception", e);
-	    throw new RuntimeException(e);
-	} catch (FileNotDirectoryException e) {
-	    did("Move bucket to directory to failed buckets location",
-		    "Got FileNotDirectoryException: " + e, "move to succeed",
-		    "failed_buckets_location", failedBucketsLocation,
-		    "exception", e);
-	    throw new RuntimeException(e);
-	}
-    }
-
-    private File getFailedBucketsLocation() {
-	return createDirectory(failedBucketsLocation);
     }
 
     private File createDirectory(String path) {
@@ -172,7 +149,8 @@ public class BucketFreezer {
 
     public static BucketFreezer createWithDeafultSafeLocationAndHTTPClient() {
 	return new BucketFreezer(DEFAULT_SAFE_LOCATION,
-		new DefaultHttpClient(), DEFAULT_FAIL_LOCATION);
+		new DefaultHttpClient(), new FailedBucketTransfers(
+			DEFAULT_FAIL_LOCATION));
     }
 
     /**

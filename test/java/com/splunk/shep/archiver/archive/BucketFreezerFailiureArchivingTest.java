@@ -15,6 +15,7 @@
 package com.splunk.shep.archiver.archive;
 
 import static com.splunk.shep.testutil.UtilsFile.*;
+import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -22,10 +23,14 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.HttpClient;
+import org.mockito.ArgumentCaptor;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
+import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsMockito;
 
 /**
@@ -38,15 +43,17 @@ public class BucketFreezerFailiureArchivingTest {
     BucketFreezer bucketFreezer;
     File failedBucketsLocation;
     File safeLocation;
+    FailedBucketTransfers failedBucketTransfers;
 
     @BeforeMethod(groups = { "fast" })
     public void setUp_internalServerErrorHttpClientBucketFreezer() {
 	safeLocation = createTempDirectory();
+	failedBucketTransfers = mock(FailedBucketTransfers.class);
 	failedBucketsLocation = createTempDirectory();
 	HttpClient failingHttpClient = UtilsMockito
 		.createInternalServerErrorHttpClientMock();
 	bucketFreezer = new BucketFreezer(safeLocation.getAbsolutePath(),
-		failingHttpClient, failedBucketsLocation.getAbsolutePath());
+		failingHttpClient, failedBucketTransfers);
     }
 
     @AfterMethod(groups = { "fast" })
@@ -55,28 +62,22 @@ public class BucketFreezerFailiureArchivingTest {
 	FileUtils.deleteQuietly(safeLocation);
     }
 
-    public void freezeBucket_internalServerError_moveBucketToFailedBucketLocation()
+    public void freezeBucket_internalServerError_moveBucketWithFailedBucketTransfers()
 	    throws IOException {
-	assertTrue(isDirectoryEmpty(failedBucketsLocation));
+	Bucket failedBucket = UtilsBucket.createTestBucket();
+	bucketFreezer.freezeBucket(failedBucket.getIndex(), failedBucket
+		.getDirectory().getAbsolutePath());
 
-	// Test
-	bucketFreezer.freezeBucket("index", createTempDirectory()
-		.getAbsolutePath());
+	ArgumentCaptor<Bucket> bucketCaptor = ArgumentCaptor
+		.forClass(Bucket.class);
 
-	assertTrue(!isDirectoryEmpty(failedBucketsLocation));
-    }
-
-    public void freezeBucket_internalServerError_createFailedBucketLocation()
-	    throws IOException {
-	assertTrue(FileUtils.deleteQuietly(failedBucketsLocation));
-	File nonExistingLocation = failedBucketsLocation;
-	assertTrue(!nonExistingLocation.exists());
-
-	// Test
-	bucketFreezer.freezeBucket("index", createTempDirectory()
-		.getAbsolutePath());
-
-	assertTrue(nonExistingLocation.exists());
+	// Verification
+	verify(failedBucketTransfers, times(1)).moveFailedBucket(
+		bucketCaptor.capture());
+	Bucket capturedBucket = bucketCaptor.getValue();
+	assertEquals(failedBucket.getIndex(), capturedBucket.getIndex());
+	assertEquals(failedBucket.getName(), capturedBucket.getName());
+	assertEquals(failedBucket.getFormat(), capturedBucket.getFormat());
     }
 
 }
