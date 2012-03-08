@@ -1,0 +1,100 @@
+May 12 10:37:41 2009 datagen-host43 postfix/smtpd[14504]: HCAWQEQOEP: client=unknown[186.236.89.177]
+May 12 10:37:41 2009 datagen-host66 crond[10216]: (root) CMD (run-parts /etc/cron.hourly)
+May 12 10:37:41 2009 datagen-host49 /usr/sbin/cron[20679]: (elee) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:41 2009 datagen-host18 snmpd[15838]: truncating integer value > 32 bits
+May 12 10:37:41 2009 datagen-host26 dhclient: bound to ip=39.108.15.28 -- ASCII renewal in 5807 seconds. 
+May 12 10:37:42 2009 datagen-host81 status=400 DHCPACK=ASCII from host=64.182.231.145 
+May 12 10:37:42 2009 datagen-host4 postfix/qmgr[14446]: E0RF59EJ2R: removed
+May 12 10:37:42 2009 datagen-host51 crond[16734]: (root) CMD (run-parts /etc/cron.hourly)
+May 12 10:37:42 2009 datagen-host9 sshd(pam_unix)[1127]: session opened for user epark by (pid=1127) ASCII
+May 12 10:37:42 2009 datagen-host52 postfix/smtpd[11867]: SHYN0TLL8F: client=unknown[167.32.143.229]
+May 12 10:37:43 2009 datagen-host87 ntpd[30791]: kernel time sync enabled 2001
+May 12 10:37:43 2009 datagen-host32 postfix/smtpd[24034]: WR1P76OVUS: client=unknown[29.248.191.13]
+May 12 10:37:43 2009 datagen-host48 /usr/sbin/cron[18807]: (igreene) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:43 2009 datagen-host84 sshd(pam_unix)[31873]: session opened for user eshim by (pid=31873) ASCII
+May 12 10:37:43 2009 datagen-host80 status=303 DHCPACK=ASCII from host=114.219.6.123 
+May 12 10:37:44 2009 datagen-host8 ntpd[28578]: kernel time sync enabled 2001
+May 12 10:37:44 2009 datagen-host49 sshd(pam_unix)[6889]: session on port=229 closed for user halbrecht ASCII
+May 12 10:37:44 2009 datagen-host95 sshd(pam_unix)[1591]: session on port=337 closed for user wtaten ASCII
+May 12 10:37:44 2009 datagen-host67 crond[15049]: (root) CMD (run-parts /etc/cron.hourly)
+May 12 10:37:44 2009 datagen-host38 status=306 DHCPACK=ASCII from host=222.181.224.15 
+May 12 10:37:45 2009 datagen-host66 postfix/qmgr[25320]: 5VHE1AGRUY: removed
+May 12 10:37:45 2009 datagen-host74 sshd(pam_unix)[32189]: session opened for user vgreene by (pid=32189) ASCII
+May 12 10:37:45 2009 datagen-host41 sshd(pam_unix)[21583]: session opened for user vchen by (pid=21583) ASCII
+May 12 10:37:45 2009 datagen-host1 postfix/qmgr[3897]: UOPMPXGDXT: removed
+May 12 10:37:45 2009 datagen-host96 postfix/smtpd[29110]: DY6XMB1R21: client=unknown[33.221.118.141]
+May 12 10:37:46 2009 datagen-host2 postfix/smtpd[18180]: disconnect from unknown[69.186.141.7]
+May 12 10:37:46 2009 datagen-host18 sshd(pam_unix)[29570]: session on port=585 closed for user itaten ASCII
+May 12 10:37:46 2009 datagen-host89 dhclient: bound to ip=149.197.135.95 -- ASCII renewal in 5807 seconds. 
+May 12 10:37:46 2009 datagen-host50 ntpd[10046]: kernel time sync enabled 2001
+May 12 10:37:46 2009 datagen-host90 ntpd[10068]: kernel time sync enabled 2001
+May 12 10:37:47 2009 datagen-host31 postfix/smtpd[28601]: disconnect from unknown[213.163.53.67]
+May 12 10:37:47 2009 datagen-host6 postfix/qmgr[25655]: TDDTZEXEHP: removed
+May 12 10:37:47 2009 datagen-host67 status=201 DHCPACK=ASCII from host=52.158.242.198 
+May 12 10:37:47 2009 datagen-host0 /usr/sbin/cron[5119]: (jgreene) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:47 2009 datagen-host60 /usr/sbin/cron[32487]: (esmith) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:48 2009 datagen-host48 postfix/qmgr[22807]: FRMSAOY4U6: removed
+May 12 10:37:48 2009 datagen-host33 crond[15379]: (root) CMD (run-parts /etc/cron.hourly)
+May 12 10:37:48 2009 datagen-host35 sshd(pam_unix)[14376]: session opened for user dpark by (pid=14376) ASCII
+May 12 10:37:48 2009 datagen-host76 dhclient: bound to ip=73.117.207.235 -- ASCII renewal in 5807 seconds. 
+May 12 10:37:48 2009 datagen-host19 sshd(pam_unix)[14387]: session on port=216 closed for user wchen ASCII
+May 12 10:37:49 2009 datagen-host30 sshd(pam_unix)[5612]: session opened for user hkim by (pid=5612) ASCII
+May 12 10:37:49 2009 datagen-host10 sshd(pam_unix)[2582]: session on port=660 closed for user usmith ASCII
+May 12 10:37:49 2009 datagen-host33 dhclient: bound to ip=6.49.81.70 -- ASCII renewal in 5807 seconds. 
+May 12 10:37:49 2009 datagen-host26 snmpd[32281]: truncating integer value > 32 bits
+May 12 10:37:49 2009 datagen-host17 /usr/sbin/cron[19661]: (hkim) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:50 2009 datagen-host9 dhclient: bound to ip=196.155.121.115 -- ASCII renewal in 5807 seconds. 
+May 12 10:37:50 2009 datagen-host7 status=203 DHCPACK=ASCII from host=205.3.202.0 
+May 12 10:37:50 2009 datagen-host34 /usr/sbin/cron[7708]: (epark) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:50 2009 datagen-host85 postfix/smtpd[16243]: PELHECXJAJ: client=unknown[108.39.70.9]
+May 12 10:37:50 2009 datagen-host44 dhclient: bound to ip=189.63.159.168 -- ASCII renewal in 5807 seconds. 
+May 12 10:37:51 2009 datagen-host43 snmpd[10755]: truncating integer value > 32 bits
+May 12 10:37:51 2009 datagen-host79 crond[19867]: (root) CMD (run-parts /etc/cron.hourly)
+May 12 10:37:51 2009 datagen-host25 crond[13216]: (root) CMD (run-parts /etc/cron.hourly)
+May 12 10:37:51 2009 datagen-host68 postfix/smtpd[30878]: OJIGMOSRIJ: client=unknown[215.103.23.91]
+May 12 10:37:51 2009 datagen-host77 status=301 DHCPACK=ASCII from host=116.103.227.152 
+May 12 10:37:52 2009 datagen-host3 ntpd[20987]: kernel time sync enabled 2001
+May 12 10:37:52 2009 datagen-host47 sshd(pam_unix)[24096]: session on port=296 closed for user ggreene ASCII
+May 12 10:37:52 2009 datagen-host16 ntpd[9969]: kernel time sync enabled 2001
+May 12 10:37:52 2009 datagen-host70 status=404 DHCPACK=ASCII from host=141.228.131.243 
+May 12 10:37:52 2009 datagen-host90 status=206 DHCPACK=ASCII from host=179.61.45.1 
+May 12 10:37:53 2009 datagen-host56 sshd(pam_unix)[20988]: session opened for user wsmith by (pid=20988) ASCII
+May 12 10:37:53 2009 datagen-host90 sshd(pam_unix)[3813]: session opened for user ggreene by (pid=3813) ASCII
+May 12 10:37:53 2009 datagen-host10 status=204 DHCPACK=ASCII from host=211.253.93.158 
+May 12 10:37:53 2009 datagen-host21 /usr/sbin/cron[23654]: (ychen) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:53 2009 datagen-host81 postfix/qmgr[24196]: FQ0TUGYEAV: removed
+May 12 10:37:54 2009 datagen-host60 /usr/sbin/cron[12796]: (ngreene) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:54 2009 datagen-host3 snmpd[9858]: truncating integer value > 32 bits
+May 12 10:37:54 2009 datagen-host3 ntpd[32150]: kernel time sync enabled 2001
+May 12 10:37:54 2009 datagen-host19 snmpd[30766]: truncating integer value > 32 bits
+May 12 10:37:54 2009 datagen-host93 crond[30351]: (root) CMD (run-parts /etc/cron.hourly)
+May 12 10:37:55 2009 datagen-host30 sshd(pam_unix)[13676]: session on port=895 closed for user fsmith ASCII
+May 12 10:37:55 2009 datagen-host33 crond[15377]: (root) CMD (run-parts /etc/cron.hourly)
+May 12 10:37:55 2009 datagen-host96 sshd(pam_unix)[931]: session on port=692 closed for user flee ASCII
+May 12 10:37:55 2009 datagen-host65 dhclient: bound to ip=34.40.23.211 -- ASCII renewal in 5807 seconds. 
+May 12 10:37:55 2009 datagen-host48 postfix/qmgr[20628]: B1Y4J22DAI: removed
+May 12 10:37:56 2009 datagen-host11 postfix/smtpd[28083]: 5B2MTFBIFJ: client=unknown[142.92.239.2]
+May 12 10:37:56 2009 datagen-host40 sshd(pam_unix)[9712]: session on port=830 closed for user ikim ASCII
+May 12 10:37:56 2009 datagen-host96 ntpd[20582]: kernel time sync enabled 2001
+May 12 10:37:56 2009 datagen-host20 snmpd[23930]: truncating integer value > 32 bits
+May 12 10:37:56 2009 datagen-host39 postfix/smtpd[13944]: OF3E7QO3L6: client=unknown[128.185.244.248]
+May 12 10:37:57 2009 datagen-host24 dhclient: bound to ip=159.177.120.117 -- ASCII renewal in 5807 seconds. 
+May 12 10:37:57 2009 datagen-host38 postfix/qmgr[13214]: ZQZZXCMBD1: removed
+May 12 10:37:57 2009 datagen-host38 snmpd[14172]: truncating integer value > 32 bits
+May 12 10:37:57 2009 datagen-host27 /usr/sbin/cron[20177]: (tshim) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:57 2009 datagen-host36 ntpd[19439]: kernel time sync enabled 2001
+May 12 10:37:58 2009 datagen-host23 status=206 DHCPACK=ASCII from host=253.214.215.183 
+May 12 10:37:58 2009 datagen-host30 postfix/qmgr[4521]: F50KSXHQM5: removed
+May 12 10:37:58 2009 datagen-host81 snmpd[4958]: truncating integer value > 32 bits
+May 12 10:37:58 2009 datagen-host56 /usr/sbin/cron[22223]: (kkim) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:58 2009 datagen-host76 /usr/sbin/cron[13318]: (sshim) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:59 2009 datagen-host13 /usr/sbin/cron[27414]: (tkim) CMD (cd $JFFNMS && php -q consolidate.php >/dev/null 2>&1)
+May 12 10:37:59 2009 datagen-host58 postfix/smtpd[30035]: JEF5WUL8YH: client=unknown[117.58.199.12]
+May 12 10:37:59 2009 datagen-host0 postfix/smtpd[2136]: disconnect from unknown[72.126.201.55]
+May 12 10:37:59 2009 datagen-host86 postfix/smtpd[25720]: disconnect from unknown[221.246.203.111]
+May 12 10:37:59 2009 datagen-host3 sshd(pam_unix)[11018]: session opened for user jsmith by (pid=11018) ASCII
+May 12 10:38:00 2009 datagen-host70 status=202 DHCPACK=ASCII from host=241.42.141.23 
+May 12 10:38:00 2009 datagen-host8 postfix/smtpd[11639]: disconnect from unknown[82.195.210.176]
+May 12 10:38:00 2009 datagen-host27 postfix/smtpd[6460]: disconnect from unknown[163.145.138.249]
+May 12 10:38:00 2009 datagen-host73 postfix/smtpd[1011]: disconnect from unknown[181.41.87.252]
+May 12 10:38:00 2009 datagen-host50 postfix/smtpd[18573]: UGROQU4R5E: client=unknown[64.252.98.204]
