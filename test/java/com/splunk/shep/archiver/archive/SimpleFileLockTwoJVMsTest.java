@@ -21,14 +21,14 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.testutil.ShellClassRunner;
+import com.splunk.shep.testutil.UtilsTestNG;
 
 /**
  * Fixture: Creating SimpleFileLocks in different JVMs.<br/>
- * Variables are all static so that they are created when
- * {@link FalseLockInOtherJVM#main(String[])} is running.
  */
 @Test(groups = { "slow" })
 public class SimpleFileLockTwoJVMsTest {
@@ -36,18 +36,26 @@ public class SimpleFileLockTwoJVMsTest {
     static final Integer EXIT_STATUS_ON_FALSE_LOCK = 47;
     static File fileToLock = new File(SimpleFileLockTwoJVMsTest.class.getName()
 	    + "-fileToLock");
-    static SimpleFileLock simpleFileLock = SimpleFileLock
-	    .createFromFile(fileToLock);
+    SimpleFileLock simpleFileLock;
 
-    @AfterMethod
+    @BeforeMethod(groups = { "slow" })
+    public void setUp() {
+	simpleFileLock = getSimpleFileLock();
+    }
+
+    @AfterMethod(groups = { "slow" })
     public void tearDown() {
+	deleteFileToLock();
+	assertTrue(!fileToLock.exists());
+    }
+
+    private void deleteFileToLock() {
 	try {
 	    FileUtils.forceDelete(fileToLock);
 	} catch (IOException e) {
-	    e.printStackTrace();
-	    throw new RuntimeException(e);
+	    UtilsTestNG.failForException("Tried force delete on"
+		    + " file, got IOException", e);
 	}
-	assertTrue(!fileToLock.exists());
     }
 
     public void tryLock_inOtherJvmAfterLockingInThisJvm_false() {
@@ -58,11 +66,16 @@ public class SimpleFileLockTwoJVMsTest {
 	assertEquals(EXIT_STATUS_ON_FALSE_LOCK, otherJvmRunner.getExitCode());
     }
 
+    public static SimpleFileLock getSimpleFileLock() {
+	return SimpleFileLock.createFromFile(fileToLock);
+    }
+
     private static class FalseLockInOtherJVM {
 
 	// It's launched with the ShellClassRunner.
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
+	    SimpleFileLock simpleFileLock = getSimpleFileLock();
 	    assertFalse(simpleFileLock.tryLock());
 	    System.exit(EXIT_STATUS_ON_FALSE_LOCK);
 	}
