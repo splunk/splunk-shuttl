@@ -28,6 +28,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
@@ -53,7 +54,8 @@ public class BucketFreezerFailiureArchivingTest {
 	HttpClient failingHttpClient = UtilsMockito
 		.createInternalServerErrorHttpClientMock();
 	bucketFreezer = new BucketFreezer(safeLocation.getAbsolutePath(),
-		failingHttpClient, failedBucketTransfers);
+		failingHttpClient, failedBucketTransfers,
+		mock(FailedBucketRestorer.class));
     }
 
     @AfterMethod(groups = { "fast" })

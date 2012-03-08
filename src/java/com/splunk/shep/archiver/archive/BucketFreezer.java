@@ -14,6 +14,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import com.splunk.shep.archiver.archive.recovery.FailedBucketLock;
+import com.splunk.shep.archiver.archive.recovery.FailedBucketRecoveryHandler;
+import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
@@ -37,12 +40,15 @@ public class BucketFreezer {
     private final String safeLocationForBuckets;
     /* package-private */HttpClient httpClient;
     private final FailedBucketTransfers failedBucketTransfers;
+    /* package-private */FailedBucketRestorer failedBucketRestorer;
 
     protected BucketFreezer(String safeLocationForBuckets,
-	    HttpClient httpClient, FailedBucketTransfers failedBucketTransfers) {
+	    HttpClient httpClient, FailedBucketTransfers failedBucketTransfers,
+	    FailedBucketRestorer failedBucketRestorer) {
 	this.safeLocationForBuckets = safeLocationForBuckets;
 	this.httpClient = httpClient;
 	this.failedBucketTransfers = failedBucketTransfers;
+	this.failedBucketRestorer = failedBucketRestorer;
     }
 
     public static final int EXIT_OK = 0;
@@ -76,6 +82,8 @@ public class BucketFreezer {
 	Bucket bucket = new Bucket(indexName, path);
 	bucket = bucket.moveBucketToDir(getSafeLocationForBucket(bucket));
 	doRestCall(bucket);
+	failedBucketRestorer
+		.recoverFailedBuckets(new CallRestToReArchiveFailedBuckets());
     }
 
     private File getSafeLocationForBucket(Bucket bucket) {
@@ -95,8 +103,13 @@ public class BucketFreezer {
 	    will("Send an archive bucket request", "request",
 		    archiveBucketRequest);
 	    HttpResponse response = httpClient.execute(archiveBucketRequest); // LOG
-	    handleResponseCodeFromDoingArchiveBucketRequest(response
-		    .getStatusLine().getStatusCode(), bucket);
+	    if (response != null) {
+		handleResponseCodeFromDoingArchiveBucketRequest(response
+			.getStatusLine().getStatusCode(), bucket);
+	    } else {
+		// It is test code.
+		// TODO: Get rid of this bad design.
+	    }
 	} catch (ClientProtocolException e) {
 	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e);
 	} catch (IOException e) {
@@ -148,9 +161,22 @@ public class BucketFreezer {
     }
 
     public static BucketFreezer createWithDeafultSafeLocationAndHTTPClient() {
+	FailedBucketTransfers failedBucketTransfers = new FailedBucketTransfers(
+		DEFAULT_FAIL_LOCATION);
+	FailedBucketRestorer failedBucketRestorer = new FailedBucketRestorer(
+		failedBucketTransfers, new FailedBucketLock());
 	return new BucketFreezer(DEFAULT_SAFE_LOCATION,
-		new DefaultHttpClient(), new FailedBucketTransfers(
-			DEFAULT_FAIL_LOCATION));
+		new DefaultHttpClient(), failedBucketTransfers,
+		failedBucketRestorer);
+    }
+
+    private class CallRestToReArchiveFailedBuckets implements
+	    FailedBucketRecoveryHandler {
+
+	@Override
+	public void recoverFailedBucket(Bucket failedBucket) {
+	    doRestCall(failedBucket);
+	}
     }
 
     /**

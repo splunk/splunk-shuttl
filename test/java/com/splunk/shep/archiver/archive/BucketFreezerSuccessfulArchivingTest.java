@@ -15,6 +15,7 @@
 package com.splunk.shep.archiver.archive;
 
 import static com.splunk.shep.testutil.UtilsFile.*;
+import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -27,6 +28,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
 import com.splunk.shep.testutil.UtilsMockito;
 
 /**
@@ -37,13 +39,14 @@ import com.splunk.shep.testutil.UtilsMockito;
 public class BucketFreezerSuccessfulArchivingTest {
 
     BucketFreezer bucketFreezer;
+    HttpClient okReturningHttpClient;
 
     @BeforeClass(groups = { "fast" })
     public void beforeClass() throws ClientProtocolException, IOException {
-	HttpClient okReturningHttpClient = UtilsMockito
+	okReturningHttpClient = UtilsMockito
 		.createAlwaysOKReturningHTTPClientMock();
 	bucketFreezer = new BucketFreezer(getSafeLocationPath(),
-		okReturningHttpClient, null);
+		okReturningHttpClient, null, mock(FailedBucketRestorer.class));
     }
 
     @AfterMethod(groups = { "fast" })

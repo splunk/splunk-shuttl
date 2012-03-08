@@ -41,7 +41,7 @@ public class FailedBucketRestorerTest {
 	bucketRecoveryHandler = mock(FailedBucketRecoveryHandler.class);
 	lock = mock(FailedBucketLock.class);
 	failedBucketRestorer = new FailedBucketRestorer(failedBucketTransfers,
-		lock, bucketRecoveryHandler);
+		lock);
     }
 
     private Bucket stubOneBucketInFailedBucketTransfers() {
@@ -56,7 +56,7 @@ public class FailedBucketRestorerTest {
     public void recoverFailedBuckets_gotLockAndThereIsOneFailedBucket_letBucketHandlerRecoverFailedBucket() {
 	Bucket failedBucket = stubOneBucketInFailedBucketTransfers();
 	when(lock.tryLock()).thenReturn(true);
-	failedBucketRestorer.recoverFailedBuckets();
+	failedBucketRestorer.recoverFailedBuckets(bucketRecoveryHandler);
 
 	verify(bucketRecoveryHandler).recoverFailedBucket(failedBucket);
     }
@@ -65,14 +65,14 @@ public class FailedBucketRestorerTest {
 	stubOneBucketInFailedBucketTransfers();
 	when(lock.tryLock()).thenReturn(false);
 
-	failedBucketRestorer.recoverFailedBuckets();
+	failedBucketRestorer.recoverFailedBuckets(bucketRecoveryHandler);
 
 	verify(bucketRecoveryHandler, times(0)).recoverFailedBucket(
 		any(Bucket.class));
     }
 
     public void redoverFailedBuckets_anyState_tryLockThenCloseLock() {
-	failedBucketRestorer.recoverFailedBuckets();
+	failedBucketRestorer.recoverFailedBuckets(bucketRecoveryHandler);
 	InOrder inOrder = inOrder(lock);
 	inOrder.verify(lock).tryLock();
 	inOrder.verify(lock).closeLock();

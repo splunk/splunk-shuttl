@@ -27,7 +27,6 @@ public class FailedBucketRestorer {
 
     private final FailedBucketTransfers failedBucketTransfers;
     private final FailedBucketLock failedBucketLock;
-    private final FailedBucketRecoveryHandler bucketRecoveryHandler;
 
     /**
      * @param failedBucketTransfers
@@ -35,31 +34,30 @@ public class FailedBucketRestorer {
      * @param failedBucketLock
      *            for making sure that no one else is accessing the failed
      *            buckets.
-     * @param bucketRecoveryHandler
-     *            to decide what to do with the failed buckets.
      */
     public FailedBucketRestorer(FailedBucketTransfers failedBucketTransfers,
-	    FailedBucketLock failedBucketLock,
-	    FailedBucketRecoveryHandler bucketRecoveryHandler) {
+	    FailedBucketLock failedBucketLock) {
 	this.failedBucketTransfers = failedBucketTransfers;
-	this.bucketRecoveryHandler = bucketRecoveryHandler;
 	this.failedBucketLock = failedBucketLock;
     }
 
     /**
      * Recover failed buckets with handler. Any bucket that is available for
      * recovery is sent to the {@link FailedBucketRecoveryHandler}.
+     * 
+     * @param bucketHandler
      */
-    public void recoverFailedBuckets() {
+    public void recoverFailedBuckets(FailedBucketRecoveryHandler bucketHandler) {
 	if (failedBucketLock.tryLock()) {
-	    recoverEachFailedBucket();
+	    recoverEachFailedBucket(bucketHandler);
 	}
 	failedBucketLock.closeLock();
     }
 
-    private void recoverEachFailedBucket() {
+    private void recoverEachFailedBucket(
+	    FailedBucketRecoveryHandler bucketHandler) {
 	for (Bucket failedBucket : failedBucketTransfers.getFailedBuckets()) {
-	    bucketRecoveryHandler.recoverFailedBucket(failedBucket);
+	    bucketHandler.recoverFailedBucket(failedBucket);
 	}
     }
 }
