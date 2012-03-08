@@ -197,6 +197,14 @@
 		<javac srcdir="${srcdir};${testdir}" destdir="${classdir}" includeAntRuntime="false" debug="true">
 			<classpath refid="build.classpath" />
 		</javac>
+		<!-- Tests using resources that are not .java files. Should probably create a resource folder instead of putting non .java files in src/java -->
+		<antcall target="copy-test-resources" />
+	</target>
+
+	<target name="copy-test-resources">
+		<copy todir="${classdir}">
+			<fileset dir="${testdir}" includes="**/*.xml,**/*.txt" />
+		</copy>
 	</target>
 
 	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">

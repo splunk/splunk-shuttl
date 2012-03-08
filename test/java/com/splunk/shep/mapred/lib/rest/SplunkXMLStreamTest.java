@@ -1,10 +1,10 @@
 package com.splunk.shep.mapred.lib.rest;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 import java.util.HashMap;
 
 import org.testng.annotations.Test;
@@ -28,10 +28,10 @@ public class SplunkXMLStreamTest {
     }
 
     private File getTestXMLFile() {
-	String splunkSearchResultsXMLPath = "test/java/com/splunk/shep/mapred/lib/rest/SplunkSearchResults.xml";
-	String osSafePathToXML = splunkSearchResultsXMLPath.replaceAll("/", ""
-		+ File.separatorChar);
-	return new File(osSafePathToXML);
+	URL resource = getClass().getResource("SplunkSearchResults.xml");
+	if (resource == null)
+	    throw new RuntimeException("could not find SplunkSearchResults.xml");
+	return new File(resource.getPath());
     }
 
 }
