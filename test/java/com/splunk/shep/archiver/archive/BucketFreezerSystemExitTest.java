@@ -33,7 +33,7 @@ import com.splunk.shep.testutil.UtilsMockito;
  * Fixture: Calling the main method of BucketFreezer. Testing exit codes.
  */
 @Test(groups = { "fast" })
-public class BucketFreezerCallingMainTest {
+public class BucketFreezerSystemExitTest {
 
     Runtime runtimeMock;
     private BucketFreezer bucketFreezer;
