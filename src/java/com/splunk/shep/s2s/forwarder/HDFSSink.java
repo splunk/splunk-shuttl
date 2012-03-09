@@ -90,7 +90,11 @@ public class HDFSSink implements DataSink {
 	    Object appending = mbs.invoke(forwardername,
 		    "getHDFSSinkUseAppending", params,
 		    signature);
-	    this.useAppend = Boolean.getBoolean(appending.toString());
+	    if (appending.toString().equals("true")) {
+		this.useAppend = true;
+	    } else {
+		this.useAppend = false;
+	    }
 	    Object fileRollingSize = mbs.invoke(forwardername,
 		    "getHDFSSinkFileRollingSize", params, signature);
 	    this.fileRollingSize = Integer.parseInt(fileRollingSize.toString());

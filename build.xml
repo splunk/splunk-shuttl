@@ -281,11 +281,21 @@
 			<target name="shell-tests" />
 		</antcall>
 		<antcall>
+			<target name="splunk-teardown"/>
+			<target name="hadoop-teardown"/>
+			<target name="shep-teardown"/>
+			<target name="hadoop-setup"/>
+			<target name="splunk-setup"/>
+			<target name="system-tests"/>
+		</antcall>
+		<antcall>
 			<target name="splunk-teardown" />
 			<target name="hadoop-teardown" />
 			<target name="shep-teardown" />
 		</antcall>
 	</target>
+
+
 
 	<target name="super-slow-TestNG-tests" depends="compile,set-splunk-home">
 		<!-- Test group 'super-slow'. For tests that use hadoop -->
@@ -294,7 +304,22 @@
 			<classfileset dir="${classdir}" includes="**/*.class" />
 		</testng>
 	</target>
-
+	
+	<target name="system-tests" depends="compile,set-splunk-home">
+	<!-- these use splunk and hadoop -->
+		<testng classpathref="build.classpath" groups="system" outputdir="${builddir}/test-results">
+	    	<propertyset refid="testng"/>
+            <classfileset dir="${classdir}" includes="**/*.class"/>
+        </testng>
+    </target>
+	
+	<target name="known-failures" depends="compile,set-splunk-home">
+		<testng classpathref="build.classpath" groups="known-failures" outputdir="${builddir}/test-results">
+	    	<propertyset refid="testng"/>
+            <classfileset dir="${classdir}" includes="**/*.class"/>
+        </testng>
+	</target>
+		
 	<target name="shell-tests" depends="compile,set-splunk-home,set-hadoop-home">
 		<echo>Running shell-tests..</echo>
 		<exec dir="." executable="${basedir}/test/unittests/run-unittests.sh" osfamily="unix">
