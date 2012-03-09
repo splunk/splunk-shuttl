@@ -283,6 +283,7 @@
 		<antcall>
 			<target name="splunk-teardown"/>
 			<target name="hadoop-teardown"/>
+			<target name="shep-teardown"/>
 			<target name="hadoop-setup"/>
 			<target name="splunk-setup"/>
 			<target name="system-tests"/>

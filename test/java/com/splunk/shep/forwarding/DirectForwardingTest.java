@@ -71,16 +71,18 @@ public class DirectForwardingTest {
     }
 
     private Index createSplunkIndex(String name) {
-        EntityCollection<Index> indexes = splunkService.getIndexes();
+	Index index;
+	EntityCollection<Index> indexes = splunkService.getIndexes();
         if (indexes.containsKey(name)) {
             System.out.println("Index " + name + " already exists");
+	    index = indexes.get(name);
         } else {
             indexes.create(name);
-            indexes.refresh();
+	    index = indexes.get(name);
+	    index.reload();
 	    System.out.println("Index " + name + " created");
         }
 
-        Index index = indexes.get(name);
         return index;
     }
 
