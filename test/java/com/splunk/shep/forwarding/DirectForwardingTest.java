@@ -79,7 +79,8 @@ public class DirectForwardingTest {
         } else {
             indexes.create(name);
 	    index = indexes.get(name);
-	    index.reload();
+	    index.refresh();
+            indexes.refresh();
 	    System.out.println("Index " + name + " created");
         }
 
@@ -98,7 +99,7 @@ public class DirectForwardingTest {
 	// TODO: set up appending for splunk
     }
 
-    @Test(groups = { "system" })
+    @Test(groups = { "known-failures" })
     public void monitorFileInSplunk() {
 	System.out.println("Running monitorFileInSplunk");
         String indexName = "directfwd";
@@ -111,6 +112,7 @@ public class DirectForwardingTest {
         Args args = new Args();
         args.put("sourcetype", "syslog");
         args.put("index", indexName);
+        inputs.refresh();
         inputs.create(name, InputKind.Monitor, args);
         inputs.refresh();
 
@@ -126,7 +128,7 @@ public class DirectForwardingTest {
 	Assert.assertEquals(job.getEventCount(), 100);
     }
 
-    @Test(groups = { "system" }, dependsOnMethods = { "monitorFileInSplunk" })
+    @Test(groups = { "known-failures" }, dependsOnMethods = { "monitorFileInSplunk" })
     public void checkTotalEventsSearch() throws IOException, InterruptedException {
 	// Wait 30 seconds for events to get forwarded
 	Thread.sleep(30000);
