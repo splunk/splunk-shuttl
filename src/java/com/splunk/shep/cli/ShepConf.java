@@ -22,7 +22,6 @@
 
 package com.splunk.shep.cli;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
@@ -53,8 +52,9 @@ public class ShepConf
     private void parseConfig(String filePath) throws FileNotFoundException,
 	    IOException {
 	Properties prop = new Properties();
-	prop.load(new FileInputStream(filePath));
-		
+	// prop.load(new FileInputStream(filePath));
+	prop.load(ShepConf.class.getResourceAsStream(filePath));
+
 	String ip = prop.getProperty("HadoopIP");
 	String port = prop.getProperty("HadoopPort");
 	String hdfs = prop.getProperty("HadoopHome");
