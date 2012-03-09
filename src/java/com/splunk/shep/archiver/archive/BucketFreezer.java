@@ -111,9 +111,9 @@ public class BucketFreezer {
 		// TODO: Get rid of this bad design.
 	    }
 	} catch (ClientProtocolException e) {
-	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e);
+	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
 	} catch (IOException e) {
-	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e);
+	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
 	}
     }
 
@@ -140,13 +140,18 @@ public class BucketFreezer {
     }
 
     private void handleIOExceptionGenereratedByDoingArchiveBucketRequest(
-	    IOException e) {
+	    IOException e, Bucket bucket) {
 	did("Archive bucket request", "got IOException", "request to succeed",
 		"exception", e);
 	// TODO this method should handle the errors in case the bucket transfer
 	// fails. In this state there is no way of telling if the bucket was
 	// actually transfered or not.
-	throw new RuntimeException("Got IOException" + e);
+	// REVIEW: Moving bucket to failed bucket location, just in case. And
+	// the next time this bucket gets transfered, we have to check whether
+	// it should be archived or not.
+	will("Move bucket to failed bucket location because of exception",
+		"bucket", bucket, "exception", e);
+	failedBucketTransfers.moveFailedBucket(bucket);
     }
 
     private HttpUriRequest createBucketArchiveRequest(Bucket bucket) {

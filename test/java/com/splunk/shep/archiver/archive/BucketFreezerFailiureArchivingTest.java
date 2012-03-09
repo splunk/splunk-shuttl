@@ -15,6 +15,7 @@
 package com.splunk.shep.archiver.archive;
 
 import static com.splunk.shep.testutil.UtilsFile.*;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -22,7 +23,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.mockito.ArgumentCaptor;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -70,16 +73,44 @@ public class BucketFreezerFailiureArchivingTest {
 	bucketFreezer.freezeBucket(failedBucket.getIndex(), failedBucket
 		.getDirectory().getAbsolutePath());
 
+	// Verification
+	verifyFailedBucketTransfersWasCalledWithBucket(failedBucket);
+    }
+
+    private void verifyFailedBucketTransfersWasCalledWithBucket(Bucket bucket) {
 	ArgumentCaptor<Bucket> bucketCaptor = ArgumentCaptor
 		.forClass(Bucket.class);
 
-	// Verification
 	verify(failedBucketTransfers, times(1)).moveFailedBucket(
 		bucketCaptor.capture());
 	Bucket capturedBucket = bucketCaptor.getValue();
-	assertEquals(failedBucket.getIndex(), capturedBucket.getIndex());
-	assertEquals(failedBucket.getName(), capturedBucket.getName());
-	assertEquals(failedBucket.getFormat(), capturedBucket.getFormat());
+	assertEquals(bucket.getIndex(), capturedBucket.getIndex());
+	assertEquals(bucket.getName(), capturedBucket.getName());
+	assertEquals(bucket.getFormat(), capturedBucket.getFormat());
+    }
+
+    public void freezeBucket_httpClientThrowsIOException_moveBucketToFailedLocation()
+	    throws ClientProtocolException, IOException {
+	freezeBucketAndLetHttpClientThrowsException(new IOException());
+    }
+
+    private void freezeBucketAndLetHttpClientThrowsException(Exception exception)
+	    throws IOException, ClientProtocolException {
+	Bucket bucket = UtilsBucket.createTestBucket();
+	HttpClient exceptionThrowingHttpClient = mock(HttpClient.class);
+	when(exceptionThrowingHttpClient.execute(any(HttpUriRequest.class)))
+		.thenThrow(exception);
+
+	bucketFreezer.httpClient = exceptionThrowingHttpClient;
+	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
+		.getAbsolutePath());
+
+	verifyFailedBucketTransfersWasCalledWithBucket(bucket);
+    }
+
+    public void freezeBucket_httpClientThrowsClientProtocolException_moveBucketToFailedLocation()
+	    throws ClientProtocolException, IOException {
+	freezeBucketAndLetHttpClientThrowsException(new ClientProtocolException());
     }
 
 }
