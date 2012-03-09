@@ -100,8 +100,8 @@ public class BucketFreezer {
     private void doRestCall(Bucket bucket) {
 	HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
 	try {
-	    will("Send an archive bucket request", "request",
-		    archiveBucketRequest);
+	    will("Send an archive bucket request", "request_uri",
+		    archiveBucketRequest.getURI());
 	    HttpResponse response = httpClient.execute(archiveBucketRequest); // LOG
 	    if (response != null) {
 		handleResponseCodeFromDoingArchiveBucketRequest(response
