@@ -202,7 +202,12 @@
 			<target name="do-compile-src" />
 			<target name="do-compile-test" />
 		</antcall>
-		<copy file="${srcdir}/com/splunk/shep/cli/ShepCLI.conf" todir="${classdir}/com/splunk/shep/cli" />
+
+		<!-- Tests using resources that are not .java files. Should probably create a resource folder instead of putting non .java files in src/java -->
+		<antcall>
+            <target name="copy-test-resources"/>
+            <target name="copy-src-resources"/>
+        </antcall>
 	</target>
 
 	<target name="do-compile-src">
@@ -215,11 +220,6 @@
 		<javac srcdir="${testdir}" destdir="${test-classdir}" includeAntRuntime="false" debug="true">
 			<classpath refid="build.classpath" />
 		</javac>
-		<!-- Tests using resources that are not .java files. Should probably create a resource folder instead of putting non .java files in src/java -->
-		<antcall>
-            <target name="copy-test-resources"/>
-            <target name="copy-src-resources"/>
-        </antcall>
 	</target>
 
 	<target name="copy-test-resources">
