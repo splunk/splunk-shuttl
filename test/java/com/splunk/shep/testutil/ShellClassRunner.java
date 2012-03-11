@@ -16,7 +16,6 @@ public class ShellClassRunner {
     private List<String> stdErr;
 
     public ShellClassRunner runClassWithArgs(Class<?> clazz, String... args) {
-	System.out.println("classpath: " + getClasspath());
 	String fullClassName = clazz.getName();
 	Process exec = doRunArchiveBucket(fullClassName, args);
 	exitCode = getStatusCode(exec);
@@ -30,8 +29,6 @@ public class ShellClassRunner {
 	    String execString = getJavaExecutablePath() + " -cp \":"
 		    + getClasspath() + ":\" " + fullClassName + " "
 		    + getSpaceSeparatedArgs(args);
-	    System.out.println("exec string:");
-	    System.out.println(execString);
 	    return Runtime.getRuntime().exec(execString);
 	} catch (IOException e) {
 	    e.printStackTrace();
