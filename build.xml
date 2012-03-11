@@ -830,15 +830,13 @@
 		          	<attribute name="Implementation-Version" value="${version}"/>
 		          	<attribute name="Implementation-Vendor" value="Splunk"/>
 		        </section>
+				<attribute name="Main-Class" value="com.splunk.shep.server.ShepJettyServer" />
 		    </manifest>
 			<include name="com/splunk/shep/customsearch/**" />
 			<include name="com/splunk/shep/s2s/**" />
 			<include name="com/splunk/shep/server/**" />
 			<include name="com/splunk/shep/metrics/**" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
-			<manifest>
-				<attribute name="Main-Class" value="com.splunk.shep.server.ShepJettyServer" />
-			</manifest>
 		</jar>
 		<jar destfile="${name.api.versioned.path}" basedir="${classdir}">
 			<manifest>
@@ -850,6 +848,7 @@
 			</manifest>
 			<include name="com/splunk/shep/mapred/**" />
 			<include name="com/splunk/shep/mapreduce/**" />
+			<include name="com/splunk/shep/customsearch/**" /> 
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.test.versioned.path}" basedir="${test-classdir}">
@@ -869,11 +868,9 @@
 		          	<attribute name="Implementation-Version" value="${version}"/>
 		          	<attribute name="Implementation-Vendor" value="Splunk"/>
 		        </section>
+				<attribute name="Main-Class" value="com.splunk.shep.cli.ShepCLI" />
 		    </manifest>
 			<include name="com/splunk/shep/cli/**" />
-			<manifest>
-				<attribute name="Main-Class" value="com.splunk.shep.cli.ShepCLI" />
-			</manifest>
 		</jar>
 	</target>
 
