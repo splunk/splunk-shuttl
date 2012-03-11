@@ -17,9 +17,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 set -e
 set -u
 
 cd $SPLUNK_HOME/etc/apps/shep/
 
-exec $JAVA_HOME/bin/java -cp ./bin/*:./lib/* com.splunk.shep.archiver.archive.BucketFreezer $1
+index=$1
+bucket=$2
+
+$JAVA_HOME/bin/java -cp ./bin/*:./lib/* com.splunk.shep.archiver.archive.BucketFreezer $index $bucket
