@@ -69,13 +69,31 @@ public class FailedBucketTransfersTest {
 	assertTrue(failedBuckets.isEmpty());
     }
 
-    public void getFailedBuckets_givenTwoBucketsInFailedLocation_listWithTheTwoBuckets() {
-	Bucket failedBucket1 = createFailedBucket("a");
-	Bucket failedBucket2 = createFailedBucket("b");
+    public void getFailedBuckets_givenTwoBucketsWithDifferentIndexInFailedLocation_listWithTheTwoBuckets() {
+	Bucket failedBucketIndex = createFailedBucket("a");
+	Bucket failedBucketAnotherIndex = createFailedBucket("b");
 	List<Bucket> failedBuckets = failedBucketTransfers.getFailedBuckets();
 	assertEquals(2, failedBuckets.size());
-	assertTrue(failedBuckets.contains(failedBucket1));
-	assertTrue(failedBuckets.contains(failedBucket2));
+	assertTrue(failedBuckets.contains(failedBucketIndex));
+	assertTrue(failedBuckets.contains(failedBucketAnotherIndex));
+    }
+
+    public void getFailedBuckets_givenTwoBucketsWithSameIndexInFailedLocation_listWithTheTwoBuckets() {
+	String index = "a";
+	Bucket failedBucket = createFailedBucket(index);
+	Bucket failedBucketSameIndex = UtilsBucket
+		.createBucketInDirectoryWithIndex(failedBucket.getDirectory()
+			.getParentFile(), index);
+
+	// Assertions on buckets.
+	assertEquals(failedBucket.getIndex(), failedBucketSameIndex.getIndex());
+	assertEquals(failedBucket.getDirectory().getParent(),
+		failedBucketSameIndex.getDirectory().getParent());
+
+	List<Bucket> failedBuckets = failedBucketTransfers.getFailedBuckets();
+	assertEquals(2, failedBuckets.size());
+	assertTrue(failedBuckets.contains(failedBucket));
+	assertTrue(failedBuckets.contains(failedBucketSameIndex));
     }
 
     // This test knows too much about the inner structure of the moved buckets.
@@ -108,6 +126,14 @@ public class FailedBucketTransfersTest {
     public void getFailedBuckets_afterCreatingLockInFailedLocation_emptyList() {
 	File lock = UtilsFile.createFileInParent(failedBucketLocation, "lock");
 	assertTrue(lock.isFile());
+	List<Bucket> failedBuckets = failedBucketTransfers.getFailedBuckets();
+	assertTrue(failedBuckets.isEmpty());
+    }
+
+    public void getFailedBuckets_noBucketsInIndexDirectory_emptyList() {
+	File empty = createDirectoryInParent(failedBucketLocation, "index");
+	assertTrue(isDirectoryEmpty(empty));
+
 	List<Bucket> failedBuckets = failedBucketTransfers.getFailedBuckets();
 	assertTrue(failedBuckets.isEmpty());
     }

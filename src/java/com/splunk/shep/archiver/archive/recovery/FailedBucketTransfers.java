@@ -87,30 +87,36 @@ public class FailedBucketTransfers {
 		if (file.isFile()) {
 		    continue; // Ignore regular files.
 		} else {
-		    addFailedBucket(failedBuckets, file);
+		    addBucketsFromIndexDirectory(failedBuckets, file);
 		}
 	    }
 	}
 	return failedBuckets;
     }
 
-    private void addFailedBucket(ArrayList<Bucket> failedBuckets, File file) {
-	Bucket bucket = getBucketFromFailedBucketsLocation(file);
-	failedBuckets.add(bucket);
+    private void addBucketsFromIndexDirectory(ArrayList<Bucket> failedBuckets,
+	    File file) {
+	String index = file.getName();
+	File[] bucketsInIndex = file.listFiles();
+	if (bucketsInIndex != null) {
+	    for (File bucket : bucketsInIndex) {
+		failedBuckets.add(createBucketWithErrorHandling(index, bucket));
+	    }
+	}
     }
 
-    private Bucket getBucketFromFailedBucketsLocation(File file) {
-	String index = file.getName();
-	File bucketFile = file.listFiles()[0];
+    private Bucket createBucketWithErrorHandling(String index, File bucketFile) {
 	try {
 	    return new Bucket(index, bucketFile);
 	} catch (FileNotFoundException e) {
 	    did("Created bucket from file", "Got FileNotFoundException",
-		    "To create bucket from file", "file", file, "exception", e);
+		    "To create bucket from file", "file", bucketFile,
+		    "exception", e);
 	    throw new RuntimeException(e);
 	} catch (FileNotDirectoryException e) {
 	    did("Created bucket from file", "Got FileNotDirectoryException",
-		    "To create bucket from file", "file", file, "exception", e);
+		    "To create bucket from file", "file", bucketFile,
+		    "exception", e);
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}
