@@ -5,7 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="contrib/flume-0.9.3-CDH3B4/flume-0.9.3-CDH3B4-core.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="lib/testng-6.1.1.jar">
+	<classpathentry kind="lib" path="lib/testng-6.4.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://testng.org/javadocs/"/>
 		</attributes>
