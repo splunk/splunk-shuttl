@@ -727,7 +727,7 @@
 		</exec>
 	</target>
 
-	<target name="splunk-restart">
+	<target name="splunk-restart" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="restart" />
 		</exec>
