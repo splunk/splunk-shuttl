@@ -13,7 +13,7 @@ import com.splunk.Job;
  */
 public class SplunkTestUtils {
 
-    private static final int SLEEP_IN_MILLIS_BETWEEN_JOB_REFRESH = 70;
+    private static final int SLEEP_IN_MILLIS_BETWEEN_JOB_REFRESH = 150;
 
     public static final String TEST_RESOURCES_PATH = "test/resources";
 
