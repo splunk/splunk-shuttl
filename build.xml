@@ -798,6 +798,8 @@
 		<property name="name.test.versioned.path" value="${builddir}/jar/${name.test.versioned}.jar" />
 		<property name="name.cli.versioned" value="${appname}-cli-${version}" />
 		<property name="name.cli.versioned.path" value="${builddir}/jar/${name.cli.versioned}.jar" />
+		<property name="name.server.versioned" value="${appname}-server-${version}" />
+		<property name="name.server.versioned.path" value="${builddir}/jar/${name.server.versioned}.jar" />
 	</target>
 
 	<!-- create the jar file -->
@@ -811,7 +813,7 @@
 		          	<attribute name="Implementation-Vendor" value="Splunk"/>
 		        </section>
 		    </manifest>
-			<exclude name="com/splunk/shep/cli/*" />
+			<exclude name="com/splunk/shep/cli/**" />
 			<exclude name="com/splunk/shep/customsearch/*Test*" />
 			<exclude name="com/splunk/shep/mapred/lib/rest/mock/**" />
 			<exclude name="com/splunk/shep/mapred/lib/rest/tests/**" />
@@ -823,10 +825,32 @@
 			<exclude name="com/splunk/shep/mapreduce/lib/rest/*Test.class"/>
 			<exclude name="com/splunk/shep/mapreduce/lib/rest/*Test$*.class"/>
 			<exclude name="com/splunk/shep/mapreduce/lib/rest/Test*"/>
+			<exclude name="com/splunk/shep/s2s/**" />
+			<exclude name="com/splunk/shep/server/**" />
+			<exclude name="com/splunk/shep/metrics/**" />
+			<exclude name="com/splunk/shep/testutil/**" />
+			<exclude name="edu/**" />
+			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
+		</jar>
+		<jar destfile="${name.server.versioned.path}" basedir="${builddir}/classes">
+		    <manifest>
+		    	<section name="com/splunk/shep">
+		        	<attribute name="Implementation-Title" value="Shep"/>
+		          	<attribute name="Implementation-Version" value="${version}"/>
+		          	<attribute name="Implementation-Vendor" value="Splunk"/>
+		        </section>
+		    </manifest>
+			<exclude name="com/splunk/shep/cli/**" />
+			<exclude name="com/splunk/shep/customsearch/**" />
+			<exclude name="com/splunk/shep/mapred/**" />
+			<exclude name="com/splunk/shep/mapreduce/**" />
 			<exclude name="com/splunk/shep/s2s/forwarder/Test*" />
 			<exclude name="com/splunk/shep/testutil/**" />
 			<exclude name="edu/**" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
+			<manifest>
+				<attribute name="Main-Class" value="com.splunk.shep.server.ShepJettyServer" />
+			</manifest>
 		</jar>
 		<jar destfile="${name.test.versioned.path}" basedir="${builddir}/classes">
 		    <manifest>
@@ -859,7 +883,7 @@
 		          	<attribute name="Implementation-Vendor" value="Splunk"/>
 		        </section>
 		    </manifest>
-			<include name="com/splunk/shep/cli/*" />
+			<include name="com/splunk/shep/cli/**" />
 			<manifest>
 				<attribute name="Main-Class" value="com.splunk.shep.cli.ShepCLI" />
 			</manifest>
