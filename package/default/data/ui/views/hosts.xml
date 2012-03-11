@@ -82,8 +82,42 @@
   <param name="mode">independent</param>
   <param name="label"> </param>
 
-  <module name="HiddenSavedSearch" group="by Indexer" autoRun="True">
+  <module name="HiddenSavedSearch" group="events" autoRun="True">
     <param name="savedSearch">HC host event list</param>
+
+      <module name="JobProgressIndicator" />
+
+      <module name="EnablePreview">
+        <param name="enable">True</param>
+        <param name="display">False</param>
+      </module>
+
+      <module name="Paginator">
+        <param name="entityName">results</param>
+        <param name="count">50</param>
+
+        <!-- dont need one yet but we will -->
+        <module name="HiddenPostProcess">
+          <param name="search"> fields *</param>
+          <module name="SimpleResultsTable">
+            <param name="entityName">results</param>
+            <param name="drilldown">row</param>
+              
+          </module>
+        </module>
+        <module name="Paginator">
+            <param name="entityName">results</param>
+        </module>
+     </module>
+  </module>
+</module> 
+
+<module name="LinkSwitcher" group="Average Thruputs by Host" layoutPanel="panel_row4_col1">
+  <param name="mode">independent</param>
+  <param name="label"> </param>
+
+  <module name="HiddenSavedSearch" group="thruputs" autoRun="True">
+    <param name="savedSearch">HC host thrput list</param>
 
       <module name="JobProgressIndicator" />
 

@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import com.splunk.Args;
 import com.splunk.Index;
 import com.splunk.Service;
+import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
 
 /**
  * An OutputFormat that send reduce output to Splunk as a simple event with
@@ -103,14 +104,14 @@ public class SplunkOutputFormat<K, V> implements OutputFormat<K, V> {
 		service = Service.connect(args);
 	    }
 	    if (stream == null) {
-		// create a an http stream input assume "main" index.
-		// wkcifx: add allowance for different index through
-		// hadoop job settings (like user/pass/etc).
-
-		Index index = service.getIndexes().get("main");
+		// create an http stream input into an index configured by
+		// JobConf.
+		Index index = service.getIndexes().get(
+			job.get(SplunkConfiguration.SPLUNKINDEX));
 		Args attachArgs = new Args();
 		attachArgs.put("source", job.getJobName());
-		attachArgs.put("sourcetype", HADOOP_EVENT);
+		attachArgs.put("sourcetype",
+			job.get(SplunkConfiguration.SPLUNKSOURCETYPE));
 		stream = index.attach(attachArgs);
 		OutputStream ostream = stream.getOutputStream();
 		writerOut = new OutputStreamWriter(ostream, "UTF8");

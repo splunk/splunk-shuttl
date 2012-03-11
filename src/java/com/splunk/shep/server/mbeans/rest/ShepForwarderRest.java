@@ -26,6 +26,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shep.metrics.ShepMetricsHelper;
+
 /**
  * Expose forwarder MBean over REST
  * 
@@ -34,12 +36,15 @@ import org.apache.log4j.Logger;
  */
 @Path("/forwarder")
 public class ShepForwarderRest {
-    private org.apache.log4j.Logger logger = Logger.getLogger(getClass());
+    private org.apache.log4j.Logger logger = Logger.getLogger("ShepServer");
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/sinkprefix")
     public String getHDFSSinkPrefixText(@QueryParam("name") String name) {
+	String logMessage = " Metrics - group=REST series=source::sinkprefix_text_plain call=1";
+	ShepMetricsHelper.update(logger, logMessage);
+
 	try {
 	    return (getHDFSSinkPrefix(name));
 	} catch (Exception e) {
@@ -53,6 +58,9 @@ public class ShepForwarderRest {
     @Produces(MediaType.TEXT_HTML)
     @Path("/sinkprefix")
     public String getHDFSSinkPrefixHTML(@QueryParam("name") String name) {
+	String logMessage = " Metrics - group=REST series=source::sinkprefix_text_html call=1";
+	ShepMetricsHelper.update(logger, logMessage);
+
 	try {
 	    return "<html> " + "<title>" + "Shep Rest Endpoint" + "</title>"
 		    + "<body><h1>" + getHDFSSinkPrefix(name)

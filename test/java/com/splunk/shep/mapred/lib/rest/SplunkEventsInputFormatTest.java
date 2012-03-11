@@ -1,6 +1,6 @@
 package com.splunk.shep.mapred.lib.rest;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,8 +31,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.mapred.lib.rest.tests.WikiLinkCount;
+import com.splunk.shep.mapreduce.lib.rest.MapRedRestTestConstants;
+import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
-import com.splunk.shep.testutil.UtilsFileSystem;
 
 public class SplunkEventsInputFormatTest {
 
@@ -43,7 +44,7 @@ public class SplunkEventsInputFormatTest {
 
     @BeforeMethod(groups = { "slow" })
     public void setUp() {
-	fileSystem = UtilsFileSystem.getLocalFileSystem();
+	fileSystem = FileSystemUtils.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 

@@ -1,4 +1,4 @@
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="HadoopConnector" default="build" basedir=".">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Shep" default="build" basedir=".">
 	<!-- property files -->
 	<property file="build.properties" />
 	<property file="default.properties" />
@@ -14,7 +14,6 @@
 	<property name="builddir" value="${basedir}/build" />
 	<property name="build-cache" value="${basedir}/build-cache" />
 	<property name="classdir" value="${builddir}/classes" />
-	<property name="name" value="splunk-hadoop-connector" />
 	<property name="testng.basename" value="testng-6.1.1" />
 	<property name="testng.zip" value="${testng.basename}.zip" />
 	<property name="testng.jar" value="${testng.basename}.jar" />
@@ -45,7 +44,7 @@
 	<!--
 	<property name="hive.download.url.prefix" value="http://www.gtlib.gatech.edu/pub/apache" />
 	-->
-	<property name="hive.download.url.prefix" value="http://mirror.cc.columbia.edu/pub/software/apache" />
+	<property name="hive.download.url.prefix" value="http://archive.apache.org/dist" />
 	<property name="hive.basename" value="hive" />
 	<property name="hive.versname" value="${hive.basename}-${hive.version}" />
 	<property name="hive.fullname" value="${hive.versname}.tar.gz" />
@@ -198,7 +197,10 @@
 			<classpath refid="build.classpath" />
 		</javac>
 		<!-- Tests using resources that are not .java files. Should probably create a resource folder instead of putting non .java files in src/java -->
-		<antcall target="copy-test-resources" />
+		<antcall>
+            <target name="copy-test-resources"/>
+            <target name="copy-src-resources"/>
+        </antcall>
 	</target>
 
 	<target name="copy-test-resources">
@@ -206,6 +208,10 @@
 			<fileset dir="${testdir}" includes="**/*.xml,**/*.txt" />
 		</copy>
 	</target>
+    
+    <target name="copy-src-resources">
+		<copy file="${srcdir}/com/splunk/shep/cli/ShepCLI.conf" todir="${classdir}/com/splunk/shep/cli" />        
+    </target>
 
 	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">
 		<ivy:retrieve />
@@ -233,7 +239,7 @@
 	<target name="test-all" depends="clean-built-classes-then-compile">
 		<antcall target="test" />
 		<antcall target="super-slow-tests" />
-		<antcall target="hadoop-test" />
+		<antcall target="in-memory-test" />
 	</target>
 
 	<target name="clean-built-classes-then-compile" depends="clean-built-classes, compile" />
@@ -289,11 +295,21 @@
 			<target name="shell-tests" />
 		</antcall>
 		<antcall>
+			<target name="splunk-teardown"/>
+			<target name="hadoop-teardown"/>
+			<target name="shep-teardown"/>
+			<target name="hadoop-setup"/>
+			<target name="splunk-setup"/>
+			<target name="system-tests"/>
+		</antcall>
+		<antcall>
 			<target name="splunk-teardown" />
 			<target name="hadoop-teardown" />
 			<target name="shep-teardown" />
 		</antcall>
 	</target>
+
+
 
 	<target name="super-slow-TestNG-tests" depends="compile,set-splunk-home">
 		<!-- Test group 'super-slow'. For tests that use hadoop -->
@@ -302,7 +318,22 @@
 			<classfileset dir="${classdir}" includes="**/*.class" />
 		</testng>
 	</target>
-
+	
+	<target name="system-tests" depends="compile,set-splunk-home">
+	<!-- these use splunk and hadoop -->
+		<testng classpathref="build.classpath" groups="system" outputdir="${builddir}/test-results">
+	    	<propertyset refid="testng"/>
+            <classfileset dir="${classdir}" includes="**/*.class"/>
+        </testng>
+    </target>
+	
+	<target name="known-failures" depends="compile,set-splunk-home">
+		<testng classpathref="build.classpath" groups="known-failures" outputdir="${builddir}/test-results">
+	    	<propertyset refid="testng"/>
+            <classfileset dir="${classdir}" includes="**/*.class"/>
+        </testng>
+	</target>
+		
 	<target name="shell-tests" depends="compile,set-splunk-home,set-hadoop-home">
 		<echo>Running shell-tests..</echo>
 		<exec dir="." executable="${basedir}/test/unittests/run-unittests.sh" osfamily="unix">
@@ -559,7 +590,7 @@
 	</target>
 
 	<target name="set-hadoop-classpath" depends="jar">
-		<property name="hadoop.classpath" value="${name.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar:${splunk-sdk}/splunk.jar" />
+		<property name="hadoop.classpath" value="${name.api.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar:${splunk-sdk}/splunk.jar" />
 	</target>
 
 	<target name="hadoop-conf-core-site-xml">
@@ -578,14 +609,14 @@
 	</target>
 
 	<!-- Stop, copy and start -->
-	<target name="hadoop-boot">
+	<target name="hadoop-boot" depends="set-hadoop-home">
 		<antcall>
 			<target name="hadoop-start" />
 			<target name="hadoop-unsafe-mode" />
 		</antcall>
 	</target>
 
-	<target name="hadoop-stop">
+	<target name="hadoop-stop" depends="set-hadoop-home">
 		<exec executable="${hadoop.home}/bin/stop-all.sh" osfamily="unix" />
 	</target>
 
@@ -709,7 +740,7 @@
 		<delete dir="${shep.app.home}" />
 	</target>
 
-	<target name="splunk-start">
+	<target name="splunk-start" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="start --accept-license --no-prompt --answer-yes splunkd" />
 		</exec>
@@ -721,7 +752,7 @@
 		</exec>
 	</target>
 
-	<target name="splunk-stop">
+	<target name="splunk-stop" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="stop -f" />
 		</exec>
@@ -765,7 +796,7 @@
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
 	</target>
 
-	<target name="splunk-clean-all">
+	<target name="splunk-clean-all" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="clean all -f" />
 		</exec>
@@ -775,23 +806,77 @@
 		<loadproperties>
 			<file file="${classdir}/com/splunk/shep/server/version.properties" />
 		</loadproperties>
-		<property name="name.versioned" value="${name}-${version}" />
-		<property name="name.versioned.path" value="${builddir}/jar/${name.versioned}.jar" />
+		<property name="name.api.versioned" value="${appname}-api-${version}" />
+		<property name="name.api.versioned.path" value="${builddir}/jar/${name.api.versioned}.jar" />
+		<property name="name.test.versioned" value="${appname}-test-${version}" />
+		<property name="name.test.versioned.path" value="${builddir}/jar/${name.test.versioned}.jar" />
+		<property name="name.cli.versioned" value="${appname}-cli-${version}" />
+		<property name="name.cli.versioned.path" value="${builddir}/jar/${name.cli.versioned}.jar" />
 	</target>
 
 	<!-- create the jar file -->
 	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
-		<jar destfile="${name.versioned.path}" basedir="${builddir}/classes">
+		<jar destfile="${name.api.versioned.path}" basedir="${builddir}/classes">
+		    <manifest>
+		    	<section name="com/splunk/shep">
+		        	<attribute name="Implementation-Title" value="Shep"/>
+		          	<attribute name="Implementation-Version" value="${version}"/>
+		          	<attribute name="Implementation-Vendor" value="Splunk"/>
+		        </section>
+		    </manifest>
+			<exclude name="com/splunk/shep/cli/*" />
+			<exclude name="com/splunk/shep/customsearch/*Test*" />
+			<exclude name="com/splunk/shep/mapred/lib/rest/mock/**" />
 			<exclude name="com/splunk/shep/mapred/lib/rest/tests/**" />
-			<exclude name="edu/jhu/nlp/**" />
-			<manifest>
-				<attribute name="Main-Class" value="com.splunk.shep.server.ShepJettyServer" />
-			</manifest>
+			<exclude name="com/splunk/shep/mapred/lib/rest/*Test.class"/>
+			<exclude name="com/splunk/shep/mapred/lib/rest/*Test$*.class"/>
+			<exclude name="com/splunk/shep/mapred/lib/rest/Test*"/>
+			<exclude name="com/splunk/shep/mapreduce/lib/rest/mock/**" />
+			<exclude name="com/splunk/shep/mapreduce/lib/rest/tests/**" />
+			<exclude name="com/splunk/shep/mapreduce/lib/rest/*Test.class"/>
+			<exclude name="com/splunk/shep/mapreduce/lib/rest/*Test$*.class"/>
+			<exclude name="com/splunk/shep/mapreduce/lib/rest/Test*"/>
+			<exclude name="com/splunk/shep/s2s/forwarder/Test*" />
+			<exclude name="com/splunk/shep/testutil/**" />
+			<exclude name="edu/**" />
+			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
-		<jar destfile="${hadoop.unittest.jar.file}" basedir="${builddir}/classes">
+		<jar destfile="${name.test.versioned.path}" basedir="${builddir}/classes">
+		    <manifest>
+		    	<section name="com/splunk/shep">
+		        	<attribute name="Implementation-Title" value="Shep"/>
+		          	<attribute name="Implementation-Version" value="${version}"/>
+		          	<attribute name="Implementation-Vendor" value="Splunk"/>
+		        </section>
+		    </manifest>
+			<include name="com/splunk/shep/customsearch/*Test*" />
+			<include name="com/splunk/shep/mapred/lib/rest/mock/**" />
 			<include name="com/splunk/shep/mapred/lib/rest/tests/**" />
-			<include name="edu/jhu/nlp/**" />
+			<include name="com/splunk/shep/mapred/lib/rest/*Test.class"/>
+			<include name="com/splunk/shep/mapred/lib/rest/*Test$*.class"/>
+			<include name="com/splunk/shep/mapred/lib/rest/Test*"/>
+			<include name="com/splunk/shep/mapreduce/lib/rest/mock/**" />
+			<include name="com/splunk/shep/mapreduce/lib/rest/tests/**" />
+			<include name="com/splunk/shep/mapreduce/lib/rest/*Test.class"/>
+			<include name="com/splunk/shep/mapreduce/lib/rest/*Test$*.class"/>
+			<include name="com/splunk/shep/mapreduce/lib/rest/Test*"/>
+			<include name="com/splunk/shep/s2s/forwarder/Test*" />
+			<include name="com/splunk/shep/testutil/**" />
+			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
+		</jar>
+		<jar destfile="${name.cli.versioned.path}" basedir="${builddir}/classes">
+		    <manifest>
+		    	<section name="com/splunk/shep">
+		        	<attribute name="Implementation-Title" value="Shep"/>
+		          	<attribute name="Implementation-Version" value="${version}"/>
+		          	<attribute name="Implementation-Vendor" value="Splunk"/>
+		        </section>
+		    </manifest>
+			<include name="com/splunk/shep/cli/*" />
+			<manifest>
+				<attribute name="Main-Class" value="com.splunk.shep.cli.ShepCLI" />
+			</manifest>
 		</jar>
 	</target>
 
@@ -807,7 +892,6 @@
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,jar">
 		<antcall target="create-splunk-app" />
-		<copy tofile="${stage.dir}-${buildVersionSuffix}.tgz" file="${splunk-app.tar}" />
 	</target>
 
 	<target name="create-splunk-app" depends="jar">
@@ -815,6 +899,7 @@
 			<target name="stage-splunk-app" />
 			<target name="tar-splunk-app" />
 		</antcall>
+		<copy tofile="${stage.dir}-${buildVersionSuffix}.tgz" file="${splunk-app.tar}" />
 	</target>
 
 	<target name="stage-splunk-app">
@@ -831,7 +916,7 @@
 			<replacefilter token="@VERSION@" value="${version}" />
 		</replace>
 		<!-- copy the jar in there -->
-		<copy file="${name.versioned.path}" todir="${stage.dir}/bin" />
+		<copy file="${name.api.versioned.path}" todir="${stage.dir}/bin" />
 	</target>
 
 	<target name="tar-splunk-app">
@@ -886,15 +971,26 @@
 
 	<!--hadoop unit test -->
 	<property name="report.dir" value="${builddir}/junitreport" />
-	<target name="hadoop-test" depends="compile">
+	<target name="in-memory-test" depends="compile">
 		<mkdir dir="${report.dir}" />
 		<junit printsummary="yes">
+			<!--jvmarg value="-Dlog4j.configuration=log4j.properties"/-->
+			<!--http://mail-archives.apache.org/mod_mbox/logging-log4j-user/200504.mbox/%3CF03963E938150F4E871144DAF11F825A416AF0@ITSERVER3.corporate.broadsource.com%3E -->
+			<!--sysproperty key="log4j.configuration" value="file:///Users/hyan/code/splunk/splunk-shep/package/bin/log4j.properties"/-->
+			<!-- http://jfkbits.blogspot.com/2006/06/passing-system-properties-from-ants.html -->
+			<!-- to get logs to junit report, use this command:
+				ant hadoop-test -Dlog4j.configuration=<the absolute url of your log4j file>
+				for example: file:///Users/hyan/code/splunk/splunk-shep/package/bin/log4j.properties 
+			-->
+			<syspropertyset>
+				<propertyref prefix="log4j.configuration" />
+			</syspropertyset>
 			<classpath>
 				<path refid="build.classpath" />
 			</classpath>
 			<formatter type="xml" />
 			<batchtest fork="yes" todir="${report.dir}">
-				<fileset dir="${testdir}" includes="**/Test*.java" />
+				<fileset dir="${classdir}" excludes="**/*$*" includes="**/Test*.class" />
 			</batchtest>
 		</junit>
 		<junitreport todir="${report.dir}">
@@ -902,4 +998,17 @@
 			<report todir="${report.dir}" />
 		</junitreport>
 	</target>
+
+	<target name="doc">
+		<javadoc destdir="build/docs/api" 
+			version="true" 
+			use="true" 
+			windowtitle="Shep" >
+			<packageset dir="src/java" defaultexcludes="yes">
+				<exclude name="com/splunk/**/tests/**"/>
+				<include name="com/splunk/**"/>
+			</packageset>
+		</javadoc>
+	</target>
+
 </project>
