@@ -216,7 +216,7 @@
 	</target>
 
 	<!-- run test via testNG -->
-	<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="ant.libs.classpath" />
+	<taskdef resource="testngtasks" classpath="${libdir}/testng-6.4.jar" />
 	<target name="test" depends="clean-built-classes-then-compile">
 		<antcall target="fast-tests" />
 		<antcall target="slow-tests" />
