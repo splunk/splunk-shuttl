@@ -215,7 +215,22 @@
 		<javac srcdir="${testdir}" destdir="${test-classdir}" includeAntRuntime="false" debug="true">
 			<classpath refid="build.classpath" />
 		</javac>
+		<!-- Tests using resources that are not .java files. Should probably create a resource folder instead of putting non .java files in src/java -->
+		<antcall>
+            <target name="copy-test-resources"/>
+            <target name="copy-src-resources"/>
+        </antcall>
 	</target>
+
+	<target name="copy-test-resources">
+		<copy todir="${classdir}">
+			<fileset dir="${testdir}" includes="**/*.xml,**/*.txt" />
+		</copy>
+	</target>
+    
+    <target name="copy-src-resources">
+		<copy file="${srcdir}/com/splunk/shep/cli/ShepCLI.conf" todir="${classdir}/com/splunk/shep/cli" />        
+    </target>
 
 	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">
 		<ivy:retrieve />
@@ -297,6 +312,22 @@
 		<antcall>
 			<target name="super-slow-TestNG-tests" />
 			<target name="shell-tests" />
+		</antcall>
+		<antcall>
+			<target name="splunk-teardown"/>
+			<target name="hadoop-teardown"/>
+			<target name="shep-teardown"/>
+			<target name="hadoop-setup"/>
+			<target name="splunk-setup"/>
+			<target name="system-tests"/>
+		</antcall>
+		<antcall>
+			<target name="splunk-teardown" />
+			<target name="hadoop-teardown" />
+			<target name="shep-teardown" />
+			<target name="hadoop-setup" />
+			<target name="splunk-setup" />
+			<target name="system-tests" />
 		</antcall>
 		<antcall>
 			<target name="splunk-teardown" />

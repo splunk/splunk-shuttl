@@ -17,7 +17,6 @@
 			name="xerces-impl" rev="2.9.0" />
 		<dependency org="ant-contrib" name="ant-contrib" rev="1.0b3" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.4" />
-		<dependency org="commons-httpclient" name="commons-httpclient" rev="3.1"/>
 		<dependency org="org.apache.hadoop" name="hadoop-core" rev="@HADOOP.VERSION@"/>
 		<!--dependency org="org.apache.hive" name="hive-exec" rev="@HIVE.VERSION@"/ -->
         <dependency org="commons-configuration" name="commons-configuration" rev="1.6"/>
@@ -32,7 +31,6 @@
         <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1"/>
         <dependency org="asm" name="asm" transitive="false" rev="3.3.1"/>
         <dependency org="org.mockito" name="mockito-all" rev="1.9.0" />
-        
         <!-- start of config for hadoop test -->
         <dependency org="org.apache.hadoop" name="hadoop-test" rev="@HADOOP.VERSION@"/>
         <dependency org="commons-cli" name="commons-cli" rev="1.2" />

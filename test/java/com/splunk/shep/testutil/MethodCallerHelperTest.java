@@ -1,6 +1,6 @@
 package com.splunk.shep.testutil;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 import org.testng.annotations.Test;
 
@@ -21,7 +21,7 @@ public class MethodCallerHelperTest {
     @Test(groups = { "fast" }, expectedExceptions = { IllegalStateException.class })
     public void should_throw_IllegalStateException_when_stackTrace_containsOnlyTheSameClass() {
 	StackTraceElement[] elements = getElementsWithSameClass();
-	new MethodCallerHelper().getCallerToMyMethod(elements);
+	MethodCallerHelper.getCallerToMyMethod(elements);
     }
 
     private StackTraceElement[] getElementsWithSameClass() {
@@ -43,7 +43,7 @@ public class MethodCallerHelperTest {
 	}
 
 	public Class<?> call() {
-	    return new MethodCallerHelper().getCallerToMyMethod();
+	    return MethodCallerHelper.getCallerToMyMethod();
 	}
     }
 }

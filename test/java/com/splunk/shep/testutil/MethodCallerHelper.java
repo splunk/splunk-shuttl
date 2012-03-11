@@ -13,20 +13,20 @@ public class MethodCallerHelper {
 
     protected static final int INDEX_OF_CALLER_TO_THIS_METHOD = 3;
 
-    public Class<?> getCallerToMyMethod() {
+    public static Class<?> getCallerToMyMethod() {
 	StackTraceElement[] elements = Thread.getAllStackTraces().get(
 		Thread.currentThread());
 	return getCallerToMyMethod(elements);
     }
 
-    protected Class<?> getCallerToMyMethod(StackTraceElement[] elements) {
+    protected static Class<?> getCallerToMyMethod(StackTraceElement[] elements) {
 	StackTraceElement caller = elements[INDEX_OF_CALLER_TO_THIS_METHOD];
 	StackTraceElement callersCaller = getCallersCaller(elements, caller);
 	return getClass(callersCaller);
     }
 
-    private StackTraceElement getCallersCaller(StackTraceElement[] elements,
-	    StackTraceElement caller) {
+    private static StackTraceElement getCallersCaller(
+	    StackTraceElement[] elements, StackTraceElement caller) {
 	for (int i = INDEX_OF_CALLER_TO_THIS_METHOD; i < elements.length; i++)
 	    if (!isSameClassAsCaller(caller, elements[i]))
 		return elements[i];
@@ -36,20 +36,16 @@ public class MethodCallerHelper {
 			+ "which would be wierd.");
     }
 
-    private boolean isSameClassAsCaller(StackTraceElement caller,
+    private static boolean isSameClassAsCaller(StackTraceElement caller,
 	    StackTraceElement element) {
 	return element.getClassName().equals(caller.getClassName());
     }
 
-    private Class<?> getClass(StackTraceElement callersCaller) {
+    private static Class<?> getClass(StackTraceElement callersCaller) {
 	try {
 	    return Class.forName(callersCaller.getClassName());
 	} catch (ClassNotFoundException e) {
 	    throw new RuntimeException(e);
 	}
-    }
-
-    public static MethodCallerHelper create() {
-	return new MethodCallerHelper();
     }
 }
