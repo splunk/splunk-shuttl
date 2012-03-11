@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.mapred.lib.rest.tests;
+package com.splunk.shep.mapred.lib.rest;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -37,7 +37,7 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
 import com.splunk.shep.mapreduce.lib.rest.tests.SplunkRecord;
 
-public class WordCount2 {
+public class WikiLinkCount {
 
     public static class Map extends MapReduceBase implements
 	    Mapper<LongWritable, SplunkRecord, Text, IntWritable> {
@@ -47,12 +47,18 @@ public class WordCount2 {
 	public void map(LongWritable key, SplunkRecord value,
 		OutputCollector<Text, IntWritable> output, Reporter reporter)
 		throws IOException {
+	    System.out.println("got a map");
 	    String line = value.getMap().get("_raw");
-	    if (line == null) {
-		System.out.println("_raw is null");
-		return;
+	    System.out.println("line " + line);
+	    StringTokenizer tokenizer = new StringTokenizer(line, "[]");
+	    String lasttoken = ""; // comma separated list of links
+
+	    while (tokenizer.hasMoreTokens()) {
+		lasttoken = tokenizer.nextToken();
 	    }
-	    StringTokenizer tokenizer = new StringTokenizer(line);
+
+	    System.out.println("lasttoken " + lasttoken);
+	    tokenizer = new StringTokenizer(lasttoken, ",");
 	    while (tokenizer.hasMoreTokens()) {
 		word.set(tokenizer.nextToken());
 		output.collect(word, one);
@@ -76,27 +82,22 @@ public class WordCount2 {
     }
 
     public static void main(String[] args) throws Exception {
-	JobConf conf = new JobConf(WordCount2.class);
-	conf.setJobName("wordcount");
-	SplunkConfiguration.setConnInfo(conf, "localhost", 8089, "admin",
-		"changeme");
-	// SplunkConfiguration.setSplunkQuery(conf, "source=wordfile-timestamp",
-	// "%Y-%m-%d %H:%M:%S", new String[][]{{"2011-09-19 17:04:11",
-	// "2011-09-19 17:06:40"}, {"2011-09-19 17:06:41",
-	// "2011-09-19 17:09:12"}});
-	// SplunkConfiguration.setSplunkQueryByIndexers(conf,
-	// "source=wordfile-timestamp*", new
-	// String[]{"ip-10-196-45-203.ec2.internal",
-	// "domU-12-31-39-16-C6-C0.compute-1.internal"});
-	String query = "source::*wordfile-timestamp";
-	String indexer1 = "localhost"; // The indexer should be configured and
-				       // passed in as an argument, instead of
-				       // being hard coded.
-	SplunkConfiguration.setSplunkQueryByIndexers(conf, query,
-		new String[] { indexer1 });
+	System.out.println("Starting job");
+	if (args.length < 7) {
+	    System.out
+		    .println("Usage:  WikiLinkCount <inputdir> <outputdir> <splunk-host> <userid> <password> <search string>  <indexer1>  ...");
+	    System.exit(1);
+	}
+	JobConf conf = new JobConf(WikiLinkCount.class);
+	conf.setJobName("WikiLinkCount");
+	SplunkConfiguration.setConnInfo(conf, args[2], 8089, args[3], args[4]);
+	String indexers[] = new String[args.length - 6];
+	for (int i = 6; i < args.length; i++) {
+	    indexers[i - 6] = args[i];
+	}
+	SplunkConfiguration.setSplunkQueryByIndexers(conf, args[5], indexers);
 	conf.set(SplunkConfiguration.SPLUNKEVENTREADER,
 		SplunkRecord.class.getName());
-	conf.setInputFormat(com.splunk.shep.mapred.lib.rest.SplunkInputFormat.class);
 
 	conf.setOutputKeyClass(Text.class);
 	conf.setOutputValueClass(IntWritable.class);
@@ -107,7 +108,8 @@ public class WordCount2 {
 
 	conf.setInputFormat(com.splunk.shep.mapred.lib.rest.SplunkInputFormat.class);
 	conf.setOutputFormat(TextOutputFormat.class);
-	// conf.setOutputFormat(com.splunk.mapred.lib.rest.SplunkOutputFormat.class);
+
+	conf.setMapRunnerClass(org.apache.hadoop.mapred.lib.MultithreadedMapRunner.class);
 
 	FileInputFormat.setInputPaths(conf, new Path(args[0]));
 	FileOutputFormat.setOutputPath(conf, new Path(args[1]));

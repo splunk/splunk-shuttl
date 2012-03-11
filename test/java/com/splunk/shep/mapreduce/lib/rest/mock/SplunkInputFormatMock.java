@@ -42,7 +42,6 @@ import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
 import com.splunk.shep.mapreduce.lib.rest.SplunkInputFormat;
 import com.splunk.shep.mapreduce.lib.rest.SplunkWritable;
 import com.splunk.shep.mapreduce.lib.rest.SplunkXMLStream;
-
 /**
  * @author hyan
  *
