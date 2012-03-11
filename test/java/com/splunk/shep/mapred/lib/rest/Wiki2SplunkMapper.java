@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.mapred.lib.rest.tests;
+package com.splunk.shep.mapred.lib.rest;
 
 import java.io.IOException;
 import java.util.Vector;

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.mapred.lib.rest.tests;
+package com.splunk.shep.mapred.lib.rest;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -32,33 +32,22 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapred.TextInputFormat;
 
 import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
-import com.splunk.shep.mapreduce.lib.rest.tests.SplunkRecord;
 
-public class WikiLinkCount {
+public class WordCount {
 
     public static class Map extends MapReduceBase implements
-	    Mapper<LongWritable, SplunkRecord, Text, IntWritable> {
+	    Mapper<LongWritable, Text, Text, IntWritable> {
 	private final static IntWritable one = new IntWritable(1);
 	private Text word = new Text();
 
-	public void map(LongWritable key, SplunkRecord value,
+	public void map(LongWritable key, Text value,
 		OutputCollector<Text, IntWritable> output, Reporter reporter)
 		throws IOException {
-	    System.out.println("got a map");
-	    String line = value.getMap().get("_raw");
-	    System.out.println("line " + line);
-	    StringTokenizer tokenizer = new StringTokenizer(line, "[]");
-	    String lasttoken = ""; // comma separated list of links
-
-	    while (tokenizer.hasMoreTokens()) {
-		lasttoken = tokenizer.nextToken();
-	    }
-
-	    System.out.println("lasttoken " + lasttoken);
-	    tokenizer = new StringTokenizer(lasttoken, ",");
+	    String line = value.toString();
+	    StringTokenizer tokenizer = new StringTokenizer(line);
 	    while (tokenizer.hasMoreTokens()) {
 		word.set(tokenizer.nextToken());
 		output.collect(word, one);
@@ -82,22 +71,10 @@ public class WikiLinkCount {
     }
 
     public static void main(String[] args) throws Exception {
-	System.out.println("Starting job");
-	if (args.length < 7) {
-	    System.out
-		    .println("Usage:  WikiLinkCount <inputdir> <outputdir> <splunk-host> <userid> <password> <search string>  <indexer1>  ...");
-	    System.exit(1);
-	}
-	JobConf conf = new JobConf(WikiLinkCount.class);
-	conf.setJobName("WikiLinkCount");
-	SplunkConfiguration.setConnInfo(conf, args[2], 8089, args[3], args[4]);
-	String indexers[] = new String[args.length - 6];
-	for (int i = 6; i < args.length; i++) {
-	    indexers[i - 6] = args[i];
-	}
-	SplunkConfiguration.setSplunkQueryByIndexers(conf, args[5], indexers);
-	conf.set(SplunkConfiguration.SPLUNKEVENTREADER,
-		SplunkRecord.class.getName());
+	JobConf conf = new JobConf(WordCount.class);
+	conf.setJobName("hadoopunittest1");
+	SplunkConfiguration.setConnInfo(conf, "localhost", 8089, "admin",
+		"changeme");
 
 	conf.setOutputKeyClass(Text.class);
 	conf.setOutputValueClass(IntWritable.class);
@@ -106,10 +83,8 @@ public class WikiLinkCount {
 	conf.setCombinerClass(Reduce.class);
 	conf.setReducerClass(Reduce.class);
 
-	conf.setInputFormat(com.splunk.shep.mapred.lib.rest.SplunkInputFormat.class);
-	conf.setOutputFormat(TextOutputFormat.class);
-
-	conf.setMapRunnerClass(org.apache.hadoop.mapred.lib.MultithreadedMapRunner.class);
+	conf.setInputFormat(TextInputFormat.class);
+	conf.setOutputFormat(com.splunk.shep.mapred.lib.rest.SplunkOutputFormat.class);
 
 	FileInputFormat.setInputPaths(conf, new Path(args[0]));
 	FileOutputFormat.setOutputPath(conf, new Path(args[1]));

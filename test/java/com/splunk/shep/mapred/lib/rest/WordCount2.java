@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.mapred.lib.rest.tests;
+package com.splunk.shep.mapred.lib.rest;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -32,21 +32,26 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextInputFormat;
+import org.apache.hadoop.mapred.TextOutputFormat;
 
 import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
+import com.splunk.shep.mapreduce.lib.rest.tests.SplunkRecord;
 
-public class WordCount {
+public class WordCount2 {
 
     public static class Map extends MapReduceBase implements
-	    Mapper<LongWritable, Text, Text, IntWritable> {
+	    Mapper<LongWritable, SplunkRecord, Text, IntWritable> {
 	private final static IntWritable one = new IntWritable(1);
 	private Text word = new Text();
 
-	public void map(LongWritable key, Text value,
+	public void map(LongWritable key, SplunkRecord value,
 		OutputCollector<Text, IntWritable> output, Reporter reporter)
 		throws IOException {
-	    String line = value.toString();
+	    String line = value.getMap().get("_raw");
+	    if (line == null) {
+		System.out.println("_raw is null");
+		return;
+	    }
 	    StringTokenizer tokenizer = new StringTokenizer(line);
 	    while (tokenizer.hasMoreTokens()) {
 		word.set(tokenizer.nextToken());
@@ -71,10 +76,27 @@ public class WordCount {
     }
 
     public static void main(String[] args) throws Exception {
-	JobConf conf = new JobConf(WordCount.class);
-	conf.setJobName("hadoopunittest1");
+	JobConf conf = new JobConf(WordCount2.class);
+	conf.setJobName("wordcount");
 	SplunkConfiguration.setConnInfo(conf, "localhost", 8089, "admin",
 		"changeme");
+	// SplunkConfiguration.setSplunkQuery(conf, "source=wordfile-timestamp",
+	// "%Y-%m-%d %H:%M:%S", new String[][]{{"2011-09-19 17:04:11",
+	// "2011-09-19 17:06:40"}, {"2011-09-19 17:06:41",
+	// "2011-09-19 17:09:12"}});
+	// SplunkConfiguration.setSplunkQueryByIndexers(conf,
+	// "source=wordfile-timestamp*", new
+	// String[]{"ip-10-196-45-203.ec2.internal",
+	// "domU-12-31-39-16-C6-C0.compute-1.internal"});
+	String query = "source::*wordfile-timestamp";
+	String indexer1 = "localhost"; // The indexer should be configured and
+				       // passed in as an argument, instead of
+				       // being hard coded.
+	SplunkConfiguration.setSplunkQueryByIndexers(conf, query,
+		new String[] { indexer1 });
+	conf.set(SplunkConfiguration.SPLUNKEVENTREADER,
+		SplunkRecord.class.getName());
+	conf.setInputFormat(com.splunk.shep.mapred.lib.rest.SplunkInputFormat.class);
 
 	conf.setOutputKeyClass(Text.class);
 	conf.setOutputValueClass(IntWritable.class);
@@ -83,8 +105,9 @@ public class WordCount {
 	conf.setCombinerClass(Reduce.class);
 	conf.setReducerClass(Reduce.class);
 
-	conf.setInputFormat(TextInputFormat.class);
-	conf.setOutputFormat(com.splunk.shep.mapred.lib.rest.SplunkOutputFormat.class);
+	conf.setInputFormat(com.splunk.shep.mapred.lib.rest.SplunkInputFormat.class);
+	conf.setOutputFormat(TextOutputFormat.class);
+	// conf.setOutputFormat(com.splunk.mapred.lib.rest.SplunkOutputFormat.class);
 
 	FileInputFormat.setInputPaths(conf, new Path(args[0]));
 	FileOutputFormat.setOutputPath(conf, new Path(args[1]));
