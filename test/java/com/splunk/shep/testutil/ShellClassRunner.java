@@ -7,33 +7,49 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
+import com.splunk.shep.archiver.archive.BucketArchiver;
+
 public class ShellClassRunner {
 
     private Integer exitCode = null;
     private List<String> stdOut;
+    private List<String> stdErr;
 
     public ShellClassRunner runClassWithArgs(Class<?> clazz, String... args) {
-	String classpath = clazz.getProtectionDomain().getCodeSource()
-		.getLocation().getPath();
+	System.out.println("classpath: " + getClasspath());
 	String fullClassName = clazz.getName();
-
-	Process exec = doRunArchiveBucket(classpath, fullClassName, args);
+	Process exec = doRunArchiveBucket(fullClassName, args);
 	exitCode = getStatusCode(exec);
 	stdOut = readInputStream(exec.getInputStream());
+	stdErr = readInputStream(exec.getErrorStream());
 	return this;
     }
 
-    private Process doRunArchiveBucket(String classpath, String fullClassName,
-	    String[] args) {
+    private Process doRunArchiveBucket(String fullClassName, String[] args) {
 	try {
-	    String execString = getJavaExecutablePath() + " -cp " + classpath
-		    + ":lib/* " + fullClassName + " "
+	    String execString = getJavaExecutablePath() + " -cp \":"
+		    + getClasspath() + ":\" " + fullClassName + " "
 		    + getSpaceSeparatedArgs(args);
+	    System.out.println("exec string:");
+	    System.out.println(execString);
 	    return Runtime.getRuntime().exec(execString);
 	} catch (IOException e) {
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}
+    }
+
+    /**
+     * Choose a class that's in src and one that's in test, to get their class
+     * paths.
+     */
+    private String getClasspath() {
+	String srcClasspath = BucketArchiver.class.getProtectionDomain()
+		.getCodeSource().getLocation().getPath();
+	String testClasspath = ShellClassRunnerTest.class.getProtectionDomain()
+		.getCodeSource().getLocation().getPath();
+	String libClasspath = "lib/*";
+	return srcClasspath + ":" + testClasspath + ":" + libClasspath;
     }
 
     private String getSpaceSeparatedArgs(String[] args) {
@@ -77,6 +93,10 @@ public class ShellClassRunner {
 
     public List<String> getStdOut() {
 	return stdOut;
+    }
+
+    public List<String> getStdErr() {
+	return stdErr;
     }
 
     /**

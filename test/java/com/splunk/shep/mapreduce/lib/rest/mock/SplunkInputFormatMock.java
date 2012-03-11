@@ -45,7 +45,7 @@ import com.splunk.shep.mapreduce.lib.rest.SplunkXMLStream;
 
 /**
  * @author hyan
- *
+ * 
  */
 public class SplunkInputFormatMock<V extends SplunkWritable> extends
 	SplunkInputFormat<V> {
