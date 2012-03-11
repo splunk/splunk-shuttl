@@ -17,7 +17,9 @@ package com.splunk.shep.archiver.archive.recovery;
 import java.io.File;
 
 import org.apache.tools.ant.util.FileUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 
 import com.splunk.shep.testutil.UtilsFile;
 
@@ -26,6 +28,8 @@ import com.splunk.shep.testutil.UtilsFile;
  * SimpleFileLock.
  */
 public class FailedBucketLockTest extends AbstractSimpleFileLockTest {
+
+    private String originalLockFileName;
 
     /*
      * (non-Javadoc)
@@ -39,6 +43,18 @@ public class FailedBucketLockTest extends AbstractSimpleFileLockTest {
 	return new FailedBucketLock();
     }
 
+    @BeforeClass
+    public void changeLockFileName() {
+	originalLockFileName = FailedBucketLock.FAIL_BUCKET_LOCK_FILE_NAME;
+	FailedBucketLock.FAIL_BUCKET_LOCK_FILE_NAME = getClass().getName()
+		+ ".lock";
+    }
+
+    @AfterClass
+    public void resetLockFileName() {
+	FailedBucketLock.FAIL_BUCKET_LOCK_FILE_NAME = originalLockFileName;
+    }
+
     @AfterMethod(groups = { "fast" })
     public void removeFailedBucketLocksCreatedLockFile() {
 	File lockFile = FailedBucketLock.getLockFile();
@@ -46,13 +62,16 @@ public class FailedBucketLockTest extends AbstractSimpleFileLockTest {
 	// In the creation of FailedBucketLock, it creates one parent to the
 	// lock file. Is this too much knowledge for this test?
 	File parentFile = lockFile.getParentFile();
+	deleteLockParentIfItsEmpty(parentFile);
+    }
+
+    /**
+     * In case the parent is empty, delete it. Otherwise it might contain files
+     * that shouldn't be deleted.
+     */
+    private void deleteLockParentIfItsEmpty(File parentFile) {
 	if (UtilsFile.isDirectoryEmpty(parentFile)) {
 	    FileUtils.delete(parentFile);
-	} else {
-	    throw new RuntimeException("Something has changed! "
-		    + "This action is done because of the "
-		    + "assumption of that the lock file"
-		    + " creates one empty parent.");
 	}
     }
 

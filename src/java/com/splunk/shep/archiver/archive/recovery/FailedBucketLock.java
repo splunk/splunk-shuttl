@@ -26,7 +26,9 @@ import com.splunk.shep.archiver.util.UtilsFile;
  */
 public class FailedBucketLock extends SimpleFileLock {
 
-    private static final String FAIL_BUCKET_LOCK_FILE_NAME = "buckets.lock";
+    // Package private because of testing. Should not test with the real file,
+    // since it might conflict with the environment the tests are run on.
+    /* package-private */static String FAIL_BUCKET_LOCK_FILE_NAME = "buckets.lock";
 
     /**
      * @param fileChannel
