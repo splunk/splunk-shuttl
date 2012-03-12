@@ -17,6 +17,8 @@ package com.splunk.shep.archiver.archive;
 import static com.splunk.shep.testutil.UtilsFile.createTempDirectory;
 import static com.splunk.shep.testutil.UtilsFile.isDirectoryEmpty;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -25,11 +27,15 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
+import org.mockito.ArgumentCaptor;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
+import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.testutil.UtilsBucket;
+import com.splunk.shep.testutil.UtilsTestNG;
 
 /**
  * Fixture: HttpClient returns HttpStatus codes that represent successful
@@ -93,5 +99,22 @@ public class BucketFreezerSuccessfulArchivingTest {
 	// Verify
 	assertTrue(!dirToBeMoved.exists());
 	assertTrue(nonExistingSafeLocation.exists());
+    }
+
+    public void freezeBucket_givenBucket_callRestWithMovedBucket() {
+	Bucket bucket = UtilsBucket.createTestBucket();
+
+	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
+		.getAbsolutePath());
+
+	ArgumentCaptor<Bucket> bucketCaptor = ArgumentCaptor
+		.forClass(Bucket.class);
+	verify(archiveRestHandler, times(1)).callRestToArchiveBucket(
+		bucketCaptor.capture());
+	assertEquals(1, bucketCaptor.getAllValues().size());
+	Bucket capturedBucket = bucketCaptor.getValue();
+
+	UtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket,
+		capturedBucket);
     }
 }
