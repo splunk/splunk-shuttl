@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +37,7 @@ import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsMockito;
+import com.splunk.shep.testutil.UtilsTestNG;
 
 /**
  * Fixture: BucketFreezer gets HttpStatus codes from HttpClient that means that
@@ -93,9 +93,8 @@ public class ArchiveRestHandlerFailiureArchivingTest {
 	verify(failedBucketTransfers, times(1)).moveFailedBucket(
 		bucketCaptor.capture());
 	Bucket capturedBucket = bucketCaptor.getValue();
-	assertEquals(bucket.getIndex(), capturedBucket.getIndex());
-	assertEquals(bucket.getName(), capturedBucket.getName());
-	assertEquals(bucket.getFormat(), capturedBucket.getFormat());
+	UtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket,
+		capturedBucket);
     }
 
     @Test(groups = { "fast" })
