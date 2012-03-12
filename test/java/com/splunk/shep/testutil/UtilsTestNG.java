@@ -1,6 +1,7 @@
 package com.splunk.shep.testutil;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +10,8 @@ import java.io.StringWriter;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
+
+import com.splunk.shep.archiver.model.Bucket;
 
 /**
  * All the utils regarding testng goes in here.
@@ -55,11 +58,23 @@ public class UtilsTestNG {
 	assertTrue(expected.toString() + " doesn't exist.", expected.exists());
 	assertTrue(actual.toString() + " doesn't exist.", actual.exists());
 	message = message == null ? "" : message;
-	
+
 	try {
 	    assertTrue(message, FileUtils.contentEquals(expected, actual));
 	} catch (IOException e) {
 	    failForException("Can't compare contents of files.", e);
 	}
+    }
+
+    /**
+     * Verifies that two buckets has the same index, format and name.
+     * {@link Bucket#equals(Object)} also goes for {@link Bucket#getDirectory()}
+     * .getAbsolutePath(), at the time of this implementation.
+     */
+    public static void assertBucketsGotSameIndexFormatAndName(Bucket bucket,
+	    Bucket capturedBucket) {
+	assertEquals(bucket.getIndex(), capturedBucket.getIndex());
+	assertEquals(bucket.getName(), capturedBucket.getName());
+	assertEquals(bucket.getFormat(), capturedBucket.getFormat());
     }
 }
