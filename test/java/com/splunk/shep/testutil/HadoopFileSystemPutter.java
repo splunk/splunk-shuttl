@@ -24,25 +24,19 @@ public class HadoopFileSystemPutter {
     }
 
     private final FileSystem fileSystem;
-    private final SafePathCreator safePathCreator;
-    private final MethodCallerHelper methodCallerHelper;
 
-    public HadoopFileSystemPutter(FileSystem fileSystem,
-	    SafePathCreator safePathCreator,
-	    MethodCallerHelper methodCallerHelper) {
+    public HadoopFileSystemPutter(FileSystem fileSystem) {
 	this.fileSystem = fileSystem;
-	this.safePathCreator = safePathCreator;
-	this.methodCallerHelper = methodCallerHelper;
     }
 
     public void putFile(File source) {
 	if (!source.exists())
 	    throw new LocalFileNotFound();
 	else
-	    putFileOnHadoopFileSystemHadnlingIOExceptions(source);
+	    putFileOnHadoopFileSystemHandlingIOExceptions(source);
     }
 
-    private void putFileOnHadoopFileSystemHadnlingIOExceptions(File src) {
+    private void putFileOnHadoopFileSystemHandlingIOExceptions(File src) {
 	try {
 	    fileSystem.copyFromLocalFile(new Path(src.getPath()),
 		    getSafePathOnFileSystemForFile(src));
@@ -57,8 +51,8 @@ public class HadoopFileSystemPutter {
     }
 
     private Path getSafePathForClassPuttingFile() {
-	Class<?> callerToThisMethod = methodCallerHelper.getCallerToMyMethod();
-	Path safeDirectory = safePathCreator.getSafeDirectory(fileSystem,
+	Class<?> callerToThisMethod = MethodCallerHelper.getCallerToMyMethod();
+	Path safeDirectory = UtilsPath.getSafeDirectory(fileSystem,
 		callerToThisMethod);
 	return safeDirectory;
     }
@@ -92,8 +86,7 @@ public class HadoopFileSystemPutter {
     }
 
     public static HadoopFileSystemPutter create(FileSystem fileSystem) {
-	return new HadoopFileSystemPutter(fileSystem, SafePathCreator.create(),
-		MethodCallerHelper.create());
+	return new HadoopFileSystemPutter(fileSystem);
     }
 
     public Path getPathForFileName(String fileName) {

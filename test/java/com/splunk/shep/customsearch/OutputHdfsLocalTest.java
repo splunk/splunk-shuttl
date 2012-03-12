@@ -1,7 +1,6 @@
 package com.splunk.shep.customsearch;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +24,9 @@ import org.testng.annotations.Test;
 import com.splunk.Args;
 import com.splunk.Index;
 import com.splunk.Service;
-import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
+import com.splunk.shep.testutil.UtilsFileSystem;
 
 public class OutputHdfsLocalTest {
 
@@ -100,7 +99,7 @@ public class OutputHdfsLocalTest {
 
     @BeforeMethod(groups = { "slow" })
     public void setUp() throws IOException {
-	fileSystem = FileSystemUtils.getLocalFileSystem();
+	fileSystem = UtilsFileSystem.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
 	Path pathForFile = putter.getPathForFile(getOutputFile());
 	fileSystem.mkdirs(pathForFile.getParent());
