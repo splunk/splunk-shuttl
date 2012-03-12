@@ -1,6 +1,8 @@
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.ArchiverLogger.did;
+import static com.splunk.shep.archiver.ArchiverLogger.done;
+import static com.splunk.shep.archiver.ArchiverLogger.will;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,6 +51,12 @@ public class BucketFreezer {
 	this.httpClient = httpClient;
 	this.failedBucketTransfers = failedBucketTransfers;
 	this.failedBucketRestorer = failedBucketRestorer;
+    }
+
+    /* package-private */void setHttpClient(HttpClient httpClient) {
+	// this.archiveRestHandler = new ArchiveRestHandler(httpClient,
+	// failedBucketTransfers);
+	this.httpClient = httpClient;
     }
 
     public static final int EXIT_OK = 0;

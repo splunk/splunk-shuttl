@@ -14,9 +14,11 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.testutil.UtilsFile.*;
-import static org.mockito.Mockito.*;
-import static org.testng.AssertJUnit.*;
+import static com.splunk.shep.testutil.UtilsFile.createTempDirectory;
+import static com.splunk.shep.testutil.UtilsFile.isDirectoryEmpty;
+import static org.mockito.Mockito.mock;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,11 +65,6 @@ public class BucketFreezerSuccessfulArchivingTest {
 
     private File getSafeLocationDirectory() {
 	return new File(getSafeLocationPath());
-    }
-
-    public void createWithDeafultSafeLocationAndHTTPClient_initialize_nonNullValue() {
-	assertNotNull(BucketFreezer
-		.createWithDeafultSafeLocationAndHTTPClient());
     }
 
     public void should_moveDirectoryToaSafeLocation_when_givenPath()
