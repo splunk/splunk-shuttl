@@ -47,8 +47,10 @@ public class BucketFreezerSuccessfulArchivingTest {
     public void beforeClass() throws ClientProtocolException, IOException {
 	okReturningHttpClient = UtilsMockito
 		.createAlwaysOKReturningHTTPClientMock();
+	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
+		okReturningHttpClient, null);
 	bucketFreezer = new BucketFreezer(getSafeLocationPath(),
-		okReturningHttpClient, null, mock(FailedBucketRestorer.class));
+		archiveRestHandler, mock(FailedBucketRestorer.class));
     }
 
     @AfterMethod(groups = { "fast" })

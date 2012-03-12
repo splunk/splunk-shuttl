@@ -35,25 +35,16 @@ public class BucketFreezer {
 	    + "-failed-buckets";
 
     private final String safeLocationForBuckets;
-    private final FailedBucketTransfers failedBucketTransfers;
     /* package-private */FailedBucketRestorer failedBucketRestorer;
 
     private ArchiveRestHandler archiveRestHandler;
 
     protected BucketFreezer(String safeLocationForBuckets,
-	    HttpClient httpClient, FailedBucketTransfers failedBucketTransfers,
+	    ArchiveRestHandler archiveRestHandler,
 	    FailedBucketRestorer failedBucketRestorer) {
 	this.safeLocationForBuckets = safeLocationForBuckets;
-	this.failedBucketTransfers = failedBucketTransfers;
+	this.archiveRestHandler = archiveRestHandler;
 	this.failedBucketRestorer = failedBucketRestorer;
-
-	this.archiveRestHandler = new ArchiveRestHandler(httpClient,
-		failedBucketTransfers);
-    }
-
-    /* package-private */void setHttpClient(HttpClient httpClient) {
-	this.archiveRestHandler = new ArchiveRestHandler(httpClient,
-		failedBucketTransfers);
     }
 
     /**
@@ -108,8 +99,9 @@ public class BucketFreezer {
 		DEFAULT_FAIL_LOCATION);
 	FailedBucketRestorer failedBucketRestorer = new FailedBucketRestorer(
 		failedBucketTransfers, new FailedBucketLock());
-	return new BucketFreezer(DEFAULT_SAFE_LOCATION,
-		new DefaultHttpClient(), failedBucketTransfers,
+	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
+		new DefaultHttpClient(), failedBucketTransfers);
+	return new BucketFreezer(DEFAULT_SAFE_LOCATION, archiveRestHandler,
 		failedBucketRestorer);
     }
 
@@ -139,6 +131,13 @@ public class BucketFreezer {
 	runMainWithDepentencies(Runtime.getRuntime(),
 		BucketFreezer.createWithDeafultSafeLocationAndHTTPClient(),
 		args);
+    }
+
+    /**
+     * @param httpClient
+     */
+    /* package-private */void setHttpClient(HttpClient httpClient) {
+	archiveRestHandler.httpClient = httpClient;
     }
 
 }

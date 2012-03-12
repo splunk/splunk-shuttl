@@ -59,9 +59,11 @@ public class BucketFreezerFailiureArchivingTest {
 	failedBucketsLocation = createTempDirectory();
 	HttpClient failingHttpClient = UtilsMockito
 		.createInternalServerErrorHttpClientMock();
+	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
+		failingHttpClient, failedBucketTransfers);
+
 	bucketFreezer = new BucketFreezer(safeLocation.getAbsolutePath(),
-		failingHttpClient, failedBucketTransfers,
-		mock(FailedBucketRestorer.class));
+		archiveRestHandler, mock(FailedBucketRestorer.class));
     }
 
     @AfterMethod(groups = { "fast" })

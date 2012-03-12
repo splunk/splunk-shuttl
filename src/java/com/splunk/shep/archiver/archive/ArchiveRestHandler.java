@@ -36,7 +36,7 @@ import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
  */
 public class ArchiveRestHandler {
 
-    private final HttpClient httpClient;
+    HttpClient httpClient;
     private final FailedBucketTransfers failedBucketTransfers;
 
     /**
