@@ -14,9 +14,14 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
-import static org.testng.AssertJUnit.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,7 +76,7 @@ public class BucketFreezerRecoveryTest {
 	FailedBucketRestorer failedBucketRestorer = mock(FailedBucketRestorer.class);
 	bucketFreezer.failedBucketRestorer = failedBucketRestorer;
 	HttpClient httpClient = UtilsMockito.createRandomHttpStatusHttpClient();
-	bucketFreezer.httpClient = httpClient;
+	bucketFreezer.setHttpClient(httpClient);
 	Bucket bucket = UtilsBucket.createTestBucket();
 	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 		.getAbsolutePath());
@@ -89,7 +94,7 @@ public class BucketFreezerRecoveryTest {
 		failedBucketTransfers, failedBucketLock);
 
 	HttpClient httpClient = mock(HttpClient.class);
-	bucketFreezer.httpClient = httpClient;
+	bucketFreezer.setHttpClient(httpClient);
 
 	Bucket bucketToFreeze = UtilsBucket.createTestBucket();
 	Bucket failedBucket = UtilsBucket.createTestBucket();

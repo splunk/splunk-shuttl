@@ -14,10 +14,13 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.testutil.UtilsFile.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
-import static org.testng.AssertJUnit.*;
+import static com.splunk.shep.testutil.UtilsFile.createTempDirectory;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,7 +104,7 @@ public class BucketFreezerFailiureArchivingTest {
 	when(exceptionThrowingHttpClient.execute(any(HttpUriRequest.class)))
 		.thenThrow(exception);
 
-	bucketFreezer.httpClient = exceptionThrowingHttpClient;
+	bucketFreezer.setHttpClient(exceptionThrowingHttpClient);
 	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 		.getAbsolutePath());
 
