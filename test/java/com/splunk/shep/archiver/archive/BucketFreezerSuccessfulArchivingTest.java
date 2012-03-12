@@ -25,13 +25,11 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
-import com.splunk.shep.testutil.UtilsMockito;
 
 /**
  * Fixture: HttpClient returns HttpStatus codes that represent successful
@@ -40,40 +38,35 @@ import com.splunk.shep.testutil.UtilsMockito;
 @Test(groups = { "fast" })
 public class BucketFreezerSuccessfulArchivingTest {
 
+    File tempTestDirectory;
     BucketFreezer bucketFreezer;
-    HttpClient okReturningHttpClient;
+    ArchiveRestHandler archiveRestHandler;
 
-    @BeforeClass(groups = { "fast" })
+    @BeforeMethod(groups = { "fast" })
     public void beforeClass() throws ClientProtocolException, IOException {
-	okReturningHttpClient = UtilsMockito
-		.createAlwaysOKReturningHTTPClientMock();
-	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-		okReturningHttpClient, null);
+	tempTestDirectory = createTempDirectory();
+	archiveRestHandler = mock(ArchiveRestHandler.class);
 	bucketFreezer = new BucketFreezer(getSafeLocationPath(),
 		archiveRestHandler, mock(FailedBucketRestorer.class));
     }
 
     @AfterMethod(groups = { "fast" })
     public void tearDownFast() {
-	FileUtils.deleteQuietly(getSafeLocationDirectory());
+	FileUtils.deleteQuietly(tempTestDirectory);
     }
 
     /**
      * This location is torn down by the AfterMethod annotation.
      */
     private String getSafeLocationPath() {
-	return FileUtils.getUserDirectoryPath() + "/" + getClass().getName();
-    }
-
-    private File getSafeLocationDirectory() {
-	return new File(getSafeLocationPath());
+	return tempTestDirectory.getAbsolutePath();
     }
 
     public void should_moveDirectoryToaSafeLocation_when_givenPath()
 	    throws IOException {
-	File safeLocationDirectory = getSafeLocationDirectory();
-	assertTrue(safeLocationDirectory.mkdirs());
 	File dirToBeMoved = createTempDirectory();
+	File safeLocationDirectory = tempTestDirectory;
+	assertTrue(isDirectoryEmpty(safeLocationDirectory));
 
 	// Test
 	int exitStatus = bucketFreezer.freezeBucket("index-name",
@@ -88,9 +81,11 @@ public class BucketFreezerSuccessfulArchivingTest {
 
     public void freezeBucket_givenNonExistingSafeLocation_createSafeLocation()
 	    throws IOException {
-	File nonExistingSafeLocation = getSafeLocationDirectory();
-	assertTrue(!nonExistingSafeLocation.exists());
 	File dirToBeMoved = createTempDirectory();
+
+	assertTrue(FileUtils.deleteQuietly(tempTestDirectory));
+	File nonExistingSafeLocation = tempTestDirectory;
+	assertTrue(!nonExistingSafeLocation.exists());
 
 	// Test
 	bucketFreezer.freezeBucket("index", dirToBeMoved.getAbsolutePath());
