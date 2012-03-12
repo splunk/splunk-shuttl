@@ -34,7 +34,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
@@ -45,40 +44,45 @@ import com.splunk.shep.testutil.UtilsMockito;
  * archiving bucket failed.
  */
 @Test(groups = { "fast" })
-public class BucketFreezerFailiureArchivingTest {
+public class ArchiveRestHandlerFailiureArchivingTest {
 
-    BucketFreezer bucketFreezer;
-    File failedBucketsLocation;
-    File safeLocation;
+    File tempTestDirectory;
     FailedBucketTransfers failedBucketTransfers;
+    Bucket failedBucket;
 
     @BeforeMethod(groups = { "fast" })
     public void setUp_internalServerErrorHttpClientBucketFreezer() {
-	safeLocation = createTempDirectory();
+	tempTestDirectory = createTempDirectory();
 	failedBucketTransfers = mock(FailedBucketTransfers.class);
-	failedBucketsLocation = createTempDirectory();
-	HttpClient failingHttpClient = UtilsMockito
-		.createInternalServerErrorHttpClientMock();
-	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-		failingHttpClient, failedBucketTransfers);
-
-	bucketFreezer = new BucketFreezer(safeLocation.getAbsolutePath(),
-		archiveRestHandler, mock(FailedBucketRestorer.class));
+	failedBucket = UtilsBucket.createBucketInDirectory(tempTestDirectory);
     }
 
     @AfterMethod(groups = { "fast" })
     public void tearDown() {
-	FileUtils.deleteQuietly(failedBucketsLocation);
-	FileUtils.deleteQuietly(safeLocation);
+	FileUtils.deleteQuietly(tempTestDirectory);
     }
 
-    public void freezeBucket_internalServerError_moveBucketWithFailedBucketTransfers()
-	    throws IOException {
-	Bucket failedBucket = UtilsBucket.createTestBucket();
-	bucketFreezer.freezeBucket(failedBucket.getIndex(), failedBucket
-		.getDirectory().getAbsolutePath());
+    @Test(groups = { "fast" })
+    public void freezeBucket_httpClientThrowsIOException_moveBucketToFailedLocation()
+	    throws ClientProtocolException, IOException {
+	freezeBucketAndLetHttpClientThrowsException(new IOException());
+    }
 
-	// Verification
+    @Test(groups = { "fast" })
+    public void freezeBucket_httpClientThrowsClientProtocolException_moveBucketToFailedLocation()
+	    throws ClientProtocolException, IOException {
+	freezeBucketAndLetHttpClientThrowsException(new ClientProtocolException());
+    }
+
+    private void freezeBucketAndLetHttpClientThrowsException(Exception exception)
+	    throws IOException, ClientProtocolException {
+	HttpClient exceptionThrowingHttpClient = mock(HttpClient.class);
+	when(exceptionThrowingHttpClient.execute(any(HttpUriRequest.class)))
+		.thenThrow(exception);
+
+	new ArchiveRestHandler(exceptionThrowingHttpClient,
+		failedBucketTransfers).callRestToArchiveBucket(failedBucket);
+
 	verifyFailedBucketTransfersWasCalledWithBucket(failedBucket);
     }
 
@@ -94,28 +98,17 @@ public class BucketFreezerFailiureArchivingTest {
 	assertEquals(bucket.getFormat(), capturedBucket.getFormat());
     }
 
-    public void freezeBucket_httpClientThrowsIOException_moveBucketToFailedLocation()
-	    throws ClientProtocolException, IOException {
-	freezeBucketAndLetHttpClientThrowsException(new IOException());
-    }
+    @Test(groups = { "fast" })
+    public void freezeBucket_internalServerError_moveBucketWithFailedBucketTransfers()
+	    throws IOException {
+	HttpClient failingHttpClient = UtilsMockito
+		.createInternalServerErrorHttpClientMock();
 
-    private void freezeBucketAndLetHttpClientThrowsException(Exception exception)
-	    throws IOException, ClientProtocolException {
-	Bucket bucket = UtilsBucket.createTestBucket();
-	HttpClient exceptionThrowingHttpClient = mock(HttpClient.class);
-	when(exceptionThrowingHttpClient.execute(any(HttpUriRequest.class)))
-		.thenThrow(exception);
+	new ArchiveRestHandler(failingHttpClient, failedBucketTransfers)
+		.callRestToArchiveBucket(failedBucket);
 
-	bucketFreezer.setHttpClient(exceptionThrowingHttpClient);
-	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
-		.getAbsolutePath());
-
-	verifyFailedBucketTransfersWasCalledWithBucket(bucket);
-    }
-
-    public void freezeBucket_httpClientThrowsClientProtocolException_moveBucketToFailedLocation()
-	    throws ClientProtocolException, IOException {
-	freezeBucketAndLetHttpClientThrowsException(new ClientProtocolException());
+	// Verification
+	verifyFailedBucketTransfersWasCalledWithBucket(failedBucket);
     }
 
 }
