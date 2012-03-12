@@ -15,6 +15,11 @@ import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
 public class BucketFreezer {
 
+    public static final int EXIT_OK = 0;
+    public static final int EXIT_INCORRECT_ARGUMENTS = -1;
+    public static final int EXIT_FILE_NOT_A_DIRECTORY = -2;
+    public static final int EXIT_FILE_NOT_FOUND = -3;
+
     // CONFIG get this value from the config.
     public static final String DEFAULT_SAFE_LOCATION = System
 	    .getProperty("user.home")
@@ -50,11 +55,6 @@ public class BucketFreezer {
 	this.archiveRestHandler = new ArchiveRestHandler(httpClient,
 		failedBucketTransfers);
     }
-
-    public static final int EXIT_OK = 0;
-    public static final int EXIT_INCORRECT_ARGUMENTS = -1;
-    public static final int EXIT_FILE_NOT_A_DIRECTORY = -2;
-    public static final int EXIT_FILE_NOT_FOUND = -3;
 
     /**
      * Freezez the bucket on the speicifed path and belonging to speicifed
