@@ -35,9 +35,9 @@
         <dependency org="org.apache.hadoop" name="hadoop-test" rev="@HADOOP.VERSION@"/>
         <dependency org="commons-cli" name="commons-cli" rev="1.2" />
         <dependency org="junit" name="junit" rev="4.10" />
-        <!-- exclude org="org.mortbay.jetty" module="*" type="*" ext="*" conf="" matcher="exact"/-->
+        <exclude org="org.mortbay.jetty" module="*" type="*" ext="*" conf="" matcher="exact"/>
         <exclude org="javax.servlet" module="servlet-api" type="*" ext="*" conf="" matcher="exact"/>
-		<!-- end of config for hadoop test -->
+	<!-- end of config for hadoop test -->
 		        
         <exclude org="xerces" module="*" type="*" ext="*" conf="" matcher="exact"/>
         <exclude type="source" ext="jar" />
