@@ -594,7 +594,7 @@
 	</target>
 
 	<target name="set-hadoop-classpath" depends="jar">
-		<property name="hadoop.classpath" value="${name.api.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar:${splunk-sdk}/splunk.jar" />
+		<property name="hadoop.classpath" value="${name.api.versioned.path}:${name.server.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar:${splunk-sdk}/splunk.jar" />
 	</target>
 
 	<target name="hadoop-conf-core-site-xml">
@@ -848,7 +848,6 @@
 			</manifest>
 			<include name="com/splunk/shep/mapred/**" />
 			<include name="com/splunk/shep/mapreduce/**" />
-			<include name="com/splunk/shep/customsearch/**" /> 
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.test.versioned.path}" basedir="${test-classdir}">
@@ -911,6 +910,7 @@
 		</replace>
 		<!-- copy the jar in there -->
 		<copy file="${name.api.versioned.path}" todir="${stage.dir}/bin" />
+		<copy file="${name.server.versioned.path}" todir="${stage.dir}/bin" />
 	</target>
 
 	<target name="tar-splunk-app">
