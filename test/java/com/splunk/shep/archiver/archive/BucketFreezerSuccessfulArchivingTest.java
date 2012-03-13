@@ -16,6 +16,8 @@ package com.splunk.shep.archiver.archive;
 
 import static com.splunk.shep.testutil.UtilsFile.createTempDirectory;
 import static com.splunk.shep.testutil.UtilsFile.isDirectoryEmpty;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,10 +30,12 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.archiver.archive.recovery.FailedBucketRecoveryHandler;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
@@ -120,10 +124,22 @@ public class BucketFreezerSuccessfulArchivingTest {
 		capturedBucket);
     }
 
-    public void freezeBucket_givenFailedBucketRecovery_callItToRecoverBuckets() {
+    public void freezeBucket_givenBucket_callItToRecoverBuckets() {
 	Bucket bucket = UtilsBucket.createTestBucket();
 	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 		.getAbsolutePath());
 	verify(failedBucketRestorer).recoverFailedBuckets(archiveRestHandler);
+    }
+
+    public void freezeBucket_givenBucket_triesToRestoreBucketsAFTERCallingRest() {
+	Bucket bucket = UtilsBucket.createTestBucket();
+	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
+		.getAbsolutePath());
+	InOrder inOrder = inOrder(archiveRestHandler, failedBucketRestorer);
+	inOrder.verify(archiveRestHandler, times(1)).callRestToArchiveBucket(
+		any(Bucket.class));
+	inOrder.verify(failedBucketRestorer).recoverFailedBuckets(
+		any(FailedBucketRecoveryHandler.class));
+	inOrder.verifyNoMoreInteractions();
     }
 }
