@@ -64,4 +64,12 @@ public class PathResolver {
 	return URI.create(writableFileSystem.getWritableUri()
 		+ getArchivingPath());
     }
+
+    /**
+     * @return Buckets home for an index, which is where on the
+     *         {@link ArchiveFileSystem} you can list buckets.
+     */
+    public URI getBucketsHome(String index) {
+	return URI.create(getIndexesHome() + "/" + index);
+    }
 }

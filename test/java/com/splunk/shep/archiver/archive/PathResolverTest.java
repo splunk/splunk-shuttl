@@ -1,7 +1,8 @@
 package com.splunk.shep.archiver.archive;
 
-import static org.mockito.Mockito.*;
-import static org.testng.AssertJUnit.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.net.URI;
 
@@ -60,10 +61,13 @@ public class PathResolverTest {
 	URI archivePath = pathResolver.resolveArchivePath(bucket);
 
 	// Verification
-	String archivePathEnding = archiveRoot + "/" + clusterName + "/"
-		+ serverName + "/" + bucketIndex + "/" + bucketFormat + "/"
-		+ bucketName;
+	String archivePathEnding = archiveServerCluster() + "/" + bucketIndex
+		+ "/" + bucketFormat + "/" + bucketName;
 	assertTrue(archivePath.getPath().endsWith(archivePathEnding));
+    }
+
+    private String archiveServerCluster() {
+	return "/" + archiveRoot + "/" + clusterName + "/" + serverName;
     }
 
     public void resolveArchivePath_givenWritableFileSystemUri_uriStartsWithWritablePath() {
@@ -75,19 +79,29 @@ public class PathResolverTest {
 		writableFileSystem.getWritableUri().toString()));
     }
 
-    public void getPathToIndexes_givenNothing_returnsPathThatEndsWithThePathToWhereIndexesLive() {
+    public void getIndexesHome_givenNothing_returnsPathThatEndsWithThePathToWhereIndexesLive() {
 	URI indexesHome = pathResolver.getIndexesHome();
 
-	String indexesHomeEnding = archiveRoot + "/" + clusterName + "/"
-		+ serverName;
+	String indexesHomeEnding = archiveServerCluster();
 	assertTrue(indexesHome.getPath().endsWith(indexesHomeEnding));
     }
 
-    public void getPathToIndexes_givenNothing_returnsPathThatStartsWithWritablePath() {
+    public void getIndexesHome_givenNothing_returnsPathThatStartsWithWritablePath() {
 	URI indexesHome = pathResolver.getIndexesHome();
 
 	assertTrue(indexesHome.toString().startsWith(
 		writableFileSystem.getWritableUri().toString()));
     }
 
+    public void getBucketsHome_givenIndex_uriWithPathThatEndsWithWhereBucketsLive() {
+	String index = "index";
+	URI bucketsHome = pathResolver.getBucketsHome(index);
+	String bucketsHomeEnding = archiveServerCluster() + "/" + index;
+	assertTrue(bucketsHome.getPath().endsWith(bucketsHomeEnding));
+    }
+
+    public void getBucketsHome_givenNothing_startsWithWritablePath() {
+	assertTrue(pathResolver.getBucketsHome(null).toString()
+		.startsWith(writableUri));
+    }
 }
