@@ -3,6 +3,7 @@ package com.splunk.shep.archiver.archive;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.splunk.shep.archiver.archive.recovery.FailedBucketLock;
@@ -24,25 +25,20 @@ public class BucketFreezer {
     public static final int EXIT_FILE_NOT_FOUND = -3;
 
     // CONFIG get this value from the config.
-    public static final String DEFAULT_SAFE_LOCATION = System
-	    .getProperty("user.home")
-	    + "/"
-	    + BucketFreezer.class.getName()
-	    + "-safe-buckets";
+    public static final String DEFAULT_SAFE_LOCATION = FileUtils
+	    .getUserDirectoryPath()
+	    + File.separator
+	    + BucketFreezer.class.getName() + "-safe-buckets";
 
     // CONFIG
-    public static final String DEFAULT_FAIL_LOCATION = System
-	    .getProperty("user.home")
-	    + "/"
-	    + BucketFreezer.class.getName()
-	    + "-failed-buckets";
+    public static final String DEFAULT_FAIL_LOCATION = FileUtils
+	    .getUserDirectoryPath()
+	    + File.separator
+	    + BucketFreezer.class.getName() + "-failed-buckets";
 
     private final String safeLocationForBuckets;
     private final FailedBucketRestorer failedBucketRestorer;
-
-    /*
-     * package-private
-     */ArchiveRestHandler archiveRestHandler;
+    private final ArchiveRestHandler archiveRestHandler;
 
     protected BucketFreezer(String safeLocationForBuckets,
 	    ArchiveRestHandler archiveRestHandler,

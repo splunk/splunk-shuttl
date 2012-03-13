@@ -27,6 +27,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
 import com.splunk.shep.testutil.UtilsFile;
 
 /**
@@ -41,15 +42,13 @@ public class BucketFreezerSystemExitTest {
     @BeforeMethod(groups = { "fast" })
     public void setUp() {
 	runtimeMock = mock(Runtime.class);
-	bucketFreezer = BucketFreezer
-		.createWithDefaultHttpClientAndDefaultSafeAndFailLocations();
-	bucketFreezer.archiveRestHandler = mock(ArchiveRestHandler.class);
+	bucketFreezer = new BucketFreezer(BucketFreezer.DEFAULT_SAFE_LOCATION,
+		mock(ArchiveRestHandler.class),
+		mock(FailedBucketRestorer.class));
     }
 
     @AfterMethod(groups = { "fast" })
     public void tearDown() throws IOException {
-	File failLocation = new File(BucketFreezer.DEFAULT_FAIL_LOCATION);
-	FileUtils.deleteDirectory(failLocation);
 	File safeLocation = new File(BucketFreezer.DEFAULT_SAFE_LOCATION);
 	FileUtils.deleteDirectory(safeLocation);
     }
