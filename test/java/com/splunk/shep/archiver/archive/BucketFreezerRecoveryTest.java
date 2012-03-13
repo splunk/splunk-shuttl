@@ -61,11 +61,9 @@ public class BucketFreezerRecoveryTest {
     public void setUp() {
 	safeLocationForBuckets = UtilsFile.createTempDirectory();
 	failedBucketTransfers = mock(FailedBucketTransfers.class);
-	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(null,
-		failedBucketTransfers);
 	bucketFreezer = new BucketFreezer(
-		safeLocationForBuckets.getAbsolutePath(), archiveRestHandler,
-		null);
+		safeLocationForBuckets.getAbsolutePath(),
+		new ArchiveRestHandler(null, failedBucketTransfers), null);
     }
 
     @AfterMethod(groups = { "fast" })

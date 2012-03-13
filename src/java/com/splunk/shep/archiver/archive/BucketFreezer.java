@@ -7,7 +7,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.splunk.shep.archiver.archive.recovery.FailedBucketLock;
-import com.splunk.shep.archiver.archive.recovery.FailedBucketRecoveryHandler;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
 import com.splunk.shep.archiver.model.Bucket;
@@ -73,8 +72,7 @@ public class BucketFreezer {
 	Bucket bucket = new Bucket(indexName, path);
 	bucket = bucket.moveBucketToDir(getSafeLocationForBucket(bucket));
 	archiveRestHandler.callRestToArchiveBucket(bucket);
-	failedBucketRestorer
-		.recoverFailedBuckets(new CallRestToReArchiveFailedBuckets());
+	failedBucketRestorer.recoverFailedBuckets(archiveRestHandler);
     }
 
     private File getSafeLocationForBucket(Bucket bucket) {
@@ -103,15 +101,6 @@ public class BucketFreezer {
 		new DefaultHttpClient(), failedBucketTransfers);
 	return new BucketFreezer(DEFAULT_SAFE_LOCATION, archiveRestHandler,
 		failedBucketRestorer);
-    }
-
-    private class CallRestToReArchiveFailedBuckets implements
-	    FailedBucketRecoveryHandler {
-
-	@Override
-	public void recoverFailedBucket(Bucket failedBucket) {
-	    archiveRestHandler.callRestToArchiveBucket(failedBucket);
-	}
     }
 
     /**

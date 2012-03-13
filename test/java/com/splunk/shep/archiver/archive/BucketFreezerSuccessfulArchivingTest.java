@@ -47,13 +47,15 @@ public class BucketFreezerSuccessfulArchivingTest {
     File tempTestDirectory;
     BucketFreezer bucketFreezer;
     ArchiveRestHandler archiveRestHandler;
+    FailedBucketRestorer failedBucketRestorer;
 
     @BeforeMethod(groups = { "fast" })
     public void beforeClass() throws ClientProtocolException, IOException {
 	tempTestDirectory = createTempDirectory();
 	archiveRestHandler = mock(ArchiveRestHandler.class);
+	failedBucketRestorer = mock(FailedBucketRestorer.class);
 	bucketFreezer = new BucketFreezer(getSafeLocationPath(),
-		archiveRestHandler, mock(FailedBucketRestorer.class));
+		archiveRestHandler, failedBucketRestorer);
     }
 
     @AfterMethod(groups = { "fast" })
@@ -116,5 +118,12 @@ public class BucketFreezerSuccessfulArchivingTest {
 
 	UtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket,
 		capturedBucket);
+    }
+
+    public void freezeBucket_givenFailedBucketRecovery_callItToRecoverBuckets() {
+	Bucket bucket = UtilsBucket.createTestBucket();
+	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
+		.getAbsolutePath());
+	verify(failedBucketRestorer).recoverFailedBuckets(archiveRestHandler);
     }
 }
