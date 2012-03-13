@@ -3,7 +3,6 @@ package com.splunk.shep.archiver.archive;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.splunk.shep.archiver.archive.recovery.FailedBucketLock;
@@ -12,6 +11,11 @@ import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
+/**
+ * Takes a bucket that froze and archives it. <br/>
+ * The {@link BucketFreezer} also recovers any failed archiving attempts by
+ * other {@link BucketFreezer}s.
+ */
 public class BucketFreezer {
 
     public static final int EXIT_OK = 0;
@@ -34,9 +38,11 @@ public class BucketFreezer {
 	    + "-failed-buckets";
 
     private final String safeLocationForBuckets;
-    /* package-private */FailedBucketRestorer failedBucketRestorer;
+    private final FailedBucketRestorer failedBucketRestorer;
 
-    private ArchiveRestHandler archiveRestHandler;
+    /*
+     * package-private
+     */ArchiveRestHandler archiveRestHandler;
 
     protected BucketFreezer(String safeLocationForBuckets,
 	    ArchiveRestHandler archiveRestHandler,
@@ -47,13 +53,15 @@ public class BucketFreezer {
     }
 
     /**
-     * Freezez the bucket on the speicifed path and belonging to speicifed
+     * Freezes the bucket on the specified path and belonging to specified
      * index.
      * 
      * @param indexName
      *            The name of the index that this bucket belongs to
+     * 
      * @param path
-     *            The path of the bucket on the local file stystem
+     *            The path of the bucket on the local file system
+     * 
      * @return An exit code depending on the outcome.
      */
     public int freezeBucket(String indexName, String path) {
@@ -83,16 +91,13 @@ public class BucketFreezer {
     }
 
     private File getSafeLocationRoot() {
-	return createDirectory(safeLocationForBuckets);
+	return new File(safeLocationForBuckets);
     }
 
-    private File createDirectory(String path) {
-	File file = new File(path);
-	file.mkdirs();
-	return file;
-    }
-
-    public static BucketFreezer createWithDeafultSafeLocationAndHTTPClient() {
+    /**
+     * The construction logic for creating a {@link BucketFreezer}
+     */
+    public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
 	FailedBucketTransfers failedBucketTransfers = new FailedBucketTransfers(
 		DEFAULT_FAIL_LOCATION);
 	FailedBucketRestorer failedBucketRestorer = new FailedBucketRestorer(
@@ -117,16 +122,11 @@ public class BucketFreezer {
     }
 
     public static void main(String... args) {
-	runMainWithDepentencies(Runtime.getRuntime(),
-		BucketFreezer.createWithDeafultSafeLocationAndHTTPClient(),
+	runMainWithDepentencies(
+		Runtime.getRuntime(),
+		BucketFreezer
+			.createWithDefaultHttpClientAndDefaultSafeAndFailLocations(),
 		args);
-    }
-
-    /**
-     * @param httpClient
-     */
-    /* package-private */void setHttpClient(HttpClient httpClient) {
-	archiveRestHandler.httpClient = httpClient;
     }
 
 }

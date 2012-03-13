@@ -1,3 +1,5 @@
+package com.splunk.shep.archiver.archive;
+
 // Copyright (C) 2011 Splunk Inc.
 //
 // Splunk Inc. licenses this file
@@ -12,9 +14,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.testutil.UtilsFile.createTempDirectory;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.testng.AssertJUnit.assertTrue;
@@ -28,7 +28,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.testutil.UtilsFile;
-import com.splunk.shep.testutil.UtilsMockito;
 
 /**
  * Fixture: Calling the main method of BucketFreezer. Testing exit codes.
@@ -43,29 +42,23 @@ public class BucketFreezerSystemExitTest {
     public void setUp() {
 	runtimeMock = mock(Runtime.class);
 	bucketFreezer = BucketFreezer
-		.createWithDeafultSafeLocationAndHTTPClient();
-	bucketFreezer.setHttpClient(UtilsMockito
-		.createAlwaysOKReturningHTTPClientMock());
-
+		.createWithDefaultHttpClientAndDefaultSafeAndFailLocations();
+	bucketFreezer.archiveRestHandler = mock(ArchiveRestHandler.class);
     }
 
     @AfterMethod(groups = { "fast" })
     public void tearDown() throws IOException {
-	// Because that of a FailedBucketLock is created in
-	// createWithDeafultSafeLocationAndHTTPClient()
 	File failLocation = new File(BucketFreezer.DEFAULT_FAIL_LOCATION);
 	FileUtils.deleteDirectory(failLocation);
+	File safeLocation = new File(BucketFreezer.DEFAULT_SAFE_LOCATION);
+	FileUtils.deleteDirectory(safeLocation);
     }
 
     public void main_existingDirecotry_returnCode0() throws IOException {
-	File directory = createTempDirectory();
+	File directory = UtilsFile.createTempDirectory();
 	runMainWithDepentencies_withArguments("index-name",
 		directory.getAbsolutePath());
 	verify(runtimeMock).exit(0);
-	// This deletion assumes and knows too much. When we remove
-	// BucketFreezer, this will be ok tho.
-	FileUtils
-		.deleteDirectory(new File(BucketFreezer.DEFAULT_SAFE_LOCATION));
     }
 
     public void main_noArguments_returnCodeMinus1() {
