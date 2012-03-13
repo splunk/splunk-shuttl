@@ -27,6 +27,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 
+import com.splunk.shep.archiver.archive.recovery.FailedBucketRecoveryHandler;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
@@ -34,7 +35,7 @@ import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
 /**
  * Handling all the calls and returns to and from {@link BucketArchiverRest}
  */
-public class ArchiveRestHandler {
+public class ArchiveRestHandler implements FailedBucketRecoveryHandler {
 
     HttpClient httpClient;
     private final FailedBucketTransfers failedBucketTransfers;
@@ -58,8 +59,9 @@ public class ArchiveRestHandler {
 		handleResponseCodeFromDoingArchiveBucketRequest(response
 			.getStatusLine().getStatusCode(), bucket);
 	    } else {
-		// It is test code.
-		// TODO: Get rid of this bad design.
+		// LOG: warning! Response was null. This happens in our tests
+		// when we mock the httpClient. Should never happen other wise.
+		// Should it?
 	    }
 	} catch (ClientProtocolException e) {
 	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
@@ -108,6 +110,18 @@ public class ArchiveRestHandler {
 		+ bucket.getIndex();
 	HttpGet request = new HttpGet(requestString);
 	return request;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.splunk.shep.archiver.archive.recovery.FailedBucketRecoveryHandler
+     * #recoverFailedBucket(com.splunk.shep.archiver.model.Bucket)
+     */
+    @Override
+    public void recoverFailedBucket(Bucket failedBucket) {
+	callRestToArchiveBucket(failedBucket);
     }
 
 }
