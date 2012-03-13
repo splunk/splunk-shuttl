@@ -48,6 +48,7 @@ import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.SplunkServiceParameters;
 import com.splunk.shep.testutil.SplunkTestUtils;
 
+
 public class DirectForwardingTest {
     private static final String TEST_INPUT_FILENAME = "smallsyslog.log";
     private FileSystem fileSystem;
@@ -89,7 +90,7 @@ public class DirectForwardingTest {
 
     @Parameters({ "splunk.host", "splunk.mgmtport", "splunk.username",
 	    "splunk.password" })
-    @BeforeClass(groups = { "system", "known-failures" })
+    @BeforeClass(groups = { "functional", "known-failures" })
     public void setUp(String splunkHost, String splunkMgmtPort,
 	    String splunkUser, String splunkPass) throws IOException {
 	System.out.println("SetUp for Direct forwarding tests");
@@ -148,7 +149,7 @@ public class DirectForwardingTest {
 		"Total Events key doesn't exist in search results");
         int totalEvents = results.get(0).get("Total Events");
 	Assert.assertEquals(totalEvents, 100,
-		"HC total events saved search returns incorrect results");
+		"Failing due to HADOOP-282. HC total events saved search returns incorrect results");
     }
 
     @Parameters({ "hadoop.host", "hadoop.port" })
