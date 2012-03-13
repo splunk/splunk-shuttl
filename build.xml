@@ -223,7 +223,7 @@
 	</target>
     
     <target name="copy-src-resources">
-		<copy file="${srcdir}/com/splunk/shep/cli/ShepCLI.conf" todir="${classdir}/com/splunk/shep/cli" />        
+		<copy file="${srcdir}/com/splunk/shep/cli/ShepCLI.conf" todir="${classdir}/com/splunk/shep/cli" />   
     </target>
 
 	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">
@@ -625,7 +625,7 @@
 	</target>
 
 	<target name="set-hadoop-classpath" depends="jar">
-		<property name="hadoop.classpath" value="${name.api.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar:${splunk-sdk}/splunk.jar" />
+		<property name="hadoop.classpath" value="${name.api.versioned.path}:${name.server.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar:${splunk-sdk}/splunk.jar" />
 	</target>
 
 	<target name="hadoop-conf-core-site-xml">
@@ -726,6 +726,7 @@
 			<arg value="-c" />
 			<arg line="'tar xf ${splunk.tgz.dir}/*.tgz -C ${build-cache}'" />
 		</exec>
+		<antcall target="copy-lib-jars-to-test-dir" />
 	</target>
 
 	<target name="isSplunkTgzAvailable">
@@ -847,11 +848,28 @@
 		<property name="name.test.versioned.path" value="${builddir}/jar/${name.test.versioned}.jar" />
 		<property name="name.cli.versioned" value="${appname}-cli-${version}" />
 		<property name="name.cli.versioned.path" value="${builddir}/jar/${name.cli.versioned}.jar" />
+		<property name="name.server.versioned" value="${appname}-server-${version}" />
+		<property name="name.server.versioned.path" value="${builddir}/jar/${name.server.versioned}.jar" />
 	</target>
 
 	<!-- create the jar file -->
 	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
+		<jar destfile="${name.server.versioned.path}" basedir="${classdir}">
+		    <manifest>
+		    	<section name="com/splunk/shep">
+		        	<attribute name="Implementation-Title" value="Shep"/>
+		          	<attribute name="Implementation-Version" value="${version}"/>
+		          	<attribute name="Implementation-Vendor" value="Splunk"/>
+		        </section>
+				<attribute name="Main-Class" value="com.splunk.shep.server.ShepJettyServer" />
+		    </manifest>
+			<include name="com/splunk/shep/customsearch/**" />
+			<include name="com/splunk/shep/s2s/**" />
+			<include name="com/splunk/shep/server/**" />
+			<include name="com/splunk/shep/metrics/**" />
+			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
+		</jar>
 		<jar destfile="${name.api.versioned.path}" basedir="${classdir}">
 			<manifest>
 				<section name="com/splunk/shep">
@@ -860,6 +878,8 @@
 					<attribute name="Implementation-Vendor" value="Splunk" />
 				</section>
 			</manifest>
+			<include name="com/splunk/shep/mapred/**" />
+			<include name="com/splunk/shep/mapreduce/**" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.test.versioned.path}" basedir="${test-classdir}">
@@ -873,17 +893,15 @@
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.cli.versioned.path}" basedir="${classdir}">
-			<manifest>
-				<section name="com/splunk/shep">
-					<attribute name="Implementation-Title" value="Shep" />
-					<attribute name="Implementation-Version" value="${version}" />
-					<attribute name="Implementation-Vendor" value="Splunk" />
-				</section>
-			</manifest>
-			<include name="com/splunk/shep/cli/*" />
-			<manifest>
+		    <manifest>
+		    	<section name="com/splunk/shep">
+		        	<attribute name="Implementation-Title" value="Shep"/>
+		          	<attribute name="Implementation-Version" value="${version}"/>
+		          	<attribute name="Implementation-Vendor" value="Splunk"/>
+		        </section>
 				<attribute name="Main-Class" value="com.splunk.shep.cli.ShepCLI" />
-			</manifest>
+		    </manifest>
+			<include name="com/splunk/shep/cli/**" />
 		</jar>
 	</target>
 
@@ -924,6 +942,7 @@
 		</replace>
 		<!-- copy the jar in there -->
 		<copy file="${name.api.versioned.path}" todir="${stage.dir}/bin" />
+		<copy file="${name.server.versioned.path}" todir="${stage.dir}/bin" />
 	</target>
 
 	<target name="tar-splunk-app">
@@ -948,8 +967,20 @@
 
 	<target name="copy-lib-jars-to-stage-dir">
 		<copy todir="${stage.dir}/lib">
-			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar" />
+			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar" />
 		</copy>
+<!--
+		<copy file="${name.api.versioned.path}" todir="${stage.dir}/lib" />
+		<copy file="${name.server.versioned.path}" todir="${stage.dir}/lib" />
+-->	
+	</target>
+
+	<target name="copy-lib-jars-to-test-dir">
+		<copy todir="${build-cache}/shep/testlib">
+			<fileset dir="${libdir}" includes="*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar" />
+		</copy>
+		<copy file="${name.test.versioned.path}" todir="${build-cache}/shep/testlib" />
+		<copy file="${name.cli.versioned.path}" todir="${build-cache}/shep/testlib" />
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->
