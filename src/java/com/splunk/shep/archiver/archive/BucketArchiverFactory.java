@@ -41,8 +41,8 @@ public class BucketArchiverFactory {
     /**
      * Create {@link BucketArchiver} that uses Hadoop's HDFS file system for
      * archiving buckets. <br/>
-     * TODO: The host and port of the HDFS used is currently hard coded. Should
-     * be configurable.
+     * CONFIG: The host and port of the HDFS used is currently hard coded.
+     * Should be configurable.
      */
     public static BucketArchiver createHdfsArchiver() {
 	return createHadoopFileSystemArchiver(getHdfsFileSystem());
