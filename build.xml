@@ -951,7 +951,7 @@
 
 	<target name="copy-lib-jars-to-stage-dir">
 		<copy todir="${stage.dir}/lib">
-			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar" />
+			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar,jetty-util-*.jar,jsp-2*.jar,jsp-api-2*.jar,servlet-api-2*.jar" />
 		</copy>
 <!--
 		<copy file="${name.api.versioned.path}" todir="${stage.dir}/lib" />
