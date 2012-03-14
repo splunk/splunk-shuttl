@@ -26,4 +26,4 @@ cd $SPLUNK_HOME/etc/apps/shep/
 index=$1
 bucket=$2
 
-$JAVA_HOME/bin/java -cp ./bin/*:./lib/* com.splunk.shep.archiver.archive.BucketFreezer $index $bucket
+exec -a BucketFrezer $JAVA_HOME/bin/java -cp ./bin/*:./lib/* com.splunk.shep.archiver.archive.BucketFreezer $index $bucket
