@@ -20,4 +20,4 @@
 
 cd $SPLUNK_HOME/etc/apps/shep/bin
 
-exec $JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./*  com.splunk.shep.server.ShepJettyServer
+exec -a ShepJettyServer $JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shep.server.ShepJettyServer
