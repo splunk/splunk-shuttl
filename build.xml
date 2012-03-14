@@ -959,7 +959,7 @@
 -->	
 	</target>
 
-	<target name="copy-lib-jars-to-test-dir">
+	<target name="copy-lib-jars-to-test-dir" depends="jar, versionized-jar-name">
 		<copy todir="${build-cache}/shep/testlib">
 			<fileset dir="${libdir}" includes="*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar" />
 		</copy>
