@@ -1,8 +1,11 @@
 package com.splunk.shep.archiver.model;
 
+import static com.splunk.shep.archiver.ArchiverLogger.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.commons.io.FileUtils;
 
@@ -16,6 +19,8 @@ public class Bucket {
     private final BucketFormat format;
     private final File directory;
     private final String indexName;
+    private final String bucketName;
+    private final URI uri;
 
     /**
      * Bucket with an index and format<br/>
@@ -31,14 +36,12 @@ public class Bucket {
      */
     public Bucket(String indexName, File directory)
 	    throws FileNotFoundException, FileNotDirectoryException {
-	verifyExistingDirectory(directory);
-	this.directory = directory;
-	this.indexName = indexName;
-	this.format = BucketFormat.getFormatFromDirectory(directory);
+	this(directory.toURI(), directory, indexName, directory.getName(),
+		BucketFormat.getFormatFromDirectory(directory));
     }
 
     /**
-     * Invokes #Bucket(String, File), by creating a file from specified
+     * Invokes {@link #Bucket(String, File)}, by creating a file from specified
      * bucketPath
      */
     public Bucket(String indexName, String bucketPath)
@@ -46,8 +49,47 @@ public class Bucket {
 	this(indexName, new File(bucketPath));
     }
 
+    /**
+     * Bucket created with an URI to support remote buckets.
+     * 
+     * @param uri
+     *            to bucket
+     * @param index
+     *            that the bucket belongs to.
+     * @param bucketName
+     *            that identifies the bucket
+     * @param format
+     *            of this bucket
+     * @throws FileNotFoundException
+     * @throws FileNotDirectoryException
+     */
+    public Bucket(URI uri, String index, String bucketName, BucketFormat format)
+	    throws FileNotFoundException, FileNotDirectoryException {
+	this(uri, getFileFromUri(uri), index, bucketName, format);
+    }
+
+    private Bucket(URI uri, File directory, String index, String bucketName,
+	    BucketFormat format) throws FileNotFoundException,
+	    FileNotDirectoryException {
+	this.uri = uri;
+	this.directory = directory;
+	this.indexName = index;
+	this.bucketName = bucketName;
+	this.format = format;
+	verifyExistingDirectory(directory);
+    }
+
+    private static File getFileFromUri(URI uri) {
+	if (uri.getScheme().equals("file")) {
+	    return new File(uri);
+	}
+	return null;
+    }
+
     private void verifyExistingDirectory(File directory)
 	    throws FileNotFoundException, FileNotDirectoryException {
+	if (isRemote())
+	    return;
 	if (!directory.exists()) {
 	    throw new FileNotFoundException("Could not find directory: "
 		    + directory);
@@ -61,6 +103,12 @@ public class Bucket {
      * @return The directory that this bucket has its data in.
      */
     public File getDirectory() {
+	if (directory == null) {
+	    did("Got directory from bucket",
+		    "Bucket was remote and can't instantiate a File.", "",
+		    "bucket", this);
+	    throw new RemoteBucketException();
+	}
 	return directory;
     }
 
@@ -68,7 +116,7 @@ public class Bucket {
      * @return The name of this bucket.
      */
     public String getName() {
-	return directory.getName();
+	return bucketName;
     }
 
     /**
@@ -78,12 +126,23 @@ public class Bucket {
 	return indexName;
     }
 
+    /**
+     * @return {@link BucketFormat} of this bucket.
+     */
     public BucketFormat getFormat() {
 	return format;
     }
 
+    /**
+     * @return {@link URI} of this bucket.
+     */
+    public URI getURI() {
+	return uri;
+    }
+
     public Bucket moveBucketToDir(File directoryToMoveTo)
 	    throws FileNotFoundException, FileNotDirectoryException {
+	File directory = getDirectory();
 	verifyExistingDirectory(directoryToMoveTo);
 	File newName = new File(directoryToMoveTo.getAbsolutePath(),
 		directory.getName());
@@ -136,7 +195,15 @@ public class Bucket {
     @Override
     public String toString() {
 	return "Bucket [format=" + format + ", directory=" + directory
-		+ ", indexName=" + indexName + "]";
+		+ ", indexName=" + indexName + ", bucketName=" + bucketName
+		+ ", uri=" + uri + "]";
+    }
+
+    /**
+     * @return
+     */
+    public boolean isRemote() {
+	return !uri.getScheme().equals("file");
     }
 
 }

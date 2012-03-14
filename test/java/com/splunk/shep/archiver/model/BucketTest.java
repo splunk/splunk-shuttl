@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -211,4 +212,38 @@ public class BucketTest {
 	bucket.moveBucketToDir(rootTestDirectory);
 	assertEquals(format, bucket.getFormat());
     }
+
+    public void getURI_validBucket_notNullURI() {
+	Bucket bucket = UtilsBucket.createTestBucket();
+	assertNotNull(bucket.getURI());
+    }
+
+    public void getDirectory_initWithFileUri_getDirectory() throws IOException {
+	File file = createTempDirectory();
+	Bucket bucketWithFileUri = new Bucket(file.toURI(), null, null, null);
+	assertEquals(file.getAbsolutePath(), bucketWithFileUri.getDirectory()
+		.getAbsolutePath());
+    }
+
+    @Test(expectedExceptions = { FileNotFoundException.class })
+    public void uriConstructor_initWithFileUriToNonExistingDirectory_throwsFileNotFoundException()
+	    throws IOException {
+	File file = createTempDirectory();
+	assertTrue(file.delete());
+	new Bucket(file.toURI(), null, null, null);
+    }
+
+    @Test(expectedExceptions = { FileNotDirectoryException.class })
+    public void uriConstructor_initWithFileUriToFileInsteadOfDirectory_throwsFileNotDirectoryException()
+	    throws IOException {
+	File file = createTestFile();
+	new Bucket(file.toURI(), null, null, null);
+    }
+
+    public void isRemote_uriConstructorWithLocalFileAsUri_false()
+	    throws IOException {
+	URI localFileUri = createTempDirectory().toURI();
+	assertFalse(new Bucket(localFileUri, null, null, null).isRemote());
+    }
+
 }
