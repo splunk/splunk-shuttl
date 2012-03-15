@@ -51,41 +51,19 @@ public class BucketLockerTest {
     }
 
     public void runWithBucketLocked_givenBucketThatCanBeLocked_executesRunnable() {
-	final Boolean[] isRun = new Boolean[] { false };
-	bucketLocker.runWithBucketLocked(bucket, new Runnable() {
-
-	    @Override
-	    public void run() {
-		isRun[0] = true;
-	    }
-
-	});
-	assertTrue(isRun[0]);
+	assertTrue(bucketLocker.runWithBucketLocked(bucket, new NoOpRunnable()));
     }
 
     public void runWithBucketLocked_givenLockedBucket_doesNotExecuteRunnable() {
 	BucketLock bucketLock = new BucketLock(bucket);
 	assertTrue(bucketLock.tryLock());
-	bucketLocker.runWithBucketLocked(bucket, new Runnable() {
-
-	    @Override
-	    public void run() {
-		fail();
-	    }
-	});
+	assertFalse(bucketLocker
+		.runWithBucketLocked(bucket, new NoOpRunnable()));
     }
 
     public void runWithBucketLocked_runOnceAlreadyAndReleasedTheLock_executesRunnable() {
-	final Boolean[] isRun = new Boolean[] { false };
-	bucketLocker.runWithBucketLocked(bucket, new NoOpRunnable());
-	bucketLocker.runWithBucketLocked(bucket, new Runnable() {
-
-	    @Override
-	    public void run() {
-		isRun[0] = true;
-	    }
-	});
-	assertTrue(isRun[0]);
+	assertTrue(bucketLocker.runWithBucketLocked(bucket, new NoOpRunnable()));
+	assertTrue(bucketLocker.runWithBucketLocked(bucket, new NoOpRunnable()));
     }
 
     private static class NoOpRunnable implements Runnable {
@@ -98,12 +76,34 @@ public class BucketLockerTest {
     public void executeRunnableDuringBucketLock_givenTryLockThatReturnsFalse_stillClosesLock() {
 	BucketLock bucketLock = mock(BucketLock.class);
 	when(bucketLock.tryLock()).thenReturn(false);
-	bucketLocker.executeRunnableDuringBucketLock(bucketLock,
-		new NoOpRunnable());
+	assertFalse(bucketLocker.executeRunnableDuringBucketLock(bucketLock,
+		new NoOpRunnable()));
 	InOrder inOrder = inOrder(bucketLock);
 	inOrder.verify(bucketLock).tryLock();
 	inOrder.verify(bucketLock).closeLock();
 	inOrder.verifyNoMoreInteractions();
     }
 
+    public void executeRunnableDuringBucketLock_givenRunnableThatThrowsException_stillClosesLock() {
+	BucketLock bucketLock = mock(BucketLock.class);
+	when(bucketLock.tryLock()).thenReturn(true);
+	try {
+	    bucketLocker.executeRunnableDuringBucketLock(bucketLock,
+		    new Runnable() {
+			@Override
+			public void run() {
+			    throw new FakeException();
+			}
+		    });
+	} catch (FakeException fake) {
+	    // Catch runnables exception to see if it still closes lock in case
+	    // of any exception.
+	}
+	verify(bucketLock).closeLock();
+
+    }
+
+    @SuppressWarnings("serial")
+    private static class FakeException extends RuntimeException {
+    }
 }

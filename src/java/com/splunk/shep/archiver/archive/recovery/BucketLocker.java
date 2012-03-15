@@ -25,21 +25,29 @@ public class BucketLocker {
     /**
      * Executes {@link Runnable} while the bucket it locked. <br/>
      * Runnable is not executed if the bucket cannot be locked.
+     * 
+     * @return true if runnable was run.
      */
-    public void runWithBucketLocked(Bucket bucket, Runnable runnable) {
-	executeRunnableDuringBucketLock(new BucketLock(bucket), runnable);
-
+    public boolean runWithBucketLocked(Bucket bucket, Runnable runnable) {
+	return executeRunnableDuringBucketLock(new BucketLock(bucket), runnable);
     }
 
     /**
      * Method exists for verifying that {@link BucketLock} is closed, whether it
      * gets the lock or not.
+     * 
+     * @return true if runnable was run.
      */
-    /* package-private */void executeRunnableDuringBucketLock(
+    /* package-private */boolean executeRunnableDuringBucketLock(
 	    BucketLock bucketLock, Runnable runnable) {
-	if (bucketLock.tryLock())
-	    runnable.run();
-	bucketLock.closeLock();
+	try {
+	    boolean isLocked = bucketLock.tryLock();
+	    if (isLocked)
+		runnable.run();
+	    return isLocked;
+	} finally {
+	    bucketLock.closeLock();
+	}
     }
 
 }
