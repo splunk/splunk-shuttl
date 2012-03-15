@@ -14,9 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.archiver.ArchiverLogger.did;
-import static com.splunk.shep.archiver.ArchiverLogger.done;
-import static com.splunk.shep.archiver.ArchiverLogger.will;
+import static com.splunk.shep.archiver.ArchiverLogger.*;
 
 import java.io.IOException;
 
@@ -26,6 +24,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.util.EntityUtils;
 
 import com.splunk.shep.archiver.archive.recovery.FailedBucketRecoveryHandler;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
@@ -51,10 +50,11 @@ public class ArchiveRestHandler implements FailedBucketRecoveryHandler {
 
     public void callRestToArchiveBucket(Bucket bucket) {
 	HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
+	HttpResponse response = null;
 	try {
 	    will("Send an archive bucket request", "request_uri",
 		    archiveBucketRequest.getURI());
-	    HttpResponse response = httpClient.execute(archiveBucketRequest); // LOG
+	    response = httpClient.execute(archiveBucketRequest); // LOG
 	    if (response != null) {
 		handleResponseCodeFromDoingArchiveBucketRequest(response
 			.getStatusLine().getStatusCode(), bucket);
@@ -67,6 +67,19 @@ public class ArchiveRestHandler implements FailedBucketRecoveryHandler {
 	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
 	} catch (IOException e) {
 	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
+	} finally {
+	    consumeResponseHandlingErrors(response);
+	}
+    }
+
+    private void consumeResponseHandlingErrors(HttpResponse response) {
+	if (response != null) {
+	    try {
+		EntityUtils.consume(response.getEntity());
+	    } catch (IOException e) {
+		did("Tried to consume http response of archive bucket request",
+			e, "no exception", "response", response);
+	    }
 	}
     }
 
