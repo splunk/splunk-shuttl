@@ -12,14 +12,16 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package com.splunk.shep.rest;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.ws.rs.core.MediaType;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sun.jersey.api.client.Client;
@@ -31,20 +33,42 @@ public class ShepServerRestTest {
     private static final String shepHost = "localhost";
     private static final int shepMgmtPort = 9090;
     private static String basePath = "/shep/rest/server";
+    private Client client;
     
-    @Test(groups = { "functional" })
+    @BeforeClass(groups = { "slow" })
+    public void setUpClient() {
+	System.out.println("*** Running ShepServerRestTest ***");
+	client = Client.create();
+    }
+
+    @Test(groups = { "slow" })
     public void getDefaultHost() throws URISyntaxException {
 	URI defaultHostUri = new URI("http", null, shepHost, shepMgmtPort,
 		(basePath + "/defaulthost"), null, null);
 
-	Client client = Client.create();
 	WebResource resource = client.resource(defaultHostUri);
 	ClientResponse response = resource.accept(MediaType.TEXT_PLAIN).get(
 		ClientResponse.class);
 	int status = response.getStatus();
 	String defaultHost = response.getEntity(String.class);
 	assertEquals(status, 200, "Unexpected status. response=" + response);
-	assertEquals(defaultHost, "localhost", "Unexpected entity. response="
+	assertEquals(defaultHost, "localhost",
+		"Unexpected defaultHost. response="
+		+ response);
+    }
+
+    @Test(groups = { "slow" })
+    public void getDefaultPort() throws URISyntaxException {
+	URI defaultPortUri = new URI("http", null, shepHost, shepMgmtPort,
+		(basePath + "/defaultport"), null, null);
+
+	WebResource resource = client.resource(defaultPortUri);
+	ClientResponse response = resource.accept(MediaType.TEXT_PLAIN).get(
+		ClientResponse.class);
+	int status = response.getStatus();
+	int defaultPort = Integer.parseInt(response.getEntity(String.class));
+	assertEquals(status, 200, "Unexpected status. response=" + response);
+	assertEquals(defaultPort, 9000, "Unexpected defaultPort, response="
 		+ response);
     }
 }

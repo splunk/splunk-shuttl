@@ -36,7 +36,6 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.Args;
-import com.splunk.EntityCollection;
 import com.splunk.Index;
 import com.splunk.InputCollection;
 import com.splunk.InputKind;
@@ -54,39 +53,6 @@ public class DirectForwardingTest {
     private FileSystem fileSystem;
     private Service splunkService;
     private SplunkServiceParameters splunkServiceParams;
-    
-    private void waitForIndexing(Index index, int value, int seconds) {
-        while (seconds > 0) {
-            try {
-                // 5000ms (5 second sleep)
-                Thread.sleep(5000);
-                seconds = seconds - 5;
-                if (index.getTotalEventCount() == value) {
-                    return;
-                }
-                index.refresh();
-            } catch (InterruptedException e) {
-                return;
-            }
-        }
-    }
-
-    private Index createSplunkIndex(String name) {
-	Index index;
-	EntityCollection<Index> indexes = splunkService.getIndexes();
-        if (indexes.containsKey(name)) {
-            System.out.println("Index " + name + " already exists");
-	    index = indexes.get(name);
-        } else {
-            indexes.create(name);
-	    index = indexes.get(name);
-	    index.refresh();
-            indexes.refresh();
-	    System.out.println("Index " + name + " created");
-        }
-
-        return index;
-    }
 
     @Parameters({ "splunk.host", "splunk.mgmtport", "splunk.username",
 	    "splunk.password" })
@@ -100,11 +66,12 @@ public class DirectForwardingTest {
 	// TODO: set up appending for splunk
     }
 
-    @Test(groups = { "known-failures" })
+    @Test(groups = { "functional", "known-failures" })
     public void monitorFileInSplunk() {
 	System.out.println("Running monitorFileInSplunk");
         String indexName = "directfwd";
-        Index index = createSplunkIndex(indexName);
+	Index index = SplunkTestUtils.createSplunkIndex(splunkService,
+		indexName);
 
         InputCollection inputs = splunkService.getInputs();
 	File inputFile = new File(SplunkTestUtils.TEST_RESOURCES_PATH
@@ -118,7 +85,7 @@ public class DirectForwardingTest {
         inputs.refresh();
 
         // wait at most 1 minute for indexing to complete
-        waitForIndexing(index, 100, 60);
+	SplunkTestUtils.waitForIndexing(index, 100, 60);
 	Assert.assertEquals(index.getTotalEventCount(), 100);
 
         // check that events are searchable
@@ -129,7 +96,7 @@ public class DirectForwardingTest {
 	Assert.assertEquals(job.getEventCount(), 100);
     }
 
-    @Test(groups = { "known-failures" }, dependsOnMethods = { "monitorFileInSplunk" })
+    @Test(groups = { "functional" }, dependsOnMethods = { "monitorFileInSplunk" })
     public void checkTotalEventsSearch() throws IOException, InterruptedException {
 	// Wait 30 seconds for events to get forwarded
 	Thread.sleep(30000);
@@ -149,7 +116,7 @@ public class DirectForwardingTest {
 		"Total Events key doesn't exist in search results");
         int totalEvents = results.get(0).get("Total Events");
 	Assert.assertEquals(totalEvents, 100,
-		"Failing due to HADOOP-282. HC total events saved search returns incorrect results");
+		"HC total events saved search returns incorrect results");
     }
 
     @Parameters({ "hadoop.host", "hadoop.port" })

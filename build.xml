@@ -369,17 +369,6 @@
 		</testng>
 	</target>
 
-	<target name="shell-tests" depends="compile,set-splunk-home,set-hadoop-home">
-		<echo>Running shell-tests..</echo>
-		<exec dir="." executable="${basedir}/test/unittests/run-unittests.sh" osfamily="unix">
-			<arg value="${hadoop.home}" />
-			<arg value="${basedir}" />
-			<arg value="${splunk.home}" />
-			<arg value="${splunk.username}" />
-			<arg value="${splunk.password}" />
-		</exec>
-	</target>
-
 	<!-- Setting environment specific properties -->
 	<target name="set-environment-property">
 		<property environment="env" />
@@ -392,7 +381,7 @@
 	<target name="set-user-env-splunk-home" depends="set-environment-property" if="defined.means.running.on.self.defined.splunk.home">
 		<property name="splunk.home" value="${env.SPLUNK_HOME}" />
 		<echo>You specified that you've got your own Splunk.</echo>
-		<echo>Running shell tests with SPLUNK_HOME: ${splunk.home}</echo>
+		<echo>Running tests with SPLUNK_HOME: ${splunk.home}</echo>
 	</target>
 
 	<target name="set-hadoop-home" depends="set-user-env-hadoop-home" unless="hadoop.home">
@@ -402,7 +391,7 @@
 	<target name="set-user-env-hadoop-home" depends="set-environment-property" if="defined.means.running.on.self.defined.hadoop.home">
 		<property name="hadoop.home" value="${env.HADOOP_HOME}" />
 		<echo>You specified that you've got your own Hadoop.</echo>
-		<echo>Running shell tests with HADOOP_HOME: ${hadoop.home}</echo>
+		<echo>Running tests with HADOOP_HOME: ${hadoop.home}</echo>
 	</target>
 
 	<!-- Hive -->

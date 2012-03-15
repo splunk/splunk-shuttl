@@ -12,8 +12,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package com.splunk.shep.rest;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,7 +33,7 @@ public class ShepForwarderRestTest {
     private static final int shepMgmtPort = 9090;
     private static String basePath = "/shep/rest/forwarder";
 
-    @Test(groups = { "functional" })
+    @Test(groups = { "slow" })
     public void getSinkPrefixDirectwrite() throws URISyntaxException {
 	URI sinkPrefixUri = new URI("http", null, shepHost, shepMgmtPort,
 		(basePath + "/sinkprefix"), null, null);
