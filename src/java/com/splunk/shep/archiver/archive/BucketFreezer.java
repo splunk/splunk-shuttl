@@ -8,7 +8,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.splunk.shep.archiver.archive.recovery.FailedBucketLock;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
-import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
+import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
@@ -94,12 +94,12 @@ public class BucketFreezer {
      * The construction logic for creating a {@link BucketFreezer}
      */
     public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
-	FailedBucketTransfers failedBucketTransfers = new FailedBucketTransfers(
+	BucketMover bucketMover = new BucketMover(
 		DEFAULT_FAIL_LOCATION);
 	FailedBucketRestorer failedBucketRestorer = new FailedBucketRestorer(
-		failedBucketTransfers, new FailedBucketLock());
+		bucketMover, new FailedBucketLock());
 	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-		new DefaultHttpClient(), failedBucketTransfers);
+		new DefaultHttpClient(), bucketMover);
 	return new BucketFreezer(DEFAULT_SAFE_LOCATION, archiveRestHandler,
 		failedBucketRestorer);
     }

@@ -32,15 +32,15 @@ public class FailedBucketRestorerTest {
 
     FailedBucketRestorer failedBucketRestorer;
     FailedBucketRecoveryHandler bucketRecoveryHandler;
-    FailedBucketTransfers failedBucketTransfers;
+    BucketMover bucketMover;
     FailedBucketLock lock;
 
     @BeforeMethod(groups = { "fast" })
     public void setUp() {
-	failedBucketTransfers = mock(FailedBucketTransfers.class);
+	bucketMover = mock(BucketMover.class);
 	bucketRecoveryHandler = mock(FailedBucketRecoveryHandler.class);
 	lock = mock(FailedBucketLock.class);
-	failedBucketRestorer = new FailedBucketRestorer(failedBucketTransfers,
+	failedBucketRestorer = new FailedBucketRestorer(bucketMover,
 		lock);
     }
 
@@ -48,7 +48,7 @@ public class FailedBucketRestorerTest {
 	Bucket failedBucket = UtilsBucket.createTestBucket();
 	List<Bucket> failedBuckets = Arrays.asList(failedBucket);
 
-	when(failedBucketTransfers.getFailedBuckets())
+	when(bucketMover.getMovedBuckets())
 		.thenReturn(failedBuckets);
 	return failedBucket;
     }

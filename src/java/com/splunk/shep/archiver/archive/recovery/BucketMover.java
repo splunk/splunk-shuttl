@@ -27,21 +27,21 @@ import com.splunk.shep.archiver.model.FileNotDirectoryException;
 /**
  * Class for moving and getting buckets that failed to be archived.<br/>
  * <br/>
- * Use {@link FailedBucketTransfers#moveFailedBucket(Bucket)} whenever a bucket
- * failed to be archived. Use {@link FailedBucketTransfers#getFailedBuckets()}
+ * Use {@link BucketMover#moveBucket(Bucket)} whenever a bucket
+ * failed to be archived. Use {@link BucketMover#getMovedBuckets()}
  * when it's time to do something about the failed buckets.
  * 
  */
-public class FailedBucketTransfers {
+public class BucketMover {
 
-    private final String failedBucketsLocationPath;
+    private final String movedBucketsLocationPath;
 
     /**
-     * @param failedBucketsLocationPath
+     * @param movedBucketsLocationPath
      *            path to the failed buckets location
      */
-    public FailedBucketTransfers(String failedBucketsLocationPath) {
-	this.failedBucketsLocationPath = failedBucketsLocationPath;
+    public BucketMover(String movedBucketsLocationPath) {
+	this.movedBucketsLocationPath = movedBucketsLocationPath;
     }
 
     /**
@@ -51,9 +51,9 @@ public class FailedBucketTransfers {
      * @param bucket
      *            that failed to archive.
      */
-    public void moveFailedBucket(Bucket failedBucket) {
+    public void moveBucket(Bucket movedBucket) {
 	try {
-	    moveBucketToFailedBucketsLocationAndPerserveItsIndex(failedBucket);
+	    moveBucketToMovedBucketsLocationAndPerserveItsIndex(movedBucket);
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
@@ -63,10 +63,10 @@ public class FailedBucketTransfers {
 	}
     }
 
-    private void moveBucketToFailedBucketsLocationAndPerserveItsIndex(
+    private void moveBucketToMovedBucketsLocationAndPerserveItsIndex(
 	    Bucket bucket) throws FileNotFoundException,
 	    FileNotDirectoryException {
-	File indexDirectory = new File(getFailedBucketsLocation(),
+	File indexDirectory = new File(getMovedBucketsLocation(),
 		bucket.getIndex());
 	indexDirectory.mkdirs();
 	bucket.moveBucketToDir(indexDirectory);
@@ -76,31 +76,31 @@ public class FailedBucketTransfers {
      * @return list of buckets in the failed buckets location that can be
      *         transfered
      */
-    public List<Bucket> getFailedBuckets() {
-	ArrayList<Bucket> failedBuckets = new ArrayList<Bucket>();
+    public List<Bucket> getMovedBuckets() {
+	ArrayList<Bucket> movedBuckets = new ArrayList<Bucket>();
 
-	File failedBucketsLocation = getFailedBucketsLocation();
-	File[] listFiles = failedBucketsLocation.listFiles();
+	File movedBucketsLocation = getMovedBucketsLocation();
+	File[] listFiles = movedBucketsLocation.listFiles();
 	// This will fail when the buckets structure has changed.
 	if (listFiles != null) {
 	    for (File file : listFiles) {
 		if (file.isFile()) {
 		    continue; // Ignore regular files.
 		} else {
-		    addBucketsFromIndexDirectory(failedBuckets, file);
+		    addBucketsFromIndexDirectory(movedBuckets, file);
 		}
 	    }
 	}
-	return failedBuckets;
+	return movedBuckets;
     }
 
-    private void addBucketsFromIndexDirectory(ArrayList<Bucket> failedBuckets,
+    private void addBucketsFromIndexDirectory(ArrayList<Bucket> movedBuckets,
 	    File file) {
 	String index = file.getName();
 	File[] bucketsInIndex = file.listFiles();
 	if (bucketsInIndex != null) {
 	    for (File bucket : bucketsInIndex) {
-		failedBuckets.add(createBucketWithErrorHandling(index, bucket));
+		movedBuckets.add(createBucketWithErrorHandling(index, bucket));
 	    }
 	}
     }
@@ -122,8 +122,8 @@ public class FailedBucketTransfers {
 	}
     }
 
-    private File getFailedBucketsLocation() {
-	return new File(failedBucketsLocationPath);
+    private File getMovedBucketsLocation() {
+	return new File(movedBucketsLocationPath);
     }
 
 }
