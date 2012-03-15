@@ -32,8 +32,7 @@ public class BucketLock extends SimpleFileLock {
 	    + File.separator
 	    + BucketLock.class.getName() + "-locks-dir";
 
-    private final Bucket bucket;
-    private final File locksDirectory;
+    private final File lockFile;
 
     /**
      * @param bucket
@@ -45,16 +44,15 @@ public class BucketLock extends SimpleFileLock {
 
     public BucketLock(Bucket bucket, File locksDirectory) {
 	super(UtilsFile.getFileOutputStreamSilent(
-		getLockFile(bucket, locksDirectory)).getChannel());
-	this.bucket = bucket;
-	this.locksDirectory = locksDirectory;
+		(getLockFile(bucket, locksDirectory))).getChannel());
+	this.lockFile = getLockFile(bucket, locksDirectory);
     }
 
     /**
      * @return File that controls the lock of this bucket.
      */
     /* package-private */File getLockFile() {
-	return BucketLock.getLockFile(bucket, locksDirectory);
+	return lockFile;
     }
 
     private static File getLockFile(Bucket bucket, File locksDirectory) {
@@ -62,5 +60,17 @@ public class BucketLock extends SimpleFileLock {
 		+ ".lock");
 	UtilsFile.touch(lock);
 	return lock;
+    }
+
+    /**
+     * Deletes the lock file only if it there's no one that has the file locked.
+     * 
+     * @return true if the file was deleted, false otherwise.
+     */
+    public boolean deleteLockFile() {
+	if (this.tryLock())
+	    return getLockFile().delete();
+	else
+	    return false;
     }
 }

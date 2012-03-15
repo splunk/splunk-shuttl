@@ -61,7 +61,13 @@ public class BucketLockTest {
 		.getAbsolutePath());
     }
 
-    public void deleteLock_createdValidily_lockFileDoesNotExist() {
-	// bucketLock.deleteLock(); // HERE <<----
+    public void deleteLockFile_bucketNotLocked_true() {
+	bucketLock.deleteLockFile();
+	assertFalse(bucketLock.getLockFile().exists());
+    }
+
+    public void deleteLockFile_bucketLocked_false() {
+	assertTrue(bucketLock.tryLock());
+	assertFalse(bucketLock.deleteLockFile());
     }
 }
