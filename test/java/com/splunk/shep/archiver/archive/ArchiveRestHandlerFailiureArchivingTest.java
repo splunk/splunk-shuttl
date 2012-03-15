@@ -33,7 +33,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
+import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsMockito;
@@ -47,13 +47,13 @@ import com.splunk.shep.testutil.UtilsTestNG;
 public class ArchiveRestHandlerFailiureArchivingTest {
 
     File tempTestDirectory;
-    FailedBucketTransfers failedBucketTransfers;
+    BucketMover bucketMover;
     Bucket failedBucket;
 
     @BeforeMethod(groups = { "fast" })
     public void setUp_internalServerErrorHttpClientBucketFreezer() {
 	tempTestDirectory = createTempDirectory();
-	failedBucketTransfers = mock(FailedBucketTransfers.class);
+	bucketMover = mock(BucketMover.class);
 	failedBucket = UtilsBucket.createBucketInDirectory(tempTestDirectory);
     }
 
@@ -81,7 +81,7 @@ public class ArchiveRestHandlerFailiureArchivingTest {
 		.thenThrow(exception);
 
 	new ArchiveRestHandler(exceptionThrowingHttpClient,
-		failedBucketTransfers).callRestToArchiveBucket(failedBucket);
+		bucketMover).callRestToArchiveBucket(failedBucket);
 
 	verifyFailedBucketTransfersWasCalledWithBucket(failedBucket);
     }
@@ -90,7 +90,7 @@ public class ArchiveRestHandlerFailiureArchivingTest {
 	ArgumentCaptor<Bucket> bucketCaptor = ArgumentCaptor
 		.forClass(Bucket.class);
 
-	verify(failedBucketTransfers, times(1)).moveFailedBucket(
+	verify(bucketMover, times(1)).moveFailedBucket(
 		bucketCaptor.capture());
 	Bucket capturedBucket = bucketCaptor.getValue();
 	UtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket,
@@ -103,7 +103,7 @@ public class ArchiveRestHandlerFailiureArchivingTest {
 	HttpClient failingHttpClient = UtilsMockito
 		.createInternalServerErrorHttpClientMock();
 
-	new ArchiveRestHandler(failingHttpClient, failedBucketTransfers)
+	new ArchiveRestHandler(failingHttpClient, bucketMover)
 		.callRestToArchiveBucket(failedBucket);
 
 	// Verification

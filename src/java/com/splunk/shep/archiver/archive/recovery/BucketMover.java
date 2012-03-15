@@ -27,12 +27,12 @@ import com.splunk.shep.archiver.model.FileNotDirectoryException;
 /**
  * Class for moving and getting buckets that failed to be archived.<br/>
  * <br/>
- * Use {@link FailedBucketTransfers#moveFailedBucket(Bucket)} whenever a bucket
- * failed to be archived. Use {@link FailedBucketTransfers#getFailedBuckets()}
+ * Use {@link BucketMover#moveFailedBucket(Bucket)} whenever a bucket
+ * failed to be archived. Use {@link BucketMover#getFailedBuckets()}
  * when it's time to do something about the failed buckets.
  * 
  */
-public class FailedBucketTransfers {
+public class BucketMover {
 
     private final String failedBucketsLocationPath;
 
@@ -40,7 +40,7 @@ public class FailedBucketTransfers {
      * @param failedBucketsLocationPath
      *            path to the failed buckets location
      */
-    public FailedBucketTransfers(String failedBucketsLocationPath) {
+    public BucketMover(String failedBucketsLocationPath) {
 	this.failedBucketsLocationPath = failedBucketsLocationPath;
     }
 
