@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -48,6 +49,11 @@ public class BucketLockTest {
     public void tearDown() throws IOException {
 	FileUtils.deleteDirectory(testRootDirectory);
 	FileUtils.deleteDirectory(locksDirectory);
+    }
+
+    @AfterTest
+    public void deleteDefaultBucketLockDirectory() throws IOException {
+	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
     }
 
     public void getLockFile_createdWithBucket_lockFilesNameIncludesBucketsNameForUniqueness() {

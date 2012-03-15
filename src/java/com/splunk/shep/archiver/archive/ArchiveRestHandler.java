@@ -14,9 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.archiver.ArchiverLogger.did;
-import static com.splunk.shep.archiver.ArchiverLogger.done;
-import static com.splunk.shep.archiver.ArchiverLogger.will;
+import static com.splunk.shep.archiver.ArchiverLogger.*;
 
 import java.io.IOException;
 
@@ -27,7 +25,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import com.splunk.shep.archiver.archive.recovery.FailedBucketRecoveryHandler;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
@@ -35,7 +33,7 @@ import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
 /**
  * Handling all the calls and returns to and from {@link BucketArchiverRest}
  */
-public class ArchiveRestHandler implements FailedBucketRecoveryHandler {
+public class ArchiveRestHandler implements LockedBucketHandler {
 
     HttpClient httpClient;
     private final BucketMover bucketMover;
@@ -43,8 +41,7 @@ public class ArchiveRestHandler implements FailedBucketRecoveryHandler {
     /**
      * TODO:
      */
-    public ArchiveRestHandler(HttpClient httpClient,
-	    BucketMover bucketMover) {
+    public ArchiveRestHandler(HttpClient httpClient, BucketMover bucketMover) {
 	this.httpClient = httpClient;
 	this.bucketMover = bucketMover;
     }
@@ -116,12 +113,12 @@ public class ArchiveRestHandler implements FailedBucketRecoveryHandler {
      * (non-Javadoc)
      * 
      * @see
-     * com.splunk.shep.archiver.archive.recovery.FailedBucketRecoveryHandler
-     * #recoverFailedBucket(com.splunk.shep.archiver.model.Bucket)
+     * com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler
+     * #handleLockedBucket(com.splunk.shep.archiver.model.Bucket)
      */
     @Override
-    public void recoverFailedBucket(Bucket failedBucket) {
-	callRestToArchiveBucket(failedBucket);
+    public void handleLockedBucket(Bucket bucket) {
+	callRestToArchiveBucket(bucket);
     }
 
 }

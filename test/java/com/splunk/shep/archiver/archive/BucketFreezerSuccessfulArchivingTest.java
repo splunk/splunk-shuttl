@@ -31,8 +31,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.recovery.BucketLock;
-import com.splunk.shep.archiver.archive.recovery.FailedBucketRecoveryHandler;
-import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
+import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsTestNG;
@@ -47,15 +47,15 @@ public class BucketFreezerSuccessfulArchivingTest {
     File tempTestDirectory;
     BucketFreezer bucketFreezer;
     ArchiveRestHandler archiveRestHandler;
-    FailedBucketRestorer failedBucketRestorer;
+    FailedBucketsArchiver failedBucketsArchiver;
 
     @BeforeMethod(groups = { "fast" })
     public void beforeClass() throws ClientProtocolException, IOException {
 	tempTestDirectory = createTempDirectory();
 	archiveRestHandler = mock(ArchiveRestHandler.class);
-	failedBucketRestorer = mock(FailedBucketRestorer.class);
+	failedBucketsArchiver = mock(FailedBucketsArchiver.class);
 	bucketFreezer = new BucketFreezer(getSafeLocationPath(),
-		archiveRestHandler, failedBucketRestorer);
+		archiveRestHandler, failedBucketsArchiver);
     }
 
     @AfterMethod(groups = { "fast" })
@@ -125,18 +125,18 @@ public class BucketFreezerSuccessfulArchivingTest {
 	Bucket bucket = UtilsBucket.createTestBucket();
 	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 		.getAbsolutePath());
-	verify(failedBucketRestorer).recoverFailedBuckets(archiveRestHandler);
+	verify(failedBucketsArchiver).archiveFailedBuckets(archiveRestHandler);
     }
 
     public void freezeBucket_givenBucket_triesToRestoreBucketsAFTERCallingRest() {
 	Bucket bucket = UtilsBucket.createTestBucket();
 	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 		.getAbsolutePath());
-	InOrder inOrder = inOrder(archiveRestHandler, failedBucketRestorer);
+	InOrder inOrder = inOrder(archiveRestHandler, failedBucketsArchiver);
 	inOrder.verify(archiveRestHandler, times(1)).callRestToArchiveBucket(
 		any(Bucket.class));
-	inOrder.verify(failedBucketRestorer).recoverFailedBuckets(
-		any(FailedBucketRecoveryHandler.class));
+	inOrder.verify(failedBucketsArchiver).archiveFailedBuckets(
+		any(LockedBucketHandler.class));
 	inOrder.verifyNoMoreInteractions();
     }
 }

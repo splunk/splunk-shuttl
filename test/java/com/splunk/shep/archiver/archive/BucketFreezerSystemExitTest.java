@@ -27,7 +27,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
+import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shep.testutil.UtilsFile;
 
 /**
@@ -44,7 +44,7 @@ public class BucketFreezerSystemExitTest {
 	runtimeMock = mock(Runtime.class);
 	bucketFreezer = new BucketFreezer(BucketFreezer.DEFAULT_SAFE_LOCATION,
 		mock(ArchiveRestHandler.class),
-		mock(FailedBucketRestorer.class));
+		mock(FailedBucketsArchiver.class));
     }
 
     @AfterMethod(groups = { "fast" })

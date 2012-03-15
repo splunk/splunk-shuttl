@@ -6,9 +6,9 @@ import java.io.FileNotFoundException;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import com.splunk.shep.archiver.archive.recovery.FailedBucketLock;
-import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
+import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
@@ -37,15 +37,15 @@ public class BucketFreezer {
 	    + BucketFreezer.class.getName() + "-failed-buckets";
 
     private final String safeLocationForBuckets;
-    private final FailedBucketRestorer failedBucketRestorer;
+    private final FailedBucketsArchiver failedBucketsArchiver;
     private final ArchiveRestHandler archiveRestHandler;
 
     protected BucketFreezer(String safeLocationForBuckets,
 	    ArchiveRestHandler archiveRestHandler,
-	    FailedBucketRestorer failedBucketRestorer) {
+	    FailedBucketsArchiver failedBucketsArchiver) {
 	this.safeLocationForBuckets = safeLocationForBuckets;
 	this.archiveRestHandler = archiveRestHandler;
-	this.failedBucketRestorer = failedBucketRestorer;
+	this.failedBucketsArchiver = failedBucketsArchiver;
     }
 
     /**
@@ -76,7 +76,7 @@ public class BucketFreezer {
 	Bucket bucket = new Bucket(indexName, path);
 	bucket = bucket.moveBucketToDir(getSafeLocationForBucket(bucket));
 	archiveRestHandler.callRestToArchiveBucket(bucket);
-	failedBucketRestorer.recoverFailedBuckets(archiveRestHandler);
+	failedBucketsArchiver.archiveFailedBuckets(archiveRestHandler);
     }
 
     private File getSafeLocationForBucket(Bucket bucket) {
@@ -94,14 +94,13 @@ public class BucketFreezer {
      * The construction logic for creating a {@link BucketFreezer}
      */
     public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
-	BucketMover bucketMover = new BucketMover(
-		DEFAULT_FAIL_LOCATION);
-	FailedBucketRestorer failedBucketRestorer = new FailedBucketRestorer(
-		bucketMover, new FailedBucketLock());
+	BucketMover bucketMover = new BucketMover(DEFAULT_FAIL_LOCATION);
+	FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
+		bucketMover, new BucketLocker());
 	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
 		new DefaultHttpClient(), bucketMover);
 	return new BucketFreezer(DEFAULT_SAFE_LOCATION, archiveRestHandler,
-		failedBucketRestorer);
+		failedBucketsArchiver);
     }
 
     /**

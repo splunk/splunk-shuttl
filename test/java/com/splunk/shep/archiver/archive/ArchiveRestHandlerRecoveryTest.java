@@ -14,9 +14,8 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
@@ -40,7 +39,7 @@ public class ArchiveRestHandlerRecoveryTest {
 	HttpClient httpClient = mock(HttpClient.class);
 	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
 		httpClient, null);
-	archiveRestHandler.recoverFailedBucket(bucket);
+	archiveRestHandler.handleLockedBucket(bucket);
 
 	verify(httpClient).execute(any(HttpUriRequest.class));
     }

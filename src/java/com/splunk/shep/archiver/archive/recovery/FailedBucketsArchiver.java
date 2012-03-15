@@ -14,50 +14,41 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive.recovery;
 
+import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
 import com.splunk.shep.archiver.model.Bucket;
 
 /**
  * Lets a {@link FailedBucketRecoveryHandler} recover buckets that failed to
  * archive. Make sure that the recovering of buckets is only done by 1 Java
- * Virtual Machines, at one time, by synchronizing with {@link FailedBucketLock}
- * . The failed buckets recovered, are the buckets moved with
- * {@link BucketMover#moveBucket(Bucket)}.
+ * Virtual Machines, at one time, by synchronizing with {@link BucketLocker}.
  */
-public class FailedBucketRestorer {
+public class FailedBucketsArchiver {
 
     private final BucketMover bucketMover;
-    private final FailedBucketLock failedBucketLock;
+    private final BucketLocker bucketLocker;
 
     /**
      * @param bucketMover
      *            for getting the failed buckets
-     * @param failedBucketLock
-     *            for making sure that no one else is accessing the failed
-     *            buckets.
      */
-    public FailedBucketRestorer(BucketMover bucketMover,
-	    FailedBucketLock failedBucketLock) {
+    public FailedBucketsArchiver(BucketMover bucketMover,
+	    BucketLocker bucketLocker) {
 	this.bucketMover = bucketMover;
-	this.failedBucketLock = failedBucketLock;
+	this.bucketLocker = bucketLocker;
     }
 
     /**
      * Recover failed buckets with handler. Any bucket that is available for
-     * recovery is sent to the {@link FailedBucketRecoveryHandler}.
+     * recovery is sent to the {@link LockedBucketHandler}.
      * 
      * @param bucketHandler
+     *            to handle the moved buckets. Executes the handler if it was
+     *            possible to get a lock on the bucket.
      */
-    public void recoverFailedBuckets(FailedBucketRecoveryHandler bucketHandler) {
-	if (failedBucketLock.tryLock()) {
-	    recoverEachFailedBucket(bucketHandler);
+    public void archiveFailedBuckets(LockedBucketHandler bucketHandler) {
+	for (Bucket movedBucket : bucketMover.getMovedBuckets()) {
+	    bucketLocker.runWithBucketLocked(movedBucket, bucketHandler);
 	}
-	failedBucketLock.closeLock();
     }
 
-    private void recoverEachFailedBucket(
-	    FailedBucketRecoveryHandler bucketHandler) {
-	for (Bucket failedBucket : bucketMover.getMovedBuckets()) {
-	    bucketHandler.recoverFailedBucket(failedBucket);
-	}
-    }
 }
