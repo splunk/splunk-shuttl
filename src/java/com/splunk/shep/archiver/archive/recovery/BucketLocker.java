@@ -28,8 +28,10 @@ public class BucketLocker {
      * 
      * @return true if runnable was run.
      */
-    public boolean runWithBucketLocked(Bucket bucket, Runnable runnable) {
-	return executeRunnableDuringBucketLock(new BucketLock(bucket), runnable);
+    public boolean runWithBucketLocked(Bucket bucket,
+	    LockedBucketHandler bucketHandler) {
+	return executeRunnableDuringBucketLock(new BucketLock(bucket), bucket,
+		bucketHandler);
     }
 
     /**
@@ -39,15 +41,29 @@ public class BucketLocker {
      * @return true if runnable was run.
      */
     /* package-private */boolean executeRunnableDuringBucketLock(
-	    BucketLock bucketLock, Runnable runnable) {
+	    BucketLock bucketLock, Bucket bucket,
+	    LockedBucketHandler bucketHandler) {
 	try {
 	    boolean isLocked = bucketLock.tryLock();
 	    if (isLocked)
-		runnable.run();
+		bucketHandler.handleLockedBucket(bucket);
 	    return isLocked;
 	} finally {
 	    bucketLock.closeLock();
 	}
+    }
+
+    /**
+     * Interface for operating on a {@link Bucket} while it's locked with
+     * {@link BucketLock}.
+     */
+    public interface LockedBucketHandler {
+
+	/**
+	 * Do operations on a {@link Bucket} while it's locked with a
+	 * {@link BucketLock}.
+	 */
+	void handleLockedBucket(Bucket bucket);
     }
 
 }

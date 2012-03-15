@@ -27,6 +27,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
@@ -51,24 +52,33 @@ public class BucketLockerTest {
     }
 
     public void runWithBucketLocked_givenBucketThatCanBeLocked_executesRunnable() {
-	assertTrue(bucketLocker.runWithBucketLocked(bucket, new NoOpRunnable()));
+	assertTrue(bucketLocker.runWithBucketLocked(bucket,
+		new NoOpBucketHandler()));
     }
 
     public void runWithBucketLocked_givenLockedBucket_doesNotExecuteRunnable() {
 	BucketLock bucketLock = new BucketLock(bucket);
 	assertTrue(bucketLock.tryLock());
-	assertFalse(bucketLocker
-		.runWithBucketLocked(bucket, new NoOpRunnable()));
+	assertFalse(bucketLocker.runWithBucketLocked(bucket,
+		new NoOpBucketHandler()));
     }
 
     public void runWithBucketLocked_runOnceAlreadyAndReleasedTheLock_executesRunnable() {
-	assertTrue(bucketLocker.runWithBucketLocked(bucket, new NoOpRunnable()));
-	assertTrue(bucketLocker.runWithBucketLocked(bucket, new NoOpRunnable()));
+	assertTrue(bucketLocker.runWithBucketLocked(bucket,
+		new NoOpBucketHandler()));
+	assertTrue(bucketLocker.runWithBucketLocked(bucket,
+		new NoOpBucketHandler()));
     }
 
-    private static class NoOpRunnable implements Runnable {
+    public void runWithBucketLocked_givenLockedBucketHandler_callsBucketHandlerToHandleTheBucket() {
+	LockedBucketHandler bucketHandler = mock(LockedBucketHandler.class);
+	bucketLocker.runWithBucketLocked(bucket, bucketHandler);
+	verify(bucketHandler).handleLockedBucket(bucket);
+    }
+
+    private static class NoOpBucketHandler implements LockedBucketHandler {
 	@Override
-	public void run() {
+	public void handleLockedBucket(Bucket bucket) {
 	    // Do nothing.
 	}
     }
@@ -77,7 +87,7 @@ public class BucketLockerTest {
 	BucketLock bucketLock = mock(BucketLock.class);
 	when(bucketLock.tryLock()).thenReturn(false);
 	assertFalse(bucketLocker.executeRunnableDuringBucketLock(bucketLock,
-		new NoOpRunnable()));
+		mock(Bucket.class), new NoOpBucketHandler()));
 	InOrder inOrder = inOrder(bucketLock);
 	inOrder.verify(bucketLock).tryLock();
 	inOrder.verify(bucketLock).closeLock();
@@ -89,9 +99,9 @@ public class BucketLockerTest {
 	when(bucketLock.tryLock()).thenReturn(true);
 	try {
 	    bucketLocker.executeRunnableDuringBucketLock(bucketLock,
-		    new Runnable() {
+		    mock(Bucket.class), new LockedBucketHandler() {
 			@Override
-			public void run() {
+			public void handleLockedBucket(Bucket bucket) {
 			    throw new FakeException();
 			}
 		    });
