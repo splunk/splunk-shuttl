@@ -82,7 +82,7 @@ public class ArchiveRestHandler implements FailedBucketRecoveryHandler {
 	default:
 	    will("Move bucket to failed buckets location because of failed HttpStatus",
 		    "bucket", bucket, "status_code", statusCode);
-	    bucketMover.moveFailedBucket(bucket);
+	    bucketMover.moveBucket(bucket);
 	}
     }
 
@@ -98,7 +98,7 @@ public class ArchiveRestHandler implements FailedBucketRecoveryHandler {
 	// it should be archived or not.
 	will("Move bucket to failed bucket location because of exception",
 		"bucket", bucket, "exception", e);
-	bucketMover.moveFailedBucket(bucket);
+	bucketMover.moveBucket(bucket);
     }
 
     private HttpUriRequest createBucketArchiveRequest(Bucket bucket) {

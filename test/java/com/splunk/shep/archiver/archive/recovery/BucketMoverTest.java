@@ -35,112 +35,109 @@ import com.splunk.shep.testutil.UtilsFile;
 public class BucketMoverTest {
 
     BucketMover bucketMover;
-    File failedBucketLocation;
+    File moveBucketLocation;
 
     @BeforeMethod(groups = { "fast" })
     public void setUp() {
-	failedBucketLocation = UtilsFile.createTempDirectory();
-	bucketMover = new BucketMover(
-		failedBucketLocation.getAbsolutePath());
+	moveBucketLocation = UtilsFile.createTempDirectory();
+	bucketMover = new BucketMover(moveBucketLocation.getAbsolutePath());
     }
 
     @AfterMethod(groups = { "fast" })
     public void tearDown() throws IOException {
-	FileUtils.deleteDirectory(failedBucketLocation);
+	FileUtils.deleteDirectory(moveBucketLocation);
     }
 
-    public void getFailedBuckets_failedLocationDoesNotExist_emptyList() {
-	assertTrue(failedBucketLocation.delete());
-	assertTrue(!failedBucketLocation.exists());
-	List<Bucket> failedBuckets = bucketMover.getFailedBuckets();
-	assertTrue(failedBuckets.isEmpty());
+    public void getMovedBuckets_moveLocationDoesNotExist_emptyList() {
+	assertTrue(moveBucketLocation.delete());
+	assertTrue(!moveBucketLocation.exists());
+	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+	assertTrue(movedBuckets.isEmpty());
     }
 
-    public void getFailedBuckets_givenBucketInFailedLocation_returnsListContainingTheFailedBucket()
+    public void getMovedBuckets_givenBucketInMoveLocation_returnsListContainingTheMovedBucket()
 	    throws FileNotFoundException, IOException {
-	Bucket failedBucket = createFailedBucket("index");
-	List<Bucket> failedBuckets = bucketMover.getFailedBuckets();
-	assertEquals(1, failedBuckets.size());
-	assertEquals(failedBucket, failedBuckets.get(0));
+	Bucket bucket = createBucketInMoveLocationWithIndexPreserved("index");
+	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+	assertEquals(1, movedBuckets.size());
+	assertEquals(bucket, movedBuckets.get(0));
     }
 
-    public void getFailedBuckets_givenNoBucketsInFailedLocation_emptyList() {
-	List<Bucket> failedBuckets = bucketMover.getFailedBuckets();
-	assertTrue(failedBuckets.isEmpty());
+    public void getMovedBuckets_givenNoBucketsInMoveLocation_emptyList() {
+	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+	assertTrue(movedBuckets.isEmpty());
     }
 
-    public void getFailedBuckets_givenTwoBucketsWithDifferentIndexInFailedLocation_listWithTheTwoBuckets() {
-	Bucket failedBucketIndex = createFailedBucket("a");
-	Bucket failedBucketAnotherIndex = createFailedBucket("b");
-	List<Bucket> failedBuckets = bucketMover.getFailedBuckets();
-	assertEquals(2, failedBuckets.size());
-	assertTrue(failedBuckets.contains(failedBucketIndex));
-	assertTrue(failedBuckets.contains(failedBucketAnotherIndex));
+    public void getMovedBuckets_givenTwoBucketsWithDifferentIndexInMoveLocation_listWithTheTwoBuckets() {
+	Bucket movedBucketIndex = createBucketInMoveLocationWithIndexPreserved("a");
+	Bucket movedBucketAnotherIndex = createBucketInMoveLocationWithIndexPreserved("b");
+	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+	assertEquals(2, movedBuckets.size());
+	assertTrue(movedBuckets.contains(movedBucketIndex));
+	assertTrue(movedBuckets.contains(movedBucketAnotherIndex));
     }
 
-    public void getFailedBuckets_givenTwoBucketsWithSameIndexInFailedLocation_listWithTheTwoBuckets() {
+    public void getMovedBuckets_givenTwoBucketsWithSameIndexInMoveLocation_listWithTheTwoBuckets() {
 	String index = "a";
-	Bucket failedBucket = createFailedBucket(index);
-	Bucket failedBucketSameIndex = UtilsBucket
-		.createBucketInDirectoryWithIndex(failedBucket.getDirectory()
+	Bucket movedBucket = createBucketInMoveLocationWithIndexPreserved(index);
+	Bucket movedBucketSameIndex = UtilsBucket
+		.createBucketInDirectoryWithIndex(movedBucket.getDirectory()
 			.getParentFile(), index);
 
 	// Assertions on buckets.
-	assertEquals(failedBucket.getIndex(), failedBucketSameIndex.getIndex());
-	assertEquals(failedBucket.getDirectory().getParent(),
-		failedBucketSameIndex.getDirectory().getParent());
+	assertEquals(movedBucket.getIndex(), movedBucketSameIndex.getIndex());
+	assertEquals(movedBucket.getDirectory().getParent(),
+		movedBucketSameIndex.getDirectory().getParent());
 
-	List<Bucket> failedBuckets = bucketMover.getFailedBuckets();
-	assertEquals(2, failedBuckets.size());
-	assertTrue(failedBuckets.contains(failedBucket));
-	assertTrue(failedBuckets.contains(failedBucketSameIndex));
+	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+	assertEquals(2, movedBuckets.size());
+	assertTrue(movedBuckets.contains(movedBucket));
+	assertTrue(movedBuckets.contains(movedBucketSameIndex));
     }
 
-    // This test knows too much about the inner structure of the moved buckets.
-    // The test should probably be removed if/when it fails.
-    public void moveFailedBucket_givenBucket_movedBucketTo_FailedLocation_Index_BucketName() {
-	assertTrue(isDirectoryEmpty(failedBucketLocation));
-	Bucket failedBucket = UtilsBucket.createTestBucket();
-	File movedBucket = new File(failedBucketLocation.getAbsolutePath()
-		+ File.separator + failedBucket.getIndex() + File.separator
-		+ failedBucket.getName());
+    public void moveBucket_givenBucket_movedBucketTo_moveLocation_Index_BucketName() {
+	assertTrue(isDirectoryEmpty(moveBucketLocation));
+	Bucket bucketToMove = UtilsBucket.createTestBucket();
+	File movedBucket = new File(moveBucketLocation.getAbsolutePath()
+		+ File.separator + bucketToMove.getIndex() + File.separator
+		+ bucketToMove.getName());
 	assertTrue(!movedBucket.exists());
 
-	bucketMover.moveFailedBucket(failedBucket);
-	assertTrue(!isDirectoryEmpty(failedBucketLocation));
+	bucketMover.moveBucket(bucketToMove);
+	assertTrue(!isDirectoryEmpty(moveBucketLocation));
 	assertTrue(movedBucket.exists());
     }
 
-    public void getFailedBuckets_afterSuccessfullyMovedABucketUsingMoveFailedBucket_getBucketThatFailedAndMoved() {
-	Bucket failedBucket = UtilsBucket.createTestBucket();
-	bucketMover.moveFailedBucket(failedBucket);
+    public void getMovedBuckets_afterSuccessfullyMovedABucketUsingMoveBucketToMove_getBucketThatMoved() {
+	Bucket bucketToMove = UtilsBucket.createTestBucket();
+	bucketMover.moveBucket(bucketToMove);
 
-	List<Bucket> failedBuckets = bucketMover.getFailedBuckets();
-	assertEquals(1, failedBuckets.size());
-	Bucket actualBucket = failedBuckets.get(0);
-	assertEquals(failedBucket.getIndex(), actualBucket.getIndex());
-	assertEquals(failedBucket.getName(), actualBucket.getName());
-	assertEquals(failedBucket.getFormat(), actualBucket.getFormat());
+	List<Bucket> movedBucket = bucketMover.getMovedBuckets();
+	assertEquals(1, movedBucket.size());
+	Bucket actualBucket = movedBucket.get(0);
+	assertEquals(bucketToMove.getIndex(), actualBucket.getIndex());
+	assertEquals(bucketToMove.getName(), actualBucket.getName());
+	assertEquals(bucketToMove.getFormat(), actualBucket.getFormat());
     }
 
-    public void getFailedBuckets_afterCreatingLockInFailedLocation_emptyList() {
-	File lock = UtilsFile.createFileInParent(failedBucketLocation, "lock");
+    public void getMovedBuckets_afterCreatingLockInMoveLocation_emptyList() {
+	File lock = UtilsFile.createFileInParent(moveBucketLocation, "lock");
 	assertTrue(lock.isFile());
-	List<Bucket> failedBuckets = bucketMover.getFailedBuckets();
-	assertTrue(failedBuckets.isEmpty());
+	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+	assertTrue(movedBuckets.isEmpty());
     }
 
-    public void getFailedBuckets_noBucketsInIndexDirectory_emptyList() {
-	File empty = createDirectoryInParent(failedBucketLocation, "index");
+    public void getMovedBuckets_noBucketsInIndexDirectory_emptyList() {
+	File empty = createDirectoryInParent(moveBucketLocation, "index");
 	assertTrue(isDirectoryEmpty(empty));
 
-	List<Bucket> failedBuckets = bucketMover.getFailedBuckets();
-	assertTrue(failedBuckets.isEmpty());
+	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+	assertTrue(movedBuckets.isEmpty());
     }
 
-    private Bucket createFailedBucket(String index) {
+    private Bucket createBucketInMoveLocationWithIndexPreserved(String index) {
 	File directoryRepresentingIndex = UtilsFile.createDirectoryInParent(
-		failedBucketLocation, index);
+		moveBucketLocation, index);
 	return UtilsBucket.createBucketInDirectoryWithIndex(
 		directoryRepresentingIndex, index);
     }

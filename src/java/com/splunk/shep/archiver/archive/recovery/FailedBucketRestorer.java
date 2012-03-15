@@ -21,7 +21,7 @@ import com.splunk.shep.archiver.model.Bucket;
  * archive. Make sure that the recovering of buckets is only done by 1 Java
  * Virtual Machines, at one time, by synchronizing with {@link FailedBucketLock}
  * . The failed buckets recovered, are the buckets moved with
- * {@link BucketMover#moveFailedBucket(Bucket)}.
+ * {@link BucketMover#moveBucket(Bucket)}.
  */
 public class FailedBucketRestorer {
 
@@ -56,7 +56,7 @@ public class FailedBucketRestorer {
 
     private void recoverEachFailedBucket(
 	    FailedBucketRecoveryHandler bucketHandler) {
-	for (Bucket failedBucket : bucketMover.getFailedBuckets()) {
+	for (Bucket failedBucket : bucketMover.getMovedBuckets()) {
 	    bucketHandler.recoverFailedBucket(failedBucket);
 	}
     }

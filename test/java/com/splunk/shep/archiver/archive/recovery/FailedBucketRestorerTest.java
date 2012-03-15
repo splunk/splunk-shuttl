@@ -48,7 +48,7 @@ public class FailedBucketRestorerTest {
 	Bucket failedBucket = UtilsBucket.createTestBucket();
 	List<Bucket> failedBuckets = Arrays.asList(failedBucket);
 
-	when(bucketMover.getFailedBuckets())
+	when(bucketMover.getMovedBuckets())
 		.thenReturn(failedBuckets);
 	return failedBucket;
     }

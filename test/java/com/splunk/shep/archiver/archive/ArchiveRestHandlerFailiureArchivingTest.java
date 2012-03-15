@@ -90,7 +90,7 @@ public class ArchiveRestHandlerFailiureArchivingTest {
 	ArgumentCaptor<Bucket> bucketCaptor = ArgumentCaptor
 		.forClass(Bucket.class);
 
-	verify(bucketMover, times(1)).moveFailedBucket(
+	verify(bucketMover, times(1)).moveBucket(
 		bucketCaptor.capture());
 	Bucket capturedBucket = bucketCaptor.getValue();
 	UtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket,
