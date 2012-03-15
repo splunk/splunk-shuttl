@@ -738,21 +738,26 @@
 		<fail unless="foundSplunkTgz" message="There has to be a splunk version packaged with .tgz in ${splunk.tgz.dir}" />
 	</target>
 
-	<target name="install-shep-splunk-app" depends="checkIfAlreadyInstalledShepApp" if="isNotInstalledShep">
-		<antcall target="do-install-shep-splunk-app" />
+	<target name="install-shep-splunk-app">
+		<antcall>
+			<target name="remove-shep-splunk-app" />
+			<target name="do-install-shep-splunk-app" />
+		</antcall>
+	</target>
+
+	<target name="remove-shep-splunk-app" depends="set-shep-app-home,checkIfShepAppExists" if="existsShepDir">
+		<delete dir="${shep.app.home}" />
+	</target>
+
+	<target name="checkIfShepAppExists" depends="set-shep-app-home">
+		<condition property="existsShepDir">
+			<available file="${shep.app.home}" type="dir" />
+		</condition>
 	</target>
 
 	<target name="set-shep-app-home" depends="set-splunk-home">
 		<property name="splunk.apps.home" value="${splunk.home}/etc/apps" />
 		<property name="shep.app.home" value="${splunk.apps.home}/shep" />
-	</target>
-
-	<target name="checkIfAlreadyInstalledShepApp" depends="set-shep-app-home">
-		<condition property="isNotInstalledShep">
-			<not>
-				<available file="${shep.app.home}" type="dir" />
-			</not>
-		</condition>
 	</target>
 
 	<target name="do-install-shep-splunk-app" depends="create-splunk-app">
@@ -770,10 +775,6 @@
 			<target name="remove-shep-splunk-app" />
 			<target name="splunk-configure-and-start" />
 		</antcall>
-	</target>
-
-	<target name="remove-shep-splunk-app" depends="set-shep-app-home">
-		<delete dir="${shep.app.home}" />
 	</target>
 
 	<target name="splunk-start" depends="set-splunk-home">
@@ -967,7 +968,7 @@
 
 	<target name="copy-lib-jars-to-stage-dir">
 		<copy todir="${stage.dir}/lib">
-			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar" />
+			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar,jetty-util-*.jar,jsp-2*.jar,jsp-api-2*.jar,servlet-api-2*.jar" />
 		</copy>
 <!--
 		<copy file="${name.api.versioned.path}" todir="${stage.dir}/lib" />
@@ -975,7 +976,7 @@
 -->	
 	</target>
 
-	<target name="copy-lib-jars-to-test-dir">
+	<target name="copy-lib-jars-to-test-dir" depends="jar, versionized-jar-name">
 		<copy todir="${build-cache}/shep/testlib">
 			<fileset dir="${libdir}" includes="*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar" />
 		</copy>
