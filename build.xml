@@ -335,7 +335,7 @@
 		<antcall>
 			<target name="splunk-stop"/>
 			<target name="hadoop-teardown"/>
-			<target name="shep-teardwon"/>
+			<target name="shep-teardown"/>
 		</antcall>
 	</target>
 		
