@@ -32,30 +32,36 @@ import com.splunk.shep.testutil.UtilsBucket;
 public class BucketLockTest {
 
     File testRootDirectory;
+    File locksDirectory;
     Bucket bucket;
     BucketLock bucketLock;
 
     @BeforeMethod
     public void setUp() {
 	testRootDirectory = createTempDirectory();
+	locksDirectory = createTempDirectory();
 	bucket = UtilsBucket.createBucketInDirectory(testRootDirectory);
-	bucketLock = new BucketLock(bucket);
+	bucketLock = new BucketLock(bucket, locksDirectory);
     }
 
     @AfterMethod
     public void tearDown() throws IOException {
 	FileUtils.deleteDirectory(testRootDirectory);
-    }
-
-    public void getLockFile_createdWithBucket_existInParentDirectoryToTheBucket() {
-	File lock = bucketLock.getLockFile();
-	assertTrue(lock.exists());
-	assertEquals(bucket.getDirectory().getParentFile().getAbsolutePath(),
-		lock.getParentFile().getAbsolutePath());
+	FileUtils.deleteDirectory(locksDirectory);
     }
 
     public void getLockFile_createdWithBucket_lockFilesNameIncludesBucketsNameForUniqueness() {
 	File lockFile = bucketLock.getLockFile();
 	assertTrue(lockFile.getName().contains(bucket.getName()));
+    }
+
+    public void getLockFile_createdWithLocksDirectory_lockFileIsInTheLocksDirectory() {
+	File lockFile = bucketLock.getLockFile();
+	assertEquals(locksDirectory.getAbsolutePath(), lockFile.getParentFile()
+		.getAbsolutePath());
+    }
+
+    public void deleteLock_createdValidily_lockFileDoesNotExist() {
+	// bucketLock.deleteLock(); // HERE <<----
     }
 }

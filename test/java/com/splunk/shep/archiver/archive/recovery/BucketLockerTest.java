@@ -47,6 +47,7 @@ public class BucketLockerTest {
     @AfterMethod
     public void tearDown() throws IOException {
 	FileUtils.deleteDirectory(tempTestDirectory);
+	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
     }
 
     public void runWithBucketLocked_givenBucketThatCanBeLocked_executesRunnable() {

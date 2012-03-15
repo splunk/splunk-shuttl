@@ -16,6 +16,8 @@ package com.splunk.shep.archiver.archive.recovery;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
+
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.util.UtilsFile;
 
@@ -25,28 +27,38 @@ import com.splunk.shep.archiver.util.UtilsFile;
  */
 public class BucketLock extends SimpleFileLock {
 
+    public static final String DEFAULT_LOCKS_DIRECTORY = FileUtils
+	    .getUserDirectoryPath()
+	    + File.separator
+	    + BucketLock.class.getName() + "-locks-dir";
+
     private final Bucket bucket;
+    private final File locksDirectory;
 
     /**
      * @param bucket
      *            to create lock for.
      */
     public BucketLock(Bucket bucket) {
-	super(UtilsFile.getFileOutputStreamSilent(getLockFile(bucket))
-		.getChannel());
+	this(bucket, new File(DEFAULT_LOCKS_DIRECTORY));
+    }
+
+    public BucketLock(Bucket bucket, File locksDirectory) {
+	super(UtilsFile.getFileOutputStreamSilent(
+		getLockFile(bucket, locksDirectory)).getChannel());
 	this.bucket = bucket;
+	this.locksDirectory = locksDirectory;
     }
 
     /**
      * @return File that controls the lock of this bucket.
      */
     /* package-private */File getLockFile() {
-	return BucketLock.getLockFile(bucket);
+	return BucketLock.getLockFile(bucket, locksDirectory);
     }
 
-    private static File getLockFile(Bucket bucket) {
-	File parentFileToBucket = bucket.getDirectory().getParentFile();
-	File lock = new File(parentFileToBucket, "bucket-" + bucket.getName()
+    private static File getLockFile(Bucket bucket, File locksDirectory) {
+	File lock = new File(locksDirectory, "bucket-" + bucket.getName()
 		+ ".lock");
 	UtilsFile.touch(lock);
 	return lock;
