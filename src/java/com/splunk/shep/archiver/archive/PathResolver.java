@@ -39,8 +39,8 @@ public class PathResolver {
     public URI resolveArchivePath(Bucket bucket) {
 	URI writableUri = writableFileSystem.getWritableUri();
 	String archivePathForBucket = getArchivingPath() + "/"
-		+ bucket.getIndex() + "/" + bucket.getFormat() + "/"
-		+ bucket.getName();
+		+ bucket.getIndex() + "/" + bucket.getName() + "/"
+		+ bucket.getFormat();
 	return URI.create(writableUri + archivePathForBucket);
     }
 

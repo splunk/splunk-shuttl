@@ -64,16 +64,16 @@ public class PathResolverTest {
 	URI archivePath = pathResolver.resolveArchivePath(bucket);
 
 	// Verification
-	String archivePathEnding = getArchivePathUpToBucket();
+	String archivePathEnding = getArchivePathUpToFormat();
 	assertTrue(archivePath.getPath().endsWith(archivePathEnding));
     }
 
     private String getArchivePathUpToBucket() {
-	return getArchivePathUpToFormat() + "/" + bucketName;
+	return getArchivePathUpToIndex() + "/" + bucketName;
     }
 
     private String getArchivePathUpToFormat() {
-	return getArchivePathUpToIndex() + "/" + bucketFormat;
+	return getArchivePathUpToBucket() + "/" + bucketFormat;
     }
 
     private String getArchivePathUpToIndex() {
