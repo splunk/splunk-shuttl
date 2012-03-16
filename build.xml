@@ -951,7 +951,19 @@
 
 	<target name="copy-lib-jars-to-stage-dir">
 		<copy todir="${stage.dir}/lib">
-			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar" />
+			<fileset dir="${libdir}" includes="*.jar" 
+				excludes="*-sources.jar,
+                          *-javadoc.jar,
+                          testng-*.jar,
+                          mockito-*.jar,
+                          jetty-6.1.26.jar,
+                          hadoop-test-*.jar,
+                          commons-cli-1.2.jar,
+                          jetty-util-6.1.26.jar,
+                          jsp-2.1-6.1.14.jar,
+                          jsp-api-2.1-6.1.14.jar,
+                          servlet-api-2.5-20081211.jar,
+                          servlet-api-2.5-6.1.14.jar" />
 		</copy>
 <!--
 		<copy file="${name.api.versioned.path}" todir="${stage.dir}/lib" />
@@ -961,7 +973,17 @@
 
 	<target name="copy-lib-jars-to-test-dir">
 		<copy todir="${build-cache}/shep/testlib">
-			<fileset dir="${libdir}" includes="*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar" />
+			<fileset dir="${libdir}" 
+				includes="testng-*.jar,
+                          mockito-*.jar,
+                          jetty-6.1.26.jar,
+                          hadoop-test-*.jar,
+                          commons-cli-1.2.jar,
+                          jetty-util-6.1.26.jar,
+                          jsp-2.1-6.1.14.jar,
+                          jsp-api-2.1-6.1.14.jar,
+                          servlet-api-2.5-20081211.jar,
+                          servlet-api-2.5-6.1.14.jar" />
 		</copy>
 		<copy file="${name.test.versioned.path}" todir="${build-cache}/shep/testlib" />
 		<copy file="${name.cli.versioned.path}" todir="${build-cache}/shep/testlib" />
@@ -992,33 +1014,10 @@
 	</target>
 
 	<!--hadoop unit test -->
-	<property name="report.dir" value="${builddir}/junitreport" />
 	<target name="in-memory-test" depends="compile">
-		<mkdir dir="${report.dir}" />
-		<junit printsummary="yes">
-			<!--jvmarg value="-Dlog4j.configuration=log4j.properties"/-->
-			<!--http://mail-archives.apache.org/mod_mbox/logging-log4j-user/200504.mbox/%3CF03963E938150F4E871144DAF11F825A416AF0@ITSERVER3.corporate.broadsource.com%3E -->
-			<!--sysproperty key="log4j.configuration" value="file:///Users/hyan/code/splunk/splunk-shep/package/bin/log4j.properties"/-->
-			<!-- http://jfkbits.blogspot.com/2006/06/passing-system-properties-from-ants.html -->
-			<!-- to get logs to junit report, use this command:
-				ant hadoop-test -Dlog4j.configuration=<the absolute url of your log4j file>
-				for example: file:///Users/hyan/code/splunk/splunk-shep/package/bin/log4j.properties 
-			-->
-			<syspropertyset>
-				<propertyref prefix="log4j.configuration" />
-			</syspropertyset>
-			<classpath>
-				<path refid="build.classpath" />
-			</classpath>
-			<formatter type="xml" />
-			<batchtest fork="yes" todir="${report.dir}">
-				<fileset dir="${test-classdir}" excludes="**/*$*" includes="**/Test*.class" />
-			</batchtest>
-		</junit>
-		<junitreport todir="${report.dir}">
-			<fileset dir="${report.dir}" includes="TEST-*.xml" />
-			<report todir="${report.dir}" />
-		</junitreport>
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="embedded" outputdir="${builddir}/test-results">
+			<classfileset dir="${test-classdir}" includes="**/*.class" />
+		</testng>
 	</target>
 
 	<target name="doc">

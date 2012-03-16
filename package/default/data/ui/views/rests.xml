@@ -54,7 +54,7 @@
     </module>
 </module>  
 
-<module name="LinkSwitcher" group="Total REST API Calls By Source" layoutPanel="panel_row2_col1">
+<module name="LinkSwitcher" group="Total REST API Calls By Endpoint" layoutPanel="panel_row2_col1">
   <param name="mode">independent</param>
   <param name="label"> </param>
 

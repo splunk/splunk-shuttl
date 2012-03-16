@@ -1,6 +1,5 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
-import static org.junit.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
@@ -97,7 +96,7 @@ public class SplunkEventsInputFormatTest {
 	FileInputFormat.setInputPaths(job, pathForFirst, pathForSecondFile);
 	FileOutputFormat.setOutputPath(job, getOutputPath());
 
-	assertTrue(job.waitForCompletion(true));
+	job.waitForCompletion(true);
     }
 
     private Path getOutputPath() {

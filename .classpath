@@ -43,7 +43,6 @@
 	<classpathentry kind="lib" path="lib/jersey-servlet-1.11.jar"/>
 	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-test-1.0.0.jar" sourcepath="/hadoop-1.0.0/src"/>
-	<classpathentry kind="lib" path="lib/junit-4.10.jar" sourcepath="/Users/hyan/.m2/repository/junit/junit/4.10/junit-4.10-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-util-6.1.26.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-6.1.26.jar"/>
 	<classpathentry kind="lib" path="lib/javax.servlet-api-3.0.1.jar"/>
