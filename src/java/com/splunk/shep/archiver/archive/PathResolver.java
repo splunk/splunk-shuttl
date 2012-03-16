@@ -1,6 +1,9 @@
 package com.splunk.shep.archiver.archive;
 
+import java.io.File;
 import java.net.URI;
+
+import org.apache.commons.io.FilenameUtils;
 
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shep.archiver.fileSystem.WritableFileSystem;
@@ -74,9 +77,28 @@ public class PathResolver {
     }
 
     /**
-     * @param uriToBucket
+     * Resolves index from a {@link URI} to a bucket.<br/>
+     * <br/>
+     * 
+     * @param bucketURI
+     *            , {@link URI} needs to have the index in a structure decided
+     *            by a {@link PathResolver}.
      */
-    public void resolveIndexFromUriToBucket(URI uriToBucket) {
-	throw new UnsupportedOperationException();
+    public String resolveIndexFromUriToBucket(URI bucketURI) {
+	String bucketPath = trimEndingFileSeparator(bucketURI);
+	String parentWhichIsIndex = getParent(bucketPath);
+	return FilenameUtils.getBaseName(parentWhichIsIndex);
+    }
+
+    private String getParent(String bucketPath) {
+	return FilenameUtils.getPathNoEndSeparator(bucketPath);
+    }
+
+    private String trimEndingFileSeparator(URI bucketURI) {
+	String path = bucketURI.getPath();
+	if (path.endsWith(File.separator))
+	    return path.substring(0, path.length() - 1);
+	else
+	    return path;
     }
 }
