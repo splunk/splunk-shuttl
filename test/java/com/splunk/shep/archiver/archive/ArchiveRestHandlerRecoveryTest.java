@@ -38,7 +38,7 @@ public class ArchiveRestHandlerRecoveryTest {
 	Bucket bucket = UtilsBucket.createTestBucket();
 	HttpClient httpClient = mock(HttpClient.class);
 	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-		httpClient, null);
+		httpClient);
 	archiveRestHandler.handleLockedBucket(bucket);
 
 	verify(httpClient).execute(any(HttpUriRequest.class));

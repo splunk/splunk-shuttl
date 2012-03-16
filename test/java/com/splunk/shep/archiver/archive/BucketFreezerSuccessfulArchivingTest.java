@@ -31,7 +31,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.recovery.BucketLock;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
+import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
@@ -54,7 +56,8 @@ public class BucketFreezerSuccessfulArchivingTest {
 	tempTestDirectory = createTempDirectory();
 	archiveRestHandler = mock(ArchiveRestHandler.class);
 	failedBucketsArchiver = mock(FailedBucketsArchiver.class);
-	bucketFreezer = new BucketFreezer(getSafeLocationPath(),
+	bucketFreezer = new BucketFreezer(
+		new BucketMover(getSafeLocationPath()), new BucketLocker(),
 		archiveRestHandler, failedBucketsArchiver);
     }
 

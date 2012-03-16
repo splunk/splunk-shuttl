@@ -98,14 +98,10 @@ public class BucketMoverTest {
     public void moveBucket_givenBucket_movedBucketTo_moveLocation_Index_BucketName() {
 	assertTrue(isDirectoryEmpty(moveBucketLocation));
 	Bucket bucketToMove = UtilsBucket.createTestBucket();
-	File movedBucket = new File(moveBucketLocation.getAbsolutePath()
-		+ File.separator + bucketToMove.getIndex() + File.separator
-		+ bucketToMove.getName());
-	assertTrue(!movedBucket.exists());
 
-	bucketMover.moveBucket(bucketToMove);
+	Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
 	assertTrue(!isDirectoryEmpty(moveBucketLocation));
-	assertTrue(movedBucket.exists());
+	assertTrue(movedBucket.getDirectory().exists());
     }
 
     public void getMovedBuckets_afterSuccessfullyMovedABucketUsingMoveBucketToMove_getBucketThatMoved() {

@@ -26,7 +26,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
-import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
 
@@ -35,15 +34,13 @@ import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
  */
 public class ArchiveRestHandler implements LockedBucketHandler {
 
-    HttpClient httpClient;
-    private final BucketMover bucketMover;
+    private final HttpClient httpClient;
 
     /**
      * TODO:
      */
-    public ArchiveRestHandler(HttpClient httpClient, BucketMover bucketMover) {
+    public ArchiveRestHandler(HttpClient httpClient) {
 	this.httpClient = httpClient;
-	this.bucketMover = bucketMover;
     }
 
     public void callRestToArchiveBucket(Bucket bucket) {
@@ -77,9 +74,9 @@ public class ArchiveRestHandler implements LockedBucketHandler {
 		    statusCode);
 	    break;
 	default:
-	    will("Move bucket to failed buckets location because of failed HttpStatus",
-		    "bucket", bucket, "status_code", statusCode);
-	    bucketMover.moveBucket(bucket);
+	    did("Sent an archive bucket reuqest", "Got non ok http_status",
+		    "expected HttpStatus.SC_OK or SC_NO_CONTENT",
+		    "http_status", statusCode);
 	}
     }
 
@@ -90,12 +87,6 @@ public class ArchiveRestHandler implements LockedBucketHandler {
 	// TODO this method should handle the errors in case the bucket transfer
 	// fails. In this state there is no way of telling if the bucket was
 	// actually transfered or not.
-	// REVIEW: Moving bucket to failed bucket location, just in case. And
-	// the next time this bucket gets transfered, we have to check whether
-	// it should be archived or not.
-	will("Move bucket to failed bucket location because of exception",
-		"bucket", bucket, "exception", e);
-	bucketMover.moveBucket(bucket);
     }
 
     private HttpUriRequest createBucketArchiveRequest(Bucket bucket) {

@@ -25,12 +25,8 @@ import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
 /**
- * Class for moving and getting buckets that failed to be archived.<br/>
- * <br/>
- * Use {@link BucketMover#moveBucket(Bucket)} whenever a bucket
- * failed to be archived. Use {@link BucketMover#getMovedBuckets()}
- * when it's time to do something about the failed buckets.
- * 
+ * Class for moving buckets to the location passed to
+ * {@link #BucketMover(String)}
  */
 public class BucketMover {
 
@@ -45,15 +41,16 @@ public class BucketMover {
     }
 
     /**
-     * Move a bucket which failed to be archived, to a location where it can
-     * later be picked up and transfered again.
+     * Move a bucket to the location passed to the constructor
+     * {@link #BucketMover(String)}
      * 
      * @param bucket
-     *            that failed to archive.
+     *            to move
+     * @return the new bucket moved to the new location.
      */
-    public void moveBucket(Bucket movedBucket) {
+    public Bucket moveBucket(Bucket movedBucket) {
 	try {
-	    moveBucketToMovedBucketsLocationAndPerserveItsIndex(movedBucket);
+	    return moveBucketToMovedBucketsLocationAndPerserveItsIndex(movedBucket);
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
@@ -63,13 +60,13 @@ public class BucketMover {
 	}
     }
 
-    private void moveBucketToMovedBucketsLocationAndPerserveItsIndex(
+    private Bucket moveBucketToMovedBucketsLocationAndPerserveItsIndex(
 	    Bucket bucket) throws FileNotFoundException,
 	    FileNotDirectoryException {
 	File indexDirectory = new File(getMovedBucketsLocation(),
 		bucket.getIndex());
 	indexDirectory.mkdirs();
-	bucket.moveBucketToDir(indexDirectory);
+	return bucket.moveBucketToDir(indexDirectory);
     }
 
     /**

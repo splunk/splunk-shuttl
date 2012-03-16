@@ -36,14 +36,16 @@ public class BucketFreezer {
 	    + File.separator
 	    + BucketFreezer.class.getName() + "-failed-buckets";
 
-    private final String safeLocationForBuckets;
+    private final BucketMover bucketMover;
+    private final BucketLocker bucketLocker;
     private final FailedBucketsArchiver failedBucketsArchiver;
     private final ArchiveRestHandler archiveRestHandler;
 
-    protected BucketFreezer(String safeLocationForBuckets,
+    protected BucketFreezer(BucketMover bucketMover, BucketLocker bucketLocker,
 	    ArchiveRestHandler archiveRestHandler,
 	    FailedBucketsArchiver failedBucketsArchiver) {
-	this.safeLocationForBuckets = safeLocationForBuckets;
+	this.bucketMover = bucketMover;
+	this.bucketLocker = bucketLocker;
 	this.archiveRestHandler = archiveRestHandler;
 	this.failedBucketsArchiver = failedBucketsArchiver;
     }
@@ -74,32 +76,22 @@ public class BucketFreezer {
     private void moveAndArchiveBucket(String indexName, String path)
 	    throws FileNotFoundException, FileNotDirectoryException {
 	Bucket bucket = new Bucket(indexName, path);
-	bucket = bucket.moveBucketToDir(getSafeLocationForBucket(bucket));
-	archiveRestHandler.callRestToArchiveBucket(bucket);
+	bucketLocker.runWithBucketLocked(bucket, new MoveAndArchiveBucketUnderLock(
+		bucketMover, archiveRestHandler));
 	failedBucketsArchiver.archiveFailedBuckets(archiveRestHandler);
-    }
-
-    private File getSafeLocationForBucket(Bucket bucket) {
-	File safeBucketLocation = new File(getSafeLocationRoot(),
-		bucket.getIndex());
-	safeBucketLocation.mkdirs();
-	return safeBucketLocation;
-    }
-
-    private File getSafeLocationRoot() {
-	return new File(safeLocationForBuckets);
     }
 
     /**
      * The construction logic for creating a {@link BucketFreezer}
      */
     public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
-	BucketMover bucketMover = new BucketMover(DEFAULT_FAIL_LOCATION);
+	BucketMover bucketMover = new BucketMover(DEFAULT_SAFE_LOCATION);
+	BucketLocker bucketLocker = new BucketLocker();
 	FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
-		bucketMover, new BucketLocker());
+		bucketMover, bucketLocker);
 	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-		new DefaultHttpClient(), bucketMover);
-	return new BucketFreezer(DEFAULT_SAFE_LOCATION, archiveRestHandler,
+		new DefaultHttpClient());
+	return new BucketFreezer(bucketMover, bucketLocker, archiveRestHandler,
 		failedBucketsArchiver);
     }
 
