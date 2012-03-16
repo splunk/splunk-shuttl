@@ -8,18 +8,12 @@
 
 	<!-- project filesystem properties -->
 	<property name="contribdir" value="${basedir}/contrib" />
-	<property name="hadoop.dir" value="${contribdir}/hadoop-0.20.205.0" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
-	<property name="flumelib.home" value="${flume.home}/lib" />
 	<property name="builddir" value="${basedir}/build" />
 	<property name="build-cache" value="${basedir}/build-cache" />
 	<property name="classdir" value="${builddir}/classes" />
 	<property name="test-classdir" value="${builddir}/testclasses" />
-	<property name="testng.basename" value="testng-6.1.1" />
-	<property name="testng.zip" value="${testng.basename}.zip" />
-	<property name="testng.jar" value="${testng.basename}.jar" />
-	<property name="jar.file" value="${builddir}/jar/${final.name}.jar" />
-	<property name="hadoop.unittest.jar.file" value="${builddir}/jar/splunk_hadoop_unittests.jar" />
+	<property name="testng.jar" value="testng-6.4.jar" />
 	<property name="appname" value="shep" />
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
@@ -249,7 +243,7 @@
 	</target>
 
 	<!-- run test via testNG -->
-	<taskdef resource="testngtasks" classpath="${libdir}/testng-6.4.jar" />
+	<taskdef resource="testngtasks" classpath="${libdir}/${testng.jar}" />
 	<target name="test" depends="clean-built-classes-then-compile">
 		<antcall target="fast-tests" />
 		<antcall target="slow-tests" />
@@ -311,15 +305,7 @@
 		</antcall>
 		<antcall>
 			<target name="super-slow-TestNG-tests" />
-			<target name="shell-tests" />
-		</antcall>
-		<antcall>
-			<target name="splunk-teardown"/>
-			<target name="hadoop-teardown"/>
-			<target name="shep-teardown"/>
-			<target name="hadoop-setup"/>
-			<target name="splunk-setup"/>
-			<target name="system-tests"/>
+			<target name="functional-TestNG-tests" />
 		</antcall>
 		<antcall>
 			<target name="splunk-teardown" />
@@ -338,30 +324,49 @@
 		</testng>
 	</target>
 
-	<target name="system-tests" depends="compile,set-splunk-home">
+	<target name="functional-tests" depends="jar">
+		<antcall>
+			<target name="hadoop-setup"/>
+			<target name="splunk-setup"/>
+		</antcall>
+		<antcall>
+			<target name="functional-TestNG-tests"/>
+		</antcall>
+		<antcall>
+			<target name="splunk-stop"/>
+			<target name="hadoop-teardown"/>
+			<target name="shep-teardown"/>
+		</antcall>
+	</target>
+		
+	<target name="functional-TestNG-tests" depends="compile,set-splunk-home">
 		<!-- these use splunk and hadoop -->
-		<testng classpathref="build.classpath" groups="system" outputdir="${builddir}/test-results">
+		<testng classpathref="build.classpath" groups="functional" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
 	</target>
 
-	<target name="known-failures" depends="compile,set-splunk-home">
+	<target name="known-failures-tests" depends="jar">
+		<antcall>
+			<target name="hadoop-setup"/>
+			<target name="splunk-setup"/>
+		</antcall>
+		<antcall>
+			<target name="known-failures-TestNG-tests"/>
+		</antcall>
+		<antcall>
+			<target name="splunk-stop"/>
+			<target name="hadoop-teardown"/>
+			<target name="shep-teardwon"/>
+		</antcall>
+	</target>
+	
+	<target name="known-failures-TestNG-tests" depends="compile,set-splunk-home">
 		<testng classpathref="build.classpath" groups="known-failures" outputdir="${builddir}/test-results">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
-	</target>
-
-	<target name="shell-tests" depends="compile,set-splunk-home,set-hadoop-home">
-		<echo>Running shell-tests..</echo>
-		<exec dir="." executable="${basedir}/test/unittests/run-unittests.sh" osfamily="unix">
-			<arg value="${hadoop.home}" />
-			<arg value="${basedir}" />
-			<arg value="${splunk.home}" />
-			<arg value="${splunk.username}" />
-			<arg value="${splunk.password}" />
-		</exec>
 	</target>
 
 	<!-- Setting environment specific properties -->
@@ -376,7 +381,7 @@
 	<target name="set-user-env-splunk-home" depends="set-environment-property" if="defined.means.running.on.self.defined.splunk.home">
 		<property name="splunk.home" value="${env.SPLUNK_HOME}" />
 		<echo>You specified that you've got your own Splunk.</echo>
-		<echo>Running shell tests with SPLUNK_HOME: ${splunk.home}</echo>
+		<echo>Running tests with SPLUNK_HOME: ${splunk.home}</echo>
 	</target>
 
 	<target name="set-hadoop-home" depends="set-user-env-hadoop-home" unless="hadoop.home">
@@ -386,7 +391,7 @@
 	<target name="set-user-env-hadoop-home" depends="set-environment-property" if="defined.means.running.on.self.defined.hadoop.home">
 		<property name="hadoop.home" value="${env.HADOOP_HOME}" />
 		<echo>You specified that you've got your own Hadoop.</echo>
-		<echo>Running shell tests with HADOOP_HOME: ${hadoop.home}</echo>
+		<echo>Running tests with HADOOP_HOME: ${hadoop.home}</echo>
 	</target>
 
 	<!-- Hive -->
@@ -722,21 +727,26 @@
 		<fail unless="foundSplunkTgz" message="There has to be a splunk version packaged with .tgz in ${splunk.tgz.dir}" />
 	</target>
 
-	<target name="install-shep-splunk-app" depends="checkIfAlreadyInstalledShepApp" if="isNotInstalledShep">
-		<antcall target="do-install-shep-splunk-app" />
+	<target name="install-shep-splunk-app">
+		<antcall>
+			<target name="remove-shep-splunk-app" />
+			<target name="do-install-shep-splunk-app" />
+		</antcall>
+	</target>
+
+	<target name="remove-shep-splunk-app" depends="set-shep-app-home,checkIfShepAppExists" if="existsShepDir">
+		<delete dir="${shep.app.home}" />
+	</target>
+
+	<target name="checkIfShepAppExists" depends="set-shep-app-home">
+		<condition property="existsShepDir">
+			<available file="${shep.app.home}" type="dir" />
+		</condition>
 	</target>
 
 	<target name="set-shep-app-home" depends="set-splunk-home">
 		<property name="splunk.apps.home" value="${splunk.home}/etc/apps" />
 		<property name="shep.app.home" value="${splunk.apps.home}/shep" />
-	</target>
-
-	<target name="checkIfAlreadyInstalledShepApp" depends="set-shep-app-home">
-		<condition property="isNotInstalledShep">
-			<not>
-				<available file="${shep.app.home}" type="dir" />
-			</not>
-		</condition>
 	</target>
 
 	<target name="do-install-shep-splunk-app" depends="create-splunk-app">
@@ -754,10 +764,6 @@
 			<target name="remove-shep-splunk-app" />
 			<target name="splunk-configure-and-start" />
 		</antcall>
-	</target>
-
-	<target name="remove-shep-splunk-app" depends="set-shep-app-home">
-		<delete dir="${shep.app.home}" />
 	</target>
 
 	<target name="splunk-start" depends="set-splunk-home">
@@ -971,7 +977,7 @@
 -->	
 	</target>
 
-	<target name="copy-lib-jars-to-test-dir">
+	<target name="copy-lib-jars-to-test-dir" depends="jar, versionized-jar-name">
 		<copy todir="${build-cache}/shep/testlib">
 			<fileset dir="${libdir}" 
 				includes="testng-*.jar,

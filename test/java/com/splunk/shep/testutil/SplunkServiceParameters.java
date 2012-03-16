@@ -64,6 +64,7 @@ public class SplunkServiceParameters {
 	Args args = new Args();
 	args.put("host", host);
 	args.put("port", mgmtPort);
+	// args.put("owner", "nobody");
 	if (appContext != null) {
 	    args.put("app", appContext);
 	}
