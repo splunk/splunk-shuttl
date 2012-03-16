@@ -17,18 +17,20 @@ package com.splunk.shep.archiver.listers;
 import static java.util.Arrays.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.*;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.PathResolver;
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
+import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.testutil.UtilsTestNG;
 
 @Test(groups = { "fast" })
 public class ArchiveBucketsListerTest {
@@ -70,7 +72,6 @@ public class ArchiveBucketsListerTest {
 	verify(archiveFileSystem).listPath(bucketsHome);
     }
 
-    @Ignore
     public void listBuckets_listedBucketsHomeInArchive_resolveIndexFromUrisToBuckets()
 	    throws IOException {
 	String uriBase = "valid:/uri/bucketsHome/";
@@ -84,5 +85,32 @@ public class ArchiveBucketsListerTest {
 	archiveBucketsLister.listBuckets();
 	for (URI uriToBucket : bucketsInBucketsHome)
 	    verify(pathResolver).resolveIndexFromUriToBucket(uriToBucket);
+    }
+
+    public void listBuckets_givenUriToBucketsAndIndexToThoseBuckets_returnListOfBucketsNameAndIndexButNullFormat()
+	    throws IOException {
+	String uriBase = "valid:/uri/bucketsHome/";
+	String bucketName1 = "bucket1";
+	URI bucketUri1 = URI.create(uriBase + bucketName1);
+	String bucketName2 = "bucket2";
+	URI bucketUri2 = URI.create(uriBase + bucketName2);
+	List<URI> bucketsInBucketsHome = Arrays.asList(bucketUri1, bucketUri2);
+	String index = "index";
+	when(indexLister.listIndexes()).thenReturn(asList(index));
+	when(archiveFileSystem.listPath(any(URI.class))).thenReturn(
+		bucketsInBucketsHome);
+	when(pathResolver.resolveIndexFromUriToBucket(any(URI.class)))
+		.thenReturn(index);
+
+	List<Bucket> buckets = archiveBucketsLister.listBuckets();
+	assertEquals(2, buckets.size());
+	Bucket bucket1 = new Bucket(bucketUri1, index, bucketName1, null);
+	Bucket bucket2 = new Bucket(bucketUri2, index, bucketName2, null);
+	for (Bucket bucket : buckets) {
+	    assertTrue(UtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket1,
+		    bucket)
+		    || UtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket2,
+			    bucket));
+	}
     }
 }

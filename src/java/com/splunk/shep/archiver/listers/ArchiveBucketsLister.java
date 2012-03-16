@@ -16,13 +16,20 @@ package com.splunk.shep.archiver.listers;
 
 import static com.splunk.shep.archiver.ArchiverLogger.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+
+import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.archiver.archive.PathResolver;
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.archiver.model.FileNotDirectoryException;
+import com.splunk.shep.archiver.util.UtilsURI;
 
 /**
  * Lists {@link Bucket}s in an {@link ArchiveFileSystem}.
@@ -34,9 +41,13 @@ public class ArchiveBucketsLister {
     private final ArchiveFileSystem archiveFileSystem;
 
     /**
-     * TODO
      * 
      * @param archiveFileSystem
+     *            to list {@link Bucket}s on.
+     * @param indexesLister
+     *            to list indexes where {@link Bucket}s can be listed.
+     * @param pathResolver
+     *            for resolving paths on the {@link ArchiveFileSystem}
      */
     public ArchiveBucketsLister(ArchiveFileSystem archiveFileSystem,
 	    ArchivedIndexesLister indexesLister, PathResolver pathResolver) {
@@ -46,19 +57,34 @@ public class ArchiveBucketsLister {
     }
 
     /**
-     * List buckets in an {@link ArchiveFileSystem}
+     * List buckets in an {@link ArchiveFileSystem}.<br/>
+     * Note: Buckets return will have {@link BucketFormat} = null;
+     * 
+     * @return list of buckets with null {@link BucketFormat}.
      */
-    public void listBuckets() {
+    public List<Bucket> listBuckets() {
+	List<Bucket> buckets = new ArrayList<Bucket>();
 	for (String index : indexesLister.listIndexes()) {
-	    listBucketsInIndex(index);
+	    buckets.addAll(listBucketsInIndex(index));
 	}
+	return buckets;
     }
 
-    private void listBucketsInIndex(String index) {
+    private List<Bucket> listBucketsInIndex(String index) {
+	ArrayList<Bucket> buckets = new ArrayList<Bucket>();
+	for (URI uriToBucket : getUriToBucketsWithIndex(index)) {
+	    Bucket createdBucket = createBucketFromUriToBucket(uriToBucket);
+	    if (createdBucket != null) {
+		buckets.add(createdBucket);
+	    }
+	}
+	return buckets;
+    }
+
+    private List<URI> getUriToBucketsWithIndex(String index) {
 	URI bucketsHome = pathResolver.getBucketsHome(index);
 	List<URI> urisToBuckets = listBucketsHomeInArchive(bucketsHome);
-	for (URI uriToBucket : urisToBuckets)
-	    pathResolver.resolveIndexFromUriToBucket(uriToBucket);
+	return urisToBuckets;
     }
 
     private List<URI> listBucketsHomeInArchive(URI bucketsHome) {
@@ -71,6 +97,33 @@ public class ArchiveBucketsLister {
 		    bucketsHome, "exception", e);
 	    throw new RuntimeException(e);
 	}
+    }
+
+    private Bucket createBucketFromUriToBucket(URI uriToBucket) {
+	String bucketIndex = pathResolver
+		.resolveIndexFromUriToBucket(uriToBucket);
+	String bucketName = FilenameUtils.getBaseName(UtilsURI
+		.getPathByTrimmingEndingFileSeparator(uriToBucket));
+	return this.createBucketWithErrorHandling(uriToBucket, bucketIndex,
+		bucketName);
+    }
+
+    private Bucket createBucketWithErrorHandling(URI uriToBucket,
+	    String bucketIndex, String bucketName) {
+	try {
+	    return new Bucket(uriToBucket, bucketIndex, bucketName, null);
+	} catch (FileNotFoundException e) {
+	    did("Created bucket with uri, bucket_index, bucket_name, bucket_format",
+		    e, "To create the bucket without problems.", "uri",
+		    uriToBucket, "bucket_index", bucketIndex, "bucket_name",
+		    bucketName, "format", null, "exception", e);
+	} catch (FileNotDirectoryException e) {
+	    did("Created bucket with uri, bucket_index, bucket_name, bucket_format",
+		    e, "To create the bucket without problems.", "uri",
+		    uriToBucket, "bucket_index", bucketIndex, "bucket_name",
+		    bucketName, "format", null, "exception", e);
+	}
+	return null;
     }
 
 }
