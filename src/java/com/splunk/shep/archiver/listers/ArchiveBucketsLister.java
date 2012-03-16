@@ -56,7 +56,9 @@ public class ArchiveBucketsLister {
 
     private void listBucketsInIndex(String index) {
 	URI bucketsHome = pathResolver.getBucketsHome(index);
-	listBucketsHomeInArchive(bucketsHome);
+	List<URI> urisToBuckets = listBucketsHomeInArchive(bucketsHome);
+	for (URI uriToBucket : urisToBuckets)
+	    pathResolver.resolveIndexFromUriToBucket(uriToBucket);
     }
 
     private List<URI> listBucketsHomeInArchive(URI bucketsHome) {

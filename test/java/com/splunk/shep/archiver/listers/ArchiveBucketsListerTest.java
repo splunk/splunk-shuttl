@@ -20,6 +20,8 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Ignore;
 import org.testng.annotations.BeforeMethod;
@@ -69,7 +71,18 @@ public class ArchiveBucketsListerTest {
     }
 
     @Ignore
-    public void listBuckets_listedBucketsHomeInArchive_listBucketsInThoseIndexes() {
-
+    public void listBuckets_listedBucketsHomeInArchive_resolveIndexFromUrisToBuckets()
+	    throws IOException {
+	String uriBase = "valid:/uri/bucketsHome/";
+	URI bucketUri1 = URI.create(uriBase + "bucket1");
+	URI bucketUri2 = URI.create(uriBase + "bucket2");
+	List<URI> bucketsInBucketsHome = Arrays.asList(bucketUri1, bucketUri2);
+	when(indexLister.listIndexes()).thenReturn(
+		asList("indexToAnyIndexForListingBucketsHomeInIndex"));
+	when(archiveFileSystem.listPath(any(URI.class))).thenReturn(
+		bucketsInBucketsHome);
+	archiveBucketsLister.listBuckets();
+	for (URI uriToBucket : bucketsInBucketsHome)
+	    verify(pathResolver).resolveIndexFromUriToBucket(uriToBucket);
     }
 }

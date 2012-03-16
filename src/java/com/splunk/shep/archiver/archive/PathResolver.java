@@ -72,4 +72,11 @@ public class PathResolver {
     public URI getBucketsHome(String index) {
 	return URI.create(getIndexesHome() + "/" + index);
     }
+
+    /**
+     * @param uriToBucket
+     */
+    public void resolveIndexFromUriToBucket(URI uriToBucket) {
+	throw new UnsupportedOperationException();
+    }
 }
