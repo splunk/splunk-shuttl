@@ -162,6 +162,7 @@
     </Call>
   </Ref>
   
+<!-- removing the s2s connector 
   <Call name="addConnector">
     <Arg>
       <New class="com.splunk.shep.s2s.forwarder.jetty.S2SConnector">
@@ -174,7 +175,7 @@
       </New>
     </Arg>
   </Call>
-
+-->
   
   <!-- In order to connect to the JMX server remotely from a different
        process, possibly running on a different host, Jetty JMX module

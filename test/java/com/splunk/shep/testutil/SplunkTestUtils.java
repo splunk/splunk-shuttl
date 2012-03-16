@@ -44,20 +44,26 @@ public class SplunkTestUtils {
         }
     }
 
-    public static void waitForIndexing(Index index, int value, int seconds) {
+    static public void waitForIndexing(Index index, int value, int seconds) {
+	int indexedEventCount = 0;
 	while (seconds > 0) {
 	    try {
 		// 5000ms (5 second sleep)
 		Thread.sleep(5000);
 		seconds = seconds - 5;
-		if (index.getTotalEventCount() == value) {
+		indexedEventCount = index.getTotalEventCount();
+		if (indexedEventCount == value) {
 		    return;
 		}
 		index.refresh();
 	    } catch (InterruptedException e) {
-		return;
+		continue;
 	    }
 	}
+	String msg = "Indexing incomplete for index " + index + " after "
+		+ seconds + "seconds, expectedCount=" + value + " actualCount="
+		+ indexedEventCount;
+	throw new RuntimeException(msg);
     }
 
     public static Index createSplunkIndex(Service service, String name) {
