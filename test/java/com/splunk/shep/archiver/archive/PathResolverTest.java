@@ -1,11 +1,11 @@
 package com.splunk.shep.archiver.archive;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.*;
 
 import java.net.URI;
 
+import org.junit.Ignore;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -23,6 +23,9 @@ public class PathResolverTest {
     private String clusterName;
     private String serverName;
     private String writableUri;
+    private String bucketIndex;
+    private BucketFormat bucketFormat;
+    private String bucketName;
 
     @BeforeMethod(groups = { "fast" })
     public void setUp() {
@@ -50,20 +53,31 @@ public class PathResolverTest {
     }
 
     public void resolveArchivePath_givenValidBucket_combineBucketAndConfigurationToCreateTheEndingArchivePath() {
-	String bucketName = "bucket_name_id";
-	when(bucket.getName()).thenReturn(bucketName);
-	String bucketIndex = "index";
+	bucketIndex = "index";
 	when(bucket.getIndex()).thenReturn(bucketIndex);
-	BucketFormat bucketFormat = BucketFormat.SPLUNK_BUCKET;
+	bucketFormat = BucketFormat.SPLUNK_BUCKET;
 	when(bucket.getFormat()).thenReturn(bucketFormat);
+	bucketName = "bucket_name_id";
+	when(bucket.getName()).thenReturn(bucketName);
 
 	// Test
 	URI archivePath = pathResolver.resolveArchivePath(bucket);
 
 	// Verification
-	String archivePathEnding = archiveServerCluster() + "/" + bucketIndex
-		+ "/" + bucketFormat + "/" + bucketName;
+	String archivePathEnding = getArchivePathUpToBucket();
 	assertTrue(archivePath.getPath().endsWith(archivePathEnding));
+    }
+
+    private String getArchivePathUpToBucket() {
+	return getArchivePathUpToFormat() + "/" + bucketName;
+    }
+
+    private String getArchivePathUpToFormat() {
+	return getArchivePathUpToIndex() + "/" + bucketFormat;
+    }
+
+    private String getArchivePathUpToIndex() {
+	return archiveServerCluster() + "/" + bucketIndex;
     }
 
     private String archiveServerCluster() {
@@ -103,5 +117,10 @@ public class PathResolverTest {
     public void getBucketsHome_givenNothing_startsWithWritablePath() {
 	assertTrue(pathResolver.getBucketsHome(null).toString()
 		.startsWith(writableUri));
+    }
+
+    @Ignore
+    public void resolveIndexFromUriToBucket_givenValidUriToBucket_indexForTheBucket() {
+
     }
 }
