@@ -51,7 +51,7 @@ public class BucketArchiver {
      * 
      * @return {@link PathResolver} for the {@link BucketArchiver}.
      */
-    /* package-private */PathResolver getPathResolver() {
+    public PathResolver getPathResolver() {
 	return pathResolver;
     }
 }

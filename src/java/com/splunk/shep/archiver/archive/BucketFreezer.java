@@ -41,7 +41,7 @@ public class BucketFreezer {
     private final FailedBucketsArchiver failedBucketsArchiver;
     private final ArchiveRestHandler archiveRestHandler;
 
-    protected BucketFreezer(BucketMover bucketMover, BucketLocker bucketLocker,
+    public BucketFreezer(BucketMover bucketMover, BucketLocker bucketLocker,
 	    ArchiveRestHandler archiveRestHandler,
 	    FailedBucketsArchiver failedBucketsArchiver) {
 	this.bucketMover = bucketMover;
@@ -76,8 +76,9 @@ public class BucketFreezer {
     private void moveAndArchiveBucket(String indexName, String path)
 	    throws FileNotFoundException, FileNotDirectoryException {
 	Bucket bucket = new Bucket(indexName, path);
-	bucketLocker.runWithBucketLocked(bucket, new MoveAndArchiveBucketUnderLock(
-		bucketMover, archiveRestHandler));
+	bucketLocker.runWithBucketLocked(bucket,
+		new MoveAndArchiveBucketUnderLock(bucketMover,
+			archiveRestHandler));
 	failedBucketsArchiver.archiveFailedBuckets(archiveRestHandler);
     }
 
