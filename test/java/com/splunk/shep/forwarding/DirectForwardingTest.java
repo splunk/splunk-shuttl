@@ -67,7 +67,7 @@ public class DirectForwardingTest {
     }
 
     @Test(groups = { "functional", "known-failures" })
-    public void monitorFileInSplunk() {
+    public void monitorFileInSplunk() throws InterruptedException {
 	System.out.println("Running monitorFileInSplunk");
         String indexName = "directfwd";
 	Index index = SplunkTestUtils.createSplunkIndex(splunkService,
@@ -94,13 +94,12 @@ public class DirectForwardingTest {
         job = splunkService.getJobs().create(query, null);
         SplunkTestUtils.waitWhileJobFinishes(job);
 	Assert.assertEquals(job.getEventCount(), 100);
+	// Wait 45 seconds for events to get forwarded
+	Thread.sleep(45000);
     }
 
     @Test(groups = { "functional" }, dependsOnMethods = { "monitorFileInSplunk" })
-    public void checkTotalEventsSearch() throws IOException, InterruptedException {
-	// Wait 30 seconds for events to get forwarded
-	Thread.sleep(30000);
-	
+    public void checkTotalEventsSearch() throws IOException {
         SavedSearchCollection savedSearches = splunkService.getSavedSearches();
 	Assert.assertTrue(savedSearches.containsKey("HC total events"));
         SavedSearch savedSearch = savedSearches.get("HC total events");
