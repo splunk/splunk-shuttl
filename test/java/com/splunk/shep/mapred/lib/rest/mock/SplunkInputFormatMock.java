@@ -80,8 +80,8 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
     private static void mockOneShotDataToSplunk(String index,
 	    List<HashMap<String, String>> values) {
 	splunkIndices.put(index, values);
-	System.err.println("mockOneShotDataToSplunk.splunkIndices:"
-		+ splunkIndices);
+	// System.err.println("mockOneShotDataToSplunk.splunkIndices:"
+	// + splunkIndices);
     }
 
     private static HashMap<String, String> mockValue(String text, String time)
@@ -108,7 +108,7 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
 	value.put("_time", time);
 	value.put("sourcetype", "wordfile-timestamp-too_small");
 
-	LOG.debug("value: " + value);
+	// LOG.debug("value: " + value);
 	return value;
     }
 
@@ -148,7 +148,7 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
 	    if (QUERY1.equals(query)) {
 		HashMap<String, String>[] values = (HashMap<String, String>[]) splunkIndices
 			.get(MAIN_INDEX).toArray();
-		System.err.println("values:" + Arrays.toString(values));
+		// System.err.println("values:" + Arrays.toString(values));
 		HashMap<String, String> value0 = values[0];
 		HashMap[] moreValues = new HashMap[values.length];
 		for (int i = 1; i < values.length; i++) {

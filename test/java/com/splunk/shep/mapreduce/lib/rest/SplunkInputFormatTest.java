@@ -1,5 +1,6 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
+
 import static org.testng.Assert.*;
 
 import java.io.File;
@@ -141,7 +142,7 @@ public class SplunkInputFormatTest {
 	    ClassNotFoundException {
 	Job job = new Job();
 	configureJobConf(job);
-	assertTrue(job.waitForCompletion(true));
+	job.waitForCompletion(true);
     }
 
     private Path getOutput() {

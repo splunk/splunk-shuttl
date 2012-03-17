@@ -14,6 +14,10 @@
 // limitations under the License.
 package com.splunk.shep.server.mbeans.rest;
 
+import static com.splunk.shep.ShepConstants.ENDPOINT_CONTEXT;
+import static com.splunk.shep.ShepConstants.ENDPOINT_FORWARDER;
+import static com.splunk.shep.ShepConstants.ENDPOINT_SINK_PREFIX;
+
 import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
@@ -34,15 +38,18 @@ import com.splunk.shep.metrics.ShepMetricsHelper;
  * @author kpakkirisamy
  * 
  */
-@Path("/forwarder")
+@Path(ENDPOINT_FORWARDER)
 public class ShepForwarderRest {
     private org.apache.log4j.Logger logger = Logger.getLogger("ShepServer");
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/sinkprefix")
+    @Path(ENDPOINT_SINK_PREFIX)
     public String getHDFSSinkPrefixText(@QueryParam("name") String name) {
-	String logMessage = " Metrics - group=REST series=source::sinkprefix_text_plain call=1";
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_FORWARDER,
+		ENDPOINT_SINK_PREFIX);
 	ShepMetricsHelper.update(logger, logMessage);
 
 	try {
@@ -56,9 +63,11 @@ public class ShepForwarderRest {
     // for debugging using browsers
     @GET
     @Produces(MediaType.TEXT_HTML)
-    @Path("/sinkprefix")
+    @Path(ENDPOINT_SINK_PREFIX)
     public String getHDFSSinkPrefixHTML(@QueryParam("name") String name) {
-	String logMessage = " Metrics - group=REST series=source::sinkprefix_text_html call=1";
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_FORWARDER, ENDPOINT_SINK_PREFIX);
 	ShepMetricsHelper.update(logger, logMessage);
 
 	try {

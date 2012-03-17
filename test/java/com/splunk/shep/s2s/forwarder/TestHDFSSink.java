@@ -1,16 +1,19 @@
 package com.splunk.shep.s2s.forwarder;
 
-import static org.junit.Assert.assertEquals;
+
+import static org.testng.Assert.assertEquals;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
+//comment this test due to this: https://issues.apache.org/jira/browse/HBASE-4709
+//@Test(groups = { "embedded" })
 public class TestHDFSSink {
     private static Log LOG = LogFactory.getLog(TestHDFSSink.class);
     private static MiniDFSCluster dfsCluster;

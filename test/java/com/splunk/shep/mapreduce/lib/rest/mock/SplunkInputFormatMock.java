@@ -106,7 +106,7 @@ public class SplunkInputFormatMock<V extends SplunkWritable> extends
 	value.put("_time", time);
 	value.put("sourcetype", "wordfile-timestamp-too_small");
 
-	LOG.debug("value: " + value);
+	// LOG.debug("value: " + value);
 	return value;
     }
 

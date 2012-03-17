@@ -1,6 +1,7 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
-import static org.testng.Assert.*;
+
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,7 +97,7 @@ public class SplunkEventsInputFormatTest {
 	FileInputFormat.setInputPaths(job, pathForFirst, pathForSecondFile);
 	FileOutputFormat.setOutputPath(job, getOutputPath());
 
-	assertTrue(job.waitForCompletion(true));
+	job.waitForCompletion(true);
     }
 
     private Path getOutputPath() {
