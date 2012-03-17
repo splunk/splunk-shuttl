@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shep.archiver.listers;
 
-import static java.util.Arrays.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -55,54 +54,48 @@ public class ArchiveBucketsListerTest {
 	verify(indexLister).listIndexes();
     }
 
-    public void listBuckets_givenIndexesFromIndexLister_getBucketsHomeFromPathResolver() {
+    public void listBucketsInIndex_givenIndexesFromIndexLister_getBucketsHomeFromPathResolver() {
 	String index = "index";
-	when(indexLister.listIndexes()).thenReturn(asList(index));
-	archiveBucketsLister.listBuckets();
+	archiveBucketsLister.listBucketsInIndex(index);
 	verify(pathResolver).getBucketsHome(index);
     }
 
-    public void listBuckets_givenBucketsHome_listBucketsOnArchiveFilesSystem()
+    public void listBucketsInIndex_givenBucketsHome_listBucketsOnArchiveFilesSystem()
 	    throws IOException {
-	String index = "index";
-	when(indexLister.listIndexes()).thenReturn(asList(index));
 	URI bucketsHome = URI.create("valid:/uri/bucketsHome");
 	when(pathResolver.getBucketsHome(anyString())).thenReturn(bucketsHome);
-	archiveBucketsLister.listBuckets();
+	archiveBucketsLister.listBucketsInIndex("index");
 	verify(archiveFileSystem).listPath(bucketsHome);
     }
 
-    public void listBuckets_listedBucketsHomeInArchive_resolveIndexFromUrisToBuckets()
+    public void listBucketsInIndex_listedBucketsHomeInArchive_resolveIndexFromUrisToBuckets()
 	    throws IOException {
 	String uriBase = "valid:/uri/bucketsHome/";
 	URI bucketUri1 = URI.create(uriBase + "bucket1");
 	URI bucketUri2 = URI.create(uriBase + "bucket2");
 	List<URI> bucketsInBucketsHome = Arrays.asList(bucketUri1, bucketUri2);
-	when(indexLister.listIndexes()).thenReturn(
-		asList("indexToAnyIndexForListingBucketsHomeInIndex"));
 	when(archiveFileSystem.listPath(any(URI.class))).thenReturn(
 		bucketsInBucketsHome);
-	archiveBucketsLister.listBuckets();
+	archiveBucketsLister.listBucketsInIndex("index");
 	for (URI uriToBucket : bucketsInBucketsHome)
 	    verify(pathResolver).resolveIndexFromUriToBucket(uriToBucket);
     }
 
-    public void listBuckets_givenUriToBucketsAndIndexToThoseBuckets_returnListOfBucketsNameAndIndexButNullFormat()
+    public void listBucketsInIndex_givenUriToBucketsAndIndexToThoseBuckets_returnListOfBucketsNameAndIndexButNullFormat()
 	    throws IOException {
 	String uriBase = "valid:/uri/bucketsHome/";
+	String index = "index";
 	String bucketName1 = "bucket1";
-	URI bucketUri1 = URI.create(uriBase + bucketName1);
 	String bucketName2 = "bucket2";
+	URI bucketUri1 = URI.create(uriBase + bucketName1);
 	URI bucketUri2 = URI.create(uriBase + bucketName2);
 	List<URI> bucketsInBucketsHome = Arrays.asList(bucketUri1, bucketUri2);
-	String index = "index";
-	when(indexLister.listIndexes()).thenReturn(asList(index));
 	when(archiveFileSystem.listPath(any(URI.class))).thenReturn(
 		bucketsInBucketsHome);
 	when(pathResolver.resolveIndexFromUriToBucket(any(URI.class)))
 		.thenReturn(index);
 
-	List<Bucket> buckets = archiveBucketsLister.listBuckets();
+	List<Bucket> buckets = archiveBucketsLister.listBucketsInIndex(index);
 	assertEquals(2, buckets.size());
 	Bucket bucket1 = new Bucket(bucketUri1, index, bucketName1, null);
 	Bucket bucket2 = new Bucket(bucketUri2, index, bucketName2, null);

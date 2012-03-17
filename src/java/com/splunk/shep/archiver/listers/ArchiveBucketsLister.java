@@ -70,7 +70,7 @@ public class ArchiveBucketsLister {
 	return buckets;
     }
 
-    private List<Bucket> listBucketsInIndex(String index) {
+    public List<Bucket> listBucketsInIndex(String index) {
 	ArrayList<Bucket> buckets = new ArrayList<Bucket>();
 	for (URI uriToBucket : getUriToBucketsWithIndex(index)) {
 	    Bucket createdBucket = createBucketFromUriToBucket(uriToBucket);
