@@ -27,7 +27,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.SimpleFileLock;
 import com.splunk.shep.testutil.UtilsFile;
 import com.splunk.shep.testutil.UtilsTestNG;
 
@@ -35,19 +34,19 @@ import com.splunk.shep.testutil.UtilsTestNG;
  * Fixture: Created with constructor that takes {@link FileChannel} to make sure
  * that it is closed properly.
  */
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class SimpleFileLockConstructorTest {
 
     SimpleFileLock simpleFileLock;
     FileChannel fileChannel;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	fileChannel = getFileChannel();
 	simpleFileLock = new SimpleFileLock(fileChannel);
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDown() {
 	IOUtils.closeQuietly(fileChannel);
     }

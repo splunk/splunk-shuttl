@@ -14,14 +14,9 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,14 +45,14 @@ import com.splunk.shep.testutil.UtilsMockito;
 /**
  * Fixture: Created with recovery classes for re-archiving failed buckets.
  */
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketFreezerRecoveryTest {
 
     File safeLocationForBuckets;
     BucketFreezer bucketFreezer;
     FailedBucketTransfers failedBucketTransfers;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	safeLocationForBuckets = UtilsFile.createTempDirectory();
 	failedBucketTransfers = mock(FailedBucketTransfers.class);
@@ -66,7 +61,7 @@ public class BucketFreezerRecoveryTest {
 		failedBucketTransfers, null);
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDown() {
 	FileUtils.deleteQuietly(safeLocationForBuckets);
     }

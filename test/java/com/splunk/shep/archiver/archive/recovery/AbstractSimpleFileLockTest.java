@@ -29,12 +29,12 @@ import com.splunk.shep.testutil.UtilsFile;
  * Fixture: Abstract. Gets an instance of {@link SimpleFileLock} from
  * {@link SimpleFileLockFromTest#getSimpleFileLock}.
  */
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public abstract class AbstractSimpleFileLockTest {
 
     SimpleFileLock simpleFileLock;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	simpleFileLock = getSimpleFileLock();
     }
@@ -44,7 +44,7 @@ public abstract class AbstractSimpleFileLockTest {
      */
     protected abstract SimpleFileLock getSimpleFileLock();
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDown() {
 	simpleFileLock.closeLock();
     }

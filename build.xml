@@ -245,13 +245,16 @@
 	<!-- run test via testNG -->
 	<taskdef resource="testngtasks" classpath="${libdir}/${testng.jar}" />
 	<target name="test" depends="clean-built-classes-then-compile">
-		<antcall target="fast-tests" />
-		<antcall target="slow-tests" />
+		<antcall target="fast-unit-tests" />
+		<antcall target="slow-unit-tests" />
 	</target>
 
 	<target name="test-all" depends="clean-built-classes-then-compile">
 		<antcall target="test" />
-		<antcall target="super-slow-tests" />
+		<antcall target="integration-tests"/>
+		<antcall target="functional-tests" />
+		<!-- in-memory-tests to be converted to testng unit test -->
+		<!-- and added to either fast-unit or slow-unit group -->
 		<antcall target="in-memory-test" />
 	</target>
 
@@ -267,45 +270,52 @@
 		<propertyref name="hadoop.port" />
 	</propertyset>
 
-	<target name="fast-tests" depends="compile, do-fast-tests" />
-	<target name="do-fast-tests">
+	<target name="fast-unit-tests" depends="compile, do-fast-unit-tests" />
+	<target name="do-fast-unit-tests">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
-		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="fast-unit" outputdir="${builddir}/test-results/fast-unit">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
 	</target>
 
-	<target name="slow-tests" depends="jar">
+	<target name="slow-unit-tests" depends="compile, do-slow-unit-tests" />
+	<target name="do-slow-unit-tests">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="slow-unit" outputdir="${builddir}/test-results/slow-unit">
+			<propertyset refid="testng"/>
+			<classfileset dir="${test-classdir}" includes="**/*.class" />
+		</testng>
+	</target>
+			
+	<target name="integration-tests" depends="jar">
 		<antcall>
 			<target name="splunk-setup" />
 		</antcall>
 		<antcall>
-			<target name="slow-TestNG-tests" />
+			<target name="do-integration-tests" />
 		</antcall>
 		<antcall>
 			<target name="splunk-teardown" />
 		</antcall>
 	</target>
 
-	<target name="slow-TestNG-tests" depends="compile,set-splunk-home">
+	<target name="do-integration-tests" depends="compile,set-splunk-home">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
-		<testng classpathref="build.classpath" groups="slow" outputdir="${builddir}/test-results">
+		<testng classpathref="build.classpath" groups="integration" outputdir="${builddir}/test-results/integration">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
 	</target>
 
 	<!-- super-slow tests are tests that are in need of hadoop. -->
-	<target name="super-slow-tests" depends="jar">
+	<target name="functional-tests" depends="jar">
 		<antcall>
 			<target name="hadoop-setup" />
 			<target name="hive-setup" />
 			<target name="splunk-setup" />
 		</antcall>
 		<antcall>
-			<target name="super-slow-TestNG-tests" />
-			<target name="functional-TestNG-tests" />
+			<target name="do-functional-tests" />
 		</antcall>
 		<antcall>
 			<target name="splunk-teardown" />
@@ -314,34 +324,9 @@
 		</antcall>
 	</target>
 
-
-
-	<target name="super-slow-TestNG-tests" depends="compile,set-splunk-home">
-		<!-- Test group 'super-slow'. For tests that use hadoop -->
-		<testng classpathref="build.classpath" groups="super-slow" outputdir="${builddir}/test-results">
-			<propertyset refid="testng" />
-			<classfileset dir="${test-classdir}" includes="**/*.class" />
-		</testng>
-	</target>
-
-	<target name="functional-tests" depends="jar">
-		<antcall>
-			<target name="hadoop-setup"/>
-			<target name="splunk-setup"/>
-		</antcall>
-		<antcall>
-			<target name="functional-TestNG-tests"/>
-		</antcall>
-		<antcall>
-			<target name="splunk-stop"/>
-			<target name="hadoop-teardown"/>
-			<target name="shep-teardown"/>
-		</antcall>
-	</target>
-		
-	<target name="functional-TestNG-tests" depends="compile,set-splunk-home">
+	<target name="do-functional-tests" depends="compile,set-splunk-home">
 		<!-- these use splunk and hadoop -->
-		<testng classpathref="build.classpath" groups="functional" outputdir="${builddir}/test-results">
+		<testng classpathref="build.classpath" groups="functional" outputdir="${builddir}/test-results/functional">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
@@ -350,10 +335,11 @@
 	<target name="known-failures-tests" depends="jar">
 		<antcall>
 			<target name="hadoop-setup"/>
+			<target name="hive-setup"/>
 			<target name="splunk-setup"/>
 		</antcall>
 		<antcall>
-			<target name="known-failures-TestNG-tests"/>
+			<target name="do-known-failures-tests"/>
 		</antcall>
 		<antcall>
 			<target name="splunk-stop"/>
@@ -362,8 +348,8 @@
 		</antcall>
 	</target>
 	
-	<target name="known-failures-TestNG-tests" depends="compile,set-splunk-home">
-		<testng classpathref="build.classpath" groups="known-failures" outputdir="${builddir}/test-results">
+	<target name="do-known-failures-tests" depends="compile,set-splunk-home">
+		<testng classpathref="build.classpath" groups="known-failures" outputdir="${builddir}/test-results/known-failures">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
@@ -993,7 +979,7 @@
 	</target>
 
 	<!-- Run by hooks -->
-	<target name="pre-commit" depends="clean-built-classes, do-compile, do-fast-tests">
+	<target name="pre-commit" depends="clean-built-classes, do-compile, do-fast-unit-tests">
 		<fail if="testng.failed" message="Fast tests have failed." />
 	</target>
 

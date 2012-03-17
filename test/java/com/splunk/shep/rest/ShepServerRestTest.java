@@ -35,13 +35,13 @@ public class ShepServerRestTest {
     private static String basePath = "/shep/rest/server";
     private Client client;
     
-    @BeforeClass(groups = { "slow" })
+    @BeforeClass(groups = { "integration" })
     public void setUpClient() {
 	System.out.println("*** Running ShepServerRestTest ***");
 	client = Client.create();
     }
 
-    @Test(groups = { "slow" })
+    @Test(groups = { "integration" })
     public void getDefaultHost() throws URISyntaxException {
 	URI defaultHostUri = new URI("http", null, shepHost, shepMgmtPort,
 		(basePath + "/defaulthost"), null, null);
@@ -57,7 +57,7 @@ public class ShepServerRestTest {
 		+ response);
     }
 
-    @Test(groups = { "slow" })
+    @Test(groups = { "integration" })
     public void getDefaultPort() throws URISyntaxException {
 	URI defaultPortUri = new URI("http", null, shepHost, shepMgmtPort,
 		(basePath + "/defaultport"), null, null);

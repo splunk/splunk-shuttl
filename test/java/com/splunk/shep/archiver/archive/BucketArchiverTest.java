@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsTestNG;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketArchiverTest {
 
     private BucketArchiver bucketArchiver;
@@ -23,7 +23,7 @@ public class BucketArchiverTest {
     private Bucket bucket;
     private BucketTransferer bucketTransferer;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	config = mock(ArchiveConfiguration.class);
 	exporter = mock(BucketExporter.class);

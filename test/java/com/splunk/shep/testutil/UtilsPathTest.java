@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 
 public class UtilsPathTest {
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void safePath_should_beSeparated_by_HomeDirectoryAndNameOfTestCase_toAchieve_nicerStructure() {
 	FileSystem fileSystem = UtilsFileSystem.getLocalFileSystem();
 	Path safePath = UtilsPath.getSafeDirectory(fileSystem);

@@ -31,12 +31,12 @@ import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.ShellClassRunner;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(enabled = false, groups = { "slow" })
+@Test(enabled = false, groups = { "functional" })
 public class ArchiverFunctionalTest {
 
     private FileSystem fileSystem;
 
-    @BeforeMethod(groups = { "super-slow" })
+    @BeforeMethod(groups = { "functional" })
     // @Parameters(value = { "hadoop.host", "hadoop.port" })
     // public void setUp(String hadoopHost, String hadoopPort) throws
     // IOException {

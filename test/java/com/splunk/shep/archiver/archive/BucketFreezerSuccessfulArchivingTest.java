@@ -14,11 +14,9 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.testutil.UtilsFile.createTempDirectory;
-import static com.splunk.shep.testutil.UtilsFile.isDirectoryEmpty;
-import static org.mockito.Mockito.mock;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static com.splunk.shep.testutil.UtilsFile.*;
+import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,13 +35,13 @@ import com.splunk.shep.testutil.UtilsMockito;
  * Fixture: HttpClient returns HttpStatus codes that represent successful
  * archiving.
  */
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketFreezerSuccessfulArchivingTest {
 
     BucketFreezer bucketFreezer;
     HttpClient okReturningHttpClient;
 
-    @BeforeClass(groups = { "fast" })
+    @BeforeClass(groups = { "fast-unit" })
     public void beforeClass() throws ClientProtocolException, IOException {
 	okReturningHttpClient = UtilsMockito
 		.createAlwaysOKReturningHTTPClientMock();
@@ -51,7 +49,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 		okReturningHttpClient, null, mock(FailedBucketRestorer.class));
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDownFast() {
 	FileUtils.deleteQuietly(getSafeLocationDirectory());
     }

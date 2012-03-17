@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.testutil.UtilsFile;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class SimpleFileLockTest extends AbstractSimpleFileLockTest {
 
     /*

@@ -11,7 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class UtilsFileTest {
 
     public void createTempDirectory_tenTwo_uniqueAndNotNull() {

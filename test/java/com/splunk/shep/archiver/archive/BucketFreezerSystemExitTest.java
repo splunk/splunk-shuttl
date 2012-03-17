@@ -14,10 +14,9 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.testutil.UtilsFile.createTempDirectory;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.testng.AssertJUnit.assertTrue;
+import static com.splunk.shep.testutil.UtilsFile.*;
+import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,13 +32,13 @@ import com.splunk.shep.testutil.UtilsMockito;
 /**
  * Fixture: Calling the main method of BucketFreezer. Testing exit codes.
  */
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketFreezerSystemExitTest {
 
     Runtime runtimeMock;
     private BucketFreezer bucketFreezer;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	runtimeMock = mock(Runtime.class);
 	bucketFreezer = BucketFreezer
@@ -49,7 +48,7 @@ public class BucketFreezerSystemExitTest {
 
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDown() throws IOException {
 	// Because that of a FailedBucketLock is created in
 	// createWithDeafultSafeLocationAndHTTPClient()

@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class FailedBucketRestorerTest {
 
     FailedBucketRestorer failedBucketRestorer;
@@ -35,7 +35,7 @@ public class FailedBucketRestorerTest {
     FailedBucketTransfers failedBucketTransfers;
     FailedBucketLock lock;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	failedBucketTransfers = mock(FailedBucketTransfers.class);
 	bucketRecoveryHandler = mock(FailedBucketRecoveryHandler.class);

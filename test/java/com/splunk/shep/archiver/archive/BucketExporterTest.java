@@ -8,12 +8,12 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.model.Bucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketExporterTest {
 
     private BucketExporter bucketExporter;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	bucketExporter = new BucketExporter();
     }

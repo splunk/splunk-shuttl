@@ -5,12 +5,12 @@ import static org.testng.AssertJUnit.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class ArchiveConfigurationTest {
 
     ArchiveConfiguration configuration;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	configuration = new ArchiveConfiguration();
     }

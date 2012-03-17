@@ -1,10 +1,6 @@
 package com.splunk.shep.testutil;
 
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,24 +32,24 @@ public class HadoopFileSystemPutterTest {
 	}
     }
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	fileSystem = UtilsFileSystem.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDown() {
 	putter.deleteMyFiles();
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void createdTempFile_should_exist() {
 	File tempFile = getTempFileThatIsAutomaticallyDeleted();
 	assertTrue(tempFile.exists());
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void copyingFileThatExists_should_existInFileSystemCopiedTo()
 	    throws IOException {
 	File tempFile = getTempFileThatIsAutomaticallyDeleted();
@@ -61,23 +57,23 @@ public class HadoopFileSystemPutterTest {
 	assertTrue(putter.isFileCopiedToFileSystem(tempFile));
     }
 
-    @Test(groups = { "fast" }, expectedExceptions = LocalFileNotFound.class)
+    @Test(groups = { "fast-unit" }, expectedExceptions = LocalFileNotFound.class)
     public void copyingFileThatDoesntExist_should_throw_LocalFileNotFound() {
 	File nonExistingFile = new File("file-does-not-exist");
 	putter.putFile(nonExistingFile);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void fileThatIsNotCopied_shouldNot_existInFileSystem() {
 	assertFalse(putter.isFileCopiedToFileSystem(new File("somefile")));
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void should_bePossibleToGetTheDirectory_where_allThisTestCasesFilesAreStored() {
 	assertNotNull(putter.getPathOfMyFiles());
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void pathWhereAClassesFilesAreStored_should_differForDifferentClasses() {
 	ClassA classA = new ClassA();
 	ClassB classB = new ClassB();
@@ -103,7 +99,7 @@ public class HadoopFileSystemPutterTest {
 	}
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void after_putFile_then_deleteMyFiles_should_removeTheDirectory_where_thisClassPutFilesOnTheFileSystem()
 	    throws IOException {
 	Path myFiles = putter.getPathOfMyFiles();
@@ -113,13 +109,13 @@ public class HadoopFileSystemPutterTest {
 	assertFalse(fileSystem.exists(myFiles));
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void should_beAbleToGetPath_where_fileIsPut() {
 	assertNotNull(putter
 		.getPathForFile(getTempFileThatIsAutomaticallyDeleted()));
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void path_where_localFileIsPut_should_differForDifferentFiles() {
 	File file1 = getTempFileThatIsAutomaticallyDeleted();
 	File file2 = getTempFileThatIsAutomaticallyDeleted();
@@ -130,7 +126,7 @@ public class HadoopFileSystemPutterTest {
 	assertNotEquals(path1, path2);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void should_bePossibleToGetPathToFile_with_fileName() {
 	File file = getTempFileThatIsAutomaticallyDeleted();
 	Path expected = putter.getPathForFile(file);

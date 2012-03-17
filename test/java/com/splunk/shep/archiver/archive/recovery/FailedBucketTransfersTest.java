@@ -31,20 +31,20 @@ import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsFile;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class FailedBucketTransfersTest {
 
     FailedBucketTransfers failedBucketTransfers;
     File failedBucketLocation;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	failedBucketLocation = UtilsFile.createTempDirectory();
 	failedBucketTransfers = new FailedBucketTransfers(
 		failedBucketLocation.getAbsolutePath());
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDown() throws IOException {
 	FileUtils.deleteDirectory(failedBucketLocation);
     }

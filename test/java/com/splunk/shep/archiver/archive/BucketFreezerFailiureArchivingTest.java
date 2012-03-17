@@ -14,13 +14,10 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.testutil.UtilsFile.createTempDirectory;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.testng.AssertJUnit.assertEquals;
+import static com.splunk.shep.testutil.UtilsFile.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +41,7 @@ import com.splunk.shep.testutil.UtilsMockito;
  * Fixture: BucketFreezer gets HttpStatus codes from HttpClient that means that
  * archiving bucket failed.
  */
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketFreezerFailiureArchivingTest {
 
     BucketFreezer bucketFreezer;
@@ -52,7 +49,7 @@ public class BucketFreezerFailiureArchivingTest {
     File safeLocation;
     FailedBucketTransfers failedBucketTransfers;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp_internalServerErrorHttpClientBucketFreezer() {
 	safeLocation = createTempDirectory();
 	failedBucketTransfers = mock(FailedBucketTransfers.class);
@@ -64,7 +61,7 @@ public class BucketFreezerFailiureArchivingTest {
 		mock(FailedBucketRestorer.class));
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDown() {
 	FileUtils.deleteQuietly(failedBucketsLocation);
 	FileUtils.deleteQuietly(safeLocation);

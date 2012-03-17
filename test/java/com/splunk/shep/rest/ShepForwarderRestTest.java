@@ -33,7 +33,7 @@ public class ShepForwarderRestTest {
     private static final int shepMgmtPort = 9090;
     private static String basePath = "/shep/rest/forwarder";
 
-    @Test(groups = { "slow" })
+    @Test(groups = { "integration" })
     public void getSinkPrefixDirectwrite() throws URISyntaxException {
 	URI sinkPrefixUri = new URI("http", null, shepHost, shepMgmtPort,
 		(basePath + "/sinkprefix"), null, null);

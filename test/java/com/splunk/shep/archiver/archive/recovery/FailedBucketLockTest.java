@@ -55,7 +55,7 @@ public class FailedBucketLockTest extends AbstractSimpleFileLockTest {
 	FailedBucketLock.FAIL_BUCKET_LOCK_FILE_NAME = originalLockFileName;
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void removeFailedBucketLocksCreatedLockFile() {
 	File lockFile = FailedBucketLock.getLockFile();
 	FileUtils.delete(lockFile);

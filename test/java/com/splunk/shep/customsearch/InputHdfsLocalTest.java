@@ -1,6 +1,6 @@
 package com.splunk.shep.customsearch;
 
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,9 +17,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.testutil.UtilsFileSystem;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
+import com.splunk.shep.testutil.UtilsFileSystem;
 
 public class InputHdfsLocalTest {
 
@@ -31,7 +31,7 @@ public class InputHdfsLocalTest {
 
     @Parameters({ "splunk.host", "splunk.mgmtport", "splunk.username",
 	    "splunk.password" })
-    @Test(groups = { "slow" })
+    @Test(groups = { "integration" })
     public void fileCheck(String splunkHost, String splunkMGMTPort,
 	    String splunkUsername, String splunkPassword) {
 	String splunkHome = getSplunkHome(splunkHost, splunkMGMTPort,
@@ -67,7 +67,7 @@ public class InputHdfsLocalTest {
 	return splunkHome;
     }
 
-    @BeforeMethod(groups = { "slow" })
+    @BeforeMethod(groups = { "integration" })
     public void beforeMethod() throws IOException {
 	fileSystem = UtilsFileSystem.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
@@ -96,7 +96,7 @@ public class InputHdfsLocalTest {
 	writer.close();
     }
 
-    @AfterMethod(groups = { "slow" })
+    @AfterMethod(groups = { "integration" })
     public void afterTest() {
 	putter.deleteMyFiles();
     }
