@@ -907,6 +907,7 @@
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,jar">
 		<antcall target="create-splunk-app" />
+		<antcall target="doc" />
 	</target>
 
 	<target name="create-splunk-app" depends="jar">
@@ -1027,7 +1028,13 @@
 	</target>
 
 	<target name="doc">
-		<javadoc destdir="build/docs/api" version="true" use="true" windowtitle="Shep">
+		<javadoc 
+			classpathref="build.classpath" 
+			destdir="build/docs/api" 
+			version="true" 
+			use="true"
+			bottom="Copyright © 2012 Splunk, Inc. All rights reserved." 
+			windowtitle="Shep">
 			<packageset dir="src/java" defaultexcludes="yes">
 				<exclude name="com/splunk/**/tests/**" />
 				<include name="com/splunk/**" />
