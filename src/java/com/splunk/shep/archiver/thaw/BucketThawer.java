@@ -14,27 +14,57 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
+import java.util.Date;
+import java.util.List;
+
+import com.splunk.shep.archiver.archive.BucketTransferer;
 import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
+import com.splunk.shep.archiver.model.Bucket;
 
 /**
- * Class for thawing buckets.
+ * Interacts with the archive to thaw buckets within the users needs, which is
+ * currently only a time range.
  */
 public class BucketThawer {
 
     private final ArchiveBucketsLister archiveBucketsLister;
+    private final BucketFilter bucketFilter;
+    private final BucketFormatResolver bucketFormatResolver;
+    private final BucketTransferer bucketTransferer;
 
     /**
-     * TODO:
+     * @param bucketsLister
+     *            used for listing buckets in the archive.
+     * @param bucketFilter
+     *            filtering buckets to only get the buckets that satisfies the
+     *            thawing needs.
+     * @param bucketFormatResolver
+     *            to resolve the format to thaw for the bucket.
+     * @param bucketTransferer
+     *            for transferring the buckets to thawed.
      */
-    public BucketThawer(ArchiveBucketsLister bucketsLister) {
+    public BucketThawer(ArchiveBucketsLister bucketsLister,
+	    BucketFilter bucketFilter,
+	    BucketFormatResolver bucketFormatResolver,
+	    BucketTransferer bucketTransferer) {
 	this.archiveBucketsLister = bucketsLister;
+	this.bucketFilter = bucketFilter;
+	this.bucketFormatResolver = bucketFormatResolver;
+	this.bucketTransferer = bucketTransferer;
     }
 
     /**
-     * @param string
+     * Thaw buckets by listing buckets in an index, filter them, resolve their
+     * formats and lastly transferring them to the thaw directory.
      */
-    public void thawBuckets(String index) {
-	archiveBucketsLister.listBucketsInIndex(index);
+    public void thawBuckets(String index, Date earliestTime, Date latestTime) {
+	List<Bucket> buckets = archiveBucketsLister.listBucketsInIndex(index);
+	List<Bucket> filteredBuckets = bucketFilter.filterBucketsByTimeRange(
+		buckets, earliestTime, latestTime);
+	List<Bucket> bucketsWithFormats = bucketFormatResolver
+		.resolveBucketsFormats(filteredBuckets);
+	for (Bucket bucket : bucketsWithFormats) {
+	    bucketTransferer.transferBucketToThaw(bucket);
+	}
     }
-
 }
