@@ -140,4 +140,45 @@ public class ArchiverLoggerTest {
 		result.matches("\\[.+?\\] will=\"willStuff\" "
 			+ currentDate.toString() + "=\"5\"\n"));
     }
+
+    private boolean thatLoggerContainsString(String objectToString) {
+	return logWriter.toString().contains(objectToString);
+    }
+
+    public void warn_givenEmptyMessage_stringContainsWithWARNING() {
+	ArchiverLogger.warn("");
+	assertTrue(thatLoggerContainsString("WARNING"));
+    }
+
+    public void warn_givenMessage_stringContainsMessage() {
+	String message = "The message";
+	ArchiverLogger.warn(message);
+	assertTrue(thatLoggerContainsString(message));
+    }
+
+    public void warn_givenObject_containsObjectToString() {
+	Object object = new Object();
+	ArchiverLogger.warn(object);
+	assertTrue(thatLoggerContainsString(object.toString()));
+    }
+
+    public void warn_givenMessageAndSingleKeyValue_containsMessageAndKeyValue() {
+	Object message = new Object();
+	Object key1 = new Object();
+	Object value1 = new Object();
+	Object key2 = new Object();
+	Object value2 = new Object();
+	ArchiverLogger.warn(message, key1, value1, key2, value2);
+	assertTrue(thatLoggerContainsString(key1.toString()));
+	assertTrue(thatLoggerContainsString(value1.toString()));
+	assertTrue(thatLoggerContainsString(key2.toString()));
+	assertTrue(thatLoggerContainsString(value2.toString()));
+    }
+
+    @Test(expectedExceptions = { IllegalArgumentException.class })
+    public void warn_givenMessageAndKeyWithoutRespectiveValue_throwIllegalArgumentException() {
+	Object message = new Object();
+	Object keyWithoutRespectiveValue = new Object();
+	ArchiverLogger.warn(message, keyWithoutRespectiveValue);
+    }
 }
