@@ -117,8 +117,8 @@ public class BucketTest {
 	// Sanity checks.
 	Assert.assertEquals(movedBucket.getName(), bucket.getName());
 	Assert.assertEquals(movedBucket.getIndex(), bucket.getIndex());
-	Assert.assertNotEquals(bucket.getDirectory().getAbsolutePath(),
-		movedBucket.getDirectory().getAbsolutePath());
+	Assert.assertTrue(!bucket.getDirectory().getAbsolutePath()
+		.equals(movedBucket.getDirectory().getAbsolutePath()));
 
 	// Teardown
 	FileUtils.deleteDirectory(directoryToMoveTo);
