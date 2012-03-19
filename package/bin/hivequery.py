@@ -1,3 +1,6 @@
+# 
+# NOTE: THIS IS DEAD CODE. SHOULD BE DELETED - boris
+#
 # Copyright (C) 2005-2011 Splunk Inc. All Rights Reserved.  Version 4.0
 #
 # coding=utf-8

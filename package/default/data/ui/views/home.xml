@@ -1,0 +1,71 @@
+<view autoCancelInterval="90" isPersistable="true" isSticky="true" isVisible="true" objectMode="viewconf" onunloadCancelJobs="true" template="dashboard.html">
+  <label>Shep Home</label>
+  <module name="AccountBar" layoutPanel="appHeader"/>
+  <module name="AppBar" layoutPanel="navigationHeader"/>
+  <module name="Message" layoutPanel="messaging">
+    <param name="filter">*</param>
+    <param name="clearOnJobDispatch">False</param>
+    <param name="maxSize">1</param>
+  </module>
+  <module name="TitleBar" layoutPanel="viewHeader">
+    <param name="actionsMenuFilter">dashboard</param>
+  </module>
+  
+  <module name="SearchBar" layoutPanel="splSearchControls-inline">
+    <param name="useOwnSubmitButton">False</param>
+    <param name="useTypeahead">true</param>
+    <param name="useAssistant">true</param>
+    <module name="TimeRangePicker">
+      <param name="searchWhenChanged">False</param>
+      <param name="selected">All time</param>
+      <module name="SubmitButton">
+        <param name="allowSoftSubmit">True</param>
+        <module name="ViewRedirector" layoutPanel="viewHeader">
+          <param name="viewTarget">flashtimeline</param>
+        </module>
+      </module>
+    </module>
+  </module>
+  <module name="StaticContentSample" layoutPanel="panel_row1_col1" group="Setup Hive access">
+    <param name="text">
+    &lt;ol&gt;
+    &lt;li&gt;Create a &lt;a href="../../manager/shep/admin/conf-dbspecs/_new?action=edit&amp;ns=shep"&gt;&lt;u&gt;new Hive database connection (database spec)&lt;/u&gt;&lt;/a&gt; and set the appropriate permissions.&lt;/li&gt;
+    &lt;li&gt;(Optional) &lt;a href="hive"&gt;&lt;u&gt;Explore your Hive databases&lt;/u&gt;&lt;/a&gt; before creating a new lookup.&lt;/li&gt;
+    &lt;/ol&gt;
+    &lt;br&gt;&lt;br&gt;&lt;br&gt;
+    Other useful pages:
+    &lt;p&gt; &lt;a href="hive"&gt;&lt;u&gt;Explore your Hive databases&lt;/u&gt;&lt;/a&gt;&lt;/p&gt;
+    &lt;p&gt; &lt;a href="../../manager/shep/admin/conf-dbspecs"&gt;&lt;u&gt;Manage database connections&lt;/u&gt;&lt;/a&gt;&lt;/p&gt;
+    </param>
+  </module>
+
+
+ <module name="StaticContentSample" layoutPanel="panel_row1_col2" group="Seach command overview">
+    <param name="text">
+    &lt;p&gt; &lt;FONT COLOR="73A550"&gt;&lt;b&gt;outputhdfs &lt;/b&gt; &lt; /FONT &gt; &lt;/p&gt;
+    &lt;p&gt;Outputs the search results to a file on HDFS&lt;/p&gt;
+    &lt;p&gt; &lt;FONT COLOR="73A550"&gt;&lt;b&gt;inputhdfs &lt;/b&gt; &lt; /FONT &gt; &lt;/p&gt;
+    &lt;p&gt;Inputs a file on HDFS into the Search pipeline&lt;/p&gt;
+    &lt;p&gt; &lt;FONT COLOR="73A550"&gt;&lt;b&gt;hivequery &lt;/b&gt; &lt; /FONT &gt; &lt;/p&gt;
+    &lt;p&gt;Executes a sql query against the database specified by the spec.&lt;/p&gt;
+    &lt;p&gt;&lt;FONT COLOR="73A550"&gt;Syntax &lt; /FONT &gt; &lt;/p&gt;
+    &lt;p&gt;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;FONT FACE="courier"&gt;| hivequery spec=&lt;i&gt;string&lt;/i&gt; query="&lt;i&gt;string&lt;/i&gt;" [schema=&lt;i&gt;string&lt;/i&gt;] &lt; /FONT &gt;  &lt;/p&gt;
+    &lt;p&gt;&lt;FONT COLOR="73A550"&gt;Example: &lt; /FONT &gt; &lt;/p&gt;
+    &lt;p&gt;Select all rows from a table. &lt;/p&gt;
+    &lt;p&gt;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;FONT FACE="courier"&gt;| hivequery spec=MyHive query="SELECT * FROM MyTable"  &lt; /FONT &gt;&lt;/p&gt;
+    &lt;p&gt; &lt;FONT COLOR="73A550"&gt;&lt;b&gt;hiveoutput &lt;/b&gt; &lt; /FONT &gt; &lt;/p&gt;
+    &lt;p&gt;Insert results for a given table.&lt;/p&gt;
+    &lt;p&gt;&lt;FONT COLOR="73A550"&gt;Syntax &lt; /FONT &gt; &lt;/p&gt;
+    &lt;p&gt;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;FONT FACE="courier"&gt;| hiveoutput spec=&lt;i&gt;string&lt;/i&gt; table=&lt;i&gt;string&lt;/i&gt;  &lt; /FONT &gt;&lt;/p&gt;
+    &lt;p&gt;&lt;FONT COLOR="73A550"&gt;Example: &lt; /FONT &gt; &lt;/p&gt;
+    &lt;p&gt;Insert only &lt;FONT FACE="courier"&gt;ip&lt; /FONT &gt; and &lt;FONT FACE="courier"&gt;count&lt; /FONT &gt;&lt;/p&gt;
+    &lt;p&gt;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;FONT FACE="courier"&gt;| stats count BY ip | hiveoutput spec=MyHive table=MyTable  &lt; /FONT &gt;&lt;/p&gt;
+
+    </param>
+
+
+  </module>
+ 
+       
+   
+</view>
