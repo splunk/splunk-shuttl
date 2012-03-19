@@ -54,8 +54,8 @@ public class BucketThawer {
     }
 
     /**
-     * Thaw buckets by listing buckets in an index, filter them, resolve their
-     * formats and lastly transferring them to the thaw directory.
+     * Thaw buckets by listing buckets in an index, filter the buckets, resolve
+     * their formats and lastly transferring them to the thaw directory.
      */
     public void thawBuckets(String index, Date earliestTime, Date latestTime) {
 	List<Bucket> buckets = archiveBucketsLister.listBucketsInIndex(index);

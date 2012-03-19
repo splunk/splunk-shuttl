@@ -58,7 +58,7 @@ public class ArchiveBucketsLister {
 
     /**
      * List buckets in an {@link ArchiveFileSystem}.<br/>
-     * Note: Buckets return will have {@link BucketFormat} = null;
+     * Note: Buckets returned will have {@link BucketFormat} = null;
      * 
      * @return list of buckets with null {@link BucketFormat}.
      */
@@ -70,6 +70,13 @@ public class ArchiveBucketsLister {
 	return buckets;
     }
 
+    /**
+     * Lists {@link Bucket}s for an index that's been archived in an
+     * {@link ArchiveFileSystem}<br/>
+     * Note: Buckets returned will have {@link BucketFormat} = null;
+     * 
+     * @return {@link Bucket}s archived for an index.
+     */
     public List<Bucket> listBucketsInIndex(String index) {
 	ArrayList<Bucket> buckets = new ArrayList<Bucket>();
 	for (URI uriToBucket : getUriToBucketsWithIndex(index)) {
