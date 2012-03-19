@@ -48,7 +48,7 @@ public class FailedBucketTransfers {
      * Move a bucket which failed to be archived, to a location where it can
      * later be picked up and transfered again.
      * 
-     * @param bucket
+     * @param failedBucket
      *            that failed to archive.
      */
     public void moveFailedBucket(Bucket failedBucket) {

@@ -30,10 +30,6 @@ public class FailedBucketLock extends SimpleFileLock {
     // since it might conflict with the environment the tests are run on.
     /* package-private */static String FAIL_BUCKET_LOCK_FILE_NAME = "buckets.lock";
 
-    /**
-     * @param fileChannel
-     *            of the file to lock
-     */
     public FailedBucketLock() {
 	super(getFailedBucketLockFileChannel());
     }
