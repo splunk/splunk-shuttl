@@ -16,6 +16,7 @@ public class ArchiverLoggerTest {
 
     PrintWriter realPrintWriter;
     StringWriter logWriter;
+    String assertFailedMessageStart;
 
     @BeforeSuite
     public void beforeClass() {
@@ -29,6 +30,7 @@ public class ArchiverLoggerTest {
 
     @BeforeMethod
     public void beforeMethod() {
+	assertFailedMessageStart = "Logged message was ";
 	logWriter = new StringWriter();
 	ArchiverLogger.logger = new PrintWriter(logWriter);
     }
@@ -37,7 +39,7 @@ public class ArchiverLoggerTest {
 	ArchiverLogger.did("didStuff", "happenedStuff", "expectedStuff");
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] did=\"didStuff\" happened=\"happenedStuff\" expected=\"expectedStuff\"\n"));
 
     }
@@ -47,7 +49,7 @@ public class ArchiverLoggerTest {
 		"200");
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] did=\"didStuff\" happened=\"happenedStuff\" expected=\"expectedStuff\" btw=\"200\"\n"));
     }
 
@@ -66,7 +68,7 @@ public class ArchiverLoggerTest {
 	// Verify
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] did=\"" + currentDate.toString()
 			+ "\" happened=\"btw\" expected=\"200\" btw=\"5.6\"\n"));
     }
@@ -74,14 +76,14 @@ public class ArchiverLoggerTest {
     public void done_noAdditionalKeyValues_expectedOutput() {
 	ArchiverLogger.done("doneStuff");
 	String result = logWriter.toString();
-	assertTrue("Loged message was " + result,
+	assertTrue(assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] done=\"doneStuff\"\n"));
     }
 
     public void done_withAdditionalKeyValues_expectedOutput() {
 	ArchiverLogger.done("doneStuff", "btw", "200");
 	String result = logWriter.toString();
-	assertTrue("Loged message was " + result,
+	assertTrue(assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] done=\"doneStuff\" btw=\"200\"\n"));
     }
 
@@ -99,7 +101,7 @@ public class ArchiverLoggerTest {
 	// Verify
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] done=\"" + currentDate.toString()
 			+ "\" btw=\"200\"\n"));
     }
@@ -107,7 +109,7 @@ public class ArchiverLoggerTest {
     public void will_validArguments_expectedOutput() {
 	ArchiverLogger.will("willStuff");
 	String result = logWriter.toString();
-	assertTrue("Loged message was " + result,
+	assertTrue(assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] will=\"willStuff\"\n"));
 
     }
@@ -116,7 +118,7 @@ public class ArchiverLoggerTest {
 	ArchiverLogger.will("willStuff", "args", "stuff stuff stuff");
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] will=\"willStuff\" args=\"stuff stuff stuff\"\n"));
     }
 
@@ -134,7 +136,7 @@ public class ArchiverLoggerTest {
 	// Verify
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] will=\"willStuff\" "
 			+ currentDate.toString() + "=\"5\"\n"));
     }
