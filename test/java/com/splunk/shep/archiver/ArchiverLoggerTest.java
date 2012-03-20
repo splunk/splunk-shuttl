@@ -141,44 +141,45 @@ public class ArchiverLoggerTest {
 			+ currentDate.toString() + "=\"5\"\n"));
     }
 
-    private boolean thatLoggerContainsString(String objectToString) {
-	return logWriter.toString().contains(objectToString);
+    private boolean thatLoggerContainsObject(Object object) {
+	return logWriter.toString().contains(object.toString());
+    }
+
+    private void warnWithKeyValues(Object... keyValues) {
+	ArchiverLogger.warn("did", "happened", "result", keyValues);
     }
 
     public void warn_givenEmptyMessage_stringContainsWithWARNING() {
-	ArchiverLogger.warn("");
-	assertTrue(thatLoggerContainsString("WARNING"));
+	warnWithKeyValues();
+	assertTrue(thatLoggerContainsObject("WARNING"));
     }
 
-    public void warn_givenMessage_stringContainsMessage() {
-	String message = "The message";
-	ArchiverLogger.warn(message);
-	assertTrue(thatLoggerContainsString(message));
-    }
-
-    public void warn_givenObject_containsObjectToString() {
-	Object object = new Object();
-	ArchiverLogger.warn(object);
-	assertTrue(thatLoggerContainsString(object.toString()));
+    public void warn_givenDidHappenedAndResultsAsStrings_containsObjectToString() {
+	Object did = new Object();
+	Object happened = new Object();
+	Object result = new Object();
+	ArchiverLogger.warn(did, happened, result);
+	assertTrue(thatLoggerContainsObject(did.toString()));
+	assertTrue(thatLoggerContainsObject(happened.toString()));
+	assertTrue(thatLoggerContainsObject(result.toString()));
     }
 
     public void warn_givenMessageAndSingleKeyValue_containsMessageAndKeyValue() {
-	Object message = new Object();
 	Object key1 = new Object();
 	Object value1 = new Object();
 	Object key2 = new Object();
 	Object value2 = new Object();
-	ArchiverLogger.warn(message, key1, value1, key2, value2);
-	assertTrue(thatLoggerContainsString(key1.toString()));
-	assertTrue(thatLoggerContainsString(value1.toString()));
-	assertTrue(thatLoggerContainsString(key2.toString()));
-	assertTrue(thatLoggerContainsString(value2.toString()));
+	warnWithKeyValues(key1, value1, key2, value2);
+	assertTrue(thatLoggerContainsObject(key1.toString()));
+	assertTrue(thatLoggerContainsObject(value1.toString()));
+	assertTrue(thatLoggerContainsObject(key2.toString()));
+	assertTrue(thatLoggerContainsObject(value2.toString()));
     }
 
     @Test(expectedExceptions = { IllegalArgumentException.class })
     public void warn_givenMessageAndKeyWithoutRespectiveValue_throwIllegalArgumentException() {
-	Object message = new Object();
 	Object keyWithoutRespectiveValue = new Object();
-	ArchiverLogger.warn(message, keyWithoutRespectiveValue);
+	warnWithKeyValues(keyWithoutRespectiveValue);
     }
+
 }

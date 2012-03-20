@@ -94,9 +94,12 @@ public class ArchiverLogger {
     }
 
     /**
-     * Logs a warning with a message and key values.
+     * Logs a warning about what was done, what happened and the results of this
+     * warning.
      */
-    public static void warn(Object message, Object... keyValues) {
-	combineAdditionalKeyValuesAndLog(keyValues, "WARNING", message);
+    public static void warn(Object did, Object happened, Object result,
+	    Object... keyValues) {
+	combineAdditionalKeyValuesAndLog(keyValues, "WARNING: did", did,
+		"happened", happened, "result", result);
     }
 }
