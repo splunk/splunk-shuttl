@@ -17,6 +17,7 @@ package com.splunk.shep.archiver.thaw;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.testutil.UtilsBucket;
 
 @Test(groups = { "fast" })
 public class BucketFilterTest {
@@ -31,6 +33,7 @@ public class BucketFilterTest {
     BucketFilter bucketFilter;
     Date earliest;
     Date latest;
+    List<Bucket> filteredBuckets;
 
     @BeforeMethod(groups = { "fast" })
     public void setUp() {
@@ -39,6 +42,8 @@ public class BucketFilterTest {
 	earliest = new Date(earliestTime);
 	latest = new Date(latestTime);
 	bucketFilter = new BucketFilter();
+	filteredBuckets = null; // It's a field to remove List<Bucket>
+				// boilerplate.
     }
 
     @Test(groups = { "fast" })
@@ -50,9 +55,63 @@ public class BucketFilterTest {
     public void filterBucketsByTimeRange_earliestTimeIsLaterThanLatestTime_emptyList() {
 	Date earlierThanEarliest = new Date(earliest.getTime() - 1000);
 	assertTrue(earliest.after(earlierThanEarliest));
-	List<Bucket> filteredBuckets = bucketFilter.filterBucketsByTimeRange(
+	filteredBuckets = bucketFilter.filterBucketsByTimeRange(
 		mock(List.class), earliest, earlierThanEarliest);
 	assertTrue(filteredBuckets.isEmpty());
+    }
+
+    private void filterBuckets(Bucket... buckets) {
+	filteredBuckets = bucketFilter.filterBucketsByTimeRange(
+		Arrays.asList(buckets), earliest, latest);
+    }
+
+    public void filterBucketsByTimeRange_noBuckets_emptyList() {
+	filterBuckets(); // Nothing.
+	assertTrue(filteredBuckets.isEmpty());
+    }
+
+    public void filterBucketsByTimeRange_givenBucketWithEarliestAndLatestEqualToFilterEarliest_doNotFilterBucket() {
+	Bucket bucket = UtilsBucket.createBucketWithTimes(earliest, earliest);
+	filterBuckets(bucket);
+	assertEquals(1, filteredBuckets.size());
+	assertEquals(bucket, filteredBuckets.get(0));
+    }
+
+    public void filterBucketsByTimeRange_givenBucketWithEarliestAndLatestEqualToFilterLatest_doNotFilterBucket() {
+	Bucket bucket = UtilsBucket.createBucketWithTimes(latest, latest);
+	filterBuckets(bucket);
+	assertEquals(1, filteredBuckets.size());
+	assertEquals(bucket, filteredBuckets.get(0));
+    }
+
+    public void filterBucketsByTimeRange_givenOneBucketWhereLatestIsBeforeFiltersEarliest_filterBucketThenReturnEmptyList() {
+	Date bucketLatest = new Date(earliest.getTime() - 100);
+	assertTrue(bucketLatest.before(earliest));
+
+	Bucket bucket = createBucketWithEarliestAndLatestSetToDate(bucketLatest);
+	filterBuckets(bucket);
+	assertTrue(filteredBuckets.isEmpty());
+    }
+
+    public void filterBucketsByTimeRange_givenOneBucketWhereEarliestIsAfterFiltersLatest_filterBucketAndReturnEmptyList() {
+	Date bucketEarliest = new Date(latest.getTime() + 100);
+	assertTrue(bucketEarliest.after(latest));
+
+	Bucket bucket = createBucketWithEarliestAndLatestSetToDate(bucketEarliest);
+	filterBuckets(bucket);
+	assertTrue(filteredBuckets.isEmpty());
+    }
+
+    public void filterBucketsByTimeRange_givenTwoBucketsWithEarliestAndLatestWithinFilterTimeRange_returnBothBuckets() {
+	Bucket bucket1 = UtilsBucket.createBucketWithTimes(earliest, latest);
+	Bucket bucket2 = UtilsBucket.createBucketWithTimes(earliest, latest);
+	filterBuckets(bucket1, bucket2);
+	assertEquals(2, filteredBuckets.size());
+	assertTrue(filteredBuckets.containsAll(Arrays.asList(bucket1, bucket2)));
+    }
+
+    private Bucket createBucketWithEarliestAndLatestSetToDate(Date date) {
+	return UtilsBucket.createBucketWithTimes(date, date);
     }
 
 }
