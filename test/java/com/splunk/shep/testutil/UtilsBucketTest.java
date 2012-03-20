@@ -120,8 +120,7 @@ public class UtilsBucketTest {
 	    Date earliest = new Date();
 	    Date latest = new Date();
 	    Bucket bucketWithTimes = UtilsBucket
-		    .createBucketInDirectoryWithTimes(
-		    parent, earliest, latest);
+		    .createBucketInDirectoryWithTimes(parent, earliest, latest);
 	    String expectedBucketNameStart = "db_" + earliest.getTime() + "_"
 		    + latest.getTime();
 	    assertTrue(bucketWithTimes.getName().startsWith(
@@ -129,5 +128,11 @@ public class UtilsBucketTest {
 	} finally {
 	    FileUtils.deleteQuietly(parent);
 	}
+    }
+
+    public void createBucketWithName_givenName_bucketWithName() {
+	String name = "name";
+	Bucket bucket = UtilsBucket.createBucketWithName(name);
+	assertEquals(name, bucket.getName());
     }
 }

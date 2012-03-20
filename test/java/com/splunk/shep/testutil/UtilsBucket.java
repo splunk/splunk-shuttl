@@ -131,4 +131,12 @@ public class UtilsBucket {
 		bucketName);
 	return createBucketWithIndexInDirectory(randomIndexName(), bucketDir);
     }
+
+    /**
+     * Creates test bucket with specified name and random index.
+     */
+    public static Bucket createBucketWithName(String name) {
+	return createTestBucketWithIndexAndName(randomIndexName(), name);
+    }
+
 }
