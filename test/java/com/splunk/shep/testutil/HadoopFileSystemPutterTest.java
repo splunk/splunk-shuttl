@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.testutil.HadoopFileSystemPutter.LocalFileNotFound;
 
+@Test(groups = { "fast" })
 public class HadoopFileSystemPutterTest {
 
     private HadoopFileSystemPutter putter;

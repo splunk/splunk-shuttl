@@ -56,6 +56,7 @@ public class PathResolverTest {
 	when(configuration.getServerName()).thenReturn(serverName);
     }
 
+    @Test(groups = { "fast" })
     public void resolveArchivePath_givenValidBucket_combineBucketAndConfigurationToCreateTheEndingArchivePath() {
 	// Test
 	URI archivePath = pathResolver.resolveArchivePath(bucket);

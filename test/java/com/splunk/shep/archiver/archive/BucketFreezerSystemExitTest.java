@@ -55,6 +55,7 @@ public class BucketFreezerSystemExitTest {
 	FileUtils.deleteDirectory(safeLocation);
     }
 
+    @Test(groups = { "fast" })
     public void main_existingDirecotry_returnCode0() throws IOException {
 	File directory = UtilsFile.createTempDirectory();
 	runMainWithDepentencies_withArguments("index-name",

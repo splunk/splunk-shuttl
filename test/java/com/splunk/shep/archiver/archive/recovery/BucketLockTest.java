@@ -56,6 +56,7 @@ public class BucketLockTest {
 	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
     }
 
+    @Test(groups = { "fast" })
     public void getLockFile_createdWithBucket_lockFilesNameIncludesBucketsNameForUniqueness() {
 	File lockFile = bucketLock.getLockFile();
 	assertTrue(lockFile.getName().contains(bucket.getName()));

@@ -41,6 +41,7 @@ public class BucketFilterTest {
 	bucketFilter = new BucketFilter();
     }
 
+    @Test(groups = { "fast" })
     public void BucketFilterTest_setUp_earliestIsEarlierThanLatest() {
 	assertTrue(earliest.before(latest));
     }

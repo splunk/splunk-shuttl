@@ -35,6 +35,7 @@ public class ArchiverLoggerTest {
 	ArchiverLogger.logger = new PrintWriter(logWriter);
     }
 
+    @Test(groups = { "fast" })
     public void did_validArguments_expectedOutput() {
 	ArchiverLogger.did("didStuff", "happenedStuff", "expectedStuff");
 	String result = logWriter.toString();

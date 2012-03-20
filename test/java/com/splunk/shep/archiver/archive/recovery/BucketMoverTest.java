@@ -48,6 +48,7 @@ public class BucketMoverTest {
 	FileUtils.deleteDirectory(moveBucketLocation);
     }
 
+    @Test(groups = { "fast" })
     public void getMovedBuckets_moveLocationDoesNotExist_emptyList() {
 	assertTrue(moveBucketLocation.delete());
 	assertTrue(!moveBucketLocation.exists());

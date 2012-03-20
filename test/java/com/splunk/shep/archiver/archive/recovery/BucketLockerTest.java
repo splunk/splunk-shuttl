@@ -51,6 +51,7 @@ public class BucketLockerTest {
 	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
     }
 
+    @Test(groups = { "fast" })
     public void runWithBucketLocked_givenBucketThatCanBeLocked_executesRunnable() {
 	assertTrue(bucketLocker.runWithBucketLocked(bucket,
 		new NoOpBucketHandler()));

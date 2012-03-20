@@ -44,6 +44,7 @@ public class RemoteBucketTest {
 	bucket = new Bucket(uri, index, bucketName, format);
     }
 
+    @Test(groups = { "fast" })
     public void uriConstructor_nonFileUri_ok() throws IOException {
 	new Bucket(uri, null, null, null);
     }

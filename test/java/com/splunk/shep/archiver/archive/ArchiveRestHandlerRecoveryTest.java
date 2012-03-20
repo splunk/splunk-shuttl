@@ -33,6 +33,7 @@ import com.splunk.shep.testutil.UtilsBucket;
 @Test(groups = { "fast" })
 public class ArchiveRestHandlerRecoveryTest {
 
+    @Test(groups = { "fast" })
     public void recoverFailedBucket_givenHttpClient_executeRequestOnFailedBucket()
 	    throws ClientProtocolException, IOException {
 	Bucket bucket = UtilsBucket.createTestBucket();

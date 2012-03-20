@@ -12,6 +12,7 @@ import com.splunk.shep.archiver.model.Bucket;
 @Test(groups = { "fast" })
 public class UtilsBucketTest {
 
+    @Test(groups = { "fast" })
     public void createTestBucket_validArguments_createsExitingBucketDir() {
 	Bucket bucket = UtilsBucket.createTestBucket();
 	assertTrue(bucket.getDirectory().exists());

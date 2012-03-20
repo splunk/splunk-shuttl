@@ -41,6 +41,7 @@ public class MoveAndArchiveBucketUnderLockTest {
 		bucketMover, archiveRestHandler);
     }
 
+    @Test(groups = { "fast" })
     public void moveThenArchiveBucket_givenBucket_movesTheBucket() {
 	moveAndArchiveBucketUnderLock.moveThenArchiveBucket(bucket);
 	verify(bucketMover).moveBucket(bucket);

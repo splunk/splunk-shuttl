@@ -40,6 +40,7 @@ public class UtilsTestNGTest {
 		bucket2));
     }
 
+    @Test(groups = { "fast" })
     public void isBucketEqualOnIndexFormatAndName_equallyCreatedBuckets_true()
 	    throws IOException {
 	bucket1 = new Bucket(uri, index, name, format);

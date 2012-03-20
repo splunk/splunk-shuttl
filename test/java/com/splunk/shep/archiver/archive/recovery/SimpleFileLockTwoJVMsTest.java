@@ -24,7 +24,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.SimpleFileLock;
 import com.splunk.shep.testutil.ShellClassRunner;
 import com.splunk.shep.testutil.UtilsTestNG;
 
@@ -59,6 +58,7 @@ public class SimpleFileLockTwoJVMsTest {
 	}
     }
 
+    @Test(groups = { "slow" })
     public void tryLock_inOtherJvmAfterLockingInThisJvm_false() {
 	assertTrue(simpleFileLock.tryLock());
 	ShellClassRunner otherJvmRunner = new ShellClassRunner();

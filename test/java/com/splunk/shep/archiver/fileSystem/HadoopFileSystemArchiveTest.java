@@ -45,6 +45,7 @@ public class HadoopFileSystemArchiveTest {
 	hadoopFileSystemPutter.deleteMyFiles();
     }
 
+    @Test(groups = { "fast" })
     public void HadoopFileSystemArchive_notInitialized_aNonNullInstanceIsCreated() {
 	// Test done in before
 	// Confirm

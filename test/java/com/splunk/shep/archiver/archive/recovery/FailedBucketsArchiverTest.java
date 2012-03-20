@@ -55,6 +55,7 @@ public class FailedBucketsArchiverTest {
 	return buckets;
     }
 
+    @Test(groups = { "fast" })
     public void archiveFailedBuckets_noMovedBuckets_neverRunLockedBucketHandler() {
 	failedBucketsArchiver.archiveFailedBuckets(lockedBucketHandler);
 	verify(lockedBucketHandler, times(0)).handleLockedBucket(

@@ -44,6 +44,7 @@ public class ArchiveIndexesListerTest {
 		fileSystem);
     }
 
+    @Test(groups = { "fast" })
     public void listIndexes_givenPathResolver_usePathResolverToGetWhereIndexesLive() {
 	archivedIndexesLister.listIndexes();
 	verify(pathResolver).getIndexesHome();

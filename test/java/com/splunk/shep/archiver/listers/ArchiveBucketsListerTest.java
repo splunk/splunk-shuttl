@@ -49,6 +49,7 @@ public class ArchiveBucketsListerTest {
 		indexLister, pathResolver);
     }
 
+    @Test(groups = { "fast" })
     public void listBuckets_givenIndexesLister_useIndexesListerToGetIndexes() {
 	archiveBucketsLister.listBuckets();
 	verify(indexLister).listIndexes();

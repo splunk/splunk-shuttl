@@ -74,6 +74,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 	return tempTestDirectory.getAbsolutePath();
     }
 
+    @Test(groups = { "fast" })
     public void should_moveDirectoryToaSafeLocation_when_givenPath()
 	    throws IOException {
 	File dirToBeMoved = createTempDirectory();
