@@ -66,12 +66,14 @@ public class ArchiverFunctionalTest {
 		    bucket.getIndex(), bucketDirectory.getAbsolutePath());
 	    // new BucketArchiverRest.BucketArchiverRunner(
 	    // bucketDirectory.getAbsolutePath());
+	    int exitCode = shellClassRunner.getExitCode();
 
 	    UtilsArchiverFunctional.waitForAsyncArchiving();
 
 	    // Verify
 	    URI archivedUri = UtilsArchiverFunctional
 		    .getHadoopArchivedBucketURI(bucket);
+	    assertEquals(0, exitCode);
 	    assertTrue(!bucketDirectory.exists());
 	    assertTrue(fileSystem.exists(new Path(archivedUri)));
 	} finally {
