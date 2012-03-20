@@ -66,7 +66,10 @@ public class UtilsBucket {
     }
 
     private static File formatDirectoryToBeABucket(File bucketDir) {
-	UtilsFile.createDirectoryInParent(bucketDir, "rawdata");
+	File rawdata = UtilsFile
+		.createDirectoryInParent(bucketDir, "rawdata");
+	File slices = UtilsFile.createFileInParent(rawdata, "slices.dat");
+	UtilsFile.populateFileWithRandomContent(slices);
 	return bucketDir;
     }
 
