@@ -94,4 +94,11 @@ public class PathResolver {
     private String getParent(String bucketPath) {
 	return FilenameUtils.getPathNoEndSeparator(bucketPath);
     }
+
+    /**
+     * @return {@link URI} to where formats can be listed for a bucket.
+     */
+    public URI resolveFormatsHomeForBucket(Bucket bucket) {
+	throw new UnsupportedOperationException();
+    }
 }
