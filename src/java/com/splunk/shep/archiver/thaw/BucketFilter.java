@@ -14,6 +14,9 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
+import static com.splunk.shep.archiver.ArchiverLogger.*;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -30,14 +33,21 @@ public class BucketFilter {
      * 
      * @param buckets
      *            to filter
-     * @param earliestTime
+     * @param earliest
      *            in the time range.
-     * @param latestTime
+     * @param latest
      *            in the time range.
      * @return list of buckets that's within this time range.
      */
     public List<Bucket> filterBucketsByTimeRange(List<Bucket> buckets,
-	    Date earliestTime, Date latestTime) {
+	    Date earliest, Date latest) {
+	if (earliest.after(latest)) {
+	    warn("Filtered buckets by time range",
+		    "Earliest time was later than latest time",
+		    "Filtered all buckets", "earliest_time", earliest,
+		    "latest_time", latest);
+	    return Arrays.asList();
+	}
 	// TODO Auto-generated method stub
 	throw new UnsupportedOperationException();
     }
