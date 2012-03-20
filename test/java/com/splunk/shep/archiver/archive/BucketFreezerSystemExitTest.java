@@ -15,9 +15,8 @@ package com.splunk.shep.archiver.archive;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +26,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker;
+import com.splunk.shep.archiver.archive.recovery.BucketMover;
+import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shep.testutil.UtilsFile;
 
 /**
@@ -42,9 +43,10 @@ public class BucketFreezerSystemExitTest {
     @BeforeMethod(groups = { "fast" })
     public void setUp() {
 	runtimeMock = mock(Runtime.class);
-	bucketFreezer = new BucketFreezer(BucketFreezer.DEFAULT_SAFE_LOCATION,
+	bucketFreezer = new BucketFreezer(new BucketMover(
+		BucketFreezer.DEFAULT_SAFE_LOCATION), new BucketLocker(),
 		mock(ArchiveRestHandler.class),
-		mock(FailedBucketRestorer.class));
+		mock(FailedBucketsArchiver.class));
     }
 
     @AfterMethod(groups = { "fast" })
@@ -53,6 +55,7 @@ public class BucketFreezerSystemExitTest {
 	FileUtils.deleteDirectory(safeLocation);
     }
 
+    @Test(groups = { "fast" })
     public void main_existingDirecotry_returnCode0() throws IOException {
 	File directory = UtilsFile.createTempDirectory();
 	runMainWithDepentencies_withArguments("index-name",

@@ -30,4 +30,11 @@ public class BucketTransferer {
 	    throw new RuntimeException(e);
 	}
     }
+
+    /**
+     * Thaw an archived bucket.
+     */
+    public void transferBucketToThaw(Bucket bucket) {
+	throw new UnsupportedOperationException();
+    }
 }

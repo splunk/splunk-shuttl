@@ -1,10 +1,6 @@
 package com.splunk.shep.testutil;
 
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.testutil.HadoopFileSystemPutter.LocalFileNotFound;
 
+@Test(groups = { "fast" })
 public class HadoopFileSystemPutterTest {
 
     private HadoopFileSystemPutter putter;
@@ -87,7 +84,7 @@ public class HadoopFileSystemPutterTest {
 
 	Path classAStoragePath = classA.getPathWhereFilesAreStored();
 	Path classBStoragePath = classB.getPathWhereFilesAreStored();
-	assertNotEquals(classAStoragePath, classBStoragePath);
+	assertTrue(!classAStoragePath.equals(classBStoragePath));
     }
 
     private class ClassA {
@@ -123,11 +120,11 @@ public class HadoopFileSystemPutterTest {
     public void path_where_localFileIsPut_should_differForDifferentFiles() {
 	File file1 = getTempFileThatIsAutomaticallyDeleted();
 	File file2 = getTempFileThatIsAutomaticallyDeleted();
-	assertNotEquals(file1, file2);
+	assertTrue(!file1.getAbsolutePath().equals(file2.getAbsolutePath()));
 
 	Path path1 = putter.getPathForFile(file1);
 	Path path2 = putter.getPathForFile(file2);
-	assertNotEquals(path1, path2);
+	assertTrue(!path1.equals(path2));
     }
 
     @Test(groups = { "fast" })

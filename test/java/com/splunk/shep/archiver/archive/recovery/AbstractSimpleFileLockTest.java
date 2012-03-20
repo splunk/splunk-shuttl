@@ -49,6 +49,7 @@ public abstract class AbstractSimpleFileLockTest {
 	simpleFileLock.closeLock();
     }
 
+    @Test(groups = { "fast" })
     public void tryLock_givenOpenFileChannel_trueBecauseItIsNowLocked() {
 	assertTrue(simpleFileLock.tryLock());
     }

@@ -12,20 +12,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.archiver.archive.recovery;
+package com.splunk.shep.archiver.util;
 
-import com.splunk.shep.archiver.model.Bucket;
+import java.io.File;
+import java.net.URI;
 
 /**
- * Handle the recovery of a failed bucket.
+ * Utils for {@link URI}.
  */
-public interface FailedBucketRecoveryHandler {
+public class UtilsURI {
 
     /**
-     * Recover the failure of a bucket, by trying to archive it again.
+     * Trim eventual ending {@link File#separator}.<br/>
+     * Ex:<br/>
      * 
-     * @param failedBucket
-     *            that failed to be successfully archived.
+     * <pre>
+     * "file:/a/b/c" -> "/a/b/c"
+     * "file:/a/b/c/" -> "/a/b/c"
+     * "file:/a/b/c.txt" -> "/a/b/c.txt"
+     * </pre>
      */
-    void recoverFailedBucket(Bucket failedBucket);
+    public static String getPathByTrimmingEndingFileSeparator(URI uri) {
+	String path = uri.getPath();
+	if (path.endsWith(File.separator))
+	    return path.substring(0, path.length() - 1);
+	else
+	    return path;
+    }
 }

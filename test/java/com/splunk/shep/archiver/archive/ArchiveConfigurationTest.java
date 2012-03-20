@@ -15,6 +15,7 @@ public class ArchiveConfigurationTest {
 	configuration = new ArchiveConfiguration();
     }
 
+    @Test(groups = { "fast" })
     public void getArchiveFormat_defaultState_isNotNull() {
 	assertNotNull(configuration.getArchiveFormat());
     }

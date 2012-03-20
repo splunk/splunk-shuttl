@@ -35,6 +35,7 @@ public class BucketArchiverTest {
 	bucket = mock(Bucket.class);
     }
 
+    @Test(groups = { "fast" })
     public void archiveBucket_shouldGetArchiveFormat() {
 	bucketArchiver.archiveBucket(bucket);
 	verify(config).getArchiveFormat();

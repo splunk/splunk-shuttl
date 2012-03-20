@@ -1,7 +1,6 @@
 package com.splunk.shep.testutil;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,8 +72,35 @@ public class UtilsTestNG {
      */
     public static void assertBucketsGotSameIndexFormatAndName(Bucket bucket,
 	    Bucket capturedBucket) {
+	assertTrue(isBucketEqualOnIndexFormatAndName(bucket, capturedBucket));
 	assertEquals(bucket.getIndex(), capturedBucket.getIndex());
 	assertEquals(bucket.getName(), capturedBucket.getName());
 	assertEquals(bucket.getFormat(), capturedBucket.getFormat());
+    }
+
+    public static boolean isBucketEqualOnIndexFormatAndName(Bucket bucket,
+	    Bucket otherBucket) {
+	if (bucket.getIndex() == null) {
+	    if (otherBucket.getIndex() != null) {
+		return false;
+	    }
+	} else if (!bucket.getIndex().equals(otherBucket.getIndex())) {
+	    return false;
+	}
+	if (bucket.getName() == null) {
+	    if (otherBucket.getName() != null) {
+		return false;
+	    }
+	} else if (!bucket.getName().equals(otherBucket.getName())) {
+	    return false;
+	}
+	if (bucket.getFormat() == null) {
+	    if (otherBucket.getFormat() != null) {
+		return false;
+	    }
+	} else if (!bucket.getFormat().equals(otherBucket.getFormat())) {
+	    return false;
+	}
+	return true;
     }
 }

@@ -27,7 +27,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.SimpleFileLock;
 import com.splunk.shep.testutil.UtilsFile;
 import com.splunk.shep.testutil.UtilsTestNG;
 
@@ -71,6 +70,7 @@ public class SimpleFileLockConstructorTest {
 	}
     }
 
+    @Test(groups = { "fast" })
     public void closeLock_givenFileChannelToFailedBucketsLock_doesntCloseChannelWhenFileChannelIsNotOpen()
 	    throws IOException {
 	simpleFileLock.closeLock();

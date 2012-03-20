@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -50,6 +51,12 @@ public class BucketLockTest {
 	FileUtils.deleteDirectory(locksDirectory);
     }
 
+    @AfterTest
+    public void deleteDefaultBucketLockDirectory() throws IOException {
+	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
+    }
+
+    @Test(groups = { "fast" })
     public void getLockFile_createdWithBucket_lockFilesNameIncludesBucketsNameForUniqueness() {
 	File lockFile = bucketLock.getLockFile();
 	assertTrue(lockFile.getName().contains(bucket.getName()));
@@ -61,7 +68,13 @@ public class BucketLockTest {
 		.getAbsolutePath());
     }
 
-    public void deleteLock_createdValidily_lockFileDoesNotExist() {
-	// bucketLock.deleteLock(); // HERE <<----
+    public void deleteLockFile_bucketNotLocked_true() {
+	bucketLock.deleteLockFile();
+	assertFalse(bucketLock.getLockFile().exists());
+    }
+
+    public void deleteLockFile_bucketLocked_false() {
+	assertTrue(bucketLock.tryLock());
+	assertFalse(bucketLock.deleteLockFile());
     }
 }

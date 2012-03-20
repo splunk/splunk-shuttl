@@ -16,6 +16,7 @@ public class ArchiverLoggerTest {
 
     PrintWriter realPrintWriter;
     StringWriter logWriter;
+    String assertFailedMessageStart;
 
     @BeforeSuite
     public void beforeClass() {
@@ -29,15 +30,17 @@ public class ArchiverLoggerTest {
 
     @BeforeMethod
     public void beforeMethod() {
+	assertFailedMessageStart = "Logged message was ";
 	logWriter = new StringWriter();
 	ArchiverLogger.logger = new PrintWriter(logWriter);
     }
 
+    @Test(groups = { "fast" })
     public void did_validArguments_expectedOutput() {
 	ArchiverLogger.did("didStuff", "happenedStuff", "expectedStuff");
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] did=\"didStuff\" happened=\"happenedStuff\" expected=\"expectedStuff\"\n"));
 
     }
@@ -47,7 +50,7 @@ public class ArchiverLoggerTest {
 		"200");
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] did=\"didStuff\" happened=\"happenedStuff\" expected=\"expectedStuff\" btw=\"200\"\n"));
     }
 
@@ -66,7 +69,7 @@ public class ArchiverLoggerTest {
 	// Verify
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] did=\"" + currentDate.toString()
 			+ "\" happened=\"btw\" expected=\"200\" btw=\"5.6\"\n"));
     }
@@ -74,14 +77,14 @@ public class ArchiverLoggerTest {
     public void done_noAdditionalKeyValues_expectedOutput() {
 	ArchiverLogger.done("doneStuff");
 	String result = logWriter.toString();
-	assertTrue("Loged message was " + result,
+	assertTrue(assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] done=\"doneStuff\"\n"));
     }
 
     public void done_withAdditionalKeyValues_expectedOutput() {
 	ArchiverLogger.done("doneStuff", "btw", "200");
 	String result = logWriter.toString();
-	assertTrue("Loged message was " + result,
+	assertTrue(assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] done=\"doneStuff\" btw=\"200\"\n"));
     }
 
@@ -99,7 +102,7 @@ public class ArchiverLoggerTest {
 	// Verify
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] done=\"" + currentDate.toString()
 			+ "\" btw=\"200\"\n"));
     }
@@ -107,7 +110,7 @@ public class ArchiverLoggerTest {
     public void will_validArguments_expectedOutput() {
 	ArchiverLogger.will("willStuff");
 	String result = logWriter.toString();
-	assertTrue("Loged message was " + result,
+	assertTrue(assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] will=\"willStuff\"\n"));
 
     }
@@ -116,7 +119,7 @@ public class ArchiverLoggerTest {
 	ArchiverLogger.will("willStuff", "args", "stuff stuff stuff");
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] will=\"willStuff\" args=\"stuff stuff stuff\"\n"));
     }
 
@@ -134,8 +137,50 @@ public class ArchiverLoggerTest {
 	// Verify
 	String result = logWriter.toString();
 	assertTrue(
-		"Loged message was " + result,
+		assertFailedMessageStart + result,
 		result.matches("\\[.+?\\] will=\"willStuff\" "
 			+ currentDate.toString() + "=\"5\"\n"));
     }
+
+    private boolean thatLoggerContainsObject(Object object) {
+	return logWriter.toString().contains(object.toString());
+    }
+
+    private void warnWithKeyValues(Object... keyValues) {
+	ArchiverLogger.warn("did", "happened", "result", keyValues);
+    }
+
+    public void warn_givenEmptyMessage_stringContainsWithWARNING() {
+	warnWithKeyValues();
+	assertTrue(thatLoggerContainsObject("WARNING"));
+    }
+
+    public void warn_givenDidHappenedAndResultsAsStrings_containsObjectToString() {
+	Object did = new Object();
+	Object happened = new Object();
+	Object result = new Object();
+	ArchiverLogger.warn(did, happened, result);
+	assertTrue(thatLoggerContainsObject(did.toString()));
+	assertTrue(thatLoggerContainsObject(happened.toString()));
+	assertTrue(thatLoggerContainsObject(result.toString()));
+    }
+
+    public void warn_givenMessageAndSingleKeyValue_containsMessageAndKeyValue() {
+	Object key1 = new Object();
+	Object value1 = new Object();
+	Object key2 = new Object();
+	Object value2 = new Object();
+	warnWithKeyValues(key1, value1, key2, value2);
+	assertTrue(thatLoggerContainsObject(key1.toString()));
+	assertTrue(thatLoggerContainsObject(value1.toString()));
+	assertTrue(thatLoggerContainsObject(key2.toString()));
+	assertTrue(thatLoggerContainsObject(value2.toString()));
+    }
+
+    @Test(expectedExceptions = { IllegalArgumentException.class })
+    public void warn_givenMessageAndKeyWithoutRespectiveValue_throwIllegalArgumentException() {
+	Object keyWithoutRespectiveValue = new Object();
+	warnWithKeyValues(keyWithoutRespectiveValue);
+    }
+
 }

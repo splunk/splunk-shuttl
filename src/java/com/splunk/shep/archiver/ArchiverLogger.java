@@ -18,7 +18,7 @@ import java.io.PrintWriter;
 import java.util.Date;
 
 /**
- * A log class until the proper mecanism is in place.
+ * A log class until the proper mechanism is in place.
  * 
  */
 public class ArchiverLogger {
@@ -93,4 +93,13 @@ public class ArchiverLogger {
 	logger.printf("[%s] %s%n", new Date().toString(), logString);
     }
 
+    /**
+     * Logs a warning about what was done, what happened and the results of this
+     * warning.
+     */
+    public static void warn(Object did, Object happened, Object result,
+	    Object... keyValues) {
+	combineAdditionalKeyValuesAndLog(keyValues, "WARNING: did", did,
+		"happened", happened, "result", result);
+    }
 }

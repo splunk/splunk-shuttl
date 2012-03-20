@@ -14,9 +14,8 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
@@ -34,13 +33,14 @@ import com.splunk.shep.testutil.UtilsBucket;
 @Test(groups = { "fast" })
 public class ArchiveRestHandlerRecoveryTest {
 
+    @Test(groups = { "fast" })
     public void recoverFailedBucket_givenHttpClient_executeRequestOnFailedBucket()
 	    throws ClientProtocolException, IOException {
 	Bucket bucket = UtilsBucket.createTestBucket();
 	HttpClient httpClient = mock(HttpClient.class);
 	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-		httpClient, null);
-	archiveRestHandler.recoverFailedBucket(bucket);
+		httpClient);
+	archiveRestHandler.handleLockedBucket(bucket);
 
 	verify(httpClient).execute(any(HttpUriRequest.class));
     }

@@ -14,11 +14,9 @@
 // limitations under the License.
 package com.splunk.shep.archiver.listers;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -46,6 +44,7 @@ public class ArchiveIndexesListerTest {
 		fileSystem);
     }
 
+    @Test(groups = { "fast" })
     public void listIndexes_givenPathResolver_usePathResolverToGetWhereIndexesLive() {
 	archivedIndexesLister.listIndexes();
 	verify(pathResolver).getIndexesHome();
@@ -59,7 +58,7 @@ public class ArchiveIndexesListerTest {
 	verify(fileSystem).listPath(uri);
     }
 
-    public void listIndexes_givenDirectoriesWhoseNamesAreIndexesFromFileSystem_getPathsToWhereBucketsLive()
+    public void listIndexes_givenDirectoriesWhoseNamesAreIndexesFromFileSystem_getIndexes()
 	    throws IOException {
 	String index1 = "dir1";
 	String index2 = "dir2";
