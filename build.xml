@@ -382,7 +382,7 @@
 
 	<!-- Hive -->
 
-	<target name="hive-download" depends="checkIfHiveIsDownloaded" unless="hive.isDownloaded">
+	<target name="hive-download" depends="check-if-hive-is-downloaded" unless="hive.isDownloaded">
 		<echo>Downloading hive from ${hive.download.url}</echo>
 		<exec executable="curl" osfamily="unix">
 			<arg value="-s" />
@@ -403,7 +403,7 @@
 		</exec>
 	</target>
 
-	<target name="checkIfHiveIsDownloaded">
+	<target name="check-if-hive-is-downloaded">
 		<available file="${hive.download.path}" type="file" property="hive.isDownloaded" />
 		<echo>hive.isDownloaded is ${hive.isDownloaded}</echo>
 		<echo>hive.download.path is ${hive.download.path}</echo>
@@ -480,7 +480,7 @@
 		<antcall target="do-hadoop-prepare-build-cache" />
 	</target>
 
-	<target name="do-hadoop-prepare-build-cache" depends="checkHadoopInCache" unless="isHadoopInCache">
+	<target name="do-hadoop-prepare-build-cache" depends="check-hadoop-in-cache" unless="isHadoopInCache">
 		<antcall>
 			<target name="hadoop-download" />
 			<target name="hadoop-extract" />
@@ -490,13 +490,13 @@
 		</antcall>
 	</target>
 
-	<target name="checkHadoopInCache">
+	<target name="check-hadoop-in-cache">
 		<condition property="isHadoopInCache">
 			<available file="${hadoop.extracted.path}" type="dir" />
 		</condition>
 	</target>
 
-	<target name="hadoop-download" depends="checkIfHadoopNotDownloaded" if="isNotDownloaded">
+	<target name="hadoop-download" depends="check-if-hadoop-not-downloaded" if="isNotDownloaded">
 		<antcall>
 			<target name="do-hadoop-download" />
 		</antcall>
@@ -513,7 +513,7 @@
 		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
 	</target>
 
-	<target name="checkIfHadoopNotDownloaded">
+	<target name="check-if-hadoop-not-downloaded">
 		<!--PLEASEREVIEW:  brain hurts -->
 		<condition property="isNotDownloaded">
 			<not>
@@ -545,7 +545,7 @@
 	</target>
 
 	<!-- extract to build cache-->
-	<target name="hadoop-extract" depends="checkIfHadoopIsDownloaded" unless="isDownloaded">
+	<target name="hadoop-extract" depends="check-if-hadoop-is-downloaded" unless="isDownloaded">
 		<!-- PLEASEREVIEW: unclear if the check for downloaded is correct; better not to check
 		and fail, no? -->
 		<echo>Extracting...</echo>
@@ -559,7 +559,7 @@
 		</exec>
 	</target>
 
-	<target name="checkIfHadoopIsDownloaded">
+	<target name="check-if-hadoop-is-downloaded">
 		<!-- PLEASEREVIEW: didn't I see this target before? oh, no, I saw its evil twin -->
 		<condition property="isDownloaded">
 			<not>
@@ -647,7 +647,7 @@
 		</exec>
 	</target>
 
-	<target name="hadoop-teardown" depends="set-hadoop-home,checkForHadoopBinaries" if="existsHadoopBinaries">
+	<target name="hadoop-teardown" depends="set-hadoop-home,check-for-hadoop-binaries" if="existsHadoopBinaries">
 		<antcall>
 			<target name="hadoop-stop" />
 		</antcall>
@@ -660,7 +660,7 @@
 		</exec>
 	</target>
 
-	<target name="checkForHadoopBinaries">
+	<target name="check-for-hadoop-binaries">
 		<available file="${hadoop.home}/bin" type="dir" property="existsHadoopBinaries" />
 	</target>
 
@@ -684,11 +684,11 @@
 		<antcall target="do-splunk-unpack-if-not-extracted" />
 	</target>
 
-	<target name="do-splunk-unpack-if-not-extracted" depends="checkForSplunkExtraction" if="isSplunkNotExtracted">
+	<target name="do-splunk-unpack-if-not-extracted" depends="check-for-splunk-extraction" if="isSplunkNotExtracted">
 		<antcall target="splunk-unpack" />
 	</target>
 
-	<target name="checkForSplunkExtraction">
+	<target name="check-for-splunk-extraction">
 		<condition property="isSplunkNotExtracted">
 			<not>
 				<available file="${splunk.extracted.dir}/bin" type="dir" />
@@ -696,7 +696,7 @@
 		</condition>
 	</target>
 
-	<target name="splunk-unpack" depends="isSplunkTgzAvailable" if="foundSplunkTgz">
+	<target name="splunk-unpack" depends="is-splunk-tgz-available" if="foundSplunkTgz">
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
 			<arg line="'tar xf ${splunk.tgz.dir}/*.tgz -C ${build-cache}'" />
@@ -704,7 +704,7 @@
 		<antcall target="copy-lib-jars-to-test-dir" />
 	</target>
 
-	<target name="isSplunkTgzAvailable">
+	<target name="is-splunk-tgz-available">
 		<pathconvert property="foundSplunkTgz" setonempty="false" pathsep=" ">
 			<path>
 				<fileset dir="${splunk.tgz.dir}" includes="splunk-*.tgz" />
@@ -720,11 +720,11 @@
 		</antcall>
 	</target>
 
-	<target name="remove-shep-splunk-app" depends="set-shep-app-home,checkIfShepAppExists" if="existsShepDir">
+	<target name="remove-shep-splunk-app" depends="set-shep-app-home,check-if-shep-app-exists" if="existsShepDir">
 		<delete dir="${shep.app.home}" />
 	</target>
 
-	<target name="checkIfShepAppExists" depends="set-shep-app-home">
+	<target name="check-if-shep-app-exists" depends="set-shep-app-home">
 		<condition property="existsShepDir">
 			<available file="${shep.app.home}" type="dir" />
 		</condition>
@@ -776,7 +776,7 @@
 		</exec>
 	</target>
 
-	<target name="enable-shep-splunk-app" depends="checkIfShepIsEnabled" unless="isShepAlreadyEnabled">
+	<target name="enable-shep-splunk-app" depends="check-if-shep-is-enabled" unless="isShepAlreadyEnabled">
 		<exec executable="curl" osfamily="unix">
 			<arg value="-s" />
 			<arg line="-u ${splunk.username}:${splunk.password}" />
@@ -785,7 +785,7 @@
 		</exec>
 	</target>
 
-	<target name="checkIfShepIsEnabled">
+	<target name="check-if-shep-is-enabled">
 		<shellscript shell="sh" outputproperty="isEnabled">
 			${splunk.home}/bin/splunk display app 2> /dev/null | grep shep | grep -o ENABLED
 		</shellscript>
@@ -797,14 +797,14 @@
 		</if>
 	</target>
 
-	<target name="splunk-teardown" depends="set-splunk-home,checkForSplunkBinary" if="existsSplunkBinary">
+	<target name="splunk-teardown" depends="set-splunk-home,check-for-splunk-binary" if="existsSplunkBinary">
 		<antcall>
 			<target name="splunk-stop" />
 			<target name="splunk-clean-all" />
 		</antcall>
 	</target>
 
-	<target name="checkForSplunkBinary">
+	<target name="check-for-splunk-binary">
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
 	</target>
 
@@ -994,7 +994,7 @@
 		</java>
 	</target>
 
-	<target name="stateMachineTest">
+	<target name="state-machine-test">
 		<java classname="com.splunk.shep.connector.tests.StateMachineTest">
 			<arg value="src/java/com/splunk/shep/connector/tests/s2s.data" />
 			<classpath refid="build.classpath" />
