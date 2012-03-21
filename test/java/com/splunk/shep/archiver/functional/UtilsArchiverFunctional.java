@@ -38,9 +38,14 @@ public class UtilsArchiverFunctional {
      * @return URI to archived bucket in hadoop.
      */
     public static URI getHadoopArchivedBucketURI(Bucket bucket) {
-	PathResolver pathResolver = BucketArchiverFactory
-		.createDefaultArchiver().getPathResolver();
-	return pathResolver.resolveArchivePath(bucket);
+	return getRealPathResolver().resolveArchivePath(bucket);
+    }
+
+    /**
+     * @return path resolver used with the default archiver.
+     */
+    public static PathResolver getRealPathResolver() {
+	return BucketArchiverFactory.createDefaultArchiver().getPathResolver();
     }
 
     /**
