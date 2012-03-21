@@ -48,11 +48,6 @@ public class ThawBucketTransfererTest {
 	bucketTransferer.transferBucketToThaw(bucket);
     }
 
-    public void transferBucketToThaw_givenBucket_getThawLocationForBucket() {
-	bucketTransferer.transferBucketToThaw(bucket);
-	verify(thawLocationProvider).getLocationInThawForBucket(bucket);
-    }
-
     public void transferBucketToThaw_givenBucket_transferBucketFromArchiveToPathWhereParentIsThawLocation()
 	    throws IOException {
 	File file = mock(File.class);

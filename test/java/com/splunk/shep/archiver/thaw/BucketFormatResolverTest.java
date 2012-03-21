@@ -61,19 +61,11 @@ public class BucketFormatResolverTest {
     }
 
     @Test(groups = { "fast" })
-    public void resolveBucketsFormats_givenValidBucket_askPathResolverForFormatsHomes() {
-	Bucket bucket = createBucketWithMockedURI();
-	bucketFormatResolver.resolveBucketsFormats(Arrays.asList(bucket));
-	verify(pathResolver).getFormatsHome(
-		anyString(), anyString());
-    }
-
     public void resolveBucketsFormats_givenFormatsHomeForBucket_listFormatsHomeInArchiveFileSystem()
 	    throws IOException {
 	URI formatsHome = URI.create("valid:/uri");
-	when(
-		pathResolver.getFormatsHome(
-			anyString(), anyString())).thenReturn(formatsHome);
+	when(pathResolver.getFormatsHome(anyString(), anyString())).thenReturn(
+		formatsHome);
 	bucketFormatResolver.resolveBucketsFormats(mockedBucketsList);
 	verify(archiveFileSystem).listPath(formatsHome);
     }
@@ -97,8 +89,8 @@ public class BucketFormatResolverTest {
 
 	bucketFormatResolver.resolveBucketsFormats(Arrays.asList(bucket));
 
-	verify(pathResolver).resolveArchivedBucketURI(
-		bucket.getIndex(), bucket.getName(), format);
+	verify(pathResolver).resolveArchivedBucketURI(bucket.getIndex(),
+		bucket.getName(), format);
     }
 
     @SuppressWarnings("unchecked")
@@ -120,9 +112,8 @@ public class BucketFormatResolverTest {
     public void resolveBucketsFormats_givenUriToBucketWithResolvedFormat_bucketWithUri() {
 	URI uri = URI.create("valid:/uri/to/bucket/with/new/format");
 	when(
-		pathResolver.resolveArchivedBucketURI(
-			anyString(), anyString(), any(BucketFormat.class)))
-		.thenReturn(uri);
+		pathResolver.resolveArchivedBucketURI(anyString(), anyString(),
+			any(BucketFormat.class))).thenReturn(uri);
 
 	List<Bucket> bucketsWithFormat = bucketFormatResolver
 		.resolveBucketsFormats(mockedBucketsList);

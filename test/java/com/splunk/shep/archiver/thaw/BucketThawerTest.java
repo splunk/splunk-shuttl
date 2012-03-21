@@ -58,11 +58,6 @@ public class BucketThawerTest {
     }
 
     @Test(groups = { "fast" })
-    public void thawBuckets_givenIndex_listBucketsWithinThatIndex() {
-	bucketThawer.thawBuckets(index, null, null);
-	verify(archiveBucketsLister).listBucketsInIndex(index);
-    }
-
     public void thawBuckets_givenTimeRange_filterBucketTimeRange() {
 	when(archiveBucketsLister.listBucketsInIndex(anyString())).thenReturn(
 		buckets);
