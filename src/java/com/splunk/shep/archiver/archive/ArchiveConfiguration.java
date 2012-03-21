@@ -39,7 +39,6 @@ public class ArchiveConfiguration {
 	    sharedInstanceRef = new SoftReference<ArchiveConfiguration>(
 		    sharedInstance);
 	}
-	System.err.println(sharedInstanceRef);
 	return sharedInstance;
     }
 
