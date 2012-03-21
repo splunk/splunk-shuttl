@@ -11,12 +11,15 @@ public class ArchiveConfigurationTest {
 
     ArchiveConfiguration configuration;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod
     public void setUp() {
-	configuration = new ArchiveConfiguration();
+	configuration = ArchiveConfiguration.getSharedInstance();
     }
 
-    @Test(groups = { "fast" })
+    public void getSharedInstance_gettingTheSharedInstance_notNull() {
+	assertNotNull(ArchiveConfiguration.getSharedInstance());
+    }
+
     public void getArchiveFormat_defaultState_isNotNull() {
 	assertNotNull(configuration.getArchiveFormat());
     }

@@ -1,11 +1,18 @@
 package com.splunk.shep.archiver.archive;
 
+import java.lang.ref.SoftReference;
 import java.net.URI;
 
 import org.apache.hadoop.fs.Path;
 
 // CONFIG This whole class should use MBeans
 public class ArchiveConfiguration {
+    
+    /**
+     * Soft link so the memory can be used if needed. (Soft links are
+     * GarbageCollected only if there is really need for the memory)
+     */
+    private static SoftReference<ArchiveConfiguration> sharedInstanceRef;
 
     private static final String ARCHIVING_ROOT = "archiving_root";
     private static final String CLUSTER_NAME = "cluster_name";
@@ -13,6 +20,28 @@ public class ArchiveConfiguration {
     private static final String TMP_DIRECTORY_OF_ARCHIVER = "/archiver-tmp";
     private static final URI archiverHadoopURI = URI
 	    .create("hdfs://localhost:9000");
+
+    protected ArchiveConfiguration() {
+	super();
+	/*
+	 * If the configuration of ArchiveConfiguration is time consuming maybe
+	 * the shared instance should be hardlinked.
+	 */
+    }
+
+    public static ArchiveConfiguration getSharedInstance() {
+	ArchiveConfiguration sharedInstance = null;
+	if (sharedInstanceRef != null) {
+	    sharedInstance = sharedInstanceRef.get();
+	}
+	if (sharedInstance == null) {
+	    sharedInstance = new ArchiveConfiguration();
+	    sharedInstanceRef = new SoftReference<ArchiveConfiguration>(
+		    sharedInstance);
+	}
+	System.err.println(sharedInstanceRef);
+	return sharedInstance;
+    }
 
     public BucketFormat getArchiveFormat() {
 	return BucketFormat.SPLUNK_BUCKET;
