@@ -111,8 +111,17 @@ public class UtilsBucket {
      * Creates test bucket with earliest and latest times in its name.
      */
     public static Bucket createBucketWithTimes(Date earliest, Date latest) {
+	return createBucketWithIndexAndTimeRange(randomIndexName(), earliest,
+		latest);
+    }
+
+    /**
+     * Creates test bucket with earliest and latest times in its name and index.
+     */
+    public static Bucket createBucketWithIndexAndTimeRange(String index,
+	    Date earliest, Date latest) {
 	String name = getNameWithEarliestAndLatestTime(earliest, latest);
-	return createTestBucketWithIndexAndName(randomIndexName(), name);
+	return createTestBucketWithIndexAndName(index, name);
     }
 
     private static String getNameWithEarliestAndLatestTime(Date earliest,
@@ -138,5 +147,4 @@ public class UtilsBucket {
     public static Bucket createBucketWithName(String name) {
 	return createTestBucketWithIndexAndName(randomIndexName(), name);
     }
-
 }

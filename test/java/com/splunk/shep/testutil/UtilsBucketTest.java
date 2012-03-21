@@ -136,4 +136,15 @@ public class UtilsBucketTest {
 	Bucket bucket = UtilsBucket.createBucketWithName(name);
 	assertEquals(name, bucket.getName());
     }
+
+    public void createBucketWithIndexAndTimeRange_givenParameters_bucketWithParameters() {
+	String index = "index";
+	Date earliest = new Date(12345678);
+	Date latest = new Date(earliest.getTime() + 100);
+	Bucket bucket = UtilsBucket.createBucketWithIndexAndTimeRange(index,
+		earliest, latest);
+	assertEquals(index, bucket.getIndex());
+	assertEquals(earliest, bucket.getEarliest());
+	assertEquals(latest, bucket.getLatest());
+    }
 }
