@@ -1,5 +1,6 @@
 package com.splunk.shep.archiver.archive;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ArchiveConfiguration {
@@ -30,6 +31,6 @@ public class ArchiveConfiguration {
      * highest priority, while .get(length-1) has the least priority.
      */
     public List<BucketFormat> getBucketFormatPriority() {
-	throw new UnsupportedOperationException();
+	return Arrays.asList(BucketFormat.SPLUNK_BUCKET);
     }
 }
