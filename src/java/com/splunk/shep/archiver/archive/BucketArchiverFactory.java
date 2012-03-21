@@ -58,9 +58,9 @@ public class BucketArchiverFactory {
 
     private static BucketArchiver createHadoopFileSystemArchiver(
 	    FileSystem hadoopFileSystem) {
-	ArchiveFileSystem archiveFileSystem = new HadoopFileSystemArchive(
-		hadoopFileSystem);
 	ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
+	ArchiveFileSystem archiveFileSystem = new HadoopFileSystemArchive(
+		hadoopFileSystem, config.getTmpDirectory());
 
 	return new BucketArchiver(config, new BucketExporter(),
 		getPathResolver(hadoopFileSystem, config),

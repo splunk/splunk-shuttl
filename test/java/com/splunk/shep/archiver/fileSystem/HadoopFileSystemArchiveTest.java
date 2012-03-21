@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.testng.annotations.AfterMethod;
@@ -32,17 +33,21 @@ public class HadoopFileSystemArchiveTest {
     private FileSystem fileSystem;
     private HadoopFileSystemArchive hadoopFileSystemArchive;
     private HadoopFileSystemPutter hadoopFileSystemPutter;
+    private Path tmpPath;
 
     @BeforeMethod
     public void beforeMethod() {
 	fileSystem = UtilsFileSystem.getLocalFileSystem();
-	hadoopFileSystemArchive = new HadoopFileSystemArchive(fileSystem);
+	tmpPath = new Path("/tmp/" + RandomUtils.nextInt() + "/");
+	hadoopFileSystemArchive = new HadoopFileSystemArchive(fileSystem,
+		tmpPath);
 	hadoopFileSystemPutter = HadoopFileSystemPutter.create(fileSystem);
     }
 
     @AfterMethod
-    public void afterMethod() {
+    public void afterMethod() throws IOException {
 	hadoopFileSystemPutter.deleteMyFiles();
+	fileSystem.delete(tmpPath, true);
     }
 
     @Test(groups = { "fast" })
@@ -198,6 +203,117 @@ public class HadoopFileSystemArchiveTest {
 	FileUtils.deleteDirectory(parent);
     }
 
+    public void putFileAtomically_validInput_fileShouldBePutToFilesSystem()
+	    throws IOException {
+	File testFile = UtilsFile.createTestFileWithRandomContent();
+	Path hadoopPath = UtilsPath.getSafeDirectory(fileSystem);
+	URI fileSystemPath = hadoopPath.toUri();
+
+	// Test
+	hadoopFileSystemArchive.putFileAtomically(testFile, fileSystemPath);
+
+	// Confirm
+	File retrivedFile = UtilsFileSystem.getFileFromFileSystem(fileSystem,
+		hadoopPath);
+	UtilsTestNG.assertFileContentsEqual(testFile, retrivedFile);
+
+    }
+
+    @Test(expectedExceptions = FileNotFoundException.class)
+    public void putFileAtomically_whenLocalFileDoNotExist_fileNotFoundException()
+	    throws IOException {
+	File testFile = UtilsFile.createTestFilePath();
+	Path hadoopPath = UtilsPath.getSafeDirectory(fileSystem);
+	URI fileSystemPath = hadoopPath.toUri();
+
+	// Test
+	hadoopFileSystemArchive.putFileAtomically(testFile, fileSystemPath);
+    }
+
+    @Test(expectedExceptions = FileOverwriteException.class)
+    public void putFileAtomically_whenRemoteFileExists_fileOverwriteException()
+	    throws IOException {
+	File fileThatWouldBeOwerwriten = UtilsFile
+		.createTestFileWithRandomContent();
+	hadoopFileSystemPutter.putFile(fileThatWouldBeOwerwriten);
+	Path hadoopPath = hadoopFileSystemPutter
+		.getPathForFile(fileThatWouldBeOwerwriten);
+	URI pathToRemoteFile = hadoopPath.toUri();
+	File testFile = UtilsFile.createTestFileWithRandomContent();
+
+	// Test
+	hadoopFileSystemArchive.putFileAtomically(testFile, pathToRemoteFile);
+    }
+
+    public void putFileAtomically_whenRemoteFileExists_remoteFileShouldNotBeOverwriten()
+	    throws IOException {
+	File fileThatWouldBeOwerwriten = UtilsFile
+		.createTestFileWithRandomContent();
+	hadoopFileSystemPutter.putFile(fileThatWouldBeOwerwriten);
+	Path hadoopPath = hadoopFileSystemPutter
+		.getPathForFile(fileThatWouldBeOwerwriten);
+	URI pathToRemoteFile = hadoopPath.toUri();
+	File testFile = UtilsFile.createTestFileWithRandomContent();
+
+	boolean didGetExeption = false;
+	try {
+	    // Test
+	    hadoopFileSystemArchive.putFileAtomically(testFile,
+		    pathToRemoteFile);
+	} catch (FileOverwriteException e) {
+	    didGetExeption = true;
+	}
+
+	// Make sure there was an exception
+	assertTrue(didGetExeption);
+
+
+	// Confirm
+	File fileAfterPut = UtilsFile.createTestFilePath();
+	hadoopFileSystemArchive.getFile(fileAfterPut, pathToRemoteFile);
+	UtilsTestNG.assertFileContentsEqual(
+		"Put shouln't have overwritten the file.",
+		fileThatWouldBeOwerwriten, fileAfterPut);
+
+    }
+
+    public void putFileAtomically_withDirectoryContainingAnotherDirectory_bothDirectoriesExistsInTheArchive()
+	    throws URISyntaxException, FileNotFoundException,
+	    FileOverwriteException, IOException {
+	File parent = UtilsFile.createTempDirectory();
+	String childFileName = "childDir";
+	UtilsFile.createDirectoryInParent(parent, childFileName);
+	Path parentPathOnHadoop = hadoopFileSystemPutter.getPathForFile(parent);
+	hadoopFileSystemArchive.putFileAtomically(parent,
+		parentPathOnHadoop.toUri());
+	assertTrue(fileSystem.exists(parentPathOnHadoop));
+	Path childPath = new Path(parentPathOnHadoop, childFileName);
+	assertTrue(fileSystem.exists(childPath));
+	FileUtils.deleteDirectory(parent);
+    }
+
+    public void putFileAtomically_withFileAllreadyInTmpFolder_theFilesinTmpFolderDoesNotAffectTheTrasfer()
+	    throws FileNotFoundException, FileOverwriteException, IOException {
+	File fileToTransfer = UtilsFile.createTestFileWithRandomContent();
+	File fileToPutOnTempThatShouldNotAffectTheTransfer = UtilsFile.createTestFileWithRandomContent();
+	hadoopFileSystemPutter
+		.putFile(fileToPutOnTempThatShouldNotAffectTheTransfer);
+	Path hadoopPath = UtilsPath.getSafeDirectory(fileSystem);
+	hadoopPath = new Path(hadoopPath, "fileName");
+	
+	URI fileSystemPath = hadoopPath.toUri();
+
+	// Test
+	hadoopFileSystemArchive.putFileAtomically(fileToTransfer,
+		fileSystemPath);
+
+	// Confirm
+	File retrivedFile = UtilsFileSystem.getFileFromFileSystem(fileSystem,
+		hadoopPath);
+	UtilsTestNG.assertFileContentsEqual(fileToTransfer, retrivedFile);
+
+    }
+
     public void listPath_listingAPathThatPointsToADirectory_aListThatContainsThePathsInsideSpecifiedDirectory()
 	    throws URISyntaxException, IOException {
 	File file1 = UtilsFile.createTestFileWithRandomContent();
@@ -258,5 +374,102 @@ public class HadoopFileSystemArchiveTest {
 
 	// Confirm
 	assertEquals(0, contents.size());
+    }
+
+    public void deletePathRecursivly_givenAFile_thePathShouldBeDeleted()
+	    throws IOException {
+	File testFile = UtilsFile.createTestFileWithRandomContent();
+	hadoopFileSystemPutter.putFile(testFile);
+	Path testFilePath = hadoopFileSystemPutter.getPathForFile(testFile);
+	
+	// Make sure setup was correct
+	assertTrue(fileSystem.exists(testFilePath));
+
+	// Test
+	hadoopFileSystemArchive.deletePathRecursivly(testFilePath);
+
+	// Verify
+	assertFalse(fileSystem.exists(testFilePath));
+    }
+
+    public void deletePathRecursivly_givenADirectory_thePathShouldBeDeleted()
+	    throws IOException {
+	File testDirectory = UtilsFile.createTempDirectory();
+	hadoopFileSystemPutter.putFile(testDirectory);
+	Path testFilePath = hadoopFileSystemPutter
+		.getPathForFile(testDirectory);
+
+	// Make sure setup was correct
+	assertTrue(fileSystem.exists(testFilePath));
+
+	// Test
+	hadoopFileSystemArchive.deletePathRecursivly(testFilePath);
+
+	// Verify
+	assertFalse(fileSystem.exists(testFilePath));
+    }
+
+    public void deletePathRecursivly_givenADirectoryWithFilesInIt_thePathShouldBeDeleted()
+	    throws IOException {
+	File testDirectory = UtilsFile.createTempDirectory();
+	File testFile = UtilsFile.createFileInParent(testDirectory, "STUFF");
+	UtilsFile.populateFileWithRandomContent(testFile);
+	hadoopFileSystemPutter.putFile(testDirectory);
+	Path testFilePath = hadoopFileSystemPutter.getPathForFile(testDirectory);
+
+	// Make sure setup was correct
+	assertTrue(fileSystem.exists(testFilePath));
+	assertTrue(fileSystem.exists(testFilePath.suffix("/STUFF")));
+
+	// Test
+	hadoopFileSystemArchive.deletePathRecursivly(testFilePath);
+
+	// Verify
+	assertFalse(fileSystem.exists(testFilePath));
+	assertFalse(fileSystem.exists(testFilePath.suffix("STUFF")));
+
+    }
+    
+    public void putFileToTmpDirectoryAppendingPath_existingFile_fileIsCopiedToTheTmpDirectory()
+	    throws IOException {
+	File testFile = UtilsFile.createTestFileWithRandomContent();
+	Path testFilePath = new Path("/just/a/random/path");
+	Path whereTestFileShouldGo = new Path(tmpPath.toUri().getPath()
+		+ testFilePath.toUri().getPath());
+
+	// Make sure setup was correct
+	assertFalse(fileSystem.exists(whereTestFileShouldGo));
+	assertFalse(fileSystem.exists(testFilePath));
+
+	// Test
+	Path pathWhereTestFilePut = hadoopFileSystemArchive
+		.putFileToTmpDirectoryOverwirtingOldFilesAppendingPath(testFile,
+		testFilePath.toUri());
+
+	// Verify
+	assertEquals(whereTestFileShouldGo, pathWhereTestFilePut);
+	assertTrue(fileSystem.exists(whereTestFileShouldGo));
+	assertFalse(fileSystem.exists(testFilePath));
+    }
+
+    public void move_existingFileOnHadoop_fileIsMoved() throws IOException {
+	File testFile = UtilsFile.createTestFileWithRandomContent();
+	hadoopFileSystemPutter.putFile(testFile);
+	Path testFilePath = hadoopFileSystemPutter.getPathForFile(testFile);
+	Path testFilePathAfterMoving = new Path(tmpPath.toUri().getPath()
+		+ testFilePath.toUri().getPath());
+	
+	// Make sure setup was correct
+	assertTrue(fileSystem.exists(testFilePath));
+	assertFalse(fileSystem.exists(testFilePathAfterMoving));
+
+	
+	// Test
+	hadoopFileSystemArchive.move(testFilePath, testFilePathAfterMoving);
+	
+	// Verify
+	assertFalse(fileSystem.exists(testFilePath));
+	assertTrue(fileSystem.exists(testFilePathAfterMoving));
+
     }
 }

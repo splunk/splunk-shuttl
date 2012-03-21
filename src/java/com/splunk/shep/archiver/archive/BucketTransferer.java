@@ -18,7 +18,7 @@ public class BucketTransferer {
 
     public void transferBucketToArchive(Bucket bucket, URI path) {
 	try {
-	    archiveFileSystem.putFile(bucket.getDirectory(), path);
+	    archiveFileSystem.putFileAtomically(bucket.getDirectory(), path);
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();
 	    throw new RuntimeException(e);

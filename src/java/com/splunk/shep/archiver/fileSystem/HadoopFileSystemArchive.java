@@ -9,11 +9,15 @@ import java.util.List;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import com.splunk.shep.archiver.util.UtilsPath;
+
 public class HadoopFileSystemArchive implements ArchiveFileSystem {
 
+    private final Path atomicPutTmpPath;
     private final FileSystem hadoopFileSystem;
 
-    public HadoopFileSystemArchive(FileSystem hadoopFileSystem) {
+    public HadoopFileSystemArchive(FileSystem hadoopFileSystem, Path path) {
+	atomicPutTmpPath = path;
 	this.hadoopFileSystem = hadoopFileSystem;
     }
 
@@ -25,6 +29,66 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 	throwExceptionIfRemotePathAlreadyExist(hadoopPath);
 	Path localPath = createPathFromFile(fileOnLocalFileSystem);
 	hadoopFileSystem.copyFromLocalFile(localPath, hadoopPath);
+    }
+
+    @Override
+    public void putFileAtomically(File fileOnLocalFileSystem,
+	    URI fileOnArchiveFileSystem) throws FileNotFoundException,
+	    FileOverwriteException, IOException {
+	Path hadoopPath = createPathFromURI(fileOnArchiveFileSystem);
+	throwExceptionIfRemotePathAlreadyExist(hadoopPath);
+	Path tmpLocation = putFileToTmpDirectoryOverwirtingOldFilesAppendingPath(
+		fileOnLocalFileSystem,
+		fileOnArchiveFileSystem);
+	move(tmpLocation, hadoopPath);
+    }
+
+    /**
+     * Do NOT call nor override this method outside this class.It's meant to be
+     * private but is package private for testing purposes. If you want to
+     * expose this method make it public or protected!
+     */
+    /* package private */void deletePathRecursivly(Path fileOnArchiveFileSystem)
+	    throws IOException {
+	hadoopFileSystem.delete(fileOnArchiveFileSystem, true);
+    }
+
+    /**
+     * Do NOT call nor override this method outside this class.It's meant to be
+     * private but is package private for testing purposes. If you want to
+     * expose this method make it public or protected!
+     */
+    /* package private */void move(Path src, Path dst) throws IOException {
+	hadoopFileSystem.mkdirs(dst.getParent());
+	hadoopFileSystem.rename(src, dst);
+
+    }
+
+    /**
+     * Do NOT call nor override this method outside this class.It's meant to be
+     * private but is package private for testing purposes. If you want to
+     * expose this method make it public or protected!
+     * 
+     * The specified file will be copied from local file system in to the tmp
+     * directory on hadoop. The tmp directory will be the base and the full path
+     * of the file on hadoop will contains the specified URI.
+     */
+    /* package private */Path putFileToTmpDirectoryOverwirtingOldFilesAppendingPath(
+	    File fileOnLocalFileSystem, URI appendPathToTmpDirectory)
+	    throws FileNotFoundException, IOException {
+
+	Path hadoopPath = UtilsPath.createPathByAppending(atomicPutTmpPath,
+		createPathFromURI(appendPathToTmpDirectory));
+	deletePathRecursivly(hadoopPath);
+	try {
+	    putFile(fileOnLocalFileSystem, hadoopPath.toUri());
+
+	} catch (FileOverwriteException e) {
+	    throw new IOException(
+		    "The old tmp path was not deleted this shouldn't happen!",
+		    e);
+	}
+	return hadoopPath;
     }
 
     @Override
