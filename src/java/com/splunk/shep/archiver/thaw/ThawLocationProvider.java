@@ -16,7 +16,6 @@ package com.splunk.shep.archiver.thaw;
 
 import java.io.File;
 
-import com.splunk.shep.archiver.archive.SplunkSettings;
 import com.splunk.shep.archiver.model.Bucket;
 
 /**
