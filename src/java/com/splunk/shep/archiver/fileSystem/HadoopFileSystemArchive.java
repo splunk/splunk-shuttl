@@ -11,7 +11,7 @@ import org.apache.hadoop.fs.Path;
 
 public class HadoopFileSystemArchive implements ArchiveFileSystem {
 
-    private FileSystem hadoopFileSystem;
+    private final FileSystem hadoopFileSystem;
 
     public HadoopFileSystemArchive(FileSystem hadoopFileSystem) {
 	this.hadoopFileSystem = hadoopFileSystem;
