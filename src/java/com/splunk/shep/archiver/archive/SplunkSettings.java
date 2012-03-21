@@ -14,12 +14,18 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import org.testng.annotations.Test;
+import java.io.File;
 
-@Test(groups = { "fast" })
-public class BucketTransferThawTest {
+/**
+ * Gets settings from the configured Splunk.
+ */
+public class SplunkSettings {
 
-    // @Test(groups = { "fast" })
-    // public void transferBucketToThaw {
-    // }
+    /**
+     * @return thaw location for specified index.
+     */
+    public File getThawLocation(String index) {
+	throw new UnsupportedOperationException();
+    }
+
 }

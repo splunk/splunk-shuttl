@@ -17,7 +17,6 @@ package com.splunk.shep.archiver.thaw;
 import java.util.Date;
 import java.util.List;
 
-import com.splunk.shep.archiver.archive.BucketTransferer;
 import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shep.archiver.model.Bucket;
 
@@ -30,7 +29,7 @@ public class BucketThawer {
     private final ArchiveBucketsLister archiveBucketsLister;
     private final BucketFilter bucketFilter;
     private final BucketFormatResolver bucketFormatResolver;
-    private final BucketTransferer bucketTransferer;
+    private final ThawBucketTransferer thawBucketTransferer;
 
     /**
      * @param bucketsLister
@@ -40,17 +39,17 @@ public class BucketThawer {
      *            thawing needs.
      * @param bucketFormatResolver
      *            to resolve the format to thaw for the bucket.
-     * @param bucketTransferer
+     * @param thawBucketTransferer
      *            for transferring the buckets to thawed.
      */
     public BucketThawer(ArchiveBucketsLister bucketsLister,
 	    BucketFilter bucketFilter,
 	    BucketFormatResolver bucketFormatResolver,
-	    BucketTransferer bucketTransferer) {
+	    ThawBucketTransferer thawBucketTransferer) {
 	this.archiveBucketsLister = bucketsLister;
 	this.bucketFilter = bucketFilter;
 	this.bucketFormatResolver = bucketFormatResolver;
-	this.bucketTransferer = bucketTransferer;
+	this.thawBucketTransferer = thawBucketTransferer;
     }
 
     /**
@@ -64,7 +63,7 @@ public class BucketThawer {
 	List<Bucket> bucketsWithFormats = bucketFormatResolver
 		.resolveBucketsFormats(filteredBuckets);
 	for (Bucket bucket : bucketsWithFormats) {
-	    bucketTransferer.transferBucketToThaw(bucket);
+	    thawBucketTransferer.transferBucketToThaw(bucket);
 	}
     }
 }
