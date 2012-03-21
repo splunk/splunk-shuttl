@@ -98,7 +98,25 @@ public class PathResolver {
     /**
      * @return {@link URI} to where formats can be listed for a bucket.
      */
-    public URI resolveFormatsHomeForBucket(Bucket bucket) {
+    public URI resolveFormatsHomeForIndexAndBucketName(String index,
+	    String bucketName) {
 	throw new UnsupportedOperationException();
     }
+
+    /**
+     * {@link URI} to an archived bucket.
+     * 
+     * @param index
+     *            to the bucket
+     * @param name
+     *            of the bucket
+     * @param format
+     *            of the bucket
+     * @return {@link URI} to archived bucket.
+     */
+    public URI resolveArchivedBucketPath(String index, String name,
+	    BucketFormat format) {
+	throw new UnsupportedOperationException();
+    }
+
 }

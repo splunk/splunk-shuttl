@@ -72,12 +72,17 @@ public class BucketFormatResolver {
 	List<BucketFormat> availableFormats = getAvailableFormatsForBucket(bucket);
 	BucketFormat chosenFormat = bucketFormatChooser
 		.chooseBucketFormat(availableFormats);
-	return createBucketWithErrorHandling(bucket, chosenFormat);
+	URI uriToBucketWithChosenBucket = pathResolver
+		.resolveArchivedBucketPath(bucket.getIndex(),
+			bucket.getName(), chosenFormat);
+	return createBucketWithErrorHandling(bucket, chosenFormat,
+		uriToBucketWithChosenBucket);
     }
 
     private List<BucketFormat> getAvailableFormatsForBucket(Bucket bucket) {
 	URI formatsHomeForBucket = pathResolver
-		.resolveFormatsHomeForBucket(bucket);
+		.resolveFormatsHomeForIndexAndBucketName(bucket.getIndex(),
+			bucket.getName());
 	List<URI> archivedFormats = listArchivedFormatsWithErrorHandling(
 		formatsHomeForBucket, bucket);
 	return getBucketFormats(archivedFormats);
@@ -106,9 +111,9 @@ public class BucketFormatResolver {
     }
 
     private Bucket createBucketWithErrorHandling(Bucket bucket,
-	    BucketFormat chosenFormat) {
+	    BucketFormat chosenFormat, URI uriToBucketWithChosenBucket) {
 	try {
-	    return new Bucket(bucket.getURI(), bucket.getIndex(),
+	    return new Bucket(uriToBucketWithChosenBucket, bucket.getIndex(),
 		    bucket.getName(), chosenFormat);
 	} catch (IOException e) {
 	    did("Created bucket with format",

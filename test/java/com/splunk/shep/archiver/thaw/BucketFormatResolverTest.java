@@ -55,7 +55,8 @@ public class BucketFormatResolverTest {
 
     private Bucket createBucketWithMockedURI() {
 	Bucket bucketWithMockedURI = mock(Bucket.class);
-	when(bucketWithMockedURI.getURI()).thenReturn(URI.create("valid:/uri"));
+	URI uri = URI.create("valid:/uri");
+	when(bucketWithMockedURI.getURI()).thenReturn(uri);
 	return bucketWithMockedURI;
     }
 
@@ -63,14 +64,16 @@ public class BucketFormatResolverTest {
     public void resolveBucketsFormats_givenValidBucket_askPathResolverForFormatsHomes() {
 	Bucket bucket = createBucketWithMockedURI();
 	bucketFormatResolver.resolveBucketsFormats(Arrays.asList(bucket));
-	verify(pathResolver).resolveFormatsHomeForBucket(bucket);
+	verify(pathResolver).resolveFormatsHomeForIndexAndBucketName(
+		anyString(), anyString());
     }
 
     public void resolveBucketsFormats_givenFormatsHomeForBucket_listFormatsHomeInArchiveFileSystem()
 	    throws IOException {
 	URI formatsHome = URI.create("valid:/uri");
-	when(pathResolver.resolveFormatsHomeForBucket(any(Bucket.class)))
-		.thenReturn(formatsHome);
+	when(
+		pathResolver.resolveFormatsHomeForIndexAndBucketName(
+			anyString(), anyString())).thenReturn(formatsHome);
 	bucketFormatResolver.resolveBucketsFormats(mockedBucketsList);
 	verify(archiveFileSystem).listPath(formatsHome);
     }
@@ -86,7 +89,20 @@ public class BucketFormatResolverTest {
     }
 
     @SuppressWarnings("unchecked")
-    public void resolveBucketsFormats_givenBucketToResolveForAndChosenFormat_listOfBucketWithFormatIndexAndName() {
+    public void resolveBucketsFormats_givenChosenFormat_resolvingUriForBucketWithFormat() {
+	Bucket bucket = UtilsBucket.createTestBucket();
+	BucketFormat format = BucketFormat.SPLUNK_BUCKET;
+	when(bucketFormatChooser.chooseBucketFormat(anyList())).thenReturn(
+		format);
+
+	bucketFormatResolver.resolveBucketsFormats(Arrays.asList(bucket));
+
+	verify(pathResolver).resolveArchivedBucketPath(
+		bucket.getIndex(), bucket.getName(), format);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void resolveBucketsFormats_givenBucketToResolveForAndChosenFormat_bucketWithFormatIndexAndName() {
 	Bucket bucket = UtilsBucket.createTestBucket();
 	BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 	when(bucketFormatChooser.chooseBucketFormat(anyList())).thenReturn(
@@ -99,5 +115,18 @@ public class BucketFormatResolverTest {
 	assertEquals(format, bucketsWithFormat.get(0).getFormat());
 	assertEquals(bucket.getIndex(), bucketsWithFormat.get(0).getIndex());
 	assertEquals(bucket.getName(), bucketsWithFormat.get(0).getName());
+    }
+
+    public void resolveBucketsFormats_givenUriToBucketWithResolvedFormat_bucketWithUri() {
+	URI uri = URI.create("valid:/uri/to/bucket/with/new/format");
+	when(
+		pathResolver.resolveArchivedBucketPath(
+			anyString(), anyString(), any(BucketFormat.class)))
+		.thenReturn(uri);
+
+	List<Bucket> bucketsWithFormat = bucketFormatResolver
+		.resolveBucketsFormats(mockedBucketsList);
+	assertEquals(1, bucketsWithFormat.size());
+	assertEquals(uri, bucketsWithFormat.get(0).getURI());
     }
 }
