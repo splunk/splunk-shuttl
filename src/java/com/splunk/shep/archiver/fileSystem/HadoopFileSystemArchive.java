@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
@@ -104,7 +106,12 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
     @Override
     public List<URI> listPath(URI pathToBeListed) throws IOException {
 	Path hadoopPath = createPathFromURI(pathToBeListed);
-	return new FileStatusBackedList(hadoopFileSystem.listStatus(hadoopPath));
+	FileStatus[] fileStatusOfPath = hadoopFileSystem.listStatus(hadoopPath);
+	if (fileStatusOfPath != null) {
+	    return new FileStatusBackedList(fileStatusOfPath);
+	} else {
+	    return Collections.emptyList();
+	}
     }
 
     private Path createPathFromURI(URI uri) {
