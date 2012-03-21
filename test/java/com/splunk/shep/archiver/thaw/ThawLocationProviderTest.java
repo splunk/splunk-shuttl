@@ -40,6 +40,10 @@ public class ThawLocationProviderTest {
 	splunkSettings = mock(SplunkSettings.class);
 	thawLocationProvider = new ThawLocationProvider(splunkSettings);
 
+	stubSplunkSettingsToReturnThawLocation();
+    }
+
+    private void stubSplunkSettingsToReturnThawLocation() {
 	thawLocation = createTestFilePath();
 	when(splunkSettings.getThawLocation(bucket.getIndex())).thenReturn(
 		thawLocation);
