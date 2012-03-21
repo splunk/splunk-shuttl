@@ -81,7 +81,7 @@ public class Bucket {
     }
 
     private static File getFileFromUri(URI uri) {
-	if (uri.getScheme().equals("file")) {
+	if (uri != null && "file".equals(uri.getScheme())) {
 	    return new File(uri);
 	}
 	return null;
@@ -89,8 +89,8 @@ public class Bucket {
 
     private void verifyExistingDirectory(File directory)
 	    throws FileNotFoundException, FileNotDirectoryException {
-	if (isRemote())
-	    return;
+	if (!isUriSet() || isRemote())
+	    return; // Stop verifying.
 	if (!directory.exists()) {
 	    throw new FileNotFoundException("Could not find directory: "
 		    + directory);
@@ -98,6 +98,10 @@ public class Bucket {
 	    throw new FileNotDirectoryException("Directory " + directory
 		    + " is not a directory");
 	}
+    }
+
+    private boolean isUriSet() {
+	return uri != null;
     }
 
     /**
