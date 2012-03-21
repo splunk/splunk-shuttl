@@ -163,17 +163,19 @@ public class HadoopFileSystemArchiveTest {
 	Path hadoopPath = hadoopFileSystemPutter
 		.getPathForFile(fileThatWouldBeOwerwriten);
 	URI pathToRemoteFile = hadoopPath.toUri();
-
 	File testFile = UtilsFile.createTestFileWithRandomContent();
 
+	boolean didGetExeption = false;
 	try {
 	    // Test
 	    hadoopFileSystemArchive.putFile(testFile, pathToRemoteFile);
 	} catch (FileOverwriteException e) {
-	    // Intentionally ignoring.
+	    didGetExeption = true;
 	}
 
+
 	// Confirm
+	assertTrue(didGetExeption);
 	File fileAfterPut = UtilsFile.createTestFilePath();
 	hadoopFileSystemArchive.getFile(fileAfterPut, pathToRemoteFile);
 	UtilsTestNG.assertFileContentsEqual(
