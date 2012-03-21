@@ -21,7 +21,6 @@ import static org.testng.AssertJUnit.*;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
@@ -83,15 +82,14 @@ public class BucketFormatResolverTest {
 	when(archiveFileSystem.listPath(any(URI.class))).thenReturn(
 		Arrays.asList(formatURI));
 	bucketFormatResolver.resolveBucketsFormats(mockedBucketsList);
-	verify(bucketFormatChooser).chooseBucketFormat(
-		new HashSet<BucketFormat>(Arrays.asList(format)));
+	verify(bucketFormatChooser).chooseBucketFormat(Arrays.asList(format));
     }
 
     @SuppressWarnings("unchecked")
     public void resolveBucketsFormats_givenBucketToResolveForAndChosenFormat_listOfBucketWithFormatIndexAndName() {
 	Bucket bucket = UtilsBucket.createTestBucket();
 	BucketFormat format = BucketFormat.SPLUNK_BUCKET;
-	when(bucketFormatChooser.chooseBucketFormat(anySet())).thenReturn(
+	when(bucketFormatChooser.chooseBucketFormat(anyList())).thenReturn(
 		format);
 	List<Bucket> bucketsWithFormat = bucketFormatResolver
 		.resolveBucketsFormats(Arrays.asList(bucket));

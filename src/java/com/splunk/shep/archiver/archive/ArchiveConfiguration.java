@@ -1,5 +1,7 @@
 package com.splunk.shep.archiver.archive;
 
+import java.util.List;
+
 public class ArchiveConfiguration {
 
     private static final String ARCHIVING_ROOT = "archiving_root";
@@ -20,5 +22,14 @@ public class ArchiveConfiguration {
 
     public String getServerName() {
 	return SERVER_NAME;
+    }
+
+    /**
+     * List of bucket formats, where lower index means it has higher priority. <br/>
+     * {@link ArchiveConfiguration#getBucketFormatPriority()}.get(0) has the
+     * highest priority, while .get(length-1) has the least priority.
+     */
+    public List<BucketFormat> getBucketFormatPriority() {
+	throw new UnsupportedOperationException();
     }
 }

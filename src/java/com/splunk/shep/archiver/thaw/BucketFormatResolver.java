@@ -19,9 +19,7 @@ import static com.splunk.shep.archiver.ArchiverLogger.*;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.archiver.archive.PathResolver;
@@ -73,7 +71,7 @@ public class BucketFormatResolver {
 		.resolveFormatsHomeForBucket(bucket);
 	List<URI> formatUris = getFormatUrisWithErrorHandling(
 		formatsHomeForBucket, bucket);
-	Set<BucketFormat> availableFormats = getBucketFormats(formatUris);
+	List<BucketFormat> availableFormats = getBucketFormats(formatUris);
 	BucketFormat chosenFormat = bucketFormatChooser
 		.chooseBucketFormat(availableFormats);
 	return createBucketWithErrorHandling(bucket, chosenFormat);
@@ -94,8 +92,8 @@ public class BucketFormatResolver {
 	}
     }
 
-    private Set<BucketFormat> getBucketFormats(List<URI> formatUris) {
-	Set<BucketFormat> formats = new HashSet<BucketFormat>();
+    private List<BucketFormat> getBucketFormats(List<URI> formatUris) {
+	List<BucketFormat> formats = new ArrayList<BucketFormat>();
 	for (URI uri : formatUris) {
 	    String formatName = UtilsURI
 		    .getFileNameWithTrimmedEndingFileSeparator(uri);
