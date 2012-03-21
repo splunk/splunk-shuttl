@@ -64,7 +64,7 @@ public class BucketFormatResolverTest {
     public void resolveBucketsFormats_givenValidBucket_askPathResolverForFormatsHomes() {
 	Bucket bucket = createBucketWithMockedURI();
 	bucketFormatResolver.resolveBucketsFormats(Arrays.asList(bucket));
-	verify(pathResolver).resolveFormatsHomeForIndexAndBucketName(
+	verify(pathResolver).getFormatsHome(
 		anyString(), anyString());
     }
 
@@ -72,7 +72,7 @@ public class BucketFormatResolverTest {
 	    throws IOException {
 	URI formatsHome = URI.create("valid:/uri");
 	when(
-		pathResolver.resolveFormatsHomeForIndexAndBucketName(
+		pathResolver.getFormatsHome(
 			anyString(), anyString())).thenReturn(formatsHome);
 	bucketFormatResolver.resolveBucketsFormats(mockedBucketsList);
 	verify(archiveFileSystem).listPath(formatsHome);
@@ -97,7 +97,7 @@ public class BucketFormatResolverTest {
 
 	bucketFormatResolver.resolveBucketsFormats(Arrays.asList(bucket));
 
-	verify(pathResolver).resolveArchivedBucketPath(
+	verify(pathResolver).resolveArchivedBucketURI(
 		bucket.getIndex(), bucket.getName(), format);
     }
 
@@ -120,7 +120,7 @@ public class BucketFormatResolverTest {
     public void resolveBucketsFormats_givenUriToBucketWithResolvedFormat_bucketWithUri() {
 	URI uri = URI.create("valid:/uri/to/bucket/with/new/format");
 	when(
-		pathResolver.resolveArchivedBucketPath(
+		pathResolver.resolveArchivedBucketURI(
 			anyString(), anyString(), any(BucketFormat.class)))
 		.thenReturn(uri);
 

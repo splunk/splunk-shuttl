@@ -73,7 +73,7 @@ public class BucketFormatResolver {
 	BucketFormat chosenFormat = bucketFormatChooser
 		.chooseBucketFormat(availableFormats);
 	URI uriToBucketWithChosenBucket = pathResolver
-		.resolveArchivedBucketPath(bucket.getIndex(),
+		.resolveArchivedBucketURI(bucket.getIndex(),
 			bucket.getName(), chosenFormat);
 	return createBucketWithErrorHandling(bucket, chosenFormat,
 		uriToBucketWithChosenBucket);
@@ -81,7 +81,7 @@ public class BucketFormatResolver {
 
     private List<BucketFormat> getAvailableFormatsForBucket(Bucket bucket) {
 	URI formatsHomeForBucket = pathResolver
-		.resolveFormatsHomeForIndexAndBucketName(bucket.getIndex(),
+		.getFormatsHome(bucket.getIndex(),
 			bucket.getName());
 	List<URI> archivedFormats = listArchivedFormatsWithErrorHandling(
 		formatsHomeForBucket, bucket);

@@ -14,6 +14,8 @@ import com.splunk.shep.archiver.util.UtilsURI;
  */
 public class PathResolver {
 
+    public static final char SEPARATOR = '/';
+
     private final ArchiveConfiguration configuration;
     private final WritableFileSystem writableFileSystem;
 
@@ -41,8 +43,8 @@ public class PathResolver {
      */
     public URI resolveArchivePath(Bucket bucket) {
 	URI writableUri = writableFileSystem.getWritableUri();
-	String archivePathForBucket = getArchivingPath() + "/"
-		+ bucket.getIndex() + "/" + bucket.getName() + "/"
+	String archivePathForBucket = getArchivingPath() + SEPARATOR
+		+ bucket.getIndex() + SEPARATOR + bucket.getName() + SEPARATOR
 		+ bucket.getFormat();
 	return URI.create(writableUri + archivePathForBucket);
     }
@@ -54,8 +56,8 @@ public class PathResolver {
      * @return Archiving path that starts with "/"
      */
     private String getArchivingPath() {
-	return "/" + configuration.getArchivingRoot() + "/"
-		+ configuration.getClusterName() + "/"
+	return SEPARATOR + configuration.getArchivingRoot() + SEPARATOR
+		+ configuration.getClusterName() + SEPARATOR
 		+ configuration.getServerName();
     }
 
@@ -73,7 +75,7 @@ public class PathResolver {
      *         {@link ArchiveFileSystem} you can list buckets.
      */
     public URI getBucketsHome(String index) {
-	return URI.create(getIndexesHome() + "/" + index);
+	return URI.create(getIndexesHome().toString() + SEPARATOR + index);
     }
 
     /**
@@ -98,9 +100,9 @@ public class PathResolver {
     /**
      * @return {@link URI} to where formats can be listed for a bucket.
      */
-    public URI resolveFormatsHomeForIndexAndBucketName(String index,
-	    String bucketName) {
-	throw new UnsupportedOperationException();
+    public URI getFormatsHome(String index, String bucketName) {
+	return URI.create(getBucketsHome(index).toString() + SEPARATOR
+		+ bucketName);
     }
 
     /**
@@ -108,15 +110,16 @@ public class PathResolver {
      * 
      * @param index
      *            to the bucket
-     * @param name
+     * @param bucketName
      *            of the bucket
      * @param format
      *            of the bucket
      * @return {@link URI} to archived bucket.
      */
-    public URI resolveArchivedBucketPath(String index, String name,
+    public URI resolveArchivedBucketURI(String index, String bucketName,
 	    BucketFormat format) {
-	throw new UnsupportedOperationException();
+	return URI.create(getFormatsHome(index, bucketName).toString()
+		+ SEPARATOR + format);
     }
 
 }

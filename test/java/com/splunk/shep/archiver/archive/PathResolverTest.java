@@ -113,6 +113,26 @@ public class PathResolverTest {
 		pathResolver.resolveIndexFromUriToBucket(bucketURI));
     }
 
+    public void getFormatsHome_givenIndexAndBucketName_uriEqualsBucketsHomePlusBucketName() {
+	String index = "index";
+	String bucketName = "bucketName";
+	URI expectedFormatsHome = URI.create(pathResolver.getBucketsHome(index)
+		.toString() + "/" + bucketName);
+	URI actualFormatsHome = pathResolver.getFormatsHome(index, bucketName);
+	assertEquals(expectedFormatsHome, actualFormatsHome);
+    }
+
+    public void resolveArchivedBucketURI_givenIndexBucketNameAndFormat_uriEqualsFormatsHomePlusFormat() {
+	String index = "index";
+	String bucketName = "bucketName";
+	BucketFormat format = BucketFormat.UNKNOWN;
+	URI expectedBucketUri = URI.create(pathResolver.getFormatsHome(index,
+		bucketName) + "/" + format);
+	URI actualBucketUri = pathResolver.resolveArchivedBucketURI(index,
+		bucketName, format);
+	assertEquals(expectedBucketUri, actualBucketUri);
+    }
+
     private String getArchivePathUpToBucket() {
 	return getArchivePathUpToIndex() + "/" + bucketName;
     }
