@@ -19,6 +19,7 @@ import static com.splunk.shep.archiver.ArchiverLogger.*;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.splunk.shep.archiver.archive.BucketFormat;
@@ -28,8 +29,9 @@ import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.util.UtilsURI;
 
 /**
- * Resolves the format of a {@link Bucket} that is stored on a
- * {@link ArchiveFileSystem}.
+ * Uses {@link ArchiveFileSystem} and {@link PathResolver} to list available
+ * bucket formats. Then it uses {@link BucketFormatChooser} to choose a format
+ * of the available ones.
  */
 public class BucketFormatResolver {
 
@@ -67,14 +69,40 @@ public class BucketFormatResolver {
     }
 
     private Bucket getBucketWithResolvedFormat(Bucket bucket) {
-	URI formatsHomeForBucket = pathResolver
-		.resolveFormatsHomeForBucket(bucket);
-	List<URI> formatUris = getFormatUrisWithErrorHandling(
-		formatsHomeForBucket, bucket);
-	List<BucketFormat> availableFormats = getBucketFormats(formatUris);
+	List<BucketFormat> availableFormats = getAvailableFormatsForBucket(bucket);
 	BucketFormat chosenFormat = bucketFormatChooser
 		.chooseBucketFormat(availableFormats);
 	return createBucketWithErrorHandling(bucket, chosenFormat);
+    }
+
+    private List<BucketFormat> getAvailableFormatsForBucket(Bucket bucket) {
+	URI formatsHomeForBucket = pathResolver
+		.resolveFormatsHomeForBucket(bucket);
+	List<URI> archivedFormats = listArchivedFormatsWithErrorHandling(
+		formatsHomeForBucket, bucket);
+	return getBucketFormats(archivedFormats);
+    }
+
+    private List<URI> listArchivedFormatsWithErrorHandling(
+	    URI formatsHomeForBucket, Bucket bucket) {
+	try {
+	    return archiveFileSystem.listPath(formatsHomeForBucket);
+	} catch (IOException e) {
+	    warn("Listed formats home for a bucket", e,
+		    "Will not list any formats for bucket", "formats_home",
+		    formatsHomeForBucket, "bucket", bucket, "exception", e);
+	    return Collections.emptyList();
+	}
+    }
+
+    private List<BucketFormat> getBucketFormats(List<URI> formatUris) {
+	List<BucketFormat> formats = new ArrayList<BucketFormat>();
+	for (URI uri : formatUris) {
+	    String formatName = UtilsURI
+		    .getFileNameWithTrimmedEndingFileSeparator(uri);
+	    formats.add(BucketFormat.valueOf(formatName));
+	}
+	return formats;
     }
 
     private Bucket createBucketWithErrorHandling(Bucket bucket,
@@ -92,25 +120,4 @@ public class BucketFormatResolver {
 	}
     }
 
-    private List<BucketFormat> getBucketFormats(List<URI> formatUris) {
-	List<BucketFormat> formats = new ArrayList<BucketFormat>();
-	for (URI uri : formatUris) {
-	    String formatName = UtilsURI
-		    .getFileNameWithTrimmedEndingFileSeparator(uri);
-	    formats.add(BucketFormat.valueOf(formatName));
-	}
-	return formats;
-    }
-
-    private List<URI> getFormatUrisWithErrorHandling(URI formatsHomeForBucket,
-	    Bucket bucket) {
-	try {
-	    return archiveFileSystem.listPath(formatsHomeForBucket);
-	} catch (IOException e) {
-	    warn("Listed formats home for a bucket", e,
-		    "Will not list any formats for bucket", "formats_home",
-		    formatsHomeForBucket, "bucket", bucket, "exception", e);
-	    return new ArrayList<URI>(0);
-	}
-    }
 }
