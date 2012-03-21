@@ -14,15 +14,49 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
+import static com.splunk.shep.testutil.UtilsFile.*;
+import static org.mockito.Mockito.*;
+import static org.testng.Assert.*;
+
+import java.io.File;
+
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.splunk.shep.archiver.archive.SplunkSettings;
+import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.testutil.UtilsBucket;
 
 @Test(groups = { "fast" })
 public class ThawLocationProviderTest {
 
-    @Test(groups = { "fast" })
-    public void transferBucketToThaw_givenBucket_getThawLocation() {
-	// verify(splunkSettings).getThawLocation(bucket.getIndex());
-	// assertTrue(false);
+    ThawLocationProvider thawLocationProvider;
+    SplunkSettings splunkSettings;
+    Bucket bucket;
+    File thawLocation;
+
+    @BeforeMethod
+    public void setUp() {
+	bucket = UtilsBucket.createTestBucket();
+	splunkSettings = mock(SplunkSettings.class);
+	thawLocationProvider = new ThawLocationProvider(splunkSettings);
+
+	thawLocation = createTestFilePath();
+	when(splunkSettings.getThawLocation(bucket.getIndex())).thenReturn(
+		thawLocation);
     }
 
+    @Test(groups = { "fast" })
+    public void getLocationInThawForBucket_givenThawLocation_returnedBucketDirectorysParentIsThawLocation() {
+	File locationInThawDirectory = thawLocationProvider
+		.getLocationInThawForBucket(bucket);
+	assertEquals(thawLocation.getAbsolutePath(), locationInThawDirectory
+		.getParentFile().getAbsolutePath());
+    }
+
+    public void getLocationInThawForBucket_givenThawLocation_directoryHasNameOfBucket() {
+	File bucketsLocation = thawLocationProvider
+		.getLocationInThawForBucket(bucket);
+	assertEquals(bucket.getName(), bucketsLocation.getName());
+    }
 }

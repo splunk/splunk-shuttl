@@ -16,6 +16,7 @@ package com.splunk.shep.archiver.thaw;
 
 import java.io.File;
 
+import com.splunk.shep.archiver.archive.SplunkSettings;
 import com.splunk.shep.archiver.model.Bucket;
 
 /**
@@ -23,12 +24,23 @@ import com.splunk.shep.archiver.model.Bucket;
  */
 public class ThawLocationProvider {
 
+    private final SplunkSettings splunkSettings;
+
+    /**
+     * @param splunkSettings
+     *            for looking up the thaw directory.
+     */
+    public ThawLocationProvider(SplunkSettings splunkSettings) {
+	this.splunkSettings = splunkSettings;
+    }
+
     /**
      * @param bucket
      *            to get location in thaw for.
      */
     public File getLocationInThawForBucket(Bucket bucket) {
-	throw new UnsupportedOperationException();
+	File thawLocation = splunkSettings.getThawLocation(bucket.getIndex());
+	return new File(thawLocation, bucket.getName());
     }
 
 }
