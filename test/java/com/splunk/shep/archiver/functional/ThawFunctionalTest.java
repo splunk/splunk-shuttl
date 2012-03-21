@@ -21,7 +21,7 @@ import static org.testng.AssertJUnit.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
+import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
@@ -52,6 +52,8 @@ import com.splunk.shep.archiver.thaw.SplunkSettings;
 import com.splunk.shep.archiver.thaw.ThawBucketTransferer;
 import com.splunk.shep.archiver.thaw.ThawLocationProvider;
 import com.splunk.shep.testutil.UtilsBucket;
+import com.splunk.shep.testutil.UtilsFile;
+import com.splunk.shep.testutil.UtilsMockito;
 
 @Test(enabled = false, groups = { "super-slow" })
 public class ThawFunctionalTest {
@@ -59,12 +61,17 @@ public class ThawFunctionalTest {
     File tempDirectory;
     BucketFreezer successfulBucketFreezer;
     BucketThawer bucketThawer;
-    private ThawLocationProvider thawLocationProvider;
+    String thawIndex;
+    SplunkSettings splunkSettings;
+    File thawDirectoryLocation;
 
     @BeforeMethod
     public void setUp() {
+	thawIndex = "thawingIndex";
 	tempDirectory = createTempDirectory();
 	successfulBucketFreezer = getSuccessfulBucketFreezer();
+	thawDirectoryLocation = createDirectoryInParent(tempDirectory,
+		"thawDirectory");
 
 	PathResolver pathResolver = UtilsArchiverFunctional
 		.getRealPathResolver();
@@ -82,9 +89,12 @@ public class ThawFunctionalTest {
 	BucketFormatResolver bucketFormatResolver = new BucketFormatResolver(
 		pathResolver, archiveFileSystem, bucketFormatChooser);
 
-	SplunkSettings splunkSettings = new SplunkSettings(
-		getLoggedInSplunkService());
-	thawLocationProvider = new ThawLocationProvider(splunkSettings);
+	Service mockedSplunkService = UtilsMockito
+		.createSplunkServiceReturningThawPathForIndex(thawIndex,
+			thawDirectoryLocation.getAbsolutePath());
+	splunkSettings = new SplunkSettings(mockedSplunkService);
+	ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
+		splunkSettings);
 	ThawBucketTransferer thawBucketTransferer = new ThawBucketTransferer(
 		thawLocationProvider, archiveFileSystem);
 	bucketThawer = new BucketThawer(bucketsLister, bucketFilter,
@@ -104,53 +114,61 @@ public class ThawFunctionalTest {
 		mock(FailedBucketsArchiver.class));
     }
 
-    private Service getLoggedInSplunkService() {
-	// CONFIG
-	String splunkHost = "localhost";
-	int splunkMgmtPort = 8089;
-	Service service = new Service(splunkHost, splunkMgmtPort);
-	String user = "admin";
-	String password = "changeme";
-	service.login(user, password);
-	return service;
-    }
-
     @AfterMethod
     public void tearDown() throws IOException {
 	FileUtils.deleteDirectory(tempDirectory);
 	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
     }
 
-    public void Archiver_givenExistingBucket_archiveItThenThawItBack()
+    public void Thawer_givenExistingBucket_archiveItThenThawItBack()
 	    throws FileNotFoundException, FileNotDirectoryException,
 	    InterruptedException {
-	String shepIndex = "shep"; // CONFIG
-	String bucketName = "db_1332295039_1332295013_0";
-	File locationInThawForBucket = null;
+	Date earliest = new Date(1332295013);
+	Date latest = new Date(earliest.getTime() + 26);
 
 	try {
 	    Bucket bucketToFreeze = UtilsBucket
-		    .createTestBucketWithIndexAndName(shepIndex, bucketName);
+		    .createBucketWithIndexAndTimeRange(thawIndex, earliest,
+			    latest);
 	    successfulBucketFreezer.freezeBucket(bucketToFreeze.getIndex(),
 		    bucketToFreeze.getDirectory().getAbsolutePath());
 
 	    assertFalse(bucketToFreeze.getDirectory().exists());
 
-	    URI hadoopArchivedBucketURI = UtilsArchiverFunctional
-		    .getHadoopArchivedBucketURI(bucketToFreeze);
-	    Bucket bucketToThaw = new Bucket(hadoopArchivedBucketURI,
-		    bucketToFreeze.getIndex(), bucketToFreeze.getName(),
-		    bucketToFreeze.getFormat());
-	    bucketThawer.thawBuckets(bucketToThaw.getIndex(),
-		    bucketToThaw.getEarliest(), bucketToThaw.getLatest());
+	    assertTrue(UtilsFile.isDirectoryEmpty(thawDirectoryLocation));
+	    bucketThawer.thawBuckets(thawIndex, earliest, latest);
+	    assertFalse(UtilsFile.isDirectoryEmpty(thawDirectoryLocation));
 
-	    locationInThawForBucket = thawLocationProvider
-		    .getLocationInThawForBucket(bucketToThaw);
-	    assertTrue(locationInThawForBucket.exists());
+	    File[] listFiles = thawDirectoryLocation.listFiles();
+	    assertEquals(1, listFiles.length);
+	    assertEquals(bucketToFreeze.getName(), listFiles[0].getName());
 	} finally {
-	    FileUtils.deleteQuietly(locationInThawForBucket);
 	    UtilsArchiverFunctional.cleanArchivePathInHadoopFileSystem();
 	}
+    }
+
+    public void Thawer_archivingBucketsInThreeDifferentTimeRanges_filterByOnlyOneOfTheTimeRanges()
+	    throws IOException, InterruptedException {
+	Date earliest = new Date(1332295013);
+	Date latest = new Date(earliest.getTime() + 26);
+	for (int i = 0; i < 3; i++) {
+	    Date early = new Date(earliest.getTime() + i * 100);
+	    Date later = new Date(early.getTime() + 30);
+	    Bucket bucket = UtilsBucket.createBucketWithIndexAndTimeRange(
+		    thawIndex, early, later);
+	    successfulBucketFreezer.freezeBucket(bucket.getIndex(), bucket
+		    .getDirectory().getAbsolutePath());
+	    assertFalse(bucket.getDirectory().exists());
+	}
+	File thawLocation = splunkSettings.getThawLocation(thawIndex);
+	int bucketsInThawLocation = thawLocation.listFiles().length;
+	assertEquals(0, bucketsInThawLocation);
+
+	bucketThawer.thawBuckets(thawIndex, earliest, latest);
+	bucketsInThawLocation = thawLocation.listFiles().length;
+	assertEquals(1, bucketsInThawLocation);
+	FileUtils.forceDelete(thawLocation.listFiles()[0]);
+	UtilsArchiverFunctional.cleanArchivePathInHadoopFileSystem();
     }
 
 }
