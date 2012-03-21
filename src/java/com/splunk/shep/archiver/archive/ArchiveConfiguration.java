@@ -2,10 +2,12 @@ package com.splunk.shep.archiver.archive;
 
 import java.lang.ref.SoftReference;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.hadoop.fs.Path;
 
-// CONFIG This whole class should use MBeans
+//CONFIG This whole class should use MBeans
 public class ArchiveConfiguration {
     
     /**
@@ -42,20 +44,30 @@ public class ArchiveConfiguration {
 	return sharedInstance;
     }
 
+
     public BucketFormat getArchiveFormat() {
-	return BucketFormat.SPLUNK_BUCKET;
+	return BucketFormat.SPLUNK_BUCKET; // CONFIG
     }
 
     public String getArchivingRoot() {
-	return ARCHIVING_ROOT;
+	return ARCHIVING_ROOT; // CONFIG
     }
 
     public String getClusterName() {
-	return CLUSTER_NAME;
+	return CLUSTER_NAME; // CONFIG
     }
 
     public String getServerName() {
-	return SERVER_NAME;
+	return SERVER_NAME; // CONFIG
+    }
+
+    /**
+     * List of bucket formats, where lower index means it has higher priority. <br/>
+     * {@link ArchiveConfiguration#getBucketFormatPriority()}.get(0) has the
+     * highest priority, while .get(length-1) has the least priority.
+     */
+    public List<BucketFormat> getBucketFormatPriority() {
+	return Arrays.asList(BucketFormat.SPLUNK_BUCKET); // CONFIG
     }
 
     /**

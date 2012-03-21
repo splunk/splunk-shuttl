@@ -117,18 +117,27 @@ public class ArchiveBucketsLister {
 
     private Bucket createBucketWithErrorHandling(URI uriToBucket,
 	    String bucketIndex, String bucketName) {
+	Exception exception = null;
 	try {
 	    return new Bucket(uriToBucket, bucketIndex, bucketName, null);
 	} catch (FileNotFoundException e) {
+	    exception = e;
 	    did("Created bucket with uri, bucket_index, bucket_name, bucket_format",
 		    e, "To create the bucket without problems.", "uri",
 		    uriToBucket, "bucket_index", bucketIndex, "bucket_name",
 		    bucketName, "format", null, "exception", e);
 	} catch (FileNotDirectoryException e) {
+	    exception = e;
 	    did("Created bucket with uri, bucket_index, bucket_name, bucket_format",
 		    e, "To create the bucket without problems.", "uri",
 		    uriToBucket, "bucket_index", bucketIndex, "bucket_name",
 		    bucketName, "format", null, "exception", e);
+	}
+	if (exception != null) {
+	    warn("Tried to create bucket with uri, index and name", exception,
+		    "Returning null for this bucket", "uri", uriToBucket,
+		    "bucket_index", bucketIndex, "bucket_name", bucketName,
+		    "exception", exception);
 	}
 	return null;
     }

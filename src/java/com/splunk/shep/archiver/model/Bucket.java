@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 
@@ -19,7 +20,7 @@ public class Bucket {
     private final BucketFormat format;
     private final File directory;
     private final String indexName;
-    private final String bucketName;
+    private final BucketName bucketName;
     private final URI uri;
 
     /**
@@ -74,13 +75,13 @@ public class Bucket {
 	this.uri = uri;
 	this.directory = directory;
 	this.indexName = index;
-	this.bucketName = bucketName;
+	this.bucketName = new BucketName(bucketName);
 	this.format = format;
 	verifyExistingDirectory(directory);
     }
 
     private static File getFileFromUri(URI uri) {
-	if (uri.getScheme().equals("file")) {
+	if (uri != null && "file".equals(uri.getScheme())) {
 	    return new File(uri);
 	}
 	return null;
@@ -88,8 +89,8 @@ public class Bucket {
 
     private void verifyExistingDirectory(File directory)
 	    throws FileNotFoundException, FileNotDirectoryException {
-	if (isRemote())
-	    return;
+	if (!isUriSet() || isRemote())
+	    return; // Stop verifying.
 	if (!directory.exists()) {
 	    throw new FileNotFoundException("Could not find directory: "
 		    + directory);
@@ -97,6 +98,10 @@ public class Bucket {
 	    throw new FileNotDirectoryException("Directory " + directory
 		    + " is not a directory");
 	}
+    }
+
+    private boolean isUriSet() {
+	return uri != null;
     }
 
     /**
@@ -116,7 +121,7 @@ public class Bucket {
      * @return The name of this bucket.
      */
     public String getName() {
-	return bucketName;
+	return bucketName.getName();
     }
 
     /**
@@ -200,10 +205,24 @@ public class Bucket {
     }
 
     /**
-     * @return
+     * @return true if the bucket is not on the local file system.
      */
     public boolean isRemote() {
 	return !uri.getScheme().equals("file");
+    }
+
+    /**
+     * @return {@link Date} with earliest time of indexed data in the bucket.
+     */
+    public Date getEarliest() {
+	return new Date(bucketName.getEarliest());
+    }
+
+    /**
+     * @return {@link Date} with latest time of indexed data in the bucket.
+     */
+    public Date getLatest() {
+	return new Date(bucketName.getLatest());
     }
 
 }

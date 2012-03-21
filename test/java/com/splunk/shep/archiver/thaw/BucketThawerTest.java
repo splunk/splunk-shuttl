@@ -24,7 +24,6 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.BucketTransferer;
 import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shep.archiver.model.Bucket;
 
@@ -36,7 +35,7 @@ public class BucketThawerTest {
     BucketFilter bucketFilter;
     ArchiveBucketsLister archiveBucketsLister;
     BucketFormatResolver bucketFormatResolver;
-    BucketTransferer bucketTransferer;
+    ThawBucketTransferer thawBucketTransferer;
 
     String index;
     Date latestTime;
@@ -52,19 +51,13 @@ public class BucketThawerTest {
 	archiveBucketsLister = mock(ArchiveBucketsLister.class);
 	bucketFilter = mock(BucketFilter.class);
 	bucketFormatResolver = mock(BucketFormatResolver.class);
-	bucketTransferer = mock(BucketTransferer.class);
+	thawBucketTransferer = mock(ThawBucketTransferer.class);
 	bucketThawer = new BucketThawer(archiveBucketsLister, bucketFilter,
-		bucketFormatResolver, bucketTransferer);
+		bucketFormatResolver, thawBucketTransferer);
 	index = "index";
     }
 
-
     @Test(groups = { "fast" })
-    public void thawBuckets_givenIndex_listBucketsWithinThatIndex() {
-	bucketThawer.thawBuckets(index, null, null);
-	verify(archiveBucketsLister).listBucketsInIndex(index);
-    }
-
     public void thawBuckets_givenTimeRange_filterBucketTimeRange() {
 	when(archiveBucketsLister.listBucketsInIndex(anyString())).thenReturn(
 		buckets);
@@ -92,7 +85,7 @@ public class BucketThawerTest {
 			.resolveBucketsFormats(anyListOf(Bucket.class)))
 		.thenReturn(filteredBucketsWithFormatSet);
 	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verify(bucketTransferer).transferBucketToThaw(bucketToThaw);
+	verify(thawBucketTransferer).transferBucketToThaw(bucketToThaw);
     }
 
     public void thawBuckets_givenZeroFilteredBucketWithFormatSet_noInteractionsWithBucketTransferer() {
@@ -102,7 +95,7 @@ public class BucketThawerTest {
 			.resolveBucketsFormats(anyListOf(Bucket.class)))
 		.thenReturn(emptyListOfBuckets);
 	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verifyZeroInteractions(bucketTransferer);
+	verifyZeroInteractions(thawBucketTransferer);
     }
 
     public void thawBuckets_givenTwoFilteredBucketWithFormatSet_noInteractionsWithBucketTransferer() {
@@ -114,8 +107,8 @@ public class BucketThawerTest {
 			.resolveBucketsFormats(anyListOf(Bucket.class)))
 		.thenReturn(emptyListOfBuckets);
 	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verify(bucketTransferer).transferBucketToThaw(bucket1);
-	verify(bucketTransferer).transferBucketToThaw(bucket2);
+	verify(thawBucketTransferer).transferBucketToThaw(bucket1);
+	verify(thawBucketTransferer).transferBucketToThaw(bucket2);
     }
 
 }

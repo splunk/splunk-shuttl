@@ -16,6 +16,7 @@ package com.splunk.shep.archiver.thaw;
 
 import static com.splunk.shep.archiver.ArchiverLogger.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -48,8 +49,22 @@ public class BucketFilter {
 		    "latest_time", latest);
 	    return Arrays.asList();
 	}
-	// TODO Auto-generated method stub
-	throw new UnsupportedOperationException();
+	ArrayList<Bucket> filteredBuckets = new ArrayList<Bucket>();
+	for (Bucket bucket : buckets) {
+	    if (isBucketWithinTimeRange(bucket, earliest, latest)) {
+		filteredBuckets.add(bucket);
+	    }
+	}
+	return filteredBuckets;
+    }
+
+    private boolean isBucketWithinTimeRange(Bucket bucket, Date earliest,
+	    Date latest) {
+	if (bucket.getLatest().before(earliest))
+	    return false;
+	if (bucket.getEarliest().after(latest))
+	    return false;
+	return true;
     }
 
 }

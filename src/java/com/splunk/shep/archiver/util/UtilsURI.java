@@ -17,6 +17,8 @@ package com.splunk.shep.archiver.util;
 import java.io.File;
 import java.net.URI;
 
+import org.apache.commons.io.FilenameUtils;
+
 /**
  * Utils for {@link URI}.
  */
@@ -39,4 +41,20 @@ public class UtilsURI {
 	else
 	    return path;
     }
+
+    /**
+     * Trim eventual ending {@link File#separator} and return base name.<br/>
+     * Ex:<br/>
+     * 
+     * <pre>
+     * "file:/a/b/c" -> "c"
+     * "file:/a/b/c/" -> "c"
+     * "file:/a/b/c.txt" -> "c.txt"
+     * </pre>
+     */
+    public static String getFileNameWithTrimmedEndingFileSeparator(URI uri) {
+	String path = getPathByTrimmingEndingFileSeparator(uri);
+	return FilenameUtils.getName(path);
+    }
+
 }

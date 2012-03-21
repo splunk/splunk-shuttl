@@ -1,6 +1,7 @@
 package com.splunk.shep.testutil;
 
 import java.io.File;
+import java.util.Date;
 
 import org.apache.commons.lang.math.RandomUtils;
 import org.testng.AssertJUnit;
@@ -99,8 +100,54 @@ public class UtilsBucket {
      * @return File with the format of a bucket
      */
     private static File createFileFormatedAsBucketInDirectory(File parent) {
-	File child = UtilsFile.createDirectoryInParent(parent,
+	return createFileFormatedAsBucketInDirectoryWithName(parent,
 		randomBucketName());
+    }
+
+    private static File createFileFormatedAsBucketInDirectoryWithName(
+	    File parent, String bucketName) {
+	File child = UtilsFile.createDirectoryInParent(parent, bucketName);
 	return formatDirectoryToBeABucket(child);
+    }
+
+    /**
+     * Creates test bucket with earliest and latest times in its name.
+     */
+    public static Bucket createBucketWithTimes(Date earliest, Date latest) {
+	return createBucketWithIndexAndTimeRange(randomIndexName(), earliest,
+		latest);
+    }
+
+    /**
+     * Creates test bucket with earliest and latest times in its name and index.
+     */
+    public static Bucket createBucketWithIndexAndTimeRange(String index,
+	    Date earliest, Date latest) {
+	String name = getNameWithEarliestAndLatestTime(earliest, latest);
+	return createTestBucketWithIndexAndName(index, name);
+    }
+
+    private static String getNameWithEarliestAndLatestTime(Date earliest,
+	    Date latest) {
+	return "db_" + latest.getTime() + "_" + earliest.getTime() + "_"
+		+ randomIndexName();
+    }
+
+    /**
+     * Creates test bucket with earliest and latest time in a directory.
+     */
+    public static Bucket createBucketInDirectoryWithTimes(File parent,
+	    Date earliest, Date latest) {
+	String bucketName = getNameWithEarliestAndLatestTime(earliest, latest);
+	File bucketDir = createFileFormatedAsBucketInDirectoryWithName(parent,
+		bucketName);
+	return createBucketWithIndexInDirectory(randomIndexName(), bucketDir);
+    }
+
+    /**
+     * Creates test bucket with specified name and random index.
+     */
+    public static Bucket createBucketWithName(String name) {
+	return createTestBucketWithIndexAndName(randomIndexName(), name);
     }
 }

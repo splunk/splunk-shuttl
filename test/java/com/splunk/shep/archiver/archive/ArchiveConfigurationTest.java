@@ -2,6 +2,9 @@ package com.splunk.shep.archiver.archive;
 
 import static org.testng.AssertJUnit.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.hadoop.fs.Path;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -53,4 +56,9 @@ public class ArchiveConfigurationTest {
 		configuration.getTmpDirectory());
     }
 
+    public void getBucketFormatPriority_defaultState_SplunkBucketFormatIsPrioritized() {
+	List<BucketFormat> formatPriority = configuration
+		.getBucketFormatPriority();
+	assertEquals(Arrays.asList(BucketFormat.SPLUNK_BUCKET), formatPriority);
+    }
 }

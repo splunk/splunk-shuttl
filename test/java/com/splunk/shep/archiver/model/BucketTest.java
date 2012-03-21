@@ -247,4 +247,15 @@ public class BucketTest {
 	assertFalse(new Bucket(localFileUri, null, null, null).isRemote());
     }
 
+    public void init_withNullURI_shouldBePossibleForTestableCreationOfBuckets()
+	    throws FileNotFoundException, FileNotDirectoryException {
+	new Bucket(null, "index", "bucketName", BucketFormat.UNKNOWN);
+    }
+
+    public void init_withNonFileURI_shouldBePossibleForTestableCreationOfBuckets()
+	    throws FileNotFoundException, FileNotDirectoryException {
+	new Bucket(URI.create("valid:/uri"), "index", "bucketName",
+		BucketFormat.UNKNOWN);
+    }
+
 }

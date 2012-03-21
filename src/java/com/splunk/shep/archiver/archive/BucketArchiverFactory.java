@@ -64,7 +64,7 @@ public class BucketArchiverFactory {
 
 	return new BucketArchiver(config, new BucketExporter(),
 		getPathResolver(hadoopFileSystem, config),
-		new BucketTransferer(archiveFileSystem));
+		new ArchiveBucketTransferer(archiveFileSystem));
     }
 
     /**
