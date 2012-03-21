@@ -27,8 +27,8 @@ public class BucketName {
     public static final String LEGAL_NAME_REGEX = "([A-Za-z0-9]+?)_(\\d+?)_(\\d+?)_(.+)";
 
     private static final int DB_GROUP = 1;
-    private static final int EARLIEST_GROUP = 2;
-    private static final int LATEST_GROUP = 3;
+    private static final int LATEST_GROUP = 2;
+    private static final int EARLIEST_GROUP = 3;
     private static final int INDEX_GROUP = 4;
 
     private final String name;

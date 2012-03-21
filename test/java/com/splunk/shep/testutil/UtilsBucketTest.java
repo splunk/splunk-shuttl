@@ -65,16 +65,17 @@ public class UtilsBucketTest {
     }
 
     public void createTestBucketWithIndexAndName_validArguments_correctNameAndIndex() {
+	String bucketName = "db_12351290_12351235_1";
 	Bucket bucket = UtilsBucket.createTestBucketWithIndexAndName(
-		"index-name", "db_12351235_12351290_1");
+		"index-name", bucketName);
 	assertEquals("index-name", bucket.getIndex());
-	assertEquals("db_12351235_12351290_1", bucket.getName());
+	assertEquals(bucketName, bucket.getName());
 
     }
 
     public void createFileFormatedAsBucket_validArgument_theDirCanBeUsedToCreateABucket() {
 	File bucketDir = UtilsBucket
-		.createFileFormatedAsBucket("db_12351235_12351290_1");
+		.createFileFormatedAsBucket("db_12351290_12351235_1");
 	try {
 	    new Bucket("index-name", bucketDir);
 	} catch (Exception e) {
@@ -94,8 +95,8 @@ public class UtilsBucketTest {
 	Date latest = new Date(earliest.getTime() + 100);
 	Bucket bucketWithTimes = UtilsBucket.createBucketWithTimes(earliest,
 		latest);
-	String expectedBucketNameStart = "db_" + earliest.getTime() + "_"
-		+ latest.getTime();
+	String expectedBucketNameStart = "db_" + latest.getTime() + "_"
+		+ earliest.getTime();
 	assertTrue(bucketWithTimes.getName()
 		.startsWith(expectedBucketNameStart));
     }

@@ -117,7 +117,7 @@ public class UtilsBucket {
 
     private static String getNameWithEarliestAndLatestTime(Date earliest,
 	    Date latest) {
-	return "db_" + earliest.getTime() + "_" + latest.getTime() + "_"
+	return "db_" + latest.getTime() + "_" + earliest.getTime() + "_"
 		+ randomIndexName();
     }
 

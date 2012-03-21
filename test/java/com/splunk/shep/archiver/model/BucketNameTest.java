@@ -45,7 +45,7 @@ public class BucketNameTest {
     private BucketName getBucketName(Object db, Object earliest, Object latest,
 	    Object index) {
 	String separator = "_";
-	return new BucketName(db + separator + earliest + separator + latest
+	return new BucketName(db + separator + latest + separator + earliest
 		+ separator + index);
     }
 
