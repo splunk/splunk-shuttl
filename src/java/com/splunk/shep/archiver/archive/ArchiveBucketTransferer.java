@@ -42,10 +42,4 @@ public class ArchiveBucketTransferer {
 	}
     }
 
-    /**
-     * Transfers an archived bucket in the thaw directory of the bucket's index.
-     */
-    public void transferBucketToThaw(Bucket bucket) {
-	throw new UnsupportedOperationException();
-    }
 }
