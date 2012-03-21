@@ -14,12 +14,13 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
+import static com.splunk.shep.archiver.ArchiverLogger.*;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
-import com.splunk.shep.archiver.fileSystem.FileOverwriteException;
 import com.splunk.shep.archiver.model.Bucket;
 
 /**
@@ -40,25 +41,20 @@ public class ThawBucketTransferer {
      * Transfers an archived bucket in the thaw directory of the bucket's index.
      */
     public void transferBucketToThaw(Bucket bucket) {
-	File thawLocation = thawLocationProvider
+	File bucketsThawLocation = thawLocationProvider
 		.getLocationInThawForBucket(bucket);
+	thawBucketFromArchiveWithErrorHandling(bucketsThawLocation,
+		bucket.getURI());
+    }
+
+    private void thawBucketFromArchiveWithErrorHandling(
+	    File bucketsThawLocation, URI bucketArchiveUri) {
 	try {
-	    archiveFileSystem.getFile(thawLocation, bucket.getURI());
-	} catch (FileNotFoundException e) {
-	    // TODO Auto-generated catch block
-	    // LOG
-	    e.printStackTrace();
-	    throw new RuntimeException();
-	} catch (FileOverwriteException e) {
-	    // TODO Auto-generated catch block
-	    // LOG
-	    e.printStackTrace();
-	    throw new RuntimeException();
+	    archiveFileSystem.getFile(bucketsThawLocation, bucketArchiveUri);
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    // LOG
-	    e.printStackTrace();
-	    throw new RuntimeException();
+	    did("Tried to thaw bucket", e, "Place the bucket in thaw",
+		    "bucket_thaw_location", bucketsThawLocation,
+		    "archived_bucket_uri", bucketArchiveUri, "exception", e);
 	}
     }
 }

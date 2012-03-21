@@ -44,10 +44,6 @@ public class ThawBucketTransfererTest {
     }
 
     @Test(enabled = false, groups = { "fast" })
-    public void transferBucketToThaw_givenBucket_getThawLocation() {
-	bucketTransferer.transferBucketToThaw(bucket);
-    }
-
     public void transferBucketToThaw_givenBucket_transferBucketFromArchiveToPathWhereParentIsThawLocation()
 	    throws IOException {
 	File file = mock(File.class);
