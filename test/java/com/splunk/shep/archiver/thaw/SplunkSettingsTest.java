@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
-import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -22,34 +21,29 @@ import java.io.File;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.EntityCollection;
-import com.splunk.Index;
 import com.splunk.Service;
+import com.splunk.shep.testutil.UtilsMockito;
 
 @Test(groups = { "fast" })
 public class SplunkSettingsTest {
 
     SplunkSettings splunkSettings;
     Service splunkService;
+    private String indexName;
+    private String thawLocationPath;
 
     @BeforeMethod
     public void setUp() {
-	splunkService = mock(Service.class);
+	indexName = "index";
+	thawLocationPath = "/path/to/thaw";
+	splunkService = UtilsMockito
+		.createSplunkServiceReturningThawPathForIndex(indexName,
+			thawLocationPath);
 	splunkSettings = new SplunkSettings(splunkService);
     }
 
-    @SuppressWarnings("unchecked")
     @Test(groups = { "fast" })
     public void getThawLocation_givenIndexAndSplunkService_getThawDirectoryForIndex() {
-	String indexName = "index";
-	String thawLocationPath = "/path/to/thaw";
-	EntityCollection<Index> indexesMock = mock(EntityCollection.class);
-	Index indexMock = mock(Index.class);
-
-	when(splunkService.getIndexes()).thenReturn(indexesMock);
-	when(indexesMock.get(indexName)).thenReturn(indexMock);
-	when(indexMock.getThawedPathExpanded()).thenReturn(thawLocationPath);
-
 	// Test
 	File actualThawLocation = splunkSettings.getThawLocation(indexName);
 	assertEquals(thawLocationPath, actualThawLocation.getAbsolutePath());
