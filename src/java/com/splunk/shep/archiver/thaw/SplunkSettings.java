@@ -16,16 +16,28 @@ package com.splunk.shep.archiver.thaw;
 
 import java.io.File;
 
+import com.splunk.Service;
+
 /**
  * Gets settings from the configured Splunk.
  */
 public class SplunkSettings {
 
+    private final Service splunkService;
+
+    /**
+     * @param splunkService
+     */
+    public SplunkSettings(Service splunkService) {
+	this.splunkService = splunkService;
+    }
+
     /**
      * @return thaw location for specified index.
      */
     public File getThawLocation(String index) {
-	throw new UnsupportedOperationException();
+	return new File(splunkService.getIndexes().get(index)
+		.getThawedPathExpanded());
     }
 
 }
