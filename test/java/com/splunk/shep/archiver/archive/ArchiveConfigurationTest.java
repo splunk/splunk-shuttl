@@ -2,6 +2,7 @@ package com.splunk.shep.archiver.archive;
 
 import static org.testng.AssertJUnit.*;
 
+import org.apache.hadoop.fs.Path;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -31,4 +32,22 @@ public class ArchiveConfigurationTest {
     public void getServerName_defaultState_isNotNull() {
 	assertNotNull(configuration.getServerName());
     }
+
+    public void getTmpDirectory_defaultState_isNotNull() {
+	assertNotNull(configuration.getTmpDirectory());
+    }
+
+    public void getTmpDirectory_defaultState_defaultConfValue() {
+	assertNotNull(configuration.getTmpDirectory());
+    }
+
+    public void getArchiverHadoopURI_defaultState_isNotNull() {
+	assertNotNull(configuration.getArchiverHadoopURI());
+    }
+
+    public void getArchiverHadoopURI_defaultState_defaultValue() {
+	assertEquals(new Path("hdfs://localhost:9000/archiver-tmp"),
+		configuration.getTmpDirectory());
+    }
+
 }
