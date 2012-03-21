@@ -82,17 +82,13 @@ public class BucketArchiverFactory {
 
     private static FileSystem getHdfsFileSystem() {
 	try {
-	    return FileSystem.get(getHdfsURI(), new Configuration());
+	    return FileSystem.get(ArchiveConfiguration.getSharedInstance()
+		    .getArchiverHadoopURI(), new Configuration());
 	} catch (IOException e) {
 	    // LOG
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}
-    }
-
-    private static URI getHdfsURI() {
-	// CONFIG: Should be configured instead of hardcoded.
-	return URI.create("hdfs://localhost:9000");
     }
 
     private static PathResolver getPathResolver(FileSystem hadoopFileSystem,
