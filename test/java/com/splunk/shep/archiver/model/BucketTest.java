@@ -31,7 +31,7 @@ public class BucketTest {
 	    FileUtils.deleteDirectory(rootTestDirectory);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void getIndex_validArguments_correctIndexName() throws IOException {
 	File file = UtilsFile.createTempDirectory();
 	Bucket bucket = new Bucket("index-name", file);

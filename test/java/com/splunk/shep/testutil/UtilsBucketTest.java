@@ -23,7 +23,7 @@ public class UtilsBucketTest {
 	bucket = UtilsBucket.createTestBucket();
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void createTestBucket_validArguments_createsExitingBucketDir() {
 	assertTrue(bucket.getDirectory().exists());
 	assertTrue(bucket.getDirectory().isDirectory());

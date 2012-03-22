@@ -14,7 +14,7 @@ import com.splunk.shep.testutil.UtilsTestNG;
 @Test(groups = { "fast-unit" })
 public class ArchiveBucketTransfererTest {
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void transferBucketToArchive_givenValidBucketAndUri_putBucketWithArchiveFileSystem() {
 	ArchiveFileSystem archive = mock(ArchiveFileSystem.class);
 	Bucket bucket = mock(Bucket.class);

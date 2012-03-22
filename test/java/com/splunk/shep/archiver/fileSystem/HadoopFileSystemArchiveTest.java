@@ -50,7 +50,7 @@ public class HadoopFileSystemArchiveTest {
 	fileSystem.delete(tmpPath, true);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void HadoopFileSystemArchive_notInitialized_aNonNullInstanceIsCreated() {
 	// Test done in before
 	// Confirm

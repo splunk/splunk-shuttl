@@ -31,24 +31,24 @@ import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsFile;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketMoverTest {
 
     BucketMover bucketMover;
     File moveBucketLocation;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	moveBucketLocation = UtilsFile.createTempDirectory();
 	bucketMover = new BucketMover(moveBucketLocation.getAbsolutePath());
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDown() throws IOException {
 	FileUtils.deleteDirectory(moveBucketLocation);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void getMovedBuckets_moveLocationDoesNotExist_emptyList() {
 	assertTrue(moveBucketLocation.delete());
 	assertTrue(!moveBucketLocation.exists());

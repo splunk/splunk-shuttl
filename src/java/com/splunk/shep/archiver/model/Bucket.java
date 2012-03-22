@@ -151,7 +151,6 @@ public class Bucket {
 	verifyExistingDirectory(directoryToMoveTo);
 	File newName = new File(directoryToMoveTo.getAbsolutePath(),
 		directory.getName());
-
 	if (!directory.renameTo(newName)) {
 	    throw new RuntimeException("Can't move bucket on this file system");
 	}

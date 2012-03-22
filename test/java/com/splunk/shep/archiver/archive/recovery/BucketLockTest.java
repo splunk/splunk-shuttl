@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketLockTest {
 
     File testRootDirectory;
@@ -56,7 +56,7 @@ public class BucketLockTest {
 	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void getLockFile_createdWithBucket_lockFilesNameIncludesBucketsNameForUniqueness() {
 	File lockFile = bucketLock.getLockFile();
 	assertTrue(lockFile.getName().contains(bucket.getName()));

@@ -24,7 +24,7 @@ import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class MoveAndArchiveBucketUnderLockTest {
 
     MoveAndArchiveBucketUnderLock moveAndArchiveBucketUnderLock;
@@ -41,7 +41,7 @@ public class MoveAndArchiveBucketUnderLockTest {
 		bucketMover, archiveRestHandler);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void moveThenArchiveBucket_givenBucket_movesTheBucket() {
 	moveAndArchiveBucketUnderLock.moveThenArchiveBucket(bucket);
 	verify(bucketMover).moveBucket(bucket);

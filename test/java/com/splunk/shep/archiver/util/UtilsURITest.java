@@ -20,7 +20,7 @@ import java.net.URI;
 
 import org.testng.annotations.Test;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class UtilsURITest {
 
     /**
@@ -28,7 +28,7 @@ public class UtilsURITest {
      * "file:/a/b/c" -> "c"
      * </pre>
      */
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void getFileNameWithTrimmedEndingFileSeparator_uriToDirWithoutEndingFileSeparator_dirNameOnly() {
 	URI uriToTest = URI.create("file:/a/b/c");
 	String baseName = UtilsURI

@@ -74,7 +74,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 	return tempTestDirectory.getAbsolutePath();
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void should_moveDirectoryToaSafeLocation_when_givenPath()
 	    throws IOException {
 	File dirToBeMoved = createTempDirectory();
@@ -95,10 +95,11 @@ public class BucketFreezerSuccessfulArchivingTest {
     public void freezeBucket_givenNonExistingSafeLocation_createSafeLocation()
 	    throws IOException {
 	File dirToBeMoved = createTempDirectory();
-
+	System.err.println(tempTestDirectory);
 	assertTrue(FileUtils.deleteQuietly(tempTestDirectory));
 	File nonExistingSafeLocation = tempTestDirectory;
 	assertTrue(!nonExistingSafeLocation.exists());
+	System.err.println(tempTestDirectory.getName());
 
 	// Test
 	bucketFreezer.freezeBucket("index", dirToBeMoved.getAbsolutePath());

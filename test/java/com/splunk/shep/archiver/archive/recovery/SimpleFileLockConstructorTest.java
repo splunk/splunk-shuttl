@@ -70,7 +70,7 @@ public class SimpleFileLockConstructorTest {
 	}
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void closeLock_givenFileChannelToFailedBucketsLock_doesntCloseChannelWhenFileChannelIsNotOpen()
 	    throws IOException {
 	simpleFileLock.closeLock();

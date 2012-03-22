@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.archive.ArchiveConfiguration;
 import com.splunk.shep.archiver.archive.BucketFormat;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketFormatChooserTest {
 
     BucketFormatChooser bucketFormatChooser;
@@ -39,7 +39,7 @@ public class BucketFormatChooserTest {
 	bucketFormatChooser = new BucketFormatChooser(configuration);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void chooseBucketFormat_givenEmptyList_unknown() {
 	List<BucketFormat> emptyList = Arrays.asList();
 	assertTrue(emptyList.isEmpty());

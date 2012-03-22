@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.archive.ArchiveConfiguration;
 import com.splunk.shep.archiver.archive.BucketFormat;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketFormatChooserPrioritizedTest {
 
     BucketFormatChooser bucketFormatChooser;
@@ -47,7 +47,7 @@ public class BucketFormatChooserPrioritizedTest {
 				BucketFormat.SPLUNK_BUCKET));
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void chooseBucketFormat_givenUnknownFormatIsMostPrioritized_chooseUnknownFormatOutOfSplunkAndUnknown() {
 	List<BucketFormat> formats = Arrays.asList(BucketFormat.SPLUNK_BUCKET,
 		BucketFormat.UNKNOWN);

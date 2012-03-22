@@ -26,7 +26,7 @@ import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class ThawBucketTransfererTest {
 
     ThawBucketTransferer bucketTransferer;
@@ -43,7 +43,7 @@ public class ThawBucketTransfererTest {
 		archiveFileSystem);
     }
 
-    @Test(enabled = false, groups = { "fast" })
+    @Test(enabled = false, groups = { "fast-unit" })
     public void transferBucketToThaw_givenBucket_transferBucketFromArchiveToPathWhereParentIsThawLocation()
 	    throws IOException {
 	File file = mock(File.class);

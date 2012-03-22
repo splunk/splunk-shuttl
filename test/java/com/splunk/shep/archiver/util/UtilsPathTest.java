@@ -5,7 +5,7 @@ import static org.testng.AssertJUnit.*;
 import org.apache.hadoop.fs.Path;
 import org.testng.annotations.Test;
 
-@Test(groups = { "test" })
+@Test(groups = { "fast-unit" })
 public class UtilsPathTest {
   public void createPathByAppending_pathsWithSchemes_theNewPathShouldProperlyBeCreated() {
       Path pathThatWillBeAppended = new Path("hdfs://localhost:9000/tmp");

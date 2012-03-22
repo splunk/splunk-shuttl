@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 @Test(groups = { "fast-unit" })
 public class FileOverwriteExceptionTest {
     
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void fileOverwriteExceptionTest() {
 	AssertJUnit.assertNotNull(new FileOverwriteException());
   }

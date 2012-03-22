@@ -19,7 +19,7 @@ import static org.testng.Assert.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketNameTest {
 
     String db;
@@ -49,7 +49,7 @@ public class BucketNameTest {
 		+ separator + index);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void setUp_givenEarliestLatestIndexAndDB_equalToSetUp() {
 	bucketName = getBucketName();
 	assertEquals(db, bucketName.getDB());

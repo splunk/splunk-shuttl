@@ -30,10 +30,10 @@ import com.splunk.shep.testutil.UtilsBucket;
 /**
  * Fixture: Makes sure that {@link ArchiveRestHandler} calls rest as recovery.
  */
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class ArchiveRestHandlerRecoveryTest {
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void recoverFailedBucket_givenHttpClient_executeRequestOnFailedBucket()
 	    throws ClientProtocolException, IOException {
 	Bucket bucket = UtilsBucket.createTestBucket();

@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class ThawLocationProviderTest {
 
     ThawLocationProvider thawLocationProvider;
@@ -49,7 +49,7 @@ public class ThawLocationProviderTest {
 		thawLocation);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void getLocationInThawForBucket_givenThawLocation_returnedBucketDirectorysParentIsThawLocation() {
 	File locationInThawDirectory = thawLocationProvider
 		.getLocationInThawForBucket(bucket);

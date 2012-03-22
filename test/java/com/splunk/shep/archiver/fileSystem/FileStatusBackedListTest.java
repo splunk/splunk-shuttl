@@ -25,7 +25,7 @@ public class FileStatusBackedListTest {
 	uriList = new FileStatusBackedList(fileStatus);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void FileStatusBackedList() {
 	assertNotNull(uriList);
     }

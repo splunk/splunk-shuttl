@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketFilterTest {
 
     BucketFilter bucketFilter;
@@ -35,7 +35,7 @@ public class BucketFilterTest {
     Date latest;
     List<Bucket> filteredBuckets;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	long earliestTime = 1330000000;
 	long latestTime = earliestTime + 1000;
@@ -46,7 +46,7 @@ public class BucketFilterTest {
 				// boilerplate.
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void BucketFilterTest_setUp_earliestIsEarlierThanLatest() {
 	assertTrue(earliest.before(latest));
     }

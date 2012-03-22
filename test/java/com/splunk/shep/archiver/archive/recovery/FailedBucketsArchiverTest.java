@@ -28,7 +28,7 @@ import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandle
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class FailedBucketsArchiverTest {
 
     FailedBucketsArchiver failedBucketsArchiver;
@@ -36,7 +36,7 @@ public class FailedBucketsArchiverTest {
     BucketMover bucketMover;
     BucketLocker bucketLocker;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	bucketMover = mock(BucketMover.class);
 	bucketLocker = new BucketLocker();
@@ -55,7 +55,7 @@ public class FailedBucketsArchiverTest {
 	return buckets;
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void archiveFailedBuckets_noMovedBuckets_neverRunLockedBucketHandler() {
 	failedBucketsArchiver.archiveFailedBuckets(lockedBucketHandler);
 	verify(lockedBucketHandler, times(0)).handleLockedBucket(

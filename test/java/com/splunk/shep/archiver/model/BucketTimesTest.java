@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketTimesTest {
 
     Date earliest;
@@ -35,12 +35,12 @@ public class BucketTimesTest {
 	latest = new Date(earliest.getTime() + 100);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void setUp_givenEarliestAndLatestDates_earliestIsBeforeLatest() {
 	assertTrue(earliest.before(latest));
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void getEarliest_givenEarliest_earliest() {
 	Bucket bucket = UtilsBucket.createBucketWithTimes(earliest, new Date());
 	assertEquals(earliest, bucket.getEarliest());

@@ -32,7 +32,7 @@ import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketFormatResolverTest {
 
     BucketFormatResolver bucketFormatResolver;
@@ -60,7 +60,7 @@ public class BucketFormatResolverTest {
 	return bucketWithMockedURI;
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void resolveBucketsFormats_givenFormatsHomeForBucket_listFormatsHomeInArchiveFileSystem()
 	    throws IOException {
 	URI formatsHome = URI.create("valid:/uri");

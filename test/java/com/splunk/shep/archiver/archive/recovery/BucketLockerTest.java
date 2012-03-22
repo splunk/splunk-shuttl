@@ -31,7 +31,7 @@ import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandle
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketLockerTest {
 
     File tempTestDirectory;
@@ -51,7 +51,7 @@ public class BucketLockerTest {
 	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void runWithBucketLocked_givenBucketThatCanBeLocked_executesRunnable() {
 	assertTrue(bucketLocker.runWithBucketLocked(bucket,
 		new NoOpBucketHandler()));

@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.BucketFormat;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class RemoteBucketTest {
 
     Bucket bucket;
@@ -44,7 +44,7 @@ public class RemoteBucketTest {
 	bucket = new Bucket(uri, index, bucketName, format);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void uriConstructor_nonFileUri_ok() throws IOException {
 	new Bucket(uri, null, null, null);
     }

@@ -29,14 +29,14 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.archive.PathResolver;
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class ArchiveIndexesListerTest {
 
     PathResolver pathResolver;
     ArchivedIndexesLister archivedIndexesLister;
     ArchiveFileSystem fileSystem;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	pathResolver = mock(PathResolver.class);
 	fileSystem = mock(ArchiveFileSystem.class);
@@ -44,7 +44,7 @@ public class ArchiveIndexesListerTest {
 		fileSystem);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void listIndexes_givenPathResolver_usePathResolverToGetWhereIndexesLive() {
 	archivedIndexesLister.listIndexes();
 	verify(pathResolver).getIndexesHome();

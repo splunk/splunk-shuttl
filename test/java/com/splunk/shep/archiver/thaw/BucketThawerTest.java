@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shep.archiver.model.Bucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketThawerTest {
 
     BucketThawer bucketThawer;
@@ -57,7 +57,7 @@ public class BucketThawerTest {
 	index = "index";
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void thawBuckets_givenTimeRange_filterBucketTimeRange() {
 	when(archiveBucketsLister.listBucketsInIndex(anyString())).thenReturn(
 		buckets);

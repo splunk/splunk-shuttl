@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.archiver.model.Bucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class UtilsTestNGTest {
 
     URI uri = URI.create("remote:/valid/uri");
@@ -40,7 +40,7 @@ public class UtilsTestNGTest {
 		bucket2));
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void isBucketEqualOnIndexFormatAndName_equallyCreatedBuckets_true()
 	    throws IOException {
 	bucket1 = new Bucket(uri, index, name, format);

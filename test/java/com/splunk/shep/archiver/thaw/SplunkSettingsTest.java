@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 import com.splunk.Service;
 import com.splunk.shep.testutil.UtilsMockito;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class SplunkSettingsTest {
 
     SplunkSettings splunkSettings;
@@ -42,7 +42,7 @@ public class SplunkSettingsTest {
 	splunkSettings = new SplunkSettings(splunkService);
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void getThawLocation_givenIndexAndSplunkService_getThawDirectoryForIndex() {
 	// Test
 	File actualThawLocation = splunkSettings.getThawLocation(indexName);
