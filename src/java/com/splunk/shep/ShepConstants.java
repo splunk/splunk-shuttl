@@ -14,11 +14,30 @@
 // limitations under the License.
 package com.splunk.shep;
 
+import org.apache.commons.io.FileUtils;
+
 /**
  * @author hyan
  *
  */
-public class ShepConstants {
+public final class ShepConstants {
+    public static enum SystemType {
+	local, hdfs, splunk;
+
+	public static SystemType type(String type)
+		throws IllegalArgumentException {
+	    if (local.toString().equals(type)) {
+		return local;
+	    } else if (hdfs.toString().equals(type)) {
+		return hdfs;
+	    } else if (splunk.toString().equals(type)) {
+		return hdfs;
+	    }
+	    throw new IllegalArgumentException("Unsupported EventWriterType: "
+		    + type);
+	}
+    };
+
     public static final String ENDPOINT_CONTEXT = "shep/rest";
     public static final String ENDPOINT_DEFAULT_HOST = "/defaulthost";
     public static final String ENDPOINT_DEFAULT_PORT = "/defaultport";
@@ -30,4 +49,25 @@ public class ShepConstants {
     public static final String ENDPOINT_SHUTDOWN = "/shutdown";
     public static final String ATT_DEF_HADOOP_CLUSTER_HOST = "DefHadoopClusterHost";
     public static final String ATT_DEF_HADOOP_CLUSTER_PORT = "DefHadoopClusterPort";
+
+    public static final String TRANSLOG_NAME = "translog";
+    public static final String SPLUNK_HOME_PROPERTY = "splunk.home";
+    public static final String SPLUNK_HOME = System
+	    .getProperty(SPLUNK_HOME_PROPERTY);
+
+    // check prerequisites before start the app
+    static {
+	if (SPLUNK_HOME == null) {
+	    throw new IllegalStateException(SPLUNK_HOME_PROPERTY
+		    + " is not set");
+	}
+    }
+
+    public static final String SHEP_HOME = FileUtils
+	    .getFile(SPLUNK_HOME, "etc", "apps", "shep").getAbsolutePath();
+    public static final String TRANSLOG_DIR_PATH = FileUtils.getFile(SHEP_HOME,
+	    TRANSLOG_NAME).getAbsolutePath();
+    public static final String TRANSLOG_FILE_PATH = FileUtils.getFile(
+	    TRANSLOG_DIR_PATH, TRANSLOG_NAME).getAbsolutePath();
+    public static final String TRANSLOG_ENDTIME_KEY = "endtime";
 }
