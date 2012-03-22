@@ -14,12 +14,11 @@
 // limitations under the License.
 package com.splunk.shep.server.mbeans.rest;
 
-import static com.splunk.shep.ShepConstants.ENDPOINT_CONTEXT;
-import static com.splunk.shep.ShepConstants.ENDPOINT_FORWARDER;
-import static com.splunk.shep.ShepConstants.ENDPOINT_SINK_PREFIX;
+import static com.splunk.shep.ShepConstants.*;
 
 import java.lang.management.ManagementFactory;
 
+import javax.management.JMX;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.ws.rs.GET;
@@ -31,6 +30,8 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.metrics.ShepMetricsHelper;
+import com.splunk.shep.server.mbeans.ShepForwarderMBean;
+
 
 /**
  * Expose forwarder MBean over REST
@@ -84,12 +85,10 @@ public class ShepForwarderRest {
 	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 	ObjectName objname = new ObjectName(
 		"com.splunk.shep.mbeans:type=Forwarder");
-	Object params[] = new Object[1];
-	params[0] = new String(name);
-	String signature[] = { "java.lang.String" };
-	Object prefix = mbs.invoke(objname, "getHDFSSinkPrefix", params,
-		signature);
-	return (prefix.toString());
+	ShepForwarderMBean proxy = (com.splunk.shep.server.mbeans.ShepForwarderMBean) JMX
+		.newMBeanProxy(mbs, objname,
+			com.splunk.shep.server.mbeans.ShepForwarderMBean.class);
+	return (proxy.getHDFSSinkPrefix(name));
     }
 
 }

@@ -14,16 +14,11 @@
 // limitations under the License.
 package com.splunk.shep.server.mbeans.rest;
 
-import static com.splunk.shep.ShepConstants.ATT_DEF_HADOOP_CLUSTER_HOST;
-import static com.splunk.shep.ShepConstants.ATT_DEF_HADOOP_CLUSTER_PORT;
-import static com.splunk.shep.ShepConstants.ENDPOINT_CONTEXT;
-import static com.splunk.shep.ShepConstants.ENDPOINT_DEFAULT_HOST;
-import static com.splunk.shep.ShepConstants.ENDPOINT_DEFAULT_PORT;
-import static com.splunk.shep.ShepConstants.ENDPOINT_SERVER;
-import static com.splunk.shep.ShepConstants.ENDPOINT_SHUTDOWN;
+import static com.splunk.shep.ShepConstants.*;
 
 import java.lang.management.ManagementFactory;
 
+import javax.management.JMX;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.ws.rs.GET;
@@ -34,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.metrics.ShepMetricsHelper;
+import com.splunk.shep.server.mbeans.ShepServerMBean;
 
 /**
  * Exposes the Server MBean over REST
@@ -56,7 +52,7 @@ public class ShepServerRest {
 	ShepMetricsHelper.update(logger, logMessage);
 
 	try {
-	    return (getAttribute(ATT_DEF_HADOOP_CLUSTER_HOST));
+	    return (getProxy().getDefHadoopClusterHost());
 	} catch (Exception e) {
 	    logger.error(e);
 	    throw new ShepRestException(e.getMessage());
@@ -75,7 +71,7 @@ public class ShepServerRest {
 
 	try {
 	    return "<html> " + "<title>" + "Shep Rest Endpoint" + "</title>"
-		    + "<body><h1>" + getAttribute(ATT_DEF_HADOOP_CLUSTER_HOST)
+		    + "<body><h1>" + getProxy().getDefHadoopClusterHost()
 		+ "</body></h1>" + "</html> ";
 	} catch (Exception e) {
 	    logger.error(e);
@@ -93,7 +89,7 @@ public class ShepServerRest {
 	ShepMetricsHelper.update(logger, logMessage);
 
 	try {
-	    return (getAttribute(ATT_DEF_HADOOP_CLUSTER_PORT));
+	    return (Integer.toString(getProxy().getDefHadoopClusterPort()));
 	} catch (Exception e) {
 	    logger.error(e);
 	    throw new ShepRestException(e.getMessage());
@@ -112,7 +108,7 @@ public class ShepServerRest {
 
 	try {
 	    return "<html> " + "<title>" + "Shep Rest Endpoint" + "</title>"
-		    + "<body><h1>" + getAttribute(ATT_DEF_HADOOP_CLUSTER_PORT)
+		    + "<body><h1>" + getProxy().getDefHadoopClusterPort()
 		+"</body></h1>" + "</html> "; 
 	} catch (Exception e) {
 	    logger.error(e);
@@ -136,11 +132,13 @@ public class ShepServerRest {
 	System.exit(0);
     }
 
-    private String getAttribute(String attr) throws Exception {
+    private ShepServerMBean getProxy() throws Exception {
 	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 	ObjectName name = new ObjectName("com.splunk.shep.mbeans:type=Server");
-	Object x = mbs.getAttribute(name, attr);
-	return (x.toString());
+	ShepServerMBean proxy = (com.splunk.shep.server.mbeans.ShepServerMBean) JMX
+		.newMBeanProxy(mbs, name,
+			com.splunk.shep.server.mbeans.ShepServerMBean.class);
+	return (proxy);
     }
 
 }
