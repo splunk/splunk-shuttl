@@ -28,6 +28,7 @@ public class ShepConstants {
     public static final String ENDPOINT_BUCKET_ARCHIVER = "/bucket/archive";
     public static final String ENDPOINT_ARCHIVER = "/archiver";
     public static final String ENDPOINT_SHUTDOWN = "/shutdown";
+    public static final String ENDPOINT_EXPORT_SRVC_STATUS = "/exportservicestatus";
     public static final String ATT_DEF_HADOOP_CLUSTER_HOST = "DefHadoopClusterHost";
     public static final String ATT_DEF_HADOOP_CLUSTER_PORT = "DefHadoopClusterPort";
 }

@@ -52,4 +52,22 @@ public class ShepForwarderRestTest {
 		"Unexpected entity, response=" + response);
     }
 
+    @Test(groups = { "integration" })
+    public void getSplunkExportServiceStatus() throws Exception {
+	URI exportSrvcUri = new URI("http", null, shepHost, shepMgmtPort,
+		(basePath + "/exportservicestatus"), null, null);
+	System.out.println("ExportServiceStatus URI is " + exportSrvcUri);
+	Client client = Client.create();
+	WebResource resource = client.resource(exportSrvcUri);
+	System.out.println("URI is " + resource.getURI());
+	ClientResponse response = resource.accept(MediaType.TEXT_PLAIN).get(
+		ClientResponse.class);
+	int status = response.getStatus();
+	String srvcStatus = response.getEntity(String.class);
+	assertEquals(status, 200, "Unexpected status, response=" + response);
+	// TODO update test with real status after calling start() and stop()
+	assertEquals(srvcStatus, "it is working",
+		"Unexpected entity, response=" + response);
+    }
+
 }

@@ -80,6 +80,12 @@
     <Set name="dumpBeforeStop">false</Set>
 
   <!-- =========================================================== -->
+  <!-- Initialize the Shep services                                -->
+  <!-- =========================================================== -->
+  <New id="splunkExportService" class="com.splunk.shep.server.services.SplunkExportService">
+  </New>
+  
+  <!-- =========================================================== -->
   <!-- Initialize the Shep MBean container                        -->
   <!-- =========================================================== -->
   <New id="ShepServerMBeanContainer" class="com.splunk.shep.server.mbeans.ShepServer">
@@ -90,6 +96,7 @@
   </New>
   
   <New id="ShepForwarderMBeanContainer" class="com.splunk.shep.server.mbeans.ShepForwarder">
+    <Set name="SplunkExportService"><Ref id="splunkExportService" /></Set>
   </New>
 
   <New id="ShepForwarderMBeanId" class="javax.management.ObjectName">
