@@ -23,6 +23,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.server.model.ForwarderConf;
+import com.splunk.shep.server.services.SplunkExportService;
 
 /**
  * 
@@ -33,6 +34,7 @@ public class ShepForwarder implements ShepForwarderMBean {
     private Logger logger = Logger.getLogger(getClass());
     private String FORWARDERCONF_XML = "etc/apps/shep/conf/forwarder.xml";
     private ArrayList<ForwarderConf.HDFSSink> hdfsSinkList;
+    private SplunkExportService exportService = null;
 
     public ShepForwarder() throws ShepMBeanException {
 	try {
@@ -82,5 +84,25 @@ public class ShepForwarder implements ShepForwarderMBean {
 	throw new ShepMBeanException("Unable to find sink configuration: "
 		+ name);
     }
+
+    public void setSplunkExportService(SplunkExportService srvc) {
+	this.exportService = srvc;
+    }
+
+    @Override
+    public void startExportService() throws ShepMBeanException {
+	this.exportService.start();
+    }
+
+    @Override
+    public void stopExportService() throws ShepMBeanException {
+	this.exportService.stop();
+    }
+
+    @Override
+    public String getExportServiceStatus() throws ShepMBeanException {
+	return this.exportService.getStatus();
+    }
+
 
 }

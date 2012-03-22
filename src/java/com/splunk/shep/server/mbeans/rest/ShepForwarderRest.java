@@ -14,12 +14,11 @@
 // limitations under the License.
 package com.splunk.shep.server.mbeans.rest;
 
-import static com.splunk.shep.ShepConstants.ENDPOINT_CONTEXT;
-import static com.splunk.shep.ShepConstants.ENDPOINT_FORWARDER;
-import static com.splunk.shep.ShepConstants.ENDPOINT_SINK_PREFIX;
+import static com.splunk.shep.ShepConstants.*;
 
 import java.lang.management.ManagementFactory;
 
+import javax.management.JMX;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.ws.rs.GET;
@@ -31,6 +30,8 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.metrics.ShepMetricsHelper;
+import com.splunk.shep.server.mbeans.ShepForwarderMBean;
+
 
 /**
  * Expose forwarder MBean over REST
@@ -59,6 +60,23 @@ public class ShepForwarderRest {
 	    throw new ShepRestException(e.getMessage());
 	}
     }
+    
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path(ENDPOINT_EXPORT_SRVC_STATUS)
+    public String getSplunkExportServiceStatus() {
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_FORWARDER, ENDPOINT_EXPORT_SRVC_STATUS);
+	ShepMetricsHelper.update(logger, logMessage);
+
+	try {
+	    return (getExportServiceStatus());
+	} catch (Exception e) {
+	    logger.error(e);
+	    throw new ShepRestException(e.getMessage());
+	}
+    }
 
     // for debugging using browsers
     @GET
@@ -81,15 +99,21 @@ public class ShepForwarderRest {
     }
 
     private String getHDFSSinkPrefix(String name) throws Exception {
+	return (getProxy().getHDFSSinkPrefix(name));
+    }
+    
+    private String getExportServiceStatus() throws Exception {
+	return (getProxy().getExportServiceStatus());
+    }
+
+    private ShepForwarderMBean getProxy() throws Exception {
 	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 	ObjectName objname = new ObjectName(
 		"com.splunk.shep.mbeans:type=Forwarder");
-	Object params[] = new Object[1];
-	params[0] = new String(name);
-	String signature[] = { "java.lang.String" };
-	Object prefix = mbs.invoke(objname, "getHDFSSinkPrefix", params,
-		signature);
-	return (prefix.toString());
+	ShepForwarderMBean proxy = (com.splunk.shep.server.mbeans.ShepForwarderMBean) JMX
+		.newMBeanProxy(mbs, objname,
+			com.splunk.shep.server.mbeans.ShepForwarderMBean.class);
+	return proxy;
     }
 
 }

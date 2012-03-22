@@ -496,7 +496,7 @@
 		</condition>
 	</target>
 
-	<target name="hadoop-download" depends="check-if-hadoop-not-downloaded" if="isNotDownloaded">
+	<target name="hadoop-download" depends="check-if-hadoop-is-downloaded" unless="isDownloaded">
 		<antcall>
 			<target name="do-hadoop-download" />
 		</antcall>
@@ -513,12 +513,9 @@
 		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
 	</target>
 
-	<target name="check-if-hadoop-not-downloaded">
-		<!--PLEASEREVIEW:  brain hurts -->
-		<condition property="isNotDownloaded">
-			<not>
-				<available file="${hadoop.download.path}" type="file" />
-			</not>
+	<target name="check-if-hadoop-is-downloaded">
+		<condition property="isDownloaded">
+			<available file="${hadoop.download.path}" type="file" />
 		</condition>
 	</target>
 
@@ -545,10 +542,11 @@
 	</target>
 
 	<!-- extract to build cache-->
-	<target name="hadoop-extract" depends="check-if-hadoop-is-downloaded" unless="isDownloaded">
+	<target name="hadoop-extract" depends="hadoop-extract-check-if-hadoop-is-downloaded" if="isDownloaded">
 		<!-- PLEASEREVIEW: unclear if the check for downloaded is correct; better not to check
 		and fail, no? -->
 		<echo>Extracting...</echo>
+		<echo>download path: ${hadoop.download.path}</echo>
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
 			<arg line="'tar xf ${hadoop.download.path} -C ${hadoop.extracted.dir}'" />
@@ -558,15 +556,16 @@
 			<arg line="'mv ${hadoop.extracted.dir}/hadoop-* ${hadoop.extracted.path}'" />
 		</exec>
 	</target>
-
-	<target name="check-if-hadoop-is-downloaded">
-		<!-- PLEASEREVIEW: didn't I see this target before? oh, no, I saw its evil twin -->
+	
+	<!-- This condition may seem redundant with "check-if-hadoop-is-downloaded" but it isn't. \
+	A condition is only evaluated ones and if you use the condition in another target it won't\ 
+	be evaluated again -->
+	<target name="hadoop-extract-check-if-hadoop-is-downloaded">
 		<condition property="isDownloaded">
-			<not>
-				<available file="${hadoop.download.path}" type="file" />
-			</not>
+			<available file="${hadoop.download.path}" type="file" />
 		</condition>
 	</target>
+
 
 	<target name="hadoop-copy-confs">
 		<property name="hadoop.conf.dir" value="${hadoop.utils}/conf" />
