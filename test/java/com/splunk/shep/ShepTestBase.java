@@ -21,7 +21,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -39,7 +41,7 @@ import com.splunk.Service;
  *
  */
 public class ShepTestBase {
-    public static final String PWD = System.getProperty("user.dir");
+    protected static final String BASE_DIR = System.getProperty("user.dir");
     // splunk convert your index name to all lowercase, so use lowercase to make
     // sure you can find the index
     protected static final String indexName = "shepTestIndex".toLowerCase();
@@ -56,7 +58,7 @@ public class ShepTestBase {
     }
 
     protected void addOneShot(String... lines) throws IOException {
-	File file = FileUtils.getFile(PWD, "build-cache", "splunk");
+	File file = FileUtils.getFile(BASE_DIR, "build-cache", "splunk");
 	if (System.getProperty(SPLUNK_HOME_PROPERTY) == null) {
 	    System.setProperty(SPLUNK_HOME_PROPERTY, file.getAbsolutePath());
 	}
@@ -83,26 +85,42 @@ public class ShepTestBase {
 	Index index = indexes.get(indexName);
 	index.clean(60);
 	assertEquals(index.getTotalEventCount(), 0);
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-	String date = sdf.format(new Date());
 	for (String line : lines) {
-	    index.submit(date + line);
+	    index.submit(line);
 	}
 
 	waitEventCount(index, lines.length, 30);
 	assertEquals(index.getTotalEventCount(), lines.length);
     }
 
-    public void verifyJson(InputStream is, int expectedSize) throws IOException {
+    protected String[] prefixTime(String... lines) {
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+	String date = sdf.format(new Date());
+	String[] result = new String[lines.length];
+	for (int i = 0; i < lines.length; i++) {
+	    result[i] = String.format("%s %s", date, lines[i]);
+	}
+	return result;
+    }
+
+    protected void verifyJson(InputStream is, String... expectedLines)
+	    throws IOException {
 	String result = IOUtils.toString(is);
 	log.debug("result: " + result);
 	ObjectMapper m = new ObjectMapper();
-	JsonNode node = m.readTree(result);
-	assertNotNull(node);
-	assertEquals(expectedSize, node.size());
+	JsonNode root = m.readTree(result);
+	assertNotNull(root);
+	assertEquals(expectedLines.length, root.size());
+	List<String> raw = new ArrayList<String>();
+	for (int i = 0; i < root.size(); i++) {
+	    raw.add(root.get(i).get(SPLUNK_FIELD_RAW).getTextValue());
+	}
+	for (String expectedLine : expectedLines) {
+	    raw.contains(expectedLine);
+	}
     }
 
-    public void sleep(long millis) {
+    protected void sleep(long millis) {
 	try {
 	    Thread.sleep(millis);
 	} catch (InterruptedException e) {

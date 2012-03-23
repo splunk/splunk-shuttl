@@ -67,7 +67,8 @@ public class SplunkEventReaderTest extends ShepTestBase {
 
     @Test
     public void testExport() throws IllegalArgumentException, IOException {
-	String[] testEvents = { "this is event 1", "this is event 2" };
+	String[] testEvents = prefixTime(new String[] { "this is event 1",
+		"this is event 2" });
 	addOneShot(testEvents);
 
 	EventReader eventReader = EventReader.getInstance(splunk);
@@ -76,17 +77,18 @@ public class SplunkEventReaderTest extends ShepTestBase {
 	params.put("output_mode", "json");
 	long lastEndTime = translogService.getEndTime(indexName);
 	InputStream is = eventReader.export(indexName, lastEndTime, params);
-	verifyJson(is, testEvents.length);
+	verifyJson(is, testEvents);
 	translogService.setEndTime(indexName, eventReader.getEndTime());
 
 	sleep(TIME_GAP * 1000);
 
-	testEvents = new String[] { "this is event 3", "this is event 4" };
+	testEvents = prefixTime(new String[] { "this is event 3",
+		"this is event 4" });
 	addOneShot(testEvents);
 
 	lastEndTime = translogService.getEndTime(indexName);
 	is = eventReader.export(indexName, lastEndTime, params);
-	verifyJson(is, testEvents.length);
+	verifyJson(is, testEvents);
 	translogService.setEndTime(indexName, eventReader.getEndTime());
 
     }

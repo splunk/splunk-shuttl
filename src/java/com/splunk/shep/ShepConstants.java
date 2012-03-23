@@ -38,6 +38,7 @@ public final class ShepConstants {
 	}
     };
 
+    // REST endpoints
     public static final String ENDPOINT_CONTEXT = "shep/rest";
     public static final String ENDPOINT_DEFAULT_HOST = "/defaulthost";
     public static final String ENDPOINT_DEFAULT_PORT = "/defaultport";
@@ -50,6 +51,9 @@ public final class ShepConstants {
     public static final String ENDPOINT_EXPORT_SRVC_STATUS = "/exportservicestatus";
     public static final String ATT_DEF_HADOOP_CLUSTER_HOST = "DefHadoopClusterHost";
     public static final String ATT_DEF_HADOOP_CLUSTER_PORT = "DefHadoopClusterPort";
+
+    // Splunk field names
+    public static final String SPLUNK_FIELD_RAW = "_raw";
 
     public static final String TRANSLOG_NAME = "translog";
     public static final String SPLUNK_HOME_PROPERTY = "splunk.home";
@@ -71,4 +75,5 @@ public final class ShepConstants {
     public static final String TRANSLOG_FILE_PATH = FileUtils.getFile(
 	    TRANSLOG_DIR_PATH, TRANSLOG_NAME).getAbsolutePath();
     public static final String TRANSLOG_ENDTIME_KEY = "endtime";
+
 }

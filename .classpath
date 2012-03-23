@@ -37,7 +37,7 @@
 	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="contrib/splunk-sdk/splunk.jar" sourcepath="/splunk-sdk-java/splunk"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.4.0.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-core-asl-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-asl-1.4.0.jar" sourcepath="/Users/hyan/.m2/repository/org/codehaus/jackson/jackson-core-asl/1.4.0/jackson-core-asl-1.4.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/jasper-compiler-5.5.12.jar"/>
