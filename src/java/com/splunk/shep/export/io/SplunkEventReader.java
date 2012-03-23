@@ -30,6 +30,7 @@ import com.splunk.Service;
 public class SplunkEventReader extends EventReader {
     private static Logger log = Logger.getLogger(SplunkEventReader.class);
     private Service service;
+    public static final long TIME_GAP = 5;
 
     public SplunkEventReader() {
 	// TODO get splunk info from jetty config file, default.properties is
@@ -56,8 +57,10 @@ public class SplunkEventReader extends EventReader {
 
 	String disjunction = disjunction(lastEndTime + 1);
 
-	String query = String.format("search index='%s' %s", indexName,
+	String query = String.format("search index=\"%s\" %s", indexName,
 		disjunction);
+	log.debug(String.format("lastEndTime: %d, endTime: %d", lastEndTime,
+		endTime));
 	log.debug("query: " + query);
 
 	Args args = new Args(params);
@@ -65,7 +68,7 @@ public class SplunkEventReader extends EventReader {
     }
 
     String disjunction(long lastEndTime) {
-	endTime = System.currentTimeMillis() / 1000 - 5;
+	endTime = System.currentTimeMillis() / 1000 - TIME_GAP;
 	StringBuilder disjuncts = new StringBuilder();
 	int level;
 	boolean first = true;
@@ -89,7 +92,9 @@ public class SplunkEventReader extends EventReader {
 	    }
 	    lastEndTime = level * lastEndTime / level + level;
 	}
-	disjuncts.append(")");
+	if (disjuncts.length() > 0) {
+	    disjuncts.append(")");
+	}
 
 	return disjuncts.toString();
     }
