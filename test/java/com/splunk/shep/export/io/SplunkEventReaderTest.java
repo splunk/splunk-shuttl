@@ -74,20 +74,20 @@ public class SplunkEventReaderTest extends ShepTestBase {
 	TranslogService translogService = new TranslogService();
 	Map<String, Object> params = new HashMap<String, Object>();
 	params.put("output_mode", "json");
-	long lastEndTime = translogService.getEndTime();
+	long lastEndTime = translogService.getEndTime(indexName);
 	InputStream is = eventReader.export(indexName, lastEndTime, params);
 	verifyJson(is, testEvents.length);
-	translogService.setEndTime(eventReader.getEndTime());
+	translogService.setEndTime(indexName, eventReader.getEndTime());
 
 	sleep(TIME_GAP * 1000);
 
 	testEvents = new String[] { "this is event 3", "this is event 4" };
 	addOneShot(testEvents);
 
-	lastEndTime = translogService.getEndTime();
+	lastEndTime = translogService.getEndTime(indexName);
 	is = eventReader.export(indexName, lastEndTime, params);
 	verifyJson(is, testEvents.length);
-	translogService.setEndTime(eventReader.getEndTime());
+	translogService.setEndTime(indexName, eventReader.getEndTime());
 
     }
 

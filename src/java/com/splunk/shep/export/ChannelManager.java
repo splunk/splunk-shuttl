@@ -108,7 +108,7 @@ public class ChannelManager {
     }
     private static class ChannelCallable implements Callable<Long> {
 	private String indexName;
-	// TODO currently splunk-java-sdk hardcoded outputFormat, we will use
+	// TODO currently splunk-java-sdk hardcoded outputMode, we will use
 	// its enum once they have it
 	private String outputMode;
 	private String outputPath;
@@ -130,7 +130,7 @@ public class ChannelManager {
 
 	    Map<String, Object> params = new HashMap<String, Object>();
 	    params.put("output_mode", outputMode);
-	    long lastEndTime = translogService.getEndTime();
+	    long lastEndTime = translogService.getEndTime(indexName);
 	    InputStream is = eventReader.export(indexName, lastEndTime, params);
 
 	    String fileName = String.format("%s_%d",
@@ -155,7 +155,7 @@ public class ChannelManager {
 		    outputPath), false);
 
 	    long endTime = eventReader.getEndTime();
-	    translogService.setEndTime(endTime);
+	    translogService.setEndTime(indexName, endTime);
 
 	    return endTime;
 	}

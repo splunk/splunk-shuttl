@@ -59,12 +59,19 @@ public class TranslogService {
 	}
     }
 
-    public synchronized long getEndTime() {
-	return config.getLong(TRANSLOG_ENDTIME_KEY);
+    public synchronized long getEndTime(String indexName) {
+	String key = indexName + "." + TRANSLOG_ENDTIME_KEY;
+	long value = DEFAULT_ENDTIME;
+	if (config.containsKey(key)) {
+	    value = config.getLong(key);
+	} else {
+	    config.addProperty(key, value);
+	}
+	return value;
     }
     
-    public synchronized void setEndTime(long endTime) {
+    public synchronized void setEndTime(String indexName, long endTime) {
 	// when setProperty is returned, changed is flushed and file is closed
-	config.setProperty(TRANSLOG_ENDTIME_KEY, endTime);
+	config.addProperty(indexName + "." + TRANSLOG_ENDTIME_KEY, endTime);
     }
 }

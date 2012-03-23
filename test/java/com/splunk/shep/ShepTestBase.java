@@ -45,20 +45,13 @@ public class ShepTestBase {
     protected static final String indexName = "shepTestIndex".toLowerCase();
     private static final Logger log = Logger.getLogger(ShepTestBase.class);
 
-    protected void wait_event_count(Index index, int value, int seconds) {
+    protected void waitEventCount(Index index, int value, int seconds) {
 	while (seconds > 0) {
-	    try {
-		Thread.sleep(1000); // 1000ms (1 second sleep)
-		seconds = seconds - 1;
-		if (index.getTotalEventCount() == value) {
-		    return;
-		}
-		index.refresh();
-	    } catch (InterruptedException e) {
-		return;
-	    } catch (Exception e) {
+	    sleep(1000);
+	    if (index.getTotalEventCount() == value) {
 		return;
 	    }
+	    index.refresh();
 	}
     }
 
@@ -96,7 +89,7 @@ public class ShepTestBase {
 	    index.submit(date + line);
 	}
 
-	wait_event_count(index, lines.length, 30);
+	waitEventCount(index, lines.length, 30);
 	assertEquals(index.getTotalEventCount(), lines.length);
     }
 
@@ -113,7 +106,6 @@ public class ShepTestBase {
 	try {
 	    Thread.sleep(millis);
 	} catch (InterruptedException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
