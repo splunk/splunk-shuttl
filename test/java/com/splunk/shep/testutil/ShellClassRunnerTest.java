@@ -35,7 +35,7 @@ public class ShellClassRunnerTest {
 	}
     }
 
-    @Test(groups = { "slow" })
+    @Test(groups = { "slow-unit" })
     public void should_returnItSelf_after_runningClassWithArgs_for_methodChaining() {
 	assertEquals(shellClassRunner,
 		shellClassRunner.runClassWithArgs(ClassWithMain.class));
