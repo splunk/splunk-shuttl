@@ -57,7 +57,7 @@ import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsFile;
 import com.splunk.shep.testutil.UtilsMockito;
 
-@Test(enabled = false, groups = { "super-slow" })
+@Test(enabled = false, groups = { "functional" })
 public class ThawFunctionalTest {
 
     File tempDirectory;

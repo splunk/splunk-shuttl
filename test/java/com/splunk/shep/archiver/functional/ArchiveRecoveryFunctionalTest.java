@@ -40,7 +40,7 @@ import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsMockito;
 
-@Test(enabled = false, groups = { "super-slow" })
+@Test(enabled = false, groups = { "functional" })
 public class ArchiveRecoveryFunctionalTest {
 
     File safeLocation;
