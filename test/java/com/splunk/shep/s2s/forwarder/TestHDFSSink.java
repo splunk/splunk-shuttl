@@ -13,7 +13,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //comment this test due to this: https://issues.apache.org/jira/browse/HBASE-4709
-//@Test(groups = { "embedded" })
+//@Test(groups = { "slow-unit" })
 public class TestHDFSSink {
     private static Log LOG = LogFactory.getLog(TestHDFSSink.class);
     private static MiniDFSCluster dfsCluster;

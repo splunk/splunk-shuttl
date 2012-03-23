@@ -55,7 +55,7 @@ import com.splunk.shep.testutil.SplunkServiceParameters;
  * @author hyan
  * 
  */
-@Test(groups = { "embedded" })
+@Test(groups = { "slow-unit" })
 public class TestSplunkInputFormat {
     private static SplunkServiceParameters testParameters;
     private Path output = null;
