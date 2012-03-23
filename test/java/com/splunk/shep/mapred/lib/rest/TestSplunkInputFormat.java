@@ -14,9 +14,8 @@
 // limitations under the License.
 package com.splunk.shep.mapred.lib.rest;
 
-import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.QUERY1;
-import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.QUERY2;
-import static org.testng.Assert.assertEquals;
+import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.*;
+import static org.testng.Assert.*;
 
 import java.io.IOException;
 import java.text.ParseException;

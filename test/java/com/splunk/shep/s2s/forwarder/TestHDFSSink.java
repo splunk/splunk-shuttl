@@ -1,7 +1,7 @@
 package com.splunk.shep.s2s.forwarder;
 
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
