@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.ShepTestBase;
@@ -34,20 +32,9 @@ import com.splunk.shep.export.TranslogService;
  * @author hyan
  *
  */
-@Test(groups = { "integration" })
 public class SplunkEventReaderTest extends ShepTestBase {
     private static final Logger log = Logger
 	    .getLogger(SplunkEventReaderTest.class);
-
-    @BeforeClass
-    public void setUp() {
-
-    }
-
-    @AfterClass
-    public void tearDown() {
-
-    }
 
     // @Test
     public void testDisjunction() {
@@ -65,7 +52,7 @@ public class SplunkEventReaderTest extends ShepTestBase {
 		lastEndTime, endTime, disjunction));
     }
 
-    @Test
+    @Test(groups = { "integration" })
     public void testExport() throws IllegalArgumentException, IOException {
 	String[] testEvents = prefixTime(new String[] { "this is event 1",
 		"this is event 2" });

@@ -48,11 +48,7 @@ public class ChannelManager {
     private static EventWriter eventWriter;
     private static TranslogService translogService;
 
-    private ChannelManager() {
-
-    }
-
-    public static void start() throws IOException {
+    public static void start(ExportConf exportConf) throws IOException {
 	if (service == null) {
 	    // TODO exposed as configurable parameter?
 	    int corePoolSize = 5;
@@ -63,7 +59,7 @@ public class ChannelManager {
 	}
 
 	// TODO get the list of index name and delays from configuration file
-	ExportConf exportConf = new ExportConf();
+	// ExportConf exportConf = new ExportConf();
 
 	ChannelCallable cc;
 	ScheduledFuture<Long> future;
@@ -133,9 +129,9 @@ public class ChannelManager {
 	    long lastEndTime = translogService.getEndTime(indexName);
 	    InputStream is = eventReader.export(indexName, lastEndTime, params);
 
-	    String fileName = String.format("%s_%d",
+	    String fileName = String.format("%s_%d.%s",
 		    FileUtils.getFile(tempPath, indexName).getAbsolutePath(),
-		    System.currentTimeMillis());
+		    System.currentTimeMillis(), outputMode);
 	    boolean append = true;
 	    Configuration conf = null;
 	    if (hdfs == type) {

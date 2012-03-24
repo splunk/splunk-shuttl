@@ -25,11 +25,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.testng.annotations.BeforeClass;
 
 import com.splunk.Args;
 import com.splunk.EntityCollection;
@@ -46,6 +50,19 @@ public class ShepTestBase {
     // sure you can find the index
     protected static final String indexName = "shepTestIndex".toLowerCase();
     private static final Logger log = Logger.getLogger(ShepTestBase.class);
+    private static Args args;
+
+    @BeforeClass(alwaysRun = true)
+    protected void setUp() throws ConfigurationException {
+	Configuration conf = new PropertiesConfiguration(
+		SHEP_DEFAULT_PROPERTIES_FILE_NAME);
+
+	args = new Args();
+	args.put("username", conf.getString(SPLUNK_USER_NAME));
+	args.put("password", conf.getString(SPLUNK_PASSWORD));
+	args.put("host", conf.getString(SPLUNK_HOST));
+	args.put("port", conf.getInt(SPLUNK_MGMT_PORT));
+    }
 
     protected void waitEventCount(Index index, int value, int seconds) {
 	while (seconds > 0) {
@@ -61,6 +78,8 @@ public class ShepTestBase {
 	File file = FileUtils.getFile(BASE_DIR, "build-cache", "splunk");
 	if (System.getProperty(SPLUNK_HOME_PROPERTY) == null) {
 	    System.setProperty(SPLUNK_HOME_PROPERTY, file.getAbsolutePath());
+	    System.out.println("file.getAbsolutePath: "
+		    + file.getAbsolutePath());
 	}
 
 	File translog = new File(TRANSLOG_FILE_PATH);
@@ -68,12 +87,6 @@ public class ShepTestBase {
 	    FileUtils.forceDelete(translog);
 	}
 
-	// create test index
-	Args args = new Args();
-	args.put("username", "admin");
-	args.put("password", "changeme");
-	args.put("host", "localhost");
-	args.put("port", 8089);
 	Service service = Service.connect(args);
 	EntityCollection<Index> indexes = service.getIndexes();
 	if (!indexes.containsKey(indexName)) {

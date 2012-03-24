@@ -55,8 +55,17 @@ public final class ShepConstants {
     // Splunk field names
     public static final String SPLUNK_FIELD_RAW = "_raw";
 
-    public static final String TRANSLOG_NAME = "translog";
+    // properties
     public static final String SPLUNK_HOME_PROPERTY = "splunk.home";
+    public static final String SPLUNK_USER_NAME = "splunk.username";
+    public static final String SPLUNK_PASSWORD = "splunk.password";
+    public static final String SPLUNK_HOST = "splunk.host";
+    public static final String SPLUNK_MGMT_PORT = "splunk.mgmtport";
+
+    // file names
+    public static final String SHEP_DEFAULT_PROPERTIES_FILE_NAME = "default.properties";
+    public static final String TRANSLOG_NAME = "translog";
+
     public static final String SPLUNK_HOME = System
 	    .getProperty(SPLUNK_HOME_PROPERTY);
 

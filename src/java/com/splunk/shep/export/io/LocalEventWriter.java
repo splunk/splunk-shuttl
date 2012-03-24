@@ -40,8 +40,7 @@ public class LocalEventWriter extends EventWriter {
 
     @Override
     public void write(InputStream is) throws IOException {
-	String content = IOUtils.toString(is);
-	write(content);
+	IOUtils.copy(is, out);
     }
 
     @Override
