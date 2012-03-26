@@ -2,6 +2,7 @@
 <ns2:serverConf xmlns:ns2="com.splunk.shep.server.model">
 	<httpHost>localhost</httpHost>
 	<httpPort>9090</httpPort>
+	<splunkClusterName>myname</splunkClusterName>
     <clusterlist>
         <hadoopcluster>
             <name>dev</name>

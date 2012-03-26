@@ -34,12 +34,50 @@ public interface ShepServerMBean {
     public int getDefHadoopClusterPort() throws ShepMBeanException;
 
     /**
+     * Name of the host on which Shep is running
+     * 
+     * @return
+     * @throws ShepMBeanException
+     */
+    public String getShepHostName() throws ShepMBeanException;
+
+    /**
+     * Returns an array of Hadoop Cluster Names
+     * 
+     * @return
+     */
+    public String[] getHadoopClusterNames();
+
+    /**
+     * adds a Hadoop Cluster configuration
      * 
      * @param name
-     *            The name of the cluster
-     * @return String HDFS cluster host name (namenode)
      */
-    public String getHadoopClusterHost(String name);
+    public void addHadoopCluster(String name);
+
+    /**
+     * Deletes a Hadoop Cluster
+     * 
+     * @param name
+     */
+    public void deleteHadoopCluster(String name);
+
+    /**
+     * Checks whether a given Hadoop Cluster is the default
+     * 
+     * @param clustername
+     * @return
+     * @throws ShepMBeanException
+     */
+    public boolean isDefault(String clustername) throws ShepMBeanException;
+
+    /**
+     * Sets a cluster as the default for Shep to work with
+     * 
+     * @param clustername
+     * @throws ShepMBeanException
+     */
+    public void setDefault(String clustername) throws ShepMBeanException;
 
     /**
      * 
@@ -47,7 +85,39 @@ public interface ShepServerMBean {
      *            The name of the cluster
      * @return String HDFS cluster host name (namenode)
      */
-    public int getHadoopClusterPort(String name);
+    public String getHadoopClusterHost(String name) throws ShepMBeanException;
+
+    /**
+     * Sets the namenode host of a hadoop cluster
+     * 
+     * @param name
+     *            Name of the cluster
+     * @param host
+     *            Namenode host name
+     * @throws ShepMBeanException
+     */
+    public void setHadoopClusterHost(String name, String host)
+	    throws ShepMBeanException;
+
+    /**
+     * 
+     * @param name
+     *            The name of the cluster
+     * @return String HDFS cluster host name (namenode)
+     */
+    public int getHadoopClusterPort(String name) throws ShepMBeanException;
+
+    /**
+     * Sets the namenode port of a hadoop cluster
+     * 
+     * @param name
+     *            Name of the cluster
+     * @param port
+     *            Namenode port
+     * @throws ShepMBeanException
+     */
+    public void setHadoopClusterPort(String name, int port)
+	    throws ShepMBeanException;
 
     /**
      * 
@@ -56,8 +126,52 @@ public interface ShepServerMBean {
     public String getHttpHost();
 
     /**
+     * Sets the Network endpoint/hostname for the REST endpoints on this Shep
+     * server
+     * 
+     * @param host
+     *            String
+     */
+    public void setHttpHost(String host);
+
+    /**
+     * Gets the HTTP port of the REST endpoints on this Shep server
      * 
      * @return int HTTP/REST Listener port
      */
     public int getHttpPort();
+
+    /**
+     * Sets the HTTP port of the REST endpoints on this Shep server
+     * 
+     * @param port
+     *            HTTP port
+     * @return
+     */
+    public void setHttpPort(int port);
+
+    /**
+     * Gets the name of the Splunk cluster to which this Shep belongs
+     * 
+     * @return
+     */
+    public String getSplunkClusterName();
+
+    /**
+     * Sets the name of the Splunk cluster to which this Shep belongs
+     * 
+     * @return
+     */
+    public void setSplunkClusterName(String name);
+
+    /**
+     * Saves the MBean state into an xml file
+     * 
+     */
+    public void save() throws ShepMBeanException;
+
+    /**
+     * Refreshes the MBeans with values from XML file
+     */
+    public void refresh() throws ShepMBeanException;
 }

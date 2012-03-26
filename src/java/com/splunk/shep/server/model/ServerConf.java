@@ -32,6 +32,15 @@ public class ServerConf {
     private ArrayList<HadoopCluster> clusterlist;
     private String httpHost;
     private int httpPort;
+    private String splunkClusterName;
+
+    public String getSplunkClusterName() {
+	return splunkClusterName;
+    }
+
+    public void setSplunkClusterName(String name) {
+	this.splunkClusterName = name;
+    }
 
     public String getHttpHost() {
 	return httpHost;
