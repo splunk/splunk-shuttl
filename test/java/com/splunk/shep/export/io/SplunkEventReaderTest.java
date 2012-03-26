@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.export.io;
 
+import static com.splunk.shep.ShepConstants.OutputMode.*;
 import static com.splunk.shep.ShepConstants.SystemType.*;
 import static com.splunk.shep.export.io.SplunkEventReader.*;
 
@@ -54,29 +55,31 @@ public class SplunkEventReaderTest extends ShepTestBase {
 
     @Test(groups = { "integration" })
     public void testExport() throws IllegalArgumentException, IOException {
+	deleteTranslog();
+
 	String[] testEvents = prefixTime(new String[] { "this is event 1",
 		"this is event 2" });
-	addOneShot(testEvents);
+	addOneShot(INDEX_NAME, testEvents);
 
 	EventReader eventReader = EventReader.getInstance(splunk);
 	TranslogService translogService = new TranslogService();
 	Map<String, Object> params = new HashMap<String, Object>();
-	params.put("output_mode", "json");
-	long lastEndTime = translogService.getEndTime(indexName);
-	InputStream is = eventReader.export(indexName, lastEndTime, params);
+	params.put("output_mode", json.toString());
+	long lastEndTime = translogService.getEndTime(INDEX_NAME);
+	InputStream is = eventReader.export(INDEX_NAME, lastEndTime, params);
 	verifyJson(is, testEvents);
-	translogService.setEndTime(indexName, eventReader.getEndTime());
+	translogService.setEndTime(INDEX_NAME, eventReader.getEndTime());
 
 	sleep(TIME_GAP * 1000);
 
 	testEvents = prefixTime(new String[] { "this is event 3",
 		"this is event 4" });
-	addOneShot(testEvents);
+	addOneShot(INDEX_NAME, testEvents);
 
-	lastEndTime = translogService.getEndTime(indexName);
-	is = eventReader.export(indexName, lastEndTime, params);
+	lastEndTime = translogService.getEndTime(INDEX_NAME);
+	is = eventReader.export(INDEX_NAME, lastEndTime, params);
 	verifyJson(is, testEvents);
-	translogService.setEndTime(indexName, eventReader.getEndTime());
+	translogService.setEndTime(INDEX_NAME, eventReader.getEndTime());
 
     }
 

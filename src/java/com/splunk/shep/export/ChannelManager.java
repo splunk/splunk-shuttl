@@ -123,7 +123,7 @@ public class ChannelManager {
 
 	@Override
 	public Long call() throws Exception {
-	    SystemType type = type(outputFileSystem);
+	    SystemType type = valueOf(outputFileSystem);
 
 	    Map<String, Object> params = new HashMap<String, Object>();
 	    params.put("output_mode", outputMode);

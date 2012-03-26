@@ -23,20 +23,11 @@ import org.apache.commons.io.FileUtils;
 public final class ShepConstants {
     public static enum SystemType {
 	local, hdfs, splunk;
-
-	public static SystemType type(String type)
-		throws IllegalArgumentException {
-	    if (local.toString().equals(type)) {
-		return local;
-	    } else if (hdfs.toString().equals(type)) {
-		return hdfs;
-	    } else if (splunk.toString().equals(type)) {
-		return hdfs;
-	    }
-	    throw new IllegalArgumentException("Unsupported EventWriterType: "
-		    + type);
-	}
     };
+
+    public static enum OutputMode {
+	xml, json, csv, raw;
+    }
 
     // REST endpoints
     public static final String ENDPOINT_CONTEXT = "shep/rest";
