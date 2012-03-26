@@ -17,8 +17,8 @@ package com.splunk.shep.server.mbeans;
 import static org.testng.Assert.*;
 
 import java.io.File;
+import java.io.FileWriter;
 
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -29,10 +29,11 @@ import org.testng.annotations.Test;
  * 
  */
 public class ShepServerMBeanTest {
+    private static final String EMPTY_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+	    + "<ns2:serverConf xmlns:ns2=\"com.splunk.shep.server.model\"></ns2:serverConf>";
     private static final int TEST_CLUSTER_PORT = 9797;
     private static final String TEST_CLUSTER_HOST = "test_cluster_host";
     private static final String TEST_CLUSTER_NAME = "test_cluster_name";
-    private static final String TMP_SERVER_XML = "/tmp/server.xml";
     private static final String TESTSPLUNKCLUSTER = "testsplunkcluster";
     private static final int TESTPORT = 9090;
     private static final String TESTHOST = "testhost";
@@ -41,8 +42,10 @@ public class ShepServerMBeanTest {
     @BeforeClass(groups = { "fast-unit" })
     public void createMBean() throws Exception {
 	try {
-	    System.out.println("ShepServerMBeanTest - BeforeMethod");
-	    this.serverMBean = new ShepServer(TMP_SERVER_XML);
+	    File confFile = getTempFile();
+	    System.out.println("ShepServerMBeanTest - running "
+		    + confFile.getPath());
+	    this.serverMBean = new ShepServer(confFile.getPath());
 	    this.serverMBean.setHttpHost(TESTHOST);
 	    this.serverMBean.setHttpPort(TESTPORT);
 	    this.serverMBean.setSplunkClusterName(TESTSPLUNKCLUSTER);
@@ -52,6 +55,15 @@ public class ShepServerMBeanTest {
 	    e.printStackTrace();
 	    throw new Exception(e);
 	}
+    }
+
+    private File getTempFile() throws Exception {
+	File confFile = File.createTempFile("shepServerMBeanTest", ".xml");
+	confFile.deleteOnExit();
+	FileWriter writer = new FileWriter(confFile);
+	writer.write(EMPTY_XML);
+	writer.close();
+	return confFile;
     }
 
     @Test(groups = { "fast-unit" })
@@ -118,15 +130,6 @@ public class ShepServerMBeanTest {
 	// the following method should throw an exception
 	this.serverMBean.getHadoopClusterHost(TEST_CLUSTER_NAME);
 	// unreached
-    }
-
-    @AfterClass(groups = { "fast-unit" })
-    public void destroyMBeanBackingXMLFile() {
-	try {
-	    new File(TMP_SERVER_XML).delete();
-	} catch (Exception e) {
-	    // cleanup - ignore exception
-	}
     }
 
 }
