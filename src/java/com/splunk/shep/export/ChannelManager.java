@@ -48,7 +48,7 @@ public class ChannelManager {
     private static EventWriter eventWriter;
     private static TranslogService translogService;
 
-    public static void start(ExportConf exportConf) throws IOException {
+    public void start(ExportConf exportConf) throws IOException {
 	if (service == null) {
 	    // TODO exposed as configurable parameter?
 	    int corePoolSize = 5;
@@ -73,13 +73,13 @@ public class ChannelManager {
 	}
     }
 
-    public static void stop() {
+    public void stop() {
 	if (service != null) {
 	    service.shutdown();
 	}
     }
 
-    public static boolean isCancelled(String indexName) {
+    public boolean isCancelled(String indexName) {
 	if (futures == null || !futures.containsKey(indexName)) {
 	    return false;
 	} else {
@@ -87,7 +87,7 @@ public class ChannelManager {
 	}
     }
 
-    public static boolean isDone(String indexName) {
+    public boolean isDone(String indexName) {
 	if (futures == null || !futures.containsKey(indexName)) {
 	    return false;
 	} else {
@@ -95,13 +95,14 @@ public class ChannelManager {
 	}
     }
 
-    public static boolean cancel(String indexName, boolean mayInterruptIfRunning) {
+    public boolean cancel(String indexName, boolean mayInterruptIfRunning) {
 	if (futures == null || !futures.containsKey(indexName)) {
 	    return false;
 	} else {
 	    return futures.get(indexName).cancel(mayInterruptIfRunning);
 	}
     }
+
     private static class ChannelCallable implements Callable<Long> {
 	private String indexName;
 	// TODO currently splunk-java-sdk hardcoded outputMode, we will use
@@ -122,7 +123,7 @@ public class ChannelManager {
 
 	@Override
 	public Long call() throws Exception {
-	    SystemType type = type(outputFileSystem);
+	    SystemType type = valueOf(outputFileSystem);
 
 	    Map<String, Object> params = new HashMap<String, Object>();
 	    params.put("output_mode", outputMode);

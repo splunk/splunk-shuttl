@@ -45,10 +45,13 @@ import com.splunk.Service;
  *
  */
 public class ShepTestBase {
-    protected static final String BASE_DIR = System.getProperty("user.dir");
+    // system environment variables
+    public static final String TEMP_DIR_PATH = FileUtils.getTempDirectoryPath();
+    public static final String BASE_DIR_PATH = System.getProperty("user.dir");
+
     // splunk convert your index name to all lowercase, so use lowercase to make
     // sure you can find the index
-    protected static final String indexName = "shepTestIndex".toLowerCase();
+    protected static final String INDEX_NAME = "shepTestIndex".toLowerCase();
     private static final Logger log = Logger.getLogger(ShepTestBase.class);
     private static Args args;
 
@@ -62,6 +65,30 @@ public class ShepTestBase {
 	args.put("password", conf.getString(SPLUNK_PASSWORD));
 	args.put("host", conf.getString(SPLUNK_HOST));
 	args.put("port", conf.getInt(SPLUNK_MGMT_PORT));
+
+	// if you run test from ant, it will set SPLUNK_HOME_PROPERTY first.
+	// This is in case you don't need to start Splunk so don't want to run
+	// from ant.
+	File file = FileUtils.getFile(BASE_DIR_PATH, "build-cache", "splunk");
+	if (System.getProperty(SPLUNK_HOME_PROPERTY) == null) {
+	    System.setProperty(SPLUNK_HOME_PROPERTY, file.getAbsolutePath());
+	    System.out.println("file.getAbsolutePath: "
+		    + file.getAbsolutePath());
+	}
+
+	// same thing for SHEP_HOME, if you run test from ant, it should start
+	// Splunk and create shep app already.
+	File shepHome = new File(SHEP_HOME);
+	if (!shepHome.exists()) {
+	    shepHome.mkdirs();
+	}
+    }
+
+    protected void deleteTranslog() {
+	File translog = new File(TRANSLOG_FILE_PATH);
+	if (translog.exists()) {
+	    translog.delete();
+	}
     }
 
     protected void waitEventCount(Index index, int value, int seconds) {
@@ -74,19 +101,9 @@ public class ShepTestBase {
 	}
     }
 
-    protected void addOneShot(String... lines) throws IOException {
-	File file = FileUtils.getFile(BASE_DIR, "build-cache", "splunk");
-	if (System.getProperty(SPLUNK_HOME_PROPERTY) == null) {
-	    System.setProperty(SPLUNK_HOME_PROPERTY, file.getAbsolutePath());
-	    System.out.println("file.getAbsolutePath: "
-		    + file.getAbsolutePath());
-	}
-
-	File translog = new File(TRANSLOG_FILE_PATH);
-	if (translog.exists()) {
-	    FileUtils.forceDelete(translog);
-	}
-
+    protected void addOneShot(String indexName, String... lines)
+	    throws IOException {
+	long st = System.currentTimeMillis();
 	Service service = Service.connect(args);
 	EntityCollection<Index> indexes = service.getIndexes();
 	if (!indexes.containsKey(indexName)) {
@@ -103,6 +120,8 @@ public class ShepTestBase {
 	}
 
 	waitEventCount(index, lines.length, 30);
+	log.debug("addOneShot took (sec): " + (System.currentTimeMillis() - st)
+		/ 1000);
 	assertEquals(index.getTotalEventCount(), lines.length);
     }
 

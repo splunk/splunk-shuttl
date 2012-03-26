@@ -19,7 +19,6 @@ import static com.splunk.shep.ShepConstants.*;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -32,7 +31,7 @@ public class TranslogService {
     // what is this time, Splunk birthday? Sun, 09 Sep 2001 01:46:40 GMT
     public static final long DEFAULT_ENDTIME = 1000000000;
 
-    private Configuration config;
+    private PropertiesConfiguration config;
 
     public TranslogService() throws IOException {
 	this(TRANSLOG_FILE_PATH);
@@ -45,6 +44,7 @@ public class TranslogService {
 
 	try {
 	    config = new PropertiesConfiguration(translog);
+	    config.load();
 	} catch (ConfigurationException e) {
 	    throw new IOException("Failed to open ");
 	}
@@ -54,8 +54,8 @@ public class TranslogService {
 	if (!translog.exists()) {
 	    FileUtils.forceMkdir(new File(translog.getParent()));
 	    translog.createNewFile();
-	    FileUtils.write(translog, TRANSLOG_ENDTIME_KEY + "="
-			+ DEFAULT_ENDTIME);
+	    // FileUtils.write(translog, TRANSLOG_ENDTIME_KEY + "="
+	    // + DEFAULT_ENDTIME);
 	}
     }
 
@@ -63,15 +63,24 @@ public class TranslogService {
 	String key = indexName + "." + TRANSLOG_ENDTIME_KEY;
 	long value = DEFAULT_ENDTIME;
 	if (config.containsKey(key)) {
-	    value = config.getLong(key);
-	} else {
-	    config.addProperty(key, value);
+	    value = config.getLong(key, DEFAULT_ENDTIME);
 	}
 	return value;
     }
     
-    public synchronized void setEndTime(String indexName, long endTime) {
-	// when setProperty is returned, changed is flushed and file is closed
-	config.addProperty(indexName + "." + TRANSLOG_ENDTIME_KEY, endTime);
+    public synchronized void setEndTime(String indexName, long endTime)
+	    throws IOException {
+	String key = indexName + "." + TRANSLOG_ENDTIME_KEY;
+	if (config.containsKey(key)) {
+	    config.setProperty(key, endTime);
+	} else {
+	    config.addProperty(key, endTime);
+	}
+	try {
+	    config.save();
+	} catch (ConfigurationException e) {
+	    throw new IOException("Failed to update property " + key);
+	}
     }
+
 }
