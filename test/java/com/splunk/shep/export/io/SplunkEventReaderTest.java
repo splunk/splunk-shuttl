@@ -15,7 +15,6 @@
 package com.splunk.shep.export.io;
 
 import static com.splunk.shep.ShepConstants.OutputMode.*;
-import static com.splunk.shep.ShepConstants.SystemType.*;
 import static com.splunk.shep.export.io.SplunkEventReader.*;
 
 import java.io.IOException;
@@ -23,6 +22,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.testng.annotations.Test;
 
@@ -57,30 +57,44 @@ public class SplunkEventReaderTest extends ShepTestBase {
     public void testExport() throws IllegalArgumentException, IOException {
 	deleteTranslog();
 
-	String[] testEvents = prefixTime(new String[] { "this is event 1",
-		"this is event 2" });
-	addOneShot(INDEX_NAME, testEvents);
-
-	EventReader eventReader = EventReader.getInstance(splunk);
+	EventReader eventReader = new SplunkEventReader();
 	TranslogService translogService = new TranslogService();
 	Map<String, Object> params = new HashMap<String, Object>();
 	params.put("output_mode", json.toString());
-	long lastEndTime = translogService.getEndTime(INDEX_NAME);
-	InputStream is = eventReader.export(INDEX_NAME, lastEndTime, params);
-	verifyJson(is, testEvents);
-	translogService.setEndTime(INDEX_NAME, eventReader.getEndTime());
+
+	String[] testEvents = prefixTime(new String[] { "this is event 1",
+		"this is event 2" });
+	testExport(eventReader, translogService, params, testEvents);
+
+	// addOneShot(INDEX_NAME, testEvents);
+	// long lastEndTime = translogService.getEndTime(INDEX_NAME);
+	// InputStream is = eventReader.export(INDEX_NAME, lastEndTime, params);
+	// verifyJson(is, testEvents);
+	// translogService.setEndTime(INDEX_NAME, eventReader.getEndTime());
+	// is.close();
 
 	sleep(TIME_GAP * 1000);
 
 	testEvents = prefixTime(new String[] { "this is event 3",
 		"this is event 4" });
-	addOneShot(INDEX_NAME, testEvents);
+	testExport(eventReader, translogService, params, testEvents);
 
-	lastEndTime = translogService.getEndTime(INDEX_NAME);
-	is = eventReader.export(INDEX_NAME, lastEndTime, params);
-	verifyJson(is, testEvents);
-	translogService.setEndTime(INDEX_NAME, eventReader.getEndTime());
-
+	// addOneShot(INDEX_NAME, testEvents);
+	// lastEndTime = translogService.getEndTime(INDEX_NAME);
+	// is = eventReader.export(INDEX_NAME, lastEndTime, params);
+	// verifyJson(is, testEvents);
+	// translogService.setEndTime(INDEX_NAME, eventReader.getEndTime());
+	// is.close();
     }
 
+    private void testExport(EventReader eventReader,
+	    TranslogService translogService, Map<String, Object> params,
+	    String... events) throws IOException {
+	addOneShot(INDEX_NAME, events);
+	long lastEndTime = translogService.getEndTime(INDEX_NAME);
+	InputStream is = eventReader.export(INDEX_NAME, lastEndTime, params);
+	verifyJson(IOUtils.toString(is), events);
+	translogService.setEndTime(INDEX_NAME, eventReader.getEndTime());
+	is.close();
+    }
 }

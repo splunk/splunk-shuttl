@@ -19,7 +19,6 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,7 +28,6 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -66,18 +64,14 @@ public class ShepTestBase {
 	args.put("host", conf.getString(SPLUNK_HOST));
 	args.put("port", conf.getInt(SPLUNK_MGMT_PORT));
 
-	// if you run test from ant, it will set SPLUNK_HOME_PROPERTY first.
-	// This is in case you don't need to start Splunk so don't want to run
-	// from ant.
+	// if you run test from ant, it will set SPLUNK_HOME_PROPERTY first. So
+	// these setting are not required.
+	// This is in case you already start a splunk and want to use that
+	// splunk for testing
 	File file = FileUtils.getFile(BASE_DIR_PATH, "build-cache", "splunk");
 	if (System.getProperty(SPLUNK_HOME_PROPERTY) == null) {
 	    System.setProperty(SPLUNK_HOME_PROPERTY, file.getAbsolutePath());
-	    System.out.println("file.getAbsolutePath: "
-		    + file.getAbsolutePath());
 	}
-
-	// same thing for SHEP_HOME, if you run test from ant, it should start
-	// Splunk and create shep app already.
 	File shepHome = new File(SHEP_HOME);
 	if (!shepHome.exists()) {
 	    shepHome.mkdirs();
@@ -92,13 +86,17 @@ public class ShepTestBase {
     }
 
     protected void waitEventCount(Index index, int value, int seconds) {
+	int oriSeconds = seconds;
 	while (seconds > 0) {
 	    sleep(1000);
+	    seconds = seconds - 1;
 	    if (index.getTotalEventCount() == value) {
-		return;
+		break;
 	    }
 	    index.refresh();
 	}
+	log.debug(String.format("waitEventCount for index %s took %s sec",
+		index.getName(), (oriSeconds - seconds)));
     }
 
     protected void addOneShot(String indexName, String... lines)
@@ -106,6 +104,7 @@ public class ShepTestBase {
 	long st = System.currentTimeMillis();
 	Service service = Service.connect(args);
 	EntityCollection<Index> indexes = service.getIndexes();
+	indexName = indexName.toLowerCase();
 	if (!indexes.containsKey(indexName)) {
 	    indexes.create(indexName);
 	    indexes.refresh();
@@ -119,9 +118,9 @@ public class ShepTestBase {
 	    index.submit(line);
 	}
 
-	waitEventCount(index, lines.length, 30);
-	log.debug("addOneShot took (sec): " + (System.currentTimeMillis() - st)
-		/ 1000);
+	waitEventCount(index, lines.length, 60);
+	log.debug(String.format("addOneShot to index %s took %d sec",
+		indexName, (System.currentTimeMillis() - st) / 1000));
 	assertEquals(index.getTotalEventCount(), lines.length);
     }
 
@@ -135,9 +134,12 @@ public class ShepTestBase {
 	return result;
     }
 
-    protected void verifyJson(InputStream is, String... expectedLines)
+    protected void verifyJson(File file, String... expectedLines){
+	// InputStream
+    }
+
+    protected void verifyJson(String result, String... expectedLines)
 	    throws IOException {
-	String result = IOUtils.toString(is);
 	log.debug("result: " + result);
 	ObjectMapper m = new ObjectMapper();
 	JsonNode root = m.readTree(result);
