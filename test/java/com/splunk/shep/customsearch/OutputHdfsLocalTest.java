@@ -41,7 +41,7 @@ public class OutputHdfsLocalTest {
 
     @Parameters({ "splunk.host", "splunk.mgmtport", "splunk.username",
 	    "splunk.password" })
-    @Test(groups = { "slow" })
+    @Test(groups = { "integration" })
     public void fileCheck(String splunkHost, String splunkMGMTPort,
 	    String splunkUsername, String splunkPassword) throws IOException,
 	    InterruptedException {
@@ -97,7 +97,7 @@ public class OutputHdfsLocalTest {
 	writerOut.close();
     }
 
-    @BeforeMethod(groups = { "slow" })
+    @BeforeMethod(groups = { "integration" })
     public void setUp() throws IOException {
 	fileSystem = UtilsFileSystem.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
@@ -109,7 +109,7 @@ public class OutputHdfsLocalTest {
 	return new File("outputFile");
     }
 
-    @AfterMethod(groups = { "slow" })
+    @AfterMethod(groups = { "integration" })
     public void tearDown() {
 	putter.deleteMyFiles();
     }

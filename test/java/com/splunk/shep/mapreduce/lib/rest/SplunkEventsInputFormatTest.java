@@ -1,7 +1,7 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
-import static org.junit.Assert.assertTrue;
-import static org.testng.AssertJUnit.assertEquals;
+
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,18 +38,18 @@ public class SplunkEventsInputFormatTest {
     private HadoopFileSystemPutter putter;
     private FileSystem fileSystem;
 
-    @BeforeMethod(groups = { "slow" })
+    @BeforeMethod(groups = { "slow-unit" })
     public void setUp() {
 	fileSystem = FileSystemUtils.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 
-    @AfterMethod(groups = { "slow" })
+    @AfterMethod(groups = { "slow-unit" })
     public void tearDown() {
 	putter.deleteMyFiles();
     }
 
-    @Test(groups = { "slow" })
+    @Test(groups = { "slow-unit" })
     public void should_getExpectedOutput_when_havingSplunkEventsInputFormat_as_inputFormat()
 	    throws IOException, InterruptedException, ClassNotFoundException {
 	putFilesOnHadoop();
@@ -97,7 +97,7 @@ public class SplunkEventsInputFormatTest {
 	FileInputFormat.setInputPaths(job, pathForFirst, pathForSecondFile);
 	FileOutputFormat.setOutputPath(job, getOutputPath());
 
-	assertTrue(job.waitForCompletion(true));
+	job.waitForCompletion(true);
     }
 
     private Path getOutputPath() {

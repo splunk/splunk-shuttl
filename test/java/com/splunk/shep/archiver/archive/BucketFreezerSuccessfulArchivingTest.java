@@ -43,7 +43,7 @@ import com.splunk.shep.testutil.UtilsTestNG;
  * Fixture: HttpClient returns HttpStatus codes that represent successful
  * archiving.
  */
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketFreezerSuccessfulArchivingTest {
 
     File tempTestDirectory;
@@ -51,7 +51,7 @@ public class BucketFreezerSuccessfulArchivingTest {
     ArchiveRestHandler archiveRestHandler;
     FailedBucketsArchiver failedBucketsArchiver;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void beforeClass() throws ClientProtocolException, IOException {
 	tempTestDirectory = createTempDirectory();
 	archiveRestHandler = mock(ArchiveRestHandler.class);
@@ -61,7 +61,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 		archiveRestHandler, failedBucketsArchiver);
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDownFast() {
 	FileUtils.deleteQuietly(tempTestDirectory);
 	FileUtils.deleteQuietly(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));

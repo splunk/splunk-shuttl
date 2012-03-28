@@ -34,13 +34,13 @@ import com.splunk.shep.testutil.UtilsFile;
 /**
  * Fixture: Calling the main method of BucketFreezer. Testing exit codes.
  */
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketFreezerSystemExitTest {
 
     Runtime runtimeMock;
     private BucketFreezer bucketFreezer;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	runtimeMock = mock(Runtime.class);
 	bucketFreezer = new BucketFreezer(new BucketMover(
@@ -49,7 +49,7 @@ public class BucketFreezerSystemExitTest {
 		mock(FailedBucketsArchiver.class));
     }
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDown() throws IOException {
 	File safeLocation = new File(BucketFreezer.DEFAULT_SAFE_LOCATION);
 	FileUtils.deleteDirectory(safeLocation);

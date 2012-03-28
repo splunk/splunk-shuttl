@@ -8,7 +8,7 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-@Test(groups = { "slow" })
+@Test(groups = { "slow-unit" })
 public class ShellClassRunnerTest {
 
     public static final Integer EXIT_CODE = 1;
@@ -16,7 +16,7 @@ public class ShellClassRunnerTest {
     private static final Integer EXIT_CODE_FOR_ONE_ARGUMENT = 2;
     private ShellClassRunner shellClassRunner;
 
-    @BeforeMethod(groups = { "slow" })
+    @BeforeMethod(groups = { "slow-unit" })
     public void setUp() {
 	shellClassRunner = new ShellClassRunner();
     }

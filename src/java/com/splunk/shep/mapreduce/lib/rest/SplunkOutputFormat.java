@@ -121,20 +121,6 @@ public class SplunkOutputFormat<K, V> extends OutputFormat<K, V> {
 	}
     }
 
-    /**
-     * Get the {@link RecordWriter} for the given job.
-     * 
-     * @param ignored
-     *            ignored param
-     * @param job
-     *            configuration for the job whose output is being written.
-     * @param name
-     *            the unique name for this part of the output.
-     * @param progress
-     *            mechanism for reporting progress while writing to file.
-     * @return a {@link RecordWriter} to write the output for the job.
-     * @throws IOException
-     */
     @Override
     public RecordWriter<K, V> getRecordWriter(TaskAttemptContext context)
 	    throws IOException, InterruptedException {
@@ -143,22 +129,6 @@ public class SplunkOutputFormat<K, V> extends OutputFormat<K, V> {
 	return new SplunkRecordWriter();
     }
 
-    /**
-     * Check for validity of the output-specification for the job.
-     * <p/>
-     * <p>
-     * This is to validate the output specification for the job when it is a job
-     * is submitted. Typically checks that it does not already exist, throwing
-     * an exception when it already exists, so that output is not overwritten.
-     * </p>
-     * 
-     * @param ignored
-     *            ignored param
-     * @param job
-     *            job configuration.
-     * @throws IOException
-     *             when output should not be attempted
-     */
     @Override
     public void checkOutputSpecs(JobContext context) throws IOException,
 	    InterruptedException {

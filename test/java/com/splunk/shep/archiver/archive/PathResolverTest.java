@@ -12,7 +12,7 @@ import com.splunk.shep.archiver.fileSystem.WritableFileSystem;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class PathResolverTest {
 
     private ArchiveConfiguration configuration;
@@ -27,7 +27,7 @@ public class PathResolverTest {
     private BucketFormat bucketFormat;
     private String bucketName;
 
-    @BeforeMethod(groups = { "fast" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	configuration = mock(ArchiveConfiguration.class);
 	writableFileSystem = mock(WritableFileSystem.class);

@@ -30,7 +30,7 @@ import com.splunk.shep.testutil.UtilsTestNG;
 /**
  * Fixture: Creating SimpleFileLocks in different JVMs.<br/>
  */
-@Test(groups = { "slow" })
+@Test(groups = { "slow-unit" })
 public class SimpleFileLockTwoJVMsTest {
 
     static final Integer EXIT_STATUS_ON_FALSE_LOCK = 47;
@@ -38,12 +38,12 @@ public class SimpleFileLockTwoJVMsTest {
 	    + "-fileToLock");
     SimpleFileLock simpleFileLock;
 
-    @BeforeMethod(groups = { "slow" })
+    @BeforeMethod(groups = { "slow-unit" })
     public void setUp() {
 	simpleFileLock = getSimpleFileLock();
     }
 
-    @AfterMethod(groups = { "slow" })
+    @AfterMethod(groups = { "slow-unit" })
     public void tearDown() {
 	deleteFileToLock();
 	assertTrue(!fileToLock.exists());

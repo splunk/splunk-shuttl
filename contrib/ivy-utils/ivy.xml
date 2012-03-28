@@ -5,6 +5,7 @@
 <ivy-module version="2.0">
 	<info organisation="com.splunk.shep" module="shep-ivy" />
 	<dependencies>
+		<dependency org="org.apache.commons" name="commons-exec" rev="1.1" />
 		<dependency org="commons-io" name="commons-io" rev="2.1" />
 		<dependency org="org.apache.httpcomponents" name="httpclient"
 			rev="4.1.2" />

@@ -27,7 +27,7 @@ import com.splunk.shep.testutil.UtilsTestNG;
  * Using the method naming convention:
  * [metodNamn]_[stateUnderTest]_[expectedOutcome]
  */
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class HadoopFileSystemArchiveTest {
 
     private FileSystem fileSystem;

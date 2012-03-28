@@ -11,7 +11,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class ArchiverLoggerTest {
 
     PrintWriter realPrintWriter;

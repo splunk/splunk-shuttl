@@ -20,12 +20,12 @@ import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsFile;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class BucketTest {
 
     File rootTestDirectory;
 
-    @AfterMethod(groups = { "fast" })
+    @AfterMethod(groups = { "fast-unit" })
     public void tearDown() throws IOException {
 	if (rootTestDirectory != null)
 	    FileUtils.deleteDirectory(rootTestDirectory);

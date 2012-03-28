@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.archiver.model.Bucket;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class UtilsBucketTest {
 
     Bucket bucket;

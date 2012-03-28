@@ -7,19 +7,19 @@ import org.testng.annotations.Test;
 @Test(groups = { "fast" })
 public class MethodCallerHelperTest {
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void getCallerToMyMethod_should_return_thisClass_when_invokingCaller_call() {
 	Class<?> clazz = new Caller().call();
 	assertEquals(clazz, getClass());
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public void getCallerToMyMethod_should_stillGetThisClass_when_otherInternalCallsInsideTheClassIsCalled() {
 	Class<?> clazz = new Caller().internalCall_before_call();
 	assertEquals(clazz, getClass());
     }
 
-    @Test(groups = { "fast" }, expectedExceptions = { IllegalStateException.class })
+    @Test(groups = { "fast-unit" }, expectedExceptions = { IllegalStateException.class })
     public void should_throw_IllegalStateException_when_stackTrace_containsOnlyTheSameClass() {
 	StackTraceElement[] elements = getElementsWithSameClass();
 	MethodCallerHelper.getCallerToMyMethod(elements);

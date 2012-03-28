@@ -9,12 +9,12 @@ import org.apache.hadoop.fs.Path;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class ArchiveConfigurationTest {
 
     ArchiveConfiguration configuration;
 
-    @BeforeMethod
+    @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	configuration = ArchiveConfiguration.getSharedInstance();
     }

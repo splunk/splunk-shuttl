@@ -1,6 +1,6 @@
 package com.splunk.shep.mapred.lib.rest;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,18 +51,18 @@ public class SplunkInputFormatTest {
     private HadoopFileSystemPutter putter;
     private SplunkServiceParameters testParameters;
 
-    @BeforeMethod(groups = { "slow" })
+    @BeforeMethod(groups = { "integration" })
     public void setUp() throws IOException {
 	fileSystem = FileSystemUtils.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 
-    @AfterMethod(groups = { "slow" })
+    @AfterMethod(groups = { "integration" })
     public void tearDown() {
 	putter.deleteMyFiles();
     }
 
-    @Test(groups = { "slow" })
+    @Test(groups = { "integration" })
     @Parameters({ "splunk.host", "splunk.mgmtport", "splunk.username",
 	    "splunk.password" })
     public void should_runAMapReduceJob_by_usingSplunkAsAnInputToHadoop(

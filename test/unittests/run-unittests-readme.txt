@@ -1,3 +1,6 @@
+These tests are deprecated.  Please do not add additional shell tests.  
+Add either JUnit or TestNG tests instead
+
 Here's how to use run-unittests.sh
 
 run-unittests.sh is asserts that the unit tests meet the following conditions:

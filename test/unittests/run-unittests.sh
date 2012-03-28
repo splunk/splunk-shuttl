@@ -1,3 +1,6 @@
+# THESE TESTS ARE DEPRECATED. PLEASE DO NOT ADD ADDITIONAL SHELL TESTS
+# ADD TESTNG OR JUNIT TESTS INSTEAD
+
 #!/bin/bash
 # The first argument ($1) should contain HADOOP_HOME
 # The second argument ($2) should contain SHEPDIR

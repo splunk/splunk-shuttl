@@ -1,6 +1,6 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,13 +44,13 @@ public class SplunkOutputFormatTest {
 	return new File(TEST_INPUT_FILE_PATH);
     }
 
-    @BeforeMethod(groups = { "slow" })
+    @BeforeMethod(groups = { "integration" })
     public void setUp() {
 	FileSystem fileSystem = FileSystemUtils.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 
-    @AfterMethod(groups = { "slow" })
+    @AfterMethod(groups = { "integration" })
     public void tearDown() {
 	putter.deleteMyFiles();
     }
@@ -59,7 +59,7 @@ public class SplunkOutputFormatTest {
 
     @Parameters({ "splunk.username", "splunk.password", "splunk.host",
 	    "splunk.mgmtport" })
-    @Test(groups = { "slow" })
+    @Test(groups = { "integration" })
     public void should_putDataInSplunk_when_runningAMapReduceJob_with_SplunkOutputFormat(
 	    String splunkUsername, String splunkPassword, String splunkHost,
 	    String splunkMGMTPort) throws IOException, InterruptedException,

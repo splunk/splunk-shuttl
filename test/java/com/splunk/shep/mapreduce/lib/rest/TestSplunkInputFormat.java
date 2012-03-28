@@ -16,8 +16,7 @@ package com.splunk.shep.mapreduce.lib.rest;
 
 import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.QUERY1;
 import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.QUERY2;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -32,20 +31,17 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MiniMRCluster;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import com.splunk.shep.mapreduce.lib.rest.mock.SplunkInputFormatMock;
 import com.splunk.shep.mapreduce.lib.rest.tests.SplunkRecord;
@@ -55,28 +51,14 @@ import com.splunk.shep.testutil.SplunkServiceParameters;
  * @author hyan
  * 
  */
+@Test(groups = { "embedded" })
 public class TestSplunkInputFormat {
     private static SplunkServiceParameters testParameters;
-    private static MiniDFSCluster dfsCluster;
-    private static MiniMRCluster mrCluster = null;
     private Path output = null;
     private static Log LOG = LogFactory.getLog(TestSplunkInputFormat.class);
 
     @BeforeClass
     public static void setUp() throws IOException, ParseException {
-	// Configuration conf = new Configuration();
-	JobConf conf = new JobConf();
-	if (System.getProperty("hadoop.log.dir") == null) {
-	    System.setProperty("hadoop.log.dir", "/tmp");
-	}
-	// https://issues.apache.org/jira/browse/HADOOP-565
-	// https://issues.apache.org/jira/browse/MAPREDUCE-3169
-	// https://issues.apache.org/jira/browse/MAPREDUCE-2285
-	dfsCluster = new MiniDFSCluster(conf, 2, true, null);
-	// numDir = 1 set the property mapred.local.dir
-	mrCluster = new MiniMRCluster(0, 0, 2, dfsCluster.getFileSystem()
-		.getUri().toString(), 1, null, null, null, conf);
-
 	String splunkHost = "localhost";
 	String splunkMGMTPort = "8089";
 	String splunkUsername = "admin";
@@ -87,44 +69,40 @@ public class TestSplunkInputFormat {
 
     @AfterClass
     public static void tearDown() {
-	if (mrCluster != null) {
-	    mrCluster.shutdown();
-	}
-	if (dfsCluster != null) {
-	    dfsCluster.shutdown();
-	}
+
     }
 
     @Test
     public void testSearchAllEvents() throws IOException, InterruptedException,
 	    ClassNotFoundException {
-	output = new Path("output1");
+	output = new Path("build/" + this.getClass().getCanonicalName()
+		+ ".testSearchAllEvents");
 	testQuery(QUERY1);
     }
 
     @Test
     public void testSearchOneEvent() throws IOException, InterruptedException,
 	    ClassNotFoundException {
-	output = new Path("output2");
+	output = new Path("build/" + this.getClass().getCanonicalName()
+		+ ".testSearchOneEvent");
 	testQuery(QUERY2);
     }
 
     private void testQuery(String query) throws IOException,
 	    InterruptedException, ClassNotFoundException {
-	runMapReduceJob(query);
-	verifyOutput(query);
+	FileSystem fs = runMapReduceJob(query);
+	verifyOutput(query, fs);
     }
 
-    private void runMapReduceJob(String query) throws IOException,
+    private FileSystem runMapReduceJob(String query) throws IOException,
 	    InterruptedException, ClassNotFoundException {
-	// JobConf job = new JobConf(dfsCluster.getFileSystem().getConf());
-	JobConf jobConf = mrCluster.createJobConf();
-	Job job = new Job(jobConf);
-	configureJobConf(job, query);
-	assertTrue(job.waitForCompletion(true));
+	Job job = new Job();
+	FileSystem fs = configureJobConf(query, job);
+	job.waitForCompletion(true);
+	return fs;
     }
 
-    private void configureJobConf(Job job, String query)
+    private FileSystem configureJobConf(String query, Job job)
 	    throws IOException {
 	Configuration conf = job.getConfiguration();
 	SplunkConfiguration.setConnInfo(conf, testParameters.host,
@@ -146,11 +124,16 @@ public class TestSplunkInputFormat {
 	job.setInputFormatClass(SplunkInputFormatMock.class);
 	job.setOutputFormatClass(TextOutputFormat.class);
 
+	FileSystem fs = FileSystem.getLocal(job.getConfiguration());
+	if (fs.exists(output)) {
+	    fs.delete(output, true);
+	}
+
 	FileOutputFormat.setOutputPath(job, output);
+	return fs;
     }
 
-    private void verifyOutput(String query) throws IOException {
-	FileSystem fs = dfsCluster.getFileSystem();
+    private void verifyOutput(String query, FileSystem fs) throws IOException {
 	FSDataInputStream open = fs.open(new Path(output, "part-r-00000"));
 
 	HashMap<String, Integer> expected = new HashMap<String, Integer>();

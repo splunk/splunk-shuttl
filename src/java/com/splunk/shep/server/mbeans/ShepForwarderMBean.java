@@ -27,7 +27,7 @@ public interface ShepForwarderMBean {
      * 
      * @param name
      *            The name of the cluster as in server.xml
-     * @return
+     * @return The HDFSSinkPrefix attribute
      */
     public String getHDFSSinkPrefix(String name) throws ShepMBeanException;
 
@@ -37,7 +37,7 @@ public interface ShepForwarderMBean {
      * @param name
      *            The name of the cluster as in server.xml
      * 
-     * @return
+     * @return The HDFSSinkMaxEventSize
      */
     public long getHDFSSinkFileRollingSize(String name)
 	    throws ShepMBeanException;
@@ -47,9 +47,30 @@ public interface ShepForwarderMBean {
      * 
      * @param name
      *            The name of the cluster as in server.xml
-     * @return
+     * @return The HDFSSinkPrefix attribute
      */
     public boolean getHDFSSinkUseAppending(String name)
 	    throws ShepMBeanException;
 
+    /**
+     * Starts the SplunkExportService
+     * 
+     * @throws ShepMBeanException
+     */
+    public void startExportService() throws ShepMBeanException;
+
+    /**
+     * Stops the SplunkExportService
+     * 
+     * @throws ShepMBeanException
+     */
+    public void stopExportService() throws ShepMBeanException;
+
+    /**
+     * Gets the SplunkExportService status message
+     * 
+     * @return status The status message
+     * @throws ShepMBeanException
+     */
+    public String getExportServiceStatus() throws ShepMBeanException;
 }

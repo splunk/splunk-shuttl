@@ -1,9 +1,15 @@
 <nav>
-	<collection label="Forwarding">
-	    <view name="events" />
-	    <view name="sources" />
-	    <view name="sourcetypes" />
-	    <view name="hosts" />
+    <view name="home" default='true'/>
+    <view name="flashtimeline" />
+    <collection label="Hive">
+        <view name="hive"/>
+   </collection>
+
+   <collection label="Forwarding">
+        <view name="events" />
+        <view name="sources" />
+        <view name="sourcetypes" />
+        <view name="hosts" />
     </collection>
     
     <collection label="REST">

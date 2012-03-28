@@ -14,8 +14,11 @@
 // limitations under the License.
 package com.splunk.shep.server.mbeans.rest;
 
+import static com.splunk.shep.ShepConstants.*;
+
 import java.lang.management.ManagementFactory;
 
+import javax.management.JMX;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.ws.rs.GET;
@@ -26,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.metrics.ShepMetricsHelper;
+import com.splunk.shep.server.mbeans.ShepServerMBean;
 
 /**
  * Exposes the Server MBean over REST
@@ -33,19 +37,22 @@ import com.splunk.shep.metrics.ShepMetricsHelper;
  * @author kpakkirisamy
  * 
  */
-@Path("/server")
+// @Path("/server")
+@Path(ENDPOINT_SERVER)
 public class ShepServerRest {
     private org.apache.log4j.Logger logger = Logger.getLogger(getClass());
-
+    
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/defaulthost")
+    @Path(ENDPOINT_DEFAULT_HOST)
     public String getDefHadoopClusterHostText() {
-	String logMessage = " Metrics - group=REST series=source::defaulthost_text_plain call=1";
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_SERVER, ENDPOINT_DEFAULT_HOST);
 	ShepMetricsHelper.update(logger, logMessage);
 
 	try {
-	    return (getAttribute("DefHadoopClusterHost"));
+	    return (getProxy().getDefHadoopClusterHost());
 	} catch (Exception e) {
 	    logger.error(e);
 	    throw new ShepRestException(e.getMessage());
@@ -55,14 +62,16 @@ public class ShepServerRest {
     // for debugging using browsers
     @GET
     @Produces(MediaType.TEXT_HTML)
-    @Path("/defaulthost")
+    @Path(ENDPOINT_DEFAULT_HOST)
     public String getDefHadoopClusterHostHTML() {
-	String logMessage = " Metrics - group=REST series=source::defaulthost_text_html call=1";
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_SERVER, ENDPOINT_DEFAULT_HOST);
 	ShepMetricsHelper.update(logger, logMessage);
 
 	try {
 	    return "<html> " + "<title>" + "Shep Rest Endpoint" + "</title>"
-		+ "<body><h1>" + getAttribute("DefHadoopClusterHost")
+		    + "<body><h1>" + getProxy().getDefHadoopClusterHost()
 		+ "</body></h1>" + "</html> ";
 	} catch (Exception e) {
 	    logger.error(e);
@@ -72,13 +81,15 @@ public class ShepServerRest {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/defaultport")
+    @Path(ENDPOINT_DEFAULT_PORT)
     public String getDefHadoopClusterPortText() {
-	String logMessage = " Metrics - group=REST series=source::defaultport_text_plain call=1";
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_SERVER, ENDPOINT_DEFAULT_PORT);
 	ShepMetricsHelper.update(logger, logMessage);
 
 	try {
-	    return (getAttribute("DefHadoopClusterPort"));
+	    return (Integer.toString(getProxy().getDefHadoopClusterPort()));
 	} catch (Exception e) {
 	    logger.error(e);
 	    throw new ShepRestException(e.getMessage());
@@ -88,14 +99,16 @@ public class ShepServerRest {
     // for debugging using browsers
     @GET
     @Produces(MediaType.TEXT_HTML) 
-    @Path("/defaultport")
+    @Path(ENDPOINT_DEFAULT_PORT)
     public String getDefHadoopClusterPortHTML() { 
-	String logMessage = " Metrics - group=REST series=source::default_text_html call=1";
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_SERVER, ENDPOINT_DEFAULT_PORT);
 	ShepMetricsHelper.update(logger, logMessage);
 
 	try {
 	    return "<html> " + "<title>" + "Shep Rest Endpoint" + "</title>"
-		+ "<body><h1>" + getAttribute("DefHadoopClusterPort")
+		    + "<body><h1>" + getProxy().getDefHadoopClusterPort()
 		+"</body></h1>" + "</html> "; 
 	} catch (Exception e) {
 	    logger.error(e);
@@ -108,20 +121,24 @@ public class ShepServerRest {
     // TODO
     @GET
     @Produces(MediaType.TEXT_HTML)
-    @Path("/shutdown")
+    @Path(ENDPOINT_SHUTDOWN)
     public void shutdownHTML() {
-	String logMessage = " Metrics - group=REST series=source::shutdown_text_html call=1";
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_SERVER, ENDPOINT_SHUTDOWN);
 	ShepMetricsHelper.update(logger, logMessage);
 
 	logger.info("Shep shutting down ..");
 	System.exit(0);
     }
 
-    private String getAttribute(String attr) throws Exception {
+    private ShepServerMBean getProxy() throws Exception {
 	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 	ObjectName name = new ObjectName("com.splunk.shep.mbeans:type=Server");
-	Object x = mbs.getAttribute(name, attr);
-	return (x.toString());
+	ShepServerMBean proxy = (com.splunk.shep.server.mbeans.ShepServerMBean) JMX
+		.newMBeanProxy(mbs, name,
+			com.splunk.shep.server.mbeans.ShepServerMBean.class);
+	return (proxy);
     }
 
 }

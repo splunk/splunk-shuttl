@@ -11,7 +11,7 @@ import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsTestNG;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class ArchiveBucketTransfererTest {
 
     @Test(groups = { "fast" })

@@ -119,17 +119,17 @@ public class UtilsEnvironment {
      * Contains it's own test class so that clearEnvironment can be truly
      * private.
      */
-    @Test(groups = { "fast" })
+    @Test(groups = { "fast-unit" })
     public static class UtilsEnvironmentTest {
 
 	private Map<String, String> copyEnv;
 
-	@BeforeClass(groups = { "fast" })
+	@BeforeClass(groups = { "fast-unit" })
 	public void setUp() {
 	    copyEnv = UtilsEnvironment.copyEnvironment();
 	}
 
-	@AfterMethod(groups = { "fast" })
+	@AfterMethod(groups = { "fast-unit" })
 	public void teardDown() {
 	    UtilsEnvironment.setEnvironment(copyEnv);
 	    assertTrue(!System.getenv().isEmpty());

@@ -32,9 +32,6 @@ import com.splunk.Service;
  * reported as the search results size is unknown as it is streaming.
  * 
  * @author kpakkirisamy, hyan
- * 
- * @param <K>
- * @param <V>
  */
 public class SplunkInputFormat<V extends SplunkWritable> extends
 	InputFormat<LongWritable, V> {

@@ -8,18 +8,12 @@
 
 	<!-- project filesystem properties -->
 	<property name="contribdir" value="${basedir}/contrib" />
-	<property name="hadoop.dir" value="${contribdir}/hadoop-0.20.205.0" />
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
-	<property name="flumelib.home" value="${flume.home}/lib" />
 	<property name="builddir" value="${basedir}/build" />
 	<property name="build-cache" value="${basedir}/build-cache" />
 	<property name="classdir" value="${builddir}/classes" />
 	<property name="test-classdir" value="${builddir}/testclasses" />
-	<property name="testng.basename" value="testng-6.1.1" />
-	<property name="testng.zip" value="${testng.basename}.zip" />
-	<property name="testng.jar" value="${testng.basename}.jar" />
-	<property name="jar.file" value="${builddir}/jar/${final.name}.jar" />
-	<property name="hadoop.unittest.jar.file" value="${builddir}/jar/splunk_hadoop_unittests.jar" />
+	<property name="testng.jar" value="testng-6.4.jar" />
 	<property name="appname" value="shep" />
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
@@ -249,15 +243,18 @@
 	</target>
 
 	<!-- run test via testNG -->
-	<taskdef resource="testngtasks" classpath="${libdir}/testng-6.4.jar" />
+	<taskdef resource="testngtasks" classpath="${libdir}/${testng.jar}" />
 	<target name="test" depends="clean-built-classes-then-compile">
-		<antcall target="fast-tests" />
-		<antcall target="slow-tests" />
+		<antcall target="fast-unit-tests" />
+		<antcall target="slow-unit-tests" />
 	</target>
 
 	<target name="test-all" depends="clean-built-classes-then-compile">
 		<antcall target="test" />
-		<antcall target="super-slow-tests" />
+		<antcall target="integration-tests"/>
+		<antcall target="functional-tests" />
+		<!-- in-memory-tests to be converted to testng unit test -->
+		<!-- and added to either fast-unit or slow-unit group -->
 		<antcall target="in-memory-test" />
 	</target>
 
@@ -273,53 +270,52 @@
 		<propertyref name="hadoop.port" />
 	</propertyset>
 
-	<target name="fast-tests" depends="compile, do-fast-tests" />
-	<target name="do-fast-tests">
+	<target name="fast-unit-tests" depends="compile, do-fast-unit-tests" />
+	<target name="do-fast-unit-tests">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
-		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="fast" outputdir="${builddir}/test-results">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="fast-unit" outputdir="${builddir}/test-results/fast-unit">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
 	</target>
 
-	<target name="slow-tests" depends="jar">
+	<target name="slow-unit-tests" depends="compile, do-slow-unit-tests" />
+	<target name="do-slow-unit-tests">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="slow-unit" outputdir="${builddir}/test-results/slow-unit">
+			<propertyset refid="testng"/>
+			<classfileset dir="${test-classdir}" includes="**/*.class" />
+		</testng>
+	</target>
+			
+	<target name="integration-tests" depends="jar">
 		<antcall>
 			<target name="splunk-setup" />
 		</antcall>
 		<antcall>
-			<target name="slow-TestNG-tests" />
+			<target name="do-integration-tests" />
 		</antcall>
 		<antcall>
 			<target name="splunk-teardown" />
 		</antcall>
 	</target>
 
-	<target name="slow-TestNG-tests" depends="compile,set-splunk-home">
+	<target name="do-integration-tests" depends="compile,set-splunk-home">
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
-		<testng classpathref="build.classpath" groups="slow" outputdir="${builddir}/test-results">
+		<testng classpathref="build.classpath" groups="integration" outputdir="${builddir}/test-results/integration">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
 	</target>
 
 	<!-- super-slow tests are tests that are in need of hadoop. -->
-	<target name="super-slow-tests" depends="jar">
+	<target name="functional-tests" depends="jar">
 		<antcall>
 			<target name="hadoop-setup" />
 			<target name="hive-setup" />
 			<target name="splunk-setup" />
 		</antcall>
 		<antcall>
-			<target name="super-slow-TestNG-tests" />
-			<target name="shell-tests" />
-		</antcall>
-		<antcall>
-			<target name="splunk-teardown"/>
-			<target name="hadoop-teardown"/>
-			<target name="shep-teardown"/>
-			<target name="hadoop-setup"/>
-			<target name="splunk-setup"/>
-			<target name="system-tests"/>
+			<target name="do-functional-tests" />
 		</antcall>
 		<antcall>
 			<target name="splunk-teardown" />
@@ -328,40 +324,35 @@
 		</antcall>
 	</target>
 
-
-
-	<target name="super-slow-TestNG-tests" depends="compile,set-splunk-home">
-		<!-- Test group 'super-slow'. For tests that use hadoop -->
-		<testng classpathref="build.classpath" groups="super-slow" outputdir="${builddir}/test-results">
-			<propertyset refid="testng" />
-			<classfileset dir="${test-classdir}" includes="**/*.class" />
-		</testng>
-	</target>
-
-	<target name="system-tests" depends="compile,set-splunk-home">
+	<target name="do-functional-tests" depends="compile,set-splunk-home">
 		<!-- these use splunk and hadoop -->
-		<testng classpathref="build.classpath" groups="system" outputdir="${builddir}/test-results">
+		<testng classpathref="build.classpath" groups="functional" outputdir="${builddir}/test-results/functional">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
 	</target>
 
-	<target name="known-failures" depends="compile,set-splunk-home">
-		<testng classpathref="build.classpath" groups="known-failures" outputdir="${builddir}/test-results">
+	<target name="known-failures-tests" depends="jar">
+		<antcall>
+			<target name="hadoop-setup"/>
+			<target name="hive-setup"/>
+			<target name="splunk-setup"/>
+		</antcall>
+		<antcall>
+			<target name="do-known-failures-tests"/>
+		</antcall>
+		<antcall>
+			<target name="splunk-stop"/>
+			<target name="hadoop-teardown"/>
+			<target name="shep-teardwon"/>
+		</antcall>
+	</target>
+	
+	<target name="do-known-failures-tests" depends="compile,set-splunk-home">
+		<testng classpathref="build.classpath" groups="known-failures" outputdir="${builddir}/test-results/known-failures">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
-	</target>
-
-	<target name="shell-tests" depends="compile,set-splunk-home,set-hadoop-home">
-		<echo>Running shell-tests..</echo>
-		<exec dir="." executable="${basedir}/test/unittests/run-unittests.sh" osfamily="unix">
-			<arg value="${hadoop.home}" />
-			<arg value="${basedir}" />
-			<arg value="${splunk.home}" />
-			<arg value="${splunk.username}" />
-			<arg value="${splunk.password}" />
-		</exec>
 	</target>
 
 	<!-- Setting environment specific properties -->
@@ -376,7 +367,7 @@
 	<target name="set-user-env-splunk-home" depends="set-environment-property" if="defined.means.running.on.self.defined.splunk.home">
 		<property name="splunk.home" value="${env.SPLUNK_HOME}" />
 		<echo>You specified that you've got your own Splunk.</echo>
-		<echo>Running shell tests with SPLUNK_HOME: ${splunk.home}</echo>
+		<echo>Running tests with SPLUNK_HOME: ${splunk.home}</echo>
 	</target>
 
 	<target name="set-hadoop-home" depends="set-user-env-hadoop-home" unless="hadoop.home">
@@ -386,12 +377,12 @@
 	<target name="set-user-env-hadoop-home" depends="set-environment-property" if="defined.means.running.on.self.defined.hadoop.home">
 		<property name="hadoop.home" value="${env.HADOOP_HOME}" />
 		<echo>You specified that you've got your own Hadoop.</echo>
-		<echo>Running shell tests with HADOOP_HOME: ${hadoop.home}</echo>
+		<echo>Running tests with HADOOP_HOME: ${hadoop.home}</echo>
 	</target>
 
 	<!-- Hive -->
 
-	<target name="hive-download" depends="checkIfHiveIsDownloaded" unless="hive.isDownloaded">
+	<target name="hive-download" depends="check-if-hive-is-downloaded" unless="hive.isDownloaded">
 		<echo>Downloading hive from ${hive.download.url}</echo>
 		<exec executable="curl" osfamily="unix">
 			<arg value="-s" />
@@ -412,7 +403,7 @@
 		</exec>
 	</target>
 
-	<target name="checkIfHiveIsDownloaded">
+	<target name="check-if-hive-is-downloaded">
 		<available file="${hive.download.path}" type="file" property="hive.isDownloaded" />
 		<echo>hive.isDownloaded is ${hive.isDownloaded}</echo>
 		<echo>hive.download.path is ${hive.download.path}</echo>
@@ -489,7 +480,7 @@
 		<antcall target="do-hadoop-prepare-build-cache" />
 	</target>
 
-	<target name="do-hadoop-prepare-build-cache" depends="checkHadoopInCache" unless="isHadoopInCache">
+	<target name="do-hadoop-prepare-build-cache" depends="check-hadoop-in-cache" unless="isHadoopInCache">
 		<antcall>
 			<target name="hadoop-download" />
 			<target name="hadoop-extract" />
@@ -499,13 +490,13 @@
 		</antcall>
 	</target>
 
-	<target name="checkHadoopInCache">
+	<target name="check-hadoop-in-cache">
 		<condition property="isHadoopInCache">
 			<available file="${hadoop.extracted.path}" type="dir" />
 		</condition>
 	</target>
 
-	<target name="hadoop-download" depends="checkIfHadoopNotDownloaded" if="isNotDownloaded">
+	<target name="hadoop-download" depends="check-if-hadoop-is-downloaded" unless="isDownloaded">
 		<antcall>
 			<target name="do-hadoop-download" />
 		</antcall>
@@ -522,12 +513,9 @@
 		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
 	</target>
 
-	<target name="checkIfHadoopNotDownloaded">
-		<!--PLEASEREVIEW:  brain hurts -->
-		<condition property="isNotDownloaded">
-			<not>
-				<available file="${hadoop.download.path}" type="file" />
-			</not>
+	<target name="check-if-hadoop-is-downloaded">
+		<condition property="isDownloaded">
+			<available file="${hadoop.download.path}" type="file" />
 		</condition>
 	</target>
 
@@ -554,10 +542,11 @@
 	</target>
 
 	<!-- extract to build cache-->
-	<target name="hadoop-extract" depends="checkIfHadoopIsDownloaded" unless="isDownloaded">
+	<target name="hadoop-extract" depends="hadoop-extract-check-if-hadoop-is-downloaded" if="isDownloaded">
 		<!-- PLEASEREVIEW: unclear if the check for downloaded is correct; better not to check
 		and fail, no? -->
 		<echo>Extracting...</echo>
+		<echo>download path: ${hadoop.download.path}</echo>
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
 			<arg line="'tar xf ${hadoop.download.path} -C ${hadoop.extracted.dir}'" />
@@ -567,15 +556,16 @@
 			<arg line="'mv ${hadoop.extracted.dir}/hadoop-* ${hadoop.extracted.path}'" />
 		</exec>
 	</target>
-
-	<target name="checkIfHadoopIsDownloaded">
-		<!-- PLEASEREVIEW: didn't I see this target before? oh, no, I saw its evil twin -->
+	
+	<!-- This condition may seem redundant with "check-if-hadoop-is-downloaded" but it isn't. \
+	A condition is only evaluated ones and if you use the condition in another target it won't\ 
+	be evaluated again -->
+	<target name="hadoop-extract-check-if-hadoop-is-downloaded">
 		<condition property="isDownloaded">
-			<not>
-				<available file="${hadoop.download.path}" type="file" />
-			</not>
+			<available file="${hadoop.download.path}" type="file" />
 		</condition>
 	</target>
+
 
 	<target name="hadoop-copy-confs">
 		<property name="hadoop.conf.dir" value="${hadoop.utils}/conf" />
@@ -656,7 +646,7 @@
 		</exec>
 	</target>
 
-	<target name="hadoop-teardown" depends="set-hadoop-home,checkForHadoopBinaries" if="existsHadoopBinaries">
+	<target name="hadoop-teardown" depends="set-hadoop-home,check-for-hadoop-binaries" if="existsHadoopBinaries">
 		<antcall>
 			<target name="hadoop-stop" />
 		</antcall>
@@ -669,7 +659,7 @@
 		</exec>
 	</target>
 
-	<target name="checkForHadoopBinaries">
+	<target name="check-for-hadoop-binaries">
 		<available file="${hadoop.home}/bin" type="dir" property="existsHadoopBinaries" />
 	</target>
 
@@ -693,11 +683,11 @@
 		<antcall target="do-splunk-unpack-if-not-extracted" />
 	</target>
 
-	<target name="do-splunk-unpack-if-not-extracted" depends="checkForSplunkExtraction" if="isSplunkNotExtracted">
+	<target name="do-splunk-unpack-if-not-extracted" depends="check-for-splunk-extraction" if="isSplunkNotExtracted">
 		<antcall target="splunk-unpack" />
 	</target>
 
-	<target name="checkForSplunkExtraction">
+	<target name="check-for-splunk-extraction">
 		<condition property="isSplunkNotExtracted">
 			<not>
 				<available file="${splunk.extracted.dir}/bin" type="dir" />
@@ -705,7 +695,7 @@
 		</condition>
 	</target>
 
-	<target name="splunk-unpack" depends="isSplunkTgzAvailable" if="foundSplunkTgz">
+	<target name="splunk-unpack" depends="is-splunk-tgz-available" if="foundSplunkTgz">
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
 			<arg line="'tar xf ${splunk.tgz.dir}/*.tgz -C ${build-cache}'" />
@@ -713,7 +703,7 @@
 		<antcall target="copy-lib-jars-to-test-dir" />
 	</target>
 
-	<target name="isSplunkTgzAvailable">
+	<target name="is-splunk-tgz-available">
 		<pathconvert property="foundSplunkTgz" setonempty="false" pathsep=" ">
 			<path>
 				<fileset dir="${splunk.tgz.dir}" includes="splunk-*.tgz" />
@@ -729,11 +719,11 @@
 		</antcall>
 	</target>
 
-	<target name="remove-shep-splunk-app" depends="set-shep-app-home,checkIfShepAppExists" if="existsShepDir">
+	<target name="remove-shep-splunk-app" depends="set-shep-app-home,check-if-shep-app-exists" if="existsShepDir">
 		<delete dir="${shep.app.home}" />
 	</target>
 
-	<target name="checkIfShepAppExists" depends="set-shep-app-home">
+	<target name="check-if-shep-app-exists" depends="set-shep-app-home">
 		<condition property="existsShepDir">
 			<available file="${shep.app.home}" type="dir" />
 		</condition>
@@ -785,7 +775,7 @@
 		</exec>
 	</target>
 
-	<target name="enable-shep-splunk-app" depends="checkIfShepIsEnabled" unless="isShepAlreadyEnabled">
+	<target name="enable-shep-splunk-app" depends="check-if-shep-is-enabled" unless="isShepAlreadyEnabled">
 		<exec executable="curl" osfamily="unix">
 			<arg value="-s" />
 			<arg line="-u ${splunk.username}:${splunk.password}" />
@@ -794,7 +784,7 @@
 		</exec>
 	</target>
 
-	<target name="checkIfShepIsEnabled">
+	<target name="check-if-shep-is-enabled">
 		<shellscript shell="sh" outputproperty="isEnabled">
 			${splunk.home}/bin/splunk display app 2> /dev/null | grep shep | grep -o ENABLED
 		</shellscript>
@@ -806,14 +796,14 @@
 		</if>
 	</target>
 
-	<target name="splunk-teardown" depends="set-splunk-home,checkForSplunkBinary" if="existsSplunkBinary">
+	<target name="splunk-teardown" depends="set-splunk-home,check-for-splunk-binary" if="existsSplunkBinary">
 		<antcall>
 			<target name="splunk-stop" />
 			<target name="splunk-clean-all" />
 		</antcall>
 	</target>
 
-	<target name="checkForSplunkBinary">
+	<target name="check-for-splunk-binary">
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
 	</target>
 
@@ -902,6 +892,7 @@
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,jar">
 		<antcall target="create-splunk-app" />
+		<antcall target="doc" />
 	</target>
 
 	<target name="create-splunk-app" depends="jar">
@@ -952,7 +943,19 @@
 
 	<target name="copy-lib-jars-to-stage-dir">
 		<copy todir="${stage.dir}/lib">
-			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar,jetty-util-*.jar,jsp-2*.jar,jsp-api-2*.jar,servlet-api-2*.jar" />
+			<fileset dir="${libdir}" includes="*.jar" 
+				excludes="*-sources.jar,
+                          *-javadoc.jar,
+                          testng-*.jar,
+                          mockito-*.jar,
+                          jetty-6.1.26.jar,
+                          hadoop-test-*.jar,
+                          commons-cli-1.2.jar,
+                          jetty-util-6.1.26.jar,
+                          jsp-2.1-6.1.14.jar,
+                          jsp-api-2.1-6.1.14.jar,
+                          servlet-api-2.5-20081211.jar,
+                          servlet-api-2.5-6.1.14.jar" />
 		</copy>
 <!--
 		<copy file="${name.api.versioned.path}" todir="${stage.dir}/lib" />
@@ -962,7 +965,17 @@
 
 	<target name="copy-lib-jars-to-test-dir" depends="jar, versionized-jar-name">
 		<copy todir="${build-cache}/shep/testlib">
-			<fileset dir="${libdir}" includes="*-javadoc.jar,junit-*.jar,testng-*.jar,mockito-*.jar,jetty-6.1.26.jar,hadoop-test-*.jar" />
+			<fileset dir="${libdir}" 
+				includes="testng-*.jar,
+                          mockito-*.jar,
+                          jetty-6.1.26.jar,
+                          hadoop-test-*.jar,
+                          commons-cli-1.2.jar,
+                          jetty-util-6.1.26.jar,
+                          jsp-2.1-6.1.14.jar,
+                          jsp-api-2.1-6.1.14.jar,
+                          servlet-api-2.5-20081211.jar,
+                          servlet-api-2.5-6.1.14.jar" />
 		</copy>
 		<copy file="${name.test.versioned.path}" todir="${build-cache}/shep/testlib" />
 		<copy file="${name.cli.versioned.path}" todir="${build-cache}/shep/testlib" />
@@ -980,7 +993,7 @@
 		</java>
 	</target>
 
-	<target name="stateMachineTest">
+	<target name="state-machine-test">
 		<java classname="com.splunk.shep.connector.tests.StateMachineTest">
 			<arg value="src/java/com/splunk/shep/connector/tests/s2s.data" />
 			<classpath refid="build.classpath" />
@@ -988,42 +1001,25 @@
 	</target>
 
 	<!-- Run by hooks -->
-	<target name="pre-commit" depends="clean-built-classes, do-compile, do-fast-tests">
+	<target name="pre-commit" depends="clean-built-classes, do-compile, do-fast-unit-tests">
 		<fail if="testng.failed" message="Fast tests have failed." />
 	</target>
 
 	<!--hadoop unit test -->
-	<property name="report.dir" value="${builddir}/junitreport" />
 	<target name="in-memory-test" depends="compile">
-		<mkdir dir="${report.dir}" />
-		<junit printsummary="yes">
-			<!--jvmarg value="-Dlog4j.configuration=log4j.properties"/-->
-			<!--http://mail-archives.apache.org/mod_mbox/logging-log4j-user/200504.mbox/%3CF03963E938150F4E871144DAF11F825A416AF0@ITSERVER3.corporate.broadsource.com%3E -->
-			<!--sysproperty key="log4j.configuration" value="file:///Users/hyan/code/splunk/splunk-shep/package/bin/log4j.properties"/-->
-			<!-- http://jfkbits.blogspot.com/2006/06/passing-system-properties-from-ants.html -->
-			<!-- to get logs to junit report, use this command:
-				ant hadoop-test -Dlog4j.configuration=<the absolute url of your log4j file>
-				for example: file:///Users/hyan/code/splunk/splunk-shep/package/bin/log4j.properties 
-			-->
-			<syspropertyset>
-				<propertyref prefix="log4j.configuration" />
-			</syspropertyset>
-			<classpath>
-				<path refid="build.classpath" />
-			</classpath>
-			<formatter type="xml" />
-			<batchtest fork="yes" todir="${report.dir}">
-				<fileset dir="${test-classdir}" excludes="**/*$*" includes="**/Test*.class" />
-			</batchtest>
-		</junit>
-		<junitreport todir="${report.dir}">
-			<fileset dir="${report.dir}" includes="TEST-*.xml" />
-			<report todir="${report.dir}" />
-		</junitreport>
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="embedded" outputdir="${builddir}/test-results">
+			<classfileset dir="${test-classdir}" includes="**/*.class" />
+		</testng>
 	</target>
 
 	<target name="doc">
-		<javadoc destdir="build/docs/api" version="true" use="true" windowtitle="Shep">
+		<javadoc 
+			classpathref="build.classpath" 
+			destdir="build/docs/api" 
+			version="true" 
+			use="true"
+			bottom="Copyright © 2012 Splunk, Inc. All rights reserved." 
+			windowtitle="Shep">
 			<packageset dir="src/java" defaultexcludes="yes">
 				<exclude name="com/splunk/**/tests/**" />
 				<include name="com/splunk/**" />
