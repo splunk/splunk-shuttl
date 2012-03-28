@@ -12,41 +12,30 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.server.mbeans;
-
-import com.splunk.shep.server.model.ArchiverConfiguration;
+package com.splunk.shep.server.services;
 
 /**
  * @author kpakkirisamy
  *
  */
-public interface ShepArchiverMBean extends ArchiverConfiguration {
-    /**
-     * Saves MBean attributes to backing xml
-     * 
-     * @throws ShepMBeanException
-     */
-    public void save() throws ShepMBeanException;
+public interface SplunkService {
+    public static String RUNNING = "running";
+    public static String STOPPED = "stopped";
 
     /**
-     * Reloads MBean attributes from backing xml
-     * 
-     * @throws ShepMBeanException
+     * Starts the service
      */
-    public void refresh() throws ShepMBeanException;
+    public void start() throws Exception;
 
     /**
-     * Adds an index to be archived
-     * 
-     * @param name
+     * Stops the service
      */
-    public void addIndex(String name);
+    public void stop() throws Exception;
 
     /**
-     * deletes an index from being archived
+     * returns a status message
      * 
-     * @param name
+     * @return
      */
-    public void deleteIndex(String name);
-
+    public String getStatus();
 }

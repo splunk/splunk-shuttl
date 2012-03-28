@@ -843,6 +843,8 @@
 			<include name="com/splunk/shep/s2s/**" />
 			<include name="com/splunk/shep/server/**" />
 			<include name="com/splunk/shep/metrics/**" />
+			<include name="com/splunk/shep/export/**" />
+			<include name="com/splunk/shep/*" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.api.versioned.path}" basedir="${classdir}">
@@ -956,6 +958,7 @@
                           jsp-api-2.1-6.1.14.jar,
                           servlet-api-2.5-20081211.jar,
                           servlet-api-2.5-6.1.14.jar" />
+			<fileset dir="${splunk-sdk}" />
 		</copy>
 <!--
 		<copy file="${name.api.versioned.path}" todir="${stage.dir}/lib" />
@@ -976,6 +979,7 @@
                           jsp-api-2.1-6.1.14.jar,
                           servlet-api-2.5-20081211.jar,
                           servlet-api-2.5-6.1.14.jar" />
+			<fileset dir="${splunk-sdk}" />
 		</copy>
 		<copy file="${name.test.versioned.path}" todir="${build-cache}/shep/testlib" />
 		<copy file="${name.cli.versioned.path}" todir="${build-cache}/shep/testlib" />

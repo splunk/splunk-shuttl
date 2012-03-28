@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlRootElement(namespace = "com.splunk.shep.server.model")
 @XmlType(propOrder = { "archiverRoot", "clusterName", "indexNames" })
-public class ArchiverConf implements ArchiverConfInterface {
+public class ArchiverConf implements ArchiverConfiguration {
     private String archiverRoot;
     private String clusterName;
     private List<String> indexNames;

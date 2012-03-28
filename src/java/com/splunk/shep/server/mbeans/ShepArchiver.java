@@ -15,17 +15,12 @@
 package com.splunk.shep.server.mbeans;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
 import org.apache.log4j.Logger;
 
+import com.splunk.shep.server.mbeans.util.JAXBUtils;
 import com.splunk.shep.server.model.ArchiverConf;
 
 
@@ -58,7 +53,7 @@ public class ShepArchiver implements ShepArchiverMBean {
 	    this.xmlFilePath = confFilePath;
 	    refresh();
 	} catch (Exception e) {
-	    logger.debug(SHEP_ARCHIVER_INIT_FAILURE, e);
+	    logger.error(SHEP_ARCHIVER_INIT_FAILURE, e);
 	    throw new ShepMBeanException(e);
 	}
     }
@@ -109,10 +104,7 @@ public class ShepArchiver implements ShepArchiverMBean {
     @Override
     public void save() throws ShepMBeanException { // TODO move to util class
 	try {
-	    JAXBContext context = JAXBContext.newInstance(ArchiverConf.class);
-	    Marshaller m = context.createMarshaller();
-	    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-	    m.marshal(this.conf, new FileWriter(this.xmlFilePath));
+	    JAXBUtils.save(ArchiverConf.class, this.conf, this.xmlFilePath);
 	} catch (Exception e) {
 	    logger.error(e);
 	    throw new ShepMBeanException(e);
@@ -122,10 +114,8 @@ public class ShepArchiver implements ShepArchiverMBean {
     @Override
     public void refresh() throws ShepMBeanException { // TODO move to util class
 	try {
-	    JAXBContext context = JAXBContext.newInstance(ArchiverConf.class);
-	    Unmarshaller um = context.createUnmarshaller();
-	    this.conf = (ArchiverConf) um.unmarshal(new FileReader(
-		    this.xmlFilePath));
+	    this.conf = (ArchiverConf) JAXBUtils.refresh(ArchiverConf.class,
+		    this.xmlFilePath);
 	} catch (FileNotFoundException fnfe) {
 	    this.conf = new ArchiverConf();
 	} catch (Exception e) {

@@ -20,7 +20,7 @@ import java.util.List;
  * @author kpakkirisamy
  *
  */
-public interface ArchiverConfInterface {
+public interface ArchiverConfiguration {
 
     public String getArchiverRoot();
 

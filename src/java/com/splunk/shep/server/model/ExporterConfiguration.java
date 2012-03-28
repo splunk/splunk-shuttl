@@ -12,27 +12,28 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.server.services;
+package com.splunk.shep.server.model;
+
+import java.util.List;
+
+import com.splunk.shep.server.model.ExporterConf.Channel;
 
 /**
  * @author kpakkirisamy
  *
  */
-public class SplunkExportService {
+public interface ExporterConfiguration {
 
-    public SplunkExportService() {
+    public String getOutputPath();
 
-    }
+    public void setOutputPath(String outputPath);
 
-    public void start() {
+    public String getTempPath();
 
-    }
+    public void setTempPath(String tempPath);
 
-    public void stop() {
+    public List<Channel> getChannels();
 
-    }
+    public void setChannels(List<Channel> channels);
 
-    public String getStatus() {
-	return "it is working";
-    }
 }

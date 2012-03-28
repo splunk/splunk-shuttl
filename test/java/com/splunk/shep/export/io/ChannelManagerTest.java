@@ -32,8 +32,9 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.ShepTestBase;
 import com.splunk.shep.export.ChannelManager;
-import com.splunk.shep.server.model.ExportConf;
-import com.splunk.shep.server.model.ExportConf.Channel;
+import com.splunk.shep.server.model.ExporterConf;
+import com.splunk.shep.server.model.ExporterConf.Channel;
+import com.splunk.shep.server.model.ExporterConfiguration;
 
 /**
  * @author hyan
@@ -61,7 +62,7 @@ public class ChannelManagerTest extends ShepTestBase {
 	addOneShot(indexName2, testEvents2);
 
 	// create exportConf, can get it from config file
-	ExportConf exportConf = new ExportConf();
+	ExporterConfiguration exportConf = new ExporterConf();
 	exportConf.setTempPath(TEMP_DIR_PATH);
 	exportConf.setOutputPath(outputPath);
 
@@ -82,7 +83,7 @@ public class ChannelManagerTest extends ShepTestBase {
 	channels.add(channel2);
 
 	ChannelManager manager = new ChannelManager();
-	manager.setExportConf(exportConf);
+	manager.setExportConfiguration(exportConf);
 	manager.start();
 
 	int count = 0;

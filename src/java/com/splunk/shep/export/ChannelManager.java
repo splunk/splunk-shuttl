@@ -34,25 +34,34 @@ import com.splunk.shep.ShepConstants.SystemType;
 import com.splunk.shep.export.io.EventReader;
 import com.splunk.shep.export.io.EventWriter;
 import com.splunk.shep.export.io.SplunkEventReader;
-import com.splunk.shep.server.model.ExportConf;
-import com.splunk.shep.server.model.ExportConf.Channel;
+import com.splunk.shep.server.model.ExporterConf.Channel;
+import com.splunk.shep.server.model.ExporterConfiguration;
+import com.splunk.shep.server.services.SplunkExporterService;
 
 /**
  * @author hyan
  *
  */
-public class ChannelManager {
+public class ChannelManager implements SplunkExporterService {
 
     private static final Logger log = Logger.getLogger(ChannelManager.class);
 
-    private ScheduledExecutorService service;
+    private ScheduledExecutorService service = null;;
     private Map<String, Boolean> status = new ConcurrentHashMap<String, Boolean>();
-    private EventReader eventReader;
-    private TranslogService translogService;
-    private ExportConf exportConf;
+    private EventReader eventReader = null;
+    private TranslogService translogService = null;
+    private ExporterConfiguration exportConf = null;
 
     public ChannelManager() {
 
+    }
+
+    @Override
+    public String getStatus() {
+	if (service == null) {
+	    return STOPPED;
+	}
+	return RUNNING;
     }
 
     public void start() throws IOException {
@@ -70,12 +79,14 @@ public class ChannelManager {
 	}
 
 	ChannelWorker worker;
-	for (Channel channel : exportConf.getChannels()) {
-	    worker = new ChannelWorker(channel.getIndexName(),
-		    channel.getOutputMode(), exportConf.getOutputPath(),
-		    channel.getOutputFileSystem(), exportConf.getTempPath());
-	    service.scheduleWithFixedDelay(worker, 0,
-		    channel.getScheduleInterval(), TimeUnit.SECONDS);
+	if (exportConf.getChannels() != null) {
+	    for (Channel channel : exportConf.getChannels()) {
+		worker = new ChannelWorker(channel.getIndexName(),
+			channel.getOutputMode(), exportConf.getOutputPath(),
+			channel.getOutputFileSystem(), exportConf.getTempPath());
+		service.scheduleWithFixedDelay(worker, 0,
+			channel.getScheduleInterval(), TimeUnit.SECONDS);
+	    }
 	}
     }
 
@@ -151,11 +162,11 @@ public class ChannelManager {
 	
     }
 
-    public ExportConf getExportConf() {
+    public ExporterConfiguration getExportConfiguration() {
 	return exportConf;
     }
 
-    public void setExportConf(ExportConf exportConf) {
+    public void setExportConfiguration(ExporterConfiguration exportConf) {
 	this.exportConf = exportConf;
     }
 

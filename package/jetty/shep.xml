@@ -82,7 +82,7 @@
   <!-- =========================================================== -->
   <!-- Initialize the Shep services                                -->
   <!-- =========================================================== -->
-  <New id="splunkExportService" class="com.splunk.shep.server.services.SplunkExportService">
+  <New id="splunkExporterService" class="com.splunk.shep.export.ChannelManager">
   </New>
   
   <!-- =========================================================== -->
@@ -102,12 +102,12 @@
     <Arg>com.splunk.shep.mbeans:type=Archiver</Arg>
   </New>
   
-  <New id="ShepForwarderMBeanContainer" class="com.splunk.shep.server.mbeans.ShepForwarder">
-    <Set name="SplunkExportService"><Ref id="splunkExportService" /></Set>
+  <New id="ShepExporterMBeanContainer" class="com.splunk.shep.server.mbeans.ShepExporter">
+    <Set name="SplunkExporterService"><Ref id="splunkExporterService" /></Set>
   </New>
 
-  <New id="ShepForwarderMBeanId" class="javax.management.ObjectName">
-    <Arg>com.splunk.shep.mbeans:type=Forwarder</Arg>
+  <New id="ShepExporterMBeanId" class="javax.management.ObjectName">
+    <Arg>com.splunk.shep.mbeans:type=Exporter</Arg>
   </New>
 
   <!-- =========================================================== -->
@@ -147,10 +147,10 @@
   </Call>
   <Call name="registerMBean">
     <Arg>
-      <Ref id="ShepForwarderMBeanContainer" />
+      <Ref id="ShepExporterMBeanContainer" />
     </Arg>
     <Arg>
-      <Ref id="ShepForwarderMBeanId" />
+      <Ref id="ShepExporterMBeanId" />
     </Arg>
   </Call>
   </Call>

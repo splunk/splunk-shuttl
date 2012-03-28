@@ -23,31 +23,55 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement(namespace = "com.splunk.shep.server.model")
-public class ExportConf {
+public class ExporterConf implements ExporterConfiguration {
     private String outputPath;
     private String tempPath;
     private List<Channel> channels;
 
+    /* (non-Javadoc)
+     * @see com.splunk.shep.server.model.ExportConfiguration#getOutputPath()
+     */
+    @Override
     public String getOutputPath() {
 	return outputPath;
     }
 
+    /* (non-Javadoc)
+     * @see com.splunk.shep.server.model.ExportConfiguration#setOutputPath(java.lang.String)
+     */
+    @Override
     public void setOutputPath(String outputPath) {
 	this.outputPath = outputPath;
     }
 
+    /* (non-Javadoc)
+     * @see com.splunk.shep.server.model.ExportConfiguration#getTempPath()
+     */
+    @Override
     public String getTempPath() {
 	return tempPath;
     }
 
+    /* (non-Javadoc)
+     * @see com.splunk.shep.server.model.ExportConfiguration#setTempPath(java.lang.String)
+     */
+    @Override
     public void setTempPath(String tempPath) {
 	this.tempPath = tempPath;
     }
 
+    /* (non-Javadoc)
+     * @see com.splunk.shep.server.model.ExportConfiguration#getChannels()
+     */
+    @Override
     public List<Channel> getChannels() {
 	return channels;
     }
 
+    /* (non-Javadoc)
+     * @see com.splunk.shep.server.model.ExportConfiguration#setChannels(java.util.List)
+     */
+    @Override
     public void setChannels(List<Channel> channels) {
 	this.channels = channels;
     }

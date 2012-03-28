@@ -15,17 +15,12 @@
 package com.splunk.shep.server.mbeans;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
 import org.apache.log4j.Logger;
 
+import com.splunk.shep.server.mbeans.util.JAXBUtils;
 import com.splunk.shep.server.model.ServerConf;
 
 /**
@@ -53,7 +48,7 @@ public class ShepServer implements ShepServerMBean {
 		    + SERVERCONF_XML;
 	    refresh();
 	} catch (Exception e) {
-	    logger.debug(SHEP_SERVER_INIT_FAILURE, e);
+	    logger.error(SHEP_SERVER_INIT_FAILURE, e);
 	    throw new ShepMBeanException(e);
 	}
     }
@@ -64,7 +59,7 @@ public class ShepServer implements ShepServerMBean {
 	    this.xmlFilePath = confFilePath;
 	    refresh();
 	} catch (Exception e) {
-	    logger.debug(SHEP_SERVER_INIT_FAILURE, e);
+	    logger.error(SHEP_SERVER_INIT_FAILURE, e);
 	    throw new ShepMBeanException(e);
 	}
     }
@@ -258,10 +253,7 @@ public class ShepServer implements ShepServerMBean {
     @Override
     public void save() throws ShepMBeanException {
 	try {
-	    JAXBContext context = JAXBContext.newInstance(ServerConf.class);
-	    Marshaller m = context.createMarshaller();
-	    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-	    m.marshal(this.conf, new FileWriter(this.xmlFilePath));
+	    JAXBUtils.save(ServerConf.class, this.conf, this.xmlFilePath);
 	} catch (Exception e) {
 	    logger.error(e);
 	    throw new ShepMBeanException(e);
@@ -271,10 +263,8 @@ public class ShepServer implements ShepServerMBean {
     @Override
     public void refresh() throws ShepMBeanException {
 	try {
-	    JAXBContext context = JAXBContext.newInstance(ServerConf.class);
-	    Unmarshaller um = context.createUnmarshaller();
-	    this.conf = (ServerConf) um.unmarshal(new FileReader(
-		    this.xmlFilePath));
+	    this.conf = (ServerConf) JAXBUtils.refresh(ServerConf.class,
+		    this.xmlFilePath);
 	    this.clusterlist = conf.getClusterlist();
 	    if (this.clusterlist != null) {
 		for (ServerConf.HadoopCluster cluster : this.clusterlist) {

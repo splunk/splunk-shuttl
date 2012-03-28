@@ -23,7 +23,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.server.model.ForwarderConf;
-import com.splunk.shep.server.services.SplunkExportService;
+import com.splunk.shep.server.services.SplunkExporterService;
 
 /**
  * 
@@ -34,7 +34,7 @@ public class ShepForwarder implements ShepForwarderMBean {
     private Logger logger = Logger.getLogger(getClass());
     private String FORWARDERCONF_XML = "etc/apps/shep/conf/forwarder.xml";
     private ArrayList<ForwarderConf.HDFSSink> hdfsSinkList;
-    private SplunkExportService exportService = null;
+    private SplunkExporterService exportService = null;
 
     public ShepForwarder() throws ShepMBeanException {
 	try {
@@ -85,18 +85,26 @@ public class ShepForwarder implements ShepForwarderMBean {
 		+ name);
     }
 
-    public void setSplunkExportService(SplunkExportService srvc) {
+    public void setSplunkExportService(SplunkExporterService srvc) {
 	this.exportService = srvc;
     }
 
     @Override
     public void startExportService() throws ShepMBeanException {
-	this.exportService.start();
+	try {
+	    this.exportService.start();
+	} catch (Exception e) {
+	    throw new ShepMBeanException(e);
+	}
     }
 
     @Override
     public void stopExportService() throws ShepMBeanException {
-	this.exportService.stop();
+	try {
+	    this.exportService.stop();
+	} catch (Exception e) {
+	    throw new ShepMBeanException(e);
+	}
     }
 
     @Override
