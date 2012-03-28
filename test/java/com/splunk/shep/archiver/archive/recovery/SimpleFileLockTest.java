@@ -30,7 +30,7 @@ import com.splunk.shep.testutil.UtilsFile;
  * {@link SimpleFileLockFromTest#getSimpleFileLock}.
  */
 @Test(groups = { "fast-unit" })
-public class AbstractSimpleFileLockTest {
+public class SimpleFileLockTest {
 
     SimpleFileLock simpleFileLock;
 
