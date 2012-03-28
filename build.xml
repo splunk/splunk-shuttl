@@ -303,7 +303,7 @@
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="integration" outputdir="${builddir}/test-results/integration">
 			<propertyset refid="testng" />
-			<classfileset dir="${test-classdir}" includes="**/*.class" />
+			<classfileset dir="${test-classdir}" includes="**/*.class" excludes="**/ShepForwarderRestTest.class" />
 		</testng>
 	</target>
 
