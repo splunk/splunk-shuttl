@@ -2,6 +2,9 @@ package com.splunk.shep.testutil;
 
 import static org.testng.Assert.*;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +14,7 @@ import org.testng.annotations.Test;
 @Test(groups = { "slow-unit" })
 public class ShellClassRunnerTest {
 
-    public static final Integer EXIT_CODE = 1;
+    public static final Integer EXIT_CODE = 3;
 
     private static final Integer EXIT_CODE_FOR_ONE_ARGUMENT = 2;
     private ShellClassRunner shellClassRunner;
@@ -21,8 +24,8 @@ public class ShellClassRunnerTest {
 	shellClassRunner = new ShellClassRunner();
     }
 
-    public void should_executeClassWithSystemExit_throughShell_without_killingThisJavaProcess() {
-	shellClassRunner.runClassWithArgs(ClassWithMain.class);
+    public void runClassAsync_classWithSystemExit_getTheExitCode() {
+	shellClassRunner.runClassAsync(ClassWithMain.class);
 	assertEquals(EXIT_CODE, shellClassRunner.getExitCode());
     }
 
@@ -36,27 +39,38 @@ public class ShellClassRunnerTest {
     }
 
     @Test(groups = { "slow-unit" })
-    public void should_returnItSelf_after_runningClassWithArgs_for_methodChaining() {
+    public void should_returnItSelf_after_runningClassAsync_for_methodChaining() {
 	assertEquals(shellClassRunner,
-		shellClassRunner.runClassWithArgs(ClassWithMain.class));
+		shellClassRunner.runClassAsync(ClassWithMain.class));
     }
 
-    public void should_returnNull_if_getExitCode_isCalled_before_runClassWithArgs() {
+    public void should_returnNull_if_getExitCode_isCalled_before_runClassAsync() {
 	assertNull(shellClassRunner.getExitCode());
     }
 
     public void should_useTheArguments_when_callingClassWithMain() {
-	shellClassRunner.runClassWithArgs(ClassWithMain.class, "argument");
+	shellClassRunner.runClassAsync(ClassWithMain.class, "argument");
 	assertEquals(EXIT_CODE_FOR_ONE_ARGUMENT, shellClassRunner.getExitCode());
     }
 
-    public void should_beAbleToGetStdOut_after_runningClassWithOutput() {
-	shellClassRunner.runClassWithArgs(ClassWithOutput.class);
+    public void getStdOut_afterWaitingToFinish_getOutputFromClass() {
+	shellClassRunner.runClassAsync(ClassWithOutput.class);
+	shellClassRunner.waitToFinish();
 	assertEquals(ClassWithOutput.getOutput(), shellClassRunner.getStdOut());
     }
 
-    public void should_beAbleToRunClass_withoutArguments() {
-	shellClassRunner.runClassWithArgs(ClassWithMain.class);
+    public void getStdOut_beforeWaitingToFinish_null() {
+	shellClassRunner.runClassAsync(ClassWithOutput.class);
+	assertNull(shellClassRunner.getStdOut());
+    }
+
+    public void getStdErr_beforeWaitingToFinish_null() {
+	shellClassRunner.runClassAsync(ClassWithOutput.class);
+	assertNull(shellClassRunner.getStdErr());
+    }
+
+    public void runClassAsync_classWithoutArguments_getItsExitCode() {
+	shellClassRunner.runClassAsync(ClassWithMain.class);
 	assertEquals(EXIT_CODE, shellClassRunner.getExitCode());
     }
 
@@ -74,8 +88,8 @@ public class ShellClassRunnerTest {
 	}
     }
 
-    public void should_beAbleToRunClass_withExternalDependencies() {
-	shellClassRunner.runClassWithArgs(ClassWithExternalDependencies.class);
+    public void runClassAsync_classWithExternalDependencies_getItsExitCode() {
+	shellClassRunner.runClassAsync(ClassWithExternalDependencies.class);
 	assertEquals(EXIT_CODE, shellClassRunner.getExitCode());
     }
 
@@ -100,5 +114,28 @@ public class ShellClassRunnerTest {
 			shellClassRunner.getJavaExecutablePath());
 	    }
 	});
+    }
+
+    public void runClassAsync_writingExitCodeToItsStdIn_exitWithTheWrittenExitCode()
+	    throws IOException {
+	shellClassRunner.runClassAsync(ExitWithIntegerWrittenToIt.class);
+	OutputStream out = shellClassRunner.getOutputStreamToClass();
+	int exitCodeToWrite = 17;
+	out.write(exitCodeToWrite);
+	out.flush();
+	out.close();
+	assertEquals(exitCodeToWrite, (int) shellClassRunner.getExitCode());
+    }
+
+    private static class ExitWithIntegerWrittenToIt {
+	@SuppressWarnings("unused")
+	public static void main(String[] args) throws IOException {
+	    InputStream in = System.in;
+	    while (in.available() == 0)
+		;
+	    int read = in.read();
+	    in.close();
+	    System.exit(read);
+	}
     }
 }

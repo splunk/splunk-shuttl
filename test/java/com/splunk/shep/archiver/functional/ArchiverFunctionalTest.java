@@ -62,7 +62,7 @@ public class ArchiverFunctionalTest {
 
 	    // Test
 	    ShellClassRunner shellClassRunner = new ShellClassRunner();
-	    shellClassRunner.runClassWithArgs(BucketFreezer.class,
+	    shellClassRunner.runClassAsync(BucketFreezer.class,
 		    bucket.getIndex(), bucketDirectory.getAbsolutePath());
 	    // new BucketArchiverRest.BucketArchiverRunner(
 	    // bucketDirectory.getAbsolutePath());

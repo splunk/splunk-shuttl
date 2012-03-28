@@ -62,12 +62,12 @@ public class SimpleFileLockTwoJVMsTest {
     public void tryLock_inOtherJvmAfterLockingInThisJvm_false() {
 	assertTrue(simpleFileLock.tryLock());
 	ShellClassRunner otherJvmRunner = new ShellClassRunner();
-	otherJvmRunner.runClassWithArgs(FalseLockInOtherJVM.class);
+	otherJvmRunner.runClassAsync(FalseLockInOtherJVM.class);
 
 	assertEquals(EXIT_STATUS_ON_FALSE_LOCK, otherJvmRunner.getExitCode());
     }
 
-    public static SimpleFileLock getSimpleFileLock() {
+    private static SimpleFileLock getSimpleFileLock() {
 	return SimpleFileLock.createFromFile(fileToLock);
     }
 

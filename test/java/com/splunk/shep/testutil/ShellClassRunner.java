@@ -2,6 +2,7 @@ package com.splunk.shep.testutil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -9,26 +10,38 @@ import org.apache.commons.io.IOUtils;
 
 import com.splunk.shep.archiver.archive.BucketArchiver;
 
+/**
+ * Run a class in a new JVM and invoke the class' main method with arguments.
+ */
 public class ShellClassRunner {
 
     private Integer exitCode = null;
     private List<String> stdOut;
     private List<String> stdErr;
+    private Process runClassProcess;
 
-    public ShellClassRunner runClassWithArgs(Class<?> clazz, String... args) {
-	String fullClassName = clazz.getName();
-	Process exec = doRunArchiveBucket(fullClassName, args);
-	exitCode = getStatusCode(exec);
-	stdOut = readInputStream(exec.getInputStream());
-	stdErr = readInputStream(exec.getErrorStream());
+    /**
+     * Starts a process running the class parameter with given arguments. The
+     * process is run async until {@link ShellClassRunner#waitToFinish()} or
+     * {@link ShellClassRunner#getExitCode()} is called.
+     */
+    public ShellClassRunner runClassAsync(Class<?> clazz, String... args) {
+	String execString = getExecutableStringForClassAndArgs(clazz, args);
+	runClassProcess = doRunArchiveBucket(execString);
 	return this;
     }
 
-    private Process doRunArchiveBucket(String fullClassName, String[] args) {
+    private String getExecutableStringForClassAndArgs(Class<?> clazz,
+	    String... args) {
+	String fullClassName = clazz.getName();
+	String execString = getJavaExecutablePath() + " -cp \":"
+		+ getClasspath() + ":\" " + fullClassName + " "
+		+ getSpaceSeparatedArgs(args);
+	return execString;
+    }
+
+    private Process doRunArchiveBucket(String execString) {
 	try {
-	    String execString = getJavaExecutablePath() + " -cp \":"
-		    + getClasspath() + ":\" " + fullClassName + " "
-		    + getSpaceSeparatedArgs(args);
 	    return Runtime.getRuntime().exec(execString);
 	} catch (IOException e) {
 	    e.printStackTrace();
@@ -56,12 +69,20 @@ public class ShellClassRunner {
 	return sb.toString();
     }
 
-    private int getStatusCode(Process exec) {
+    /**
+     * Waits for the class run finish running.
+     */
+    public void waitToFinish() {
+	exitCode = getExitCodeFromProcess(runClassProcess);
+	stdOut = readInputStream(runClassProcess.getInputStream());
+	stdErr = readInputStream(runClassProcess.getErrorStream());
+    }
+
+    private int getExitCodeFromProcess(Process exec) {
 	try {
 	    return exec.waitFor();
 	} catch (Exception e) {
 	    printStdOutAndErr(exec);
-	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}
     }
@@ -75,10 +96,6 @@ public class ShellClassRunner {
 	}
     }
 
-    public Integer getExitCode() {
-	return exitCode;
-    }
-
     private List<String> readInputStream(InputStream inputStream) {
 	try {
 	    return IOUtils.readLines(inputStream);
@@ -86,6 +103,20 @@ public class ShellClassRunner {
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}
+    }
+
+    public Integer getExitCode() {
+	if (!hasStartedProcess()) {
+	    return null;
+	}
+	if (exitCode == null) {
+	    waitToFinish();
+	}
+	return exitCode;
+    }
+
+    private boolean hasStartedProcess() {
+	return runClassProcess != null;
     }
 
     public List<String> getStdOut() {
@@ -96,8 +127,12 @@ public class ShellClassRunner {
 	return stdErr;
     }
 
+    public OutputStream getOutputStreamToClass() {
+	return runClassProcess.getOutputStream();
+    }
+
     /**
-     * @return
+     * @return path to java, the executable.
      */
     /* package-private */String getJavaExecutablePath() {
 	Map<String, String> env = System.getenv();
@@ -107,4 +142,5 @@ public class ShellClassRunner {
 	    return "java";
 	}
     }
+
 }
