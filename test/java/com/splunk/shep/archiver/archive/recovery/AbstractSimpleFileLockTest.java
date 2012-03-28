@@ -30,19 +30,15 @@ import com.splunk.shep.testutil.UtilsFile;
  * {@link SimpleFileLockFromTest#getSimpleFileLock}.
  */
 @Test(groups = { "fast-unit" })
-public abstract class AbstractSimpleFileLockTest {
+public class AbstractSimpleFileLockTest {
 
     SimpleFileLock simpleFileLock;
 
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
-	simpleFileLock = getSimpleFileLock();
+	simpleFileLock = SimpleFileLock.createFromFile(UtilsFile
+		.createTestFile());
     }
-
-    /**
-     * @return an implementation of {@link SimpleFileLock}. Could be a subclass.
-     */
-    protected abstract SimpleFileLock getSimpleFileLock();
 
     @AfterMethod(groups = { "fast-unit" })
     public void tearDown() {
@@ -83,4 +79,10 @@ public abstract class AbstractSimpleFileLockTest {
 	SimpleFileLock.createFromFile(nonExistingFile);
 	assertTrue(nonExistingFile.exists());
     }
+
+    public void tryLockShared_givenUnlockedFileChannel_trueBecauseGotLock() {
+	// simpleFileLock
+	// assertTrue(simpleFileLock.tryLockShared());
+    }
+
 }
