@@ -10,6 +10,8 @@ import java.io.StringWriter;
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 
+import com.splunk.shep.archiver.model.Bucket;
+
 /**
  * All the utils regarding testng goes in here.
  */
@@ -55,11 +57,50 @@ public class UtilsTestNG {
 	assertTrue(expected.toString() + " doesn't exist.", expected.exists());
 	assertTrue(actual.toString() + " doesn't exist.", actual.exists());
 	message = message == null ? "" : message;
-	
+
 	try {
 	    assertTrue(message, FileUtils.contentEquals(expected, actual));
 	} catch (IOException e) {
 	    failForException("Can't compare contents of files.", e);
 	}
+    }
+
+    /**
+     * Verifies that two buckets has the same index, format and name.
+     * {@link Bucket#equals(Object)} also goes for {@link Bucket#getDirectory()}
+     * .getAbsolutePath(), at the time of this implementation.
+     */
+    public static void assertBucketsGotSameIndexFormatAndName(Bucket bucket,
+	    Bucket capturedBucket) {
+	assertTrue(isBucketEqualOnIndexFormatAndName(bucket, capturedBucket));
+	assertEquals(bucket.getIndex(), capturedBucket.getIndex());
+	assertEquals(bucket.getName(), capturedBucket.getName());
+	assertEquals(bucket.getFormat(), capturedBucket.getFormat());
+    }
+
+    public static boolean isBucketEqualOnIndexFormatAndName(Bucket bucket,
+	    Bucket otherBucket) {
+	if (bucket.getIndex() == null) {
+	    if (otherBucket.getIndex() != null) {
+		return false;
+	    }
+	} else if (!bucket.getIndex().equals(otherBucket.getIndex())) {
+	    return false;
+	}
+	if (bucket.getName() == null) {
+	    if (otherBucket.getName() != null) {
+		return false;
+	    }
+	} else if (!bucket.getName().equals(otherBucket.getName())) {
+	    return false;
+	}
+	if (bucket.getFormat() == null) {
+	    if (otherBucket.getFormat() != null) {
+		return false;
+	    }
+	} else if (!bucket.getFormat().equals(otherBucket.getFormat())) {
+	    return false;
+	}
+	return true;
     }
 }

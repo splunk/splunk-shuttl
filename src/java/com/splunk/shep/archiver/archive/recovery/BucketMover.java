@@ -25,35 +25,32 @@ import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
 /**
- * Class for moving and getting buckets that failed to be archived.<br/>
- * <br/>
- * Use {@link FailedBucketTransfers#moveFailedBucket(Bucket)} whenever a bucket
- * failed to be archived. Use {@link FailedBucketTransfers#getFailedBuckets()}
- * when it's time to do something about the failed buckets.
- * 
+ * Class for moving buckets to the location passed to
+ * {@link #BucketMover(String)}
  */
-public class FailedBucketTransfers {
+public class BucketMover {
 
-    private final String failedBucketsLocationPath;
+    private final String movedBucketsLocationPath;
 
     /**
-     * @param failedBucketsLocationPath
+     * @param movedBucketsLocationPath
      *            path to the failed buckets location
      */
-    public FailedBucketTransfers(String failedBucketsLocationPath) {
-	this.failedBucketsLocationPath = failedBucketsLocationPath;
+    public BucketMover(String movedBucketsLocationPath) {
+	this.movedBucketsLocationPath = movedBucketsLocationPath;
     }
 
     /**
-     * Move a bucket which failed to be archived, to a location where it can
-     * later be picked up and transfered again.
+     * Move a bucket to the location passed to the constructor
+     * {@link #BucketMover(String)}
      * 
-     * @param failedBucket
-     *            that failed to archive.
+     * @param bucket
+     *            to move
+     * @return the new bucket moved to the new location.
      */
-    public void moveFailedBucket(Bucket failedBucket) {
+    public Bucket moveBucket(Bucket movedBucket) {
 	try {
-	    moveBucketToFailedBucketsLocationAndPerserveItsIndex(failedBucket);
+	    return moveBucketToMovedBucketsLocationAndPerserveItsIndex(movedBucket);
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
@@ -63,44 +60,44 @@ public class FailedBucketTransfers {
 	}
     }
 
-    private void moveBucketToFailedBucketsLocationAndPerserveItsIndex(
+    private Bucket moveBucketToMovedBucketsLocationAndPerserveItsIndex(
 	    Bucket bucket) throws FileNotFoundException,
 	    FileNotDirectoryException {
-	File indexDirectory = new File(getFailedBucketsLocation(),
+	File indexDirectory = new File(getMovedBucketsLocation(),
 		bucket.getIndex());
 	indexDirectory.mkdirs();
-	bucket.moveBucketToDir(indexDirectory);
+	return bucket.moveBucketToDir(indexDirectory);
     }
 
     /**
      * @return list of buckets in the failed buckets location that can be
      *         transfered
      */
-    public List<Bucket> getFailedBuckets() {
-	ArrayList<Bucket> failedBuckets = new ArrayList<Bucket>();
+    public List<Bucket> getMovedBuckets() {
+	ArrayList<Bucket> movedBuckets = new ArrayList<Bucket>();
 
-	File failedBucketsLocation = getFailedBucketsLocation();
-	File[] listFiles = failedBucketsLocation.listFiles();
+	File movedBucketsLocation = getMovedBucketsLocation();
+	File[] listFiles = movedBucketsLocation.listFiles();
 	// This will fail when the buckets structure has changed.
 	if (listFiles != null) {
 	    for (File file : listFiles) {
 		if (file.isFile()) {
 		    continue; // Ignore regular files.
 		} else {
-		    addBucketsFromIndexDirectory(failedBuckets, file);
+		    addBucketsFromIndexDirectory(movedBuckets, file);
 		}
 	    }
 	}
-	return failedBuckets;
+	return movedBuckets;
     }
 
-    private void addBucketsFromIndexDirectory(ArrayList<Bucket> failedBuckets,
+    private void addBucketsFromIndexDirectory(ArrayList<Bucket> movedBuckets,
 	    File file) {
 	String index = file.getName();
 	File[] bucketsInIndex = file.listFiles();
 	if (bucketsInIndex != null) {
 	    for (File bucket : bucketsInIndex) {
-		failedBuckets.add(createBucketWithErrorHandling(index, bucket));
+		movedBuckets.add(createBucketWithErrorHandling(index, bucket));
 	    }
 	}
     }
@@ -122,8 +119,8 @@ public class FailedBucketTransfers {
 	}
     }
 
-    private File getFailedBucketsLocation() {
-	return new File(failedBucketsLocationPath);
+    private File getMovedBucketsLocation() {
+	return new File(movedBucketsLocationPath);
     }
 
 }

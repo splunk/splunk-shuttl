@@ -16,7 +16,7 @@ public class ShellClassRunnerTest {
     private static final Integer EXIT_CODE_FOR_ONE_ARGUMENT = 2;
     private ShellClassRunner shellClassRunner;
 
-    @BeforeMethod(groups = { "fast-unit" })
+    @BeforeMethod(groups = { "slow-unit" })
     public void setUp() {
 	shellClassRunner = new ShellClassRunner();
     }
@@ -35,6 +35,7 @@ public class ShellClassRunnerTest {
 	}
     }
 
+    @Test(groups = { "slow-unit" })
     public void should_returnItSelf_after_runningClassWithArgs_for_methodChaining() {
 	assertEquals(shellClassRunner,
 		shellClassRunner.runClassWithArgs(ClassWithMain.class));

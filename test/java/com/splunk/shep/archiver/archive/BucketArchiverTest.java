@@ -21,20 +21,21 @@ public class BucketArchiverTest {
 
     private PathResolver pathResolver;
     private Bucket bucket;
-    private BucketTransferer bucketTransferer;
+    private ArchiveBucketTransferer archiveBucketTransferer;
 
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	config = mock(ArchiveConfiguration.class);
 	exporter = mock(BucketExporter.class);
 	pathResolver = mock(PathResolver.class);
-	bucketTransferer = mock(BucketTransferer.class);
+	archiveBucketTransferer = mock(ArchiveBucketTransferer.class);
 	bucketArchiver = new BucketArchiver(config, exporter, pathResolver,
-		bucketTransferer);
+		archiveBucketTransferer);
 
 	bucket = mock(Bucket.class);
     }
 
+    @Test(groups = { "fast-unit" })
     public void archiveBucket_shouldGetArchiveFormat() {
 	bucketArchiver.archiveBucket(bucket);
 	verify(config).getArchiveFormat();
@@ -60,14 +61,14 @@ public class BucketArchiverTest {
 	verify(pathResolver).resolveArchivePath(bucket);
     }
 
-    public void archiveBucket_shouldLetBucketSender_TransferTheBucket() {
+    public void archiveBucket_givenArchiveBucketTransferer_letTransfererTransferTheBucket() {
 	URI path = getTestUri();
 	when(
 		exporter.getBucketExportedToFormat(eq(bucket),
 			any(BucketFormat.class))).thenReturn(bucket);
 	when(pathResolver.resolveArchivePath(bucket)).thenReturn(path);
 	bucketArchiver.archiveBucket(bucket);
-	verify(bucketTransferer).transferBucketToArchive(bucket, path);
+	verify(archiveBucketTransferer).transferBucketToArchive(bucket, path);
     }
 
     private URI getTestUri() {

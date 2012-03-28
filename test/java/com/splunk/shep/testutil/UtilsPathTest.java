@@ -6,6 +6,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.testng.annotations.Test;
 
+@Test(groups = { "fast-unit" })
 public class UtilsPathTest {
 
     @Test(groups = { "fast-unit" })

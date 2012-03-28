@@ -3,67 +3,63 @@ package com.splunk.shep.archiver.archive;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import org.apache.http.client.HttpClient;
+import org.apache.commons.io.FileUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import com.splunk.shep.archiver.archive.recovery.FailedBucketLock;
-import com.splunk.shep.archiver.archive.recovery.FailedBucketRecoveryHandler;
-import com.splunk.shep.archiver.archive.recovery.FailedBucketRestorer;
-import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker;
+import com.splunk.shep.archiver.archive.recovery.BucketMover;
+import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
+/**
+ * Takes a bucket that froze and archives it. <br/>
+ * The {@link BucketFreezer} also recovers any failed archiving attempts by
+ * other {@link BucketFreezer}s.
+ */
 public class BucketFreezer {
-
-    // CONFIG get this value from the config.
-    public static final String DEFAULT_SAFE_LOCATION = System
-	    .getProperty("user.home")
-	    + "/"
-	    + BucketFreezer.class.getName()
-	    + "-safe-buckets";
-
-    // CONFIG
-    public static final String DEFAULT_FAIL_LOCATION = System
-	    .getProperty("user.home")
-	    + "/"
-	    + BucketFreezer.class.getName()
-	    + "-failed-buckets";
-
-    private final String safeLocationForBuckets;
-    private final FailedBucketTransfers failedBucketTransfers;
-    /* package-private */FailedBucketRestorer failedBucketRestorer;
-
-    private ArchiveRestHandler archiveRestHandler;
-
-    protected BucketFreezer(String safeLocationForBuckets,
-	    HttpClient httpClient, FailedBucketTransfers failedBucketTransfers,
-	    FailedBucketRestorer failedBucketRestorer) {
-	this.safeLocationForBuckets = safeLocationForBuckets;
-	this.failedBucketTransfers = failedBucketTransfers;
-	this.failedBucketRestorer = failedBucketRestorer;
-
-	this.archiveRestHandler = new ArchiveRestHandler(httpClient,
-		failedBucketTransfers);
-    }
-
-    /* package-private */void setHttpClient(HttpClient httpClient) {
-	this.archiveRestHandler = new ArchiveRestHandler(httpClient,
-		failedBucketTransfers);
-    }
 
     public static final int EXIT_OK = 0;
     public static final int EXIT_INCORRECT_ARGUMENTS = -1;
     public static final int EXIT_FILE_NOT_A_DIRECTORY = -2;
     public static final int EXIT_FILE_NOT_FOUND = -3;
 
+    // CONFIG get this value from the config.
+    public static final String DEFAULT_SAFE_LOCATION = FileUtils
+	    .getUserDirectoryPath()
+	    + File.separator
+	    + BucketFreezer.class.getName() + "-safe-buckets";
+
+    // CONFIG
+    public static final String DEFAULT_FAIL_LOCATION = FileUtils
+	    .getUserDirectoryPath()
+	    + File.separator
+	    + BucketFreezer.class.getName() + "-failed-buckets";
+
+    private final BucketMover bucketMover;
+    private final BucketLocker bucketLocker;
+    private final FailedBucketsArchiver failedBucketsArchiver;
+    private final ArchiveRestHandler archiveRestHandler;
+
+    public BucketFreezer(BucketMover bucketMover, BucketLocker bucketLocker,
+	    ArchiveRestHandler archiveRestHandler,
+	    FailedBucketsArchiver failedBucketsArchiver) {
+	this.bucketMover = bucketMover;
+	this.bucketLocker = bucketLocker;
+	this.archiveRestHandler = archiveRestHandler;
+	this.failedBucketsArchiver = failedBucketsArchiver;
+    }
+
     /**
-     * Freezez the bucket on the speicifed path and belonging to speicifed
+     * Freezes the bucket on the specified path and belonging to specified
      * index.
      * 
      * @param indexName
      *            The name of the index that this bucket belongs to
+     * 
      * @param path
-     *            The path of the bucket on the local file stystem
+     *            The path of the bucket on the local file system
+     * 
      * @return An exit code depending on the outcome.
      */
     public int freezeBucket(String indexName, String path) {
@@ -80,46 +76,24 @@ public class BucketFreezer {
     private void moveAndArchiveBucket(String indexName, String path)
 	    throws FileNotFoundException, FileNotDirectoryException {
 	Bucket bucket = new Bucket(indexName, path);
-	bucket = bucket.moveBucketToDir(getSafeLocationForBucket(bucket));
-	archiveRestHandler.callRestToArchiveBucket(bucket);
-	failedBucketRestorer
-		.recoverFailedBuckets(new CallRestToReArchiveFailedBuckets());
+	bucketLocker.runWithBucketLocked(bucket,
+		new MoveAndArchiveBucketUnderLock(bucketMover,
+			archiveRestHandler));
+	failedBucketsArchiver.archiveFailedBuckets(archiveRestHandler);
     }
 
-    private File getSafeLocationForBucket(Bucket bucket) {
-	File safeBucketLocation = new File(getSafeLocationRoot(),
-		bucket.getIndex());
-	safeBucketLocation.mkdirs();
-	return safeBucketLocation;
-    }
-
-    private File getSafeLocationRoot() {
-	return createDirectory(safeLocationForBuckets);
-    }
-
-    private File createDirectory(String path) {
-	File file = new File(path);
-	file.mkdirs();
-	return file;
-    }
-
-    public static BucketFreezer createWithDeafultSafeLocationAndHTTPClient() {
-	FailedBucketTransfers failedBucketTransfers = new FailedBucketTransfers(
-		DEFAULT_FAIL_LOCATION);
-	FailedBucketRestorer failedBucketRestorer = new FailedBucketRestorer(
-		failedBucketTransfers, new FailedBucketLock());
-	return new BucketFreezer(DEFAULT_SAFE_LOCATION,
-		new DefaultHttpClient(), failedBucketTransfers,
-		failedBucketRestorer);
-    }
-
-    private class CallRestToReArchiveFailedBuckets implements
-	    FailedBucketRecoveryHandler {
-
-	@Override
-	public void recoverFailedBucket(Bucket failedBucket) {
-	    archiveRestHandler.callRestToArchiveBucket(failedBucket);
-	}
+    /**
+     * The construction logic for creating a {@link BucketFreezer}
+     */
+    public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
+	BucketMover bucketMover = new BucketMover(DEFAULT_SAFE_LOCATION);
+	BucketLocker bucketLocker = new BucketLocker();
+	FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
+		bucketMover, bucketLocker);
+	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
+		new DefaultHttpClient());
+	return new BucketFreezer(bucketMover, bucketLocker, archiveRestHandler,
+		failedBucketsArchiver);
     }
 
     /**
@@ -136,8 +110,10 @@ public class BucketFreezer {
     }
 
     public static void main(String... args) {
-	runMainWithDepentencies(Runtime.getRuntime(),
-		BucketFreezer.createWithDeafultSafeLocationAndHTTPClient(),
+	runMainWithDepentencies(
+		Runtime.getRuntime(),
+		BucketFreezer
+			.createWithDefaultHttpClientAndDefaultSafeAndFailLocations(),
 		args);
     }
 

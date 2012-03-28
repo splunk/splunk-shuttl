@@ -13,7 +13,7 @@ public class BucketArchiver {
     private final ArchiveConfiguration archiveConfiguration;
     private final BucketExporter bucketExporter;
     private final PathResolver pathResolver;
-    private final BucketTransferer bucketTransferer;
+    private final ArchiveBucketTransferer archiveBucketTransferer;
 
     /**
      * Constructor following dependency injection pattern, makes it easier to
@@ -26,16 +26,16 @@ public class BucketArchiver {
      *            to export the bucket
      * @param pathResolver
      *            to resolve archive paths for the buckets
-     * @param bucketTransferer
+     * @param archiveBucketTransferer
      *            to transfer the bucket to an {@link ArchiveFileSystem}
      */
     /* package-private */BucketArchiver(ArchiveConfiguration config,
 	    BucketExporter exporter, PathResolver pathResolver,
-	    BucketTransferer bucketTransferer) {
+	    ArchiveBucketTransferer archiveBucketTransferer) {
 	this.archiveConfiguration = config;
 	this.bucketExporter = exporter;
 	this.pathResolver = pathResolver;
-	this.bucketTransferer = bucketTransferer;
+	this.archiveBucketTransferer = archiveBucketTransferer;
     }
 
     public void archiveBucket(Bucket bucket) {
@@ -43,7 +43,7 @@ public class BucketArchiver {
 	Bucket exportedBucket = bucketExporter.getBucketExportedToFormat(
 		bucket, bucketFormat);
 	URI path = pathResolver.resolveArchivePath(exportedBucket);
-	bucketTransferer.transferBucketToArchive(bucket, path);
+	archiveBucketTransferer.transferBucketToArchive(bucket, path);
     }
 
     /**
@@ -51,7 +51,7 @@ public class BucketArchiver {
      * 
      * @return {@link PathResolver} for the {@link BucketArchiver}.
      */
-    /* package-private */PathResolver getPathResolver() {
+    public PathResolver getPathResolver() {
 	return pathResolver;
     }
 }

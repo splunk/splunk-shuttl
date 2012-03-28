@@ -14,9 +14,8 @@
 // limitations under the License.
 package com.splunk.shep.mapreduce.lib.rest;
 
-import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.QUERY1;
-import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.QUERY2;
-import static org.testng.Assert.assertEquals;
+import static com.splunk.shep.mapred.lib.rest.mock.SplunkInputFormatMock.*;
+import static org.testng.Assert.*;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -51,7 +50,7 @@ import com.splunk.shep.testutil.SplunkServiceParameters;
  * @author hyan
  * 
  */
-@Test(groups = { "embedded" })
+@Test(groups = { "slow-unit" })
 public class TestSplunkInputFormat {
     private static SplunkServiceParameters testParameters;
     private Path output = null;

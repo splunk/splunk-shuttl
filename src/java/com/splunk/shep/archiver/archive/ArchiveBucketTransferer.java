@@ -8,19 +8,30 @@ import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shep.archiver.fileSystem.FileOverwriteException;
 import com.splunk.shep.archiver.model.Bucket;
 
-public class BucketTransferer {
+/**
+ * Class for transferring buckets
+ */
+public class ArchiveBucketTransferer {
 
     private final ArchiveFileSystem archiveFileSystem;
 
-    public BucketTransferer(ArchiveFileSystem archive) {
+    public ArchiveBucketTransferer(ArchiveFileSystem archive) {
 	archiveFileSystem = archive;
     }
 
-    public void transferBucketToArchive(Bucket bucket, URI path) {
+    /**
+     * Transfers the bucket and its content to the archive.
+     * 
+     * @param bucket
+     *            to transfer to {@link ArchiveFileSystem}
+     * @param uri
+     *            on the {@link ArchiveFileSystem}
+     */
+    public void transferBucketToArchive(Bucket bucket, URI uri) {
 	try {
-	    archiveFileSystem.putFile(bucket.getDirectory(), path);
+	    archiveFileSystem.putFileAtomically(bucket.getDirectory(), uri);
 	} catch (FileNotFoundException e) {
-	    e.printStackTrace();
+
 	    throw new RuntimeException(e);
 	} catch (FileOverwriteException e) {
 	    e.printStackTrace();
@@ -30,4 +41,5 @@ public class BucketTransferer {
 	    throw new RuntimeException(e);
 	}
     }
+
 }

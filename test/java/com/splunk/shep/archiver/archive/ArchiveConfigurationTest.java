@@ -2,6 +2,10 @@ package com.splunk.shep.archiver.archive;
 
 import static org.testng.AssertJUnit.*;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.hadoop.fs.Path;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -12,7 +16,11 @@ public class ArchiveConfigurationTest {
 
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
-	configuration = new ArchiveConfiguration();
+	configuration = ArchiveConfiguration.getSharedInstance();
+    }
+
+    public void getSharedInstance_gettingTheSharedInstance_notNull() {
+	assertNotNull(ArchiveConfiguration.getSharedInstance());
     }
 
     public void getArchiveFormat_defaultState_isNotNull() {
@@ -29,5 +37,28 @@ public class ArchiveConfigurationTest {
 
     public void getServerName_defaultState_isNotNull() {
 	assertNotNull(configuration.getServerName());
+    }
+
+    public void getTmpDirectory_defaultState_isNotNull() {
+	assertNotNull(configuration.getTmpDirectory());
+    }
+
+    public void getTmpDirectory_defaultState_defaultConfValue() {
+	assertNotNull(configuration.getTmpDirectory());
+    }
+
+    public void getArchiverHadoopURI_defaultState_isNotNull() {
+	assertNotNull(configuration.getArchiverHadoopURI());
+    }
+
+    public void getArchiverHadoopURI_defaultState_defaultValue() {
+	assertEquals(new Path("hdfs://localhost:9000/archiver-tmp"),
+		configuration.getTmpDirectory());
+    }
+
+    public void getBucketFormatPriority_defaultState_SplunkBucketFormatIsPrioritized() {
+	List<BucketFormat> formatPriority = configuration
+		.getBucketFormatPriority();
+	assertEquals(Arrays.asList(BucketFormat.SPLUNK_BUCKET), formatPriority);
     }
 }

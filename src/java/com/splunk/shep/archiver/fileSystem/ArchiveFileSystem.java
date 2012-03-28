@@ -34,6 +34,28 @@ public interface ArchiveFileSystem {
 	    throws FileNotFoundException, FileOverwriteException, IOException;
 
     /**
+     * Puts the specified file on local file system to the archiving file system
+     * atomically. This method will first copy the specified files to a
+     * temporary place and then rename it to correct path.
+     * 
+     * @param fileOnLocalFileSystem
+     *            An existing file on the local file system.
+     * @param fileOnArchiveFileSystem
+     *            Path pointing for an non exiting file on the archive file
+     *            system.
+     * 
+     * @throws FileNotFoundException
+     *             If specified file on the local file system doesn't exist.
+     * @throws FileOverwriteException
+     *             If there is already a file on the specified path.
+     * @throws IOException
+     *             If there was any other problem with the operation.
+     */
+    void putFileAtomically(File fileOnLocalFileSystem,
+	    URI fileOnArchiveFileSystem) throws FileNotFoundException,
+	    FileOverwriteException, IOException;
+
+    /**
      * Retries the file from specified path on archiving file system and stores
      * it to the specified file on local file system.
      * 

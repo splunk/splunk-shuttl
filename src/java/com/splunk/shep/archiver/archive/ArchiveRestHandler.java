@@ -14,9 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.archiver.ArchiverLogger.did;
-import static com.splunk.shep.archiver.ArchiverLogger.done;
-import static com.splunk.shep.archiver.ArchiverLogger.will;
+import static com.splunk.shep.archiver.ArchiverLogger.*;
 
 import java.io.IOException;
 
@@ -26,45 +24,58 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.util.EntityUtils;
 
-import com.splunk.shep.archiver.archive.recovery.FailedBucketTransfers;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
 
 /**
  * Handling all the calls and returns to and from {@link BucketArchiverRest}
  */
-public class ArchiveRestHandler {
+public class ArchiveRestHandler implements LockedBucketHandler {
 
     private final HttpClient httpClient;
-    private final FailedBucketTransfers failedBucketTransfers;
 
     /**
      * TODO:
      */
-    public ArchiveRestHandler(HttpClient httpClient,
-	    FailedBucketTransfers failedBucketTransfers) {
+    public ArchiveRestHandler(HttpClient httpClient) {
 	this.httpClient = httpClient;
-	this.failedBucketTransfers = failedBucketTransfers;
     }
 
     public void callRestToArchiveBucket(Bucket bucket) {
 	HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
+	HttpResponse response = null;
 	try {
 	    will("Send an archive bucket request", "request_uri",
 		    archiveBucketRequest.getURI());
-	    HttpResponse response = httpClient.execute(archiveBucketRequest); // LOG
+	    response = httpClient.execute(archiveBucketRequest); // LOG
 	    if (response != null) {
 		handleResponseCodeFromDoingArchiveBucketRequest(response
 			.getStatusLine().getStatusCode(), bucket);
 	    } else {
-		// It is test code.
-		// TODO: Get rid of this bad design.
+		// LOG: warning! Response was null. This happens in our tests
+		// when we mock the httpClient. Should never happen other wise.
+		// Should it?
 	    }
 	} catch (ClientProtocolException e) {
 	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
 	} catch (IOException e) {
 	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
+	} finally {
+	    consumeResponseHandlingErrors(response);
+	}
+    }
+
+    private void consumeResponseHandlingErrors(HttpResponse response) {
+	if (response != null) {
+	    try {
+		EntityUtils.consume(response.getEntity());
+	    } catch (IOException e) {
+		did("Tried to consume http response of archive bucket request",
+			e, "no exception", "response", response);
+	    }
 	}
     }
 
@@ -78,9 +89,9 @@ public class ArchiveRestHandler {
 		    statusCode);
 	    break;
 	default:
-	    will("Move bucket to failed buckets location because of failed HttpStatus",
-		    "bucket", bucket, "status_code", statusCode);
-	    failedBucketTransfers.moveFailedBucket(bucket);
+	    did("Sent an archive bucket reuqest", "Got non ok http_status",
+		    "expected HttpStatus.SC_OK or SC_NO_CONTENT",
+		    "http_status", statusCode);
 	}
     }
 
@@ -91,12 +102,6 @@ public class ArchiveRestHandler {
 	// TODO this method should handle the errors in case the bucket transfer
 	// fails. In this state there is no way of telling if the bucket was
 	// actually transfered or not.
-	// REVIEW: Moving bucket to failed bucket location, just in case. And
-	// the next time this bucket gets transfered, we have to check whether
-	// it should be archived or not.
-	will("Move bucket to failed bucket location because of exception",
-		"bucket", bucket, "exception", e);
-	failedBucketTransfers.moveFailedBucket(bucket);
     }
 
     private HttpUriRequest createBucketArchiveRequest(Bucket bucket) {
@@ -108,6 +113,18 @@ public class ArchiveRestHandler {
 		+ bucket.getIndex();
 	HttpGet request = new HttpGet(requestString);
 	return request;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler
+     * #handleLockedBucket(com.splunk.shep.archiver.model.Bucket)
+     */
+    @Override
+    public void handleLockedBucket(Bucket bucket) {
+	callRestToArchiveBucket(bucket);
     }
 
 }

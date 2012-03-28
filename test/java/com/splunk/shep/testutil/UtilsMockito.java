@@ -11,6 +11,10 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicHttpResponse;
 
+import com.splunk.EntityCollection;
+import com.splunk.Index;
+import com.splunk.Service;
+
 /**
  * All the utils regarding Mockito goes in here. If there are exceptions while
  * doing any operations the tests will fail with appropriate message.
@@ -75,4 +79,19 @@ public class UtilsMockito {
 	return httpClient;
     }
 
+    /**
+     * @return {@link Service} that returns a thawLocationPath for indexName.
+     */
+    @SuppressWarnings("unchecked")
+    public static Service createSplunkServiceReturningThawPathForIndex(
+	    String indexName, String thawLocationPath) {
+	Service splunkService = mock(Service.class);
+	EntityCollection<Index> indexesMock = mock(EntityCollection.class);
+	Index indexMock = mock(Index.class);
+
+	when(splunkService.getIndexes()).thenReturn(indexesMock);
+	when(indexesMock.get(indexName)).thenReturn(indexMock);
+	when(indexMock.getThawedPathExpanded()).thenReturn(thawLocationPath);
+	return splunkService;
+    }
 }

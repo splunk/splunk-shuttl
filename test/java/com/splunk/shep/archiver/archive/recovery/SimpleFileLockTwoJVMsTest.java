@@ -58,6 +58,7 @@ public class SimpleFileLockTwoJVMsTest {
 	}
     }
 
+    @Test(groups = { "slow-unit" })
     public void tryLock_inOtherJvmAfterLockingInThisJvm_false() {
 	assertTrue(simpleFileLock.tryLock());
 	ShellClassRunner otherJvmRunner = new ShellClassRunner();

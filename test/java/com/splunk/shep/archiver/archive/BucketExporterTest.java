@@ -18,8 +18,7 @@ public class BucketExporterTest {
 	bucketExporter = new BucketExporter();
     }
 
-    // TODO, when Bucket is implemented, change this test to use the real bucket
-    // class instead of mocking it.
+    @Test(groups = { "fast-unit" })
     public void getBucketExportedToFormat_whenBucketIsAlreadyInThatFormat_returnTheSameBucket() {
 	BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 	Bucket bucket = mock(Bucket.class);

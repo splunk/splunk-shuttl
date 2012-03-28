@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 @Test(groups = { "fast-unit" })
 public class UtilsFileTest {
 
+    @Test(groups = { "fast-unit" })
     public void createTempDirectory_tenTwo_uniqueAndNotNull() {
 	int times = 2;
 	Set<String> absolutePaths = new HashSet<String>();

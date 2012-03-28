@@ -12,20 +12,16 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.archiver.archive.recovery;
-
-import com.splunk.shep.archiver.model.Bucket;
+package com.splunk.shep.archiver.model;
 
 /**
- * Handle the recovery of a failed bucket.
+ * Thrown when a bucket has an illegal name. See {@link BucketName}.
  */
-public interface FailedBucketRecoveryHandler {
+public class IllegalBucketNameException extends RuntimeException {
 
     /**
-     * Recover the failure of a bucket, by trying to archive it again.
-     * 
-     * @param failedBucket
-     *            that failed to be successfully archived.
+     * default generated serial version uid
      */
-    void recoverFailedBucket(Bucket failedBucket);
+    private static final long serialVersionUID = 1L;
+
 }

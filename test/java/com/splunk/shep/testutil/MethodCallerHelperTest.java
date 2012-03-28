@@ -4,6 +4,7 @@ import static org.testng.Assert.*;
 
 import org.testng.annotations.Test;
 
+@Test(groups = { "fast-unit" })
 public class MethodCallerHelperTest {
 
     @Test(groups = { "fast-unit" })

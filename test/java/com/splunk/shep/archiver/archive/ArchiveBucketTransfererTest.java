@@ -12,13 +12,15 @@ import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsTestNG;
 
 @Test(groups = { "fast-unit" })
-public class BucketTransfererTest {
+public class ArchiveBucketTransfererTest {
 
+    @Test(groups = { "fast-unit" })
     public void transferBucketToArchive_givenValidBucketAndUri_putBucketWithArchiveFileSystem() {
 	ArchiveFileSystem archive = mock(ArchiveFileSystem.class);
 	Bucket bucket = mock(Bucket.class);
-	BucketTransferer bucketTransferer = new BucketTransferer(archive);
-	bucketTransferer.transferBucketToArchive(bucket, getURI());
+	ArchiveBucketTransferer archiveBucketTransferer = new ArchiveBucketTransferer(
+		archive);
+	archiveBucketTransferer.transferBucketToArchive(bucket, getURI());
     }
 
     private URI getURI() {

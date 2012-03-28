@@ -41,8 +41,8 @@ public class BucketArchiverFactory {
     /**
      * Create {@link BucketArchiver} that uses Hadoop's HDFS file system for
      * archiving buckets. <br/>
-     * TODO: The host and port of the HDFS used is currently hard coded. Should
-     * be configurable.
+     * CONFIG: The host and port of the HDFS used is currently hard coded.
+     * Should be configurable.
      */
     public static BucketArchiver createHdfsArchiver() {
 	return createHadoopFileSystemArchiver(getHdfsFileSystem());
@@ -58,13 +58,13 @@ public class BucketArchiverFactory {
 
     private static BucketArchiver createHadoopFileSystemArchiver(
 	    FileSystem hadoopFileSystem) {
+	ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 	ArchiveFileSystem archiveFileSystem = new HadoopFileSystemArchive(
-		hadoopFileSystem);
-	ArchiveConfiguration config = new ArchiveConfiguration();
+		hadoopFileSystem, config.getTmpDirectory());
 
 	return new BucketArchiver(config, new BucketExporter(),
 		getPathResolver(hadoopFileSystem, config),
-		new BucketTransferer(archiveFileSystem));
+		new ArchiveBucketTransferer(archiveFileSystem));
     }
 
     /**
@@ -82,17 +82,13 @@ public class BucketArchiverFactory {
 
     private static FileSystem getHdfsFileSystem() {
 	try {
-	    return FileSystem.get(getHdfsURI(), new Configuration());
+	    return FileSystem.get(ArchiveConfiguration.getSharedInstance()
+		    .getArchiverHadoopURI(), new Configuration());
 	} catch (IOException e) {
 	    // LOG
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}
-    }
-
-    private static URI getHdfsURI() {
-	// CONFIG: Should be configured instead of hardcoded.
-	return URI.create("hdfs://localhost:9000");
     }
 
     private static PathResolver getPathResolver(FileSystem hadoopFileSystem,

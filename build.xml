@@ -845,6 +845,7 @@
 			<include name="com/splunk/shep/metrics/**" />
 			<include name="com/splunk/shep/export/**" />
 			<include name="com/splunk/shep/*" />
+			<include name="com/splunk/shep/archiver/**" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.api.versioned.path}" basedir="${classdir}">
