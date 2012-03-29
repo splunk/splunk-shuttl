@@ -54,8 +54,22 @@ public class BucketArchiverRunner implements Runnable {
 
     @Override
     public void run() {
-	if (!bucketLock.isLocked())
-	    throw new IllegalStateException("omg wtf."); // XXX DELETE
+	if (!bucketLock.isLocked()) {
+	    did("Was going to archive bucket",
+		    "Bucket was not locked before archiving it",
+		    "Bucket must have been locked before archiving, "
+			    + "to make sure that it is safe to transfer "
+			    + "the bucket to archive without "
+			    + "any other modification.", "bucket", bucket);
+	    throw new IllegalStateException("Bucket should still be locked"
+		    + " when starting to archive "
+		    + "the bucket. Aborting archiving.");
+	} else {
+	    archiveBucket();
+	}
+    }
+
+    private void archiveBucket() {
 	try {
 	    bucketArchiver.archiveBucket(bucket);
 	    deleteBucketWithErrorHandling(bucket);

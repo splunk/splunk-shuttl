@@ -78,4 +78,10 @@ public class BucketArchiverRunnerTest {
 	verify(bucketLock).deleteLockFile();
     }
 
+    @Test(expectedExceptions = { IllegalStateException.class })
+    public void run_bucketLockUnlocked_throwIllegalStateException() {
+	when(bucketLock.isLocked()).thenReturn(false);
+	bucketArchiverRunner.run();
+    }
+
 }
