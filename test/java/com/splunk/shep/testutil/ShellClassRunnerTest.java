@@ -138,4 +138,30 @@ public class ShellClassRunnerTest {
 	    System.exit(read);
 	}
     }
+
+    public void kill_classThatRunsForever_nonZeroExitCode() {
+	shellClassRunner.runClassAsync(RunForever.class);
+	shellClassRunner.kill();
+	assertTrue(shellClassRunner.getExitCode() > 0);
+    }
+
+    public void kill_classThatFinishes_exitStatusShouldBeTheSame() {
+	shellClassRunner.runClassAsync(ClassWithMain.class);
+	Integer exit = shellClassRunner.getExitCode();
+	shellClassRunner.kill();
+	assertEquals(exit, shellClassRunner.getExitCode());
+    }
+
+    public void kill_runBeforeClassStarts_nothing() {
+	shellClassRunner.kill();
+    }
+
+    private static class RunForever {
+	@SuppressWarnings("unused")
+	public static void main(String[] args) throws InterruptedException {
+	    while (true) {
+		Thread.sleep(1000);
+	    }
+	}
+    }
 }

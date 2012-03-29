@@ -73,24 +73,30 @@ public class ShellClassRunner {
      * Waits for the class run finish running.
      */
     public void waitToFinish() {
-	exitCode = getExitCodeFromProcess(runClassProcess);
+	waitForExitCodeAndSetInAndOutputStreams();
+    }
+
+    private void waitForExitCodeAndSetInAndOutputStreams() {
+	exitCode = getExitCodeFromProcess();
 	stdOut = readInputStream(runClassProcess.getInputStream());
 	stdErr = readInputStream(runClassProcess.getErrorStream());
     }
 
-    private int getExitCodeFromProcess(Process exec) {
+    private int getExitCodeFromProcess() {
 	try {
-	    return exec.waitFor();
+	    return runClassProcess.waitFor();
 	} catch (Exception e) {
-	    printStdOutAndErr(exec);
+	    printStdOutAndErr();
 	    throw new RuntimeException(e);
 	}
     }
 
-    private void printStdOutAndErr(Process exec) {
+    private void printStdOutAndErr() {
 	try {
-	    System.err.println(IOUtils.readLines(exec.getErrorStream()));
-	    System.err.println(IOUtils.readLines(exec.getInputStream()));
+	    System.err.println(IOUtils.readLines(runClassProcess
+		    .getErrorStream()));
+	    System.err.println(IOUtils.readLines(runClassProcess
+		    .getInputStream()));
 	} catch (IOException e) {
 	    throw new RuntimeException(e);
 	}
@@ -140,6 +146,16 @@ public class ShellClassRunner {
 	    return env.get("JAVA_HOME") + "/bin/java";
 	} else {
 	    return "java";
+	}
+    }
+
+    /**
+     * Kills the running class.
+     */
+    public void kill() {
+	if (hasStartedProcess()) {
+	    runClassProcess.destroy();
+	    exitCode = getExitCodeFromProcess();
 	}
     }
 
