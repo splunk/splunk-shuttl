@@ -80,9 +80,4 @@ public class SimpleFileLockTest {
 	assertTrue(nonExistingFile.exists());
     }
 
-    public void tryLockShared_givenUnlockedFileChannel_trueBecauseGotLock() {
-	// simpleFileLock
-	// assertTrue(simpleFileLock.tryLockShared());
-    }
-
 }

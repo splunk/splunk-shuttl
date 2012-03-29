@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 
 import org.apache.commons.io.FileUtils;
 
@@ -54,6 +55,22 @@ public class UtilsFile {
 	} catch (FileNotFoundException e) {
 	    did("Created a FileOuputStream for file: " + file.getAbsolutePath(),
 		    "Got FileNotFoundException", "File to exist", "file", file,
+		    "exception", e);
+	    throw new RuntimeException(e);
+	}
+    }
+
+    /**
+     * @param file
+     * @return
+     */
+    public static RandomAccessFile getRandomAccessFileSilent(File file) {
+	try {
+	    return new RandomAccessFile(file, "rw");
+	} catch (FileNotFoundException e) {
+	    did("Created a RandomAccessFile for file: "
+		    + file.getAbsolutePath(), e,
+		    "To create the RandomAccessFile object", "file", file,
 		    "exception", e);
 	    throw new RuntimeException(e);
 	}

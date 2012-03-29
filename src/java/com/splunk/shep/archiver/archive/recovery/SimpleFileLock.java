@@ -40,7 +40,7 @@ public class SimpleFileLock {
      */
     public static SimpleFileLock createFromFile(File file) {
 	UtilsFile.touch(file);
-	FileChannel channel = UtilsFile.getFileOutputStreamSilent(file)
+	FileChannel channel = UtilsFile.getRandomAccessFileSilent(file)
 		.getChannel();
 	return new SimpleFileLock(channel);
     }
@@ -93,6 +93,22 @@ public class SimpleFileLock {
     }
 
     /**
+     * Tries to get lock of a file with a shared lock. Which means that it can
+     * lock a file, even though it's already locked.
+     * 
+     * @return true if lock was acquired.
+     */
+    public boolean tryLockShared() {
+	try {
+	    return fileChannel.tryLock(0, Long.MAX_VALUE, true) != null;
+	} catch (IOException e) {
+	    did("Tried to lock a file shared", e, "To lock the file",
+		    "file_channel", fileChannel);
+	    return false;
+	}
+    }
+
+    /**
      * Called when {@link SimpleFileLock} was already closed and can't be locked
      * again.
      */
@@ -109,4 +125,5 @@ public class SimpleFileLock {
 	    super(string);
 	}
     }
+
 }
