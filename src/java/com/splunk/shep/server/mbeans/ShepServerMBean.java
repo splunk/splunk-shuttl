@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.server.mbeans;
 
+import com.splunk.shep.server.model.ServerConf;
 /**
  * 
  * @author kpakkirisamy
@@ -174,4 +175,8 @@ public interface ShepServerMBean {
      * Refreshes the MBeans with values from XML file
      */
     public void refresh() throws ShepMBeanException;
+
+    public ServerConf getServerConf();
+
+    public void setServerConf(ServerConf conf);
 }

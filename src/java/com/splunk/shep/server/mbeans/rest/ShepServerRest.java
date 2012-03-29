@@ -21,7 +21,9 @@ import java.lang.management.ManagementFactory;
 import javax.management.JMX;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -30,6 +32,7 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shep.metrics.ShepMetricsHelper;
 import com.splunk.shep.server.mbeans.ShepServerMBean;
+import com.splunk.shep.server.model.ServerConf;
 
 /**
  * Exposes the Server MBean over REST
@@ -116,6 +119,32 @@ public class ShepServerRest {
 	}
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/ServerConfiguration")
+    public ServerConf getServerConfiguration() {
+	try {
+	    ShepServerMBean mbean = getProxy();
+	    return mbean.getServerConf();
+	} catch (Exception e) {
+	    logger.error(e);
+	    throw new ShepRestException(e.getMessage());
+	}
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/setServerConfiguration")
+    public void setServerConfiguration(ServerConf conf) {
+	try {
+	    ShepServerMBean mbean = getProxy();
+	    mbean.setServerConf(conf);
+	} catch (Exception e) {
+	    logger.error(e);
+	    throw new ShepRestException(e.getMessage());
+	}
+    }
+
     // hack for HADOOP-254. Remove before GA
     // will generate a warning about a GET being void during runtime
     // TODO
@@ -140,5 +169,6 @@ public class ShepServerRest {
 			com.splunk.shep.server.mbeans.ShepServerMBean.class);
 	return (proxy);
     }
+
 
 }

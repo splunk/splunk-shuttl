@@ -38,7 +38,6 @@ public class ShepServer implements ShepServerMBean {
     private Logger logger = Logger.getLogger(getClass());
     private String defHadoopClusterHost = null;
     private int defHadoopClusterPort = -1;
-    private ArrayList<ServerConf.HadoopCluster> clusterlist;
     private String xmlFilePath;
     private ServerConf conf;
 
@@ -106,10 +105,12 @@ public class ShepServer implements ShepServerMBean {
 
     @Override
     public String getHadoopClusterHost(String name) throws ShepMBeanException {
-	if (this.clusterlist == null) {
+	ArrayList<ServerConf.HadoopCluster> clusterlist = this.conf
+		.getClusterlist();
+	if (clusterlist == null) {
 	    throw new ShepMBeanException(CLUSTER_NOT_FOUND + name);
 	}
-	for (ServerConf.HadoopCluster cluster : this.clusterlist) {
+	for (ServerConf.HadoopCluster cluster : clusterlist) {
 	    if (cluster.getName().equals(name)) {
 		return cluster.getHost();
 	    }
@@ -120,10 +121,12 @@ public class ShepServer implements ShepServerMBean {
     @Override
     public void setHadoopClusterHost(String name, String host)
 	    throws ShepMBeanException {
-	if (this.clusterlist == null) {
+	ArrayList<ServerConf.HadoopCluster> clusterlist = this.conf
+		.getClusterlist();
+	if (clusterlist == null) {
 	    throw new ShepMBeanException(CLUSTER_NOT_FOUND + name);
 	}
-	for (ServerConf.HadoopCluster cluster : this.clusterlist) {
+	for (ServerConf.HadoopCluster cluster : clusterlist) {
 	    if (cluster.getName().equals(name)) {
 		cluster.setHost(host);
 	    }
@@ -132,10 +135,12 @@ public class ShepServer implements ShepServerMBean {
 
     @Override
     public int getHadoopClusterPort(String name) throws ShepMBeanException {
-	if (this.clusterlist == null) {
+	ArrayList<ServerConf.HadoopCluster> clusterlist = this.conf
+		.getClusterlist();
+	if (clusterlist == null) {
 	    throw new ShepMBeanException(CLUSTER_NOT_FOUND + name);
 	}
-	for (ServerConf.HadoopCluster cluster : this.clusterlist) {
+	for (ServerConf.HadoopCluster cluster : clusterlist) {
 	    if (cluster.getName().equals(name)) {
 		return cluster.getPort();
 	    }
@@ -146,10 +151,12 @@ public class ShepServer implements ShepServerMBean {
     @Override
     public void setHadoopClusterPort(String name, int port)
 	    throws ShepMBeanException {
-	if (this.clusterlist == null) {
+	ArrayList<ServerConf.HadoopCluster> clusterlist = this.conf
+		.getClusterlist();
+	if (clusterlist == null) {
 	    throw new ShepMBeanException(CLUSTER_NOT_FOUND + name);
 	}
-	for (ServerConf.HadoopCluster cluster : this.clusterlist) {
+	for (ServerConf.HadoopCluster cluster : clusterlist) {
 	    if (cluster.getName().equals(name)) {
 		cluster.setPort(port);
 	    }
@@ -184,10 +191,12 @@ public class ShepServer implements ShepServerMBean {
 
     @Override
     public String[] getHadoopClusterNames() {
-	if (this.clusterlist != null) {
-	    String names[] = new String[this.clusterlist.size()];
+	ArrayList<ServerConf.HadoopCluster> clusterlist = this.conf
+		.getClusterlist();
+	if (clusterlist != null) {
+	    String names[] = new String[clusterlist.size()];
 	    int count = 0;
-	    for (ServerConf.HadoopCluster cluster : this.clusterlist) {
+	    for (ServerConf.HadoopCluster cluster : clusterlist) {
 		names[count++] = cluster.getName();
 	    }
 	    return names;
@@ -197,11 +206,13 @@ public class ShepServer implements ShepServerMBean {
 
     @Override
     public void addHadoopCluster(String name) {
-	if (this.clusterlist == null) {
-	    this.clusterlist = new ArrayList<ServerConf.HadoopCluster>();
-	    this.conf.setClusterlist(this.clusterlist);
+	ArrayList<ServerConf.HadoopCluster> clusterlist = this.conf
+		.getClusterlist();
+	if (clusterlist == null) {
+	    this.conf.setClusterlist(new ArrayList<ServerConf.HadoopCluster>());
+	    clusterlist = this.conf.getClusterlist();
 	}
-	for (ServerConf.HadoopCluster cluster : this.clusterlist) {
+	for (ServerConf.HadoopCluster cluster : clusterlist) {
 	    if (cluster.getName().equals(name)) {
 		// already exists - ignore
 		return;
@@ -209,28 +220,32 @@ public class ShepServer implements ShepServerMBean {
 	}
 	ServerConf.HadoopCluster cluster = new ServerConf.HadoopCluster();
 	cluster.setName(name);
-	this.clusterlist.add(cluster);
+	clusterlist.add(cluster);
     }
 
     @Override
     public void deleteHadoopCluster(String name) {
+	ArrayList<ServerConf.HadoopCluster> clusterlist = this.conf
+		.getClusterlist();
 	ServerConf.HadoopCluster delcluster = null;
-	for (ServerConf.HadoopCluster cluster : this.clusterlist) {
+	for (ServerConf.HadoopCluster cluster : clusterlist) {
 	    if (cluster.getName().equals(name)) {
 		delcluster = cluster;
 	    }
 	}
 	if (delcluster != null) {
-	    this.clusterlist.remove(delcluster);
+	    clusterlist.remove(delcluster);
 	}
     }
 
     @Override
     public boolean isDefault(String clustername) throws ShepMBeanException {
-	if (this.clusterlist == null) {
+	ArrayList<ServerConf.HadoopCluster> clusterlist = this.conf
+		.getClusterlist();
+	if (clusterlist == null) {
 	    throw new ShepMBeanException(CLUSTER_NOT_FOUND + clustername);
 	}
-	for (ServerConf.HadoopCluster cluster : this.clusterlist) {
+	for (ServerConf.HadoopCluster cluster : clusterlist) {
 	    if (cluster.getName().equals(clustername)) {
 		return cluster.isDefcluster();
 	    }
@@ -240,10 +255,12 @@ public class ShepServer implements ShepServerMBean {
 
     @Override
     public void setDefault(String clustername) throws ShepMBeanException {
-	if (this.clusterlist == null) {
+	ArrayList<ServerConf.HadoopCluster> clusterlist = this.conf
+		.getClusterlist();
+	if (clusterlist == null) {
 	    throw new ShepMBeanException(CLUSTER_NOT_FOUND + clustername);
 	}
-	for (ServerConf.HadoopCluster cluster : this.clusterlist) {
+	for (ServerConf.HadoopCluster cluster : clusterlist) {
 	    if (cluster.getName().equals(clustername)) {
 		cluster.setDefcluster(true);
 	    }
@@ -265,9 +282,10 @@ public class ShepServer implements ShepServerMBean {
 	try {
 	    this.conf = (ServerConf) JAXBUtils.refresh(ServerConf.class,
 		    this.xmlFilePath);
-	    this.clusterlist = conf.getClusterlist();
-	    if (this.clusterlist != null) {
-		for (ServerConf.HadoopCluster cluster : this.clusterlist) {
+	    ArrayList<ServerConf.HadoopCluster> clusterlist = conf
+		    .getClusterlist();
+	    if (clusterlist != null) {
+		for (ServerConf.HadoopCluster cluster : clusterlist) {
 		    if (cluster.isDefcluster()) {
 			this.defHadoopClusterHost = cluster.getHost();
 			this.defHadoopClusterPort = cluster.getPort();
@@ -280,5 +298,15 @@ public class ShepServer implements ShepServerMBean {
 	    logger.error(e);
 	    throw new ShepMBeanException(e);
 	}
+    }
+
+    @Override
+    public ServerConf getServerConf() {
+	return this.conf;
+    }
+
+    @Override
+    public void setServerConf(ServerConf conf) {
+	this.conf = conf;
     }
 }
