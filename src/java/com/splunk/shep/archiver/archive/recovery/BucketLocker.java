@@ -23,47 +23,54 @@ import com.splunk.shep.archiver.model.Bucket;
 public class BucketLocker {
 
     /**
-     * Executes {@link Runnable} while the bucket it locked. <br/>
-     * Runnable is not executed if the bucket cannot be locked.
+     * Executes {@link SharedLockBucketHandler} while the bucket is locked
+     * shared. By having the lock shared, the implementation of
+     * {@link SharedLockBucketHandler} can continue to keep locking the bucket
+     * if they need to. <br/>
+     * LockedBucketHandler is not executed if the bucket cannot be locked
+     * exclusively first, and then converting the lock to being shared.
      * 
-     * @return true if runnable was run.
+     * @return true if bucketHandler was called.
      */
-    public boolean runWithBucketLocked(Bucket bucket,
-	    LockedBucketHandler bucketHandler) {
-	return executeRunnableDuringBucketLock(new BucketLock(bucket), bucket,
-		bucketHandler);
+    public boolean callBucketHandlerUnderSharedLock(Bucket bucket,
+	    SharedLockBucketHandler bucketHandler) {
+	return callBucketHandlerWithBucketSharedLock(new BucketLock(bucket),
+		bucket, bucketHandler);
     }
 
     /**
      * Method exists for verifying that {@link BucketLock} is closed, whether it
      * gets the lock or not.
      * 
-     * @return true if runnable was run.
+     * @return true if handler was run.
      */
-    /* package-private */boolean executeRunnableDuringBucketLock(
+    /* package-private */boolean callBucketHandlerWithBucketSharedLock(
 	    BucketLock bucketLock, Bucket bucket,
-	    LockedBucketHandler bucketHandler) {
+	    SharedLockBucketHandler bucketHandler) {
 	try {
-	    boolean isLocked = bucketLock.tryLock();
-	    if (isLocked)
-		bucketHandler.handleLockedBucket(bucket);
-	    return isLocked;
+	    if (bucketLock.tryLockExclusive()) {
+		if (bucketLock.tryConvertExclusiveToSharedLock()) {
+		    bucketHandler.handleSharedLockedBucket(bucket);
+		    return true;
+		}
+	    }
 	} finally {
 	    bucketLock.closeLock();
 	}
+	return false;
     }
 
     /**
      * Interface for operating on a {@link Bucket} while it's locked with
      * {@link BucketLock}.
      */
-    public interface LockedBucketHandler {
+    public interface SharedLockBucketHandler {
 
 	/**
 	 * Do operations on a {@link Bucket} while it's locked with a
 	 * {@link BucketLock}.
 	 */
-	void handleLockedBucket(Bucket bucket);
+	void handleSharedLockedBucket(Bucket bucket);
     }
 
 }

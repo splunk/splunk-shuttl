@@ -47,29 +47,29 @@ public class SimpleFileLockTest {
     }
 
     @Test(groups = { "fast-unit" })
-    public void tryLock_givenOpenFileChannel_trueBecauseItIsNowLocked() {
-	assertTrue(simpleFileLock.tryLock());
+    public void tryLockExclusive_givenOpenFileChannel_trueBecauseItIsNowLocked() {
+	assertTrue(simpleFileLock.tryLockExclusive());
 	assertTrue(simpleFileLock.isLocked());
 	simpleFileLock.closeLock();
 	assertTrue(!simpleFileLock.isLocked());
     }
 
-    public void tryLock_alreadLockedOnce_falseBecauseItCouldntBeLocked() {
-	assertTrue(simpleFileLock.tryLock());
-	assertFalse(simpleFileLock.tryLock());
+    public void tryLockExclusive_alreadLockedOnce_falseBecauseItCouldntBeLocked() {
+	assertTrue(simpleFileLock.tryLockExclusive());
+	assertFalse(simpleFileLock.tryLockExclusive());
     }
 
     @Test(expectedExceptions = { LockAlreadyClosedException.class })
-    public void tryLock_afterLockingAndReleasingOnce_LockAlreadyClosedException() {
-	simpleFileLock.tryLock();
+    public void tryLockExclusive_afterLockingAndReleasingOnce_LockAlreadyClosedException() {
+	simpleFileLock.tryLockExclusive();
 	simpleFileLock.closeLock();
-	simpleFileLock.tryLock();
+	simpleFileLock.tryLockExclusive();
     }
 
     @Test(expectedExceptions = { LockAlreadyClosedException.class })
-    public void tryLock_afterClosingLock_LockAlreadyClosedException() {
+    public void tryLockExclusive_afterClosingLock_LockAlreadyClosedException() {
 	simpleFileLock.closeLock();
-	simpleFileLock.tryLock();
+	simpleFileLock.tryLockExclusive();
     }
 
     public void closeLock_callingTwice_nothing() {
@@ -90,7 +90,7 @@ public class SimpleFileLockTest {
     }
 
     public void isShared_lockExclusive_false() {
-	simpleFileLock.tryLock();
+	simpleFileLock.tryLockExclusive();
 	assertFalse(simpleFileLock.isShared());
     }
 
@@ -100,20 +100,20 @@ public class SimpleFileLockTest {
 	simpleFileLock.isShared();
     }
 
-    public void tryConvertExclusiveLockToSharedLock_afterAcquiringTheLock_lockIsNowShared() {
-	assertTrue(simpleFileLock.tryLock());
+    public void tryConvertExclusiveToSharedLock_afterAcquiringTheLock_lockIsNowShared() {
+	assertTrue(simpleFileLock.tryLockExclusive());
 	assertFalse(simpleFileLock.isShared());
 	assertTrue(simpleFileLock.tryConvertExclusiveToSharedLock());
 	assertTrue(simpleFileLock.isShared());
     }
 
     @Test(expectedExceptions = { NotLockedException.class })
-    public void tryConvertExclusiveLockToSharedLock_withoutHavingLock_throwNotLockedException() {
+    public void tryConvertExclusiveToSharedLock_withoutHavingLock_throwNotLockedException() {
 	assertFalse(simpleFileLock.isLocked());
 	simpleFileLock.tryConvertExclusiveToSharedLock();
     }
 
-    public void tryConvertExclusiveLockToSharedLock_withSharedLock_lockStillShared() {
+    public void tryConvertExclusiveToSharedLock_withSharedLock_lockStillShared() {
 	assertTrue(simpleFileLock.tryLockShared());
 	assertTrue(simpleFileLock.isShared());
 	assertTrue(simpleFileLock.tryConvertExclusiveToSharedLock());

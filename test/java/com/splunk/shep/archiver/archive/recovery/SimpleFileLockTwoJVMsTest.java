@@ -59,8 +59,8 @@ public class SimpleFileLockTwoJVMsTest {
     }
 
     @Test(groups = { "slow-unit" })
-    public void tryLock_inOtherJvmAfterLockingInThisJvm_false() {
-	assertTrue(simpleFileLock.tryLock());
+    public void tryLockExclusive_inOtherJvmAfterLockingInThisJvm_false() {
+	assertTrue(simpleFileLock.tryLockExclusive());
 	ShellClassRunner otherJvmRunner = new ShellClassRunner();
 	otherJvmRunner.runClassAsync(FalseLockInOtherJVM.class);
 
@@ -77,8 +77,10 @@ public class SimpleFileLockTwoJVMsTest {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 	    SimpleFileLock simpleFileLock = getSimpleFileLock();
-	    assertFalse(simpleFileLock.tryLock());
-	    System.exit(EXIT_STATUS_ON_FALSE_LOCK);
+	    if (!simpleFileLock.tryLockExclusive())
+		System.exit(EXIT_STATUS_ON_FALSE_LOCK);
+	    else
+		System.exit(-1);
 	}
     }
 }

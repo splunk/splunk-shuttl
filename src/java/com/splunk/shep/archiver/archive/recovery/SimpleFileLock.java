@@ -62,7 +62,7 @@ public class SimpleFileLock {
      *             if this lock was already closed by
      *             {@link SimpleFileLock#closeLock()}
      */
-    public boolean tryLock() {
+    public boolean tryLockExclusive() {
 	boolean shared = false;
 	return tryGettingLockOnChannel(shared);
     }
@@ -101,7 +101,7 @@ public class SimpleFileLock {
 
     /**
      * Releases the lock and closes the channel. Calling
-     * {@link SimpleFileLock#tryLock()} after {@link SimpleFileLock#closeLock()}
+     * {@link SimpleFileLock#tryLockExclusive()} after {@link SimpleFileLock#closeLock()}
      * will cause a {@link ClosedChannelException}
      */
     public void closeLock() {

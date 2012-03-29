@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.model.Bucket;
 
@@ -22,10 +22,10 @@ import com.splunk.shep.archiver.model.Bucket;
  * Moves the bucket with the {@link BucketMover} and archives it with the
  * {@link ArchiveRestHandler}. <br/>
  * <br/>
- * Implements {@link LockedBucketHandler} so it can do this safely with the
+ * Implements {@link SharedLockBucketHandler} so it can do this safely with the
  * {@link Bucket} locked.
  */
-public class MoveAndArchiveBucketUnderLock implements LockedBucketHandler {
+public class MoveAndArchiveBucketUnderLock implements SharedLockBucketHandler {
 
     private final BucketMover bucketMover;
     private final ArchiveRestHandler archiveRestHandler;
@@ -48,7 +48,7 @@ public class MoveAndArchiveBucketUnderLock implements LockedBucketHandler {
      * #handleLockedBucket(com.splunk.shep.archiver.model.Bucket)
      */
     @Override
-    public void handleLockedBucket(Bucket bucket) {
+    public void handleSharedLockedBucket(Bucket bucket) {
 	moveThenArchiveBucket(bucket);
     }
 

@@ -26,14 +26,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
 
-import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
 
 /**
  * Handling all the calls and returns to and from {@link BucketArchiverRest}
  */
-public class ArchiveRestHandler implements LockedBucketHandler {
+public class ArchiveRestHandler implements SharedLockBucketHandler {
 
     private final HttpClient httpClient;
 
@@ -123,7 +123,7 @@ public class ArchiveRestHandler implements LockedBucketHandler {
      * #handleLockedBucket(com.splunk.shep.archiver.model.Bucket)
      */
     @Override
-    public void handleLockedBucket(Bucket bucket) {
+    public void handleSharedLockedBucket(Bucket bucket) {
 	callRestToArchiveBucket(bucket);
     }
 

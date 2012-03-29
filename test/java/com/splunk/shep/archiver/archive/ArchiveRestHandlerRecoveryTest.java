@@ -40,7 +40,7 @@ public class ArchiveRestHandlerRecoveryTest {
 	HttpClient httpClient = mock(HttpClient.class);
 	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
 		httpClient);
-	archiveRestHandler.handleLockedBucket(bucket);
+	archiveRestHandler.handleSharedLockedBucket(bucket);
 
 	verify(httpClient).execute(any(HttpUriRequest.class));
     }

@@ -27,7 +27,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
@@ -52,57 +52,74 @@ public class BucketLockerTest {
     }
 
     @Test(groups = { "fast-unit" })
-    public void runWithBucketLocked_givenBucketThatCanBeLocked_executesRunnable() {
-	assertTrue(bucketLocker.runWithBucketLocked(bucket,
+    public void callBucketHandlerUnderSharedLock_givenBucketThatCanBeLocked_executesRunnable() {
+	assertTrue(bucketLocker.callBucketHandlerUnderSharedLock(bucket,
 		new NoOpBucketHandler()));
     }
 
-    public void runWithBucketLocked_givenLockedBucket_doesNotExecuteRunnable() {
+    public void callBucketHandlerUnderSharedLock_givenLockedBucket_doesNotExecuteRunnable() {
 	BucketLock bucketLock = new BucketLock(bucket);
-	assertTrue(bucketLock.tryLock());
-	assertFalse(bucketLocker.runWithBucketLocked(bucket,
+	assertTrue(bucketLock.tryLockExclusive());
+	assertFalse(bucketLocker.callBucketHandlerUnderSharedLock(bucket,
 		new NoOpBucketHandler()));
     }
 
-    public void runWithBucketLocked_runOnceAlreadyAndReleasedTheLock_executesRunnable() {
-	assertTrue(bucketLocker.runWithBucketLocked(bucket,
+    public void callBucketHandlerUnderSharedLock_runOnceAlreadyAndReleasedTheLock_executesRunnable() {
+	assertTrue(bucketLocker.callBucketHandlerUnderSharedLock(bucket,
 		new NoOpBucketHandler()));
-	assertTrue(bucketLocker.runWithBucketLocked(bucket,
+	assertTrue(bucketLocker.callBucketHandlerUnderSharedLock(bucket,
 		new NoOpBucketHandler()));
     }
 
-    public void runWithBucketLocked_givenLockedBucketHandler_callsBucketHandlerToHandleTheBucket() {
-	LockedBucketHandler bucketHandler = mock(LockedBucketHandler.class);
-	bucketLocker.runWithBucketLocked(bucket, bucketHandler);
-	verify(bucketHandler).handleLockedBucket(bucket);
+    public void callBucketHandlerUnderSharedLock_givenLockedBucketHandler_callsBucketHandlerToHandleTheBucket() {
+	SharedLockBucketHandler bucketHandler = mock(SharedLockBucketHandler.class);
+	bucketLocker.callBucketHandlerUnderSharedLock(bucket, bucketHandler);
+	verify(bucketHandler).handleSharedLockedBucket(bucket);
     }
 
-    private static class NoOpBucketHandler implements LockedBucketHandler {
+    private static class NoOpBucketHandler implements SharedLockBucketHandler {
 	@Override
-	public void handleLockedBucket(Bucket bucket) {
+	public void handleSharedLockedBucket(Bucket bucket) {
 	    // Do nothing.
 	}
     }
 
-    public void executeRunnableDuringBucketLock_givenTryLockThatReturnsFalse_stillClosesLock() {
+    public void callBucketHandlerWithBucketSharedLock_givenTryLockThatReturnsFalse_closesLock() {
 	BucketLock bucketLock = mock(BucketLock.class);
-	when(bucketLock.tryLock()).thenReturn(false);
-	assertFalse(bucketLocker.executeRunnableDuringBucketLock(bucketLock,
-		mock(Bucket.class), new NoOpBucketHandler()));
+	when(bucketLock.tryLockExclusive()).thenReturn(false);
+	assertFalse(bucketLocker.callBucketHandlerWithBucketSharedLock(
+		bucketLock, mock(Bucket.class), new NoOpBucketHandler()));
 	InOrder inOrder = inOrder(bucketLock);
-	inOrder.verify(bucketLock).tryLock();
+	inOrder.verify(bucketLock).tryLockExclusive();
 	inOrder.verify(bucketLock).closeLock();
-	inOrder.verifyNoMoreInteractions();
     }
 
-    public void executeRunnableDuringBucketLock_givenRunnableThatThrowsException_stillClosesLock() {
+    public void callBucketHandlerWithBucketSharedLock_givenSharedConvertFail_closesLock() {
 	BucketLock bucketLock = mock(BucketLock.class);
-	when(bucketLock.tryLock()).thenReturn(true);
+	when(bucketLock.tryLockExclusive()).thenReturn(true);
+	when(bucketLock.tryConvertExclusiveToSharedLock()).thenReturn(false);
+	assertFalse(bucketLocker.callBucketHandlerWithBucketSharedLock(
+		bucketLock, mock(Bucket.class), new NoOpBucketHandler()));
+	verify(bucketLock).closeLock();
+    }
+
+    public void callBucketHandlerWithBucketSharedLock_givenSuccessfulSharedLock_closesLock() {
+	BucketLock bucketLock = mock(BucketLock.class);
+	when(bucketLock.tryLockExclusive()).thenReturn(true);
+	when(bucketLock.tryConvertExclusiveToSharedLock()).thenReturn(true);
+	assertTrue(bucketLocker.callBucketHandlerWithBucketSharedLock(
+		bucketLock, mock(Bucket.class), new NoOpBucketHandler()));
+	verify(bucketLock).closeLock();
+    }
+
+    public void callBucketHandlerWithBucketSharedLock_givenRunnableThatThrowsException_stillClosesLock() {
+	BucketLock bucketLock = mock(BucketLock.class);
+	when(bucketLock.tryLockExclusive()).thenReturn(true);
 	try {
-	    bucketLocker.executeRunnableDuringBucketLock(bucketLock,
-		    mock(Bucket.class), new LockedBucketHandler() {
+	    bucketLocker.callBucketHandlerWithBucketSharedLock(bucketLock,
+		    mock(Bucket.class), new SharedLockBucketHandler() {
 			@Override
-			public void handleLockedBucket(Bucket bucket) {
+			public void handleSharedLockedBucket(Bucket bucket) {
 			    throw new FakeException();
 			}
 		    });

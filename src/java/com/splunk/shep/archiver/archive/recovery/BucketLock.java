@@ -43,7 +43,7 @@ public class BucketLock extends SimpleFileLock {
     }
 
     public BucketLock(Bucket bucket, File locksDirectory) {
-	super(UtilsFile.getFileOutputStreamSilent(
+	super(UtilsFile.getRandomAccessFileSilent(
 		(getLockFile(bucket, locksDirectory))).getChannel());
 	this.lockFile = getLockFile(bucket, locksDirectory);
     }
@@ -68,7 +68,7 @@ public class BucketLock extends SimpleFileLock {
      * @return true if the file was deleted, false otherwise.
      */
     public boolean deleteLockFile() {
-	if (this.tryLock())
+	if (this.tryLockExclusive())
 	    return getLockFile().delete();
 	else
 	    return false;

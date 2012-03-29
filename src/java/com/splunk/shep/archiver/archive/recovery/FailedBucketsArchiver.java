@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive.recovery;
 
-import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shep.archiver.model.Bucket;
 
 /**
@@ -39,15 +39,16 @@ public class FailedBucketsArchiver {
 
     /**
      * Recover failed buckets with handler. Any bucket that is available for
-     * recovery is sent to the {@link LockedBucketHandler}.
+     * recovery is sent to the {@link SharedLockBucketHandler}.
      * 
      * @param bucketHandler
      *            to handle the moved buckets. Executes the handler if it was
      *            possible to get a lock on the bucket.
      */
-    public void archiveFailedBuckets(LockedBucketHandler bucketHandler) {
+    public void archiveFailedBuckets(SharedLockBucketHandler bucketHandler) {
 	for (Bucket movedBucket : bucketMover.getMovedBuckets()) {
-	    bucketLocker.runWithBucketLocked(movedBucket, bucketHandler);
+	    bucketLocker.callBucketHandlerUnderSharedLock(movedBucket,
+		    bucketHandler);
 	}
     }
 

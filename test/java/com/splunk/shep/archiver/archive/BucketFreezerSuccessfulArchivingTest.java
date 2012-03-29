@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.recovery.BucketLock;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker;
-import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
+import com.splunk.shep.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shep.archiver.model.Bucket;
@@ -141,7 +141,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 	inOrder.verify(archiveRestHandler, times(1)).callRestToArchiveBucket(
 		any(Bucket.class));
 	inOrder.verify(failedBucketsArchiver).archiveFailedBuckets(
-		any(LockedBucketHandler.class));
+		any(SharedLockBucketHandler.class));
 	inOrder.verifyNoMoreInteractions();
     }
 }

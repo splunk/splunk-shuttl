@@ -55,7 +55,7 @@ public class MoveAndArchiveBucketUnderLockTest {
     }
 
     public void handleLockedBucket_givenBucket_movesAndArchivesTheBucket() {
-	moveAndArchiveBucketUnderLock.handleLockedBucket(bucket);
+	moveAndArchiveBucketUnderLock.handleSharedLockedBucket(bucket);
 	verify(bucketMover).moveBucket(bucket);
 	verify(archiveRestHandler).callRestToArchiveBucket(any(Bucket.class));
 	verifyNoMoreInteractions(bucketMover, archiveRestHandler);
