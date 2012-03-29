@@ -73,8 +73,9 @@ public class BucketLockTest {
 	assertFalse(bucketLock.getLockFile().exists());
     }
 
-    public void deleteLockFile_bucketLocked_false() {
+    public void deleteLockFile_bucketLocked_true() {
 	assertTrue(bucketLock.tryLockExclusive());
-	assertFalse(bucketLock.deleteLockFile());
+	bucketLock.deleteLockFile();
+	assertFalse(bucketLock.getLockFile().exists());
     }
 }

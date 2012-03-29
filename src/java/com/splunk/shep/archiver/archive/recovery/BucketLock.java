@@ -27,6 +27,7 @@ import com.splunk.shep.archiver.util.UtilsFile;
  */
 public class BucketLock extends SimpleFileLock {
 
+    // CONFIG
     public static final String DEFAULT_LOCKS_DIRECTORY = FileUtils
 	    .getUserDirectoryPath()
 	    + File.separator
@@ -68,9 +69,6 @@ public class BucketLock extends SimpleFileLock {
      * @return true if the file was deleted, false otherwise.
      */
     public boolean deleteLockFile() {
-	if (this.tryLockExclusive())
-	    return getLockFile().delete();
-	else
-	    return false;
+	return getLockFile().delete();
     }
 }
