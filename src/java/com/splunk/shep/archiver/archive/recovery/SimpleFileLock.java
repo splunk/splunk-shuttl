@@ -69,7 +69,7 @@ public class SimpleFileLock {
 
     private boolean tryGettingLockOnChannel(boolean shared) {
 	fileLock = getLockWithErrorHandling(shared);
-	return fileLock != null;
+	return isLocked();
     }
 
     private FileLock getLockWithErrorHandling(boolean shared) {
@@ -101,8 +101,9 @@ public class SimpleFileLock {
 
     /**
      * Releases the lock and closes the channel. Calling
-     * {@link SimpleFileLock#tryLockExclusive()} after {@link SimpleFileLock#closeLock()}
-     * will cause a {@link ClosedChannelException}
+     * {@link SimpleFileLock#tryLockExclusive()} after
+     * {@link SimpleFileLock#closeLock()} will cause a
+     * {@link ClosedChannelException}
      */
     public void closeLock() {
 	IOUtils.closeQuietly(fileChannel);
@@ -161,7 +162,7 @@ public class SimpleFileLock {
      * Called when {@link SimpleFileLock} was already closed and can't be locked
      * again.
      */
-    public class LockAlreadyClosedException extends RuntimeException {
+    public static class LockAlreadyClosedException extends RuntimeException {
 	/**
 	 * Default generated serial version uid.
 	 */
@@ -175,11 +176,19 @@ public class SimpleFileLock {
 	}
     }
 
-    public class NotLockedException extends RuntimeException {
+    public static class NotLockedException extends RuntimeException {
 	/**
 	 * Default generated serial version uid.
 	 */
 	private static final long serialVersionUID = 1L;
+
+	public NotLockedException(String string) {
+	    super(string);
+	}
+
+	public NotLockedException() {
+	}
+
     }
 
 }

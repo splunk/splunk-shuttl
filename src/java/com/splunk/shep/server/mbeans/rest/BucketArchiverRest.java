@@ -1,11 +1,8 @@
 package com.splunk.shep.server.mbeans.rest;
 
-import static com.splunk.shep.ShepConstants.ENDPOINT_ARCHIVER;
-import static com.splunk.shep.ShepConstants.ENDPOINT_BUCKET_ARCHIVER;
-import static com.splunk.shep.ShepConstants.ENDPOINT_CONTEXT;
+import static com.splunk.shep.ShepConstants.*;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,6 +14,8 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.archive.BucketArchiver;
 import com.splunk.shep.archiver.archive.BucketArchiverFactory;
+import com.splunk.shep.archiver.archive.BucketArchiverRunner;
+import com.splunk.shep.archiver.archive.recovery.BucketLock;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 import com.splunk.shep.metrics.ShepMetricsHelper;
@@ -49,50 +48,37 @@ public class BucketArchiverRest {
     }
 
     private void archiveBucketOnAnotherThread(String indexName, String path) {
-	Runnable r = new BucketArchiverRunner(indexName, path);
+	Runnable r = createBucketArchiverRunner(indexName, path);
 	new Thread(r).run();
     }
 
-    private static class BucketArchiverRunner implements Runnable {
-
-	private final String pathToBucket;
-	private final String indexName;
-
-	public BucketArchiverRunner(String indexName, String pathToBucket) {
-	    this.pathToBucket = pathToBucket;
-	    this.indexName = indexName;
+    private Runnable createBucketArchiverRunner(String indexName, String path) {
+	BucketArchiver bucketArchiver = BucketArchiverFactory
+		.createDefaultArchiver();
+	Bucket bucket = createBucketWithErrorHandling(indexName, path);
+	BucketLock bucketLock = new BucketLock(bucket);
+	if (!bucketLock.tryLockShared()) {
+	    throw new IllegalStateException(
+		    "We must ensure that the bucket archiver has a "
+			    + "lock to the bucket it will transfer");
 	}
-
-	@Override
-	public void run() {
-	    Bucket bucket = createBucketWithErrorHandling();
-	    BucketArchiver bucketArchiver = BucketArchiverFactory
-		    .createDefaultArchiver();
-	    bucketArchiver.archiveBucket(bucket);
-	    deleteBucketWithErrorHandling(bucket);
-	}
-
-	private Bucket createBucketWithErrorHandling() {
-	    Bucket bucket;
-	    try {
-		bucket = new Bucket(indexName, pathToBucket);
-	    } catch (FileNotFoundException e) {
-		e.printStackTrace();
-		throw new RuntimeException(e);
-	    } catch (FileNotDirectoryException e) {
-		e.printStackTrace();
-		throw new RuntimeException(e);
-	    }
-	    return bucket;
-	}
-
-	private void deleteBucketWithErrorHandling(Bucket bucket) {
-	    try {
-		bucket.deleteBucket();
-	    } catch (IOException e) {
-		e.printStackTrace();
-		throw new RuntimeException(e);
-	    }
-	}
+	Runnable r = new BucketArchiverRunner(bucketArchiver, bucket,
+		bucketLock);
+	return r;
     }
+
+    private Bucket createBucketWithErrorHandling(String indexName, String path) {
+	Bucket bucket;
+	try {
+	    bucket = new Bucket(indexName, path);
+	} catch (FileNotFoundException e) {
+	    e.printStackTrace();
+	    throw new RuntimeException(e);
+	} catch (FileNotDirectoryException e) {
+	    e.printStackTrace();
+	    throw new RuntimeException(e);
+	}
+	return bucket;
+    }
+
 }
