@@ -116,7 +116,7 @@ public class ShellClassRunnerTest {
 	});
     }
 
-    public void runClassAsync_writingExitCodeToItsStdIn_exitWithTheWrittenExitCode()
+    public void getOutputStreamToClass_writingExitCodeToItsStdIn_exitWithTheWrittenExitCode()
 	    throws IOException {
 	shellClassRunner.runClassAsync(ExitWithIntegerWrittenToIt.class);
 	OutputStream out = shellClassRunner.getOutputStreamToClass();
@@ -136,6 +136,25 @@ public class ShellClassRunnerTest {
 	    int read = in.read();
 	    in.close();
 	    System.exit(read);
+	}
+    }
+
+    @Test(timeOut = 3000)
+    public void getInputStreamFromClass_readingExitCodeFromItsStdOut_exitCodeEqualsWrittenByte()
+	    throws IOException {
+	shellClassRunner.runClassAsync(WriteExitCodeToStdOut.class);
+	InputStream in = shellClassRunner.getInputStreamFromClass();
+	int exitCodeRead = in.read();
+	assertEquals((int) shellClassRunner.getExitCode(), exitCodeRead);
+    }
+
+    private static class WriteExitCodeToStdOut {
+	@SuppressWarnings("unused")
+	public static void main(String[] args) {
+	    int exit = 10;
+	    System.out.write(exit);
+	    System.out.flush();
+	    System.exit(exit);
 	}
     }
 

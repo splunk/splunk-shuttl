@@ -137,6 +137,10 @@ public class ShellClassRunner {
 	return runClassProcess.getOutputStream();
     }
 
+    public InputStream getInputStreamFromClass() {
+	return runClassProcess.getInputStream();
+    }
+
     /**
      * @return path to java, the executable.
      */
