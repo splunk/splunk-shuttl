@@ -71,49 +71,50 @@ public class SimpleFileLockSharedTest {
      * See {@link LockShared_Release} for more information of how it works.
      */
     @Test(groups = { "slow-unit" }, timeOut = 3000)
-    public void lockShared_noLockOnFile_acquiresLockAndCannotBeLockWithTryLock()
+    public void tryLockShared_noLockOnFile_acquiresLockAndCannotBeLockWithTryLock()
 	    throws IOException {
 	otherJvmLocker.runClassAsync(LockShared_Release.class);
-	waitForOtherJvmLocker();
+	waitForOtherJvmToTrySharedLock();
 	assertFalse(simpleLock.tryLock());
-	triggerOtherJvmLocker();
+	signalOtherJvmToFinish();
 	assertEquals(GOT_SHARED_LOCK, (int) otherJvmLocker.getExitCode());
     }
 
-    private void waitForOtherJvmLocker() throws IOException {
+    private void waitForOtherJvmToTrySharedLock() throws IOException {
 	InputStream in = otherJvmLocker.getInputStreamFromClass();
 	in.read();
     }
 
-    private void triggerOtherJvmLocker() throws IOException {
+    private void signalOtherJvmToFinish() throws IOException {
 	OutputStream out = otherJvmLocker.getOutputStreamToClass();
 	out.write(DATA);
 	out.flush();
     }
 
     @Test(timeOut = 3000)
-    public void lockShared_fileIsLockedShared_acquiresLockAndStillLockedAfterFirstLockIsClosed()
+    public void tryLockShared_lockIsConvertedBetweenExclusiveToShared_acquiresLockAndExclusiveLockAfterDoesntWork()
 	    throws IOException {
-	assertTrue(simpleLock.tryLockShared());
+	assertTrue(simpleLock.tryLock());
+	assertTrue(simpleLock.tryConvertExclusiveToSharedLock());
 	otherJvmLocker.runClassAsync(LockShared_Release.class);
-	waitForOtherJvmLocker();
+	waitForOtherJvmToTrySharedLock();
 	simpleLock.closeLock();
 
 	// Should not acquire lock even though we just closed it, because of the
 	// shared lock by LockShared_Release in the other JVM.
 	SimpleFileLock newLock = getSimpleFileLock();
 	assertFalse(newLock.tryLock());
-	triggerOtherJvmLocker();
+	signalOtherJvmToFinish();
 	assertEquals(GOT_SHARED_LOCK, (int) otherJvmLocker.getExitCode());
     }
 
     @Test(timeOut = 3000)
-    public void lockShared_fileIsLockedExclusive_cannotGetSharedLock()
+    public void tryLockShared_fileIsLockedExclusive_cannotGetSharedLock()
 	    throws IOException {
 	assertTrue(simpleLock.tryLock());
 	otherJvmLocker.runClassAsync(LockShared_Release.class);
-	waitForOtherJvmLocker();
-	triggerOtherJvmLocker();
+	waitForOtherJvmToTrySharedLock();
+	signalOtherJvmToFinish();
 	simpleLock.closeLock();
 	assertEquals(NO_SHARED_LOCK, (int) otherJvmLocker.getExitCode());
     }

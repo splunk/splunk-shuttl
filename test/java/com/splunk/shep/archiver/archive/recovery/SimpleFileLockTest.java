@@ -23,6 +23,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.recovery.SimpleFileLock.LockAlreadyClosedException;
+import com.splunk.shep.archiver.archive.recovery.SimpleFileLock.NotLockedException;
 import com.splunk.shep.testutil.UtilsFile;
 
 /**
@@ -48,6 +49,9 @@ public class SimpleFileLockTest {
     @Test(groups = { "fast-unit" })
     public void tryLock_givenOpenFileChannel_trueBecauseItIsNowLocked() {
 	assertTrue(simpleFileLock.tryLock());
+	assertTrue(simpleFileLock.isLocked());
+	simpleFileLock.closeLock();
+	assertTrue(!simpleFileLock.isLocked());
     }
 
     public void tryLock_alreadLockedOnce_falseBecauseItCouldntBeLocked() {
@@ -80,4 +84,39 @@ public class SimpleFileLockTest {
 	assertTrue(nonExistingFile.exists());
     }
 
+    public void isShared_lockShared_true() {
+	simpleFileLock.tryLockShared();
+	assertTrue(simpleFileLock.isShared());
+    }
+
+    public void isShared_lockExclusive_false() {
+	simpleFileLock.tryLock();
+	assertFalse(simpleFileLock.isShared());
+    }
+
+    @Test(expectedExceptions = { NotLockedException.class })
+    public void isShared_notLocked_throwNotLockedException() {
+	assertFalse(simpleFileLock.isLocked());
+	simpleFileLock.isShared();
+    }
+
+    public void tryConvertExclusiveLockToSharedLock_afterAcquiringTheLock_lockIsNowShared() {
+	assertTrue(simpleFileLock.tryLock());
+	assertFalse(simpleFileLock.isShared());
+	assertTrue(simpleFileLock.tryConvertExclusiveToSharedLock());
+	assertTrue(simpleFileLock.isShared());
+    }
+
+    @Test(expectedExceptions = { NotLockedException.class })
+    public void tryConvertExclusiveLockToSharedLock_withoutHavingLock_throwNotLockedException() {
+	assertFalse(simpleFileLock.isLocked());
+	simpleFileLock.tryConvertExclusiveToSharedLock();
+    }
+
+    public void tryConvertExclusiveLockToSharedLock_withSharedLock_lockStillShared() {
+	assertTrue(simpleFileLock.tryLockShared());
+	assertTrue(simpleFileLock.isShared());
+	assertTrue(simpleFileLock.tryConvertExclusiveToSharedLock());
+	assertTrue(simpleFileLock.isShared());
+    }
 }

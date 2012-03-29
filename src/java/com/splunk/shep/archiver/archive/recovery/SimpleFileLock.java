@@ -23,6 +23,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 
+import org.apache.commons.io.IOUtils;
+
 import com.splunk.shep.archiver.util.UtilsFile;
 
 /**
@@ -33,6 +35,7 @@ import com.splunk.shep.archiver.util.UtilsFile;
 public class SimpleFileLock {
 
     private final FileChannel fileChannel;
+    private FileLock fileLock;
 
     /**
      * Creates a {@link SimpleFileLock} from a file. RuntimeException will be
@@ -60,10 +63,20 @@ public class SimpleFileLock {
      *             {@link SimpleFileLock#closeLock()}
      */
     public boolean tryLock() {
+	boolean shared = false;
+	return tryGettingLockOnChannel(shared);
+    }
+
+    private boolean tryGettingLockOnChannel(boolean shared) {
+	fileLock = getLockWithErrorHandling(shared);
+	return fileLock != null;
+    }
+
+    private FileLock getLockWithErrorHandling(boolean shared) {
 	try {
-	    return tryGettingLockOnChannel();
+	    return fileChannel.tryLock(0, Long.MAX_VALUE, shared);
 	} catch (OverlappingFileLockException e) {
-	    return false; // Expected when locking twice.
+	    return null; // Expected when locking twice.
 	} catch (ClosedChannelException e) {
 	    throw new LockAlreadyClosedException("Lock was already closed. "
 		    + "Cannot lock this lock that was closed.");
@@ -75,8 +88,15 @@ public class SimpleFileLock {
 	}
     }
 
-    private boolean tryGettingLockOnChannel() throws IOException {
-	return fileChannel.tryLock() != null;
+    /**
+     * Tries to get lock of a file with a shared lock. Which means that it can
+     * lock a file, even though it's already locked.
+     * 
+     * @return true if lock was acquired.
+     */
+    public boolean tryLockShared() {
+	boolean shared = true;
+	return tryGettingLockOnChannel(shared);
     }
 
     /**
@@ -85,27 +105,56 @@ public class SimpleFileLock {
      * will cause a {@link ClosedChannelException}
      */
     public void closeLock() {
-	try {
-	    fileChannel.close();
-	} catch (IOException e) {
-	    // Quietly, without caring about the exception.
+	IOUtils.closeQuietly(fileChannel);
+    }
+
+    /**
+     * @return true if is locked and shared
+     * @throws {@link NotLockedException} if is not locked.
+     */
+    public boolean isShared() {
+	if (!isLocked()) {
+	    throw new NotLockedException();
+	} else {
+	    return fileLock.isShared();
 	}
     }
 
     /**
-     * Tries to get lock of a file with a shared lock. Which means that it can
-     * lock a file, even though it's already locked.
+     * Converts an exclusive lock to a shared lock.<br/>
+     * Note: It might fail because it temporarily releases its lock and then
+     * tries to regain it. Some other JVM might take control between this
+     * release and regain.
      * 
-     * @return true if lock was acquired.
+     * @return true if convert from exclusive to shared was successful.
+     * @throws {@link NotLockedException} if is not locked.
      */
-    public boolean tryLockShared() {
-	try {
-	    return fileChannel.tryLock(0, Long.MAX_VALUE, true) != null;
-	} catch (IOException e) {
-	    did("Tried to lock a file shared", e, "To lock the file",
-		    "file_channel", fileChannel);
-	    return false;
+    public boolean tryConvertExclusiveToSharedLock() {
+	if (!isLocked()) {
+	    throw new NotLockedException();
+	} else if (isShared()) {
+	    return true;
+	} else {
+	    releaseLock();
+	    return tryLockShared();
 	}
+    }
+
+    private void releaseLock() {
+	try {
+	    fileLock.release();
+	} catch (IOException e) {
+	    warn("Released a lock on a file.", e,
+		    "Will not do anything about it", "file_channel",
+		    fileChannel);
+	}
+    }
+
+    /**
+     * @return true if is has acquired lock.
+     */
+    public boolean isLocked() {
+	return fileLock != null && fileLock.isValid();
     }
 
     /**
@@ -124,6 +173,13 @@ public class SimpleFileLock {
 	public LockAlreadyClosedException(String string) {
 	    super(string);
 	}
+    }
+
+    public class NotLockedException extends RuntimeException {
+	/**
+	 * Default generated serial version uid.
+	 */
+	private static final long serialVersionUID = 1L;
     }
 
 }
