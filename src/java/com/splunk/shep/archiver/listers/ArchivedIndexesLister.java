@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.listers;
 
-import static com.splunk.shep.archiver.ArchiverLogger.did;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.archive.PathResolver;
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
@@ -31,6 +32,8 @@ import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
  */
 public class ArchivedIndexesLister {
 
+    private final static Logger logger = Logger
+	    .getLogger(ArchivedIndexesLister.class);
     private final PathResolver pathResolver;
     private final ArchiveFileSystem fileSystem;
 
@@ -64,9 +67,12 @@ public class ArchivedIndexesLister {
 	try {
 	    return fileSystem.listPath(indexesHome);
 	} catch (IOException e) {
-	    did("Listed indexes at indexesHome", "Got IOException",
+	    if(logger.isDebugEnabled()) {
+		logger.debug(did("Listed indexes at indexesHome",
+			"Got IOException",
 		    "To list indexes on the archive filesystem",
-		    "indexes_home", indexesHome, "exception", e);
+		    "indexes_home", indexesHome, "exception", e));
+}
 	    throw new RuntimeException(e);
 	}
     }

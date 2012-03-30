@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive.recovery;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +22,8 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
+
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.util.UtilsFile;
 
@@ -32,6 +34,7 @@ import com.splunk.shep.archiver.util.UtilsFile;
  */
 public class SimpleFileLock {
 
+    private final static Logger logger = Logger.getLogger(SimpleFileLock.class);
     private final FileChannel fileChannel;
 
     /**
@@ -68,9 +71,11 @@ public class SimpleFileLock {
 	    throw new LockAlreadyClosedException("Lock was already closed. "
 		    + "Cannot lock this lock that was closed.");
 	} catch (IOException e) {
-	    did("Tried locking FailedBucketsLock", "Got IOException",
-		    "To lock the file", "file_channel", fileChannel,
-		    "exception", e);
+	    if(logger.isDebugEnabled()) {
+		logger.debug(did("Tried locking FailedBucketsLock",
+			"Got IOException", "To lock the file", "file_channel",
+			fileChannel, "exception", e));
+	    }
 	    throw new RuntimeException(e);
 	}
     }

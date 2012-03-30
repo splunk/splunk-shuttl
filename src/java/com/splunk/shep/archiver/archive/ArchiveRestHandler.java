@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.IOException;
 
@@ -25,6 +25,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.archive.recovery.BucketLocker.LockedBucketHandler;
 import com.splunk.shep.archiver.model.Bucket;
@@ -35,6 +36,8 @@ import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
  */
 public class ArchiveRestHandler implements LockedBucketHandler {
 
+    private final static Logger logger = Logger
+	    .getLogger(ArchiveRestHandler.class);
     private final HttpClient httpClient;
 
     /**
@@ -48,8 +51,11 @@ public class ArchiveRestHandler implements LockedBucketHandler {
 	HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
 	HttpResponse response = null;
 	try {
-	    will("Send an archive bucket request", "request_uri",
-		    archiveBucketRequest.getURI());
+	    if(logger.isDebugEnabled()) {
+		logger.debug(will("Send an archive bucket request",
+			"request_uri",
+		    archiveBucketRequest.getURI()));
+	    }
 	    response = httpClient.execute(archiveBucketRequest); // LOG
 	    if (response != null) {
 		handleResponseCodeFromDoingArchiveBucketRequest(response
@@ -73,8 +79,11 @@ public class ArchiveRestHandler implements LockedBucketHandler {
 	    try {
 		EntityUtils.consume(response.getEntity());
 	    } catch (IOException e) {
-		did("Tried to consume http response of archive bucket request",
-			e, "no exception", "response", response);
+		if(logger.isDebugEnabled()) {
+		    logger.debug(did(
+			    "Tried to consume http response of archive bucket request",
+			e, "no exception", "response", response));
+		}
 	    }
 	}
     }
@@ -85,20 +94,28 @@ public class ArchiveRestHandler implements LockedBucketHandler {
 	switch (statusCode) {
 	case HttpStatus.SC_OK:
 	case HttpStatus.SC_NO_CONTENT:
-	    done("Got http response from archiveBucketRequest", "status_code",
-		    statusCode);
+	    if(logger.isDebugEnabled()) {
+		logger.debug(done(
+			"Got http response from archiveBucketRequest",
+			"status_code", statusCode));
+	    }
 	    break;
 	default:
-	    did("Sent an archive bucket reuqest", "Got non ok http_status",
+	    if(logger.isDebugEnabled()) {
+		logger.debug(did("Sent an archive bucket reuqest",
+			"Got non ok http_status",
 		    "expected HttpStatus.SC_OK or SC_NO_CONTENT",
-		    "http_status", statusCode);
+		    "http_status", statusCode));
+	    }
 	}
     }
 
     private void handleIOExceptionGenereratedByDoingArchiveBucketRequest(
 	    IOException e, Bucket bucket) {
-	did("Archive bucket request", "got IOException", "request to succeed",
-		"exception", e);
+	if(logger.isDebugEnabled()) {
+	    logger.debug(did("Archive bucket request", "got IOException",
+		    "request to succeed", "exception", e));
+	}
 	// TODO this method should handle the errors in case the bucket transfer
 	// fails. In this state there is no way of telling if the bucket was
 	// actually transfered or not.

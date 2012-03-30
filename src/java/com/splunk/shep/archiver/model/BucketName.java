@@ -14,15 +14,20 @@
 // limitations under the License.
 package com.splunk.shep.archiver.model;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.log4j.Logger;
+
 
 /**
  * Bucket name with db-name, earliest time, latest time and bucket index.
  */
 public class BucketName {
+
+    private final static Logger logger = Logger.getLogger(BucketName.class);
 
     public static final String LEGAL_NAME_REGEX = "([A-Za-z0-9]+?)_(\\d+?)_(\\d+?)_(.+)";
 
@@ -96,10 +101,13 @@ public class BucketName {
 
     private void throwExceptionIfNotValidRegex() {
 	if (!Pattern.matches(LEGAL_NAME_REGEX, name)) {
-	    did("Verified legal bucket name",
+	    if(logger.isDebugEnabled()) {
+		logger.debug(did(
+			"Verified legal bucket name",
 		    "Bucket name was not legal. Throwing IllegalBucketNameException",
 		    "Bucket name to be legal", "bucket_name", name,
-		    "legal_bucket_name_regex", LEGAL_NAME_REGEX);
+		    "legal_bucket_name_regex", LEGAL_NAME_REGEX));
+	    }
 	    throw new IllegalBucketNameException();
 	}
     }

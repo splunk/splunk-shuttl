@@ -14,12 +14,14 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive.recovery;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
@@ -30,6 +32,7 @@ import com.splunk.shep.archiver.model.FileNotDirectoryException;
  */
 public class BucketMover {
 
+    private final static Logger logger = Logger.getLogger(BucketMover.class);
     private final String movedBucketsLocationPath;
 
     /**
@@ -106,14 +109,20 @@ public class BucketMover {
 	try {
 	    return new Bucket(index, bucketFile);
 	} catch (FileNotFoundException e) {
-	    did("Created bucket from file", "Got FileNotFoundException",
+	    if(logger.isDebugEnabled()) {
+		logger.debug(did("Created bucket from file",
+			"Got FileNotFoundException",
 		    "To create bucket from file", "file", bucketFile,
-		    "exception", e);
+			"exception", e));
+	    }
 	    throw new RuntimeException(e);
 	} catch (FileNotDirectoryException e) {
-	    did("Created bucket from file", "Got FileNotDirectoryException",
+	    if(logger.isDebugEnabled()) {
+		logger.debug(did("Created bucket from file",
+			"Got FileNotDirectoryException",
 		    "To create bucket from file", "file", bucketFile,
-		    "exception", e);
+		    "exception", e));
+	    }
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}

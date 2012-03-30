@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.util;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,12 +22,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+
 
 /**
  * File utils for production code. Using the name UtilsFile instead of FileUtils
  * to avoid naming collisions with {@link FileUtils}.
  */
 public class UtilsFile {
+
+    private final static Logger logger = Logger.getLogger(UtilsFile.class);
 
     /**
      * Creates a {@link File} and its parents without throwing exceptions. See
@@ -37,8 +41,11 @@ public class UtilsFile {
 	try {
 	    FileUtils.touch(file);
 	} catch (IOException e) {
-	    did("Tried to create file and its parents", "Got IOException",
-		    "The file to be created", "file", file, "exception", e);
+	    if(logger.isDebugEnabled()) {
+		logger.debug(did("Tried to create file and its parents",
+			"Got IOException", "The file to be created", "file",
+			file, "exception", e));
+	    }
 	    throw new RuntimeException(e);
 	}
     }
@@ -52,9 +59,13 @@ public class UtilsFile {
 	try {
 	    return new FileOutputStream(file);
 	} catch (FileNotFoundException e) {
-	    did("Created a FileOuputStream for file: " + file.getAbsolutePath(),
-		    "Got FileNotFoundException", "File to exist", "file", file,
-		    "exception", e);
+	    if(logger.isDebugEnabled()) {
+		logger.debug(did(
+			"Created a FileOuputStream for file: "
+				+ file.getAbsolutePath(),
+			"Got FileNotFoundException", "File to exist", "file",
+			file, "exception", e));
+	    }
 	    throw new RuntimeException(e);
 	}
     }
