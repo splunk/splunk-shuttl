@@ -12,13 +12,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.export;
+package com.splunk.shep.exporter;
 
 import static com.splunk.shep.ShepConstants.SystemType.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,10 +32,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Logger;
 
+import com.splunk.shep.ShepConstants.OutputMode;
 import com.splunk.shep.ShepConstants.SystemType;
-import com.splunk.shep.export.io.EventReader;
-import com.splunk.shep.export.io.EventWriter;
-import com.splunk.shep.export.io.SplunkEventReader;
+import com.splunk.shep.exporter.io.EventReader;
+import com.splunk.shep.exporter.io.EventWriter;
+import com.splunk.shep.exporter.io.SplunkEventReader;
 import com.splunk.shep.server.model.ExporterConf.Channel;
 import com.splunk.shep.server.model.ExporterConfiguration;
 import com.splunk.shep.server.services.SplunkExporterService;
@@ -69,12 +72,8 @@ public class ChannelManager implements SplunkExporterService {
 	    // TODO exposed as configurable parameter?
 	    int corePoolSize = 5;
 	    service = Executors.newScheduledThreadPool(corePoolSize);
-	    if (eventReader == null) {
-		// eventReader = EventReader.getInstance(splunk);
-		eventReader = new SplunkEventReader();
-	    }
 	    if (translogService == null) {
-		translogService = new TranslogService();
+			translogService = new TranslogService();
 	    }
 	}
 
@@ -122,23 +121,27 @@ public class ChannelManager implements SplunkExporterService {
 	    status.put(indexName, false);
 
 	    SystemType type = valueOf(outputFileSystem);
-
-	    Map<String, Object> params = new HashMap<String, Object>();
-	    params.put("output_mode", outputMode);
+	    EventReader eventReader = new SplunkEventReader();
+	    
 	    long lastEndTime = translogService.getEndTime(indexName);
+	    OutputMode mode = OutputMode.valueOf(outputMode);
 	    try {
-	    InputStream is = eventReader.export(indexName, lastEndTime, params);
-
-	    String fileName = String.format("%s_%d.%s",
-		    FileUtils.getFile(tempPath, indexName).getAbsolutePath(),
-		    System.currentTimeMillis(), outputMode);
-	    boolean append = true;
-	    Configuration conf = null;
-	    if (hdfs == type) {
-		//TODO set up configuration
-	    }
-	    eventWriter = EventWriter.getInstance(type, fileName, append, conf);
-	    eventWriter.write(is);
+	    SimpleDateFormat sdf = new SimpleDateFormat(
+				"yyyy.MM.dd.HH.mm.ss");
+		String timeStr = sdf.format(new Date());
+		String fileName = String.format("%s_%s.%s",
+			FileUtils.getFile(tempPath, indexName)
+				.getAbsolutePath(), timeStr, outputMode);
+		boolean append = true;
+		Configuration conf = null;
+		if (hdfs == type) {
+		    // TODO set up configuration
+		}
+		EventWriter eventWriter = EventWriter.getInstance(type,
+			fileName, append, conf);
+		String events = eventReader.nextEvents(indexName, lastEndTime,
+			mode, 1000);
+		eventWriter.write(events);
 	    eventWriter.close();
 
 	    // move finished files from temp dir to output dir. The idea is

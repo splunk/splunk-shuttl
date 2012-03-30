@@ -21,9 +21,10 @@
 		<dependency org="org.apache.hadoop" name="hadoop-core" rev="@HADOOP.VERSION@"/>
 		<!--dependency org="org.apache.hive" name="hive-exec" rev="@HIVE.VERSION@"/ -->
         <dependency org="commons-configuration" name="commons-configuration" rev="1.6"/>
-        <dependency org="commons-lang" name="commons-lang" rev="2.4"/>
-        <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.4.0"/>
-        <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.4.0"/>
+        <dependency org="commons-lang" name="commons-lang" rev="2.5"/>
+        <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.9.5"/>
+        <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.9.5"/>
+        <dependency org="org.codehaus.jackson" name="jackson-xc" rev="1.9.5"/>
         <dependency org="org.eclipse.jetty.aggregate" name="jetty-all-server" transitive="false" rev="8.1.0.v20120127"/>
         <dependency org="com.sun.jersey" name="jersey-bundle"  transitive="false" rev="1.11"/>
         <dependency org="com.sun.jersey" name="jersey-servlet"  transitive="false" rev="1.11"/>

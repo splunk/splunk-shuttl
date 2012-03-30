@@ -82,7 +82,7 @@
   <!-- =========================================================== -->
   <!-- Initialize the Shep services                                -->
   <!-- =========================================================== -->
-  <New id="splunkExporterService" class="com.splunk.shep.export.ChannelManager">
+  <New id="splunkExporterService" class="com.splunk.shep.exporter.ChannelManager">
   </New>
   
   <!-- =========================================================== -->

@@ -12,12 +12,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.export.io;
+package com.splunk.shep.exporter.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
+import com.splunk.shep.ShepConstants.OutputMode;
 import com.splunk.shep.ShepConstants.SystemType;
 
 /**
@@ -46,13 +46,33 @@ public abstract class EventReader {
     /**
      * @param indexName
      * @param lastEndTime
-     * @param params
+     * @param outputMode
      * @return
      * @throws IllegalArgumentException
      * @throws IOException
      */
     public abstract InputStream export(String indexName, long lastEndTime,
-	    Map<String, Object> params) throws IllegalArgumentException,
-	    IOException;
+	    OutputMode outputMode) throws IOException;
+
+    /**
+     * @param indexName
+     * @param lastEndTime
+     * @param outputMode
+     * @return
+     * @throws IOException
+     */
+    public abstract String nextEvent(String indexName, long lastEndTime,
+	    OutputMode outputMode) throws IOException;
+
+    /**
+     * @param indexName
+     * @param lastEndTime
+     * @param outputMode
+     * @param numEvents
+     * @return
+     * @throws IOException
+     */
+    public abstract String nextEvents(String indexName, long lastEndTime,
+	    OutputMode outputMode, int numEvents) throws IOException;
 
 }

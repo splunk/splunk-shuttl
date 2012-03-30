@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+
+    <xs:element name="shepExport">
+    	<xs:complexType>
+    		<xs:sequence>
+   				<xs:element ref="splunkEvent" minOccurs="0" maxOccurs="unbounded"></xs:element>
+    		</xs:sequence>
+    	</xs:complexType>
+    </xs:element>
+
+    <xs:element name="splunkEvent">
+	    <xs:complexType>
+	   		<xs:sequence>
+			    <xs:element name="_raw" type="xs:string"></xs:element>
+			    <xs:element name="source" type="xs:string"></xs:element>
+			    <xs:element name="_sourcetype" type="xs:string"></xs:element>
+			    <xs:element name="_time" type="xs:string"></xs:element>
+	   		</xs:sequence>
+	    </xs:complexType>
+	</xs:element>
+</xs:schema>

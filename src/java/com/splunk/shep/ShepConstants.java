@@ -44,7 +44,10 @@ public final class ShepConstants {
     public static final String ATT_DEF_HADOOP_CLUSTER_PORT = "DefHadoopClusterPort";
 
     // Splunk field names
-    public static final String SPLUNK_FIELD_RAW = "_raw";
+    public static final String SPLUNK_EVENT_FIELD_RAW = "_raw";
+    public static final String SPLUNK_EVENT_FIELD_SOURCE = "source";
+    public static final String SPLUNK_EVENT_FIELD_SOURCETYPE = "_sourcetype";
+    public static final String SPLUNK_EVENT_FIELD_TIME = "_time";
 
     // properties
     public static final String SPLUNK_HOME_PROPERTY = "splunk.home";

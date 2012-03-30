@@ -843,7 +843,7 @@
 			<include name="com/splunk/shep/s2s/**" />
 			<include name="com/splunk/shep/server/**" />
 			<include name="com/splunk/shep/metrics/**" />
-			<include name="com/splunk/shep/export/**" />
+			<include name="com/splunk/shep/exporter/**" />
 			<include name="com/splunk/shep/*" />
 			<include name="com/splunk/shep/archiver/**" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
@@ -858,6 +858,8 @@
 			</manifest>
 			<include name="com/splunk/shep/mapred/**" />
 			<include name="com/splunk/shep/mapreduce/**" />
+			<include name="com/splunk/shep/exporter/**" />
+			<include name="com/splunk/shep/ShepConstants.class" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.test.versioned.path}" basedir="${test-classdir}">
@@ -974,12 +976,14 @@
                           mockito-*.jar,
                           jetty-6.1.26.jar,
                           hadoop-test-*.jar,
+                          commons-lang-2.5.jar,
                           commons-cli-1.2.jar,
                           jetty-util-6.1.26.jar,
                           jsp-2.1-6.1.14.jar,
                           jsp-api-2.1-6.1.14.jar,
                           servlet-api-2.5-20081211.jar,
-                          servlet-api-2.5-6.1.14.jar" />
+                          servlet-api-2.5-6.1.14.jar,
+                          jackson-*.jar" />
 			<fileset dir="${splunk-sdk}" />
 		</copy>
 		<copy file="${name.test.versioned.path}" todir="${build-cache}/shep/testlib" />

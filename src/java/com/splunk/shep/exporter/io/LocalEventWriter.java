@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.export.io;
+package com.splunk.shep.exporter.io;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -35,7 +35,9 @@ public class LocalEventWriter extends EventWriter {
 
     @Override
     public void write(String content) throws IOException {
-	out.write(content);
+	if (content != null) {
+	    out.write(content);
+	}
     }
 
     @Override

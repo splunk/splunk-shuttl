@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shep.export.io;
+package com.splunk.shep.exporter.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ import java.io.InputStream;
 import org.apache.hadoop.conf.Configuration;
 
 import com.splunk.shep.ShepConstants.SystemType;
-import com.splunk.shep.export.TranslogService;
+import com.splunk.shep.exporter.TranslogService;
 
 /**
  * @author hyan
