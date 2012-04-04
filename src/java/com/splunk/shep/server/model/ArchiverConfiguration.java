@@ -18,20 +18,35 @@ import java.util.List;
 
 /**
  * @author kpakkirisamy
- *
  */
 public interface ArchiverConfiguration {
 
-    public String getArchiverRoot();
+    public String getArchiveFormat();
 
-    public void setArchiverRoot(String archiverRoot);
+    public void setArchiveFormat(String format);
 
     public String getClusterName();
 
     public void setClusterName(String clusterName);
 
-    public void setIndexNames(List<String> indexNames);
+    public List<String> getBucketFormatPriority();
+
+    public void setBucketFormatPriority(List<String> priorityList);
+
+    public String getServerName();
+
+    public void setServerName(String serverName);
 
     public List<String> getIndexNames();
+
+    public void setIndexNames(List<String> indexNames);
+
+    public String getTmpDirectory();
+
+    public void setTmpDirectory(String path);
+
+    public String getArchiverRootURI();
+
+    public void setArchiverRootURI(String URI);
 
 }

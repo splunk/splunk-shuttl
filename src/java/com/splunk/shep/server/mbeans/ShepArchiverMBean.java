@@ -14,6 +14,10 @@
 // limitations under the License.
 package com.splunk.shep.server.mbeans;
 
+import java.io.IOException;
+
+import javax.management.InstanceNotFoundException;
+
 import com.splunk.shep.server.model.ArchiverConfiguration;
 
 /**
@@ -21,19 +25,24 @@ import com.splunk.shep.server.model.ArchiverConfiguration;
  *
  */
 public interface ShepArchiverMBean extends ArchiverConfiguration {
+
+    public static final String OBJECT_NAME = "com.splunk.shep.mbeans:type=Archiver";
+
     /**
      * Saves MBean attributes to backing xml
      * 
      * @throws ShepMBeanException
      */
-    public void save() throws ShepMBeanException;
+    public void save() throws ShepMBeanException, IOException,
+	    InstanceNotFoundException;
 
     /**
      * Reloads MBean attributes from backing xml
      * 
      * @throws ShepMBeanException
      */
-    public void refresh() throws ShepMBeanException;
+    public void refresh() throws ShepMBeanException, IOException,
+	    InstanceNotFoundException;;
 
     /**
      * Adds an index to be archived
@@ -48,5 +57,4 @@ public interface ShepArchiverMBean extends ArchiverConfiguration {
      * @param name
      */
     public void deleteIndex(String name);
-
 }

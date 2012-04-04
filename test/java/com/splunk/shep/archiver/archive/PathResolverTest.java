@@ -19,13 +19,15 @@ public class PathResolverTest {
     private PathResolver pathResolver;
     private Bucket bucket;
     private WritableFileSystem writableFileSystem;
-    private String archiveRoot;
+    private URI archiveRoot;
+    private URI writableUri;
     private String clusterName;
     private String serverName;
-    private String writableUri;
     private String bucketIndex;
     private BucketFormat bucketFormat;
     private String bucketName;
+
+    private final String ROOT_URI = "hdfs://somehost:someport";
 
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
@@ -42,13 +44,12 @@ public class PathResolverTest {
     }
 
     private void stubWritableFileSystem() {
-	writableUri = "hdfs://somehost:someport";
-	when(writableFileSystem.getWritableUri()).thenReturn(
-		URI.create(writableUri));
-    }
+	writableUri = URI.create(ROOT_URI);
+	when(writableFileSystem.getWritableUri()).thenReturn(writableUri);
+     }
 
     private void stubArchiveConfiguration() {
-	archiveRoot = "archiving_root";
+	archiveRoot = URI.create(ROOT_URI);
 	when(configuration.getArchivingRoot()).thenReturn(archiveRoot);
 	clusterName = "cluster_name";
 	when(configuration.getClusterName()).thenReturn(clusterName);
@@ -58,13 +59,8 @@ public class PathResolverTest {
 
     @Test(groups = { "fast-unit" })
     public void resolveArchivePath_givenValidBucket_combineBucketAndConfigurationToCreateTheEndingArchivePath() {
-	// Test
-	URI archivePath = pathResolver.resolveArchivePath(bucket);
-
-	// Verification
-	String archivePathEnding = getArchivePathUpToFormat();
-	System.out.println(archivePathEnding);
-	assertTrue(archivePath.getPath().endsWith(archivePathEnding));
+	assertEquals(pathResolver.resolveArchivePath(bucket).toString(),
+		getArchivePathUpToFormat());
     }
 
     public void resolveArchivePath_givenWritableFileSystemUri_uriStartsWithWritablePath() {
@@ -77,26 +73,23 @@ public class PathResolverTest {
     }
 
     public void getIndexesHome_givenNothing_returnsPathThatEndsWithThePathToWhereIndexesLive() {
-	URI indexesHome = pathResolver.getIndexesHome();
-	String indexesHomeEnding = archiveServerCluster();
-	assertTrue(indexesHome.getPath().endsWith(indexesHomeEnding));
+	assertEquals(pathResolver.getIndexesHome().toString(),
+		archiveServerCluster());
     }
 
     public void getIndexesHome_givenNothing_returnsPathThatStartsWithWritablePath() {
-	URI indexesHome = pathResolver.getIndexesHome();
-	assertTrue(indexesHome.toString().startsWith(
-		writableFileSystem.getWritableUri().toString()));
+	assertTrue(pathResolver.getIndexesHome().toString()
+		.startsWith(writableFileSystem.getWritableUri().toString()));
     }
 
     public void getBucketsHome_givenIndex_uriWithPathThatEndsWithWhereBucketsLive() {
-	URI bucketsHome = pathResolver.getBucketsHome(bucketIndex);
-	String bucketsHomeEnding = archiveServerCluster() + "/" + bucketIndex;
-	assertTrue(bucketsHome.getPath().endsWith(bucketsHomeEnding));
+	assertEquals(pathResolver.getBucketsHome(bucketIndex).toString(),
+		archiveServerCluster() + "/" + bucketIndex);
     }
 
     public void getBucketsHome_givenNothing_startsWithWritablePath() {
 	assertTrue(pathResolver.getBucketsHome(null).toString()
-		.startsWith(writableUri));
+		.startsWith(archiveRoot.toString()));
     }
 
     public void resolveIndexFromUriToBucket_givenValidUriToBucket_indexForTheBucket() {
@@ -146,6 +139,6 @@ public class PathResolverTest {
     }
 
     private String archiveServerCluster() {
-	return "/" + archiveRoot + "/" + clusterName + "/" + serverName;
+	return archiveRoot + "/" + clusterName + "/" + serverName;
     }
 }
