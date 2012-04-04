@@ -54,7 +54,7 @@ stash()
 pop()
 {
     echo ""
-    echo "Poping: Restoring the status of your working directory by poping changes from stash"
+    echo "Popping: Restoring the status of your working directory by popping changes from stash"
     stash_identifier="${1}"
     test_identifier="$(git --no-pager stash list -n 1 --format='%s')"
     if [[ "${test_identifier}" == *"${stash_identifier}" ]]; then
