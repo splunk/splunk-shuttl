@@ -24,6 +24,8 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.server.mbeans.util.MBeanUtils;
+
 /**
  * White box testing of MBeans
  */
@@ -139,17 +141,28 @@ public class ShepArchiverMBeanTest {
 	String serverName = "some_server_name";
 	String archiverRootURI = "hdfs://localhost:1234";
 	String tmpDirectory = "/some-tmp-dir";
-	String expectedConfigFile =
-		      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-		    + "<ns2:archiverConf xmlns:ns2=\"com.splunk.shep.server.model\">\n"
-		    + "    <archiveFormat>" + archiveFormat + "</archiveFormat>\n"
-		    + "    <clusterName>" + clusterName + "</clusterName>\n"
-		    + "    <serverName>" + serverName + "</serverName>\n"
-		    + "    <archiverRootURI>" + archiverRootURI + "</archiverRootURI>\n"
-		    + "    <bucketFormatPriority>" + bucketFormatPriority + "</bucketFormatPriority>\n"
-		    + "    <tmpDirectory>" + tmpDirectory + "</tmpDirectory>\n"
+	String expectedConfigFile = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+		+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shep.server.model\">\n"
+		+ "    <archiveFormat>"
+		+ archiveFormat
+		+ "</archiveFormat>\n"
+		+ "    <clusterName>"
+		+ clusterName
+		+ "</clusterName>\n"
+		+ "    <serverName>"
+		+ serverName
+		+ "</serverName>\n"
+		+ "    <archiverRootURI>"
+		+ archiverRootURI
+		+ "</archiverRootURI>\n"
+		+ "    <bucketFormatPriority>"
+		+ bucketFormatPriority
+		+ "</bucketFormatPriority>\n"
+		+ "    <tmpDirectory>"
+		+ tmpDirectory
+		+ "</tmpDirectory>\n"
 		+ "</ns2:archiverConf>\n";
-	
+
 	File file = getTempFile();
 	archiverMBean = new ShepArchiver(file.getPath());
 	archiverMBean.setArchiveFormat(archiveFormat);
@@ -158,10 +171,10 @@ public class ShepArchiverMBeanTest {
 	archiverMBean.setArchiverRootURI(archiverRootURI);
 	archiverMBean.setTmpDirectory(tmpDirectory);
 	archiverMBean.save();
-	
+
 	assertEquals(FileUtils.readFileToString(file), expectedConfigFile);
     }
-    
+
     public void load_preconfiguredFile_givesCorrectValues() throws Exception {
 	String bucketFormatPriority = "SPLUNK_BUCKET";
 	String archiveFormat = bucketFormatPriority;
@@ -169,17 +182,28 @@ public class ShepArchiverMBeanTest {
 	String serverName = "some_server_name";
 	String archiverRootURI = "hdfs://localhost:1234";
 	String tmpDirectory = "/some-tmp-dir";
-	String configFilePreset =
-		      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-		    + "<ns2:archiverConf xmlns:ns2=\"com.splunk.shep.server.model\">\n"
-		    + "    <archiveFormat>" + archiveFormat + "</archiveFormat>\n"
-		    + "    <clusterName>" + clusterName + "</clusterName>\n"
-		    + "    <serverName>" + serverName + "</serverName>\n"
-		    + "    <archiverRootURI>" + archiverRootURI + "</archiverRootURI>\n"
-		    + "    <bucketFormatPriority>" + bucketFormatPriority + "</bucketFormatPriority>\n"
-		    + "    <tmpDirectory>" + tmpDirectory + "</tmpDirectory>\n"
-		    + "</ns2:archiverConf>";
-	
+	String configFilePreset = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+		+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shep.server.model\">\n"
+		+ "    <archiveFormat>"
+		+ archiveFormat
+		+ "</archiveFormat>\n"
+		+ "    <clusterName>"
+		+ clusterName
+		+ "</clusterName>\n"
+		+ "    <serverName>"
+		+ serverName
+		+ "</serverName>\n"
+		+ "    <archiverRootURI>"
+		+ archiverRootURI
+		+ "</archiverRootURI>\n"
+		+ "    <bucketFormatPriority>"
+		+ bucketFormatPriority
+		+ "</bucketFormatPriority>\n"
+		+ "    <tmpDirectory>"
+		+ tmpDirectory
+		+ "</tmpDirectory>\n"
+		+ "</ns2:archiverConf>";
+
 	File file = File.createTempFile("shepArchiverMBeanTest2", ".xml");
 	file.deleteOnExit();
 	FileUtils.writeStringToFile(file, configFilePreset);
@@ -191,7 +215,6 @@ public class ShepArchiverMBeanTest {
 	assertEquals(archiverMBean.getTmpDirectory(), tmpDirectory);
     }
 
-
     private File getTempFile() throws Exception {
 	File confFile = File.createTempFile("shepArchiverMBeanTest", ".xml");
 	String emptyConfigFile = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -200,5 +223,17 @@ public class ShepArchiverMBeanTest {
 	confFile.deleteOnExit();
 	FileUtils.writeStringToFile(confFile, emptyConfigFile);
 	return confFile;
+    }
+
+    /**
+     * Attempts to set up the MBean, get a proxy and use it.
+     */
+    public void _givenRegisteredMBean_getsInstanceFromMBeanManager()
+	    throws Exception {
+	MBeanUtils.registerMBean(ShepArchiverMBean.OBJECT_NAME,
+		ShepArchiver.class);
+	ShepArchiverMBean proxy = MBeanUtils.getMBeanInstance(
+		ShepArchiverMBean.OBJECT_NAME, ShepArchiverMBean.class);
+	assertNotNull(proxy);
     }
 }
