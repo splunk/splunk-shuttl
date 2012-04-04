@@ -21,11 +21,22 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 
-/**
- * @author aeriksson
- *
- */
 public class MBeanUtils {
+
+    /**
+     * Registers an MBean
+     * 
+     * @param objectName
+     *            the name of the MBean to register.
+     * @param clazz
+     *            the MBean class to use.
+     * @throws Exception
+     */
+    public static void registerMBean(String objectName, Class<?> clazz)
+	    throws Exception {
+	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+	mbs.registerMBean(clazz.newInstance(), new ObjectName(objectName));
+    }
 
     /**
      * Retrieves an instance of a specific MBean
