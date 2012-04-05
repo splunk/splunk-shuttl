@@ -109,20 +109,16 @@ public class BucketMover {
 	try {
 	    return new Bucket(index, bucketFile);
 	} catch (FileNotFoundException e) {
-	    if(logger.isDebugEnabled()) {
 		logger.debug(did("Created bucket from file",
 			"Got FileNotFoundException",
 		    "To create bucket from file", "file", bucketFile,
 			"exception", e));
-	    }
 	    throw new RuntimeException(e);
 	} catch (FileNotDirectoryException e) {
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did("Created bucket from file",
-			"Got FileNotDirectoryException",
+	    logger.debug(did("Created bucket from file",
+		    "Got FileNotDirectoryException",
 		    "To create bucket from file", "file", bucketFile,
 		    "exception", e));
-	    }
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}

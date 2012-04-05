@@ -101,13 +101,11 @@ public class BucketName {
 
     private void throwExceptionIfNotValidRegex() {
 	if (!Pattern.matches(LEGAL_NAME_REGEX, name)) {
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did(
-			"Verified legal bucket name",
+	    logger.debug(did(
+		    "Verified legal bucket name",
 		    "Bucket name was not legal. Throwing IllegalBucketNameException",
 		    "Bucket name to be legal", "bucket_name", name,
 		    "legal_bucket_name_regex", LEGAL_NAME_REGEX));
-	    }
 	    throw new IllegalBucketNameException();
 	}
     }

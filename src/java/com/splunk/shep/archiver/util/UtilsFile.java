@@ -41,11 +41,9 @@ public class UtilsFile {
 	try {
 	    FileUtils.touch(file);
 	} catch (IOException e) {
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did("Tried to create file and its parents",
-			"Got IOException", "The file to be created", "file",
-			file, "exception", e));
-	    }
+	    logger.debug(did("Tried to create file and its parents",
+		    "Got IOException", "The file to be created", "file", file,
+		    "exception", e));
 	    throw new RuntimeException(e);
 	}
     }
@@ -59,13 +57,11 @@ public class UtilsFile {
 	try {
 	    return new FileOutputStream(file);
 	} catch (FileNotFoundException e) {
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did(
-			"Created a FileOuputStream for file: "
-				+ file.getAbsolutePath(),
-			"Got FileNotFoundException", "File to exist", "file",
-			file, "exception", e));
-	    }
+	    logger.debug(did(
+		    "Created a FileOuputStream for file: "
+			    + file.getAbsolutePath(),
+		    "Got FileNotFoundException", "File to exist", "file", file,
+		    "exception", e));
 	    throw new RuntimeException(e);
 	}
     }

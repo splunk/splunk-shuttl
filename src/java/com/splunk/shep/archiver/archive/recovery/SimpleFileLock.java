@@ -71,11 +71,9 @@ public class SimpleFileLock {
 	    throw new LockAlreadyClosedException("Lock was already closed. "
 		    + "Cannot lock this lock that was closed.");
 	} catch (IOException e) {
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did("Tried locking FailedBucketsLock",
-			"Got IOException", "To lock the file", "file_channel",
-			fileChannel, "exception", e));
-	    }
+	    logger.debug(did("Tried locking FailedBucketsLock",
+		    "Got IOException", "To lock the file", "file_channel",
+		    fileChannel, "exception", e));
 	    throw new RuntimeException(e);
 	}
     }

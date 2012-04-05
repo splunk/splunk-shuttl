@@ -56,12 +56,10 @@ public class ThawBucketTransferer {
 	try {
 	    archiveFileSystem.getFile(bucketsThawLocation, bucketArchiveUri);
 	} catch (IOException e) {
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did("Tried to thaw bucket", e,
-			"Place the bucket in thaw", "bucket_thaw_location",
-			bucketsThawLocation, "archived_bucket_uri",
-			bucketArchiveUri, "exception", e));
-	    }
+	    logger.debug(did("Tried to thaw bucket", e,
+		    "Place the bucket in thaw", "bucket_thaw_location",
+		    bucketsThawLocation, "archived_bucket_uri",
+		    bucketArchiveUri, "exception", e));
 	}
     }
 }

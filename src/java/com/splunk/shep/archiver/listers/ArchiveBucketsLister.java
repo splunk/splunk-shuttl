@@ -101,13 +101,11 @@ public class ArchiveBucketsLister {
 	try {
 	    return archiveFileSystem.listPath(bucketsHome);
 	} catch (IOException e) {
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did(
-			"Listed buckets at bucketsHome in archive file system",
+	    logger.debug(did(
+		    "Listed buckets at bucketsHome in archive file system",
 		    "Got IOException",
 		    "To list buckets that has been archived", "buckets_home",
 		    bucketsHome, "exception", e));
-}
 	    throw new RuntimeException(e);
 	}
     }
@@ -128,22 +126,18 @@ public class ArchiveBucketsLister {
 	    return new Bucket(uriToBucket, bucketIndex, bucketName, null);
 	} catch (FileNotFoundException e) {
 	    exception = e;
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did(
-			"Created bucket with uri, bucket_index, bucket_name, bucket_format",
+	    logger.debug(did(
+		    "Created bucket with uri, bucket_index, bucket_name, bucket_format",
 		    e, "To create the bucket without problems.", "uri",
 		    uriToBucket, "bucket_index", bucketIndex, "bucket_name",
 		    bucketName, "format", null, "exception", e));
-}
 	} catch (FileNotDirectoryException e) {
 	    exception = e;
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did(
-			"Created bucket with uri, bucket_index, bucket_name, bucket_format",
+	    logger.debug(did(
+		    "Created bucket with uri, bucket_index, bucket_name, bucket_format",
 		    e, "To create the bucket without problems.", "uri",
 		    uriToBucket, "bucket_index", bucketIndex, "bucket_name",
 		    bucketName, "format", null, "exception", e));
-}
 	}
 	if (exception != null) {
 	    logger.warn(warn("Tried to create bucket with uri, index and name",

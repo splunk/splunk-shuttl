@@ -67,12 +67,10 @@ public class ArchivedIndexesLister {
 	try {
 	    return fileSystem.listPath(indexesHome);
 	} catch (IOException e) {
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did("Listed indexes at indexesHome",
-			"Got IOException",
+	    logger.debug(did("Listed indexes at indexesHome",
+		    "Got IOException",
 		    "To list indexes on the archive filesystem",
 		    "indexes_home", indexesHome, "exception", e));
-}
 	    throw new RuntimeException(e);
 	}
     }

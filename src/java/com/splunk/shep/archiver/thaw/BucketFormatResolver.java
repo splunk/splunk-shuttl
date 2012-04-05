@@ -120,14 +120,12 @@ public class BucketFormatResolver {
 	    return new Bucket(uriToBucketWithChosenBucket, bucket.getIndex(),
 		    bucket.getName(), chosenFormat);
 	} catch (IOException e) {
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did(
-			"Created bucket with format",
-			e,
+	    logger.debug(did(
+		    "Created bucket with format",
+		    e,
 		    "To create bucket from another bucket, only changing the format.",
 		    "bucket", bucket, "bucket_format", chosenFormat,
 		    "exception", e));
-	    }
 	    throw new RuntimeException(e);
 	}
     }

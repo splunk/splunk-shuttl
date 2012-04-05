@@ -111,11 +111,9 @@ public class Bucket {
      */
     public File getDirectory() {
 	if (directory == null) {
-	    if(logger.isDebugEnabled()) {
-		logger.debug(did("Got directory from bucket",
+	    logger.debug(did("Got directory from bucket",
 		    "Bucket was remote and can't instantiate a File.", "",
 		    "bucket", this));
-	    }
 	    throw new RemoteBucketException();
 	}
 	return directory;
