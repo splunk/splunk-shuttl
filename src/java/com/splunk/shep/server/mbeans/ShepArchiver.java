@@ -26,14 +26,15 @@ import com.splunk.shep.server.model.ArchiverConf;
 
 /**
  * @author kpakkirisamy
- *
  */
 public class ShepArchiver implements ShepArchiverMBean {
     // error messages
     private static final String SHEP_ARCHIVER_INIT_FAILURE = "ShepArchiver init failure";
-    private ArchiverConf conf;
+    // end error messages
+
     private static String ARCHIVERCONF_XML = "etc/apps/shep/conf/archiver.xml";
     private Logger logger = Logger.getLogger(getClass());
+    private ArchiverConf conf;
     private String xmlFilePath;
 
     public ShepArchiver() throws ShepMBeanException {
@@ -59,46 +60,86 @@ public class ShepArchiver implements ShepArchiverMBean {
     }
 
     @Override
-    public String getArchiverRoot() {
-	return this.conf.getArchiverRoot();
-    }
-
-    @Override
-    public void setArchiverRoot(String archiverRoot) {
-	this.conf.setArchiverRoot(archiverRoot);
-    }
-
-    @Override
     public String getClusterName() {
-	return this.conf.getClusterName();
+	return conf.getClusterName();
     }
 
     @Override
     public void setClusterName(String clusterName) {
-	this.conf.setClusterName(clusterName);
-    }
-
-    @Override
-    public void setIndexNames(List<String> indexNames) {
-	this.conf.setIndexNames(indexNames);
+	conf.setClusterName(clusterName);
     }
 
     @Override
     public List<String> getIndexNames() {
-	return this.conf.getIndexNames();
+	return conf.getIndexNames();
+    }
+
+    @Override
+    public void setIndexNames(List<String> indexNames) {
+	conf.setIndexNames(indexNames);
+    }
+
+    @Override
+    public String getArchiveFormat() {
+	return conf.getArchiveFormat();
+    }
+
+    @Override
+    public void setArchiveFormat(String format) {
+	conf.setArchiveFormat(format);
+    }
+
+    @Override
+    public List<String> getBucketFormatPriority() {
+	return conf.getBucketFormatPriority();
+    }
+
+    @Override
+    public void setBucketFormatPriority(List<String> priorityList) {
+	conf.setBucketFormatPriority(priorityList);
+    }
+
+    @Override
+    public String getServerName() {
+	return conf.getServerName();
+    }
+
+    @Override
+    public void setServerName(String serverName) {
+	conf.setServerName(serverName);
+    }
+
+    @Override
+    public String getTmpDirectory() {
+	return conf.getTmpDirectory();
+    }
+
+    @Override
+    public void setTmpDirectory(String path) {
+	conf.setTmpDirectory(path);
+    }
+
+    @Override
+    public String getArchiverRootURI() {
+	return conf.getArchiverRootURI();
+    }
+
+    @Override
+    public void setArchiverRootURI(String uri) {
+	conf.setArchiverRootURI(uri);
     }
 
     @Override
     public void addIndex(String name) {
-	if (this.conf.getIndexNames() == null) {
-	    this.conf.setIndexNames(new ArrayList<String>());
+	if (conf.getIndexNames() == null) {
+	    conf.setIndexNames(new ArrayList<String>());
 	}
-	this.conf.getIndexNames().add(name);
+	conf.getIndexNames().add(name);
     }
 
     @Override
     public void deleteIndex(String name) {
-	this.conf.getIndexNames().remove(name);
+	conf.getIndexNames().remove(name);
     }
 
     @Override
@@ -123,5 +164,4 @@ public class ShepArchiver implements ShepArchiverMBean {
 	    throw new ShepMBeanException(e);
 	}
     }
-
 }

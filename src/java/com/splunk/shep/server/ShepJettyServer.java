@@ -35,9 +35,13 @@ public class ShepJettyServer {
 	org.apache.log4j.Logger logger = Logger.getLogger("ShepServer");
 	try {
 	    Server server = new Server();
+
+	    // TODO: Replace paths relative to /bin/
 	    XmlConfiguration configuration = new XmlConfiguration(new File(
-		    "../jetty/shep.xml").toURL());
+		    "../jetty/shep.xml").toURI().toURL());
 	    configuration.configure(server);
+
+	    // TODO: Replace paths relative to /bin/
 	    server.setHandler(new WebAppContext("../webapps/shep", "/shep"));
 	    ShepServer servermbean = new ShepServer();
 	    Connector connectors[] = server.getConnectors();

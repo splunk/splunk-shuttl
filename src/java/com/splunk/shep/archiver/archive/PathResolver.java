@@ -56,7 +56,9 @@ public class PathResolver {
      * @return Archiving path that starts with "/"
      */
     private String getArchivingPath() {
-	return SEPARATOR + configuration.getArchivingRoot() + SEPARATOR
+	String archivingRootPath = configuration.getArchivingRoot().getPath();
+	return (archivingRootPath.isEmpty() ? "" : SEPARATOR)
+		+ archivingRootPath + SEPARATOR
 		+ configuration.getClusterName() + SEPARATOR
 		+ configuration.getServerName();
     }

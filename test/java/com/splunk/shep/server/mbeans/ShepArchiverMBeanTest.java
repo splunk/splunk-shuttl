@@ -17,113 +17,223 @@ package com.splunk.shep.server.mbeans;
 import static org.testng.Assert.*;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.util.Arrays;
+import java.util.List;
 
-import org.testng.annotations.BeforeClass;
+import org.apache.commons.io.FileUtils;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.splunk.shep.server.mbeans.util.MBeanUtils;
 
 /**
  * White box testing of MBeans
- * 
- * @author kpakkirisamy
- * 
  */
+@Test(groups = { "fast-unit" })
 public class ShepArchiverMBeanTest {
-    private static final String EMPTY_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-	    + "<ns2:archiverConf xmlns:ns2=\"com.splunk.shep.server.model\"></ns2:archiverConf>";
-    private static final String TEST_ARCHIVE_ROOT = "/test_archive_root";
-    private static final String TEST_CLUSTER_NAME = "test_cluster_name";
-    private static final String TEST_INDEX1 = "test_index1";
-    private static final String TEST_INDEX2 = "test_index2";
+    ShepArchiverMBean archiverMBean;
 
-    private ShepArchiver archiverMBean = null;
-
-    @BeforeClass(groups = { "fast-unit" })
+    @BeforeMethod(groups = { "fast-unit" })
     public void createMBean() throws Exception {
-	try {
-	    File confFile = getTempFile();
-	    System.out.println("ShepArchiverMBeanTest - running "
-		    + confFile.getPath());
-	    this.archiverMBean = new ShepArchiver(confFile.getPath());
-	    this.archiverMBean.setArchiverRoot(TEST_ARCHIVE_ROOT);
-	    this.archiverMBean.setClusterName(TEST_CLUSTER_NAME);
-	    this.archiverMBean.save();
-	    this.archiverMBean.refresh();
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    throw new Exception(e);
-	}
+	File confFile = getTempFile();
+	System.out.println("ShepArchiverMBeanTest - running "
+		+ confFile.getPath());
+	archiverMBean = new ShepArchiver(confFile.getPath());
     }
 
     @Test(groups = { "fast-unit" })
-    public void test_archiver_root() {
-	String archiverRoot = this.archiverMBean.getArchiverRoot();
-	assertEquals(archiverRoot, TEST_ARCHIVE_ROOT);
+    public void setArchiverRoot_archiverRootIsSet_gotArchiverRoot() {
+	String archiveFormat1 = "SPLUNK_BUCKET";
+	String archiveFormat2 = "UNKNOWN";
+	archiverMBean.setArchiveFormat(archiveFormat2);
+	assertNotEquals(archiverMBean.getArchiveFormat(), archiveFormat1);
+	archiverMBean.setArchiveFormat(archiveFormat1);
+	assertEquals(archiverMBean.getArchiveFormat(), archiveFormat1);
     }
 
-    @Test(groups = { "fast-unit" })
-    public void test_clustername() {
-	String clustername = this.archiverMBean.getClusterName();
-	assertEquals(clustername, TEST_CLUSTER_NAME);
+    public void setArchiveFormat_archiveFormatIsSet_gotArchiveFormat() {
+	String archiverRoot = "/test_archive_root";
+	assertNotEquals(archiverMBean.getArchiverRootURI(), archiverRoot);
+	archiverMBean.setArchiverRootURI(archiverRoot);
+	assertEquals(archiverMBean.getArchiverRootURI(), archiverRoot);
     }
 
-    @Test(groups = { "fast-unit" })
-    public void test_addIndex() throws ShepMBeanException {
-	addIndexes();
-	java.util.List<String> indexNames = this.archiverMBean.getIndexNames();
-	boolean found1 = false;
-	boolean found2 = false;
-	for (String index : indexNames) {
-	    if (index.equals(TEST_INDEX1)) {
-		found1 = true;
-	    }
-	    if (index.equals(TEST_INDEX2)) {
-		found2 = true;
-	    }
-	}
-	assert (found1 && found2); // both index names should be there
-	deleteIndexes();
+    public void setClusterName_clusterNameIsSet_gotClusterName() {
+	String clusterName = "test_cluster_name";
+	assertNotEquals(archiverMBean.getClusterName(), clusterName);
+	archiverMBean.setClusterName(clusterName);
+	assertEquals(archiverMBean.getClusterName(), clusterName);
     }
 
-    @Test(groups = { "fast-unit" })
-    public void test_deleteIndex() throws ShepMBeanException {
-	addIndexes();
-	deleteIndexes();
-	java.util.List<String> indexNames = this.archiverMBean.getIndexNames();
-	boolean found1 = false;
-	boolean found2 = false;
-	for (String index : indexNames) {
-	    if (index.equals(TEST_INDEX1)) {
-		found1 = true;
-	    }
-	    if (index.equals(TEST_INDEX2)) {
-		found2 = true;
-	    }
-	}
-	assert (!found1 && !found2); // both index names should NOT be there
+    public void setTmpDirectory_directoryIsSet_gotDirectory() {
+	String directoryName = "test_directory";
+	assertNotEquals(archiverMBean.getTmpDirectory(), directoryName);
+	archiverMBean.setTmpDirectory(directoryName);
+	assertEquals(archiverMBean.getTmpDirectory(), directoryName);
     }
 
-    private void addIndexes() throws ShepMBeanException {
-	this.archiverMBean.addIndex(TEST_INDEX1);
-	this.archiverMBean.addIndex(TEST_INDEX2);
-	this.archiverMBean.save();
-	this.archiverMBean.refresh();
+    public void setServerName_serverNameIsSet_gotCluserName() {
+	String serverName = "test_server_name";
+	assertNotEquals(archiverMBean.getServerName(), serverName);
+	archiverMBean.setServerName(serverName);
+	assertEquals(archiverMBean.getServerName(), serverName);
     }
 
-    private void deleteIndexes() throws ShepMBeanException {
-	this.archiverMBean.deleteIndex(TEST_INDEX1);
-	this.archiverMBean.deleteIndex(TEST_INDEX2);
-	this.archiverMBean.save();
-	this.archiverMBean.refresh();
+    public void addIndex_indexIsSet_indexNamesContainsIndex() throws Exception {
+	String index = "index";
+	List<String> indexNames = archiverMBean.getIndexNames();
+	assertTrue(indexNames == null || !indexNames.contains(index));
+	archiverMBean.addIndex(index);
+	assertTrue(archiverMBean.getIndexNames().contains(index));
+    }
+
+    public void addIndex_indexesAreSet_indexNamesContainsIndexes()
+	    throws Exception {
+	String index1 = "index1";
+	String index2 = "index2";
+	List<String> indexNames = archiverMBean.getIndexNames();
+	assertTrue(indexNames == null || !indexNames.contains(index1));
+	assertTrue(indexNames == null || !indexNames.contains(index2));
+	archiverMBean.addIndex(index1);
+	archiverMBean.addIndex(index2);
+	assertTrue(archiverMBean.getIndexNames().contains(index1));
+	assertTrue(archiverMBean.getIndexNames().contains(index2));
+    }
+
+    public void setBucketFormatPriority_priorityIsSet_gotPriority() {
+	List<String> bucketFormatPriority = Arrays.asList("SPLUNK_BUCKET",
+		"UNKNOWN");
+	assertNotEquals(archiverMBean.getBucketFormatPriority(),
+		bucketFormatPriority);
+	archiverMBean.setBucketFormatPriority(bucketFormatPriority);
+	assertEquals(archiverMBean.getBucketFormatPriority(),
+		bucketFormatPriority);
+    }
+
+    public void deleteIndex_indexIsDeleted_indexNotInIndexNames()
+	    throws Exception {
+	String index = "index";
+	archiverMBean.addIndex(index);
+	archiverMBean.deleteIndex(index);
+	assertFalse(archiverMBean.getIndexNames().contains(index));
+	assertTrue(archiverMBean.getIndexNames().isEmpty());
+    }
+
+    public void deleteIndex_indexesAreDeleted_indexesNotInIndexNames()
+	    throws Exception {
+	String index1 = "index1";
+	String index2 = "index2";
+	archiverMBean.addIndex(index1);
+	archiverMBean.addIndex(index2);
+	assertTrue(archiverMBean.getIndexNames().contains(index1));
+	assertTrue(archiverMBean.getIndexNames().contains(index2));
+	archiverMBean.deleteIndex(index1);
+	archiverMBean.deleteIndex(index2);
+	assertFalse(archiverMBean.getIndexNames().contains(index1));
+	assertFalse(archiverMBean.getIndexNames().contains(index2));
+	assertTrue(archiverMBean.getIndexNames().isEmpty());
+    }
+
+    public void save_configured_producesCorrectXML() throws Exception {
+	String bucketFormatPriority = "SPLUNK_BUCKET";
+	String archiveFormat = bucketFormatPriority;
+	String clusterName = "some_cluster_name";
+	String serverName = "some_server_name";
+	String archiverRootURI = "hdfs://localhost:1234";
+	String tmpDirectory = "/some-tmp-dir";
+	String expectedConfigFile = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+		+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shep.server.model\">\n"
+		+ "    <archiveFormat>"
+		+ archiveFormat
+		+ "</archiveFormat>\n"
+		+ "    <clusterName>"
+		+ clusterName
+		+ "</clusterName>\n"
+		+ "    <serverName>"
+		+ serverName
+		+ "</serverName>\n"
+		+ "    <archiverRootURI>"
+		+ archiverRootURI
+		+ "</archiverRootURI>\n"
+		+ "    <bucketFormatPriority>"
+		+ bucketFormatPriority
+		+ "</bucketFormatPriority>\n"
+		+ "    <tmpDirectory>"
+		+ tmpDirectory
+		+ "</tmpDirectory>\n"
+		+ "</ns2:archiverConf>\n";
+
+	File file = getTempFile();
+	archiverMBean = new ShepArchiver(file.getPath());
+	archiverMBean.setArchiveFormat(archiveFormat);
+	archiverMBean.setClusterName(clusterName);
+	archiverMBean.setServerName(serverName);
+	archiverMBean.setArchiverRootURI(archiverRootURI);
+	archiverMBean.setTmpDirectory(tmpDirectory);
+	archiverMBean.save();
+
+	assertEquals(FileUtils.readFileToString(file), expectedConfigFile);
+    }
+
+    public void load_preconfiguredFile_givesCorrectValues() throws Exception {
+	String bucketFormatPriority = "SPLUNK_BUCKET";
+	String archiveFormat = bucketFormatPriority;
+	String clusterName = "some_cluster_name";
+	String serverName = "some_server_name";
+	String archiverRootURI = "hdfs://localhost:1234";
+	String tmpDirectory = "/some-tmp-dir";
+	String configFilePreset = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+		+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shep.server.model\">\n"
+		+ "    <archiveFormat>"
+		+ archiveFormat
+		+ "</archiveFormat>\n"
+		+ "    <clusterName>"
+		+ clusterName
+		+ "</clusterName>\n"
+		+ "    <serverName>"
+		+ serverName
+		+ "</serverName>\n"
+		+ "    <archiverRootURI>"
+		+ archiverRootURI
+		+ "</archiverRootURI>\n"
+		+ "    <bucketFormatPriority>"
+		+ bucketFormatPriority
+		+ "</bucketFormatPriority>\n"
+		+ "    <tmpDirectory>"
+		+ tmpDirectory
+		+ "</tmpDirectory>\n"
+		+ "</ns2:archiverConf>";
+
+	File file = File.createTempFile("shepArchiverMBeanTest2", ".xml");
+	file.deleteOnExit();
+	FileUtils.writeStringToFile(file, configFilePreset);
+	archiverMBean = new ShepArchiver(file.getPath());
+	assertEquals(archiverMBean.getArchiveFormat(), archiveFormat);
+	assertEquals(archiverMBean.getClusterName(), clusterName);
+	assertEquals(archiverMBean.getServerName(), serverName);
+	assertEquals(archiverMBean.getArchiverRootURI(), archiverRootURI);
+	assertEquals(archiverMBean.getTmpDirectory(), tmpDirectory);
     }
 
     private File getTempFile() throws Exception {
 	File confFile = File.createTempFile("shepArchiverMBeanTest", ".xml");
+	String emptyConfigFile = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+		+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shep.server.model\">"
+		+ "</ns2:archiverConf>";
 	confFile.deleteOnExit();
-	FileWriter writer = new FileWriter(confFile);
-	writer.write(EMPTY_XML);
-	writer.close();
+	FileUtils.writeStringToFile(confFile, emptyConfigFile);
 	return confFile;
     }
 
+    /**
+     * Attempts to set up the MBean, get a proxy and use it.
+     */
+    public void _givenRegisteredMBean_getsInstanceFromMBeanManager()
+	    throws Exception {
+	MBeanUtils.registerMBean(ShepArchiverMBean.OBJECT_NAME,
+		ShepArchiver.class);
+	ShepArchiverMBean proxy = MBeanUtils.getMBeanInstance(
+		ShepArchiverMBean.OBJECT_NAME, ShepArchiverMBean.class);
+	assertNotNull(proxy);
+    }
 }
