@@ -83,7 +83,7 @@ public class BucketArchiverFactory {
     private static FileSystem getHdfsFileSystem() {
 	try {
 	    return FileSystem.get(ArchiveConfiguration.getSharedInstance()
-		    .getArchiverHadoopURI(), new Configuration());
+		    .getArchivingRoot(), new Configuration());
 	} catch (IOException e) {
 	    // LOG
 	    e.printStackTrace();
