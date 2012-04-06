@@ -75,10 +75,11 @@ public class UtilsFile {
 	try {
 	    return new RandomAccessFile(file, "rw");
 	} catch (FileNotFoundException e) {
-	    did("Created a RandomAccessFile for file: "
-		    + file.getAbsolutePath(), e,
+	    logger.debug(did(
+		    "Created a RandomAccessFile for file: "
+			    + file.getAbsolutePath(), e,
 		    "To create the RandomAccessFile object", "file", file,
-		    "exception", e);
+		    "exception", e));
 	    throw new RuntimeException(e);
 	}
     }

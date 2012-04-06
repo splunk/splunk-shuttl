@@ -147,9 +147,9 @@ public class SimpleFileLock {
 	try {
 	    fileLock.release();
 	} catch (IOException e) {
-	    warn("Released a lock on a file.", e,
+	    logger.warn(warn("Released a lock on a file.", e,
 		    "Will not do anything about it", "file_channel",
-		    fileChannel);
+		    fileChannel));
 	}
     }
 

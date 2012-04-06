@@ -18,6 +18,8 @@ import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import com.splunk.shep.archiver.archive.recovery.BucketLock;
 import com.splunk.shep.archiver.archive.recovery.SimpleFileLock.NotLockedException;
 import com.splunk.shep.archiver.model.Bucket;
@@ -28,6 +30,9 @@ import com.splunk.shep.archiver.model.Bucket;
  * file.
  */
 public class BucketArchiverRunner implements Runnable {
+
+    private final static Logger logger = Logger
+	    .getLogger(BucketArchiverRunner.class);
 
     private final BucketArchiver bucketArchiver;
     private final Bucket bucket;
@@ -55,12 +60,12 @@ public class BucketArchiverRunner implements Runnable {
     @Override
     public void run() {
 	if (!bucketLock.isLocked()) {
-	    did("Was going to archive bucket",
+	    logger.debug(did("Was going to archive bucket",
 		    "Bucket was not locked before archiving it",
 		    "Bucket must have been locked before archiving, "
 			    + "to make sure that it is safe to transfer "
 			    + "the bucket to archive without "
-			    + "any other modification.", "bucket", bucket);
+			    + "any other modification.", "bucket", bucket));
 	    throw new IllegalStateException("Bucket should still be locked"
 		    + " when starting to archive "
 		    + "the bucket. Aborting archiving.");
@@ -83,10 +88,10 @@ public class BucketArchiverRunner implements Runnable {
 	try {
 	    bucket.deleteBucket();
 	} catch (IOException e) {
-	    warn("Deleted a bucket from local file system, "
+	    logger.warn(warn("Deleted a bucket from local file system, "
 		    + "because archiving was complete.", e,
 		    "Will ignore this exception", "bucket", bucket,
-		    "exception", e);
+		    "exception", e));
 	}
     }
 
