@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.IOException;
 

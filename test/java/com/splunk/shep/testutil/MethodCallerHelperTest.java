@@ -25,6 +25,23 @@ public class MethodCallerHelperTest {
 	MethodCallerHelper.getCallerToMyMethod(elements);
     }
 
+    @Test(groups = { "fast-unit" })
+    public void testExtendedClassByCallingOverriddenMethod_shouldReturnCallerChild() {
+	Class<?> clazz = new CallerChild().call();
+	assertEquals(clazz, getClass());
+    }
+
+    // /**
+    // * This test don't work yet and maybe it doesn't have to (currently only
+    // * used by some classes in {@link com.splunk.shep.testutil}).
+    // */
+    // @Test(groups = { "fast-unit" })
+    // public void
+    // testExtendedClassByCallingCircularSuperCall_shouldReturnCallerChild() {
+    // Class<?> clazz = new CallerChild().circularSuperCall();
+    // assertEquals(clazz, getClass());
+    // }
+
     private StackTraceElement[] getElementsWithSameClass() {
 	StackTraceElement[] elements = new StackTraceElement[MethodCallerHelper.INDEX_OF_CALLER_TO_THIS_METHOD + 1];
 	for (int i = 0; i < elements.length; i++)
@@ -46,5 +63,19 @@ public class MethodCallerHelperTest {
 	public Class<?> call() {
 	    return MethodCallerHelper.getCallerToMyMethod();
 	}
+    }
+
+    private static class CallerChild extends Caller {
+
+	@Override
+	public Class<?> call() {
+	    return MethodCallerHelper.getCallerToMyMethod();
+	}
+
+	@SuppressWarnings("unused")
+	public Class<?> circularSuperCall() {
+	    return internalCall();
+	}
+
     }
 }

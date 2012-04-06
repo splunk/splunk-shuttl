@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.listers;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.archiver.archive.PathResolver;
@@ -36,6 +37,8 @@ import com.splunk.shep.archiver.util.UtilsURI;
  */
 public class ArchiveBucketsLister {
 
+    private final static Logger logger = Logger
+	    .getLogger(ArchiveBucketsLister.class);
     private final ArchivedIndexesLister indexesLister;
     private final PathResolver pathResolver;
     private final ArchiveFileSystem archiveFileSystem;
@@ -98,10 +101,11 @@ public class ArchiveBucketsLister {
 	try {
 	    return archiveFileSystem.listPath(bucketsHome);
 	} catch (IOException e) {
-	    did("Listed buckets at bucketsHome in archive file system",
+	    logger.debug(did(
+		    "Listed buckets at bucketsHome in archive file system",
 		    "Got IOException",
 		    "To list buckets that has been archived", "buckets_home",
-		    bucketsHome, "exception", e);
+		    bucketsHome, "exception", e));
 	    throw new RuntimeException(e);
 	}
     }
@@ -122,22 +126,24 @@ public class ArchiveBucketsLister {
 	    return new Bucket(uriToBucket, bucketIndex, bucketName, null);
 	} catch (FileNotFoundException e) {
 	    exception = e;
-	    did("Created bucket with uri, bucket_index, bucket_name, bucket_format",
+	    logger.debug(did(
+		    "Created bucket with uri, bucket_index, bucket_name, bucket_format",
 		    e, "To create the bucket without problems.", "uri",
 		    uriToBucket, "bucket_index", bucketIndex, "bucket_name",
-		    bucketName, "format", null, "exception", e);
+		    bucketName, "format", null, "exception", e));
 	} catch (FileNotDirectoryException e) {
 	    exception = e;
-	    did("Created bucket with uri, bucket_index, bucket_name, bucket_format",
+	    logger.debug(did(
+		    "Created bucket with uri, bucket_index, bucket_name, bucket_format",
 		    e, "To create the bucket without problems.", "uri",
 		    uriToBucket, "bucket_index", bucketIndex, "bucket_name",
-		    bucketName, "format", null, "exception", e);
+		    bucketName, "format", null, "exception", e));
 	}
 	if (exception != null) {
-	    warn("Tried to create bucket with uri, index and name", exception,
-		    "Returning null for this bucket", "uri", uriToBucket,
-		    "bucket_index", bucketIndex, "bucket_name", bucketName,
-		    "exception", exception);
+	    logger.warn(warn("Tried to create bucket with uri, index and name",
+		    exception, "Returning null for this bucket", "uri",
+		    uriToBucket, "bucket_index", bucketIndex, "bucket_name",
+		    bucketName, "exception", exception));
 	}
 	return null;
     }

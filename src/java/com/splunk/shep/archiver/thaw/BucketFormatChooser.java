@@ -14,11 +14,13 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.archive.ArchiveConfiguration;
 import com.splunk.shep.archiver.archive.BucketFormat;
@@ -27,6 +29,9 @@ import com.splunk.shep.archiver.archive.BucketFormat;
  * Selects a {@link BucketFormat} given a {@link Set} of {@link BucketFormat}s
  */
 public class BucketFormatChooser {
+
+    private final static Logger logger = Logger
+	    .getLogger(BucketFormatChooser.class);
 
     public static final BucketFormat DEFAULT_FORMAT_WHEN_NO_PRIORITIZING = BucketFormat.SPLUNK_BUCKET;
 
@@ -46,10 +51,10 @@ public class BucketFormatChooser {
      */
     public BucketFormat chooseBucketFormat(List<BucketFormat> formats) {
 	if (formats.isEmpty()) {
-	    warn("Chose bucket format.",
+	    logger.warn(warn("Chose bucket format.",
 		    "There were no formats to chose between.",
 		    "Chose bucket format UNKNOWN", "chosen_bucket_format",
-		    BucketFormat.UNKNOWN);
+		    BucketFormat.UNKNOWN));
 	    return BucketFormat.UNKNOWN;
 	} else if (formats.size() == 1) {
 	    return formats.iterator().next();

@@ -14,47 +14,58 @@
 // limitations under the License.
 package com.splunk.shep.archiver;
 
-import java.io.PrintWriter;
-import java.util.Date;
-
 /**
- * A log class until the proper mechanism is in place.
+ * A log formatter.
  * 
  */
-public class ArchiverLogger {
+public class LogFormatter {
 
     /**
-     * Use {@link #log(String)} instead of calling anything on this variable.
+     * Format: {@code will="$message"}<br/>
+     * Use this before doing a time consuming action like an async call.
+     * 
+     * @return A formatted message.
      */
-    /* package private */static PrintWriter logger = new PrintWriter(
-	    System.out, true);
-
-    /**
-     * Logs: will="$message" Use this before doing a time consuming action like
-     * a async call.
-     */
-    public static void will(Object message, Object... keyAndValues) {
-	combineAdditionalKeyValuesAndLog(keyAndValues, "will", message);
+    public static String will(Object message, Object... keyAndValues) {
+	return combineAdditionalKeyValues(keyAndValues, "will", message);
     }
 
     /**
-     * Logs: done="$message" Use this after completing a task.
+     * Format: {@code done="$message"}<br/>
+     * Use this after completing a task.
+     * 
+     * @return A formatted message.
      */
-    public static void done(Object message, Object... keyAndValues) {
-	combineAdditionalKeyValuesAndLog(keyAndValues, "done", message);
+    public static String done(Object message, Object... keyAndValues) {
+	return combineAdditionalKeyValues(keyAndValues, "done", message);
     }
 
     /**
-     * Logs: did="$did" happened="$happened" expected="$expected" Use this when
-     * an error occurs.
+     * Format: {@code did="$did" happened="$happened" expected="$expected"}<br/>
+     * Use this when an error occurs.
+     * 
+     * @return A formatted message.
      */
-    public static void did(Object did, Object happened, Object expected,
+    public static String did(Object did, Object happened, Object expected,
 	    Object... keyAndValues) {
-	combineAdditionalKeyValuesAndLog(keyAndValues, "did", did, "happened",
+	return combineAdditionalKeyValues(keyAndValues, "did", did,
+		"happened",
 		happened, "expected", expected);
     }
 
-    private static void combineAdditionalKeyValuesAndLog(
+    /**
+     * Format: {@code did="$did" happened="$happened" result="$result"}<br/>
+     * Use this when a warning occurs.
+     * 
+     * @return A formatted message.
+     */
+    public static String warn(Object did, Object happened, Object result,
+	    Object... keyValues) {
+	return combineAdditionalKeyValues(keyValues, "did", did, "happened",
+		happened, "result", result);
+    }
+
+    private static String combineAdditionalKeyValues(
 	    Object[] additionalKeyValues, Object... logSpecificKeyValues) {
 	Object[] allKeyValues = new Object[additionalKeyValues.length
 		+ logSpecificKeyValues.length];
@@ -62,7 +73,7 @@ public class ArchiverLogger {
 		logSpecificKeyValues.length);
 	System.arraycopy(additionalKeyValues, 0, allKeyValues,
 		logSpecificKeyValues.length, additionalKeyValues.length);
-	log(pairKeysWithValues(allKeyValues));
+	return pairKeysWithValues(allKeyValues);
     }
 
     private static String pairKeysWithValues(Object... messages) {
@@ -86,20 +97,4 @@ public class ArchiverLogger {
 	return sb.toString();
     }
 
-    /**
-     * Atomically logs the given string.
-     */
-    private synchronized static void log(String logString) {
-	logger.printf("[%s] %s%n", new Date().toString(), logString);
-    }
-
-    /**
-     * Logs a warning about what was done, what happened and the results of this
-     * warning.
-     */
-    public static void warn(Object did, Object happened, Object result,
-	    Object... keyValues) {
-	combineAdditionalKeyValuesAndLog(keyValues, "WARNING: did", did,
-		"happened", happened, "result", result);
-    }
 }
