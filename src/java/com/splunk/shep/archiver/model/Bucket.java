@@ -1,6 +1,6 @@
 package com.splunk.shep.archiver.model;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.archive.BucketFormat;
 
@@ -17,6 +18,7 @@ import com.splunk.shep.archiver.archive.BucketFormat;
  */
 public class Bucket {
 
+    private final static Logger logger = Logger.getLogger(Bucket.class);
     private final BucketFormat format;
     private final File directory;
     private final String indexName;
@@ -109,9 +111,9 @@ public class Bucket {
      */
     public File getDirectory() {
 	if (directory == null) {
-	    did("Got directory from bucket",
+	    logger.debug(did("Got directory from bucket",
 		    "Bucket was remote and can't instantiate a File.", "",
-		    "bucket", this);
+		    "bucket", this));
 	    throw new RemoteBucketException();
 	}
 	return directory;

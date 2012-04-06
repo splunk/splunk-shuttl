@@ -14,12 +14,14 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.model.Bucket;
 
@@ -28,6 +30,8 @@ import com.splunk.shep.archiver.model.Bucket;
  */
 public class BucketFilter {
 
+    private final static Logger logger = Logger.getLogger(BucketFilter.class);
+    
     /**
      * Filters buckets by time range. Returns a list that satisfies the
      * condition where it's within the time range.
@@ -43,10 +47,10 @@ public class BucketFilter {
     public List<Bucket> filterBucketsByTimeRange(List<Bucket> buckets,
 	    Date earliest, Date latest) {
 	if (earliest.after(latest)) {
-	    warn("Filtered buckets by time range",
+	    logger.warn(warn("Filtered buckets by time range",
 		    "Earliest time was later than latest time",
 		    "Filtered all buckets", "earliest_time", earliest,
-		    "latest_time", latest);
+		    "latest_time", latest));
 	    return Arrays.asList();
 	}
 	ArrayList<Bucket> filteredBuckets = new ArrayList<Bucket>();
