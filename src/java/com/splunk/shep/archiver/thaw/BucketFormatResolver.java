@@ -14,13 +14,15 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
-import static com.splunk.shep.archiver.ArchiverLogger.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.archiver.archive.PathResolver;
@@ -35,6 +37,8 @@ import com.splunk.shep.archiver.util.UtilsURI;
  */
 public class BucketFormatResolver {
 
+    private final static Logger logger = Logger
+	    .getLogger(BucketFormatResolver.class);
     private final PathResolver pathResolver;
     private final ArchiveFileSystem archiveFileSystem;
     private final BucketFormatChooser bucketFormatChooser;
@@ -93,9 +97,9 @@ public class BucketFormatResolver {
 	try {
 	    return archiveFileSystem.listPath(formatsHomeForBucket);
 	} catch (IOException e) {
-	    warn("Listed formats home for a bucket", e,
+	    logger.warn(warn("Listed formats home for a bucket", e,
 		    "Will not list any formats for bucket", "formats_home",
-		    formatsHomeForBucket, "bucket", bucket, "exception", e);
+		    formatsHomeForBucket, "bucket", bucket, "exception", e));
 	    return Collections.emptyList();
 	}
     }
@@ -116,11 +120,12 @@ public class BucketFormatResolver {
 	    return new Bucket(uriToBucketWithChosenBucket, bucket.getIndex(),
 		    bucket.getName(), chosenFormat);
 	} catch (IOException e) {
-	    did("Created bucket with format",
+	    logger.debug(did(
+		    "Created bucket with format",
 		    e,
 		    "To create bucket from another bucket, only changing the format.",
 		    "bucket", bucket, "bucket_format", chosenFormat,
-		    "exception", e);
+		    "exception", e));
 	    throw new RuntimeException(e);
 	}
     }

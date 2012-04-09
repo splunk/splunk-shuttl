@@ -25,6 +25,9 @@ Author: Ledion Bitincka
 
 import csv,sys,hivecommon, splunk.mining.dcutils as dcu
 import splunk.Intersplunk as isp
+import os
+import splunk.appserver.mrsparkle.lib.util as app_util
+
 
 APP_NAME ='shep'
 local_path = os.path.join(app_util.get_apps_dir(), APP_NAME, 'bin', 'hivepylib081')

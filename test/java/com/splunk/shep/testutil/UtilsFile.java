@@ -87,6 +87,9 @@ public class UtilsFile {
      * @return temporary directory that's deleted when the VM terminates.
      */
     public static File createTempDirectory() {
+	// TODO: There's a race condition here - the directory might be
+	// created between the calls to getUniquelyNamedFile() and
+	// createDirectory().
 	File dir = getUniquelyNamedFile();
 	createDirectory(dir);
 	return dir;
@@ -119,8 +122,9 @@ public class UtilsFile {
 
     private static File getUniquelyNamedFileWithPrefix(String prefix) {
 	Class<?> callerToThisMethod = MethodCallerHelper.getCallerToMyMethod();
-	String tempDirName = FileUtils.getUserDirectoryPath() + File.separator
-		+ prefix + "-" + callerToThisMethod.getSimpleName();
+	String tmpRoot = System.getProperty("java.io.tmpdir");
+	String tempDirName = tmpRoot + File.separator + prefix + "-"
+		+ callerToThisMethod.getSimpleName();
 	File dir = new File(tempDirName);
 	while (dir.exists()) {
 	    tempDirName += "-" + RandomStringUtils.randomAlphanumeric(2);

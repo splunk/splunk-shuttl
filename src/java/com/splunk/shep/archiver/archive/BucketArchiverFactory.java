@@ -14,12 +14,15 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
+import static com.splunk.shep.archiver.LogFormatter.*;
+
 import java.io.IOException;
 import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocalFileSystem;
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shep.archiver.fileSystem.HadoopFileSystemArchive;
@@ -31,6 +34,9 @@ import com.splunk.shep.archiver.fileSystem.WritableFileSystem;
  */
 public class BucketArchiverFactory {
 
+    private final static Logger logger = Logger
+	    .getLogger(BucketArchiverFactory.class);
+    
     /**
      * Creates the currently default archiver.
      */
@@ -74,8 +80,9 @@ public class BucketArchiverFactory {
 	try {
 	    return FileSystem.getLocal(new Configuration());
 	} catch (IOException e) {
-	    // LOG
-	    e.printStackTrace();
+	    logger.error(did(
+		    "Tried to get a reference to the local file system", e,
+		    "no exception"));
 	    throw new RuntimeException(e);
 	}
     }
@@ -85,8 +92,9 @@ public class BucketArchiverFactory {
 	    return FileSystem.get(ArchiveConfiguration.getSharedInstance()
 		    .getArchivingRoot(), new Configuration());
 	} catch (IOException e) {
-	    // LOG
-	    e.printStackTrace();
+	    logger.error(did(
+		    "Tried to get a reference to the hadoop file system", e,
+		    "no exception"));
 	    throw new RuntimeException(e);
 	}
     }
