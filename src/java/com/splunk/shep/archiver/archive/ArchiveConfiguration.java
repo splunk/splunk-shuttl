@@ -5,8 +5,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.fs.Path;
-
 import com.splunk.shep.server.mbeans.ShepArchiver;
 import com.splunk.shep.server.mbeans.ShepArchiverMBean;
 
@@ -70,8 +68,10 @@ public class ArchiveConfiguration {
     /**
      * @return The Path on hadoop filesystem that is used as a temp directory
      */
-    public Path getTmpDirectory() {
-	return new Path(mBean.getTmpDirectory());
+    public URI getTmpDirectory() {
+	URI archivingRoot = getArchivingRoot();
+	String tmpDirectoryPath = mBean.getTmpDirectory();
+	return archivingRoot.resolve(tmpDirectoryPath);
     }
 
 }

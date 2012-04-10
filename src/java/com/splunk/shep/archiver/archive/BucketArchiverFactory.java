@@ -22,6 +22,7 @@ import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocalFileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
@@ -36,7 +37,7 @@ public class BucketArchiverFactory {
 
     private final static Logger logger = Logger
 	    .getLogger(BucketArchiverFactory.class);
-    
+
     /**
      * Creates the currently default archiver.
      */
@@ -66,7 +67,7 @@ public class BucketArchiverFactory {
 	    FileSystem hadoopFileSystem) {
 	ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 	ArchiveFileSystem archiveFileSystem = new HadoopFileSystemArchive(
-		hadoopFileSystem, config.getTmpDirectory());
+		hadoopFileSystem, new Path(config.getTmpDirectory()));
 
 	return new BucketArchiver(config, new BucketExporter(),
 		getPathResolver(hadoopFileSystem, config),
