@@ -3,6 +3,7 @@ package com.splunk.shep.server.mbeans.rest;
 import static com.splunk.shep.ShepConstants.*;
 
 import java.io.FileNotFoundException;
+import java.util.Date;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,6 +19,8 @@ import com.splunk.shep.archiver.archive.BucketArchiverRunner;
 import com.splunk.shep.archiver.archive.recovery.BucketLock;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
+import com.splunk.shep.archiver.thaw.BucketThawer;
+import com.splunk.shep.archiver.thaw.BucketThawerFactory;
 import com.splunk.shep.metrics.ShepMetricsHelper;
 
 /**
@@ -39,10 +42,7 @@ public class BucketArchiverRest {
     @Path(ENDPOINT_BUCKET_ARCHIVER)
     public void archiveBucket(@QueryParam("path") String path,
 	    @QueryParam("index") String indexName) {
-	String logMessage = String.format(
-		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-		ENDPOINT_ARCHIVER, ENDPOINT_BUCKET_ARCHIVER);
-	ShepMetricsHelper.update(logger, logMessage);
+	logMetricsAtEndpoint(ENDPOINT_BUCKET_ARCHIVER);
 
 	archiveBucketOnAnotherThread(indexName, path);
     }
@@ -81,4 +81,25 @@ public class BucketArchiverRest {
 	return bucket;
     }
 
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path(ENDPOINT_BUCKET_THAW)
+    public void archiveBucket(@QueryParam("index") String index,
+	    @QueryParam("from") String from, @QueryParam("to") String to) {
+	logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
+	BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
+	bucketThawer.thawBuckets(index, dateFromString(from),
+		dateFromString(to));
+    }
+
+    private Date dateFromString(String from) {
+	return new Date(Long.parseLong(from));
+    }
+
+    private void logMetricsAtEndpoint(String endpoint) {
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_ARCHIVER, endpoint);
+	ShepMetricsHelper.update(logger, logMessage);
+    }
 }
