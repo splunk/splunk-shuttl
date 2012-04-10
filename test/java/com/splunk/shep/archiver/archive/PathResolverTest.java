@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
+import com.splunk.shep.testutil.UtilsMBean;
 
 @Test(groups = { "fast-unit" })
 public class PathResolverTest {
@@ -133,4 +134,11 @@ public class PathResolverTest {
     private String archiveServerCluster() {
 	return archiveRoot.toString() + "/" + clusterName + "/" + serverName;
     }
+
+    public void getConfigured_registeredMBean_getsPathResolverInstance() {
+	UtilsMBean.registerShepArchiverMBean();
+	PathResolver pr = PathResolver.getConfigured();
+	assertNotNull(pr);
+    }
+
 }

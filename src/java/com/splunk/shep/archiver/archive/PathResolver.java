@@ -7,6 +7,7 @@ import org.apache.commons.io.FilenameUtils;
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.util.UtilsURI;
+import com.splunk.shep.server.model.ArchiverConfiguration;
 
 /**
  * Resolves paths on a {@link ArchiveFileSystem} for buckets.
@@ -111,6 +112,16 @@ public class PathResolver {
 	    BucketFormat format) {
 	return URI.create(getFormatsHome(index, bucketName).toString()
 		+ SEPARATOR + format);
+    }
+
+    /**
+     * @return a {@link PathResolver} configured with
+     *         {@link ArchiverConfiguration}.
+     */
+    public static PathResolver getConfigured() {
+	ArchiveConfiguration archiveConfiguration = ArchiveConfiguration
+		.getSharedInstance();
+	return new PathResolver(archiveConfiguration);
     }
 
 }
