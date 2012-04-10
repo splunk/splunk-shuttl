@@ -14,19 +14,10 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static com.splunk.shep.archiver.LogFormatter.*;
-
-import java.io.IOException;
 import java.net.URI;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocalFileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Logger;
-
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
-import com.splunk.shep.archiver.fileSystem.HadoopFileSystemArchive;
+import com.splunk.shep.archiver.fileSystem.ArchiveFileSystemFactory;
 import com.splunk.shep.archiver.fileSystem.WritableFileSystem;
 
 /**
@@ -35,97 +26,29 @@ import com.splunk.shep.archiver.fileSystem.WritableFileSystem;
  */
 public class BucketArchiverFactory {
 
-    private final static Logger logger = Logger
-	    .getLogger(BucketArchiverFactory.class);
-
-    /**
-     * Creates the currently default archiver.
-     */
-    public static BucketArchiver createDefaultArchiver() {
-	return createHdfsArchiver();
-    }
-
-    /**
-     * Create {@link BucketArchiver} that uses Hadoop's HDFS file system for
-     * archiving buckets. <br/>
-     * CONFIG: The host and port of the HDFS used is currently hard coded.
-     * Should be configurable.
-     */
-    public static BucketArchiver createHdfsArchiver() {
-	return createHadoopFileSystemArchiver(getHdfsFileSystem());
-    }
-
-    /**
-     * Create {@link BucketArchiver} that uses Hadoop's {@link LocalFileSystem}
-     * for archiving buckets.
-     */
-    public static BucketArchiver createHadoopLocalFileSystemArchiver() {
-	return createHadoopFileSystemArchiver(getHadoopLocalFileSystem());
-    }
-
-    private static BucketArchiver createHadoopFileSystemArchiver(
-	    FileSystem hadoopFileSystem) {
+    public static BucketArchiver createConfiguredArchiver() {
 	ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-	ArchiveFileSystem archiveFileSystem = new HadoopFileSystemArchive(
-		hadoopFileSystem, new Path(config.getTmpDirectory()));
+	ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
+		.getConfiguredArchiveFileSystem();
 
 	return new BucketArchiver(config, new BucketExporter(),
-		getPathResolver(hadoopFileSystem, config),
-		new ArchiveBucketTransferer(archiveFileSystem));
+		getPathResolver(config), new ArchiveBucketTransferer(
+			archiveFileSystem));
     }
 
-    /**
-     * @return
-     */
-    private static FileSystem getHadoopLocalFileSystem() {
-	try {
-	    return FileSystem.getLocal(new Configuration());
-	} catch (IOException e) {
-	    logger.error(did(
-		    "Tried to get a reference to the local file system", e,
-		    "no exception"));
-	    throw new RuntimeException(e);
-	}
-    }
-
-    private static FileSystem getHdfsFileSystem() {
-	try {
-	    return FileSystem.get(ArchiveConfiguration.getSharedInstance()
-		    .getArchivingRoot(), new Configuration());
-	} catch (IOException e) {
-	    logger.error(did(
-		    "Tried to get a reference to the hadoop file system", e,
-		    "no exception"));
-	    throw new RuntimeException(e);
-	}
-    }
-
-    private static PathResolver getPathResolver(FileSystem hadoopFileSystem,
-	    ArchiveConfiguration config) {
+    // TODO Remove the writable file system and expect that the configured
+    // archiving root is writable.
+    private static PathResolver getPathResolver(
+	    final ArchiveConfiguration config) {
 	PathResolver pathResolver = new PathResolver(config,
-		new HadoopWritableFileSystemUri(hadoopFileSystem));
+		new WritableFileSystem() {
+
+		    @Override
+		    public URI getWritableUri() {
+			return config.getArchivingRoot();
+		    }
+		});
 	return pathResolver;
-    }
-
-    private static class HadoopWritableFileSystemUri implements
-	    WritableFileSystem {
-
-	private final FileSystem fileSystem;
-
-	public HadoopWritableFileSystemUri(FileSystem fileSystem) {
-	    this.fileSystem = fileSystem;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.splunk.shep.archiver.fileSystem.WritableFileSystemUri#
-	 * getWritableUriOnFileSystem()
-	 */
-	@Override
-	public URI getWritableUri() {
-	    return fileSystem.getHomeDirectory().toUri();
-	}
     }
 
 }

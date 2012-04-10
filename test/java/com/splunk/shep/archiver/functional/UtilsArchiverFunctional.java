@@ -45,7 +45,8 @@ public class UtilsArchiverFunctional {
      * @return path resolver used with the default archiver.
      */
     public static PathResolver getRealPathResolver() {
-	return BucketArchiverFactory.createDefaultArchiver().getPathResolver();
+	return BucketArchiverFactory.createConfiguredArchiver()
+		.getPathResolver();
     }
 
     /**

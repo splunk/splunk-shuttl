@@ -54,7 +54,7 @@ public class BucketArchiverRest {
 
     private Runnable createBucketArchiverRunner(String indexName, String path) {
 	BucketArchiver bucketArchiver = BucketArchiverFactory
-		.createDefaultArchiver();
+		.createConfiguredArchiver();
 	Bucket bucket = createBucketWithErrorHandling(indexName, path);
 	BucketLock bucketLock = new BucketLock(bucket);
 	if (!bucketLock.tryLockShared()) {
