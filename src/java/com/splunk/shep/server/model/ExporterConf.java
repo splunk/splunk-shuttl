@@ -16,6 +16,8 @@ package com.splunk.shep.server.model;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -64,6 +66,8 @@ public class ExporterConf implements ExporterConfiguration {
      * @see com.splunk.shep.server.model.ExportConfiguration#getChannels()
      */
     @Override
+    @XmlElementWrapper(name = "channellist")
+    @XmlElement(name = "channel")
     public List<Channel> getChannels() {
 	return channels;
     }

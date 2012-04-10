@@ -70,8 +70,7 @@ public class ShepExporter implements ShepExporterMBean {
      */
     @Override
     public String getOutputPath() {
-	// TODO Auto-generated method stub
-	return null;
+	return this.conf.getOutputPath();
     }
 
     /**
@@ -79,8 +78,7 @@ public class ShepExporter implements ShepExporterMBean {
      */
     @Override
     public void setOutputPath(String outputPath) {
-	// TODO Auto-generated method stub
-
+	this.conf.setOutputPath(outputPath);
     }
 
     /**
@@ -88,8 +86,7 @@ public class ShepExporter implements ShepExporterMBean {
      */
     @Override
     public String getTempPath() {
-	// TODO Auto-generated method stub
-	return null;
+	return this.conf.getTempPath();
     }
 
     /**
@@ -97,8 +94,7 @@ public class ShepExporter implements ShepExporterMBean {
      */
     @Override
     public void setTempPath(String tempPath) {
-	// TODO Auto-generated method stub
-
+	this.conf.setTempPath(tempPath);
     }
 
     /**
@@ -106,8 +102,7 @@ public class ShepExporter implements ShepExporterMBean {
      */
     @Override
     public List<Channel> getChannels() {
-	// TODO Auto-generated method stub
-	return null;
+	return this.conf.getChannels();
     }
 
     /**
@@ -115,8 +110,7 @@ public class ShepExporter implements ShepExporterMBean {
      */
     @Override
     public void setChannels(List<Channel> channels) {
-	// TODO Auto-generated method stub
-
+	this.conf.setChannels(channels);
     }
 
     /**
@@ -125,6 +119,7 @@ public class ShepExporter implements ShepExporterMBean {
     @Override
     public void startExporterService() throws ShepMBeanException {
 	try {
+	    logger.debug("starting exporter service");
 	    this.service.setExportConfiguration(this.conf);
 	    this.service.start();
 	} catch (Exception e) {
