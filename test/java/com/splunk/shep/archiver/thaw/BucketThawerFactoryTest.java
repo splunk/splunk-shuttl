@@ -20,9 +20,7 @@ import java.lang.reflect.Method;
 
 import org.testng.annotations.Test;
 
-import com.splunk.shep.server.mbeans.ShepArchiver;
-import com.splunk.shep.server.mbeans.ShepArchiverMBean;
-import com.splunk.shep.server.mbeans.util.MBeanUtils;
+import com.splunk.shep.testutil.UtilsMBean;
 
 public class BucketThawerFactoryTest {
 
@@ -34,10 +32,10 @@ public class BucketThawerFactoryTest {
 	assertEquals(0, method.getParameterTypes().length);
     }
 
-    @Test(groups = { "integration" })
-    public void createDefaultThawer_default_notNull() throws Exception {
-	MBeanUtils.registerMBean(ShepArchiverMBean.OBJECT_NAME,
-		ShepArchiver.class);
+    @Test(groups = { "functional" })
+    public void createDefaultThawer_realConfigurationWithSplunk_notNull()
+	    throws Exception {
+	UtilsMBean.registerShepArchiverMBean();
 	assertNotNull(BucketThawerFactory.createDefaultThawer());
     }
 }
