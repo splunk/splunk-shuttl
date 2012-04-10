@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.server.mbeans.util.MBeanUtils;
 
 /**
@@ -170,6 +171,8 @@ public class ShepArchiverMBeanTest {
 	archiverMBean.setServerName(serverName);
 	archiverMBean.setArchiverRootURI(archiverRootURI);
 	archiverMBean.setTmpDirectory(tmpDirectory);
+	archiverMBean.setBucketFormatPriority(Arrays
+		.asList(BucketFormat.SPLUNK_BUCKET.name()));
 	archiverMBean.save();
 
 	assertEquals(FileUtils.readFileToString(file), expectedConfigFile);
