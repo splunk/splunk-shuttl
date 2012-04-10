@@ -28,6 +28,12 @@ import com.splunk.shep.archiver.listers.ArchivedIndexesLister;
 public class BucketThawerFactory {
 
     public static BucketThawer createDefaultThawer() {
+	Service splunkService = getLoggedInSplunkService();
+	return createThawerWithSplunkSettings(splunkService);
+    }
+
+    public static BucketThawer createThawerWithSplunkSettings(
+	    Service splunkService) {
 	ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 		.getConfiguredArchiveFileSystem();
 	ArchiveConfiguration archiveConfiguration = ArchiveConfiguration
@@ -39,7 +45,8 @@ public class BucketThawerFactory {
 	BucketFilter bucketFilter = new BucketFilter();
 	BucketFormatResolver bucketFormatResolver = getBucketFormatResolver(
 		archiveFileSystem, archiveConfiguration, pathResolver);
-	ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(archiveFileSystem);
+	ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
+		archiveFileSystem, splunkService);
 	return new BucketThawer(bucketsLister, bucketFilter,
 		bucketFormatResolver, thawBucketTransferer);
     }
@@ -64,10 +71,9 @@ public class BucketThawerFactory {
     }
 
     private static ThawBucketTransferer getThawBucketTransferer(
-	    ArchiveFileSystem archiveFileSystem) {
-	SplunkSettings splunkSettings = getSplunkSettings();
+	    ArchiveFileSystem archiveFileSystem, Service splunkService) {
 	ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
-		splunkSettings);
+		getSplunkSettings(splunkService));
 	ThawBucketTransferer thawBucketTransferer = new ThawBucketTransferer(
 		thawLocationProvider, archiveFileSystem);
 	return thawBucketTransferer;
@@ -75,9 +81,16 @@ public class BucketThawerFactory {
 
     // TODO: Communicating with splunk through splunk home is not nice.
     // CONFIG
-    private static SplunkSettings getSplunkSettings() {
+    private static Service getLoggedInSplunkService() {
 	Service splunkService = new Service("localhost", 8089);
 	splunkService.login("admin", "changeme");
+	return splunkService;
+    }
+
+    /**
+     * @return
+     */
+    public static SplunkSettings getSplunkSettings(Service splunkService) {
 	return new SplunkSettings(splunkService);
     }
 }
