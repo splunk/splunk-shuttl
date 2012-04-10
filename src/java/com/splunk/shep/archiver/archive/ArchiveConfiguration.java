@@ -6,16 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Logger;
 
+import com.splunk.shep.server.mbeans.ShepArchiver;
 import com.splunk.shep.server.mbeans.ShepArchiverMBean;
-import com.splunk.shep.server.mbeans.util.MBeanUtils;
 
 public class ArchiveConfiguration {
 
     private final ShepArchiverMBean mBean;
-    static private final Logger logger = Logger
-	    .getLogger(ArchiveConfiguration.class);
 
     public ArchiveConfiguration(ShepArchiverMBean mBean) {
 	this.mBean = mBean;
@@ -27,24 +24,14 @@ public class ArchiveConfiguration {
      */
     private static SoftReference<ArchiveConfiguration> sharedInstanceRef;
 
-    private static ShepArchiverMBean getProxy() {
-	try {
-	    return MBeanUtils.getMBeanInstance(ShepArchiverMBean.OBJECT_NAME,
-		    ShepArchiverMBean.class);
-	} catch (Exception e) {
-	    logger.error("Error when retrieving Archiver MBean proxy."
-		    + e.toString());
-	    throw new RuntimeException(e);
-	}
-    }
-
     public static ArchiveConfiguration getSharedInstance() {
 	ArchiveConfiguration sharedInstance = null;
 	if (sharedInstanceRef != null) {
 	    sharedInstance = sharedInstanceRef.get();
 	}
 	if (sharedInstance == null) {
-	    sharedInstance = new ArchiveConfiguration(getProxy());
+	    sharedInstance = new ArchiveConfiguration(
+		    ShepArchiver.getMBeanProxy());
 	    sharedInstanceRef = new SoftReference<ArchiveConfiguration>(
 		    sharedInstance);
 	}
