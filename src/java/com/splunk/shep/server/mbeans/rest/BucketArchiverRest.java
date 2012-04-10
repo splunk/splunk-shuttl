@@ -21,6 +21,7 @@ import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 import com.splunk.shep.archiver.thaw.BucketThawer;
 import com.splunk.shep.archiver.thaw.BucketThawerFactory;
+import com.splunk.shep.archiver.thaw.StringDateConverter;
 import com.splunk.shep.metrics.ShepMetricsHelper;
 
 /**
@@ -92,8 +93,8 @@ public class BucketArchiverRest {
 		dateFromString(to));
     }
 
-    private Date dateFromString(String from) {
-	return new Date(Long.parseLong(from));
+    private Date dateFromString(String dateAsString) {
+	return StringDateConverter.convert(dateAsString);
     }
 
     private void logMetricsAtEndpoint(String endpoint) {
