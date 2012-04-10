@@ -8,7 +8,6 @@ import java.net.URI;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.fileSystem.WritableFileSystem;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
 
@@ -18,35 +17,26 @@ public class PathResolverTest {
     private ArchiveConfiguration configuration;
     private PathResolver pathResolver;
     private Bucket bucket;
-    private WritableFileSystem writableFileSystem;
     private URI archiveRoot;
-    private URI writableUri;
     private String clusterName;
     private String serverName;
     private String bucketIndex;
     private BucketFormat bucketFormat;
     private String bucketName;
 
-    private final String ROOT_URI = "hdfs://somehost:someport";
+    private final String ROOT_URI = "hdfs://somehost:12345";
 
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	configuration = mock(ArchiveConfiguration.class);
-	writableFileSystem = mock(WritableFileSystem.class);
-	pathResolver = new PathResolver(configuration, writableFileSystem);
+	pathResolver = new PathResolver(configuration);
 	stubArchiveConfiguration();
-	stubWritableFileSystem();
 	bucketIndex = "index";
 	bucketName = "bucket_name_id";
 	bucketFormat = BucketFormat.SPLUNK_BUCKET;
 	bucket = UtilsBucket.createTestBucketWithIndexAndName(bucketIndex,
 		bucketName);
     }
-
-    private void stubWritableFileSystem() {
-	writableUri = URI.create(ROOT_URI);
-	when(writableFileSystem.getWritableUri()).thenReturn(writableUri);
-     }
 
     private void stubArchiveConfiguration() {
 	archiveRoot = URI.create(ROOT_URI);
@@ -59,8 +49,9 @@ public class PathResolverTest {
 
     @Test(groups = { "fast-unit" })
     public void resolveArchivePath_givenValidBucket_combineBucketAndConfigurationToCreateTheEndingArchivePath() {
-	assertEquals(pathResolver.resolveArchivePath(bucket).toString(),
-		getArchivePathUpToFormat());
+	String expected = getArchivePathUpToFormat();
+	String actual = pathResolver.resolveArchivePath(bucket).toString();
+	assertEquals(expected, actual);
     }
 
     public void resolveArchivePath_givenWritableFileSystemUri_uriStartsWithWritablePath() {
@@ -69,7 +60,7 @@ public class PathResolverTest {
 
 	// Verify
 	assertTrue(archivePath.toString().startsWith(
-		writableFileSystem.getWritableUri().toString()));
+		configuration.getArchivingRoot().toString()));
     }
 
     public void getIndexesHome_givenNothing_returnsPathThatEndsWithThePathToWhereIndexesLive() {
@@ -79,12 +70,13 @@ public class PathResolverTest {
 
     public void getIndexesHome_givenNothing_returnsPathThatStartsWithWritablePath() {
 	assertTrue(pathResolver.getIndexesHome().toString()
-		.startsWith(writableFileSystem.getWritableUri().toString()));
+		.startsWith(configuration.getArchivingRoot().toString()));
     }
 
     public void getBucketsHome_givenIndex_uriWithPathThatEndsWithWhereBucketsLive() {
-	assertEquals(pathResolver.getBucketsHome(bucketIndex).toString(),
-		archiveServerCluster() + "/" + bucketIndex);
+	String expected = archiveServerCluster() + "/" + bucketIndex;
+	String actual = pathResolver.getBucketsHome(bucketIndex).toString();
+	assertEquals(expected, actual);
     }
 
     public void getBucketsHome_givenNothing_startsWithWritablePath() {
@@ -139,6 +131,6 @@ public class PathResolverTest {
     }
 
     private String archiveServerCluster() {
-	return archiveRoot + "/" + clusterName + "/" + serverName;
+	return archiveRoot.toString() + "/" + clusterName + "/" + serverName;
     }
 }

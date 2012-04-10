@@ -5,7 +5,6 @@ import java.net.URI;
 import org.apache.commons.io.FilenameUtils;
 
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
-import com.splunk.shep.archiver.fileSystem.WritableFileSystem;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.util.UtilsURI;
 
@@ -17,19 +16,13 @@ public class PathResolver {
     public static final char SEPARATOR = '/';
 
     private final ArchiveConfiguration configuration;
-    private final WritableFileSystem writableFileSystem;
 
     /**
      * @param configuration
      *            for constructing paths on where to store the buckets.
-     * @param writableFileSystem
-     *            for getting file system schema and a path which buckets can be
-     *            written to, on the file system.
      */
-    public PathResolver(ArchiveConfiguration configuration,
-	    WritableFileSystem writableFileSystem) {
+    public PathResolver(ArchiveConfiguration configuration) {
 	this.configuration = configuration;
-	this.writableFileSystem = writableFileSystem;
     }
 
     /**
@@ -42,11 +35,10 @@ public class PathResolver {
      * @return URI to archive the bucket
      */
     public URI resolveArchivePath(Bucket bucket) {
-	URI writableUri = writableFileSystem.getWritableUri();
-	String archivePathForBucket = getArchivingPath() + SEPARATOR
+	String archivePathForBucket = getArchivingPath().toString() + SEPARATOR
 		+ bucket.getIndex() + SEPARATOR + bucket.getName() + SEPARATOR
 		+ bucket.getFormat();
-	return URI.create(writableUri + archivePathForBucket);
+	return URI.create(archivePathForBucket);
     }
 
     /**
@@ -55,12 +47,10 @@ public class PathResolver {
      * 
      * @return Archiving path that starts with "/"
      */
-    private String getArchivingPath() {
-	String archivingRootPath = configuration.getArchivingRoot().getPath();
-	return (archivingRootPath.isEmpty() ? "" : SEPARATOR)
-		+ archivingRootPath + SEPARATOR
-		+ configuration.getClusterName() + SEPARATOR
-		+ configuration.getServerName();
+    private URI getArchivingPath() {
+	return URI.create(configuration.getArchivingRoot().toString()
+		+ SEPARATOR + configuration.getClusterName() + SEPARATOR
+		+ configuration.getServerName());
     }
 
     /**
@@ -68,8 +58,7 @@ public class PathResolver {
      *         that you can list indexes.
      */
     public URI getIndexesHome() {
-	return URI.create(writableFileSystem.getWritableUri()
-		+ getArchivingPath());
+	return getArchivingPath();
     }
 
     /**

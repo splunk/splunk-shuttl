@@ -14,11 +14,8 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import java.net.URI;
-
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shep.archiver.fileSystem.ArchiveFileSystemFactory;
-import com.splunk.shep.archiver.fileSystem.WritableFileSystem;
 
 /**
  * Construction code for creating BucketArchivers that archives in different
@@ -32,23 +29,8 @@ public class BucketArchiverFactory {
 		.getConfiguredArchiveFileSystem();
 
 	return new BucketArchiver(config, new BucketExporter(),
-		getPathResolver(config), new ArchiveBucketTransferer(
+		new PathResolver(config), new ArchiveBucketTransferer(
 			archiveFileSystem));
-    }
-
-    // TODO Remove the writable file system and expect that the configured
-    // archiving root is writable.
-    private static PathResolver getPathResolver(
-	    final ArchiveConfiguration config) {
-	PathResolver pathResolver = new PathResolver(config,
-		new WritableFileSystem() {
-
-		    @Override
-		    public URI getWritableUri() {
-			return config.getArchivingRoot();
-		    }
-		});
-	return pathResolver;
     }
 
 }
