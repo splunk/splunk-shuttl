@@ -39,13 +39,16 @@ public class ShepArchiver implements ShepArchiverMBean {
 
     public ShepArchiver() throws ShepMBeanException {
 	try {
-	    this.xmlFilePath = System.getProperty("splunk.home")
-		    + ARCHIVERCONF_XML;
+	    this.xmlFilePath = getArchiverConfXml();
 	    refresh();
 	} catch (Exception e) {
 	    logger.error(SHEP_ARCHIVER_INIT_FAILURE, e);
 	    throw new ShepMBeanException(e);
 	}
+    }
+
+    protected String getArchiverConfXml() {
+	return System.getProperty("splunk.home") + ARCHIVERCONF_XML;
     }
 
     // used by tests

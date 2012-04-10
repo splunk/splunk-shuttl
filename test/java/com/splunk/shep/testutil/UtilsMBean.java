@@ -16,7 +16,7 @@ package com.splunk.shep.testutil;
 
 import javax.management.InstanceAlreadyExistsException;
 
-import com.splunk.shep.server.mbeans.ShepArchiver;
+import com.splunk.shep.server.mbeans.ShepArchiverForTests;
 import com.splunk.shep.server.mbeans.ShepArchiverMBean;
 import com.splunk.shep.server.mbeans.util.MBeanUtils;
 
@@ -28,7 +28,7 @@ public class UtilsMBean {
     public static void registerShepArchiverMBean() {
 	try {
 	    MBeanUtils.registerMBean(ShepArchiverMBean.OBJECT_NAME,
-		    ShepArchiver.class);
+		    ShepArchiverForTests.class);
 	} catch (InstanceAlreadyExistsException e1) {
 	    // Ok.
 	} catch (Exception e) {
