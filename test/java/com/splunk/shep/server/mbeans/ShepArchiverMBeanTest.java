@@ -17,19 +17,14 @@ package com.splunk.shep.server.mbeans;
 import static org.testng.Assert.*;
 
 import java.io.File;
-import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.BucketFormat;
-import com.splunk.shep.server.mbeans.util.MBeanUtils;
 
 /**
  * White box testing of MBeans
@@ -232,22 +227,4 @@ public class ShepArchiverMBeanTest {
 	return confFile;
     }
 
-    /**
-     * Attempts to set up the MBean, get a proxy and use it.
-     */
-    public void _givenRegisteredMBean_getsInstanceFromMBeanManager()
-	    throws Exception {
-	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-	ObjectName objectName = new ObjectName(ShepArchiverMBean.OBJECT_NAME);
-	if (mbs.isRegistered(objectName)) {
-	    mbs.unregisterMBean(objectName);
-	}
-
-	MBeanUtils.registerMBean(ShepArchiverMBean.OBJECT_NAME,
-		ShepArchiver.class);
-
-	ShepArchiverMBean proxy = MBeanUtils.getMBeanInstance(
-		ShepArchiverMBean.OBJECT_NAME, ShepArchiverMBean.class);
-	assertNotNull(proxy);
-    }
 }
