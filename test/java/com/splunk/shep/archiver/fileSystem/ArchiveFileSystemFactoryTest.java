@@ -35,7 +35,7 @@ public class ArchiveFileSystemFactoryTest {
 		.create("unsupported:/uri")));
     }
 
-    @Test(groups = { "fast-unit" })
+    @Test(groups = { "slow-unit" })
     public void getForUriToTmpDir_givenLocalFileURI_nonNullFileSystem() {
 	URI localUri = URI.create("file:/tmp");
 	ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
