@@ -812,6 +812,21 @@
 			<arg line="clean all -f" />
 		</exec>
 	</target>
+	
+	<!-- Archiver-UI -->
+	<target name="archiver-sync-package" depends="set-shep-app-home">
+		<exec executable="sh" osfamily="unix">
+			<arg value="-c" />
+			<arg line="'rsync -vr ${package.dir}/* ${shep.app.home}'"/>
+		</exec>
+	</target>
+	<target name="archiver-sync-package-and-restart-splunk">
+		<antcall>
+			<target name="archiver-sync-package" />
+			<target name="splunk-restart" />
+		</antcall>
+	</target>
+	<!-- END Archiver-UI -->
 
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties>
