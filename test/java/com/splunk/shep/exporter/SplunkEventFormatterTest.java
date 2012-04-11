@@ -35,7 +35,7 @@ public class SplunkEventFormatterTest {
 	    .getLogger(SplunkEventFormatterTest.class);
     Map<String, String> fieldMap;
 
-    @BeforeMethod
+    @BeforeMethod(groups = "slow-unit")
     protected void setUp() throws Exception {
 	SplunkEvent splunkEvent = getSplunkEvent("this is a line");
 	fieldMap = getFieldMap(splunkEvent);
