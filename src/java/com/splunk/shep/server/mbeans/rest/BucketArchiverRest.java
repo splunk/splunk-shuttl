@@ -125,7 +125,6 @@ public class BucketArchiverRest {
 	    BucketBean bucketBean = createBeanFromBucket(bucket);
 	    beans.add(bucketBean);
 	}
-	beans.add(new BucketBean("fisk", "disk", "risk", "lisk"));
 	return beans;
     }
 
