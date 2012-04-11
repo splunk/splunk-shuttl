@@ -1,0 +1,30 @@
+<%page expression_filter="h"/>
+<%inherit file="//layout/base.html" />
+<%namespace name="lib" file="//lib.html" import="*"/>
+<%namespace name="helpers" file="//view/_helpers.html" import="*"/>
+<%!
+    import logging
+    logger = logging.getLogger('splunk.module.archiving')
+%>
+
+<%def name="custom_css()">
+    <%lib:stylesheet_tags files="${['/static/app/shep/archiver.css']}" />
+    ##<%lib:script_tags files="${['/static/app/shep/application.js']}" />
+</%def>
+
+<%def name="gen_form(method='POST', action=None)">
+    <form  method="${method}"  action="${action if action else ''}">
+</%def>
+
+<div id="archiver">
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <p class="pageDesc">
+    <a href="#" class="normal">ARCHIVEEERRRR</a>
+  </p>
+  ${gen_form(method="POST", action=make_url(['custom', 'webintelligence', 'WISetup', 'save']))}
+  ${csrf_hidden_input()}
+  </form>
+</div>
