@@ -16,10 +16,10 @@ class Archiving(controllers.BaseController):
     def show(self, **kwargs):
 
         #TODO: REST call
-        indexes  = [] 
+        indexes  = ['foo','bar'] 
         user = cherrypy.session['user']['name']
 
-        return self.render_template('/shep:/templates/archiving.html') 
+        return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes)) 
     
     @expose_page(must_login=True, trim_spaces=True, methods=['POST']) 
     def get_buckets(self, **kwargs):

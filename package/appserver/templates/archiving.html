@@ -16,15 +16,20 @@
     <form  method="${method}"  action="${action if action else ''}">
 </%def>
 
+<%def name="gen_select(indexes)">
+    <select class="indexes">
+        <option value="all">All</option>
+      % for index in indexes:
+        <option value="${index}">${index}</option>  
+      % endfor
+    </select>
+</%def>
+
 <div id="archiver">
-  <br/>
-  <br/>
-  <br/>
-  <br/>
   <p class="pageDesc">
-    <a href="#" class="normal">ARCHIVEEERRRR</a>
   </p>
   ${gen_form(method="POST", action=make_url(['custom', 'webintelligence', 'WISetup', 'save']))}
+  ${gen_select(indexes)}
   ${csrf_hidden_input()}
   </form>
 </div>
