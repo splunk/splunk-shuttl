@@ -1,0 +1,35 @@
+<%page expression_filter="h"/>
+<%inherit file="//layout/base.html" />
+<%namespace name="lib" file="//lib.html" import="*"/>
+<%namespace name="helpers" file="//view/_helpers.html" import="*"/>
+<%!
+    import logging
+    import random
+    logger = logging.getLogger('splunk.module.archiving')
+%>
+
+<%def name="custom_css()">
+    <%lib:stylesheet_tags files="${['/static/app/shep/archiver.css']}" />
+    <%lib:script_tags files="${['/static/app/shep/archiver.js']}" />
+</%def>
+
+<%def name="strgen()">
+    ${''.join(random.choice("zxcvbnmasdfghjklqwertyuiop") for x in range(5))}
+</%def>
+
+<%def name="gen_bucket_list()">
+  <div id="bucket_table">
+    <table border="1">
+      <tr>
+        <td>${strgen()}</td>
+        <td>${strgen()}</td>
+      </tr>
+      <tr>
+        <td>${strgen()}</td>
+        <td>${strgen()}</td>
+      </tr>
+    </table>
+  </div>
+</%def>
+
+${gen_bucket_list()}
