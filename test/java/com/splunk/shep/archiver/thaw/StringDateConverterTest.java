@@ -18,6 +18,7 @@ import static org.testng.Assert.*;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.testng.annotations.Test;
 
@@ -36,9 +37,11 @@ public class StringDateConverterTest {
 
     @Test(groups = { "fast-unit" })
     public void convert_yearMonthDate_date() {
-	long time = 1325404800000L; // 2012-01-01_00:00:00
-	Date date = new Date(time);
+	// Month is 0-based 2012-01-01_00:00:00
+	Date expected = new GregorianCalendar(2012, 0, 1, 0, 0, 0).getTime();
+
 	Date actual = StringDateConverter.convert("2012-01-01_00:00:00");
-	assertEquals(date, actual);
+
+	assertEquals(actual, expected);
     }
 }
