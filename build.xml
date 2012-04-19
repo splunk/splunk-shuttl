@@ -814,6 +814,10 @@
 	</target>
 	
 	<!-- Archiver-UI -->
+	<target name="helper-archiver-extended-debugging">
+		<copy todir="${splunk.extracted.dir}/lib/python2.7/site-packages/splunk/appserver/mrsparkle/controllers/" file="${basedir}/archiver-UI-Debug-files/__init__.py"/>
+		<copy todir="${splunk.extracted.dir}/etc" file="${basedir}/archiver-UI-Debug-files/log.cfg" />
+	</target>
 	<target name="archiver-sync-package" depends="set-shep-app-home">
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
@@ -822,6 +826,7 @@
 	</target>
 	<target name="archiver-sync-package-and-restart-splunk">
 		<antcall>
+			<target name="helper-archiver-extended-debugging" />
 			<target name="archiver-sync-package" />
 			<target name="splunk-restart" />
 		</antcall>
