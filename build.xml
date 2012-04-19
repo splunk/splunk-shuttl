@@ -831,6 +831,11 @@
 			<target name="splunk-restart" />
 		</antcall>
 	</target>
+	<target name="archiver-activate-debugging">
+		<antcall>
+			<target name="helper-archiver-extended-debugging" />
+		</antcall>
+	</target>
 	<!-- END Archiver-UI -->
 
 	<target name="versionized-jar-name" depends="version">
