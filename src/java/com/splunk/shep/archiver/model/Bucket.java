@@ -79,7 +79,7 @@ public class Bucket {
 	this.indexName = index;
 	this.bucketName = new BucketName(bucketName);
 	this.format = format;
-	verifyExistingDirectory(directory);
+	verifyDirectoryExists(directory);
     }
 
     private static File getFileFromUri(URI uri) {
@@ -89,7 +89,7 @@ public class Bucket {
 	return null;
     }
 
-    private void verifyExistingDirectory(File directory)
+    private void verifyDirectoryExists(File directory)
 	    throws FileNotFoundException, FileNotDirectoryException {
 	if (!isUriSet() || isRemote())
 	    return; // Stop verifying.
@@ -147,14 +147,29 @@ public class Bucket {
 	return uri;
     }
 
-    public Bucket moveBucketToDir(File directoryToMoveTo)
+    /**
+     * Moves the bucket.
+     * 
+     * @param destinationDirectory
+     *            destination directory
+     * @return a handle to the "new" bucket
+     * @throws FileNotFoundException
+     *             if the destination directory does not exist
+     * @throws FileNotDirectoryException
+     */
+    public Bucket moveBucketToDir(File destinationDirectory)
 	    throws FileNotFoundException, FileNotDirectoryException {
-	File directory = getDirectory();
-	verifyExistingDirectory(directoryToMoveTo);
-	File newName = new File(directoryToMoveTo.getAbsolutePath(),
-		directory.getName());
-	if (!directory.renameTo(newName)) {
-	    throw new RuntimeException("Can't move bucket on this file system");
+	logger.debug(will("Attempting to move bucket", "bucket", this,
+		"destination", destinationDirectory));
+	File originDirectory = getDirectory();
+	verifyDirectoryExists(destinationDirectory);
+	File newName = new File(destinationDirectory.getAbsolutePath(),
+		originDirectory.getName());
+	if (!originDirectory.renameTo(newName)) {
+	    logger.error(did("Attempted to move bucket", "move failed", null,
+		    "bucket", this, "destination", destinationDirectory));
+	    throw new RuntimeException("Couldn't move bucket to destination: "
+		    + destinationDirectory);
 	}
 
 	return new Bucket(getIndex(), newName);

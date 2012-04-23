@@ -110,6 +110,16 @@ public class BucketName {
 	}
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+	return name;
+    }
+
     /**
      * @return full name of the {@link BucketName}.
      */

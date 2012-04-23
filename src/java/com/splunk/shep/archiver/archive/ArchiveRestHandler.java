@@ -50,18 +50,20 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
     public void callRestToArchiveBucket(Bucket bucket) {
 	HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
 	HttpResponse response = null;
+
 	try {
 	    if (logger.isDebugEnabled()) {
 		logger.debug(will("Send an archive bucket request",
 			"request_uri", archiveBucketRequest.getURI()));
 	    }
+
 	    response = httpClient.execute(archiveBucketRequest);
+
 	    if (response != null) {
-		handleResponseCodeFromDoingArchiveBucketRequest(response
-			.getStatusLine().getStatusCode(), bucket);
+		handleResponseFromDoingArchiveBucketRequest(response, bucket);
 	    } else {
 		// LOG: warning! Response was null. This happens in our tests
-		// when we mock the httpClient. Should never happen other wise.
+		// when we mock the httpClient. Should never happen otherwise.
 		// Should it?
 		logger.warn(did("Sent an archive bucket request",
 			"Got a null response", "A non-null response"));
@@ -87,44 +89,54 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	}
     }
 
-    private void handleResponseCodeFromDoingArchiveBucketRequest(
-	    int statusCode, Bucket bucket) {
+    private void handleResponseFromDoingArchiveBucketRequest(
+	    HttpResponse response, Bucket bucket) {
+	int statusCode = response.getStatusLine().getStatusCode();
+
+	String entity = null;
+	try {
+	    entity = EntityUtils.toString(response.getEntity());
+	} catch (IOException e) {
+	    // ignore IOException - we just want the entity for logging anyway
+	}
+
 	// TODO handle the different status codes
 	switch (statusCode) {
 	case HttpStatus.SC_OK:
 	case HttpStatus.SC_NO_CONTENT:
 	    if (logger.isDebugEnabled()) {
+
 		logger.debug(done(
 			"Got http response from archiveBucketRequest",
 			"status_code", statusCode, "bucket_name",
-			bucket.getName()));
+			bucket.getName(), "entity", entity));
 	    }
 	    break;
 	default:
 	    logger.warn(warn("Sent an archive bucket reuqest",
 		    "Got non ok http_status",
 		    "expected HttpStatus.SC_OK or SC_NO_CONTENT",
-		    "http_status", statusCode, "bucket_name", bucket.getName()));
+		    "http_status", statusCode, "bucket_name", bucket.getName(),
+		    "entity", entity));
 	}
     }
 
     private void handleIOExceptionGenereratedByDoingArchiveBucketRequest(
 	    IOException e, Bucket bucket) {
-	logger.error(did("Archive bucket request", "got IOException",
+	logger.error(did("Sent archive bucket request", "got IOException",
 		"request to succeed", "exception", e, "bucket_name",
-		bucket.getName()));
+		bucket.getName(), "cause", e.getCause()));
 	// TODO this method should handle the errors in case the bucket transfer
 	// fails. In this state there is no way of telling if the bucket was
 	// actually transfered or not.
     }
 
-    private HttpUriRequest createBucketArchiveRequest(Bucket bucket) {
+    private static HttpUriRequest createBucketArchiveRequest(Bucket bucket) {
 	// CONFIG configure the host, port, request URL with a general
 	// solution.
 	String requestString = "http://localhost:9090/shep/rest/archiver/bucket/archive?path="
 		+ bucket.getDirectory().getAbsolutePath()
-		+ "&index="
-		+ bucket.getIndex();
+		+ "&index=" + bucket.getIndex();
 	HttpGet request = new HttpGet(requestString);
 	return request;
     }

@@ -76,8 +76,10 @@ public class BucketArchiverRunner implements Runnable {
 
     private void archiveBucket() {
 	try {
+	    logger.info(will("Archiving bucket", "bucket", bucket));
 	    bucketArchiver.archiveBucket(bucket);
 	    deleteBucketWithErrorHandling(bucket);
+	    logger.info(done("Archived bucket", "bucket", bucket));
 	} finally {
 	    bucketLock.deleteLockFile();
 	    bucketLock.closeLock();
