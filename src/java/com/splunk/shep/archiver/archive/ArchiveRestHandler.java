@@ -96,8 +96,8 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	String entity = null;
 	try {
 	    entity = EntityUtils.toString(response.getEntity());
-	} catch (IOException e) {
-	    // ignore IOException - we just want the entity for logging anyway
+	} catch (Exception e) {
+	    // ignore Exceptions - we just want the entity for logging anyway
 	}
 
 	// TODO handle the different status codes
