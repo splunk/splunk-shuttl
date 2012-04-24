@@ -821,7 +821,7 @@
 	<target name="archiver-sync-package" depends="set-shep-app-home">
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
-			<arg line="'rsync -vr ${package.dir}/* ${shep.app.home} | tail -n 3'"/>
+			<arg line="'rsync -vr --delete ${package.dir}/* ${shep.app.home} | tail -n 3'"/>
 		</exec>
 	</target>
 	<target name="archiver-sync-package-and-restart-splunk">
