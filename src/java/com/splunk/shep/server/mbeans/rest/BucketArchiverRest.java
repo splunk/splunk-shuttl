@@ -63,6 +63,16 @@ public class BucketArchiverRest {
 		"endpoint", ENDPOINT_BUCKET_ARCHIVER, "index", index, "path",
 		path));
 
+	if (path == null) {
+	    logger.error(happened("No path was provided."));
+	    throw new IllegalArgumentException("path must be specified");
+	}
+
+	if (index == null) {
+	    logger.error(happened("No index was provided."));
+	    throw new IllegalArgumentException("index must be specified");
+	}
+
 	archiveBucketOnAnotherThread(index, path);
     }
 
