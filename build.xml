@@ -762,6 +762,12 @@
 			<arg line="start splunkweb" />
 		</exec>
 	</target>
+	
+	<target name="splunk-restart-splunkweb" depends="set-splunk-home">
+			<exec executable="${splunk.home}/bin/splunk">
+				<arg line="restart splunkweb" />
+			</exec>
+		</target>
 
 	<target name="splunk-stop" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
@@ -823,6 +829,13 @@
 			<arg value="-c" />
 			<arg line="'rsync -vr --delete ${package.dir}/* ${shep.app.home} | tail -n 3'"/>
 		</exec>
+	</target>
+	<target name="archiver-sync-package-and-restart-splunk-web">
+		<antcall>
+			<target name="helper-archiver-extended-debugging" />
+			<target name="archiver-sync-package" />
+			<target name="splunk-restart-splunkweb" />
+		</antcall>
 	</target>
 	<target name="archiver-sync-package-and-restart-splunk">
 		<antcall>
