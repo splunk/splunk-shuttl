@@ -21,13 +21,15 @@ class Archiving(controllers.BaseController):
 
         return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes)) 
     
-    @expose_page(must_login=True, trim_spaces=True, methods=['POST']) 
-    def get_buckets(self, **kwargs):
+
+
+    @expose_page(must_login=True, methods=['GET', 'POST']) 
+    def list_buckets(self, **kwargs):
         
         #TODO: REST call
         buckets = []
 
-        return self.render_template('/shep:/templates/search.html', buckets)
+        return self.render_template('/shep:/templates/bucket_list.html', dict(buckets=buckets))
 
     @expose_page(must_login=True, trim_spaces=True, methods=['POST']) 
     def thaw(self, **params):

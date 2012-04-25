@@ -13,19 +13,74 @@ function loadXMLDoc()
   {
     if (xmlhttp.readyState==4 && xmlhttp.status==200)
     {
-      document.getElementById("bucket_table").innerHTML=xmlhttp.responseText;
+      document.getElementById("bucket-table").innerHTML=xmlhttp.responseText;
     }
   }
-  xmlhttp.open("POST","/custom/shep/Archiving/list_buckets",true);
+  xmlhttp.open("GET","/custom/shep/Archiving/list_buckets",true);
   xmlhttp.send();
 }
 
 
+function listBucketsGET() {
+  $.ajax({
+    url: '/custom/shep/Archiving/list_buckets',
+    type: 'GET',
+    success: function(html) {
+      alert('loaded buckets');
+      $('#bucket-table').html(html);
+    }
+  });
+}
+
+function listBucketsGET() {
+  $.ajax({
+    url: '/custom/shep/Archiving/list_buckets',
+    type: 'GET',
+    success: function(html) {
+      $('#bucket-table').html(html);
+    }
+  });
+}
+
+function listBucketsPOST() {
+  
+  $.ajax({
+    url: '/custom/shep/Archiving/list_buckets',
+    type: 'POST',
+    success: function(html) {
+      alert('loaded buckets');
+      $('#bucket-table').html(html);
+    }
+  });
+}
+
 $(document).ready(function() {
-    alert('ALERT A LE Rt');
     bindHandler();
 });
 
 function bindHandler() {
-    $('.refresh').bind('click',function(event){alert('qwert!')});
+    //$('.refresh').bind('click',function(event){alert('qwert!');});
+    $('#enable-button').bind('click', function() { toggleSearchThawButton(); });
+    $('#search-thaw-button').bind('click', function(event) { searchOrThawBuckets(event); });
+}
+
+function enableSearchThawButton() {
+  $('#search-thaw-button').removeClass('disabled');
+}
+
+function disableSearchThawButton() {
+  $('#search-thaw-button').addClass('disabled');
+}
+
+function toggleSearchThawButton() {
+  $('#search-thaw-button').toggleClass('disabled');
+}
+
+function searchOrThawBuckets(event) {
+  var target = $(event.target);
+  if (target.hasClass('disabled')) {
+    alert('do nothing...');
+  } else {
+    listBucketsGET();
+  }
 }
