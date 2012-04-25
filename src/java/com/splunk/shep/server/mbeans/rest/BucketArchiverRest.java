@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -76,6 +77,94 @@ public class BucketArchiverRest {
 	archiveBucketOnAnotherThread(index, path);
     }
 
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path(ENDPOINT_BUCKET_THAW)
+    public void thawBuckets(@QueryParam("index") String index,
+	    @QueryParam("from") String from, @QueryParam("to") String to) {
+
+	logger.info(happened("Received REST request to thaw buckets",
+		"endpoint", ENDPOINT_BUCKET_THAW, "index", index, "from", from,
+		"to", to));
+
+	if (from == null || to == null) {
+	    logger.error(happened("Invalid time interval provided."));
+	    throw new IllegalArgumentException(
+		    "A valid time interval (from and to) must be provided");
+	}
+
+	if (index == null) {
+	    logger.error(happened("No index was provided."));
+	    throw new IllegalArgumentException("index must be specified");
+	}
+
+	logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
+	BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
+	bucketThawer.thawBuckets(index, dateFromString(from),
+		dateFromString(to));
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path(ENDPOINT_LIST_INDEXES)
+    public String listAllIndexes() {
+
+	logger.info(happened("Received REST request to list indexes",
+		"endpoint", ENDPOINT_LIST_INDEXES));
+
+	ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
+		.getConfiguredArchiveFileSystem();
+	ArchiveConfiguration archiveConfiguration = ArchiveConfiguration
+		.getSharedInstance();
+	PathResolver pathResolver = new PathResolver(archiveConfiguration);
+	ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
+		pathResolver, archiveFileSystem);
+
+	return indexesLister.listIndexes().toString();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path(ENDPOINT_LIST_BUCKETS)
+    public List<BucketBean> listAllBuckets() {
+	
+	logger.info(happened("Received REST request to list buckets",
+		"endpoint", ENDPOINT_LIST_BUCKETS));
+	
+	List<BucketBean> beans = new ArrayList<BucketBean>();
+	for (Bucket bucket : listBuckets()) {
+	    BucketBean bucketBean = createBeanFromBucket(bucket);
+	    beans.add(bucketBean);
+	}
+	return beans;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path(ENDPOINT_LIST_BUCKETS + "/{index}")
+    public List<BucketBean> listBucketsForIndex(@PathParam("index") String index) {
+	logger.info(happened("Received REST request to list buckets",
+		"endpoint", ENDPOINT_LIST_BUCKETS, "index", index));
+
+	List<BucketBean> beans = new ArrayList<BucketBean>();
+	for (Bucket bucket : listBuckets(index)) {
+	    BucketBean bucketBean = createBeanFromBucket(bucket);
+	    beans.add(bucketBean);
+	}
+	return beans;
+    }
+
+    private Date dateFromString(String dateAsString) {
+	return StringDateConverter.convert(dateAsString);
+    }
+
+    private void logMetricsAtEndpoint(String endpoint) {
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_ARCHIVER, endpoint);
+	ShepMetricsHelper.update(logger, logMessage);
+    }
+
     private void archiveBucketOnAnotherThread(String index, String path) {
 
 	logger.info(will("Attempting to archive bucket", "index", index,
@@ -116,49 +205,9 @@ public class BucketArchiverRest {
 		    "specified path was a file",
 		    "specified path to be a directory", "path", path,
 		    "index name ", indexName));
-	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}
 	return bucket;
-    }
-
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path(ENDPOINT_BUCKET_THAW)
-    public void archiveBucket(@QueryParam("index") String index,
-	    @QueryParam("from") String from, @QueryParam("to") String to) {
-
-	logger.info(happened("Received REST request to thaw buckets",
-		"endpoint", ENDPOINT_BUCKET_THAW, "index", index, "from", from,
-		"to", to));
-
-	logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
-	BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
-	bucketThawer.thawBuckets(index, dateFromString(from),
-		dateFromString(to));
-    }
-
-    private Date dateFromString(String dateAsString) {
-	return StringDateConverter.convert(dateAsString);
-    }
-
-    private void logMetricsAtEndpoint(String endpoint) {
-	String logMessage = String.format(
-		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-		ENDPOINT_ARCHIVER, endpoint);
-	ShepMetricsHelper.update(logger, logMessage);
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path(ENDPOINT_LIST_BUCKETS)
-    public List<BucketBean> listAllBuckets() {
-	List<BucketBean> beans = new ArrayList<BucketBean>();
-	for (Bucket bucket : listBuckets()) {
-	    BucketBean bucketBean = createBeanFromBucket(bucket);
-	    beans.add(bucketBean);
-	}
-	return beans;
     }
 
     private List<Bucket> listBuckets() {
@@ -192,20 +241,5 @@ public class BucketArchiverRest {
     private BucketBean createBeanFromBucket(Bucket bucket) {
 	return new BucketBean(bucket.getFormat().name(), bucket.getIndex(),
 		bucket.getName(), bucket.getURI().toString());
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path(ENDPOINT_LIST_BUCKETS + "/{index}")
-    public List<BucketBean> listBucketsForIndex(@PathParam("index") String index) {
-	logger.info(happened("Received REST request to list buckets",
-		"endpoint", ENDPOINT_LIST_BUCKETS, "index", index));
-
-	List<BucketBean> beans = new ArrayList<BucketBean>();
-	for (Bucket bucket : listBuckets(index)) {
-	    BucketBean bucketBean = createBeanFromBucket(bucket);
-	    beans.add(bucketBean);
-	}
-	return beans;
     }
 }

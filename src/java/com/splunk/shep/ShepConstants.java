@@ -39,6 +39,7 @@ public final class ShepConstants {
     public static final String ENDPOINT_BUCKET_ARCHIVER = "/bucket/archive";
     public static final String ENDPOINT_BUCKET_THAW = "/bucket/thaw";
     public static final String ENDPOINT_LIST_BUCKETS = "/list/buckets";
+    public static final String ENDPOINT_LIST_INDEXES = "/list/indexes";
     public static final String ENDPOINT_ARCHIVER = "/archiver";
     public static final String ENDPOINT_SHUTDOWN = "/shutdown";
     public static final String ENDPOINT_EXPORT_SRVC_STATUS = "/exportservicestatus";
