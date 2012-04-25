@@ -102,7 +102,7 @@ public class BucketFreezerSystemExitTest {
     }
 
     private void runMainWithDepentencies_withArguments(String... args) {
-	BucketFreezer.runMainWithDepentencies(runtimeMock, bucketFreezer, args);
+	BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezer, args);
     }
 
 }

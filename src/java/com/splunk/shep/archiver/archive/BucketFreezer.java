@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.log4j.Logger;
 
+import com.splunk.shep.archiver.LogFormatter;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
@@ -18,6 +20,8 @@ import com.splunk.shep.archiver.model.FileNotDirectoryException;
  * other {@link BucketFreezer}s.
  */
 public class BucketFreezer {
+
+    private static Logger logger = Logger.getLogger(BucketFreezer.class);
 
     public static final int EXIT_OK = 0;
     public static final int EXIT_INCORRECT_ARGUMENTS = -1;
@@ -67,18 +71,28 @@ public class BucketFreezer {
 	    moveAndArchiveBucket(indexName, path);
 	    return EXIT_OK;
 	} catch (FileNotDirectoryException e) {
+	    String error = LogFormatter.did("Attempted to archive bucket",
+		    "the provided path was not a directory",
+		    "path to a directory");
+	    logger.error(error);
 	    return EXIT_FILE_NOT_A_DIRECTORY;
 	} catch (FileNotFoundException e) {
+	    String error = LogFormatter.did("Attempted to archive bucket",
+		    "the provided path was not found", "a valid path");
+	    logger.error(error);
 	    return EXIT_FILE_NOT_FOUND;
 	}
     }
 
     private void moveAndArchiveBucket(String indexName, String path)
 	    throws FileNotFoundException, FileNotDirectoryException {
+
 	Bucket bucket = new Bucket(indexName, path);
+
 	bucketLocker.callBucketHandlerUnderSharedLock(bucket,
 		new MoveAndArchiveBucketUnderLock(bucketMover,
 			archiveRestHandler));
+
 	failedBucketsArchiver.archiveFailedBuckets(archiveRestHandler);
     }
 
@@ -92,6 +106,7 @@ public class BucketFreezer {
 		bucketMover, bucketLocker);
 	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
 		new DefaultHttpClient());
+
 	return new BucketFreezer(bucketMover, bucketLocker, archiveRestHandler,
 		failedBucketsArchiver);
     }
@@ -100,9 +115,16 @@ public class BucketFreezer {
      * This method is used by the real main and only exists so that it can be
      * tested using test doubles.
      */
-    /* package-private */static void runMainWithDepentencies(Runtime runtime,
+    /* package-private */static void runMainWithDependencies(Runtime runtime,
 	    BucketFreezer bucketFreezer, String... args) {
+	
+	logger.info(LogFormatter.will("Attempting to archive bucket",
+		"index name", (args.length > 0 ? args[0] : null), "path",
+		(args.length > 1 ? args[1] : null)));
 	if (args.length != 2) {
+	    String error = LogFormatter.did("Attempted to archive bucket",
+		    "insufficient arguments", "both index name and path");
+	    logger.error(error);
 	    runtime.exit(EXIT_INCORRECT_ARGUMENTS);
 	} else {
 	    runtime.exit(bucketFreezer.freezeBucket(args[0], args[1]));
@@ -110,7 +132,7 @@ public class BucketFreezer {
     }
 
     public static void main(String... args) {
-	runMainWithDepentencies(
+	runMainWithDependencies(
 		Runtime.getRuntime(),
 		BucketFreezer
 			.createWithDefaultHttpClientAndDefaultSafeAndFailLocations(),

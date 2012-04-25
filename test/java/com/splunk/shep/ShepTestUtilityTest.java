@@ -31,7 +31,7 @@ import com.splunk.shep.exporter.model.SplunkEvent;
 
 /**
  * @author hyan
- *
+ * 
  */
 public class ShepTestUtilityTest {
     String expectedSplunkEventJson;
@@ -44,7 +44,7 @@ public class ShepTestUtilityTest {
 
     static Logger log = Logger.getLogger(ShepTestUtilityTest.class);
 
-    @BeforeClass(groups = { "fast-unit" })
+    @BeforeClass(groups = { "slow-unit" })
     protected void setUp() throws Exception {
 	splunkEvent = getSplunkEvent("this is a line");
 	shepExport = getShepExport("this is a line", 2);
@@ -55,7 +55,7 @@ public class ShepTestUtilityTest {
 	fieldMap = getFieldMap(splunkEvent);
     }
 
-    @Test(groups={"fast-unit"})
+    @Test(groups = { "slow-unit" })
     public void testObjectToJson() throws Exception {
 	String actual = objectToJson(splunkEvent, SplunkEvent.class);
 	assertEquals(actual, expectedSplunkEventJson);
@@ -66,7 +66,7 @@ public class ShepTestUtilityTest {
 	assertEquals(actual, expectedShepExportJson);
     }
 
-    @Test(groups = { "fast-unit" })
+    @Test(groups = { "slow-unit" })
     public void testObjectToXml() throws Exception {
 	String actual = objectToXml(splunkEvent, SplunkEvent.class);
 	assertEquals(actual, expectedSplunkEventXml);
@@ -74,18 +74,20 @@ public class ShepTestUtilityTest {
 	assertEquals(actual, expectedShepExportXml);
     }
 
-    @Test(groups = { "fast-unit" })
+    @Test(groups = { "slow-unit" })
     public void testVerifyFieldsNotNull() throws Exception {
-	verifyFieldsNotNull(expectedSplunkEventXml, SplunkEvent.class, true, xml,
-		SHEP_EXPORT_EVENT_FIELDS);
-	verifyFieldsNotNull(expectedSplunkEventJson, SplunkEvent.class, true, json,
-		SHEP_EXPORT_EVENT_FIELDS);
+	verifyFieldsNotNull(expectedSplunkEventXml, SplunkEvent.class, true,
+		xml, SHEP_EXPORT_EVENT_FIELDS);
+	verifyFieldsNotNull(expectedSplunkEventJson, SplunkEvent.class, true,
+		json, SHEP_EXPORT_EVENT_FIELDS);
     }
 
-    @Test(groups = { "fast-unit" })
+    @Test(groups = { "slow-unit" })
     public void testVerifyFields() throws Exception {
-	verifyFields(expectedSplunkEventXml, SplunkEvent.class, fieldMap, true, xml);
-	verifyFields(expectedSplunkEventJson, SplunkEvent.class, fieldMap, true, json);
+	verifyFields(expectedSplunkEventXml, SplunkEvent.class, fieldMap, true,
+		xml);
+	verifyFields(expectedSplunkEventJson, SplunkEvent.class, fieldMap,
+		true, json);
     }
 
 }

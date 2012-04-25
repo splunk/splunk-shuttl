@@ -15,7 +15,6 @@
 package com.splunk.shep.server.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -32,18 +31,16 @@ import com.splunk.shep.archiver.archive.BucketFormat;
  * 
  */
 @XmlRootElement(namespace = "com.splunk.shep.server.model")
-@XmlType(propOrder = { "archiveFormat", "clusterName",
-	"serverName", "indexNames", "archiverRootURI", "bucketFormatPriority",
-	"tmpDirectory" })
+@XmlType(propOrder = { "archiveFormat", "clusterName", "serverName",
+	"indexNames", "archiverRootURI", "bucketFormatPriority", "tmpDirectory" })
 public class ArchiverConf implements ArchiverConfiguration {
     private BucketFormat archiveFormat = BucketFormat.SPLUNK_BUCKET;
-    private String tmpDirectory = "/archiver-tmp";
-    private String clusterName = "cluster_name";
-    private String serverName = "server_name";
-    private String archiverRootURI = "hdfs://localhost:9000";
+    private String tmpDirectory;
+    private String clusterName;
+    private String serverName;
+    private String archiverRootURI;
     private List<String> indexNames;
-    private List<BucketFormat> bucketFormatPriority = Arrays
-	    .asList(BucketFormat.SPLUNK_BUCKET);
+    private List<BucketFormat> bucketFormatPriority = new ArrayList<BucketFormat>();
 
     /*
      * (non-Javadoc)
@@ -78,8 +75,12 @@ public class ArchiverConf implements ArchiverConfiguration {
 	return clusterName;
     }
 
-    /* (non-Javadoc)
-     * @see com.splunk.shep.server.model.ArchiverConfInterface#setClusterName(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.splunk.shep.server.model.ArchiverConfInterface#setClusterName(java
+     * .lang.String)
      */
     @Override
     public void setClusterName(String clusterName) {
@@ -114,7 +115,6 @@ public class ArchiverConf implements ArchiverConfiguration {
 	return indexNames;
     }
 
-
     /*
      * (non-Javadoc)
      * 
@@ -141,7 +141,7 @@ public class ArchiverConf implements ArchiverConfiguration {
     @Override
     public void setBucketFormatPriority(List<String> priorityList) {
 	bucketFormatPriority = new ArrayList<BucketFormat>();
-	for(String format: priorityList) {
+	for (String format : priorityList) {
 	    bucketFormatPriority.add(BucketFormat.valueOf(format));
 	}
     }

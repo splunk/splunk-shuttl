@@ -21,8 +21,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.server.mbeans.util.JAXBUtils;
+import com.splunk.shep.server.mbeans.util.MBeanUtils;
 import com.splunk.shep.server.model.ArchiverConf;
-
 
 /**
  * @author kpakkirisamy
@@ -33,19 +33,22 @@ public class ShepArchiver implements ShepArchiverMBean {
     // end error messages
 
     private static String ARCHIVERCONF_XML = "etc/apps/shep/conf/archiver.xml";
-    private Logger logger = Logger.getLogger(getClass());
+    private static Logger logger = Logger.getLogger(ShepArchiver.class);
     private ArchiverConf conf;
     private String xmlFilePath;
 
     public ShepArchiver() throws ShepMBeanException {
 	try {
-	    this.xmlFilePath = System.getProperty("splunk.home")
-		    + ARCHIVERCONF_XML;
+	    this.xmlFilePath = getArchiverConfXml();
 	    refresh();
 	} catch (Exception e) {
 	    logger.error(SHEP_ARCHIVER_INIT_FAILURE, e);
 	    throw new ShepMBeanException(e);
 	}
+    }
+
+    protected String getArchiverConfXml() {
+	return System.getProperty("splunk.home") + ARCHIVERCONF_XML;
     }
 
     // used by tests
@@ -162,6 +165,19 @@ public class ShepArchiver implements ShepArchiverMBean {
 	} catch (Exception e) {
 	    logger.error(e);
 	    throw new ShepMBeanException(e);
+	}
+    }
+
+    /**
+     * @return
+     */
+    public static ShepArchiverMBean getMBeanProxy() {
+	try {
+	    return MBeanUtils.getMBeanInstance(ShepArchiverMBean.OBJECT_NAME,
+		    ShepArchiverMBean.class);
+	} catch (Exception e) {
+	    logger.error(e);
+	    throw new RuntimeException(e);
 	}
     }
 }

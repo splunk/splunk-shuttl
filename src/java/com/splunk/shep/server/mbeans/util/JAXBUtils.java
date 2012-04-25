@@ -14,10 +14,12 @@
 // limitations under the License.
 package com.splunk.shep.server.mbeans.util;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
@@ -36,7 +38,8 @@ public class JAXBUtils {
     }
 
     public static Object refresh(Class confClass,
-	    String xmlFilePath) throws Exception {
+ String xmlFilePath)
+	    throws JAXBException, FileNotFoundException {
 	JAXBContext context = JAXBContext.newInstance(confClass);
 	    Unmarshaller um = context.createUnmarshaller();
 	return um.unmarshal(new FileReader(xmlFilePath));

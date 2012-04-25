@@ -18,10 +18,8 @@ import static com.splunk.shep.ShepConstants.SystemType.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -47,7 +45,7 @@ import com.splunk.shep.server.services.SplunkExporterService;
  */
 public class ChannelManager implements SplunkExporterService {
 
-    private static final Logger log = Logger.getLogger(ChannelManager.class);
+    private final Logger log = Logger.getLogger(ChannelManager.class);
 
     private ScheduledExecutorService service = null;;
     private Map<String, Boolean> status = new ConcurrentHashMap<String, Boolean>();
@@ -67,6 +65,7 @@ public class ChannelManager implements SplunkExporterService {
 	return RUNNING;
     }
 
+    @Override
     public void start() throws IOException {
 	if (service == null) {
 	    // TODO exposed as configurable parameter?
@@ -80,15 +79,20 @@ public class ChannelManager implements SplunkExporterService {
 	ChannelWorker worker;
 	if (exportConf.getChannels() != null) {
 	    for (Channel channel : exportConf.getChannels()) {
+		log.debug("Configuring Export for Channel/Index: "
+			+ channel.getIndexName());
 		worker = new ChannelWorker(channel.getIndexName(),
 			channel.getOutputMode(), exportConf.getOutputPath(),
 			channel.getOutputFileSystem(), exportConf.getTempPath());
 		service.scheduleWithFixedDelay(worker, 0,
 			channel.getScheduleInterval(), TimeUnit.SECONDS);
 	    }
+	} else {
+	    log.debug("No channels configured");
 	}
     }
 
+    @Override
     public void stop() {
 	if (service != null) {
 	    service.shutdown();
@@ -126,8 +130,9 @@ public class ChannelManager implements SplunkExporterService {
 	    long lastEndTime = translogService.getEndTime(indexName);
 	    OutputMode mode = OutputMode.valueOf(outputMode);
 	    try {
-	    SimpleDateFormat sdf = new SimpleDateFormat(
-				"yyyy.MM.dd.HH.mm.ss");
+		log.debug("Starting export for Channel: " + indexName);
+		SimpleDateFormat sdf = new SimpleDateFormat(
+			"yyyy.MM.dd.HH.mm.ss");
 		String timeStr = sdf.format(new Date());
 		String fileName = String.format("%s_%s.%s",
 			FileUtils.getFile(tempPath, indexName)
@@ -142,19 +147,22 @@ public class ChannelManager implements SplunkExporterService {
 		String events = eventReader.nextEvents(indexName, lastEndTime,
 			mode, 1000);
 		eventWriter.write(events);
-	    eventWriter.close();
+		eventWriter.close();
 
-	    // move finished files from temp dir to output dir. The idea is
-	    // output dir only keep file finished file so that a separate MR job
-	    // can use it while shep is running. Since hadoop takes everything
-	    // in an input dir, having an empty DONE file indicating a file is
-	    // finished might not work for hadoop hdfs, though it works for
-	    // local files ystem.
-	    FileUtils.moveFileToDirectory(new File(fileName), new File(
-		    outputPath), false);
+		// move finished files from temp dir to output dir. The idea is
+		// output dir only keep file finished file so that a separate MR
+		// job
+		// can use it while shep is running. Since hadoop takes
+		// everything
+		// in an input dir, having an empty DONE file indicating a file
+		// is
+		// finished might not work for hadoop hdfs, though it works for
+		// local files ystem.
+		FileUtils.moveFileToDirectory(new File(fileName), new File(
+			outputPath), false);
 
-	    long endTime = eventReader.getEndTime();
-	    translogService.setEndTime(indexName, endTime);
+		long endTime = eventReader.getEndTime();
+		translogService.setEndTime(indexName, endTime);
 	    } catch (Exception e) {
 		log.error("Failed to run channel thread: ", e);
 	    }

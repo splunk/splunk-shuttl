@@ -24,7 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.server.mbeans.util.MBeanUtils;
+import com.splunk.shep.archiver.archive.BucketFormat;
 
 /**
  * White box testing of MBeans
@@ -170,6 +170,8 @@ public class ShepArchiverMBeanTest {
 	archiverMBean.setServerName(serverName);
 	archiverMBean.setArchiverRootURI(archiverRootURI);
 	archiverMBean.setTmpDirectory(tmpDirectory);
+	archiverMBean.setBucketFormatPriority(Arrays
+		.asList(BucketFormat.SPLUNK_BUCKET.name()));
 	archiverMBean.save();
 
 	assertEquals(FileUtils.readFileToString(file), expectedConfigFile);
@@ -225,15 +227,4 @@ public class ShepArchiverMBeanTest {
 	return confFile;
     }
 
-    /**
-     * Attempts to set up the MBean, get a proxy and use it.
-     */
-    public void _givenRegisteredMBean_getsInstanceFromMBeanManager()
-	    throws Exception {
-	MBeanUtils.registerMBean(ShepArchiverMBean.OBJECT_NAME,
-		ShepArchiver.class);
-	ShepArchiverMBean proxy = MBeanUtils.getMBeanInstance(
-		ShepArchiverMBean.OBJECT_NAME, ShepArchiverMBean.class);
-	assertNotNull(proxy);
-    }
 }

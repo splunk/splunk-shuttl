@@ -14,6 +14,10 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive.recovery;
 
+import static com.splunk.shep.archiver.LogFormatter.*;
+
+import org.apache.log4j.Logger;
+
 import com.splunk.shep.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shep.archiver.model.Bucket;
 
@@ -26,6 +30,8 @@ public class FailedBucketsArchiver {
 
     private final BucketMover bucketMover;
     private final BucketLocker bucketLocker;
+    private static Logger logger = Logger
+	    .getLogger(FailedBucketsArchiver.class);
 
     /**
      * @param bucketMover
@@ -46,6 +52,9 @@ public class FailedBucketsArchiver {
      *            possible to get a lock on the bucket.
      */
     public void archiveFailedBuckets(SharedLockBucketHandler bucketHandler) {
+	logger.debug(will("Archiving failed buckets", "failed buckets",
+		bucketMover.getMovedBuckets()));
+	
 	for (Bucket movedBucket : bucketMover.getMovedBuckets()) {
 	    bucketLocker.callBucketHandlerUnderSharedLock(movedBucket,
 		    bucketHandler);

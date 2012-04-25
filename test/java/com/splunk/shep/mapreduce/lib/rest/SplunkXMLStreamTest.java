@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 
 public class SplunkXMLStreamTest {
 
-    @Test(groups = { "fast-unit" })
+    @Test(groups = { "slow-unit" })
     public void should_addSplunkResultTagsToBeginingAndEnd_when_readFully()
 	    throws Exception {
 	File testXML = getTestXMLFile();

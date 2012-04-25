@@ -21,6 +21,17 @@ package com.splunk.shep.archiver;
 public class LogFormatter {
 
     /**
+     * Format: {@code happened="$message"}<br/>
+     * Use when logging events not fit for will/done, such as events originated
+     * from another process.
+     * 
+     * @return A formatted message.
+     */
+    public static String happened(Object message, Object... keyAndValues) {
+	return combineAdditionalKeyValues(keyAndValues, "happened", message);
+    }
+
+    /**
      * Format: {@code will="$message"}<br/>
      * Use this before doing a time consuming action like an async call.
      * 
@@ -48,9 +59,12 @@ public class LogFormatter {
      */
     public static String did(Object did, Object happened, Object expected,
 	    Object... keyAndValues) {
-	return combineAdditionalKeyValues(keyAndValues, "did", did,
-		"happened",
-		happened, "expected", expected);
+	if (expected != null)
+	    return combineAdditionalKeyValues(keyAndValues, "did", did,
+		    "happened", happened, "expected", expected);
+	else
+	    return combineAdditionalKeyValues(keyAndValues, "did", did,
+		    "happened", happened);
     }
 
     /**

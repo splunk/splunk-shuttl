@@ -35,7 +35,13 @@ public class LogFormatterTest {
 	assertTrue(
 		assertFailedMessageStart + result,
 		result.matches("did=\"didStuff\" happened=\"happenedStuff\" expected=\"expectedStuff\""));
+    }
 
+    public void did_validArgumentsNoExpected_expectedOutput() {
+	String result = did("didStuff", "happenedStuff", null);
+	assertTrue(
+		assertFailedMessageStart + result,
+		result.matches("did=\"didStuff\" happened=\"happenedStuff\""));
     }
 
     public void did_withAdditionalKeyValues_expectedOutput() {
@@ -45,6 +51,13 @@ public class LogFormatterTest {
 	assertTrue(
 		assertFailedMessageStart + result,
 		result.matches("did=\"didStuff\" happened=\"happenedStuff\" expected=\"expectedStuff\" btw=\"200\""));
+    }
+
+    public void did_withAdditionalKeyValuesNoExpected_expectedOutput() {
+	String result = did("didStuff", "happenedStuff", null, "btw", "200");
+	assertTrue(
+		assertFailedMessageStart + result,
+		result.matches("did=\"didStuff\" happened=\"happenedStuff\" btw=\"200\""));
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
@@ -64,6 +77,36 @@ public class LogFormatterTest {
 		assertFailedMessageStart + result,
 		result.matches("did=\"" + currentDate.toString()
 			+ "\" happened=\"btw\" expected=\"200\" btw=\"5.6\""));
+    }
+
+    public void happened_noAdditionalKeyValues_expectedOutput() {
+	String result = happened("happenedStuff");
+	assertTrue(assertFailedMessageStart + result,
+		result.matches("happened=\"happenedStuff\""));
+    }
+
+    public void happened_withAdditionalKeyValues_expectedOutput() {
+	String result = happened("happenedStuff", "btw", "200");
+	assertTrue(assertFailedMessageStart + result,
+		result.matches("happened=\"happenedStuff\" btw=\"200\""));
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void happened_ilegalNumberOfArguments_illegalArgumentException() {
+	happened("happenedStuff", "btw");
+    }
+
+    public void happened_nonObjectArguments_expectedOutput() {
+	Date currentDate = new Date();
+
+	// Test
+	String result = happened(currentDate, "btw", 200);
+
+	// Verify
+	assertTrue(
+		assertFailedMessageStart + result,
+		result.matches("happened=\"" + currentDate.toString()
+			+ "\" btw=\"200\""));
     }
 
     public void done_noAdditionalKeyValues_expectedOutput() {

@@ -37,6 +37,8 @@ public final class ShepConstants {
     public static final String ENDPOINT_FORWARDER = "/forwarder";
     public static final String ENDPOINT_SINK_PREFIX = "/sinkprefix";
     public static final String ENDPOINT_BUCKET_ARCHIVER = "/bucket/archive";
+    public static final String ENDPOINT_BUCKET_THAW = "/bucket/thaw";
+    public static final String ENDPOINT_LIST_BUCKETS = "/list/buckets";
     public static final String ENDPOINT_ARCHIVER = "/archiver";
     public static final String ENDPOINT_SHUTDOWN = "/shutdown";
     public static final String ENDPOINT_EXPORT_SRVC_STATUS = "/exportservicestatus";
@@ -71,8 +73,8 @@ public final class ShepConstants {
 	}
     }
 
-    public static final String SHEP_HOME = FileUtils
-	    .getFile(SPLUNK_HOME, "etc", "apps", "shep").getAbsolutePath();
+    public static final String SHEP_HOME = FileUtils.getFile(SPLUNK_HOME,
+	    "etc", "apps", "shep").getAbsolutePath();
     public static final String TRANSLOG_DIR_PATH = FileUtils.getFile(SHEP_HOME,
 	    TRANSLOG_NAME).getAbsolutePath();
     public static final String TRANSLOG_FILE_PATH = FileUtils.getFile(

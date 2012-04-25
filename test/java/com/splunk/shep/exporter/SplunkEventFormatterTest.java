@@ -20,10 +20,9 @@ import static com.splunk.shep.ShepTestUtility.*;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.exporter.SplunkEventFormatter;
 import com.splunk.shep.exporter.model.SplunkEvent;
 
 /**
@@ -36,20 +35,20 @@ public class SplunkEventFormatterTest {
 	    .getLogger(SplunkEventFormatterTest.class);
     Map<String, String> fieldMap;
 
-    @BeforeClass(groups = { "fast-unit" })
+    @BeforeMethod(groups = "slow-unit")
     protected void setUp() throws Exception {
 	SplunkEvent splunkEvent = getSplunkEvent("this is a line");
 	fieldMap = getFieldMap(splunkEvent);
     }
 
 
-    @Test(groups = "fast-unit")
+    @Test(groups = "slow-unit")
     public void testToJson() throws Exception {
 	String content = SplunkEventFormatter.mapToString(fieldMap, json);
 	verifyFields(content, SplunkEvent.class, fieldMap, true, json);
     }
 
-    @Test(groups = { "fast-unit" })
+    @Test(groups = { "slow-unit" })
     public void testToXML() throws Exception {
 	String content = SplunkEventFormatter.mapToString(fieldMap, xml);
 	verifyFields(content, SplunkEvent.class, fieldMap, true, xml);

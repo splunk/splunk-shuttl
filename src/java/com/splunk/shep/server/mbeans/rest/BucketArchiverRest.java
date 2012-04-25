@@ -1,24 +1,41 @@
 package com.splunk.shep.server.mbeans.rest;
 
 import static com.splunk.shep.ShepConstants.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shep.archiver.archive.ArchiveConfiguration;
 import com.splunk.shep.archiver.archive.BucketArchiver;
 import com.splunk.shep.archiver.archive.BucketArchiverFactory;
 import com.splunk.shep.archiver.archive.BucketArchiverRunner;
+import com.splunk.shep.archiver.archive.PathResolver;
 import com.splunk.shep.archiver.archive.recovery.BucketLock;
+import com.splunk.shep.archiver.fileSystem.ArchiveFileSystem;
+import com.splunk.shep.archiver.fileSystem.ArchiveFileSystemFactory;
+import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
+import com.splunk.shep.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
+import com.splunk.shep.archiver.thaw.BucketFormatChooser;
+import com.splunk.shep.archiver.thaw.BucketFormatResolver;
+import com.splunk.shep.archiver.thaw.BucketThawer;
+import com.splunk.shep.archiver.thaw.BucketThawerFactory;
+import com.splunk.shep.archiver.thaw.StringDateConverter;
 import com.splunk.shep.metrics.ShepMetricsHelper;
+import com.splunk.shep.server.model.BucketBean;
 
 /**
  * REST endpoint for archiving a bucket.
@@ -38,23 +55,28 @@ public class BucketArchiverRest {
     @Produces(MediaType.TEXT_PLAIN)
     @Path(ENDPOINT_BUCKET_ARCHIVER)
     public void archiveBucket(@QueryParam("path") String path,
-	    @QueryParam("index") String indexName) {
-	String logMessage = String.format(
-		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-		ENDPOINT_ARCHIVER, ENDPOINT_BUCKET_ARCHIVER);
-	ShepMetricsHelper.update(logger, logMessage);
+	    @QueryParam("index") String index) {
+	
+	logMetricsAtEndpoint(ENDPOINT_BUCKET_ARCHIVER);
+	
+	logger.info(happened("Received REST request to archive bucket",
+		"endpoint", ENDPOINT_BUCKET_ARCHIVER, "index", index, "path",
+		path));
 
-	archiveBucketOnAnotherThread(indexName, path);
+	archiveBucketOnAnotherThread(index, path);
     }
 
-    private void archiveBucketOnAnotherThread(String indexName, String path) {
-	Runnable r = createBucketArchiverRunner(indexName, path);
+    private void archiveBucketOnAnotherThread(String index, String path) {
+
+	logger.info(will("Attempting to archive bucket", "index", index,
+		"path", path));
+	Runnable r = createBucketArchiverRunner(index, path);
 	new Thread(r).run();
     }
 
     private Runnable createBucketArchiverRunner(String indexName, String path) {
 	BucketArchiver bucketArchiver = BucketArchiverFactory
-		.createDefaultArchiver();
+		.createConfiguredArchiver();
 	Bucket bucket = createBucketWithErrorHandling(indexName, path);
 	BucketLock bucketLock = new BucketLock(bucket);
 	if (!bucketLock.tryLockShared()) {
@@ -72,13 +94,108 @@ public class BucketArchiverRest {
 	try {
 	    bucket = new Bucket(indexName, path);
 	} catch (FileNotFoundException e) {
-	    e.printStackTrace();
+	    logger.error(did(
+		    "attempted to create bucket object from existing bucket directory",
+		    "bucket directory did not exist",
+		    "existing bucket directory", "path", path, "index name ",
+		    indexName));
 	    throw new RuntimeException(e);
 	} catch (FileNotDirectoryException e) {
+	    logger.error(did(
+		    "attempted to create bucket object from existing bucket",
+		    "specified path was a file",
+		    "specified path to be a directory", "path", path,
+		    "index name ", indexName));
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}
 	return bucket;
     }
 
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path(ENDPOINT_BUCKET_THAW)
+    public void archiveBucket(@QueryParam("index") String index,
+	    @QueryParam("from") String from, @QueryParam("to") String to) {
+
+	logger.info(happened("Received REST request to thaw buckets",
+		"endpoint", ENDPOINT_BUCKET_THAW, "index", index, "from", from,
+		"to", to));
+
+	logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
+	BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
+	bucketThawer.thawBuckets(index, dateFromString(from),
+		dateFromString(to));
+    }
+
+    private Date dateFromString(String dateAsString) {
+	return StringDateConverter.convert(dateAsString);
+    }
+
+    private void logMetricsAtEndpoint(String endpoint) {
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_ARCHIVER, endpoint);
+	ShepMetricsHelper.update(logger, logMessage);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path(ENDPOINT_LIST_BUCKETS)
+    public List<BucketBean> listAllBuckets() {
+	List<BucketBean> beans = new ArrayList<BucketBean>();
+	for (Bucket bucket : listBuckets()) {
+	    BucketBean bucketBean = createBeanFromBucket(bucket);
+	    beans.add(bucketBean);
+	}
+	return beans;
+    }
+
+    private List<Bucket> listBuckets() {
+	return listBuckets(null);
+    }
+
+    private List<Bucket> listBuckets(String index) {
+	ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
+		.getConfiguredArchiveFileSystem();
+	ArchiveConfiguration archiveConfiguration = ArchiveConfiguration
+		.getSharedInstance();
+	PathResolver pathResolver = new PathResolver(archiveConfiguration);
+	ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
+		pathResolver, archiveFileSystem);
+	ArchiveBucketsLister archiveBucketsLister = new ArchiveBucketsLister(
+		archiveFileSystem, indexesLister, pathResolver);
+	BucketFormatChooser bucketFormatChooser = new BucketFormatChooser(
+		archiveConfiguration);
+	BucketFormatResolver bucketFormatResolver = new BucketFormatResolver(
+		pathResolver, archiveFileSystem, bucketFormatChooser);
+
+	List<Bucket> archivedBuckets;
+	if (index == null || index.equals("")) {
+	    archivedBuckets = archiveBucketsLister.listBuckets();
+	} else {
+	    archivedBuckets = archiveBucketsLister.listBucketsInIndex(index);
+	}
+	return bucketFormatResolver.resolveBucketsFormats(archivedBuckets);
+    }
+
+    private BucketBean createBeanFromBucket(Bucket bucket) {
+	return new BucketBean(bucket.getFormat().name(), bucket.getIndex(),
+		bucket.getName(), bucket.getURI().toString());
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path(ENDPOINT_LIST_BUCKETS + "/{index}")
+    public List<BucketBean> listBucketsForIndex(@PathParam("index") String index) {
+	logger.info(happened("Received REST request to list buckets",
+		"endpoint", ENDPOINT_LIST_BUCKETS, "index", index));
+
+	List<BucketBean> beans = new ArrayList<BucketBean>();
+	for (Bucket bucket : listBuckets(index)) {
+	    BucketBean bucketBean = createBeanFromBucket(bucket);
+	    beans.add(bucketBean);
+	}
+	return beans;
+    }
 }

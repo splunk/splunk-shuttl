@@ -14,6 +14,8 @@
 // limitations under the License.
 package com.splunk.shep.server.mbeans.util;
 
+import static com.splunk.shep.archiver.LogFormatter.*;
+
 import java.lang.management.ManagementFactory;
 
 import javax.management.InstanceNotFoundException;
@@ -21,7 +23,15 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 
+import org.apache.log4j.Logger;
+
 public class MBeanUtils {
+
+    private static final MBeanServer mbs;
+
+    static {
+	mbs = ManagementFactory.getPlatformMBeanServer();
+    }
 
     /**
      * Registers an MBean
@@ -32,10 +42,12 @@ public class MBeanUtils {
      *            the MBean class to use.
      * @throws Exception
      */
-    public static void registerMBean(String objectName, Class<?> clazz)
+    public static void registerMBean(String name, Class<?> clazz)
 	    throws Exception {
-	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-	mbs.registerMBean(clazz.newInstance(), new ObjectName(objectName));
+	ObjectName objectName = new ObjectName(name);
+	if (!mbs.isRegistered(objectName)) {
+	    mbs.registerMBean(clazz.newInstance(), objectName);
+	}
     }
 
     /**
@@ -49,20 +61,33 @@ public class MBeanUtils {
      *         instance of the class
      * @throws InstanceNotFoundException
      */
-    public static <T> T getMBeanInstance(String objectName, Class<T> clazz)
+    public static <T> T getMBeanInstance(String name, Class<T> clazz)
 	    throws InstanceNotFoundException {
-	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-	ObjectName objname = null;
-	try {
-	    objname = new ObjectName(objectName);
-	} catch (Exception e) {
-	    throw new RuntimeException(e);
-	}
+	ObjectName objectName = getObjectNameWithErrorHandling(name, clazz);
 
 	// force exception if mbean is unregistred
-	mbs.getObjectInstance(objname);
-
+	mbs.getObjectInstance(objectName);
 	return clazz.cast(MBeanServerInvocationHandler.newProxyInstance(mbs,
-		objname, clazz, false));
+		objectName, clazz, false));
+    }
+
+    private static <T> ObjectName getObjectNameWithErrorHandling(String name,
+	    Class<T> clazz) {
+	ObjectName objectName = null;
+	try {
+	    objectName = new ObjectName(name);
+	} catch (Exception e) {
+	    logException(name, clazz, e);
+	    throw new RuntimeException(e);
+	}
+	return objectName;
+    }
+
+    private static <T> void logException(String name, Class<T> clazz,
+	    Exception e) {
+	Logger.getLogger(MBeanUtils.class).debug(
+		did("Tried creating ObjectName for MBean name: " + name, e,
+			"To create ObjectName", "mbean_name", name, "class"
+				+ clazz));
     }
 }

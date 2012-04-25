@@ -636,7 +636,7 @@
 		</exec>
 	</target>
 
-	<target name="hadoop-start">
+	<target name="hadoop-start" depends="set-hadoop-home">
 		<exec executable="${hadoop.home}/bin/start-all.sh" osfamily="unix" />
 	</target>
 

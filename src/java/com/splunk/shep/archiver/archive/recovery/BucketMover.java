@@ -51,16 +51,29 @@ public class BucketMover {
      *            to move
      * @return the new bucket moved to the new location.
      */
-    public Bucket moveBucket(Bucket movedBucket) {
+    public Bucket moveBucket(Bucket bucket) {
+	logger.debug(will("moving bucket", "bucket", bucket, "destination",
+		getMovedBucketsLocation()));
+
+	Bucket movedBucket = null;
 	try {
-	    return moveBucketToMovedBucketsLocationAndPerserveItsIndex(movedBucket);
+	    movedBucket = moveBucketToMovedBucketsLocationAndPerserveItsIndex(bucket);
+	    logger.debug(did("moved bucket", "success", null, "bucket", bucket,
+		    "destination", getMovedBucketsLocation()));
+	    return movedBucket;
 	} catch (FileNotFoundException e) {
-	    e.printStackTrace();
+	    logger.error(did("Tried to move bucket",
+		    "Destination did not exist", null, "bucket", bucket,
+		    "exception", e, "destination", getMovedBucketsLocation()));
 	    throw new RuntimeException(e);
 	} catch (FileNotDirectoryException e) {
-	    e.printStackTrace();
+	    logger.error(did("Tried to move bucket",
+		    "Destination was not a directory", null, "bucket", bucket,
+		    "exception", e, "destination",
+		    getMovedBucketsLocation()));
 	    throw new RuntimeException(e);
 	}
+	
     }
 
     private Bucket moveBucketToMovedBucketsLocationAndPerserveItsIndex(
@@ -109,10 +122,9 @@ public class BucketMover {
 	try {
 	    return new Bucket(index, bucketFile);
 	} catch (FileNotFoundException e) {
-		logger.debug(did("Created bucket from file",
-			"Got FileNotFoundException",
-		    "To create bucket from file", "file", bucketFile,
-			"exception", e));
+	    logger.debug(did("Created bucket from file",
+		    "Got FileNotFoundException", "To create bucket from file",
+		    "file", bucketFile, "exception", e));
 	    throw new RuntimeException(e);
 	} catch (FileNotDirectoryException e) {
 	    logger.debug(did("Created bucket from file",
