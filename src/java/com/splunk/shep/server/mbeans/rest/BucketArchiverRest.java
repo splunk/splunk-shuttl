@@ -1,6 +1,7 @@
 package com.splunk.shep.server.mbeans.rest;
 
 import static com.splunk.shep.ShepConstants.*;
+import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -54,14 +55,22 @@ public class BucketArchiverRest {
     @Produces(MediaType.TEXT_PLAIN)
     @Path(ENDPOINT_BUCKET_ARCHIVER)
     public void archiveBucket(@QueryParam("path") String path,
-	    @QueryParam("index") String indexName) {
+	    @QueryParam("index") String index) {
+	
 	logMetricsAtEndpoint(ENDPOINT_BUCKET_ARCHIVER);
+	
+	logger.info(happened("Received REST request to archive bucket",
+		"endpoint", ENDPOINT_BUCKET_ARCHIVER, "index", index, "path",
+		path));
 
-	archiveBucketOnAnotherThread(indexName, path);
+	archiveBucketOnAnotherThread(index, path);
     }
 
-    private void archiveBucketOnAnotherThread(String indexName, String path) {
-	Runnable r = createBucketArchiverRunner(indexName, path);
+    private void archiveBucketOnAnotherThread(String index, String path) {
+
+	logger.info(will("Attempting to archive bucket", "index", index,
+		"path", path));
+	Runnable r = createBucketArchiverRunner(index, path);
 	new Thread(r).run();
     }
 
@@ -85,9 +94,18 @@ public class BucketArchiverRest {
 	try {
 	    bucket = new Bucket(indexName, path);
 	} catch (FileNotFoundException e) {
-	    e.printStackTrace();
+	    logger.error(did(
+		    "attempted to create bucket object from existing bucket directory",
+		    "bucket directory did not exist",
+		    "existing bucket directory", "path", path, "index name ",
+		    indexName));
 	    throw new RuntimeException(e);
 	} catch (FileNotDirectoryException e) {
+	    logger.error(did(
+		    "attempted to create bucket object from existing bucket",
+		    "specified path was a file",
+		    "specified path to be a directory", "path", path,
+		    "index name ", indexName));
 	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}
@@ -99,6 +117,11 @@ public class BucketArchiverRest {
     @Path(ENDPOINT_BUCKET_THAW)
     public void archiveBucket(@QueryParam("index") String index,
 	    @QueryParam("from") String from, @QueryParam("to") String to) {
+
+	logger.info(happened("Received REST request to thaw buckets",
+		"endpoint", ENDPOINT_BUCKET_THAW, "index", index, "from", from,
+		"to", to));
+
 	logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
 	BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
 	bucketThawer.thawBuckets(index, dateFromString(from),
@@ -165,6 +188,9 @@ public class BucketArchiverRest {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(ENDPOINT_LIST_BUCKETS + "/{index}")
     public List<BucketBean> listBucketsForIndex(@PathParam("index") String index) {
+	logger.info(happened("Received REST request to list buckets",
+		"endpoint", ENDPOINT_LIST_BUCKETS, "index", index));
+
 	List<BucketBean> beans = new ArrayList<BucketBean>();
 	for (Bucket bucket : listBuckets(index)) {
 	    BucketBean bucketBean = createBeanFromBucket(bucket);
@@ -172,5 +198,4 @@ public class BucketArchiverRest {
 	}
 	return beans;
     }
-
 }
