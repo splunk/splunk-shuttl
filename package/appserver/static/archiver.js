@@ -23,7 +23,7 @@ function loadXMLDoc()
 
 function listBucketsGET() {
   $.ajax({
-    url: '/custom/shep/Archiving/list_buckets',
+    url: 'list_buckets',
     type: 'GET',
     success: function(html) {
       alert('loaded buckets');
@@ -34,7 +34,7 @@ function listBucketsGET() {
 
 function listBucketsGET() {
   $.ajax({
-    url: '/custom/shep/Archiving/list_buckets',
+    url: 'list_buckets',
     type: 'GET',
     success: function(html) {
       $('#bucket-table').html(html);
@@ -45,7 +45,7 @@ function listBucketsGET() {
 function listBucketsPOST() {
   
   $.ajax({
-    url: '/custom/shep/Archiving/list_buckets',
+    url: 'list_buckets',
     type: 'POST',
     success: function(html) {
       alert('loaded buckets');
