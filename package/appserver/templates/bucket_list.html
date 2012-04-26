@@ -19,7 +19,10 @@
         <th>Name</th> 
         <th>Index</th> 
         <th>Format</th> 
-        <th>URI</th> 
+        ##<th>URI</th> 
+        <th>From</th>
+        <th>To</th>
+        <th>Size</th>
       </tr> 
     </thead>
     <tbody> 
@@ -28,14 +31,16 @@
         <td>${bucket['bucketName']}</td>
         <td>${bucket['indexName']}</td>
         <td>${bucket['format']}</td>
-        <td>${bucket['uri']}</td>
+        ##<td>${bucket['uri']}</td>
+        <td>${bucket['fromDate']}</td>
+        <td>${bucket['toDate']}</td>
+        <td>${bucket['size']}</td>
       </tr>
       %endfor
     </tbody>
   </table>
   <script type="text/javascript" src="/static/app/shep/jquery.tablesorter.js"></script>
   <script type="text/javascript">
-    alert("ALERTY");
     $(function() {$("#bucket-table").tablesorter() });
   </script>
 </%def>

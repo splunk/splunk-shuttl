@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.util.UtilsPath;
 
@@ -17,6 +18,9 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 
     private final Path atomicPutTmpPath;
     private final FileSystem hadoopFileSystem;
+
+    private static Logger logger = Logger
+	    .getLogger(HadoopFileSystemArchive.class);
 
     public HadoopFileSystemArchive(FileSystem hadoopFileSystem, Path path) {
 	atomicPutTmpPath = path;
@@ -143,6 +147,24 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 	    throw new FileOverwriteException(path.toString()
 		    + " already exist.");
 	}
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.splunk.shep.archiver.fileSystem.ArchiveFileSystem#getSize(java.net
+     * .URI)
+     */
+    @Override
+    public Long getSize(URI uri) throws IOException {
+	FileStatus fileStatus = hadoopFileSystem
+		.getFileStatus(createPathFromURI(uri));
+	long blockSize = fileStatus.getBlockSize();
+	logger.info("file status: " + fileStatus + ", block size: " + blockSize
+		+ ", path: " + fileStatus.getPath() + ", modTime: "
+		+ fileStatus.getModificationTime());
+	return blockSize;
     }
 
 }

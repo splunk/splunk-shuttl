@@ -4,6 +4,7 @@ import static com.splunk.shep.ShepConstants.*;
 import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,6 +15,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.ajax.JSON;
 
@@ -167,6 +169,10 @@ public class BucketArchiverRest {
 	return StringDateConverter.convert(dateAsString);
     }
 
+    private String stringFromDate(Date date) {
+	return new SimpleDateFormat("yyyy-MM-dd").format(date).toString();
+    }
+
     private void logMetricsAtEndpoint(String endpoint) {
 	String logMessage = String.format(
 		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
@@ -245,6 +251,9 @@ public class BucketArchiverRest {
 
     private BucketBean createBeanFromBucket(Bucket bucket) {
 	return new BucketBean(bucket.getFormat().name(), bucket.getIndex(),
-		bucket.getName(), bucket.getURI().toString());
+		bucket.getName(), bucket.getURI().toString(),
+		stringFromDate(bucket.getEarliest()),
+		stringFromDate(bucket.getLatest()),
+		FileUtils.byteCountToDisplaySize(bucket.getSize()));
     }
 }

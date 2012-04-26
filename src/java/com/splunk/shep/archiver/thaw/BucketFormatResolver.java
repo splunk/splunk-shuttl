@@ -79,8 +79,9 @@ public class BucketFormatResolver {
 	URI uriToBucketWithChosenBucket = pathResolver
 		.resolveArchivedBucketURI(bucket.getIndex(),
 			bucket.getName(), chosenFormat);
+	Long bucketSize = getBucketSize(bucket);
 	return createBucketWithErrorHandling(bucket, chosenFormat,
-		uriToBucketWithChosenBucket);
+		uriToBucketWithChosenBucket, bucketSize);
     }
 
     private List<BucketFormat> getAvailableFormatsForBucket(Bucket bucket) {
@@ -115,10 +116,11 @@ public class BucketFormatResolver {
     }
 
     private Bucket createBucketWithErrorHandling(Bucket bucket,
-	    BucketFormat chosenFormat, URI uriToBucketWithChosenBucket) {
+	    BucketFormat chosenFormat, URI uriToBucketWithChosenBucket,
+	    Long bucketSize) {
 	try {
 	    return new Bucket(uriToBucketWithChosenBucket, bucket.getIndex(),
-		    bucket.getName(), chosenFormat);
+		    bucket.getName(), chosenFormat, bucketSize);
 	} catch (IOException e) {
 	    logger.debug(did(
 		    "Created bucket with format",
@@ -130,4 +132,18 @@ public class BucketFormatResolver {
 	}
     }
 
+    private Long getBucketSize(Bucket bucket) {
+	try {
+	    logger.info("getting size");
+	    Long size = archiveFileSystem.getSize(bucket.getURI());
+	    logger.info("got size " + size);
+	    return size;
+	} catch (Exception e) {
+	    // unable to obtain size - log error and return null
+	    logger.error(did(
+		    "tried to get size of bucket on archive filesystem", e,
+		    null, "bucket", bucket));
+	    return null;
+	}
+    }
 }
