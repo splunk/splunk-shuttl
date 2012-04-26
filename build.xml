@@ -837,14 +837,12 @@
 	</target>
 	<target name="archiver-sync-package-and-restart-splunk-web">
 		<antcall>
-			<target name="helper-archiver-extended-debugging" />
 			<target name="archiver-sync-package" />
 			<target name="splunk-restart-splunkweb" />
 		</antcall>
 	</target>
 	<target name="archiver-sync-package-and-restart-splunk">
 		<antcall>
-			<target name="helper-archiver-extended-debugging" />
 			<target name="archiver-sync-package" />
 			<target name="splunk-restart" />
 		</antcall>
