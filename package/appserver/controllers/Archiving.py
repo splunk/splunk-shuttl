@@ -3,6 +3,7 @@ import logging
 import cherrypy
 import urllib
 import splunk.rest
+import json
 import splunk.bundle as bundle
 import splunk.appserver.mrsparkle.controllers as controllers
 from splunk.appserver.mrsparkle.lib.decorators import expose_page
@@ -18,8 +19,11 @@ class Archiving(controllers.BaseController):
     @expose_page(must_login=True, methods=['GET']) 
     def show(self, **kwargs):
 
-        indexes = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/list/indexes')[1]
-        buckets = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/list/buckets')[1]
+        indexes = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/index/list')[1])
+        buckets = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list')[1])
+        
+        # discard container
+        buckets = buckets['bucket']
 
         return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes, buckets=buckets)) 
 
@@ -27,8 +31,11 @@ class Archiving(controllers.BaseController):
     @expose_page(must_login=True, methods=['GET', 'POST']) 
     def list_buckets(self, **kwargs):
         
-        buckets = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/list/buckets')[1]
+        buckets = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list')[1])
         
+        # discard container
+        buckets = buckets['bucket']
+
         return self.render_template('/shep:/templates/bucket_list.html', dict(buckets=buckets))
 
     # Attempts to thaw buckets in a specific index and time range

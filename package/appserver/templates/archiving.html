@@ -2,6 +2,7 @@
 <%inherit file="//layout/base.html" />
 <%namespace name="lib" file="//lib.html" import="*"/>
 <%namespace name="helpers" file="//view/_helpers.html" import="*"/>
+<%namespace name="buckets" file="bucket_list.html" import="*"/>
 <%!
     import logging
     logger = logging.getLogger('splunk.module.archiving')
@@ -9,7 +10,7 @@
 
 <%def name="custom_css()">
     <%lib:stylesheet_tags files="${['/static/app/shep/archiver.css']}" />
-    <%lib:script_tags files="${['/static/app/shep/archiver.js']}" />
+    <%lib:script_tags files="${['/static/app/shep/archiver.js', '/static/app/shep/jquery.tablesorter.js']}" />
 </%def>
 
 <%def name="gen_form(method='POST', action=None)">
@@ -98,7 +99,7 @@
       </%self:gen_table_option_row>
       <%self:gen_table_option_row id="Buckets">
         <%def name="data()">
-          <div id="bucket-table" class="table"></div>
+          ${buckets.gen_bucket_list(context['buckets'])}
         </%def>
       </%self:gen_table_option_row>
       <%self:gen_table_option_row>
