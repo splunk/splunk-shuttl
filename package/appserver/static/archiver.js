@@ -43,10 +43,14 @@ function listBucketsGET() {
 }
 
 function listBucketsPOST() {
-  
+  var formData = $('form').serializeArray();
+  var data = formData;
+  console.log(data);
+
   $.ajax({
     url: 'list_buckets',
     type: 'POST',
+    data: data,
     success: function(html) {
       alert('loaded buckets');
       $('#bucket-table').html(html);
@@ -78,9 +82,7 @@ function toggleSearchThawButton() {
 
 function searchOrThawBuckets(event) {
   var target = $(event.target);
-  if (target.hasClass('disabled')) {
-    alert('do nothing...');
-  } else {
-    listBucketsGET();
+  if (!target.hasClass('disabled')) {
+    listBucketsPOST();
   }
 }
