@@ -20,18 +20,6 @@ function loadXMLDoc()
   xmlhttp.send();
 }
 
-
-function listBucketsGET() {
-  $.ajax({
-    url: 'list_buckets',
-    type: 'GET',
-    success: function(html) {
-      alert('loaded buckets');
-      $('#bucket-table').html(html);
-    }
-  });
-}
-
 function listBucketsGET() {
   $.ajax({
     url: 'list_buckets',
@@ -52,7 +40,6 @@ function listBucketsPOST() {
     type: 'POST',
     data: data,
     success: function(html) {
-      alert('loaded buckets');
       $('#bucket-table').html(html);
     }
   });
