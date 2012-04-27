@@ -29,6 +29,13 @@
         <td>${strgen()}</td>
       </tr>
     </table>
+    <div id="post-message">
+      Data: ${data} <br />
+      % for p in data:
+        ${p} = "${data[p]}"
+        <br />
+      % endfor
+    </div>
   </div>
 </%def>
 

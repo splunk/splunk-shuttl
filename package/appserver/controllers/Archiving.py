@@ -25,11 +25,12 @@ class Archiving(controllers.BaseController):
 
     # Gives a list of buckets for a specific index as an html table
     @expose_page(must_login=True, methods=['GET', 'POST']) 
-    def list_buckets(self, **kwargs):
+    def list_buckets(self, **params):
         
+        logger.error('PRINT post data: %s' % params)
         buckets = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/list/buckets')[1]
-        
-        return self.render_template('/shep:/templates/bucket_list.html', dict(buckets=buckets))
+
+        return self.render_template('/shep:/templates/bucket_list.html', dict(buckets=buckets, data=params))
 
     # Attempts to thaw buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['GET'])
