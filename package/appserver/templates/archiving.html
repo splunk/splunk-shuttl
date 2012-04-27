@@ -17,8 +17,8 @@
 </%def>
 
 <%def name="gen_select(indexes)">
-    <div class="styled-select">
-    <select class="indexes">
+  <div class="styled-select">
+    <select class="indexes" name="index">
         <option value="all">All</option>
       % for index in indexes:
         <option value="${index}">${index}</option>  
