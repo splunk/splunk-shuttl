@@ -21,8 +21,16 @@ class Archiving(controllers.BaseController):
 
         indexes = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/list/indexes')[1]
         buckets = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/list/buckets')[1]
+        indexesList = json.loads(indexes)
+        bucketsList = json.loads(buckets)
 
-        return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes, buckets=buckets)) 
+        # logger.error('BUCKETS')
+        # logger.error('indexes: %s (%s)' % (indexes, type(indexes)))
+        # logger.error('indexesList: %s (%s)' % (indexesList, type(indexesList)))
+        # logger.error('buckets: %s (%s)' % (buckets, type(buckets)))
+        # logger.error('bucketsList: %s (%s)' % (bucketsList, type(bucketsList)))
+
+        return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexesList, buckets=bucketsList))
 
     # Gives a list of buckets for a specific index as an html table
     @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
