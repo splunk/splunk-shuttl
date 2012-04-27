@@ -841,10 +841,11 @@
 			<target name="splunk-restart-splunkweb" />
 		</antcall>
 	</target>
-	<target name="archiver-sync-package-and-restart-splunk">
+	<target name="archiver-sync-package-and-setup-splunk">
 		<antcall>
 			<target name="archiver-sync-package" />
-			<target name="splunk-restart" />
+			<target name="splunk-setup" />
+			<target name="splunk-start-splunkweb" />
 		</antcall>
 	</target>
 	<target name="archiver-restart-and-test-hadoop">
