@@ -8,6 +8,9 @@
 %>
 
 <%def name="custom_css()">
+    <%lib:stylesheet_tags files="${['/static/app/shep/jquery-ui/css/redmond/jquery-ui-1.8.19.custom.css']}" />
+    <%lib:script_tags files="${['/static/app/shep/jquery-ui/js/jquery-ui-1.8.19.custom.min.js']}" />
+    <%lib:script_tags files="${['/static/app/shep/jquery-validation/jquery.validate.js']}" />
     <%lib:stylesheet_tags files="${['/static/app/shep/archiver.css']}" />
     <%lib:script_tags files="${['/static/app/shep/archiver.js']}" />
 </%def>
@@ -105,7 +108,6 @@
           <input id="search-thaw-button" class="disabled search button" type="button" value="Search for buckets in range">
         </%def>
       </%self:gen_table_option_row>
-      <input id="enable-button" class="button" type="button" value="enable">
     </div>
   </div>
 
