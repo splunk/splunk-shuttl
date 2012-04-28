@@ -64,11 +64,10 @@
 
 <div id="archiver">
   <!-- <p class="pageDesc"></p> -->
-  <!-- ${gen_form(method="POST", action=make_url(['custom', 'webintelligence', 'WISetup', 'save']))} -->
   <form name="search-thaw-buckets" id="search-thaw-buckets-form">
 
   ##<input type="hidden" name="splunk_form_key" value="${util.getFormKey()|h}" />
-  ${csrf_hidden_input()}
+  ##${csrf_hidden_input()}
 
   <div id="archiverPage">
     <div class="table">
