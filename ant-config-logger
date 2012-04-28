@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# Source this file or set the ANT_ARGS yourself
+#
+
+echo "!!!Source this file or set the ANT_ARGS environment variable yourself???"
+ANT_ARGS="-lib $( cd "$( dirname "$0" )" && pwd )/contrib/ant-libs/IndentedDefaultLogger.jar -logger com.splunk.IndentedDefaultLogger"
