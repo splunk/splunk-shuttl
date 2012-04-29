@@ -32,5 +32,4 @@ public class BucketArchiverFactory {
 		new PathResolver(config), new ArchiveBucketTransferer(
 			archiveFileSystem));
     }
-
 }

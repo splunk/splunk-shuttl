@@ -4,39 +4,54 @@
 <%namespace name="helpers" file="//view/_helpers.html" import="*"/>
 <%!
     import logging
-    import random
     logger = logging.getLogger('splunk.module.archiving')
 %>
 
 <%def name="custom_css()">
     <%lib:stylesheet_tags files="${['/static/app/shep/archiver.css']}" />
-    <%lib:script_tags files="${['/static/app/shep/archiver.js']}" />
+    <%lib:script_tags files="${['/static/app/shep/archiver.js', '/static/app/shep/jquery.tablesorter.js']}" />
 </%def>
 
-<%def name="strgen()">
-    ${''.join(random.choice("zxcvbnmasdfghjklqwertyuiop") for x in range(5))}
-</%def>
-
-<%def name="gen_bucket_list()">
-  <div id="bucket-table">
-    <table border="1">
+<%def name="gen_bucket_list(buckets)">
+  <table id="bucket-table" class="tablesort"> 
+    <thead> 
+      <tr> 
+        <th>Name</th> 
+        <th>Index</th> 
+        <th>Format</th> 
+        ##<th>URI</th> 
+        <th>From</th>
+        <th>To</th>
+        <th>Size</th>
+      </tr> 
+    </thead>
+    <tbody> 
+      %for bucket in buckets:
       <tr>
-        <td>${strgen()}</td>
-        <td>${strgen()}</td>
+        <td>${bucket['bucketName']}</td>
+        <td>${bucket['indexName']}</td>
+        <td>${bucket['format']}</td>
+        ##<td>${bucket['uri']}</td>
+        <td>${bucket['fromDate']}</td>
+        <td>${bucket['toDate']}</td>
+        <td>${bucket['size']}</td>
       </tr>
-      <tr>
-        <td>${strgen()}</td>
-        <td>${strgen()}</td>
-      </tr>
-    </table>
-    <div id="post-message">
-      Data: ${data} <br />
-      % for p in data:
-        ${p} = "${data[p]}"
-        <br />
-      % endfor
-    </div>
+      %endfor
+    </tbody>
+  </table>
+  <script type="text/javascript" src="/static/app/shep/jquery.tablesorter.js"></script>
+  <script type="text/javascript">
+    $(function() {$("#bucket-table").tablesorter() });
+  </script>
+  <div id="post-message">
+    Data: ${data} <br />
+    % for p in data:
+      ${p} = "${data[p]}"
+      <br />
+    % endfor
   </div>
 </%def>
 
-${gen_bucket_list()}
+${gen_bucket_list(context['buckets'])}
+
+
