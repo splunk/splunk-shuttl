@@ -124,7 +124,7 @@ public class BucketArchiverRest {
 	ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
 		pathResolver, archiveFileSystem);
 
-	return JSON.toString(indexesLister.listIndexes().toString());
+	return JSON.getDefault().toJSON(indexesLister.listIndexes());
     }
 
     @GET
