@@ -44,11 +44,13 @@
     $(function() {$("#bucket-table").tablesorter() });
   </script>
   <div id="post-message">
-    Data: ${data} <br />
-    % for p in data:
-      ${p} = "${data[p]}"
-      <br />
-    % endfor
+    % if data:
+      Data: ${data} <br />
+      ##% for p in data:
+      ##  ${p} = "${data[p]}"
+      ##  <br />
+      ##% endfor
+    % endif
   </div>
 </%def>
 
