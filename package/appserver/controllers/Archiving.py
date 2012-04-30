@@ -10,6 +10,25 @@ from splunk.appserver.mrsparkle.lib.decorators import expose_page
 from model import Model
 
 logger = logging.getLogger('splunk.appserver.mrsparkle.controllers.Archiving')
+DEBUG = False
+defaultBuckets = { 'bucket': [{ 
+                'bucketName': "test1", 
+                'indexName': "index1", 
+                'format': "test format", 
+                'uri': "http'://", 
+                'fromDate': "2012-05-05", 
+                'toDate': "2012-05-06", 
+                'size': "1337"
+                }, { 
+                'bucketName': "test2", 
+                'indexName': "index1", 
+                'format': "test format", 
+                'uri': "http'://", 
+                'fromDate': "2012-05-05", 
+                'toDate': "2012-05-06", 
+                'size': "13"
+                }]
+            }
 
 class Archiving(controllers.BaseController):
     '''Archiving Controller'''
@@ -18,17 +37,18 @@ class Archiving(controllers.BaseController):
     @expose_page(must_login=True, methods=['GET']) 
     def show(self, **kwargs):
         
-	indexes = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/index/list')[1])
+        indexes = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/index/list')[1])
         buckets = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list')[1])
-        
+
+        # debug
+        if DEBUG: buckets = defaultBuckets
+
         # discard container
         buckets = buckets['bucket']
 
-        # logger.error('BUCKETS')
-        # logger.error('indexes: %s (%s)' % (indexes, type(indexes)))
-        # logger.error('indexesList: %s (%s)' % (indexesList, type(indexesList)))
-        # logger.error('buckets: %s (%s)' % (buckets, type(buckets)))
-        # logger.error('bucketsList: %s (%s)' % (bucketsList, type(bucketsList)))
+        logger.error('BUCKETS')
+        logger.error('indexes: %s (%s)' % (indexes, type(indexes)))
+        logger.error('buckets: %s (%s)' % (buckets, type(buckets)))
 
         return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes, buckets=buckets))
 
@@ -38,11 +58,19 @@ class Archiving(controllers.BaseController):
         
         logger.error('PRINT post data: %s' % params)
         
-	buckets = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/list/buckets')[1]
-	# discard container
+        buckets = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list')[1]
+        
+        # debug
+        if DEBUG: 
+            buckets = defaultBuckets
+            data = params
+        else:
+            data = None
+
+        # discard container
         buckets = buckets['bucket']
 
-        return self.render_template('/shep:/templates/bucket_list.html', dict(buckets=buckets))
+        return self.render_template('/shep:/templates/bucket_list.html', dict(buckets=buckets, data=data))
 
     # Attempts to thaw buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['GET'])
