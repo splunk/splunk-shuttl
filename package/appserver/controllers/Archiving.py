@@ -44,29 +44,31 @@ class Archiving(controllers.BaseController):
         if DEBUG: buckets = defaultBuckets
 
         # discard container
-        buckets = buckets['bucket']
+        if buckets is not None:
+            buckets = buckets['bucket']
+
+        logger.error('show - indexes: %s (%s)' % (indexes, type(indexes)))
+        logger.error('show -buckets: %s (%s)' % (buckets, type(buckets)))
 
         return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes, buckets=buckets))
 
     # Gives a list of buckets for a specific index as an html table
-    @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
+    @expose_page(must_login=True, methods=['POST'])
     def list_buckets(self, **params):
         
-        logger.debug('PRINT post data: %s' % params)
-        
-        buckets = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list')[1]
-        
+        logger.error('list_buckets - postArgs: %s' % params)
+        buckets = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list', getargs=params)[1])
+        logger.error('list_buckets - buckets: %s' % buckets)
+
         # debug
         if DEBUG: 
             buckets = defaultBuckets
-            data = params
-        else:
-            data = None
 
         # discard container
-        buckets = buckets['bucket']
+        if buckets is not None:
+            buckets = buckets['bucket']
 
-        return self.render_template('/shep:/templates/bucket_list.html', dict(buckets=buckets, data=data))
+        return self.render_template('/shep:/templates/bucket_list.html', dict(buckets=buckets, data=params))
 
     # Attempts to thaw buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['GET'])

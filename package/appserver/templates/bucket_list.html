@@ -13,36 +13,41 @@
 </%def>
 
 <%def name="gen_bucket_list(buckets)">
-  <table id="bucket-table" class="tablesort"> 
-    <thead> 
-      <tr> 
-        <th>Name</th> 
-        <th>Index</th> 
-        <th>Format</th> 
-        ##<th>URI</th> 
-        <th>From</th>
-        <th>To</th>
-        <th>Size</th>
-      </tr> 
-    </thead>
-    <tbody> 
-      %for bucket in buckets:
-      <tr>
-        <td>${bucket['bucketName']}</td>
-        <td>${bucket['indexName']}</td>
-        <td>${bucket['format']}</td>
-        ##<td>${bucket['uri']}</td>
-        <td>${bucket['fromDate']}</td>
-        <td>${bucket['toDate']}</td>
-        <td>${bucket['size']}</td>
-      </tr>
-      %endfor
-    </tbody>
-  </table>
-  <script type="text/javascript" src="/static/app/shep/jquery.tablesorter.js"></script>
-  <script type="text/javascript">
-    $(function() {$("#bucket-table").tablesorter() });
-  </script>
+  % if buckets is not None:
+    <table id="bucket-table" class="tablesort"> 
+      <thead> 
+        <tr> 
+          <th>Name</th> 
+          <th>Index</th> 
+          <th>Format</th> 
+          ##<th>URI</th> 
+          <th>From</th>
+          <th>To</th>
+          <th>Size</th>
+        </tr> 
+      </thead>
+      <tbody> 
+        %for bucket in buckets:
+        <tr>
+          <td>${bucket['bucketName']}</td>
+          <td>${bucket['indexName']}</td>
+          <td>${bucket['format']}</td>
+          ##<td>${bucket['uri']}</td>
+          <td>${bucket['fromDate']}</td>
+          <td>${bucket['toDate']}</td>
+          <td>${bucket['size']}</td>
+        </tr>
+        %endfor
+      </tbody>
+    </table>
+    <script type="text/javascript">
+      $(function() {$("#bucket-table").tablesorter() });
+    </script>
+    % else:
+      <div class="error">
+        No Buckets in that range!
+      </div>
+    % endif
   <div id="post-message">
     % if data:
       Data: ${data}
