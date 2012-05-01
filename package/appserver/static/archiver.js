@@ -23,6 +23,7 @@ function loadXMLDoc()
 function listBucketsGET() {
   $.ajax({
     url: 'list_buckets',
+
     type: 'GET',
     success: function(html) {
       $('#bucket-table').html(html);
@@ -46,6 +47,21 @@ function listBucketsPOST() {
     data: data,
     success: function(html) {
       $('#bucket-table').html(html);
+    }
+  });
+}
+
+function thawBucketsGET() {
+  
+  var formData = $('form').serialize();
+   
+  $.ajax({
+    url: 'thaw',
+    type: 'GET',
+    data: formData,
+    success: function(html) {
+      window.open(); 
+      document.write(html);
     }
   });
 }
@@ -84,18 +100,18 @@ $(document).ready(function() {
         dateISO: true
       }
     });
-    $('.datetime-input').change( function() {
-      if ($('#search-thaw-buckets-form').valid()) {
-        enableSearchThawButton();
-      } else {
-        disableSearchThawButton();
-      }
-    });
+    //$('.datetime-input').change( function() {
+    //  if ($('#search-thaw-buckets-form').valid()) {
+    //    enableSearchThawButton();
+    //  } else {
+    //    disableSearchThawButton();
+    //  }
+    //});
 });
 
 function bindHandler() {
     //$('#enable-button').bind('click', function() { toggleSearchThawButton(); });
-    $('#search-thaw-button').bind('click', function(event) { searchOrThawBuckets(event); });
+    $('#search-thaw-button').bind('click', function(event) { thawBuckets(event); });
 }
 
 function enableSearchThawButton() {
@@ -110,9 +126,15 @@ function toggleSearchThawButton() {
   $('#search-thaw-button').toggleClass('disabled');
 }
 
-function searchOrThawBuckets(event) {
+function thawBuckets(event) {
   var target = $(event.target);
+
+  if (!$('#search-thaw-buckets-form').valid()) {
+    alert('Please fill out form first');
+    return;
+  }
+
   if (!target.hasClass('disabled')) {
-    listBucketsPOST();
+    thawBucketsGET();
   }
 }

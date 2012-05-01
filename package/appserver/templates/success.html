@@ -5,27 +5,4 @@
 </%def>
 <div id="success">
   <h2>Success</h2>
-  <p>Web Intelligence settings have been saved.</p>
-  <p>You will be able to view data beginning five minutes ago. If this is the first time you are running the Web Intelligence app, we recommend you perform two additional
-  steps if (1) you want the dashboards to display historical data older than five minutes, and (2) you have multiple websites in your web environment.</p>
-  <br>
-  <p><b>1. Backfill your historical data.</b></p>
-  <p>The Web Intelligence app implements several levels of data summarization (5 minute, hourly, and daily) to enable searching large volumes of data 
-  efficiently. These summaries will populate automatically going forward but must be manually filled using our commandline backfill script for historical data. 
-  The script, called <code>backfill_all.sh</code>, is located in <code>$SPLUNK_HOME/etc/apps/webintelligence/bin</code>, and can be run using the command:</p>
-  <p><code>./backfill_all.sh &lt;username&gt; &lt;password&gt;</code></p>
-  
-  <p>For detailed instructions on how to backfill your data, refer to <a target="_blank" href="http://docs.splunk.com/Documentation/WebIntel/1.0Beta/User/Backfillingdata">the 
-  Web Intelligence Manual</a>.</p>
-  <br>
-  <p><b>2. Defines sources for your data.</b></p>
-  <p>You can restrict searches to a specific website using a site selector. This site selector gets its values from a lookup table that you need to edit manually.</p>
-  <p>First, run the saved search called "Sourcenames Lookup" to populate the lookup table. You can run this search from the Search view:</p>
-  <p><code>| savedsearch "Sourcenames Lookup"</code></p>
-  <p>This search populates a csv file which lists multiple websites by their source. Once the search is complete, edit this lookup table in 
-  <code>$SPLUNK_HOME/etc/apps/webintelligence/lookups/sourcenames.csv</code> to replace the blank sourcename fields with a custom name for each source. 
-  You can map multiple sources to the same sourcename.</p>
-  <br>
-  <p>Click "OK" to go to the Web Intelligence home page.</p>
-  <a target="_parent" href="${make_url('/app/webintelligence')}" class="splButton-primary"><span class="cancel">OK</span></a>
 </div>

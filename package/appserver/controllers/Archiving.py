@@ -46,17 +46,13 @@ class Archiving(controllers.BaseController):
         # discard container
         buckets = buckets['bucket']
 
-        logger.error('BUCKETS')
-        logger.error('indexes: %s (%s)' % (indexes, type(indexes)))
-        logger.error('buckets: %s (%s)' % (buckets, type(buckets)))
-
         return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes, buckets=buckets))
 
     # Gives a list of buckets for a specific index as an html table
     @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
     def list_buckets(self, **params):
         
-        logger.error('PRINT post data: %s' % params)
+        logger.debug('PRINT post data: %s' % params)
         
         buckets = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list')[1]
         
@@ -74,16 +70,13 @@ class Archiving(controllers.BaseController):
 
     # Attempts to thaw buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['GET'])
-    def thaw(self, index, _from, to, **params):
-
-        index='someindex'
-        _from='from'
-        to='to'
-
-        params = urllib.urlencode({'index' : index, 'from' : _from, 'to' : to})
+    def thaw(self, **params):
+        index = params['index']
+        from_date = params['from']
+        to_date = params['to']
+        params = urllib.urlencode({'index' : index, 'from' : from_date, 'to' : to_date})
         response = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/thaw?%s' % params)
-        if response[0]['status']==205:
-            return self.render_template('/shep:/templates/success.html')  
+        if response[0]['status']=='200':
+            return self.render_template('/shep:/templates/success.html', dict(buckets=response[1]))  
         else:
-            # TODO: error handling
-            return None
+            raise Exception('Expected status 200' + str(response))
