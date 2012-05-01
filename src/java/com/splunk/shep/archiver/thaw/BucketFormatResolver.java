@@ -134,9 +134,7 @@ public class BucketFormatResolver {
 
     private Long getBucketSize(Bucket bucket) {
 	try {
-	    logger.info("getting size");
 	    Long size = archiveFileSystem.getSize(bucket.getURI());
-	    logger.info("got size " + size);
 	    return size;
 	} catch (Exception e) {
 	    // unable to obtain size - log error and return null

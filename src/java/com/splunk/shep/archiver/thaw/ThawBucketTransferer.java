@@ -14,11 +14,8 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
-import static com.splunk.shep.archiver.LogFormatter.*;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 
 import org.apache.log4j.Logger;
 
@@ -44,22 +41,9 @@ public class ThawBucketTransferer {
     /**
      * Transfers an archived bucket in the thaw directory of the bucket's index.
      */
-    public void transferBucketToThaw(Bucket bucket) {
+    public void transferBucketToThaw(Bucket bucket) throws IOException {
 	File bucketsThawLocation = thawLocationProvider
 		.getLocationInThawForBucket(bucket);
-	thawBucketFromArchiveWithErrorHandling(bucketsThawLocation,
-		bucket.getURI());
-    }
-
-    private void thawBucketFromArchiveWithErrorHandling(
-	    File bucketsThawLocation, URI bucketArchiveUri) {
-	try {
-	    archiveFileSystem.getFile(bucketsThawLocation, bucketArchiveUri);
-	} catch (IOException e) {
-	    logger.debug(did("Tried to thaw bucket", e,
-		    "Place the bucket in thaw", "bucket_thaw_location",
-		    bucketsThawLocation, "archived_bucket_uri",
-		    bucketArchiveUri, "exception", e));
-	}
+	archiveFileSystem.getFile(bucketsThawLocation, bucket.getURI());
     }
 }

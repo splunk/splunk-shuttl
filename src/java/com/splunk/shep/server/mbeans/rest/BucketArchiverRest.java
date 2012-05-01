@@ -7,7 +7,9 @@ import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.util.ajax.JSON;
 
 import com.splunk.shep.archiver.archive.ArchiveConfiguration;
@@ -82,10 +85,11 @@ public class BucketArchiverRest {
 
     // TODO: change to POST
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path(ENDPOINT_BUCKET_THAW)
-    public void thawBuckets(@QueryParam("index") String index,
-	    @QueryParam("from") String from, @QueryParam("to") String to) {
+    public String thawBuckets(
+	    @QueryParam("index") String index, @QueryParam("from") String from,
+	    @QueryParam("to") String to) {
 
 	logger.info(happened("Received REST request to thaw buckets",
 		"endpoint", ENDPOINT_BUCKET_THAW, "index", index, "from", from,
@@ -97,15 +101,51 @@ public class BucketArchiverRest {
 		    "A valid time interval (from and to) must be provided");
 	}
 
+	Date fromDate = dateFromString(from);
+	Date toDate = dateFromString(to);
+	if (fromDate == null || toDate == null) {
+	    logger.error(happened("Invalid time interval provided."));
+	    throw new IllegalArgumentException(
+		    "From and to date must be provided on the form yyyy-DD-mm");
+	}
+
 	if (index == null) {
 	    logger.error(happened("No index was provided."));
 	    throw new IllegalArgumentException("index must be specified");
 	}
 
+	// thaw
 	logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
 	BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
-	bucketThawer.thawBuckets(index, dateFromString(from),
-		dateFromString(to));
+	Map<String, List<Bucket>> buckets = bucketThawer.thawBuckets(index,
+		fromDate, toDate);
+
+	List<BucketBean> failedBucketBeans = new ArrayList<BucketBean>();
+	List<BucketBean> thawedBucketBeans = new ArrayList<BucketBean>();
+
+	for (Bucket bucket : buckets.get("thawed")) {
+	    BucketBean bucketBean = createBeanFromBucket(bucket);
+	    thawedBucketBeans.add(bucketBean);
+	}
+
+	for (Bucket bucket : buckets.get("failed")) {
+	    BucketBean bucketBean = createBeanFromBucket(bucket);
+	    failedBucketBeans.add(bucketBean);
+	}
+	HashMap<String, List<BucketBean>> ret = new HashMap<String, List<BucketBean>>();
+	
+	ret.put("thawed", thawedBucketBeans);
+	ret.put("failed", failedBucketBeans);
+
+	ObjectMapper mapper = new ObjectMapper();
+	try {
+	    return mapper.writeValueAsString(ret);
+	} catch (Exception e) {
+	    logger.error(did(
+		    "attempted to convert thawed/failed buckets to JSON string",
+		    e, null));
+	    throw new RuntimeException(e);
+	}
     }
 
     @GET
