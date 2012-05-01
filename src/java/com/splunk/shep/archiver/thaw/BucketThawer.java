@@ -19,12 +19,11 @@ import static com.splunk.shep.archiver.LogFormatter.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shep.archiver.fileSystem.FileOverwriteException;
 import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shep.archiver.model.Bucket;
 
@@ -39,6 +38,28 @@ public class BucketThawer {
     private final BucketFilter bucketFilter;
     private final BucketFormatResolver bucketFormatResolver;
     private final ThawBucketTransferer thawBucketTransferer;
+
+    public static class ThawInfo {
+
+	public ThawInfo(Bucket bucket, Status status) {
+	    this(bucket, status, null);
+	}
+
+	public ThawInfo(Bucket bucket, Status status, String message) {
+	    this.bucket = bucket;
+	    this.status = status;
+	    this.message = message;
+	}
+
+	public enum Status {
+	    THAWED, FAILED
+	};
+
+	public final Bucket bucket;
+	public final Status status;
+	public final String message;
+    }
+
 
     /**
      * @param bucketsLister
@@ -64,37 +85,59 @@ public class BucketThawer {
     /**
      * Thaw buckets by listing buckets in an index, filter the buckets, resolve
      * their formats and lastly transferring them to the thaw directory.
+     * 
+     * @param index
+     *            The index to thaw from. If null, all existing indexes are
+     *            thawed
      */
-    public Map<String, List<Bucket>> thawBuckets(String index,
+    public List<ThawInfo> thawBuckets(String index,
 	    Date earliestTime, Date latestTime) {
-	List<Bucket> bucketsInIndex = archiveBucketsLister
-		.listBucketsInIndex(index);
+	List<Bucket> bucketsInIndex = null;
+	if (index != null) {
+	    bucketsInIndex = archiveBucketsLister.listBucketsInIndex(index);
+	} else {
+	    bucketsInIndex = archiveBucketsLister.listBuckets();
+	}
 	List<Bucket> filteredBuckets = bucketFilter.filterBucketsByTimeRange(
 		bucketsInIndex, earliestTime, latestTime);
 	List<Bucket> bucketsWithFormats = bucketFormatResolver
 		.resolveBucketsFormats(filteredBuckets);
 
-	List<Bucket> failedBuckets = new ArrayList<Bucket>();
-	List<Bucket> thawedBuckets = new ArrayList<Bucket>();
+	List<ThawInfo> thawInfo = new ArrayList<ThawInfo>();
 
 	for (Bucket bucket : bucketsWithFormats) {
 	    logger.info(will("Attempting to thaw bucket", "bucket", bucket));
 	    try {
 		thawBucketTransferer.transferBucketToThaw(bucket);
-		thawedBuckets.add(bucket);
+		thawInfo.add(new ThawInfo(bucket, ThawInfo.Status.THAWED));
 		logger.info(done("Thawed bucket", "bucket", bucket));
+	    } catch (FileOverwriteException e) {
+		logger.error(did("Tried to thaw bucket", e,
+			"Place the bucket in thaw", "bucket", bucket,
+			"exception", e));
+		String message = "Directory already exists - bucket is probably already thawed";
+		thawInfo.add(new ThawInfo(bucket, ThawInfo.Status.FAILED,
+			message));
 	    } catch (IOException e) {
 		logger.error(did("Tried to thaw bucket", e,
 			"Place the bucket in thaw", "bucket", bucket,
 			"exception", e));
-		failedBuckets.add(bucket);
+		thawInfo.add(new ThawInfo(bucket, ThawInfo.Status.FAILED, e
+			.getMessage()));
 	    }
 	}
 
-	HashMap<String, List<Bucket>> ret = new HashMap<String, List<Bucket>>();
-	ret.put("thawed", thawedBuckets);
-	ret.put("failed", failedBuckets);
+	return thawInfo;
+    }
 
-	return ret;
+    /**
+     * @param index
+     * @param fromDate
+     * @param toDate
+     * @return
+     */
+    public String thawBucketsGetJSON(String index, Date fromDate, Date toDate) {
+	// TODO Auto-generated method stub
+	return null;
     }
 }
