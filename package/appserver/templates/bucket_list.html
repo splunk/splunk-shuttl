@@ -45,7 +45,8 @@
   </script>
   <div id="post-message">
     % if data:
-      Data: ${data} <br />
+      Data: ${data}
+      ##<br />
       ##% for p in data:
       ##  ${p} = "${data[p]}"
       ##  <br />
