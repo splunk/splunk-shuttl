@@ -23,10 +23,6 @@ import com.splunk.shep.archiver.model.Bucket;
 public class BucketLocker {
 
     /**
-     * Executes {@link SharedLockBucketHandler} while the bucket is locked
-     * shared. By having the lock shared, the implementation of
-     * {@link SharedLockBucketHandler} can continue to keep locking the bucket
-     * if they need to. <br/>
      * LockedBucketHandler is not executed if the bucket cannot be locked
      * exclusively first, and then converting the lock to being shared.
      * 
