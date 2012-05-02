@@ -14,8 +14,14 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
+import static com.splunk.shep.archiver.LogFormatter.*;
+
 import java.io.File;
 
+import org.apache.log4j.Logger;
+
+import com.splunk.EntityCollection;
+import com.splunk.Index;
 import com.splunk.Service;
 
 /**
@@ -24,6 +30,7 @@ import com.splunk.Service;
 public class SplunkSettings {
 
     private final Service splunkService;
+    private static final Logger logger = Logger.getLogger(SplunkSettings.class);
 
     /**
      * @param splunkService
@@ -36,8 +43,15 @@ public class SplunkSettings {
      * @return thaw location for specified index.
      */
     public File getThawLocation(String index) {
-	return new File(splunkService.getIndexes().get(index)
-		.getThawedPathExpanded());
+	EntityCollection<Index> indexes = splunkService.getIndexes();
+	Index splunkIndex = indexes.get(index);
+	if(splunkIndex == null) {
+	    logger.error(did("Attempted to get thaw location for index",
+		    "index not in splunk", null, "index", index,
+		    "splunk service", splunkService.getHost()));
+	    throw new RuntimeException("Index " + index + " does not exist in splunk");
+	}
+	String thawedPathExpanded = splunkIndex.getThawedPathExpanded();
+	return new File(thawedPathExpanded);
     }
-
 }

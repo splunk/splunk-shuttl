@@ -104,7 +104,7 @@ public class ArchiveBucketsLister {
 	    logger.debug(did(
 		    "Listed buckets at bucketsHome in archive file system",
 		    "Got IOException",
-		    "To list buckets that has been archived", "buckets_home",
+		    "To list buckets that have been archived", "buckets_home",
 		    bucketsHome, "exception", e));
 	    throw new RuntimeException(e);
 	}
@@ -147,5 +147,4 @@ public class ArchiveBucketsLister {
 	}
 	return null;
     }
-
 }

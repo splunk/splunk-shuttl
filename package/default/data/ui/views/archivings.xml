@@ -1,5 +1,6 @@
 <view autoCancelInterval="90" onunloadCancelJobs="true" template="dashboard.html">
   <label>Archiving</label>
+
   <module name="AccountBar" layoutPanel="appHeader"/>
   <module name="AppBar" layoutPanel="navigationHeader"/>
   <module name="Message" layoutPanel="messaging">
@@ -16,10 +17,8 @@
     <param name="actionsMenuFilter">dashboard</param>
   </module>
 
-<module name="TimeRangePicker" layoutPanel="mainSearchControls"> <!-- common time range picker -->
-	<param name="selected">Today</param>
-	<param name="searchWhenChanged">True</param>
-
-</module> <!-- common time range picker -->
-
+  <module name="IFrameInclude" layoutPanel="viewHeader">
+    <param name="src">/custom/shep/Archiving/show</param>
+    <param name="height">700</param>
+  </module>
 </view>

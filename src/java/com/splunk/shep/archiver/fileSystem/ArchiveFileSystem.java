@@ -56,8 +56,8 @@ public interface ArchiveFileSystem {
 	    FileOverwriteException, IOException;
 
     /**
-     * Retries the file from specified path on archiving file system and stores
-     * it to the specified file on local file system.
+     * Retrieves the file from specified path on archiving file system and
+     * stores it to the specified file on local file system.
      * 
      * @param fileOnLocalFileSystem
      *            A non exiting file on the local file system.
@@ -87,4 +87,15 @@ public interface ArchiveFileSystem {
      */
     List<URI> listPath(URI pathToBeListed) throws IOException;
 
+    /**
+     * Returns the size of the specified URI (file or directory) in bytes.
+     * 
+     * @param uri
+     *            URI of file or directory on the file system
+     * @return null if the path specified by the URI does not exist - otherwise
+     *         the size of the file or directory in bytes
+     * @throws IOException
+     *             If there was any other problem with this operation
+     */
+    Long getSize(URI uri) throws IOException;
 }

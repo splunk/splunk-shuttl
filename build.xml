@@ -762,6 +762,12 @@
 			<arg line="start splunkweb" />
 		</exec>
 	</target>
+	
+	<target name="splunk-restart-splunkweb" depends="set-splunk-home">
+			<exec executable="${splunk.home}/bin/splunk">
+				<arg line="restart splunkweb" />
+			</exec>
+		</target>
 
 	<target name="splunk-stop" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
@@ -812,6 +818,49 @@
 			<arg line="clean all -f" />
 		</exec>
 	</target>
+	
+	<!-- Archiver-UI -->
+	<target name="helper-archiver-extended-debugging">
+		<copy todir="${splunk.extracted.dir}/lib/python2.7/site-packages/splunk/appserver/mrsparkle/controllers/" file="${basedir}/archiver-UI-Debug-files/__init__.py"/>
+		<copy todir="${splunk.extracted.dir}/etc" file="${basedir}/archiver-UI-Debug-files/log.cfg" />
+	</target>
+	<target name="helper-archiver-test-hadoop">
+		<exec executable="${hadoop.home}/bin/hadoop">
+			<arg line="fs -ls /" />
+		</exec>
+	</target>
+	<target name="archiver-sync-package" depends="set-shep-app-home">
+		<exec executable="sh" osfamily="unix">
+			<arg value="-c" />
+			<arg line="'rsync -vr --delete ${package.dir}/* ${shep.app.home} | tail -n 3'"/>
+		</exec>
+	</target>
+	<target name="archiver-sync-package-and-restart-splunk-web">
+		<antcall>
+			<target name="archiver-sync-package" />
+			<target name="splunk-restart-splunkweb" />
+		</antcall>
+	</target>
+	<target name="archiver-sync-package-and-setup-splunk">
+		<antcall>
+			<target name="archiver-sync-package" />
+			<target name="splunk-setup" />
+			<target name="splunk-start-splunkweb" />
+		</antcall>
+	</target>
+	<target name="archiver-restart-and-test-hadoop">
+		<antcall>
+			<target name="hadoop-stop" />
+			<target name="hadoop-start" />
+			<target name="helper-archiver-test-hadoop" />
+		</antcall>
+	</target>
+	<target name="archiver-activate-debugging">
+		<antcall>
+			<target name="helper-archiver-extended-debugging" />
+		</antcall>
+	</target>
+	<!-- END Archiver-UI -->
 
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties>

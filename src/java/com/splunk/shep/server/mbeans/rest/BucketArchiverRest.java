@@ -4,18 +4,23 @@ import static com.splunk.shep.ShepConstants.*;
 import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.eclipse.jetty.util.ajax.JSON;
 
 import com.splunk.shep.archiver.archive.ArchiveConfiguration;
 import com.splunk.shep.archiver.archive.BucketArchiver;
@@ -29,6 +34,7 @@ import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shep.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
+import com.splunk.shep.archiver.thaw.BucketFilter;
 import com.splunk.shep.archiver.thaw.BucketFormatChooser;
 import com.splunk.shep.archiver.thaw.BucketFormatResolver;
 import com.splunk.shep.archiver.thaw.BucketThawer;
@@ -38,12 +44,13 @@ import com.splunk.shep.metrics.ShepMetricsHelper;
 import com.splunk.shep.server.model.BucketBean;
 
 /**
- * REST endpoint for archiving a bucket.
+ * REST endpoints for archiving.
  */
 @Path(ENDPOINT_ARCHIVER)
 public class BucketArchiverRest {
     private org.apache.log4j.Logger logger = Logger.getLogger(getClass());
 
+    // TODO: change to POST
     /**
      * Example on how to archive a bucket with this endpoint:
      * /archiver/bucket/archive?path=/local/Path/To/Bucket
@@ -63,7 +70,154 @@ public class BucketArchiverRest {
 		"endpoint", ENDPOINT_BUCKET_ARCHIVER, "index", index, "path",
 		path));
 
+	if (path == null) {
+	    logger.error(happened("No path was provided."));
+	    throw new IllegalArgumentException("path must be specified");
+	}
+
+	if (index == null) {
+	    logger.error(happened("No index was provided."));
+	    throw new IllegalArgumentException("index must be specified");
+	}
+
 	archiveBucketOnAnotherThread(index, path);
+    }
+
+    // TODO: change to POST
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path(ENDPOINT_BUCKET_THAW)
+    public String thawBuckets(
+	    @QueryParam("index") String index, @QueryParam("from") String from,
+	    @QueryParam("to") String to) {
+
+	logger.info(happened("Received REST request to thaw buckets",
+		"endpoint", ENDPOINT_BUCKET_THAW, "index", index, "from", from,
+		"to", to));
+
+	if (from == null || to == null) {
+	    logger.error(happened("Invalid time interval provided."));
+	    throw new IllegalArgumentException(
+		    "A valid time interval (from and to) must be provided");
+	}
+
+	Date fromDate = dateFromString(from);
+	Date toDate = dateFromString(to);
+	if (fromDate == null || toDate == null) {
+	    logger.error(happened("Invalid time interval provided."));
+	    throw new IllegalArgumentException(
+		    "From and to date must be provided on the form yyyy-DD-mm");
+	}
+
+	if (index == null) {
+	    logger.error(happened("No index was provided."));
+	    throw new IllegalArgumentException("index must be specified");
+	}
+
+	// thaw
+	logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
+	BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
+	Map<String, List<Bucket>> buckets = bucketThawer.thawBuckets(index,
+		fromDate, toDate);
+
+	List<BucketBean> failedBucketBeans = new ArrayList<BucketBean>();
+	List<BucketBean> thawedBucketBeans = new ArrayList<BucketBean>();
+
+	for (Bucket bucket : buckets.get("thawed")) {
+	    BucketBean bucketBean = createBeanFromBucket(bucket);
+	    thawedBucketBeans.add(bucketBean);
+	}
+
+	for (Bucket bucket : buckets.get("failed")) {
+	    BucketBean bucketBean = createBeanFromBucket(bucket);
+	    failedBucketBeans.add(bucketBean);
+	}
+	HashMap<String, List<BucketBean>> ret = new HashMap<String, List<BucketBean>>();
+	
+	ret.put("thawed", thawedBucketBeans);
+	ret.put("failed", failedBucketBeans);
+
+	ObjectMapper mapper = new ObjectMapper();
+	try {
+	    return mapper.writeValueAsString(ret);
+	} catch (Exception e) {
+	    logger.error(did(
+		    "attempted to convert thawed/failed buckets to JSON string",
+		    e, null));
+	    throw new RuntimeException(e);
+	}
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path(ENDPOINT_LIST_INDEXES)
+    public String listAllIndexes() {
+
+	logger.info(happened("Received REST request to list indexes",
+		"endpoint", ENDPOINT_LIST_INDEXES));
+
+	ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
+		.getConfiguredArchiveFileSystem();
+	ArchiveConfiguration archiveConfiguration = ArchiveConfiguration
+		.getSharedInstance();
+	PathResolver pathResolver = new PathResolver(archiveConfiguration);
+	ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
+		pathResolver, archiveFileSystem);
+
+	return JSON.getDefault().toJSON(indexesLister.listIndexes());
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path(ENDPOINT_LIST_BUCKETS)
+    public List<BucketBean> listBucketsForIndex(
+	    @QueryParam("index") String index, @QueryParam("from") String from,
+	    @QueryParam("to") String to) {
+	logger.info(happened("Received REST request to list buckets",
+		"endpoint", ENDPOINT_LIST_BUCKETS, "index", index, "from",
+		from, "to", to));
+
+	List<BucketBean> beans = new ArrayList<BucketBean>();
+	BucketFilter bucketFilter = new BucketFilter();
+
+	// get buckets by index (or all buckets if index is null)
+	List<Bucket> buckets = listBuckets(index);
+
+	// attempt to filter by date
+	if (from != null || to != null) {
+	    try {
+		Date fromDate = dateFromString(from);
+		Date toDate = dateFromString(to);
+		buckets = bucketFilter.filterBucketsByTimeRange(buckets,
+			fromDate, toDate);
+	    } catch (Exception e) {
+		logger.error(did(
+			"attempted to filter buckets by given date range",
+			e, null, "to", to, "from", from));
+		throw new RuntimeException(e);
+	    }
+	}
+
+	for (Bucket bucket : buckets) {
+	    BucketBean bucketBean = createBeanFromBucket(bucket);
+	    beans.add(bucketBean);
+	}
+	return beans;
+    }
+
+    private Date dateFromString(String dateAsString) {
+	return StringDateConverter.convert(dateAsString);
+    }
+
+    private String stringFromDate(Date date) {
+	return new SimpleDateFormat("yyyy-MM-dd").format(date).toString();
+    }
+
+    private void logMetricsAtEndpoint(String endpoint) {
+	String logMessage = String.format(
+		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+		ENDPOINT_ARCHIVER, endpoint);
+	ShepMetricsHelper.update(logger, logMessage);
     }
 
     private void archiveBucketOnAnotherThread(String index, String path) {
@@ -106,53 +260,9 @@ public class BucketArchiverRest {
 		    "specified path was a file",
 		    "specified path to be a directory", "path", path,
 		    "index name ", indexName));
-	    e.printStackTrace();
 	    throw new RuntimeException(e);
 	}
 	return bucket;
-    }
-
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path(ENDPOINT_BUCKET_THAW)
-    public void archiveBucket(@QueryParam("index") String index,
-	    @QueryParam("from") String from, @QueryParam("to") String to) {
-
-	logger.info(happened("Received REST request to thaw buckets",
-		"endpoint", ENDPOINT_BUCKET_THAW, "index", index, "from", from,
-		"to", to));
-
-	logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
-	BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
-	bucketThawer.thawBuckets(index, dateFromString(from),
-		dateFromString(to));
-    }
-
-    private Date dateFromString(String dateAsString) {
-	return StringDateConverter.convert(dateAsString);
-    }
-
-    private void logMetricsAtEndpoint(String endpoint) {
-	String logMessage = String.format(
-		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-		ENDPOINT_ARCHIVER, endpoint);
-	ShepMetricsHelper.update(logger, logMessage);
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path(ENDPOINT_LIST_BUCKETS)
-    public List<BucketBean> listAllBuckets() {
-	List<BucketBean> beans = new ArrayList<BucketBean>();
-	for (Bucket bucket : listBuckets()) {
-	    BucketBean bucketBean = createBeanFromBucket(bucket);
-	    beans.add(bucketBean);
-	}
-	return beans;
-    }
-
-    private List<Bucket> listBuckets() {
-	return listBuckets(null);
     }
 
     private List<Bucket> listBuckets(String index) {
@@ -181,21 +291,9 @@ public class BucketArchiverRest {
 
     private BucketBean createBeanFromBucket(Bucket bucket) {
 	return new BucketBean(bucket.getFormat().name(), bucket.getIndex(),
-		bucket.getName(), bucket.getURI().toString());
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path(ENDPOINT_LIST_BUCKETS + "/{index}")
-    public List<BucketBean> listBucketsForIndex(@PathParam("index") String index) {
-	logger.info(happened("Received REST request to list buckets",
-		"endpoint", ENDPOINT_LIST_BUCKETS, "index", index));
-
-	List<BucketBean> beans = new ArrayList<BucketBean>();
-	for (Bucket bucket : listBuckets(index)) {
-	    BucketBean bucketBean = createBeanFromBucket(bucket);
-	    beans.add(bucketBean);
-	}
-	return beans;
+		bucket.getName(), bucket.getURI().toString(),
+		stringFromDate(bucket.getEarliest()),
+		stringFromDate(bucket.getLatest()),
+		FileUtils.byteCountToDisplaySize(bucket.getSize()));
     }
 }

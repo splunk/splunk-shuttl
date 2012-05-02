@@ -26,6 +26,9 @@ public class BucketBean {
     private String indexName;
     private String bucketName;
     private String uri;
+    private String from;
+    private String to;
+    private String size;
 
     /**
      * Needed for JAX-RS
@@ -35,11 +38,14 @@ public class BucketBean {
     }
 
     public BucketBean(String format, String indexName, String bucketName,
-	    String uri) {
+	    String uri, String from, String to, String size) {
 	this.format = format;
 	this.indexName = indexName;
 	this.bucketName = bucketName;
 	this.uri = uri;
+	this.from = from;
+	this.to = to;
+	this.size = size;
     }
 
     /**
@@ -102,4 +108,27 @@ public class BucketBean {
 	this.uri = uri;
     }
 
+    public String getFromDate() {
+	return from;
+    }
+
+    public String getToDate() {
+	return to;
+    }
+
+    public void setFromDate(String date) {
+	this.from = date;
+    }
+
+    public void setToDate(String date) {
+	this.to = date;
+    }
+
+    public void setSize(String size) {
+	this.size = size;
+    }
+
+    public String getSize() {
+	return size;
+    }
 }

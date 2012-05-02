@@ -97,7 +97,7 @@ public class ArchiveFileSystemFactory {
 	} catch (IOException e) {
 	    logger.error(did("Tried to create Hadoop FileSystem with uri", e,
 		    "To create file system.", "uri", uri));
-	    throw new RuntimeException(e);
+	    throw new RuntimeException("Could not connect to hadoop", e);
 	}
     }
 }
