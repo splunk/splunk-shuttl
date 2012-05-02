@@ -17,17 +17,23 @@ package com.splunk.shep.archiver.archive;
 import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
+import com.splunk.shep.ShepConstants;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.server.mbeans.rest.BucketArchiverRest;
@@ -41,18 +47,16 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	    .getLogger(ArchiveRestHandler.class);
     private final HttpClient httpClient;
 
-    /**
-     * TODO:
-     */
     public ArchiveRestHandler(HttpClient httpClient) {
 	this.httpClient = httpClient;
     }
 
     public void callRestToArchiveBucket(Bucket bucket) {
-	HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
 	HttpResponse response = null;
 
 	try {
+	    HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
+
 	    if (logger.isDebugEnabled()) {
 		logger.debug(will("Send an archive bucket request",
 			"request_uri", archiveBucketRequest.getURI()));
@@ -106,7 +110,6 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	case HttpStatus.SC_OK:
 	case HttpStatus.SC_NO_CONTENT:
 	    if (logger.isDebugEnabled()) {
-
 		logger.debug(done(
 			"Got http response from archiveBucketRequest",
 			"status_code", statusCode, "bucket_name",
@@ -137,13 +140,22 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	throw new RuntimeException(e);
     }
 
-    private static HttpUriRequest createBucketArchiveRequest(Bucket bucket) {
-	// CONFIG configure the host, port, request URL with a general
-	// solution.
-	String requestString = "http://localhost:9090/shep/rest/archiver/bucket/archive?path="
-		+ bucket.getDirectory().getAbsolutePath()
-		+ "&index=" + bucket.getIndex();
-	HttpGet request = new HttpGet(requestString);
+    private static HttpUriRequest createBucketArchiveRequest(Bucket bucket)
+	    throws UnsupportedEncodingException {
+	// CONFIG configure the host and port with a general solution.
+	String requestString = "http://localhost:9090/"
+		+ ShepConstants.ENDPOINT_CONTEXT
+		+ ShepConstants.ENDPOINT_ARCHIVER
+		+ ShepConstants.ENDPOINT_BUCKET_ARCHIVER;
+
+	HttpPost request = new HttpPost(requestString);
+
+	ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
+	params.add(new BasicNameValuePair("path", bucket.getDirectory()
+		.getAbsolutePath()));
+	params.add(new BasicNameValuePair("index", bucket.getIndex()));
+
+	request.setEntity(new UrlEncodedFormEntity(params));
 	return request;
     }
 

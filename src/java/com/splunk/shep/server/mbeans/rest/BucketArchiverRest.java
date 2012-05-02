@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -49,9 +51,10 @@ import com.splunk.shep.server.model.BucketBean;
  */
 @Path(ENDPOINT_ARCHIVER)
 public class BucketArchiverRest {
-    private org.apache.log4j.Logger logger = Logger.getLogger(getClass());
+    private static final org.apache.log4j.Logger logger = Logger
+	    .getLogger(BucketArchiverRest.class);
 
-    // TODO: change to POST
+
     /**
      * Example on how to archive a bucket with this endpoint:
      * /archiver/bucket/archive?path=/local/Path/To/Bucket
@@ -59,11 +62,11 @@ public class BucketArchiverRest {
      * @param path
      *            to the bucket to be archived.
      */
-    @GET
+    @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Path(ENDPOINT_BUCKET_ARCHIVER)
-    public void archiveBucket(@QueryParam("path") String path,
-	    @QueryParam("index") String index) {
+    public void archiveBucket(@FormParam("path") String path,
+	    @FormParam("index") String index) {
 	
 	logMetricsAtEndpoint(ENDPOINT_BUCKET_ARCHIVER);
 	
@@ -84,7 +87,6 @@ public class BucketArchiverRest {
 	archiveBucketOnAnotherThread(index, path);
     }
 
-    // TODO: change to POST
     /**
      * Thaws a range of buckets in either a specific index or all indexes on the
      * archiving fs.
@@ -100,12 +102,11 @@ public class BucketArchiverRest {
      *            Defaults to 9999-12-31.
      * @return
      */
-    @GET
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path(ENDPOINT_BUCKET_THAW)
-    public String thawBuckets(
-	    @QueryParam("index") String index, @QueryParam("from") String from,
-	    @QueryParam("to") String to) {
+    public String thawBuckets(@FormParam("index") String index,
+	    @FormParam("from") String from, @FormParam("to") String to) {
 
 	logger.info(happened("Received REST request to thaw buckets",
 		"endpoint", ENDPOINT_BUCKET_THAW, "index", index, "from", from,
