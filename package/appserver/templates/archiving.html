@@ -9,11 +9,12 @@
 %>
 
 <%def name="custom_css()">
-    <%lib:stylesheet_tags files="${['/static/app/shep/jquery-ui/css/redmond/jquery-ui-1.8.19.custom.css']}" />
-    <%lib:script_tags files="${['/static/app/shep/jquery-ui/js/jquery-ui-1.8.19.custom.min.js']}" />
-    <%lib:script_tags files="${['/static/app/shep/jquery-validation/jquery.validate.js']}" />
-    <%lib:stylesheet_tags files="${['/static/app/shep/archiver.css']}" />
-    <%lib:script_tags files="${['/static/app/shep/archiver.js', '/static/app/shep/jquery.tablesorter.js']}" />
+    <%lib:stylesheet_tags files="${['/static/app/shep/jquery-ui/css/redmond/jquery-ui-1.8.19.custom.css', 
+                                    '/static/app/shep/archiver.css']}" />
+    <%lib:script_tags files="${['/static/app/shep/jquery-ui/js/jquery-ui-1.8.19.custom.min.js', 
+                                '/static/app/shep/jquery-validation/jquery.validate.js',
+                                '/static/app/shep/archiver.js', 
+                                '/static/app/shep/jquery.tablesorter.js']}" />
 </%def>
 
 <%def name="gen_form(method='POST', action=None)">
@@ -23,7 +24,7 @@
 <%def name="gen_select(indexes)">
   <div class="styled-select">
     <select class="indexes" name="index">
-        <option value="all">All</option>
+        <option value="*">All</option>
       % for index in indexes:
         <option value="${index}">${index}</option>  
       % endfor
@@ -71,14 +72,14 @@
   <form name="search-thaw-buckets" id="search-thaw-buckets-form">
 
   ##<input type="hidden" name="splunk_form_key" value="${util.getFormKey()|h}" />
-  ${csrf_hidden_input()}
+  ##${csrf_hidden_input()}
 
   <div id="archiverPage">
     <div class="table">
+      ##${gen_table_option_row(id="Index", data="${gen_select(indexes)}")}
+      ##<%self:gen_table_option_row id="Index" data=${gen_select(indexes)} />
       <%self:gen_table_option_row id="Index">
-        <%def name="data()">
-          ${gen_select(indexes)}
-        </%def>
+        <%def name="data()">${gen_select(indexes)}</%def>
       </%self:gen_table_option_row>
       <%self:gen_table_option_row id="Time Range">
         <%def name="data()">
@@ -106,7 +107,7 @@
       </%self:gen_table_option_row>
       <%self:gen_table_option_row>
         <%def name="data()">
-          <input id="search-thaw-button" class="search button" type="button" value="Thaw buckets in range">
+          <input id="search-thaw-button" class="search button" type="button" value="Search for buckets in range">
         </%def>
       </%self:gen_table_option_row>
     </div>

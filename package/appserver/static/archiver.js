@@ -1,25 +1,60 @@
-function loadXMLDoc()
-{
-  var xmlhttp;
-  if (window.XMLHttpRequest)
-  {// code for IE7+, Firefox, Chrome, Opera, Safari
-    xmlhttp=new XMLHttpRequest();
-  }
-  else
-  {// code for IE6, IE5
-    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-  }
-  xmlhttp.onreadystatechange=function()
-  {
-    if (xmlhttp.readyState==4 && xmlhttp.status==200)
-    {
-      document.getElementById("bucket-table").innerHTML=xmlhttp.responseText;
+$(document).ready(function() {
+
+  // Handler for events
+  bindHandlers();
+
+  // Datetime-picker
+  $('.datetime-input').datepicker({
+    dateFormat:"yy-mm-dd",
+    showOn: "button",
+    buttonImage: Splunk.util.make_url('static/app/', getAppName() ,'/images/calendar_blue.png'),
+    buttonImageOnly: true
+  });
+
+  // Validator
+  $('#search-thaw-buckets-form').validate({
+    errorPlacement: function(error, element) {
+      error.insertAfter( element.next() );
     }
-  }
-  xmlhttp.open("GET","/custom/shep/Archiving/list_buckets",true);
-  xmlhttp.send();
+  });
+  jQuery.validator.addClassRules({
+    'datetime-input': {
+      required: true,
+      dateISO: true
+    }
+  });
+});
+
+function bindHandlers() {
+    $('#search-thaw-button').bind('click', function(event){ searchOrThawBuckets(event); } );
+    $('input').bind('keyup', function(event) { 
+      if (event.keyCode == 13) {
+        listBucketsPOST();
+      }
+    });
+    $('#search-thaw-buckets-form').bind('change', function(event) { 
+      if (isFormValid()) {
+        $('#search-thaw-button').enable();
+        listBucketsPOST();
+      } else {
+        $('#search-thaw-button').disable();
+      }
+    });
 }
 
+function getPostArguments(form) {
+  //remove attributes with no data
+  var serializedData = form.serializeArray();
+  return $.map(serializedData, function(obj, i){
+    if ( obj['value']=="" ) {
+      return null;
+    } else if( obj['name']=="index" && obj['value']=="*" ) {
+      return null;
+    } else {
+      return obj;
+    }
+  });
+}
 function listBucketsGET() {
   $.ajax({
     url: 'list_buckets',
@@ -30,17 +65,9 @@ function listBucketsGET() {
     }
   });
 }
-
 function listBucketsPOST() {
-
-  if (!$('#search-thaw-buckets-form').valid()) {
-    return;
-  }
-
-  var formData = $('form').serializeArray();
-  var data = formData;
+  var data = getPostArguments($('form'));
   console.log(data);
-
   $.ajax({
     url: 'list_buckets',
     type: 'POST',
@@ -50,11 +77,8 @@ function listBucketsPOST() {
     }
   });
 }
-
 function thawBucketsGET() {
-  
   var formData = $('form').serialize();
-   
   $.ajax({
     url: 'thaw',
     type: 'GET',
@@ -66,75 +90,33 @@ function thawBucketsGET() {
   });
 }
 
-function getStaticContextURL() {
-  var url = Splunk.util.make_url('static/images/calendar_blue.png'); //initialize string
-  // var scripts = $('script').last().attr('src');
-  // url = scripts.slice(7, scripts.lastIndexOf("/"));
-  console.log(url);
-  return url;
-}
-
-// Splunk.util.getCurrentApp() only checks document.body not top.document
 function getAppName() {
   return $(top.document.body).attr("s:app") || 'UNKNOWN_APP_REALLY';
 }
 
-$(document).ready(function() {
-    bindHandler();
-
-    $('.datetime-input').datepicker({
-      dateFormat:"yy-mm-dd",
-      showOn: "button",
-      buttonImage: Splunk.util.make_url('static/app/', getAppName() ,'/images/calendar_blue.png'),
-      buttonImageOnly: true
-     });
-
-    $('#search-thaw-buckets-form').validate({
-      errorPlacement: function(error, element) {
-        error.insertAfter( element.next() );
-      }
-    });
-    jQuery.validator.addClassRules({
-      'datetime-input': {
-        required: true,
-        dateISO: true
-      }
-    });
-    //$('.datetime-input').change( function() {
-    //  if ($('#search-thaw-buckets-form').valid()) {
-    //    enableSearchThawButton();
-    //  } else {
-    //    disableSearchThawButton();
-    //  }
-    //});
-});
-
-function bindHandler() {
-    //$('#enable-button').bind('click', function() { toggleSearchThawButton(); });
-    $('#search-thaw-button').bind('click', function(event) { thawBuckets(event); });
+function isFormValid() {
+  return $('#search-thaw-buckets-form').valid();
 }
 
-function enableSearchThawButton() {
-  $('#search-thaw-button').removeClass('disabled');
+
+$.fn.enable = function() {
+  $(this).removeAttr('disabled');
+}
+$.fn.disable = function() {
+  $(this).attr('disabled', 'disabled');
+}
+$.fn.isEnabled = function() {
+  return $(this).is(':enabled');
 }
 
-function disableSearchThawButton() {
-  $('#search-thaw-button').addClass('disabled');
-}
-
-function toggleSearchThawButton() {
-  $('#search-thaw-button').toggleClass('disabled');
-}
-
-function thawBuckets(event) {
+function searchOrThawBuckets(event) {
   var target = $(event.target);
-
-  if (!$('#search-thaw-buckets-form').valid()) {
-    alert('Please fill out form first');
-    return;
-  }
-
-  if (!target.hasClass('disabled')) {
-    thawBucketsGET();
+  if (target.isEnabled()) {
+    if (target.hasClass('search')) {
+      listBucketsPOST();
+    } else if (target.hadClass('thaw')) {
+      console.log("thaw something!?");
+      thawBucketsGET();
+    }
   }
 }

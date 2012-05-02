@@ -59,7 +59,7 @@ p {
 #bucket-list {
 
 }
-input.datetime_input { 
+input.datetime-input { 
     -webkit-border-radius: 4px; 
     -moz-border-radius: 4px; 
     border-radius: 4px; 
@@ -89,15 +89,15 @@ input.datetime_input {
 .hidden {
     display: none;
 }
-input.disabled {
+input.disabled, [disabled="disabled"] {
     background-color: #ddd;
     color: #EDEDED;
 }
-input.disabled:hover {
+input.disabled:hover, :hover[disabled="disabled"] {
     background-color: #ddd;
     color: #EDEDED;
 }
-input.disabled:active {
+input.disabled:active, :hover[disabled="disabled"] {
     background-color: #ddd;
     color: #EDEDED;
 }
@@ -111,12 +111,20 @@ label.error {
     color: #FFA8A8;
     margin-left: 5px;
 }
+.error {
+    color: red;
+}
 
 /*Datepicker*/
 img.ui-datepicker-trigger {
     vertical-align: sub;
 }
 
+/* Debug */
+#post-message {
+    margin: 10px;
+    border: 1px dotted #999;
+}
 
 code {
     background: none repeat scroll 0 0 #EAF1F6;
