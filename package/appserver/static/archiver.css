@@ -1,7 +1,6 @@
 body {
     font-family: Helvetica neue,Helvetica,Arial,sans-serif;
     font-size: 12px;
-    line-height: 150%;
     margin: 0;
     padding: 0;
 }
@@ -14,11 +13,9 @@ p {
     color: #666666;
     margin-bottom: 30px;
 }
-.border {
-    border: 1px solid;
-}
 #archiver {
     margin: 20px;
+    line-height: 150%;
 }
 #archiverPage, #thawedPage {
     width: 100%;
@@ -57,7 +54,8 @@ p {
 
 }
 #bucket-list {
-
+    line-height: 100%;
+    width: auto;
 }
 input.datetime-input { 
     -webkit-border-radius: 4px; 
@@ -74,6 +72,7 @@ input.datetime-input {
     margin-top: 10px;
     padding: 3px 5px 3px 5px;
     min-width: 100px;
+    min-height: 25px;
 }
 .button:hover {
     background-color: #3A7DAB;
@@ -86,20 +85,55 @@ input.datetime-input {
 .noAfter:after {
     content: "";
 }
+input.disabled, input.button[disabled="disabled"] {
+    background-color: #ddd;
+    color: #EDEDED;
+}
+input.disabled:hover, input.button:hover[disabled="disabled"] {
+    background-color: #ddd;
+    color: #EDEDED;
+}
+input.disabled:active, input.button:hover[disabled="disabled"] {
+    background-color: #ddd;
+    color: #EDEDED;
+}
+
+/* Properties */
+.border {
+    border: 1px solid;
+}
 .hidden {
     display: none;
 }
-input.disabled, [disabled="disabled"] {
-    background-color: #ddd;
-    color: #EDEDED;
+
+/* thaw-button */
+.thaw.button {
+    background-color: #FFC830;
 }
-input.disabled:hover, :hover[disabled="disabled"] {
-    background-color: #ddd;
-    color: #EDEDED;
+.thaw.button:hover {
+    background-color: #FFD45E;
 }
-input.disabled:active, :hover[disabled="disabled"] {
-    background-color: #ddd;
-    color: #EDEDED;
+.thaw.button:active {
+    background-color: #DBAD30;
+}
+
+/* loading */
+.loading, .loadingBig {
+    text-indent: -3000px;
+    overflow: hidden; /* IE what else to say */
+    height: 16px;
+    background-image: url(images/loading/loader_blue.gif);
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+.loadingBig {
+    height: 32px;
+    background-image: url(images/loading/loader_white.gif);
+}
+.search.loading {
+}
+.thaw.loading {
+    background-image: url(images/loading/loader_blue_on_grey.gif);
 }
 
 /*Errors*/

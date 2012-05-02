@@ -1,5 +1,10 @@
 $(document).ready(function() {
 
+  // Load UI
+  setSearchOrThawButtonToThaw();
+  $('.loadingBig').hide();
+  $('#thawedPage').hide();
+
   // Handler for events
   bindHandlers();
 
@@ -29,16 +34,13 @@ function bindHandlers() {
     $('#search-thaw-button').bind('click', function(event){ searchOrThawBuckets(event); } );
     $('input').bind('keyup', function(event) { 
       if (event.keyCode == 13) {
+        setSearchOrThawButtonToSearch();
         listBucketsPOST();
       }
     });
     $('#search-thaw-buckets-form').bind('change', function(event) { 
-      if (isFormValid()) {
-        $('#search-thaw-button').enable();
-        listBucketsPOST();
-      } else {
-        $('#search-thaw-button').disable();
-      }
+      $('#search-thaw-button').enable();
+      setSearchOrThawButtonToSearch();
     });
 }
 
@@ -49,43 +51,67 @@ function getPostArguments(form) {
     if ( obj['value']=="" ) {
       return null;
     } else if( obj['name']=="index" && obj['value']=="*" ) {
-      return null;
+      // return null;
     } else {
       return obj;
     }
   });
 }
 function listBucketsGET() {
+  
+  if (!isFormValid()) return;
+
+  loading();
   $.ajax({
     url: 'list_buckets',
-
     type: 'GET',
     success: function(html) {
-      $('#bucket-table').html(html);
+      $('#bucket-list').html(html);
+    },
+    complete: function() {
+      loadingDone();
     }
   });
 }
 function listBucketsPOST() {
+
+  if (!isFormValid()) return;
+
   var data = getPostArguments($('form'));
   console.log(data);
+  
+  loading();
   $.ajax({
     url: 'list_buckets',
     type: 'POST',
     data: data,
     success: function(html) {
-      $('#bucket-table').html(html);
+      $('#bucket-list').html(html);
+      setSearchOrThawButtonToThaw();
+    },
+    complete: function() {
+      loadingDone();
+      $('#bucket-list').show();
     }
   });
 }
 function thawBucketsGET() {
+
+  if (!isFormValid()) return;
+
   var formData = $('form').serialize();
+  
+  loading();
   $.ajax({
     url: 'thaw',
     type: 'GET',
     data: formData,
     success: function(html) {
-      window.open(); 
-      document.write(html);
+      $('#thawed-list').html(html);
+    },
+    complete: function() {
+      loadingDone();
+      $('#thawed-list').show();
     }
   });
 }
@@ -95,9 +121,12 @@ function getAppName() {
 }
 
 function isFormValid() {
-  return $('#search-thaw-buckets-form').valid();
+  if($('#search-thaw-buckets-form').valid()) {
+    return true;
+  } else {
+    return false;
+  }
 }
-
 
 $.fn.enable = function() {
   $(this).removeAttr('disabled');
@@ -109,12 +138,47 @@ $.fn.isEnabled = function() {
   return $(this).is(':enabled');
 }
 
+function loading() {
+  var button = $('#search-thaw-button');
+  
+  button.disable();
+  if(button.hasClass('search')) { 
+    $('#bucket-list').hide();
+    $('#bucket-list').prev('.loadingBig').show();
+  } else if (button.hasClass('thaw')) {
+    $('#thawedPage').show(); // not shown from tha beginning
+    $('#thawed-list').hide();
+    $('#thawed-list').prev('.loadingBig').show();
+  }
+}
+function loadingDone() {
+  var button = $('#search-thaw-button');
+  
+  button.enable();
+
+  // Graphics
+  button.removeClass('loading');
+  $('.loadingBig').hide();
+}
+
+function setSearchOrThawButtonToThaw() {
+  var button = $('#search-thaw-button');
+  button.addClass('thaw');
+  button.removeClass('search');
+  button.val("Thaw buckets!");
+}
+function setSearchOrThawButtonToSearch() {
+  var button = $('#search-thaw-button');
+  button.addClass('search');
+  button.removeClass('thaw');
+  button.val("Search for buckets in range");
+}
 function searchOrThawBuckets(event) {
   var target = $(event.target);
   if (target.isEnabled()) {
     if (target.hasClass('search')) {
       listBucketsPOST();
-    } else if (target.hadClass('thaw')) {
+    } else if (target.hasClass('thaw')) {
       console.log("thaw something!?");
       thawBucketsGET();
     }
