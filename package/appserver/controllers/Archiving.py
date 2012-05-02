@@ -7,7 +7,6 @@ import splunk.rest
 import splunk.bundle as bundle
 import splunk.appserver.mrsparkle.controllers as controllers
 from splunk.appserver.mrsparkle.lib.decorators import expose_page
-from model import Model
 
 logger = logging.getLogger('splunk.appserver.mrsparkle.controllers.Archiving')
 DEBUG = False
@@ -37,18 +36,29 @@ class Archiving(controllers.BaseController):
     @expose_page(must_login=True, methods=['GET']) 
     def show(self, **kwargs):
         
-        indexes = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/index/list')[1])
-        buckets = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list')[1])
+        indexes = []
+        buckets = {'bucket' : []}
+        indexesRequest = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/index/list');
+        bucketsRequest = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list');
 
         # debug
-        if DEBUG: buckets = defaultBuckets
+        if DEBUG: 
+            buckets = defaultBuckets
+        else:
+            # Check http status codes
+            if indexesRequest[0].status==200 and bucketsRequest[0].status==200:
+                indexes = json.loads(indexesRequest[1])
+                buckets = json.loads(bucketsRequest[1])
+            else:
+                # Error hadoop or rest (jetty) problem
+                return 'Error could not load index OR buckets'
 
         # discard container
         if buckets is not None:
             buckets = buckets['bucket']
 
         logger.error('show - indexes: %s (%s)' % (indexes, type(indexes)))
-        logger.error('show -buckets: %s (%s)' % (buckets, type(buckets)))
+        logger.error('show - buckets: %s (%s)' % (buckets, type(buckets)))
 
         return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes, buckets=buckets))
 
@@ -56,9 +66,9 @@ class Archiving(controllers.BaseController):
     @expose_page(must_login=True, methods=['POST'])
     def list_buckets(self, **params):
         
-        logger.error('list_buckets - postArgs: %s' % params)
+        logger.error('list_buckets - postArgs: %s (%s)' % (params, type(params)))
         buckets = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list', getargs=params)[1])
-        logger.error('list_buckets - buckets: %s' % buckets)
+        logger.error('list_buckets - buckets: %s (%s)' % (buckets, type(buckets)))
 
         # debug
         if DEBUG: 

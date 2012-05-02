@@ -10,11 +10,13 @@
 
 <%def name="custom_css()">
     <%lib:stylesheet_tags files="${['/static/app/shep/jquery-ui/css/redmond/jquery-ui-1.8.19.custom.css', 
+                                    '/static/app/shep/tablesorter-theme/blue/style.css',
                                     '/static/app/shep/archiver.css']}" />
     <%lib:script_tags files="${['/static/app/shep/jquery-ui/js/jquery-ui-1.8.19.custom.min.js', 
                                 '/static/app/shep/jquery-validation/jquery.validate.js',
                                 '/static/app/shep/archiver.js', 
-                                '/static/app/shep/jquery.tablesorter.js']}" />
+                                '/static/app/shep/jquery.tablesorter.js',
+                                '/static/app/shep/jquery.tablesorter.pager.js']}" />
 </%def>
 
 <%def name="gen_form(method='POST', action=None)">
@@ -102,12 +104,15 @@
       </%self:gen_table_option_row>
       <%self:gen_table_option_row id="Buckets">
         <%def name="data()">
-          ${buckets.gen_bucket_list(context['buckets'])}
+          <div class="loadingBig" style="background-position:left center;"></div>
+          <div id="bucket-list">
+            ${buckets.gen_bucket_list(context['buckets'])}
+          </div>
         </%def>
       </%self:gen_table_option_row>
       <%self:gen_table_option_row>
         <%def name="data()">
-          <input id="search-thaw-button" class="search button" type="button" value="Search for buckets in range">
+          <input id="search-thaw-button" class="search button" type="button" value="">
         </%def>
       </%self:gen_table_option_row>
     </div>
@@ -116,8 +121,13 @@
   <hr />
 
   <div id="thawedPage">
-    <div class="table hidden">
-      ${gen_table_option_row(id="Thawed data", data="")}
+    <div class="table">
+      <%self:gen_table_option_row id="Thawed data">
+        <%def name="data()">
+          <div class="loadingBig" style="background-position:left center;"></div>
+          <div id="thawed-list"></div>
+        </%def>
+      </%self:gen_table_option_row>
     </div>
   </div>
 
