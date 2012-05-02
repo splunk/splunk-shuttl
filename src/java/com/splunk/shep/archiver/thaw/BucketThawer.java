@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import com.splunk.shep.archiver.fileSystem.FileOverwriteException;
 import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.archiver.model.IllegalIndexException;
 
 /**
  * Interacts with the archive to thaw buckets within the users needs, which is
@@ -96,6 +97,7 @@ public class BucketThawer {
 	if (index != null) {
 	    bucketsInIndex = archiveBucketsLister.listBucketsInIndex(index);
 	} else {
+	    // no index specified - use all indexes
 	    bucketsInIndex = archiveBucketsLister.listBuckets();
 	}
 	List<Bucket> filteredBuckets = bucketFilter.filterBucketsByTimeRange(
@@ -103,41 +105,41 @@ public class BucketThawer {
 	List<Bucket> bucketsWithFormats = bucketFormatResolver
 		.resolveBucketsFormats(filteredBuckets);
 
+	return thawBuckets(bucketsWithFormats);
+    }
+
+    public List<ThawInfo> thawBuckets(List<Bucket> bucketsWithFormats) {
 	List<ThawInfo> thawInfo = new ArrayList<ThawInfo>();
 
 	for (Bucket bucket : bucketsWithFormats) {
 	    logger.info(will("Attempting to thaw bucket", "bucket", bucket));
+	    Exception tempException = null;
+	    String message = null;
 	    try {
 		thawBucketTransferer.transferBucketToThaw(bucket);
 		thawInfo.add(new ThawInfo(bucket, ThawInfo.Status.THAWED));
 		logger.info(done("Thawed bucket", "bucket", bucket));
 	    } catch (FileOverwriteException e) {
-		logger.error(did("Tried to thaw bucket", e,
+		tempException = e;
+		message = "Directory already exists - bucket is probably already thawed";
+	    } catch (IllegalIndexException e) {
+		// TODO: Thawing could be sped up by ignoring buckets in indexes
+		// we know don't exist
+		tempException = e;
+		message = "Given index does not exist in running Splunk instance";
+	    } catch (IOException e) {
+		tempException = e;
+		message = e.getMessage();
+	    }
+	    if (tempException != null) {
+		logger.error(did("Tried to thaw bucket", tempException,
 			"Place the bucket in thaw", "bucket", bucket,
-			"exception", e));
-		String message = "Directory already exists - bucket is probably already thawed";
+			"exception", tempException));
 		thawInfo.add(new ThawInfo(bucket, ThawInfo.Status.FAILED,
 			message));
-	    } catch (IOException e) {
-		logger.error(did("Tried to thaw bucket", e,
-			"Place the bucket in thaw", "bucket", bucket,
-			"exception", e));
-		thawInfo.add(new ThawInfo(bucket, ThawInfo.Status.FAILED, e
-			.getMessage()));
 	    }
 	}
 
 	return thawInfo;
-    }
-
-    /**
-     * @param index
-     * @param fromDate
-     * @param toDate
-     * @return
-     */
-    public String thawBucketsGetJSON(String index, Date fromDate, Date toDate) {
-	// TODO Auto-generated method stub
-	return null;
     }
 }

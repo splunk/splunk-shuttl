@@ -19,11 +19,13 @@ import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.archiver.model.IllegalIndexException;
 import com.splunk.shep.testutil.UtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -35,7 +37,7 @@ public class ThawLocationProviderTest {
     File thawLocation;
 
     @BeforeMethod
-    public void setUp() {
+    public void setUp() throws IllegalIndexException {
 	bucket = UtilsBucket.createTestBucket();
 	splunkSettings = mock(SplunkSettings.class);
 	thawLocationProvider = new ThawLocationProvider(splunkSettings);
@@ -43,21 +45,24 @@ public class ThawLocationProviderTest {
 	stubSplunkSettingsToReturnThawLocation();
     }
 
-    private void stubSplunkSettingsToReturnThawLocation() {
+    private void stubSplunkSettingsToReturnThawLocation()
+	    throws IllegalIndexException {
 	thawLocation = createTestFilePath();
 	when(splunkSettings.getThawLocation(bucket.getIndex())).thenReturn(
 		thawLocation);
     }
 
     @Test(groups = { "fast-unit" })
-    public void getLocationInThawForBucket_givenThawLocation_returnedBucketDirectorysParentIsThawLocation() {
+    public void getLocationInThawForBucket_givenThawLocation_returnedBucketDirectorysParentIsThawLocation()
+	    throws IOException {
 	File locationInThawDirectory = thawLocationProvider
 		.getLocationInThawForBucket(bucket);
 	assertEquals(thawLocation.getAbsolutePath(), locationInThawDirectory
 		.getParentFile().getAbsolutePath());
     }
 
-    public void getLocationInThawForBucket_givenThawLocation_directoryHasNameOfBucket() {
+    public void getLocationInThawForBucket_givenThawLocation_directoryHasNameOfBucket()
+	    throws IOException {
 	File bucketsLocation = thawLocationProvider
 		.getLocationInThawForBucket(bucket);
 	assertEquals(bucket.getName(), bucketsLocation.getName());

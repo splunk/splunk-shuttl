@@ -39,6 +39,7 @@ import com.splunk.shep.archiver.archive.recovery.BucketLocker;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.archiver.model.IllegalIndexException;
 import com.splunk.shep.archiver.thaw.BucketThawer;
 import com.splunk.shep.archiver.thaw.BucketThawerFactory;
 import com.splunk.shep.archiver.thaw.SplunkSettings;
@@ -58,7 +59,7 @@ public class ThawFunctionalTest {
     Path tmpPath;
 
     @BeforeMethod
-    public void setUp() {
+    public void setUp() throws IllegalIndexException {
 	UtilsMBean.registerShepArchiverMBean();
 	tmpPath = new Path(ArchiveConfiguration.getSharedInstance()
 		.getTmpDirectory());

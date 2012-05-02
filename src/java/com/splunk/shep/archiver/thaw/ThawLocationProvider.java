@@ -15,6 +15,7 @@
 package com.splunk.shep.archiver.thaw;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.splunk.shep.archiver.model.Bucket;
 
@@ -36,8 +37,10 @@ public class ThawLocationProvider {
     /**
      * @param bucket
      *            to get location in thaw for.
+     * @throws IOException
+     *             if that location can not be found.
      */
-    public File getLocationInThawForBucket(Bucket bucket) {
+    public File getLocationInThawForBucket(Bucket bucket) throws IOException {
 	File thawLocation = splunkSettings.getThawLocation(bucket.getIndex());
 	return new File(thawLocation, bucket.getName());
     }
