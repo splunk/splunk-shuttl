@@ -10,10 +10,22 @@ import com.splunk.shep.server.mbeans.ShepArchiverMBean;
 
 public class ArchiveConfiguration {
 
-    private final ShepArchiverMBean mBean;
+    private final BucketFormat bucketFormat;
+    private final URI archivingRoot;
+    private final String clusterName;
+    private final String serverName;
+    private final List<BucketFormat> bucketFormatPriority;
+    private final URI tmpDirectory;
 
-    public ArchiveConfiguration(ShepArchiverMBean mBean) {
-	this.mBean = mBean;
+    public ArchiveConfiguration(BucketFormat bucketFormat, URI archivingRoot,
+	    String clusterName, String serverName,
+	    List<BucketFormat> bucketFormatPriority, URI tmpDirectory) {
+	this.bucketFormat = bucketFormat;
+	this.archivingRoot = archivingRoot;
+	this.clusterName = clusterName;
+	this.serverName = serverName;
+	this.bucketFormatPriority = bucketFormatPriority;
+	this.tmpDirectory = tmpDirectory;
     }
 
     /**
@@ -28,28 +40,69 @@ public class ArchiveConfiguration {
 	    sharedInstance = sharedInstanceRef.get();
 	}
 	if (sharedInstance == null) {
-	    sharedInstance = new ArchiveConfiguration(
-		    ShepArchiver.getMBeanProxy());
+	    sharedInstance = createConfigurationWithMBean(ShepArchiver
+		    .getMBeanProxy());
 	    sharedInstanceRef = new SoftReference<ArchiveConfiguration>(
 		    sharedInstance);
 	}
 	return sharedInstance;
     }
 
+    /**
+     * @return {@link ArchiveConfiguration} with properties from a
+     *         {@link ShepArchiverMBean}
+     */
+    public static ArchiveConfiguration createConfigurationWithMBean(
+	    ShepArchiverMBean mBean) {
+	BucketFormat bucketFormat = bucketFormatFromMBean(mBean);
+	URI archivingRoot = archivingRootFromMBean(mBean);
+	String clusterName = mBean.getClusterName();
+	String serverName = mBean.getServerName();
+	List<BucketFormat> bucketFormatPriority = createFormatPriorityList(mBean);
+	URI tmpDirectory = extracted(mBean, archivingRoot);
+	return new ArchiveConfiguration(bucketFormat, archivingRoot,
+		clusterName, serverName, bucketFormatPriority, tmpDirectory);
+    }
+
+    private static URI archivingRootFromMBean(ShepArchiverMBean mBean) {
+	String archivingRoot = mBean.getArchiverRootURI();
+	return archivingRoot != null ? URI.create(archivingRoot) : null;
+    }
+
+    private static BucketFormat bucketFormatFromMBean(ShepArchiverMBean mBean) {
+	String archiveFormat = mBean.getArchiveFormat();
+	return archiveFormat != null ? BucketFormat.valueOf(archiveFormat)
+		: null;
+    }
+
+    private static URI extracted(ShepArchiverMBean mBean, URI archivingRoot) {
+	String tmpDir = mBean.getTmpDirectory();
+	return tmpDir != null ? archivingRoot.resolve(tmpDir) : null;
+    }
+
+    private static List<BucketFormat> createFormatPriorityList(
+	    ShepArchiverMBean mBean) {
+	List<BucketFormat> bucketFormats = new ArrayList<BucketFormat>();
+	for (String format : mBean.getBucketFormatPriority()) {
+	    bucketFormats.add(BucketFormat.valueOf(format));
+	}
+	return bucketFormats;
+    }
+
     public BucketFormat getArchiveFormat() {
-	return BucketFormat.valueOf(mBean.getArchiveFormat());
+	return bucketFormat;
     }
 
     public URI getArchivingRoot() {
-	return URI.create(mBean.getArchiverRootURI());
+	return archivingRoot;
     }
 
     public String getClusterName() {
-	return mBean.getClusterName();
+	return clusterName;
     }
 
     public String getServerName() {
-	return mBean.getServerName();
+	return serverName;
     }
 
     /**
@@ -58,20 +111,14 @@ public class ArchiveConfiguration {
      * highest priority, while .get(length-1) has the least priority.
      */
     public List<BucketFormat> getBucketFormatPriority() {
-	List<BucketFormat> tempList = new ArrayList<BucketFormat>();
-	for (String format : mBean.getBucketFormatPriority()) {
-	    tempList.add(BucketFormat.valueOf(format));
-	}
-	return tempList;
+	return bucketFormatPriority;
     }
 
     /**
      * @return The Path on hadoop filesystem that is used as a temp directory
      */
     public URI getTmpDirectory() {
-	URI archivingRoot = getArchivingRoot();
-	String tmpDirectoryPath = mBean.getTmpDirectory();
-	return archivingRoot.resolve(tmpDirectoryPath);
+	return tmpDirectory;
     }
 
 }
