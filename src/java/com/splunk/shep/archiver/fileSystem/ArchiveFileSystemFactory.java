@@ -55,9 +55,19 @@ public class ArchiveFileSystemFactory {
      * @return {@link ArchiveFileSystem} as configured.
      */
     public static ArchiveFileSystem getConfiguredArchiveFileSystem() {
-	ArchiveFileSystem archiveFileSystem = getForUriToTmpDir(ArchiveConfiguration
-		.getSharedInstance().getTmpDirectory());
-	return archiveFileSystem;
+	ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
+	return getWithConfiguration(config);
+    }
+
+    /**
+     * Method that is needed when mocking a configuration for tests.
+     * 
+     * @return {@link ArchiveFileSystem} with a specific
+     *         {@link ArchiveConfiguration}.
+     */
+    public static ArchiveFileSystem getWithConfiguration(
+	    ArchiveConfiguration config) {
+	return getForUriToTmpDir(config.getTmpDirectory());
     }
 
     /**

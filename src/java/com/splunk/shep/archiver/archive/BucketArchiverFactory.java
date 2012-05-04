@@ -23,13 +23,33 @@ import com.splunk.shep.archiver.fileSystem.ArchiveFileSystemFactory;
  */
 public class BucketArchiverFactory {
 
+    /**
+     * @return {@link BucketArchiver} as configured in .conf files.
+     */
     public static BucketArchiver createConfiguredArchiver() {
 	ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-	ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
-		.getConfiguredArchiveFileSystem();
+	return createWithConfiguration(config);
+    }
 
+    /**
+     * Testability with specified configuration.
+     */
+    public static BucketArchiver createWithConfiguration(
+	    ArchiveConfiguration config) {
+	ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
+		.getWithConfiguration(config);
+	return createWithConfigurationAndArchiveFileSystem(config,
+		archiveFileSystem);
+    }
+
+    /**
+     * Testability with both configuration and archive file system.
+     */
+    public static BucketArchiver createWithConfigurationAndArchiveFileSystem(
+	    ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem) {
 	return new BucketArchiver(config, new BucketExporter(),
 		new PathResolver(config), new ArchiveBucketTransferer(
 			archiveFileSystem));
+
     }
 }
