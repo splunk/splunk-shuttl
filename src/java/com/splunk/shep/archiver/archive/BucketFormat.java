@@ -3,7 +3,7 @@ package com.splunk.shep.archiver.archive;
 import java.io.File;
 
 public enum BucketFormat {
-    SPLUNK_BUCKET, UNKNOWN;
+    SPLUNK_BUCKET, UNKNOWN, CSV;
 
     /**
      * @param directory
