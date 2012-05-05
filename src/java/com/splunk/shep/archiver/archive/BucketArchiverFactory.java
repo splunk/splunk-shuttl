@@ -47,7 +47,8 @@ public class BucketArchiverFactory {
      */
     public static BucketArchiver createWithConfigurationAndArchiveFileSystem(
 	    ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem) {
-	return new BucketArchiver(config, new BucketExporter(),
+	SplunkExportTool splunkExportTool = new SplunkExportTool();
+	return new BucketArchiver(config, new BucketExporter(splunkExportTool),
 		new PathResolver(config), new ArchiveBucketTransferer(
 			archiveFileSystem));
 

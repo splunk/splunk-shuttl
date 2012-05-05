@@ -40,7 +40,7 @@ public class BucketArchiver {
 
     public void archiveBucket(Bucket bucket) {
 	BucketFormat bucketFormat = archiveConfiguration.getArchiveFormat();
-	Bucket exportedBucket = bucketExporter.getBucketExportedToFormat(
+	Bucket exportedBucket = bucketExporter.exportBucketToFormat(
 		bucket, bucketFormat);
 	URI path = pathResolver.resolveArchivePath(exportedBucket);
 	archiveBucketTransferer.transferBucketToArchive(bucket, path);
