@@ -47,7 +47,8 @@ public class BucketExporter {
     private Bucket getBucketInNewFormat(Bucket bucket, BucketFormat newFormat) {
 	if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)
 		&& newFormat.equals(BucketFormat.CSV)) {
-	    return splunkExportTool.exportToCsv(bucket);
+	    splunkExportTool.exportToCsv(bucket);
+	    return null;
 	} else {
 	    throw new UnsupportedOperationException();
 	}

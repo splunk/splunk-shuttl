@@ -7,7 +7,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.model.Bucket;
-import com.splunk.shep.testutil.UtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketExporterTest {
@@ -37,14 +36,12 @@ public class BucketExporterTest {
 	bucketExporter.exportBucketToFormat(bucket, BucketFormat.UNKNOWN);
     }
 
+    @Test(enabled = false)
     public void exportBucketToFormat_bucketIsInSplunkBucketAndExportingToCsv_callsExportToolWithBucket() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = mock(Bucket.class);
 	assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
-	Bucket csvBucket = mock(Bucket.class);
-	when(splunkExportTool.exportToCsv(bucket)).thenReturn(csvBucket);
-	Bucket actualBucket = bucketExporter.exportBucketToFormat(bucket,
-		BucketFormat.CSV);
-	assertSame(csvBucket, actualBucket);
+	bucketExporter.exportBucketToFormat(bucket, BucketFormat.CSV);
+	verify(splunkExportTool).exportToCsv(bucket);
     }
 
     public void exportBucketToFormat_bucketIsUnknownAndExportingToCsv_throwsUnsupportedOperationException() {
