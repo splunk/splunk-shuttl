@@ -1,9 +1,9 @@
 package com.splunk.shep.archiver.archive;
 
-import java.io.File;
+import static com.splunk.shep.archiver.LocalFileSystemConstants.*;
+
 import java.io.FileNotFoundException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 
@@ -27,18 +27,6 @@ public class BucketFreezer {
     public static final int EXIT_INCORRECT_ARGUMENTS = -1;
     public static final int EXIT_FILE_NOT_A_DIRECTORY = -2;
     public static final int EXIT_FILE_NOT_FOUND = -3;
-
-    // CONFIG get this value from the config.
-    public static final String DEFAULT_SAFE_LOCATION = FileUtils
-	    .getUserDirectoryPath()
-	    + File.separator
-	    + BucketFreezer.class.getName() + "-safe-buckets";
-
-    // CONFIG
-    public static final String DEFAULT_FAIL_LOCATION = FileUtils
-	    .getUserDirectoryPath()
-	    + File.separator
-	    + BucketFreezer.class.getName() + "-failed-buckets";
 
     private final BucketMover bucketMover;
     private final BucketLocker bucketLocker;
@@ -117,7 +105,7 @@ public class BucketFreezer {
      */
     /* package-private */static void runMainWithDependencies(Runtime runtime,
 	    BucketFreezer bucketFreezer, String... args) {
-	
+
 	logger.info(LogFormatter.will("Attempting to archive bucket",
 		"index name", (args.length > 0 ? args[0] : null), "path",
 		(args.length > 1 ? args[1] : null)));

@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
+import static com.splunk.shep.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shep.testutil.UtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -30,7 +31,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.BucketLock;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
@@ -64,7 +64,7 @@ public class BucketFreezerSuccessfulArchivingTest {
     @AfterMethod(groups = { "fast-unit" })
     public void tearDownFast() {
 	FileUtils.deleteQuietly(tempTestDirectory);
-	FileUtils.deleteQuietly(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
+	FileUtils.deleteQuietly(new File(DEFAULT_LOCKS_DIRECTORY));
     }
 
     /**

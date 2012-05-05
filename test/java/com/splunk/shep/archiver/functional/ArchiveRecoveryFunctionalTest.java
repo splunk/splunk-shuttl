@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.functional;
 
+import static com.splunk.shep.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shep.testutil.UtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -32,7 +33,6 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.ArchiveRestHandler;
 import com.splunk.shep.archiver.archive.BucketFreezer;
-import com.splunk.shep.archiver.archive.recovery.BucketLock;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
@@ -82,7 +82,7 @@ public class ArchiveRecoveryFunctionalTest {
     public void tearDown() throws IOException {
 	FileUtils.deleteDirectory(safeLocation);
 	FileUtils.deleteDirectory(originalBucketLocation);
-	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
+	FileUtils.deleteDirectory(new File(DEFAULT_LOCKS_DIRECTORY));
     }
 
     public void Archiver_givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets()

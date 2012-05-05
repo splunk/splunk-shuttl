@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive.recovery;
 
+import static com.splunk.shep.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shep.testutil.UtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
@@ -53,7 +54,7 @@ public class BucketLockTest {
 
     @AfterTest
     public void deleteDefaultBucketLockDirectory() throws IOException {
-	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
+	FileUtils.deleteDirectory(new File(DEFAULT_LOCKS_DIRECTORY));
     }
 
     @Test(groups = { "fast-unit" })

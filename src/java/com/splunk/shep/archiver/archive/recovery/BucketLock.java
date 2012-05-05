@@ -14,9 +14,9 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive.recovery;
 
-import java.io.File;
+import static com.splunk.shep.archiver.LocalFileSystemConstants.*;
 
-import org.apache.commons.io.FileUtils;
+import java.io.File;
 
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.util.UtilsFile;
@@ -26,12 +26,6 @@ import com.splunk.shep.archiver.util.UtilsFile;
  * same bucket.
  */
 public class BucketLock extends SimpleFileLock {
-
-    // CONFIG
-    public static final String DEFAULT_LOCKS_DIRECTORY = FileUtils
-	    .getUserDirectoryPath()
-	    + File.separator
-	    + BucketLock.class.getName() + "-locks-dir";
 
     private final File lockFile;
 

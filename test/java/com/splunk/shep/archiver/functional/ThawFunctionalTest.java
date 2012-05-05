@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.functional;
 
+import static com.splunk.shep.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shep.testutil.UtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -34,7 +35,6 @@ import com.splunk.Service;
 import com.splunk.shep.archiver.archive.ArchiveConfiguration;
 import com.splunk.shep.archiver.archive.ArchiveRestHandler;
 import com.splunk.shep.archiver.archive.BucketFreezer;
-import com.splunk.shep.archiver.archive.recovery.BucketLock;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
@@ -91,7 +91,7 @@ public class ThawFunctionalTest {
     @AfterMethod
     public void tearDown() throws IOException {
 	FileUtils.deleteDirectory(tempDirectory);
-	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
+	FileUtils.deleteDirectory(new File(DEFAULT_LOCKS_DIRECTORY));
 	UtilsArchiverFunctional.getHadoopFileSystem().delete(tmpPath, true);
 	for (File dir : thawDirectoryLocation.listFiles()) {
 	    FileUtils.deleteDirectory(dir);

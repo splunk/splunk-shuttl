@@ -27,11 +27,12 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shep.archiver.LocalFileSystemConstants;
 import com.splunk.shep.archiver.archive.BucketFreezer;
-import com.splunk.shep.archiver.archive.recovery.BucketLock;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.ShellClassRunner;
 import com.splunk.shep.testutil.UtilsBucket;
+import com.splunk.shep.testutil.UtilsMBean;
 
 @Test(enabled = false, groups = { "functional" })
 public class ArchiverFunctionalTest {
@@ -39,18 +40,15 @@ public class ArchiverFunctionalTest {
     private FileSystem fileSystem;
 
     @BeforeMethod(groups = { "functional" })
-    // @Parameters(value = { "hadoop.host", "hadoop.port" })
-    // public void setUp(String hadoopHost, String hadoopPort) throws
-    // IOException {
     public void setUp() throws IOException {
+	UtilsMBean.registerShepArchiverMBean();
 	fileSystem = UtilsArchiverFunctional.getHadoopFileSystem();
     }
 
     @AfterMethod
     public void tearDown() throws IOException {
-	FileUtils
-		.deleteDirectory(new File(BucketFreezer.DEFAULT_SAFE_LOCATION));
-	FileUtils.deleteDirectory(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
+	FileUtils.deleteDirectory(new File(
+		LocalFileSystemConstants.ARCHIVER_DIRECTORY_PATH));
     }
 
     public void Archiver_givenExistingBucket_archiveIt()
