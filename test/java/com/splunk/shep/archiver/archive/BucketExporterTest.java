@@ -12,12 +12,12 @@ import com.splunk.shep.archiver.model.Bucket;
 public class BucketExporterTest {
 
     BucketExporter bucketExporter;
-    SplunkExportTool splunkExportTool;
+    CsvExporter csvExporter;
 
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
-	splunkExportTool = mock(SplunkExportTool.class);
-	bucketExporter = new BucketExporter(splunkExportTool);
+	csvExporter = mock(CsvExporter.class);
+	bucketExporter = new BucketExporter(csvExporter);
     }
 
     @Test(groups = { "fast-unit" })
@@ -41,7 +41,7 @@ public class BucketExporterTest {
 	Bucket bucket = mock(Bucket.class);
 	assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
 	bucketExporter.exportBucketToFormat(bucket, BucketFormat.CSV);
-	verify(splunkExportTool).exportToCsv(bucket);
+	verify(csvExporter).exportBucketToCsv(bucket);
     }
 
     public void exportBucketToFormat_bucketIsUnknownAndExportingToCsv_throwsUnsupportedOperationException() {
@@ -54,6 +54,6 @@ public class BucketExporterTest {
 	    fail();
 	} catch (UnsupportedOperationException e) {
 	}
-	verifyZeroInteractions(splunkExportTool);
+	verifyZeroInteractions(csvExporter);
     }
 }

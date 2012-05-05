@@ -2,6 +2,8 @@ package com.splunk.shep.archiver.archive;
 
 import static com.splunk.shep.archiver.LogFormatter.*;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.model.Bucket;
@@ -12,14 +14,14 @@ import com.splunk.shep.archiver.model.Bucket;
 public class BucketExporter {
 
     private final static Logger logger = Logger.getLogger(BucketExporter.class);
-    private final SplunkExportTool splunkExportTool;
+    private final CsvExporter csvExporter;
 
     /**
-     * @param splunkExportTool
-     *            for exporting the bucket to a new format.
+     * @param csvExporter
+     *            for exporting the bucket to csv format.
      */
-    public BucketExporter(SplunkExportTool splunkExportTool) {
-	this.splunkExportTool = splunkExportTool;
+    public BucketExporter(CsvExporter csvExporter) {
+	this.csvExporter = csvExporter;
     }
 
     /**
@@ -47,7 +49,7 @@ public class BucketExporter {
     private Bucket getBucketInNewFormat(Bucket bucket, BucketFormat newFormat) {
 	if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)
 		&& newFormat.equals(BucketFormat.CSV)) {
-	    splunkExportTool.exportToCsv(bucket);
+	    File csvBucket = csvExporter.exportBucketToCsv(bucket);
 	    return null;
 	} else {
 	    throw new UnsupportedOperationException();

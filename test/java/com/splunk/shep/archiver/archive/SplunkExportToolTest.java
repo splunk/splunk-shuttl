@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static org.mockito.Mockito.*;
+import static com.splunk.shep.testutil.UtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -23,54 +23,44 @@ import java.io.IOException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.model.Bucket;
-import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsEnvironment;
 
 @Test(groups = { "fast" })
 public class SplunkExportToolTest {
 
-    private SplunkExportTool splunkExportTool;
-    private Runtime runtime;
+    SplunkExportTool splunkExportTool;
 
     @BeforeMethod
     public void setUp() {
-	runtime = mock(Runtime.class);
-	splunkExportTool = new SplunkExportTool(runtime);
+	splunkExportTool = new SplunkExportTool();
     }
 
     @Test(expectedExceptions = { SplunkEnrivonmentNotSetException.class })
-    public void exportToCsv_noSplunkHomeEnvironmentSet_returnBucketAndLogWarning() {
-	final Bucket bucket = mock(Bucket.class);
+    public void getExecutableFile_noSplunkHomeEnvironmentSet_returnBucketAndLogWarning() {
 	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
 	    public void run() {
-		splunkExportTool.exportToCsv(bucket);
+		splunkExportTool.getExecutableFile();
 	    }
 	});
     }
 
-    public void exportToCsv_splunkHomeIsSet_callExportToolWithBucket()
+    public void getExecutableFile_splunkHomeIsSet_getFileThatIsExecutable()
 	    throws IOException {
-	final Bucket bucket = UtilsBucket.createTestBucket();
-	final String splunkHome = "/any/path";
-	String bucketPath = bucket.getDirectory().getAbsolutePath();
-	final String csvOutput = bucket.getDirectory().getParentFile()
-		.getAbsolutePath()
-		+ "/bucket.csv";
-	String[] commandsToCallExportTool = new String[] {
-		splunkHome + "/bin/exporttool", bucketPath, csvOutput, "-csv" };
+	final File splunkHome = createTempDirectory();
+	File bin = createDirectoryInParent(splunkHome, "bin");
+	final File exporttool = createFileInParent(bin, "exporttool");
+	exporttool.setExecutable(true);
 	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
 	    public void run() {
 		UtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			"/any/path");
-		assertEquals(new File(csvOutput),
-			splunkExportTool.exportToCsv(bucket));
+			splunkHome.getAbsolutePath());
+		File executableFile = splunkExportTool.getExecutableFile();
+		assertTrue(executableFile.canExecute());
 	    }
 	});
-	verify(runtime).exec(commandsToCallExportTool);
     }
 }
