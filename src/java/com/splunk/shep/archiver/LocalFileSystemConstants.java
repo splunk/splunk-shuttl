@@ -36,6 +36,9 @@ public class LocalFileSystemConstants {
     static final String DEFAULT_LOCKS_DIRECTORY = ARCHIVER_DIRECTORY_PATH
 	    + File.separator + "locks-dir";
 
+    static final String DEFAULT_CSV_DIRECTORY = ARCHIVER_DIRECTORY_PATH
+	    + File.separator + "csv-dir";
+
     /**
      * Directory which contains all files created by the archiver.
      */
@@ -64,7 +67,18 @@ public class LocalFileSystemConstants {
 	return createDirectory(DEFAULT_SAFE_LOCATION);
     }
 
+    /**
+     * Contains locks for the buckets.
+     */
     public static File getLocksDirectory() {
 	return createDirectory(DEFAULT_LOCKS_DIRECTORY);
     }
+
+    /**
+     * Contains CSV files when exporting buckets.
+     */
+    public static File getCsvDirectory() {
+	return createDirectory(DEFAULT_CSV_DIRECTORY);
+    }
+
 }
