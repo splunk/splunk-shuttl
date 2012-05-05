@@ -48,7 +48,7 @@ public class BucketLockerTest {
     @AfterMethod
     public void tearDown() throws IOException {
 	FileUtils.deleteDirectory(tempTestDirectory);
-	FileUtils.deleteDirectory(new File(DEFAULT_LOCKS_DIRECTORY));
+	FileUtils.deleteDirectory(getArchiverDirectory());
     }
 
     @Test(groups = { "fast-unit" })

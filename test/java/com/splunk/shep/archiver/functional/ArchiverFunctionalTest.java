@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.functional;
 
+import static com.splunk.shep.archiver.LocalFileSystemConstants.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -27,7 +28,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.LocalFileSystemConstants;
 import com.splunk.shep.archiver.archive.BucketFreezer;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.ShellClassRunner;
@@ -47,8 +47,7 @@ public class ArchiverFunctionalTest {
 
     @AfterMethod
     public void tearDown() throws IOException {
-	FileUtils.deleteDirectory(new File(
-		LocalFileSystemConstants.ARCHIVER_DIRECTORY_PATH));
+	FileUtils.deleteDirectory(getArchiverDirectory());
     }
 
     public void Archiver_givenExistingBucket_archiveIt()

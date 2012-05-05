@@ -40,7 +40,7 @@ public class BucketMoverTest {
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	moveBucketLocation = UtilsFile.createTempDirectory();
-	bucketMover = new BucketMover(moveBucketLocation.getAbsolutePath());
+	bucketMover = new BucketMover(moveBucketLocation);
     }
 
     @AfterMethod(groups = { "fast-unit" })

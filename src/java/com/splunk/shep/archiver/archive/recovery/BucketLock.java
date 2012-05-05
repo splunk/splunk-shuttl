@@ -34,7 +34,7 @@ public class BucketLock extends SimpleFileLock {
      *            to create lock for.
      */
     public BucketLock(Bucket bucket) {
-	this(bucket, new File(DEFAULT_LOCKS_DIRECTORY));
+	this(bucket, getLocksDirectory());
     }
 
     public BucketLock(Bucket bucket, File locksDirectory) {

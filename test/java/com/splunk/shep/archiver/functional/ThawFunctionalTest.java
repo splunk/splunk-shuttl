@@ -78,8 +78,7 @@ public class ThawFunctionalTest {
     private BucketFreezer getSuccessfulBucketFreezer() {
 	File movedBucketsLocation = createDirectoryInParent(tempDirectory,
 		ThawFunctionalTest.class.getName() + "-safeBuckets");
-	BucketMover bucketMover = new BucketMover(
-		movedBucketsLocation.getAbsolutePath());
+	BucketMover bucketMover = new BucketMover(movedBucketsLocation);
 	BucketLocker bucketLocker = new BucketLocker();
 	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
 		new DefaultHttpClient());
@@ -91,7 +90,7 @@ public class ThawFunctionalTest {
     @AfterMethod
     public void tearDown() throws IOException {
 	FileUtils.deleteDirectory(tempDirectory);
-	FileUtils.deleteDirectory(new File(DEFAULT_LOCKS_DIRECTORY));
+	FileUtils.deleteDirectory(getArchiverDirectory());
 	UtilsArchiverFunctional.getHadoopFileSystem().delete(tmpPath, true);
 	for (File dir : thawDirectoryLocation.listFiles()) {
 	    FileUtils.deleteDirectory(dir);

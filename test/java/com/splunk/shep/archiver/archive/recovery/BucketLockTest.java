@@ -54,7 +54,7 @@ public class BucketLockTest {
 
     @AfterTest
     public void deleteDefaultBucketLockDirectory() throws IOException {
-	FileUtils.deleteDirectory(new File(DEFAULT_LOCKS_DIRECTORY));
+	FileUtils.deleteDirectory(getArchiverDirectory());
     }
 
     @Test(groups = { "fast-unit" })

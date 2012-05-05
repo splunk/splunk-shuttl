@@ -24,18 +24,21 @@ import org.apache.commons.io.FileUtils;
  */
 public class LocalFileSystemConstants {
 
-    public static final String ARCHIVER_DIRECTORY_PATH = FileUtils
+    static final String ARCHIVER_DIRECTORY_PATH = FileUtils
 	    .getUserDirectoryPath() + File.separator + "SplunkArchiverFiles";
 
-    public static final String DEFAULT_SAFE_LOCATION = ARCHIVER_DIRECTORY_PATH
+    static final String DEFAULT_SAFE_LOCATION = ARCHIVER_DIRECTORY_PATH
 	    + File.separator + "safe-buckets";
 
-    public static final String DEFAULT_FAIL_LOCATION = ARCHIVER_DIRECTORY_PATH
+    static final String DEFAULT_FAIL_LOCATION = ARCHIVER_DIRECTORY_PATH
 	    + File.separator + "failed-buckets";
 
-    public static final String DEFAULT_LOCKS_DIRECTORY = ARCHIVER_DIRECTORY_PATH
+    static final String DEFAULT_LOCKS_DIRECTORY = ARCHIVER_DIRECTORY_PATH
 	    + File.separator + "locks-dir";
 
+    /**
+     * Directory which contains all files created by the archiver.
+     */
     public static File getArchiverDirectory() {
 	return createDirectory(ARCHIVER_DIRECTORY_PATH);
     }
@@ -46,10 +49,17 @@ public class LocalFileSystemConstants {
 	return dir;
     }
 
+    /**
+     * Contains the failed bucket transfers
+     */
     public static File getFailLocation() {
 	return createDirectory(DEFAULT_FAIL_LOCATION);
     }
 
+    /**
+     * Safe location for the buckets, away from where Splunk cannot delete the
+     * buckets.
+     */
     public static File getSafeLocation() {
 	return createDirectory(DEFAULT_SAFE_LOCATION);
     }

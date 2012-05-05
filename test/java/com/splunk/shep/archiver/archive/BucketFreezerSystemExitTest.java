@@ -15,6 +15,7 @@ package com.splunk.shep.archiver.archive;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import static com.splunk.shep.archiver.LocalFileSystemConstants.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -26,7 +27,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.LocalFileSystemConstants;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
 import com.splunk.shep.archiver.archive.recovery.FailedBucketsArchiver;
@@ -44,18 +44,14 @@ public class BucketFreezerSystemExitTest {
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	runtimeMock = mock(Runtime.class);
-	bucketFreezer = new BucketFreezer(new BucketMover(
-		LocalFileSystemConstants.DEFAULT_SAFE_LOCATION),
-		new BucketLocker(),
-		mock(ArchiveRestHandler.class),
+	bucketFreezer = new BucketFreezer(new BucketMover(getSafeLocation()),
+		new BucketLocker(), mock(ArchiveRestHandler.class),
 		mock(FailedBucketsArchiver.class));
     }
 
     @AfterMethod(groups = { "fast-unit" })
     public void tearDown() throws IOException {
-	File safeLocation = new File(
-		LocalFileSystemConstants.DEFAULT_SAFE_LOCATION);
-	FileUtils.deleteDirectory(safeLocation);
+	FileUtils.deleteDirectory(getArchiverDirectory());
     }
 
     @Test(groups = { "fast-unit" })

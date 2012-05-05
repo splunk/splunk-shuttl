@@ -55,8 +55,7 @@ public class ArchiveRecoveryFunctionalTest {
 	safeLocation = createTempDirectory();
 	originalBucketLocation = createTempDirectory();
 
-	BucketMover bucketMover = new BucketMover(
-		safeLocation.getAbsolutePath());
+	BucketMover bucketMover = new BucketMover(safeLocation);
 	BucketLocker bucketLocker = new BucketLocker();
 	ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(
 		UtilsMockito.createInternalServerErrorHttpClientMock());
@@ -80,9 +79,8 @@ public class ArchiveRecoveryFunctionalTest {
 
     @AfterMethod
     public void tearDown() throws IOException {
-	FileUtils.deleteDirectory(safeLocation);
 	FileUtils.deleteDirectory(originalBucketLocation);
-	FileUtils.deleteDirectory(new File(DEFAULT_LOCKS_DIRECTORY));
+	FileUtils.deleteDirectory(getArchiverDirectory());
     }
 
     public void Archiver_givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets()
