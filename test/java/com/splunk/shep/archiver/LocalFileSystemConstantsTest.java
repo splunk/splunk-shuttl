@@ -53,8 +53,8 @@ public class LocalFileSystemConstantsTest {
     }
 
     public void getSafeLocation_doesNotExist_dirExistsInsideArchiverDirectory() {
-	assertDoesNotExist(LocalFileSystemConstants.DEFAULT_SAFE_LOCATION);
-	File safeDir = LocalFileSystemConstants.getSafeLocation();
+	assertDoesNotExist(LocalFileSystemConstants.SAFE_PATH);
+	File safeDir = LocalFileSystemConstants.getSafeDirectory();
 	assertExistsInsideArchiverDirectory(safeDir);
     }
 
@@ -64,8 +64,8 @@ public class LocalFileSystemConstantsTest {
     }
 
     public void getFailLocation_doesNotExist_dirExistsInsideArchiverDirectory() {
-	assertDoesNotExist(LocalFileSystemConstants.DEFAULT_FAIL_LOCATION);
-	File failLocation = LocalFileSystemConstants.getFailLocation();
+	assertDoesNotExist(LocalFileSystemConstants.FAIL_PATH);
+	File failLocation = LocalFileSystemConstants.getFailDirectory();
 	assertExistsInsideArchiverDirectory(failLocation);
     }
 
@@ -75,13 +75,13 @@ public class LocalFileSystemConstantsTest {
     }
 
     public void getLocksDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
-	assertDoesNotExist(LocalFileSystemConstants.DEFAULT_LOCKS_DIRECTORY);
+	assertDoesNotExist(LocalFileSystemConstants.LOCKS_PATH);
 	assertExistsInsideArchiverDirectory(LocalFileSystemConstants
 		.getLocksDirectory());
     }
 
     public void getCsvDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
-	assertDoesNotExist(LocalFileSystemConstants.DEFAULT_CSV_DIRECTORY);
+	assertDoesNotExist(LocalFileSystemConstants.CSV_PATH);
 	assertExistsInsideArchiverDirectory(LocalFileSystemConstants
 		.getCsvDirectory());
     }

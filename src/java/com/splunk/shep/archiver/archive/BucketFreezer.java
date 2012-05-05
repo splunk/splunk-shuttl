@@ -88,7 +88,7 @@ public class BucketFreezer {
      * The construction logic for creating a {@link BucketFreezer}
      */
     public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
-	BucketMover bucketMover = new BucketMover(getSafeLocation());
+	BucketMover bucketMover = new BucketMover(getSafeDirectory());
 	BucketLocker bucketLocker = new BucketLocker();
 	FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
 		bucketMover, bucketLocker);

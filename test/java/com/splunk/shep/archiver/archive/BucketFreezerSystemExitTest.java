@@ -44,7 +44,7 @@ public class BucketFreezerSystemExitTest {
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
 	runtimeMock = mock(Runtime.class);
-	bucketFreezer = new BucketFreezer(new BucketMover(getSafeLocation()),
+	bucketFreezer = new BucketFreezer(new BucketMover(getSafeDirectory()),
 		new BucketLocker(), mock(ArchiveRestHandler.class),
 		mock(FailedBucketsArchiver.class));
     }
