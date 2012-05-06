@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.testutil.UtilsEnvironment;
 
-@Test(groups = { "fast" })
+@Test(groups = { "fast-unit" })
 public class SplunkExportToolTest {
 
     SplunkExportTool splunkExportTool;

@@ -111,8 +111,11 @@ public class UtilsEnvironment {
     public static void runInCleanEnvironment(Runnable runnable) {
 	Map<String, String> copy = UtilsEnvironment.copyEnvironment();
 	UtilsEnvironment.clearEnvironment();
-	runnable.run();
-	UtilsEnvironment.setEnvironment(copy);
+	try {
+	    runnable.run();
+	} finally {
+	    UtilsEnvironment.setEnvironment(copy);
+	}
     }
 
     /**
@@ -132,11 +135,12 @@ public class UtilsEnvironment {
 	@AfterMethod(groups = { "fast-unit" })
 	public void teardDown() {
 	    UtilsEnvironment.setEnvironment(copyEnv);
-	    assertTrue(!System.getenv().isEmpty());
+	    assertEnvironmentIsNotEmpty();
 	}
 
+	@Test(groups = { "fast-unit" })
 	public void clearEnvironment_defaultState_emptySystemEnvironment() {
-	    assertTrue(!System.getenv().isEmpty());
+	    assertEnvironmentIsNotEmpty();
 	    UtilsEnvironment.clearEnvironment();
 	    assertTrue(System.getenv().isEmpty());
 	}
@@ -173,6 +177,26 @@ public class UtilsEnvironment {
 	    });
 	    assertTrue(isRun[0]);
 	    assertEquals(copy, System.getenv());
+	}
+
+	public void runInCleanEnvironment_runnableThrowsException_stillRestoresEnvironment() {
+	    assertEnvironmentIsNotEmpty();
+	    try {
+		UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+		    @Override
+		    public void run() {
+			throw new RuntimeException();
+		    }
+		});
+	    } catch (RuntimeException e) {
+		// Swallow exception
+	    }
+	    assertEnvironmentIsNotEmpty();
+	}
+
+	private void assertEnvironmentIsNotEmpty() {
+	    assertFalse(System.getenv().isEmpty());
 	}
     }
 

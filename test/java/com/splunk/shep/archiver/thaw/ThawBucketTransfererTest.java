@@ -43,7 +43,7 @@ public class ThawBucketTransfererTest {
 		archiveFileSystem);
     }
 
-    @Test(enabled = false, groups = { "fast-unit" })
+    @Test(groups = { "fast-unit" })
     public void transferBucketToThaw_givenBucket_transferBucketFromArchiveToPathWhereParentIsThawLocation()
 	    throws IOException {
 	File file = mock(File.class);
