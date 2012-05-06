@@ -65,7 +65,7 @@ public class CsvExporterTest {
 	csvExporter.exportBucketToCsv(bucket);
     }
 
-    @Test(expectedExceptions = { CsvExportFailedException.class })
+    @Test(groups = { "fast-unit" }, expectedExceptions = { CsvExportFailedException.class })
     public void exportBucketToCsv_nonZeroExitStatus_throwCsvExportFailedException()
 	    throws IOException, InterruptedException {
 	when(shellExecutor.executeCommand((String[]) anyObject()))
@@ -76,7 +76,7 @@ public class CsvExporterTest {
 	csvExporter.exportBucketToCsv(bucket);
     }
 
-    @Test(expectedExceptions = { CsvExportFailedException.class })
+    @Test(groups = { "fast-unit" }, expectedExceptions = { CsvExportFailedException.class })
     public void exportBucketToCsv_csvFileDoesNotExistAfterExport_throwCsvExportFailedException() {
 	File nonExistantCsvFile = createTestFile();
 	when(bucketCsvFile.getCsvFile(bucket)).thenReturn(nonExistantCsvFile);
