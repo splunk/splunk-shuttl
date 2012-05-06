@@ -4,6 +4,8 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 
 import org.testng.annotations.Test;
@@ -26,11 +28,10 @@ public class SplunkXMLStreamTest {
 	assertTrue(gotResults);
     }
 
-    private File getTestXMLFile() {
-	String splunkSearchResultsXMLPath = "test/java/com/splunk/shep/mapreduce/lib/rest/SplunkSearchResults.xml";
-	String osSafePathToXML = splunkSearchResultsXMLPath.replaceAll("/", ""
-		+ File.separatorChar);
-	return new File(osSafePathToXML);
+    private File getTestXMLFile() throws URISyntaxException {
+	URL splunkSearchResultsXMLPath = getClass().getResource(
+		"/com/splunk/shep/mapreduce/lib/rest/SplunkSearchResults.xml");
+	return new File(splunkSearchResultsXMLPath.toURI());
     }
 
 }

@@ -20,6 +20,7 @@
 	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
 	<property name="srcdir" value="${basedir}/src/java/" />
 	<property name="testdir" value="${basedir}/test/java/" />
+	<property name="test-resources-dir" value="${basedir}/test/resources" />
 	<property name="libdir" value="${basedir}/lib" />
 	<property name="ant-libs" value="${contribdir}/ant-libs" />
 	<property name="splunk-sdk" value="${contribdir}/splunk-sdk" />
@@ -199,9 +200,9 @@
 
 		<!-- Tests using resources that are not .java files. Should probably create a resource folder instead of putting non .java files in src/java -->
 		<antcall>
-            <target name="copy-test-resources"/>
-            <target name="copy-src-resources"/>
-        </antcall>
+			<target name="copy-test-resources" />
+			<target name="copy-src-resources" />
+		</antcall>
 	</target>
 
 	<target name="do-compile-src">
@@ -217,14 +218,14 @@
 	</target>
 
 	<target name="copy-test-resources">
-		<copy todir="${classdir}">
-			<fileset dir="${testdir}" includes="**/*.xml,**/*.txt" />
+		<copy todir="${test-classdir}">
+			<fileset dir="${test-resources-dir}" includes="**/*" />
 		</copy>
 	</target>
-    
-    <target name="copy-src-resources">
-		<copy file="${srcdir}/com/splunk/shep/cli/ShepCLI.conf" todir="${classdir}/com/splunk/shep/cli" />   
-    </target>
+
+	<target name="copy-src-resources">
+		<copy file="${srcdir}/com/splunk/shep/cli/ShepCLI.conf" todir="${classdir}/com/splunk/shep/cli" />
+	</target>
 
 	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">
 		<ivy:retrieve />
@@ -251,7 +252,7 @@
 
 	<target name="test-all" depends="clean-built-classes-then-compile">
 		<antcall target="test" />
-		<antcall target="integration-tests"/>
+		<antcall target="integration-tests" />
 		<antcall target="functional-tests" />
 		<!-- in-memory-tests to be converted to testng unit test -->
 		<!-- and added to either fast-unit or slow-unit group -->
@@ -282,11 +283,11 @@
 	<target name="slow-unit-tests" depends="compile, do-slow-unit-tests" />
 	<target name="do-slow-unit-tests">
 		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="slow-unit" outputdir="${builddir}/test-results/slow-unit">
-			<propertyset refid="testng"/>
+			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
 	</target>
-			
+
 	<target name="integration-tests" depends="jar">
 		<antcall>
 			<target name="splunk-setup" />
@@ -334,20 +335,20 @@
 
 	<target name="known-failures-tests" depends="jar">
 		<antcall>
-			<target name="hadoop-setup"/>
-			<target name="hive-setup"/>
-			<target name="splunk-setup"/>
+			<target name="hadoop-setup" />
+			<target name="hive-setup" />
+			<target name="splunk-setup" />
 		</antcall>
 		<antcall>
-			<target name="do-known-failures-tests"/>
+			<target name="do-known-failures-tests" />
 		</antcall>
 		<antcall>
-			<target name="splunk-stop"/>
-			<target name="hadoop-teardown"/>
-			<target name="shep-teardwon"/>
+			<target name="splunk-stop" />
+			<target name="hadoop-teardown" />
+			<target name="shep-teardwon" />
 		</antcall>
 	</target>
-	
+
 	<target name="do-known-failures-tests" depends="compile,set-splunk-home">
 		<testng classpathref="build.classpath" groups="known-failures" outputdir="${builddir}/test-results/known-failures">
 			<propertyset refid="testng" />
@@ -556,7 +557,7 @@
 			<arg line="'mv ${hadoop.extracted.dir}/hadoop-* ${hadoop.extracted.path}'" />
 		</exec>
 	</target>
-	
+
 	<!-- This condition may seem redundant with "check-if-hadoop-is-downloaded" but it isn't. \
 	A condition is only evaluated ones and if you use the condition in another target it won't\ 
 	be evaluated again -->
@@ -762,12 +763,12 @@
 			<arg line="start splunkweb" />
 		</exec>
 	</target>
-	
+
 	<target name="splunk-restart-splunkweb" depends="set-splunk-home">
-			<exec executable="${splunk.home}/bin/splunk">
-				<arg line="restart splunkweb" />
-			</exec>
-		</target>
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="restart splunkweb" />
+		</exec>
+	</target>
 
 	<target name="splunk-stop" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
@@ -818,10 +819,10 @@
 			<arg line="clean all -f" />
 		</exec>
 	</target>
-	
+
 	<!-- Archiver-UI -->
 	<target name="helper-archiver-extended-debugging">
-		<copy todir="${splunk.extracted.dir}/lib/python2.7/site-packages/splunk/appserver/mrsparkle/controllers/" file="${basedir}/archiver-UI-Debug-files/__init__.py"/>
+		<copy todir="${splunk.extracted.dir}/lib/python2.7/site-packages/splunk/appserver/mrsparkle/controllers/" file="${basedir}/archiver-UI-Debug-files/__init__.py" />
 		<copy todir="${splunk.extracted.dir}/etc" file="${basedir}/archiver-UI-Debug-files/log.cfg" />
 	</target>
 	<target name="helper-archiver-test-hadoop">
@@ -832,7 +833,7 @@
 	<target name="archiver-sync-package" depends="set-shep-app-home">
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
-			<arg line="'rsync -vr --delete ${package.dir}/* ${shep.app.home} | tail -n 3'"/>
+			<arg line="'rsync -vr --delete ${package.dir}/* ${shep.app.home} | tail -n 3'" />
 		</exec>
 	</target>
 	<target name="archiver-sync-package-and-restart-splunk-web">
@@ -880,14 +881,14 @@
 	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
 		<jar destfile="${name.server.versioned.path}" basedir="${classdir}">
-		    <manifest>
-		    	<section name="com/splunk/shep">
-		        	<attribute name="Implementation-Title" value="Shep"/>
-		          	<attribute name="Implementation-Version" value="${version}"/>
-		          	<attribute name="Implementation-Vendor" value="Splunk"/>
-		        </section>
+			<manifest>
+				<section name="com/splunk/shep">
+					<attribute name="Implementation-Title" value="Shep" />
+					<attribute name="Implementation-Version" value="${version}" />
+					<attribute name="Implementation-Vendor" value="Splunk" />
+				</section>
 				<attribute name="Main-Class" value="com.splunk.shep.server.ShepJettyServer" />
-		    </manifest>
+			</manifest>
 			<include name="com/splunk/shep/customsearch/**" />
 			<include name="com/splunk/shep/s2s/**" />
 			<include name="com/splunk/shep/server/**" />
@@ -922,14 +923,14 @@
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.cli.versioned.path}" basedir="${classdir}">
-		    <manifest>
-		    	<section name="com/splunk/shep">
-		        	<attribute name="Implementation-Title" value="Shep"/>
-		          	<attribute name="Implementation-Version" value="${version}"/>
-		          	<attribute name="Implementation-Vendor" value="Splunk"/>
-		        </section>
+			<manifest>
+				<section name="com/splunk/shep">
+					<attribute name="Implementation-Title" value="Shep" />
+					<attribute name="Implementation-Version" value="${version}" />
+					<attribute name="Implementation-Vendor" value="Splunk" />
+				</section>
 				<attribute name="Main-Class" value="com.splunk.shep.cli.ShepCLI" />
-		    </manifest>
+			</manifest>
 			<include name="com/splunk/shep/cli/**" />
 		</jar>
 	</target>
@@ -997,8 +998,7 @@
 
 	<target name="copy-lib-jars-to-stage-dir">
 		<copy todir="${stage.dir}/lib">
-			<fileset dir="${libdir}" includes="*.jar" 
-				excludes="*-sources.jar,
+			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,
                           *-javadoc.jar,
                           testng-*.jar,
                           mockito-*.jar,
@@ -1012,16 +1012,15 @@
                           servlet-api-2.5-6.1.14.jar" />
 			<fileset dir="${splunk-sdk}" />
 		</copy>
-<!--
+		<!--
 		<copy file="${name.api.versioned.path}" todir="${stage.dir}/lib" />
 		<copy file="${name.server.versioned.path}" todir="${stage.dir}/lib" />
--->	
+-->
 	</target>
 
 	<target name="copy-lib-jars-to-test-dir" depends="jar, versionized-jar-name">
 		<copy todir="${build-cache}/shep/testlib">
-			<fileset dir="${libdir}" 
-				includes="testng-*.jar,
+			<fileset dir="${libdir}" includes="testng-*.jar,
                           mockito-*.jar,
                           jetty-6.1.26.jar,
                           hadoop-test-*.jar,
@@ -1071,13 +1070,7 @@
 	</target>
 
 	<target name="doc">
-		<javadoc 
-			classpathref="build.classpath" 
-			destdir="build/docs/api" 
-			version="true" 
-			use="true"
-			bottom="Copyright © 2012 Splunk, Inc. All rights reserved." 
-			windowtitle="Shep">
+		<javadoc classpathref="build.classpath" destdir="build/docs/api" version="true" use="true" bottom="Copyright © 2012 Splunk, Inc. All rights reserved." windowtitle="Shep">
 			<packageset dir="src/java" defaultexcludes="yes">
 				<exclude name="com/splunk/**/tests/**" />
 				<include name="com/splunk/**" />

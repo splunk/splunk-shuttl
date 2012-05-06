@@ -33,15 +33,14 @@ import com.splunk.shep.testutil.SplunkTestUtils;
 public class SplunkOutputFormatTest {
 
     private static final String FILENAME_FOR_FILE_WITH_TEST_INPUT = "file01";
-    private static final String TEST_INPUT_FILE_PATH = MapRedRestTestConstants.TEST_RESOURCES_PATH
-	    + "/" + FILENAME_FOR_FILE_WITH_TEST_INPUT;
     private static final String SOURCE = SplunkOutputFormatTest.class
 	    .getSimpleName();
 
     private HadoopFileSystemPutter putter;
 
     private File getLocalFileWithTestInput() {
-	return new File(TEST_INPUT_FILE_PATH);
+	return SplunkEventsInputFormatTest
+		.getFileForFileName(FILENAME_FOR_FILE_WITH_TEST_INPUT);
     }
 
     @BeforeMethod(groups = { "integration" })
@@ -91,9 +90,8 @@ public class SplunkOutputFormatTest {
 	Job job = new Job();
 	job.setJobName(SOURCE);
 	SplunkConfiguration.setConnInfo(job.getConfiguration(),
-		testParameters.host,
-		testParameters.mgmtPort, testParameters.username,
-		testParameters.password);
+		testParameters.host, testParameters.mgmtPort,
+		testParameters.username, testParameters.password);
 
 	job.setJarByClass(WordCount.class);
 	job.setOutputKeyClass(Text.class);

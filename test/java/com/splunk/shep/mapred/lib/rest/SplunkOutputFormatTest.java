@@ -34,8 +34,8 @@ import org.testng.annotations.Test;
 
 import com.splunk.Job;
 import com.splunk.Service;
-import com.splunk.shep.mapreduce.lib.rest.MapRedRestTestConstants;
 import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
+import com.splunk.shep.mapreduce.lib.rest.SplunkEventsInputFormatTest;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
 import com.splunk.shep.testutil.SplunkServiceParameters;
@@ -44,15 +44,14 @@ import com.splunk.shep.testutil.SplunkTestUtils;
 public class SplunkOutputFormatTest {
 
     private static final String FILENAME_FOR_FILE_WITH_TEST_INPUT = "file01";
-    private static final String TEST_INPUT_FILE_PATH = MapRedRestTestConstants.TEST_RESOURCES_PATH
-	    + "/" + FILENAME_FOR_FILE_WITH_TEST_INPUT;
     private static final String SOURCE = SplunkOutputFormatTest.class
 	    .getSimpleName();
 
     private HadoopFileSystemPutter putter;
 
     private File getLocalFileWithTestInput() {
-	return new File(TEST_INPUT_FILE_PATH);
+	return SplunkEventsInputFormatTest
+		.getFileForFileName(FILENAME_FOR_FILE_WITH_TEST_INPUT);
     }
 
     @BeforeMethod(groups = { "integration" })
