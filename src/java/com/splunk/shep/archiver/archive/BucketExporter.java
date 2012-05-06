@@ -9,19 +9,25 @@ import org.apache.log4j.Logger;
 import com.splunk.shep.archiver.model.Bucket;
 
 /**
- * For changing the {@link BucketFormat} of a {@link Bucket}
+ * For exporting a {@link Bucket} to {@link BucketFormat#CSV}, since it's
+ * currently the only other format to export to.
  */
 public class BucketExporter {
 
     private final static Logger logger = Logger.getLogger(BucketExporter.class);
     private final CsvExporter csvExporter;
+    private final CsvBucketCreator csvBucketCreator;
 
     /**
      * @param csvExporter
-     *            for exporting the bucket to csv format.
+     *            for exporting the bucket to a .csv file.
+     * @param csvBucketCreator
+     *            for creating a {@link Bucket} from the .csv file.
      */
-    public BucketExporter(CsvExporter csvExporter) {
+    public BucketExporter(CsvExporter csvExporter,
+	    CsvBucketCreator csvBucketCreator) {
 	this.csvExporter = csvExporter;
+	this.csvBucketCreator = csvBucketCreator;
     }
 
     /**
@@ -33,7 +39,7 @@ public class BucketExporter {
 	    throw new UnknownBucketFormatException();
 	}
 
-	if (bucket.getFormat().equals(newFormat)) {
+	if (isSameFormat(bucket, newFormat)) {
 	    return bucket;
 	} else {
 	    return getBucketInNewFormat(bucket, newFormat);
@@ -46,14 +52,30 @@ public class BucketExporter {
 		"bucket", bucket, "new_format", newFormat));
     }
 
+    private boolean isSameFormat(Bucket bucket, BucketFormat newFormat) {
+	return bucket.getFormat().equals(newFormat);
+    }
+
     private Bucket getBucketInNewFormat(Bucket bucket, BucketFormat newFormat) {
 	if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)
 		&& newFormat.equals(BucketFormat.CSV)) {
-	    File csvBucket = csvExporter.exportBucketToCsv(bucket);
-	    return null;
+	    return getBucketInCsvFormat(bucket);
 	} else {
 	    throw new UnsupportedOperationException();
 	}
+    }
+
+    private Bucket getBucketInCsvFormat(Bucket bucket) {
+	File csvFile = csvExporter.exportBucketToCsv(bucket);
+	return csvBucketCreator.createBucketWithCsvFile(csvFile, bucket);
+    }
+
+    /**
+     * @return an instance of the {@link BucketExporter}
+     */
+    public static BucketExporter get() {
+	CsvExporter csvExporter = CsvExporter.create();
+	return new BucketExporter(csvExporter, new CsvBucketCreator());
     }
 
 }

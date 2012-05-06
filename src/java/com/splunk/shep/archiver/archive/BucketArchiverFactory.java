@@ -47,8 +47,7 @@ public class BucketArchiverFactory {
      */
     public static BucketArchiver createWithConfigurationAndArchiveFileSystem(
 	    ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem) {
-	CsvExporter csvExporter = CsvExporter.get();
-	return new BucketArchiver(config, new BucketExporter(csvExporter),
+	return new BucketArchiver(config, BucketExporter.get(),
 		new PathResolver(config), new ArchiveBucketTransferer(
 			archiveFileSystem));
 

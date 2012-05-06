@@ -81,7 +81,7 @@ public class CsvExporter {
     /**
      * @return a CsvExporter
      */
-    public static CsvExporter get() {
+    public static CsvExporter create() {
 	return new CsvExporter(new SplunkExportTool(), new BucketCsvFile(
 		getCsvDirectory()), ShellExecutor.getInstance());
     }
