@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
+import static com.splunk.shep.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.File;
@@ -81,8 +82,8 @@ public class CsvExporter {
      * @return a CsvExporter
      */
     public static CsvExporter get() {
-	return new CsvExporter(new SplunkExportTool(),
-		new BucketCsvFile(), ShellExecutor.getInstance());
+	return new CsvExporter(new SplunkExportTool(), new BucketCsvFile(
+		getCsvDirectory()), ShellExecutor.getInstance());
     }
 
 }

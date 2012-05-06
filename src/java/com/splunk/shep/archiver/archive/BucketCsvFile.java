@@ -23,16 +23,20 @@ import com.splunk.shep.archiver.model.Bucket;
  */
 public class BucketCsvFile {
 
-    private File getCsvOuputFileFromBucket(Bucket bucket) {
-	return new File("/", bucket.getName() + ".csv");
+    private final File csvDirectory;
+
+    public BucketCsvFile(File csvDirectory) {
+	this.csvDirectory = csvDirectory;
     }
 
     /**
-     * @param bucket
-     * @return
+     * @return not yet existing .csv file unique for the {@link Bucket}
      */
     public File getCsvFile(Bucket bucket) {
-	throw new UnsupportedOperationException();
+	File file = new File(csvDirectory, bucket.getName() + ".csv");
+	if (file.exists()) {
+	    file.delete();
+	}
+	return file;
     }
-
 }
