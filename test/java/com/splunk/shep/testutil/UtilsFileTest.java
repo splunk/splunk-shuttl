@@ -119,4 +119,9 @@ public class UtilsFileTest {
 	    FileUtils.deleteDirectory(dirWithChildFile);
 	}
     }
+
+    public void createTestFileWithName_givenName_createsFileWithName() {
+	File namedFile = UtilsFile.createTestFileWithName("name");
+	assertEquals("name", namedFile.getName());
+    }
 }
