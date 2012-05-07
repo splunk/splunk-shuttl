@@ -4,4 +4,4 @@
 #
 
 echo "!!!Source this file or set the ANT_ARGS environment variable yourself???"
-export ANT_ARGS="-lib contrib/ant-libs/IndentedDefaultLogger.jar -logger com.splunk.IndentedDefaultLogger"
+export ANT_ARGS="-lib contrib/ant-libs/IndentedDefaultLogger.jar -logger com.splunk.shep.IndentedDefaultLogger"
