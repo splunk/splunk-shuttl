@@ -73,7 +73,7 @@ public class BucketExporter {
     /**
      * @return an instance of the {@link BucketExporter}
      */
-    public static BucketExporter get() {
+    public static BucketExporter create() {
 	CsvExporter csvExporter = CsvExporter.create();
 	return new BucketExporter(csvExporter, new CsvBucketCreator());
     }

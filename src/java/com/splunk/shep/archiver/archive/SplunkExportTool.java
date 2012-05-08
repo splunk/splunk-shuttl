@@ -17,6 +17,8 @@ package com.splunk.shep.archiver.archive;
 import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -31,12 +33,13 @@ public class SplunkExportTool {
     /**
      * @return the exporttool file.
      */
-    public File getExecutableFile() {
-	if (!isSplunkHomeEnvironmentSet()) {
+    public String getExecutableCommand() {
+	if (isSplunkHomeEnvironmentSet()) {
+	    return new File(getSplunkHome(), "/bin/exporttool")
+		    .getAbsolutePath();
+	} else {
 	    logWarningAboutNotExportingTheBucket();
 	    throw new SplunkEnrivonmentNotSetException();
-	} else {
-	    return new File(new File(getSplunkHome()), "/bin/exporttool");
 	}
     }
 
@@ -55,6 +58,15 @@ public class SplunkExportTool {
     private void logWarningAboutNotExportingTheBucket() {
 	logger.debug(warn("Getting the exporttool from Splunk home.",
 		"$SPLUNK_HOME was not set", "Throwing exception"));
+    }
+
+    /**
+     * @return
+     */
+    public Map<String, String> getEnvironmentVariables() {
+	Map<String, String> environmentVars = new HashMap<String, String>();
+	environmentVars.put("SPLUNK_HOME", getSplunkHome());
+	return environmentVars;
     }
 
 }

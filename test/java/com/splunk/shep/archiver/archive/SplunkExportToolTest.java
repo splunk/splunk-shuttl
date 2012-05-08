@@ -19,6 +19,7 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -41,25 +42,39 @@ public class SplunkExportToolTest {
 
 	    @Override
 	    public void run() {
-		splunkExportTool.getExecutableFile();
+		splunkExportTool.getExecutableCommand();
 	    }
 	});
     }
 
-    public void getExecutableFile_splunkHomeIsSet_getFileThatIsExecutable()
+    public void getExecutableCommand_splunkHomeIsSet_commandToExecuteExportTool()
 	    throws IOException {
 	final File splunkHome = createTempDirectory();
 	File bin = createDirectoryInParent(splunkHome, "bin");
-	final File exporttool = createFileInParent(bin, "exporttool");
-	exporttool.setExecutable(true);
+	createFileInParent(bin, "exporttool");
+	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+	    @Override
+	    public void run() {
+		String splunkHomePath = splunkHome.getAbsolutePath();
+		UtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
+			splunkHomePath);
+		String command = splunkExportTool.getExecutableCommand();
+		assertEquals(command, splunkHomePath + "/bin/exporttool");
+	    }
+	});
+    }
+
+    public void getEnvironmentVariables_splunkHomeIsSet_getsSplunkHome() {
 	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
 	    public void run() {
 		UtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			splunkHome.getAbsolutePath());
-		File executableFile = splunkExportTool.getExecutableFile();
-		assertTrue(executableFile.canExecute());
+			"/splunk/home");
+		Map<String, String> keyValue = splunkExportTool
+			.getEnvironmentVariables();
+		assertEquals("/splunk/home", keyValue.get("SPLUNK_HOME"));
 	    }
 	});
     }

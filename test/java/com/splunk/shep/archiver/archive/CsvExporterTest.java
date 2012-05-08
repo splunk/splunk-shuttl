@@ -20,6 +20,8 @@ import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
@@ -33,11 +35,10 @@ public class CsvExporterTest {
 
     private CsvExporter csvExporter;
     private SplunkExportTool exportTool;
-    private Runtime runtime;
     private BucketCsvFile bucketCsvFile;
     private Bucket bucket;
     private ShellExecutor shellExecutor;
-    private File dummyFile;
+    private Map<String, String> emptyMap;
 
     @BeforeMethod
     public void setUp() {
@@ -47,43 +48,45 @@ public class CsvExporterTest {
 	csvExporter = new CsvExporter(exportTool, bucketCsvFile, shellExecutor);
 
 	bucket = UtilsBucket.createTestBucket();
-
-	dummyFile = new File("/dummy/file");
+	emptyMap = Collections.<String, String> emptyMap();
     }
 
     public void exportBucketToCsv_givenRuntimeExportToolAndOutputDir_callsRuntimeInTheCorrectWay()
 	    throws IOException {
-	when(exportTool.getExecutableFile()).thenReturn(
-		new File("/exporttool/path"));
+	when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
+	when(exportTool.getEnvironmentVariables()).thenReturn(emptyMap);
 	when(bucketCsvFile.getCsvFile(bucket)).thenReturn(createTestFile());
 	String bucketPath = bucket.getDirectory().getAbsolutePath();
 
 	String[] command = new String[] { "/exporttool/path", bucketPath,
 		"/csv/path", "-csv" };
-	when(shellExecutor.executeCommand(command)).thenReturn(0);
+	when(shellExecutor.executeCommand(emptyMap, command)).thenReturn(0);
 
 	csvExporter.exportBucketToCsv(bucket);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(groups = { "fast-unit" }, expectedExceptions = { CsvExportFailedException.class })
     public void exportBucketToCsv_nonZeroExitStatus_throwCsvExportFailedException()
 	    throws IOException, InterruptedException {
-	when(shellExecutor.executeCommand((String[]) anyObject()))
+	when(shellExecutor.executeCommand(anyMap(), (String[]) anyObject()))
 		.thenReturn(1);
 
-	when(exportTool.getExecutableFile()).thenReturn(dummyFile);
-	when(bucketCsvFile.getCsvFile(bucket)).thenReturn(dummyFile);
+	when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
+	when(bucketCsvFile.getCsvFile(bucket)).thenReturn(
+		new File("/dummy/file"));
 	csvExporter.exportBucketToCsv(bucket);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(groups = { "fast-unit" }, expectedExceptions = { CsvExportFailedException.class })
     public void exportBucketToCsv_csvFileDoesNotExistAfterExport_throwCsvExportFailedException() {
 	File nonExistantCsvFile = createTestFile();
 	when(bucketCsvFile.getCsvFile(bucket)).thenReturn(nonExistantCsvFile);
 
-	when(shellExecutor.executeCommand((String[]) anyObject()))
+	when(shellExecutor.executeCommand(anyMap(), (String[]) anyObject()))
 		.thenReturn(0);
-	when(exportTool.getExecutableFile()).thenReturn(dummyFile);
+	when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
 
 	FileUtils.deleteQuietly(nonExistantCsvFile);
 	csvExporter.exportBucketToCsv(bucket);

@@ -17,7 +17,14 @@ package com.splunk.shep.archiver.archive;
 import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -29,21 +36,27 @@ public class ShellExecutor {
 
     private final Runtime runtime;
 
+    private Process process;
+
     public ShellExecutor(Runtime runtime) {
 	this.runtime = runtime;
     }
 
     /**
+     * @param environment
+     *            variables to run with.
      * @return exit code of the executed command.
      */
-    public int executeCommand(String... command) {
-	Process process = runCommand(command);
-	return waitForProcessToExit(process);
+    public int executeCommand(Map<String, String> env, String... command) {
+	process = runCommand(command, env);
+	return waitForProcessToExit();
     }
 
-    private Process runCommand(String[] command) {
+    private Process runCommand(String[] command, Map<String, String> env) {
 	try {
-	    return runtime.exec(command);
+	    String[] keyValues = getKeyValuesFromEnv(env);
+	    System.out.println(Arrays.toString(keyValues));
+	    return runtime.exec(command, keyValues);
 	} catch (IOException e) {
 	    logger.error(did("Executed a command with runtime", e,
 		    "Command to be executed", "command", command));
@@ -51,13 +64,25 @@ public class ShellExecutor {
 	}
     }
 
-    private int waitForProcessToExit(Process exportProcess) {
+    private String[] getKeyValuesFromEnv(Map<String, String> env) {
+	List<String> keyValues = new ArrayList<String>();
+	for (Entry<String, String> keyValue : env.entrySet()) {
+	    keyValues.add(keyValue.getKey() + "=" + keyValue.getValue());
+	}
+	String[] kvs = new String[keyValues.size()];
+	for (int i = 0; i < keyValues.size(); i++) {
+	    kvs[i] = keyValues.get(i);
+	}
+	return kvs;
+    }
+
+    private int waitForProcessToExit() {
 	try {
-	    return exportProcess.waitFor();
+	    return process.waitFor();
 	} catch (InterruptedException e) {
 	    logger.debug(did("Waited for csv export process to finish.", e,
 		    "It to finish."));
-	    return -1;
+	    return 3;
 	}
     }
 
@@ -66,6 +91,17 @@ public class ShellExecutor {
      */
     public static ShellExecutor getInstance() {
 	return new ShellExecutor(Runtime.getRuntime());
+    }
+
+    /**
+     * @return
+     */
+    public List<String> getStdOut() {
+	try {
+	    return IOUtils.readLines(process.getInputStream());
+	} catch (IOException e) {
+	    return Collections.emptyList();
+	}
     }
 
 }

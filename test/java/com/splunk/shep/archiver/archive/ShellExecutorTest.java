@@ -14,11 +14,10 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -26,21 +25,21 @@ import org.testng.annotations.Test;
 @Test(groups = { "fast-unit" })
 public class ShellExecutorTest {
 
-    private Runtime runtime;
     private ShellExecutor shellExecutor;
+    private HashMap<String, String> env;
 
     @BeforeMethod
     public void setUp() {
-	runtime = mock(Runtime.class);
-	shellExecutor = new ShellExecutor(runtime);
+	shellExecutor = new ShellExecutor(Runtime.getRuntime());
+	env = new HashMap<String, String>();
     }
 
-    @Test(groups = { "fast-unit" })
-    public void executeCommand_whenAllIsGood_exitStatusZero()
-	    throws IOException, InterruptedException {
-	Process process = mock(Process.class);
-	when(runtime.exec((String[]) anyObject())).thenReturn(process);
-	when(process.waitFor()).thenReturn(0);
-	assertEquals(0, shellExecutor.executeCommand("command"));
+    public void executeCommand_givenEnvironmentVariable_echoThatEnvVar() {
+	env.put("SHELL_EXECUTOR", "foo");
+	String[] command = new String[] { "sh", "-c", "echo ${SHELL_EXECUTOR}" };
+	shellExecutor.executeCommand(env, command);
+	List<String> out = shellExecutor.getStdOut();
+	assertEquals(1, out.size());
+	assertEquals("foo", out.get(0));
     }
 }
