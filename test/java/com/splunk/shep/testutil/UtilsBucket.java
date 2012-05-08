@@ -1,17 +1,25 @@
 package com.splunk.shep.testutil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Date;
 
 import org.apache.commons.lang.math.RandomUtils;
 import org.testng.AssertJUnit;
 
+import com.splunk.shep.archiver.archive.BucketExporterIntegrationTest;
 import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
 /**
  * Util for creating a physical and valid bucket on the file system.
  */
 public class UtilsBucket {
+
+    private static final URL realBucketUrl = BucketExporterIntegrationTest.class
+	    .getResource("/splunk-buckets/db_1336330530_1336330530_0");
 
     /**
      * @return A bucket with random bucket and index names.
@@ -67,8 +75,7 @@ public class UtilsBucket {
     }
 
     private static File formatDirectoryToBeABucket(File bucketDir) {
-	File rawdata = UtilsFile
-		.createDirectoryInParent(bucketDir, "rawdata");
+	File rawdata = UtilsFile.createDirectoryInParent(bucketDir, "rawdata");
 	File slices = UtilsFile.createFileInParent(rawdata, "slices.dat");
 	UtilsFile.populateFileWithRandomContent(slices);
 	return bucketDir;
@@ -149,5 +156,24 @@ public class UtilsBucket {
      */
     public static Bucket createBucketWithName(String name) {
 	return createTestBucketWithIndexAndName(randomIndexName(), name);
+    }
+
+    /**
+     * @return
+     */
+    public static Bucket createRealBucket() {
+	try {
+	    return doCreateRealBucket();
+	} catch (Exception e) {
+	    UtilsTestNG.failForException("Could not create real bucket", e);
+	    return null;
+	}
+    }
+
+    private static Bucket doCreateRealBucket() throws URISyntaxException,
+	    FileNotFoundException, FileNotDirectoryException {
+	File bucketDirectory = new File(realBucketUrl.toURI())
+		.getAbsoluteFile();
+	return new Bucket("index", bucketDirectory);
     }
 }

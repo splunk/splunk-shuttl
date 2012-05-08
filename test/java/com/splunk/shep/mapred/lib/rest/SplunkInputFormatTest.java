@@ -34,8 +34,8 @@ import org.testng.annotations.Test;
 
 import com.splunk.Job;
 import com.splunk.Service;
-import com.splunk.shep.mapreduce.lib.rest.MapRedRestTestConstants;
 import com.splunk.shep.mapreduce.lib.rest.SplunkConfiguration;
+import com.splunk.shep.mapreduce.lib.rest.SplunkEventsInputFormatTest;
 import com.splunk.shep.mapreduce.lib.rest.tests.SplunkRecord;
 import com.splunk.shep.testutil.FileSystemUtils;
 import com.splunk.shep.testutil.HadoopFileSystemPutter;
@@ -45,8 +45,6 @@ import com.splunk.shep.testutil.SplunkTestUtils;
 public class SplunkInputFormatTest {
 
     private static final String TEST_INPUT_FILENAME = "wordfile-timestamp";
-    private static final String TEST_INPUT_FILE_PATH = MapRedRestTestConstants.TEST_RESOURCES_PATH
-	    + "/" + TEST_INPUT_FILENAME;
     private FileSystem fileSystem;
     private HadoopFileSystemPutter putter;
     private SplunkServiceParameters testParameters;
@@ -92,7 +90,8 @@ public class SplunkInputFormatTest {
     // There's currently no way to oneshot a file through the Splunk SDK/API
     // Currently using $SPLUNK_HOME instead.
     private void indexTestFile(String splunkHome) {
-	File file = new File(TEST_INPUT_FILE_PATH);
+	File file = SplunkEventsInputFormatTest
+		.getFileForFileName(TEST_INPUT_FILENAME);
 	Process exec = oneshotFileToSplunk(splunkHome, file);
 	int exitStatus = waitForOneshotToComplete(exec);
 	if (exitStatus > 0)

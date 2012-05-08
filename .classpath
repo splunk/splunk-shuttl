@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="test/java"/>
+	<classpathentry kind="src" path="test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="contrib/flume-0.9.3-CDH3B4/flume-0.9.3-CDH3B4-core.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar">
@@ -24,7 +25,7 @@
 			<attribute name="javadoc_location" value="http://hc.apache.org/httpcomponents-core-ga/httpcore/apidocs"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons-io-2.1.jar">
+	<classpathentry kind="lib" path="lib/commons-io-2.3.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/io/apidocs/"/>
 		</attributes>
@@ -61,7 +62,7 @@
 	<classpathentry kind="lib" path="lib/jackson-core-asl-1.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-xc-1.9.5.jar"/>
-    <classpathentry kind="lib" path="lib/jsp-api-2.1-6.1.14.jar"/>
-    <classpathentry kind="lib" path="lib/asm-3.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/jsp-api-2.1-6.1.14.jar"/>
+	<classpathentry kind="lib" path="lib/asm-3.3.1.jar"/>
 	<classpathentry kind="output" path="eclipse-bin"/>
 </classpath>

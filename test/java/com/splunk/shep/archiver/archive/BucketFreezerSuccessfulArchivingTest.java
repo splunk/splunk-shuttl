@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.archive;
 
+import static com.splunk.shep.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shep.testutil.UtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -30,7 +31,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shep.archiver.archive.recovery.BucketLock;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker;
 import com.splunk.shep.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shep.archiver.archive.recovery.BucketMover;
@@ -56,22 +56,14 @@ public class BucketFreezerSuccessfulArchivingTest {
 	tempTestDirectory = createTempDirectory();
 	archiveRestHandler = mock(ArchiveRestHandler.class);
 	failedBucketsArchiver = mock(FailedBucketsArchiver.class);
-	bucketFreezer = new BucketFreezer(
-		new BucketMover(getSafeLocationPath()), new BucketLocker(),
-		archiveRestHandler, failedBucketsArchiver);
+	bucketFreezer = new BucketFreezer(new BucketMover(tempTestDirectory),
+		new BucketLocker(), archiveRestHandler, failedBucketsArchiver);
     }
 
     @AfterMethod(groups = { "fast-unit" })
     public void tearDownFast() {
 	FileUtils.deleteQuietly(tempTestDirectory);
-	FileUtils.deleteQuietly(new File(BucketLock.DEFAULT_LOCKS_DIRECTORY));
-    }
-
-    /**
-     * This location is torn down by the AfterMethod annotation.
-     */
-    private String getSafeLocationPath() {
-	return tempTestDirectory.getAbsolutePath();
+	FileUtils.deleteQuietly(getArchiverDirectory());
     }
 
     @Test(groups = { "fast-unit" })

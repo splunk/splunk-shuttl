@@ -22,6 +22,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
@@ -90,7 +91,7 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
     }
 
     private void handleResponseFromDoingArchiveBucketRequest(
-	    HttpResponse response, Bucket bucket) {
+	    HttpResponse response, Bucket bucket) throws HttpResponseException {
 	int statusCode = response.getStatusLine().getStatusCode();
 
 	String entity = null;
@@ -113,22 +114,27 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	    }
 	    break;
 	default:
-	    logger.warn(warn("Sent an archive bucket reuqest",
+	    logger.error(did("Sent an archive bucket reuqest",
 		    "Got non ok http_status",
 		    "expected HttpStatus.SC_OK or SC_NO_CONTENT",
 		    "http_status", statusCode, "bucket_name", bucket.getName(),
 		    "entity", entity));
+	    throw new HttpResponseException(statusCode,
+		    "Unexpected response when archiving bucket.");
 	}
     }
 
     private void handleIOExceptionGenereratedByDoingArchiveBucketRequest(
 	    IOException e, Bucket bucket) {
-	logger.error(did("Sent archive bucket request", "got IOException",
-		"request to succeed", "exception", e, "bucket_name",
-		bucket.getName(), "cause", e.getCause()));
+
 	// TODO this method should handle the errors in case the bucket transfer
 	// fails. In this state there is no way of telling if the bucket was
 	// actually transfered or not.
+
+	logger.error(did("Sent archive bucket request", "got IOException",
+		"request to succeed", "exception", e, "bucket_name",
+		bucket.getName(), "cause", e.getCause()));
+	throw new RuntimeException(e);
     }
 
     private static HttpUriRequest createBucketArchiveRequest(Bucket bucket) {

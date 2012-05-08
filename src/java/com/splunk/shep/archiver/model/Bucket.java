@@ -24,6 +24,7 @@ public class Bucket {
     private final String indexName;
     private final BucketName bucketName;
     private final URI uri;
+    private final Long size; // size on file system in bytes
 
     /**
      * Bucket with an index and format<br/>
@@ -40,7 +41,7 @@ public class Bucket {
     public Bucket(String indexName, File directory)
 	    throws FileNotFoundException, FileNotDirectoryException {
 	this(directory.toURI(), directory, indexName, directory.getName(),
-		BucketFormat.getFormatFromDirectory(directory));
+		BucketFormat.getFormatFromDirectory(directory), null);
     }
 
     /**
@@ -66,19 +67,41 @@ public class Bucket {
      * @throws FileNotFoundException
      * @throws FileNotDirectoryException
      */
-    public Bucket(URI uri, String index, String bucketName, BucketFormat format)
+    public Bucket(URI uri, String index, String bucketName,
+ BucketFormat format)
 	    throws FileNotFoundException, FileNotDirectoryException {
-	this(uri, getFileFromUri(uri), index, bucketName, format);
+	this(uri, getFileFromUri(uri), index, bucketName, format, null);
+    }
+
+    /**
+     * Bucket created with an URI to support remote buckets.
+     * 
+     * @param uri
+     *            to bucket
+     * @param index
+     *            that the bucket belongs to.
+     * @param bucketName
+     *            that identifies the bucket
+     * @param format
+     *            of this bucket
+     * @throws FileNotFoundException
+     * @throws FileNotDirectoryException
+     */
+    public Bucket(URI uri, String index, String bucketName,
+	    BucketFormat format, Long size)
+	    throws FileNotFoundException, FileNotDirectoryException {
+	this(uri, getFileFromUri(uri), index, bucketName, format, size);
     }
 
     private Bucket(URI uri, File directory, String index, String bucketName,
-	    BucketFormat format) throws FileNotFoundException,
+	    BucketFormat format, Long size) throws FileNotFoundException,
 	    FileNotDirectoryException {
 	this.uri = uri;
 	this.directory = directory;
 	this.indexName = index;
 	this.bucketName = new BucketName(bucketName);
 	this.format = format;
+	this.size = size;
 	verifyDirectoryExists(directory);
     }
 
@@ -241,4 +264,7 @@ public class Bucket {
 	return new Date(bucketName.getLatest());
     }
 
+    public long getSize() {
+	return size.longValue();
+    }
 }

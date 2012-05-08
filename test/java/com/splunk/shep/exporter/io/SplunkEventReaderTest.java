@@ -32,7 +32,7 @@ import com.splunk.shep.exporter.model.ShepExport;
 
 /**
  * @author hyan
- *
+ * 
  */
 public class SplunkEventReaderTest {
     private static final Logger log = Logger
@@ -67,22 +67,22 @@ public class SplunkEventReaderTest {
 		lastEndTime, endTime, disjunction));
     }
 
-    @Test(groups = { "integration" })
+    @Test(groups = { "integration" }, enabled = false)
     public void testExportJsonOnce() throws Exception {
 	testExportOnce(json);
     }
 
-    @Test(groups = { "integration" })
+    @Test(groups = { "integration" }, enabled = false)
     public void testExportXmlOnce() throws Exception {
 	testExportOnce(xml);
     }
 
-    @Test(groups = { "integration" })
+    @Test(groups = { "integration" }, enabled = false)
     public void testExportJsonTwice() throws Exception {
 	testExportTwice(json);
     }
 
-    @Test(groups = { "integration" })
+    @Test(groups = { "integration" }, enabled = false)
     public void testExportXmlTwice() throws Exception {
 	testExportTwice(xml);
     }

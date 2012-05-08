@@ -33,14 +33,14 @@ import com.splunk.shep.archiver.model.FileNotDirectoryException;
 public class BucketMover {
 
     private final static Logger logger = Logger.getLogger(BucketMover.class);
-    private final String movedBucketsLocationPath;
+    private final File movedBucketsLocation;
 
     /**
      * @param movedBucketsLocationPath
      *            path to the failed buckets location
      */
-    public BucketMover(String movedBucketsLocationPath) {
-	this.movedBucketsLocationPath = movedBucketsLocationPath;
+    public BucketMover(File movedBucketsLocation) {
+	this.movedBucketsLocation = movedBucketsLocation;
     }
 
     /**
@@ -53,34 +53,32 @@ public class BucketMover {
      */
     public Bucket moveBucket(Bucket bucket) {
 	logger.debug(will("moving bucket", "bucket", bucket, "destination",
-		getMovedBucketsLocation()));
+		movedBucketsLocation));
 
 	Bucket movedBucket = null;
 	try {
 	    movedBucket = moveBucketToMovedBucketsLocationAndPerserveItsIndex(bucket);
 	    logger.debug(did("moved bucket", "success", null, "bucket", bucket,
-		    "destination", getMovedBucketsLocation()));
+		    "destination", movedBucketsLocation));
 	    return movedBucket;
 	} catch (FileNotFoundException e) {
 	    logger.error(did("Tried to move bucket",
 		    "Destination did not exist", null, "bucket", bucket,
-		    "exception", e, "destination", getMovedBucketsLocation()));
+		    "exception", e, "destination", movedBucketsLocation));
 	    throw new RuntimeException(e);
 	} catch (FileNotDirectoryException e) {
 	    logger.error(did("Tried to move bucket",
 		    "Destination was not a directory", null, "bucket", bucket,
-		    "exception", e, "destination",
-		    getMovedBucketsLocation()));
+		    "exception", e, "destination", movedBucketsLocation));
 	    throw new RuntimeException(e);
 	}
-	
+
     }
 
     private Bucket moveBucketToMovedBucketsLocationAndPerserveItsIndex(
 	    Bucket bucket) throws FileNotFoundException,
 	    FileNotDirectoryException {
-	File indexDirectory = new File(getMovedBucketsLocation(),
-		bucket.getIndex());
+	File indexDirectory = new File(movedBucketsLocation, bucket.getIndex());
 	indexDirectory.mkdirs();
 	return bucket.moveBucketToDir(indexDirectory);
     }
@@ -92,7 +90,6 @@ public class BucketMover {
     public List<Bucket> getMovedBuckets() {
 	ArrayList<Bucket> movedBuckets = new ArrayList<Bucket>();
 
-	File movedBucketsLocation = getMovedBucketsLocation();
 	File[] listFiles = movedBucketsLocation.listFiles();
 	// This will fail when the buckets structure has changed.
 	if (listFiles != null) {
@@ -135,9 +132,4 @@ public class BucketMover {
 	    throw new RuntimeException(e);
 	}
     }
-
-    private File getMovedBucketsLocation() {
-	return new File(movedBucketsLocationPath);
-    }
-
 }

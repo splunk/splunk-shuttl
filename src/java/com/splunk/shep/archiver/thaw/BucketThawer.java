@@ -14,8 +14,16 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
+import static com.splunk.shep.archiver.LogFormatter.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shep.archiver.model.Bucket;
@@ -26,6 +34,7 @@ import com.splunk.shep.archiver.model.Bucket;
  */
 public class BucketThawer {
 
+    private static final Logger logger = Logger.getLogger(BucketThawer.class);
     private final ArchiveBucketsLister archiveBucketsLister;
     private final BucketFilter bucketFilter;
     private final BucketFormatResolver bucketFormatResolver;
@@ -56,14 +65,36 @@ public class BucketThawer {
      * Thaw buckets by listing buckets in an index, filter the buckets, resolve
      * their formats and lastly transferring them to the thaw directory.
      */
-    public void thawBuckets(String index, Date earliestTime, Date latestTime) {
-	List<Bucket> buckets = archiveBucketsLister.listBucketsInIndex(index);
+    public Map<String, List<Bucket>> thawBuckets(String index,
+	    Date earliestTime, Date latestTime) {
+	List<Bucket> bucketsInIndex = archiveBucketsLister
+		.listBucketsInIndex(index);
 	List<Bucket> filteredBuckets = bucketFilter.filterBucketsByTimeRange(
-		buckets, earliestTime, latestTime);
+		bucketsInIndex, earliestTime, latestTime);
 	List<Bucket> bucketsWithFormats = bucketFormatResolver
 		.resolveBucketsFormats(filteredBuckets);
+
+	List<Bucket> failedBuckets = new ArrayList<Bucket>();
+	List<Bucket> thawedBuckets = new ArrayList<Bucket>();
+
 	for (Bucket bucket : bucketsWithFormats) {
-	    thawBucketTransferer.transferBucketToThaw(bucket);
+	    logger.info(will("Attempting to thaw bucket", "bucket", bucket));
+	    try {
+		thawBucketTransferer.transferBucketToThaw(bucket);
+		thawedBuckets.add(bucket);
+		logger.info(done("Thawed bucket", "bucket", bucket));
+	    } catch (IOException e) {
+		logger.error(did("Tried to thaw bucket", e,
+			"Place the bucket in thaw", "bucket", bucket,
+			"exception", e));
+		failedBuckets.add(bucket);
+	    }
 	}
+
+	HashMap<String, List<Bucket>> ret = new HashMap<String, List<Bucket>>();
+	ret.put("thawed", thawedBuckets);
+	ret.put("failed", failedBuckets);
+
+	return ret;
     }
 }

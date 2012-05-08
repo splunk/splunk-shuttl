@@ -1,10 +1,11 @@
 package com.splunk.shep.mapreduce.lib.rest;
 
-
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,9 +75,16 @@ public class SplunkEventsInputFormatTest {
 	return getFileForFileName(TEST_INPUT_FILENAME_2);
     }
 
-    private File getFileForFileName(String fileName) {
-	return new File(MapRedRestTestConstants.TEST_RESOURCES_PATH + "/"
-		+ fileName);
+    public static File getFileForFileName(String fileName) {
+	String path = MapRedRestTestConstants.TEST_RESOURCES_PATH + "/"
+		+ fileName;
+	URL resource = SplunkEventsInputFormatTest.class.getResource(path);
+	try {
+	    return new File(resource.toURI());
+	} catch (URISyntaxException e) {
+	    e.printStackTrace();
+	    return null;
+	}
     }
 
     private void runMapReduceJob() throws IOException, InterruptedException,

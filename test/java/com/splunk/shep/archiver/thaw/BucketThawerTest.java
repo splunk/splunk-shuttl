@@ -17,6 +17,7 @@ package com.splunk.shep.archiver.thaw;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -76,7 +77,8 @@ public class BucketThawerTest {
 	verify(bucketFormatResolver).resolveBucketsFormats(filteredBuckets);
     }
 
-    public void thawBuckets_givenOneFilteredBucketWithFormatSet_transferBucketsToThawDirectory() {
+    public void thawBuckets_givenOneFilteredBucketWithFormatSet_transferBucketsToThawDirectory()
+	    throws IOException {
 	Bucket bucketToThaw = mock(Bucket.class);
 	List<Bucket> filteredBucketsWithFormatSet = Arrays.asList(bucketToThaw);
 
@@ -98,7 +100,8 @@ public class BucketThawerTest {
 	verifyZeroInteractions(thawBucketTransferer);
     }
 
-    public void thawBuckets_givenTwoFilteredBucketWithFormatSet_noInteractionsWithBucketTransferer() {
+    public void thawBuckets_givenTwoFilteredBucketWithFormatSet_noInteractionsWithBucketTransferer()
+	    throws IOException {
 	Bucket bucket1 = mock(Bucket.class);
 	Bucket bucket2 = mock(Bucket.class);
 	List<Bucket> emptyListOfBuckets = Arrays.asList(bucket1, bucket2);

@@ -4,6 +4,8 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,8 +80,15 @@ public class SplunkEventsInputFormatTest {
     }
 
     private File getFileForFileName(String fileName) {
-	return new File(MapRedRestTestConstants.TEST_RESOURCES_PATH + "/"
-		+ fileName);
+	String path = MapRedRestTestConstants.TEST_RESOURCES_PATH + "/"
+		+ fileName;
+	URL resource = getClass().getResource(path);
+	try {
+	    return new File(resource.toURI());
+	} catch (URISyntaxException e) {
+	    e.printStackTrace();
+	    return null;
+	}
     }
 
     private void runMapReduceJob() throws IOException {

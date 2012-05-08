@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.listers;
 
+import static java.util.Arrays.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -51,8 +52,9 @@ public class ArchiveBucketsListerTest {
 
     @Test(groups = { "fast-unit" })
     public void listBuckets_givenIndexesLister_useIndexesListerToGetIndexes() {
-	archiveBucketsLister.listBuckets();
-	verify(indexLister).listIndexes();
+	when(indexLister.listIndexes()).thenReturn(asList("index"));
+	List<Bucket> buckets = archiveBucketsLister.listBuckets();
+	assertTrue(buckets.isEmpty());
     }
 
     public void listBucketsInIndex_givenIndexesFromIndexLister_getBucketsHomeFromPathResolver() {
@@ -98,8 +100,8 @@ public class ArchiveBucketsListerTest {
 
 	List<Bucket> buckets = archiveBucketsLister.listBucketsInIndex(index);
 	assertEquals(2, buckets.size());
-	Bucket bucket1 = new Bucket(bucketUri1, index, bucketName1, null);
-	Bucket bucket2 = new Bucket(bucketUri2, index, bucketName2, null);
+	Bucket bucket1 = new Bucket(bucketUri1, index, bucketName1, null, null);
+	Bucket bucket2 = new Bucket(bucketUri2, index, bucketName2, null, null);
 	for (Bucket bucket : buckets) {
 	    assertTrue(UtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket1,
 		    bucket)

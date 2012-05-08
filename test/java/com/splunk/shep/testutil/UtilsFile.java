@@ -213,11 +213,18 @@ public class UtilsFile {
     }
 
     /**
-     * @return wether or not the directory has files in it.
+     * @return whether or not the directory has files in it.
      */
     public static boolean isDirectoryEmpty(File directory) {
 	assertTrue(directory.isDirectory());
 	File[] listFiles = directory.listFiles();
 	return listFiles.length == 0;
+    }
+
+    /**
+     * @return a file named a certain way.
+     */
+    public static File createTestFileWithName(String name) {
+	return UtilsFile.createFileInParent(FileUtils.getTempDirectory(), name);
     }
 }
