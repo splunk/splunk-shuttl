@@ -147,4 +147,11 @@ public class UtilsBucketTest {
 	assertEquals(earliest, bucket.getEarliest());
 	assertEquals(latest, bucket.getLatest());
     }
+
+    public void createRealBucket_givenNothing_splunkBucketWithRealData() {
+	Bucket bucket = UtilsBucket.createRealBucket();
+	assertEquals(bucket.getFormat(), BucketFormat.SPLUNK_BUCKET);
+	int filesInBucket = bucket.getDirectory().listFiles().length;
+	assertEquals(13, filesInBucket);
+    }
 }

@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -31,6 +30,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
+import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsEnvironment;
 
 /**
@@ -39,18 +39,12 @@ import com.splunk.shep.testutil.UtilsEnvironment;
 @Test(groups = { "integration" })
 public class BucketExporterIntegrationTest {
 
-    private static final URL realBucketUrl = BucketExporterIntegrationTest.class
-	    .getResource("/splunk-buckets/db_1336330530_1336330530_0");
-
     private BucketExporter bucketExporter;
-    private Bucket bucket;
 
     @BeforeMethod
     public void setUp() throws FileNotFoundException,
 	    FileNotDirectoryException, URISyntaxException {
 	bucketExporter = BucketExporter.create();
-	File bucketDirectory = new File(realBucketUrl.toURI()).getAbsoluteFile();
-	bucket = new Bucket("index", bucketDirectory);
     }
 
     @AfterMethod
@@ -74,8 +68,8 @@ public class BucketExporterIntegrationTest {
     }
 
     private void exportingBucketWithRealDataToCsvCreatesCsvBucket() {
-	Bucket csvBucket = bucketExporter.exportBucketToFormat(bucket,
-		BucketFormat.CSV);
+	Bucket csvBucket = bucketExporter.exportBucketToFormat(
+		UtilsBucket.createRealBucket(), BucketFormat.CSV);
 	assertEquals(BucketFormat.CSV, csvBucket.getFormat());
 	assertEquals(1, csvBucket.getDirectory().listFiles().length);
 	File csvFile = csvBucket.getDirectory().listFiles()[0];
