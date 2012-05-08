@@ -54,21 +54,21 @@ public class BucketArchiverTest {
     public void archiveBucket_shouldResolveArchivePathWithIndexBucketAndFormat() {
 	BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 	when(config.getArchiveFormat()).thenReturn(format);
-	when(
-		exporter.exportBucketToFormat(eq(bucket),
-			any(BucketFormat.class))).thenReturn(bucket);
+	when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
+		.thenReturn(bucket);
 	bucketArchiver.archiveBucket(bucket);
 	verify(pathResolver).resolveArchivePath(bucket);
     }
 
     public void archiveBucket_givenArchiveBucketTransferer_letTransfererTransferTheBucket() {
 	URI path = getTestUri();
-	when(
-		exporter.exportBucketToFormat(eq(bucket),
-			any(BucketFormat.class))).thenReturn(bucket);
-	when(pathResolver.resolveArchivePath(bucket)).thenReturn(path);
+	Bucket exportedBucket = mock(Bucket.class);
+	when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
+		.thenReturn(exportedBucket);
+	when(pathResolver.resolveArchivePath(exportedBucket)).thenReturn(path);
 	bucketArchiver.archiveBucket(bucket);
-	verify(archiveBucketTransferer).transferBucketToArchive(bucket, path);
+	verify(archiveBucketTransferer).transferBucketToArchive(exportedBucket,
+		path);
     }
 
     private URI getTestUri() {
