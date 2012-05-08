@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.archive.ArchiveConfiguration;
@@ -34,13 +35,17 @@ import com.splunk.shep.archiver.fileSystem.ArchiveFileSystemFactory;
 import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shep.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.archiver.thaw.BucketFormatChooser;
+import com.splunk.shep.archiver.thaw.BucketFormatResolver;
 import com.splunk.shep.testutil.UtilsBucket;
+import com.splunk.shep.testutil.UtilsEnvironment;
 
-@Test(enabled = false, groups = { "fast-unit" })
+@Test(enabled = true, groups = { "integration" })
 public class ExportCsvFunctionalTest {
 
     private BucketArchiver csvBucketArchiver;
     private ArchiveBucketsLister bucketsLister;
+    private BucketFormatResolver bucketFormatResolver;
 
     @BeforeMethod
     public void setUp() {
@@ -55,6 +60,10 @@ public class ExportCsvFunctionalTest {
 		pathResolver, localFileSystem);
 	bucketsLister = new ArchiveBucketsLister(localFileSystem,
 		indexesLister, pathResolver);
+	BucketFormatChooser bucketFormatChooser = new BucketFormatChooser(
+		csvConfig);
+	bucketFormatResolver = new BucketFormatResolver(pathResolver,
+		localFileSystem, bucketFormatChooser);
     }
 
     private ArchiveConfiguration constructCsvArchiveConfigration() {
@@ -68,13 +77,31 @@ public class ExportCsvFunctionalTest {
 	return config;
     }
 
-    public void _givenBucketInSplunkBucketFormat_archivedAsCsvFormat() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+    @Parameters(value = { "splunk.home" })
+    public void _givenSplunkHomeAndBucketInSplunkBucketFormat_archivedAsCsvFormat(
+	    final String splunkHome) {
+	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+	    @Override
+	    public void run() {
+		UtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
+			splunkHome);
+		archiveBucketInSplunkBucketFormatAsCsv();
+
+	    }
+	});
+    }
+
+    private void archiveBucketInSplunkBucketFormatAsCsv() {
+	Bucket bucket = UtilsBucket.createRealBucket();
 	assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
 	csvBucketArchiver.archiveBucket(bucket);
 	List<Bucket> buckets = bucketsLister.listBucketsInIndex(bucket
 		.getIndex());
-	assertEquals(1, buckets.size());
-	assertEquals(BucketFormat.CSV, bucket.getFormat());
+	List<Bucket> bucketsWithFormats = bucketFormatResolver
+		.resolveBucketsFormats(buckets);
+
+	assertEquals(1, bucketsWithFormats.size());
+	assertEquals(BucketFormat.CSV, bucketsWithFormats.get(0).getFormat());
     }
 }
