@@ -21,6 +21,7 @@ import static org.testng.Assert.*;
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -50,10 +51,12 @@ public class CsvBucketCreatorTest {
     }
 
     @Test(groups = { "fast-unit" })
-    public void _givenCsvFileAndBucket_createsBucketWithSameNameAsCsvFile() {
+    public void _givenCsvFileAndBucket_bucketNamedAsCsvFileWithoutTheCsvExtension() {
 	Bucket csvBucket = csvBucketCreator.createBucketWithCsvFile(csvFile,
 		bucket);
-	assertEquals(csvBucket.getName(), csvFile.getName());
+	String fileWithoutExtension = FilenameUtils.removeExtension(csvFile
+		.getName());
+	assertEquals(csvBucket.getName(), fileWithoutExtension);
     }
 
     public void _givenCsvFile_createsBucketInParentFileToCsvFile() {

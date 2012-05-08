@@ -18,6 +18,7 @@ import static com.splunk.shep.archiver.LogFormatter.*;
 
 import java.io.File;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.model.Bucket;
@@ -72,12 +73,19 @@ public class CsvBucketCreator {
     private Bucket createBucketObject(File csvFile, Bucket bucket,
 	    File bucketDir) {
 	try {
+	    String csvFileNameWithoutExtension = removeExtension(csvFile);
 	    return new Bucket(bucketDir.toURI(), bucket.getIndex(),
-		    csvFile.getName(), BucketFormat.CSV);
+		    csvFileNameWithoutExtension, BucketFormat.CSV);
 	} catch (Exception e) {
 	    logBucketCreationException(bucket, bucketDir, e);
 	    throw new RuntimeException(e);
 	}
+    }
+
+    private String removeExtension(File csvFile) {
+	String csvFileNameWithoutExtension = FilenameUtils
+		.removeExtension(csvFile.getName());
+	return csvFileNameWithoutExtension;
     }
 
     private void logBucketCreationException(Bucket bucket, File bucketDir,
