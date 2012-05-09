@@ -4,6 +4,7 @@ $(document).ready(function() {
   setSearchOrThawButtonToThaw();
   $('.loadingBig').hide();
   $('#thawedPage').hide();
+  $('form input:visible:enabled:first').focus()
 
   // Handler for events
   bindHandlers();
