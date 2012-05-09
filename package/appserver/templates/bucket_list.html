@@ -160,7 +160,10 @@
 
     % if errors:
       <div class="error">
-        ${str(errors)}
+        % for error in errors:
+          ${str(error)|n}
+          <br />
+        % endfor
       </div>
     % endif
 

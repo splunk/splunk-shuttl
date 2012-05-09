@@ -60,8 +60,9 @@ class Archiving(controllers.BaseController):
                 buckets = json.loads(bucketsResponse[1], object_pairs_hook=collections.OrderedDict)
             else:
                 # Error hadoop or rest (jetty) problem
-                errors = Exception('Expected http status code 200\n indexesResponse: %s\n bucketsResponse:%s' % 
-                    ( str(indexesResponse), str(bucketsResponse) ))
+                errors = [ "<h1>Got a NON 200 status code!</h1>", 
+                    "Index response:", indexesResponse[0], indexesResponse[1],
+                    "Bucket response:", bucketsResponse[0], bucketsResponse[1] ]
 
         indexes = sorted(indexes)
         buckets['SUPER_HEADER'] = SUPER_HEADER
@@ -89,7 +90,9 @@ class Archiving(controllers.BaseController):
             if bucketsResponse[0].status==200:
                 buckets = json.loads(bucketsResponse[1], object_pairs_hook=collections.OrderedDict)
             else:
-                errors = Exception('Expected http status code 200\n bucketsResponse: %s\n' % str(bucketsResponse))
+                errors = [ "<h1>Got a NON 200 status code!</h1>", 
+                    "Response header:", bucketsResponse[0], 
+                    "Response body:", bucketsResponse[1] ]
 
         buckets['SUPER_HEADER'] = SUPER_HEADER
 
@@ -117,7 +120,7 @@ class Archiving(controllers.BaseController):
             if response[0].status==200:
                 responseData = json.loads(response[1], object_pairs_hook=collections.OrderedDict)
             else:
-                errors = Exception('Expected status 200\n Response: %s\n' % str(response))
+                errors = [ "<h1>Got a NON 200 status code!</h1>", "Response header:", response[0], "Response body:", response[1] ]
 
         responseData['thawed_TITLE'] = "Thawed buckets:"
         responseData['failed_TITLE'] = "Failed buckets:"

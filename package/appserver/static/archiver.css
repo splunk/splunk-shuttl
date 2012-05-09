@@ -22,11 +22,11 @@ p {
 #archiverPage, #thawedPage {
     width: 100%;
 }
-#archiver h1 {
+h1 {
     color: #2B6D9A;
     font-size: 24px;
 }
-#archiver hr {
+hr {
     border: 0;
     height: 0;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
@@ -154,7 +154,7 @@ label.error {
     color: #FFA8A8;
     margin-left: 5px;
 }
-.error {
+.error, .error * {
     color: red;
 }
 
