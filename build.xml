@@ -824,6 +824,10 @@
 		<copy todir="${splunk.extracted.dir}/lib/python2.7/site-packages/splunk/appserver/mrsparkle/controllers/" file="${basedir}/archiver-UI-Debug-files/__init__.py"/>
 		<copy todir="${splunk.extracted.dir}/etc" file="${basedir}/archiver-UI-Debug-files/log.cfg" />
 	</target>
+	<target name="helper-archiver-activate-archiver-test-index" depends="set-shep-app-home">
+		<copy todir="${shep.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/indexes.conf" overwrite="true"/>
+		<copy todir="${shep.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/app.conf" overwrite="true"/>
+	</target>
 	<target name="helper-archiver-test-hadoop">
 		<exec executable="${hadoop.home}/bin/hadoop">
 			<arg line="fs -ls /" />
@@ -859,6 +863,30 @@
 		<antcall>
 			<target name="helper-archiver-extended-debugging" />
 		</antcall>
+	</target>
+	<target name="archiver-clean-setup-generate-test-buckets">
+		<!-- Somethimes when you've thawed things the index will be disabled 
+		(you can't use oneshot, see splunkd.log after partial thaw) and hard to enable again. 
+		This is a simple solution -->
+		<antcall>
+			<target name="clean-build-cache" />
+			<target name="archiver-setup-generate-test-buckets" />
+		</antcall>
+	</target>
+	<target name="archiver-setup-generate-test-buckets">
+		<antcall>
+			<target name="hadoop-setup" />
+			<target name="splunk-setup" />
+			<target name="helper-archiver-activate-archiver-test-index" />
+			<target name="splunk-restart" />
+		</antcall>
+	</target>
+	<!-- the index must exist "ant helper-archiver-activate-archiver-test-index" 
+	and "./splunk login" should have been run before this -->
+	<target name="archiver-generate-test-buckets" depends="set-splunk-home">
+		<exec executable="${basedir}/archiver-UI-Debug-files/hadoop/generateBuckets.sh" osfamily="unix">
+			<arg line="${splunk.home} ${basedir}/archiver-UI-Debug-files/hadoop archiver-test-index" />
+		</exec>
 	</target>
 	<!-- END Archiver-UI -->
 
