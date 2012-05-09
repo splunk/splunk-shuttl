@@ -87,6 +87,16 @@
 <%def name="gen_tables(tables, errors=None, settings={})">
   <div class="generated-tables">
     
+    % if errors:
+      <div class="error">
+        % for error in errors:
+          ${str(error)|n}
+          <br />
+        % endfor
+      </div>
+      ##<% return '' %>
+    % endif
+
     % if tables and len(tables):
       <%
         superHeader = tables.get('SUPER_HEADER')
@@ -156,15 +166,6 @@
         % endif
         <% logger.debug('gen_tables: K=%s, V=%s' % (tableK, tableV)) %>
       % endfor
-    % endif:
-
-    % if errors:
-      <div class="error">
-        % for error in errors:
-          ${str(error)|n}
-          <br />
-        % endfor
-      </div>
     % endif
 
   </div>
