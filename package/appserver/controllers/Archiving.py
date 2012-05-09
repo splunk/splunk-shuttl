@@ -1,33 +1,41 @@
 import logging
 
 import cherrypy
-import urllib
-import json
 import splunk.rest
 import splunk.bundle as bundle
 import splunk.appserver.mrsparkle.controllers as controllers
 from splunk.appserver.mrsparkle.lib.decorators import expose_page
 
-logger = logging.getLogger('splunk.appserver.mrsparkle.controllers.Archiving')
+import urllib
+import json
+import time
+import collections
+
+
 DEBUG = False
-defaultBuckets = { 'bucket': [{ 
-                'bucketName': "test1", 
-                'indexName': "index1", 
-                'format': "test format", 
-                'uri': "http'://", 
-                'fromDate': "2012-05-05", 
-                'toDate': "2012-05-06", 
-                'size': "1337"
-                }, { 
-                'bucketName': "test2", 
-                'indexName': "index1", 
-                'format': "test format", 
-                'uri': "http'://", 
-                'fromDate': "2012-05-05", 
-                'toDate': "2012-05-06", 
-                'size': "13"
-                }]
-            }
+debugIndexes = ['test index 1', 'test index 2']
+debugBuckets = { 
+    'bucket': [
+    { 'bucketName': "test1", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "1337"}, 
+    { 'bucketName': "test2", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "13"}
+    ]}
+debugFailedThawedBuckets = {
+    'SUPER_HEADER': {'indexName': 'Index name', 'bucketName': 'Bucket name', 'size': 'Size'},
+    'failed_HEADER': {'bucketName': 'Bucket name'},
+    'failed': [
+    { 'bucketName': "test1", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "1337"}, 
+    { 'bucketName': "test2", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "13"} 
+    ], 'thawed': [
+    { 'bucketName': "test1", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "1337"}, 
+    { 'bucketName': "test2", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "13"}
+    ]}
+
+
+logger = logging.getLogger('splunk.appserver.mrsparkle.controllers.Archiving')
+SUPER_HEADER = collections.OrderedDict([ 
+                    ('bucketName','Name'), ('indexName','Index'), ('format','Format'), 
+                    ('fromDate','From'), ('toDate','To'), ('size','Size'), ('uri','URI') ])
+
 
 class Archiving(controllers.BaseController):
     '''Archiving Controller'''
@@ -36,59 +44,85 @@ class Archiving(controllers.BaseController):
     @expose_page(must_login=True, methods=['GET']) 
     def show(self, **kwargs):
         
+        errors = None
         indexes = []
-        buckets = {'bucket' : []}
-        indexesRequest = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/index/list');
-        bucketsRequest = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list');
+        buckets = {}
+        indexesResponse = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/index/list');
+        bucketsResponse = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list');
 
-        # debug
         if DEBUG: 
-            buckets = defaultBuckets
+            indexes = debugIndexes
+            buckets = debugBuckets
         else:
             # Check http status codes
-            if indexesRequest[0].status==200 and bucketsRequest[0].status==200:
-                indexes = json.loads(indexesRequest[1])
-                buckets = json.loads(bucketsRequest[1])
+            if indexesResponse[0].status==200 and bucketsResponse[0].status==200:
+                indexes = json.loads(indexesResponse[1], object_pairs_hook=collections.OrderedDict)
+                buckets = json.loads(bucketsResponse[1], object_pairs_hook=collections.OrderedDict)
             else:
                 # Error hadoop or rest (jetty) problem
-                return 'Error could not load index OR buckets'
+                errors = Exception('Expected http status code 200\n indexesResponse: %s\n bucketsResponse:%s' % 
+                    ( str(indexesResponse), str(bucketsResponse) ))
 
-        # discard container
-        if buckets is not None:
-            buckets = buckets['bucket']
+        indexes = sorted(indexes)
+        buckets['SUPER_HEADER'] = SUPER_HEADER
 
         logger.error('show - indexes: %s (%s)' % (indexes, type(indexes)))
         logger.error('show - buckets: %s (%s)' % (buckets, type(buckets)))
 
-        return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes, buckets=buckets))
+        return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes, tables=buckets, errors=errors))
 
     # Gives a list of buckets for a specific index as an html table
     @expose_page(must_login=True, methods=['POST'])
     def list_buckets(self, **params):
         
+        errors = None
+        buckets = {}
+
         logger.error('list_buckets - postArgs: %s (%s)' % (params, type(params)))
-        buckets = json.loads(splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list', getargs=params)[1])
+
+        bucketsResponse = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list', getargs=params)
+
+        if DEBUG: 
+            time.sleep(2)
+            buckets = debugBuckets
+        else:
+            if bucketsResponse[0].status==200:
+                buckets = json.loads(bucketsResponse[1], object_pairs_hook=collections.OrderedDict)
+            else:
+                errors = Exception('Expected http status code 200\n bucketsResponse: %s\n' % str(bucketsResponse))
+
+        buckets['SUPER_HEADER'] = SUPER_HEADER
+
         logger.error('list_buckets - buckets: %s (%s)' % (buckets, type(buckets)))
 
-        # debug
-        if DEBUG: 
-            buckets = defaultBuckets
-
-        # discard container
-        if buckets is not None:
-            buckets = buckets['bucket']
-
-        return self.render_template('/shep:/templates/bucket_list.html', dict(buckets=buckets, data=params))
+        return self.render_template('/shep:/templates/bucket_list.html', dict(data=params, tables=buckets, errors=errors))
 
     # Attempts to thaw buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['GET'])
     def thaw(self, **params):
+        
+        errors = None
+        responseData = {}
+
         index = params['index']
         from_date = params['from']
         to_date = params['to']
         params = urllib.urlencode({'index' : index, 'from' : from_date, 'to' : to_date})
         response = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/thaw?%s' % params)
-        if response[0]['status']=='200':
-            return self.render_template('/shep:/templates/success.html', dict(buckets=response[1]))  
+        
+        if DEBUG:
+            time.sleep(2)
+            responseData = debugFailedThawedBuckets
         else:
-            raise Exception('Expected status 200' + str(response))
+            if response[0].status==200:
+                responseData = json.loads(response[1], object_pairs_hook=collections.OrderedDict)
+            else:
+                errors = Exception('Expected status 200\n Response: %s\n' % str(response))
+
+        responseData['thawed_TITLE'] = "Thawed buckets:"
+        responseData['failed_TITLE'] = "Failed buckets:"
+
+        logger.error('thaw_buckets - buckets: %s (%s)' % (responseData, type(responseData)))
+
+        return self.render_template('/shep:/templates/bucket_list.html', dict(tables=responseData, errors=errors))  
+

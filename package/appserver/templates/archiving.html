@@ -106,7 +106,7 @@
         <%def name="data()">
           <div class="loadingBig" style="background-position:left center;"></div>
           <div id="bucket-list">
-            ${buckets.gen_bucket_list(context['buckets'])}
+            ${buckets.gen_tables(context['tables'])}
           </div>
         </%def>
       </%self:gen_table_option_row>

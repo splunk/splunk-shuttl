@@ -1,3 +1,4 @@
+/* Default style */
 body {
     font-family: Helvetica neue,Helvetica,Arial,sans-serif;
     font-size: 12px;
@@ -9,6 +10,7 @@ p {
     margin-top: 10px;
 }
 
+/* Archiver specific */
 .pageDesc {
     color: #666666;
     margin-bottom: 30px;
@@ -30,6 +32,8 @@ p {
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
+
+/* Tables, rows/data and lists */
 .table {
     display: table;
     width: 100%;
@@ -53,10 +57,16 @@ p {
 #data-size {
 
 }
-#bucket-list {
+table.tablesorter {
     line-height: 100%;
     width: auto;
+    margin-top: 0px;
 }
+table.tablesorter thead tr .header {
+    padding-right: 20px; /* tablesorter bug-fix: to small column-data will make the sorter icon overlap the column text */
+}
+
+/* Form */
 input.datetime-input { 
     -webkit-border-radius: 4px; 
     -moz-border-radius: 4px; 
@@ -81,10 +91,6 @@ input.datetime-input {
     background-color: #42799E;
     color: #ddd;
 }
-
-.noAfter:after {
-    content: "";
-}
 input.disabled, input.button[disabled="disabled"] {
     background-color: #ddd;
     color: #EDEDED;
@@ -99,6 +105,9 @@ input.disabled:active, input.button:hover[disabled="disabled"] {
 }
 
 /* Properties */
+.noAfter:after {
+    content: "";
+}
 .border {
     border: 1px solid;
 }
@@ -106,7 +115,7 @@ input.disabled:active, input.button:hover[disabled="disabled"] {
     display: none;
 }
 
-/* thaw-button */
+/* Thaw-button */
 .thaw.button {
     background-color: #FFC830;
 }
@@ -117,7 +126,7 @@ input.disabled:active, input.button:hover[disabled="disabled"] {
     background-color: #DBAD30;
 }
 
-/* loading */
+/* Loading */
 .loading, .loadingBig {
     text-indent: -3000px;
     overflow: hidden; /* IE what else to say */
@@ -136,7 +145,7 @@ input.disabled:active, input.button:hover[disabled="disabled"] {
     background-image: url(images/loading/loader_blue_on_grey.gif);
 }
 
-/*Errors*/
+/* Errors */
 input.datetime-input.error {
     background-color: #FFCCCC;
 }
@@ -149,7 +158,7 @@ label.error {
     color: red;
 }
 
-/*Datepicker*/
+/* Datepicker */
 img.ui-datepicker-trigger {
     vertical-align: sub;
 }

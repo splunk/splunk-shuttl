@@ -70,7 +70,7 @@ function getPostArguments(form) {
   var serializedData = form.serializeArray();
   return $.map(serializedData, function(obj, i){
     if ( obj['value']=="" ) {
-      return null;
+      // return null;
     } else if( obj['name']=="index" && obj['value']=="*" ) {
       // return null;
     } else {

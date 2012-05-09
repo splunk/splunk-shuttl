@@ -1,10 +1,26 @@
+## Parameters used:
+##
+## tables: a dictionary with the tables to create
+## tables={'bucket':['header1': "data"]}
+##
+## data: i.e. a dictionary with data to show.
+##
 <%page expression_filter="h"/>
 <%inherit file="//layout/base.html" />
 <%namespace name="lib" file="//lib.html" import="*"/>
 <%namespace name="helpers" file="//view/_helpers.html" import="*"/>
 <%!
-    import logging
-    logger = logging.getLogger('splunk.module.archiving')
+  import logging
+  logger = logging.getLogger('splunk.module.archiving')
+  
+  import re
+  headerReg = re.compile('^\w+(_HEADER){1}$')
+  titleReg = re.compile('^\w+(_TITLE){1}$')
+
+  def isHeader(tableNameStr):
+    return headerReg.match(tableNameStr)
+  def isTitle(tableNameStr):
+    return titleReg.match(tableNameStr)
 %>
 
 <%def name="custom_css()">
@@ -68,6 +84,89 @@
 
 </%def>
 
-${gen_bucket_list(context['buckets'])}
+<%def name="gen_tables(tables, errors=None, settings={})">
+  <div class="generated-tables">
+    
+    % if tables and len(tables):
+      <%
+        superHeader = tables.get('SUPER_HEADER')
+      %>
+      % for tableK, tableV in tables.iteritems():
+        <% logger.debug('\n  tableName: %s \n  (%s) \n  tableVal: %s \n  (%s)' % (tableK, type(tableK), tableV, type(tableV))) %>
+        <% ## Should not generate tables for headers and titles.
+          if isHeader(str(tableK)) or isTitle(str(tableK)):
+            continue
+          
+          ## Init
+          tableHeader = None
 
+          titleStr = '%s_TITLE' % str(tableK)
+          tableTitle = tables.get(titleStr, "")
+          logger.debug('title is: "%s"' % tableTitle)
+        %>
+        <div id="${tableK}-title" class="title">${tableTitle}</div>
+
+        <%
+          ## Set super header if one exist
+          if superHeader:
+            tableHeader = superHeader
+          ## Set defult header if input data seems correct (contains a list of dicts with keys and values)
+          if len(tableV) and not superHeader:
+            tmpHeader = {}
+            for item in tableV:
+              tmpHeader = item.viewkeys() | tmpHeader     # union of all keys
+            tableHeader = dict(zip(tmpHeader, tmpHeader)) # {'key': 'key', ...}
+          ## Set custom header
+          tmpHeader = tables.get('%s_HEADER' % str(tableK))
+          if tmpHeader:
+            tableHeader = tmpHeader
+          logger.debug('tableHeader: %s' % tableHeader)
+        %>
+        % if not len(tableV): 
+          ## No buckets to list
+          <table id="${tableK}-table" class="error">
+            <tr><td>
+              No data received.
+            </td></tr>
+          </table>
+        % else:
+          <table id="${tableK}-table" class="tablesorter">
+            <thead>
+              <tr>
+                % for key in tableHeader:
+                  <th>${tableHeader[key]}</th>
+                % endfor
+              </tr>
+            </thead>
+            <tbody>
+              % for row in tableV:
+                <tr>
+                  % for key in tableHeader:
+                    <td>${row.get(key, '')}</td>
+                  % endfor
+                </tr>
+              % endfor
+            </tbody>
+          </table>
+          <div id="${tableK}-pager" class="pager"></div>
+          <script type="text/javascript">
+            $("#${tableK}-table").tablesorter()
+            ## .tablesorterPager({container: $("#${tableK}-pager")}) 
+          </script>
+        % endif
+        <% logger.debug('gen_tables: K=%s, V=%s' % (tableK, tableV)) %>
+      % endfor
+    % endif:
+
+    % if errors:
+      <div class="error">
+        ${str(errors)}
+      </div>
+    % endif
+
+  </div>
+</%def>
+
+
+${ gen_tables( tables=context['tables'], errors=context['errors'] ) }
 
