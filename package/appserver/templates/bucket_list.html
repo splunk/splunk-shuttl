@@ -16,11 +16,14 @@
   import re
   headerReg = re.compile('^\w+(_HEADER){1}$')
   titleReg = re.compile('^\w+(_TITLE){1}$')
+  noDataMsgReg = re.compile('^\w+(_NO_DATA_MSG){1}$')
 
   def isHeader(tableNameStr):
     return headerReg.match(tableNameStr)
   def isTitle(tableNameStr):
     return titleReg.match(tableNameStr)
+  def isNoDataMsg(tableNameStr):
+    return noDataMsgReg.match(tableNameStr)
 %>
 
 <%def name="custom_css()">
@@ -87,6 +90,7 @@
 <%def name="gen_tables(tables, errors=None, settings={})">
   <div class="generated-tables">
     
+    ## Display errors
     % if errors:
       <div class="error">
         % for error in errors:
@@ -99,24 +103,37 @@
 
     % if tables and len(tables):
       <%
+        ## Init super-header
         superHeader = tables.get('SUPER_HEADER')
       %>
       % for tableK, tableV in tables.iteritems():
-        <% logger.debug('\n  tableName: %s \n  (%s) \n  tableVal: %s \n  (%s)' % (tableK, type(tableK), tableV, type(tableV))) %>
-        <% ## Should not generate tables for headers and titles.
-          if isHeader(str(tableK)) or isTitle(str(tableK)):
+        <% 
+          logger.debug('\n  tableName: %s \n  (%s) \n  tableVal: %s \n  (%s)' % (tableK, type(tableK), tableV, type(tableV)))
+
+          ## Should not generate tables for headers, titles and no-data-messages.
+          if isHeader(str(tableK)) or isTitle(str(tableK)) or isNoDataMsg(str(tableK)):
             continue
           
-          ## Init
-          tableHeader = None
+          ## Get table title
+          tableTitle = tables.get('%s_TITLE' % str(tableK), "")
 
-          titleStr = '%s_TITLE' % str(tableK)
-          tableTitle = tables.get(titleStr, "")
-          logger.debug('title is: "%s"' % tableTitle)
+          ## NO_DATA_MSG
+          noDataMsg = tables.get('%s_NO_DATA_MSG' % str(tableK))
         %>
-        <div id="${tableK}-title" class="title">${tableTitle}</div>
+        % if noDataMsg or len(tableV):
+          <div id="${tableK}-title" class="title">${tableTitle}</div>
+        % endif
+        % if noDataMsg and not len(tableV): 
+          <table id="${tableK}-table" class="error">
+            <tr><td>
+              ${str(noDataMsg)|n}
+            </td></tr>
+          </table>
+        % endif
 
         <%
+          ## Table header
+          tableHeader = None
           ## Set super header if one exist
           if superHeader:
             tableHeader = superHeader
@@ -132,14 +149,7 @@
             tableHeader = tmpHeader
           logger.debug('tableHeader: %s' % tableHeader)
         %>
-        % if not len(tableV): 
-          ## No buckets to list
-          <table id="${tableK}-table" class="error">
-            <tr><td>
-              No data received.
-            </td></tr>
-          </table>
-        % else:
+        % if len(tableV):
           <table id="${tableK}-table" class="tablesorter">
             <thead>
               <tr>

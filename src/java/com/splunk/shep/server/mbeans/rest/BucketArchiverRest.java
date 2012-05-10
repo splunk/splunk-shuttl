@@ -242,19 +242,25 @@ public class BucketArchiverRest {
 	// get buckets by index (or all buckets if index is null)
 	List<Bucket> buckets = listBuckets(index);
 
+	if (from == null) {
+	    logger.info("No from time provided - defaulting to 0001-01-01");
+	    from = "0001-01-01";
+	}
+	if (to == null) {
+	    logger.info("No to time provided - defaulting to 9999-12-31");
+	    to = "9999-12-31";
+	}
+
 	// attempt to filter by date
-	if (from != null || to != null) {
-	    try {
-		Date fromDate = dateFromString(from);
-		Date toDate = dateFromString(to);
-		buckets = bucketFilter.filterBucketsByTimeRange(buckets,
-			fromDate, toDate);
-	    } catch (Exception e) {
-		logger.error(did(
-			"attempted to filter buckets by given date range",
-			e, null, "to", to, "from", from));
-		throw new RuntimeException(e);
-	    }
+	try {
+	    Date fromDate = dateFromString(from);
+	    Date toDate = dateFromString(to);
+	    buckets = bucketFilter.filterBucketsByTimeRange(buckets, fromDate,
+		    toDate);
+	} catch (Exception e) {
+	    logger.error(did("attempted to filter buckets by given date range",
+		    e, null, "to", to, "from", from));
+	    throw new RuntimeException(e);
 	}
 
 	for (Bucket bucket : buckets) {

@@ -4,7 +4,7 @@ $(document).ready(function() {
   setSearchOrThawButtonToThaw();
   $('.loadingBig').hide();
   $('#thawedPage').hide();
-  $('form input:visible:enabled:first').focus()
+  $('form input:visible:enabled:first').focus();
 
   // Handler for events
   bindHandlers();
@@ -50,6 +50,7 @@ $(document).ready(function() {
       // dateISO: true
     }
   });
+  
 });
 
 function bindHandlers() {
@@ -117,17 +118,18 @@ function listBucketsPOST() {
     }
   });
 }
-function thawBucketsGET() {
+function thawBucketsPOST() {
 
   if (!isFormValid()) return;
 
-  var formData = $('form').serialize();
+  var data = getPostArguments($('form'));
+  console.log(data)
   
   loading();
   $.ajax({
     url: 'thaw',
-    type: 'GET',
-    data: formData,
+    type: 'POST',
+    data: data,
     success: function(html) {
       $('#thawed-list').html(html);
     },
@@ -202,7 +204,7 @@ function searchOrThawBuckets(event) {
       listBucketsPOST();
     } else if (target.hasClass('thaw')) {
       console.log("thaw something!?");
-      thawBucketsGET();
+      thawBucketsPOST();
     }
   }
 }
