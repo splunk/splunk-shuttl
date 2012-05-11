@@ -4,6 +4,7 @@ import static com.splunk.shep.testutil.UtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
@@ -148,10 +149,20 @@ public class UtilsBucketTest {
 	assertEquals(latest, bucket.getLatest());
     }
 
-    public void createRealBucket_givenNothing_splunkBucketWithRealData() {
-	Bucket bucket = UtilsBucket.createRealBucket();
-	assertEquals(bucket.getFormat(), BucketFormat.SPLUNK_BUCKET);
-	int filesInBucket = bucket.getDirectory().listFiles().length;
-	assertEquals(13, filesInBucket);
+    @Test(groups = { "slow-unit" })
+    public void copyRealBucket_givenRealBucketExistsInTestResources_copyOfTheRealBucket()
+	    throws URISyntaxException {
+	File realBucket = new File(UtilsBucket.REAL_BUCKET_URL.toURI());
+	assertTrue(realBucket.exists());
+	File copyBucket = UtilsBucket.copyRealBucket().getDirectory();
+	assertEquals(realBucket.listFiles().length,
+		copyBucket.listFiles().length);
+	assertEquals(sizeOfDir(realBucket), sizeOfDir(copyBucket));
+	assertFalse(realBucket.getAbsolutePath().equals(
+		copyBucket.getAbsolutePath()));
+    }
+
+    private long sizeOfDir(File realBucket) {
+	return FileUtils.sizeOfDirectory(realBucket);
     }
 }

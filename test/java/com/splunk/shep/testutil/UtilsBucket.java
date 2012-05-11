@@ -1,11 +1,15 @@
 package com.splunk.shep.testutil;
 
+import static com.splunk.shep.testutil.UtilsFile.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.testng.AssertJUnit;
 
@@ -18,7 +22,7 @@ import com.splunk.shep.archiver.model.FileNotDirectoryException;
  */
 public class UtilsBucket {
 
-    private static final URL realBucketUrl = BucketExporterIntegrationTest.class
+    /* package-private */static final URL REAL_BUCKET_URL = BucketExporterIntegrationTest.class
 	    .getResource("/splunk-buckets/db_1336330530_1336330530_0");
 
     /**
@@ -161,19 +165,30 @@ public class UtilsBucket {
     /**
      * @return
      */
-    public static Bucket createRealBucket() {
+    public static Bucket copyRealBucket() {
 	try {
-	    return doCreateRealBucket();
+	    return doCopyRealBucket();
 	} catch (Exception e) {
 	    UtilsTestNG.failForException("Could not create real bucket", e);
 	    return null;
 	}
     }
 
-    private static Bucket doCreateRealBucket() throws URISyntaxException,
+    private static Bucket doCopyRealBucket() throws URISyntaxException,
 	    FileNotFoundException, FileNotDirectoryException {
-	File bucketDirectory = new File(realBucketUrl.toURI())
+	File realBucketDir = new File(REAL_BUCKET_URL.toURI())
 		.getAbsoluteFile();
-	return new Bucket("index", bucketDirectory);
+	File copyBucketDir = createTempDirectory();
+	doTheCopy(realBucketDir, copyBucketDir);
+	return new Bucket("index", copyBucketDir);
+    }
+
+    private static void doTheCopy(File realBucketDir, File copyBucketDir) {
+	try {
+	    FileUtils.copyDirectory(realBucketDir, copyBucketDir);
+	} catch (IOException e) {
+	    UtilsTestNG.failForException("Couldn't copy: " + realBucketDir
+		    + ", to: " + copyBucketDir, e);
+	}
     }
 }

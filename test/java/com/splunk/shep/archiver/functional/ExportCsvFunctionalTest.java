@@ -93,7 +93,7 @@ public class ExportCsvFunctionalTest {
     }
 
     private void archiveBucketInSplunkBucketFormatAsCsv() {
-	Bucket bucket = UtilsBucket.createRealBucket();
+	Bucket bucket = UtilsBucket.copyRealBucket();
 	assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
 	csvBucketArchiver.archiveBucket(bucket);
 	List<Bucket> buckets = bucketsLister.listBucketsInIndex(bucket
