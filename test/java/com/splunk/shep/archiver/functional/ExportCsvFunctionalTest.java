@@ -21,6 +21,8 @@ import static org.testng.AssertJUnit.*;
 import java.net.URI;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -46,6 +48,7 @@ public class ExportCsvFunctionalTest {
     private BucketArchiver csvBucketArchiver;
     private ArchiveBucketsLister bucketsLister;
     private BucketFormatResolver bucketFormatResolver;
+    private Bucket bucket;
 
     @BeforeMethod
     public void setUp() {
@@ -64,6 +67,13 @@ public class ExportCsvFunctionalTest {
 		csvConfig);
 	bucketFormatResolver = new BucketFormatResolver(pathResolver,
 		localFileSystem, bucketFormatChooser);
+
+	bucket = UtilsBucket.copyRealBucket();
+    }
+
+    @AfterMethod
+    public void tearDown() {
+	FileUtils.deleteQuietly(bucket.getDirectory());
     }
 
     private ArchiveConfiguration constructCsvArchiveConfigration() {
@@ -93,7 +103,6 @@ public class ExportCsvFunctionalTest {
     }
 
     private void archiveBucketInSplunkBucketFormatAsCsv() {
-	Bucket bucket = UtilsBucket.copyRealBucket();
 	assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
 	csvBucketArchiver.archiveBucket(bucket);
 	List<Bucket> buckets = bucketsLister.listBucketsInIndex(bucket
