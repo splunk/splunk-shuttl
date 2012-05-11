@@ -49,7 +49,7 @@ public class BucketArchiverFactory {
 	    ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem) {
 	return new BucketArchiver(config, BucketExporter.create(),
 		new PathResolver(config), new ArchiveBucketTransferer(
-			archiveFileSystem));
+			archiveFileSystem), BucketDeleter.create());
 
     }
 }

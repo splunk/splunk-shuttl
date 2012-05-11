@@ -4,13 +4,12 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.model.Bucket;
-import com.splunk.shep.testutil.UtilsTestNG;
+import com.splunk.shep.testutil.UtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketArchiverTest {
@@ -22,6 +21,7 @@ public class BucketArchiverTest {
     private PathResolver pathResolver;
     private Bucket bucket;
     private ArchiveBucketTransferer archiveBucketTransferer;
+    private BucketDeleter deletesBuckets;
 
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
@@ -29,18 +29,14 @@ public class BucketArchiverTest {
 	exporter = mock(BucketExporter.class);
 	pathResolver = mock(PathResolver.class);
 	archiveBucketTransferer = mock(ArchiveBucketTransferer.class);
+	deletesBuckets = mock(BucketDeleter.class);
 	bucketArchiver = new BucketArchiver(config, exporter, pathResolver,
-		archiveBucketTransferer);
+		archiveBucketTransferer, deletesBuckets);
 
-	bucket = mock(Bucket.class);
+	bucket = UtilsBucket.createTestBucket();
     }
 
     @Test(groups = { "fast-unit" })
-    public void archiveBucket_shouldGetArchiveFormat() {
-	bucketArchiver.archiveBucket(bucket);
-	verify(config).getArchiveFormat();
-    }
-
     public void archiveBucket_shouldUseTheArchiveFormatForExportingTheBucket() {
 	// Setup
 	BucketFormat format = BucketFormat.SPLUNK_BUCKET;
@@ -61,7 +57,7 @@ public class BucketArchiverTest {
     }
 
     public void archiveBucket_givenArchiveBucketTransferer_letTransfererTransferTheBucket() {
-	URI path = getTestUri();
+	URI path = URI.create("file:/some/path");
 	Bucket exportedBucket = mock(Bucket.class);
 	when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
 		.thenReturn(exportedBucket);
@@ -71,12 +67,34 @@ public class BucketArchiverTest {
 		path);
     }
 
-    private URI getTestUri() {
+    public void archiveBucket_givenBucketAndBucketDeleter_deletesBucketWithBucketDeleter() {
+	Bucket exportedBucket = UtilsBucket.createTestBucket();
+	when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
+		.thenReturn(exportedBucket);
+	bucketArchiver.archiveBucket(bucket);
+	verify(deletesBuckets).deleteBucket(bucket);
+	verify(deletesBuckets).deleteBucket(exportedBucket);
+    }
+
+    public void archiveBucket_whenExceptionIsThrown_deleteExportedBucketButNotOriginalBucket() {
+	Bucket exportedBucket = UtilsBucket.createTestBucket();
+	when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
+		.thenReturn(exportedBucket);
+	when(pathResolver.resolveArchivePath(any(Bucket.class))).thenThrow(
+		new RuntimeException());
 	try {
-	    return new URI("file:/some/path");
-	} catch (URISyntaxException e) {
-	    UtilsTestNG.failForException("Could not create URI: ", e);
-	    return null;
+	    bucketArchiver.archiveBucket(bucket);
+	} catch (Throwable e) {
+	    // Do nothing.
 	}
+	verify(deletesBuckets).deleteBucket(exportedBucket);
+	verifyNoMoreInteractions(deletesBuckets);
+    }
+
+    public void archiveBucket_whenExportBucketIsSameAsOriginalBucket_deleteBucketTwice() {
+	when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
+		.thenReturn(bucket);
+	bucketArchiver.archiveBucket(bucket);
+	verify(deletesBuckets, times(2)).deleteBucket(bucket);
     }
 }

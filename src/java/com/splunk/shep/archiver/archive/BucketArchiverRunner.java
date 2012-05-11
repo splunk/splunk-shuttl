@@ -16,8 +16,6 @@ package com.splunk.shep.archiver.archive;
 
 import static com.splunk.shep.archiver.LogFormatter.*;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 
 import com.splunk.shep.archiver.archive.recovery.BucketLock;
@@ -78,23 +76,10 @@ public class BucketArchiverRunner implements Runnable {
 	try {
 	    logger.info(will("Archiving bucket", "bucket", bucket));
 	    bucketArchiver.archiveBucket(bucket);
-	    deleteBucketWithErrorHandling(bucket);
 	    logger.info(done("Archived bucket", "bucket", bucket));
 	} finally {
 	    bucketLock.deleteLockFile();
 	    bucketLock.closeLock();
 	}
     }
-
-    private void deleteBucketWithErrorHandling(Bucket bucket) {
-	try {
-	    bucket.deleteBucket();
-	} catch (IOException e) {
-	    logger.warn(warn("Deleted a bucket from local file system, "
-		    + "because archiving was complete.", e,
-		    "Will ignore this exception", "bucket", bucket,
-		    "exception", e));
-	}
-    }
-
 }

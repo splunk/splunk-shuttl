@@ -14,6 +14,7 @@ public class BucketArchiver {
     private final BucketExporter bucketExporter;
     private final PathResolver pathResolver;
     private final ArchiveBucketTransferer archiveBucketTransferer;
+    private final BucketDeleter bucketDeleter;
 
     /**
      * Constructor following dependency injection pattern, makes it easier to
@@ -28,21 +29,34 @@ public class BucketArchiver {
      *            to resolve archive paths for the buckets
      * @param archiveBucketTransferer
      *            to transfer the bucket to an {@link ArchiveFileSystem}
+     * @param bucketDeleter
+     *            that deletesBuckets that has been archived.
      */
     /* package-private */BucketArchiver(ArchiveConfiguration config,
 	    BucketExporter exporter, PathResolver pathResolver,
-	    ArchiveBucketTransferer archiveBucketTransferer) {
+	    ArchiveBucketTransferer archiveBucketTransferer,
+	    BucketDeleter bucketDeleter) {
 	this.archiveConfiguration = config;
 	this.bucketExporter = exporter;
 	this.pathResolver = pathResolver;
 	this.archiveBucketTransferer = archiveBucketTransferer;
+	this.bucketDeleter = bucketDeleter;
     }
 
     public void archiveBucket(Bucket bucket) {
 	BucketFormat bucketFormat = archiveConfiguration.getArchiveFormat();
 	Bucket exportedBucket = bucketExporter.exportBucketToFormat(bucket,
 		bucketFormat);
-	archiveExportedBucket(exportedBucket);
+	archiveThenDeleteExportedBucket(exportedBucket);
+	bucketDeleter.deleteBucket(bucket);
+    }
+
+    private void archiveThenDeleteExportedBucket(Bucket exportedBucket) {
+	try {
+	    archiveExportedBucket(exportedBucket);
+	} finally {
+	    bucketDeleter.deleteBucket(exportedBucket);
+	}
     }
 
     private void archiveExportedBucket(Bucket bucket) {

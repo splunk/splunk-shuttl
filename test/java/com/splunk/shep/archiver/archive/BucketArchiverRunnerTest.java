@@ -16,9 +16,6 @@ package com.splunk.shep.archiver.archive;
 
 import static org.mockito.Mockito.*;
 
-import java.io.IOException;
-
-import org.mockito.InOrder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -52,14 +49,6 @@ public class BucketArchiverRunnerTest {
     }
 
     @Test(groups = { "fast-unit" })
-    public void run_givenSetUp_deletesBucketAfterSuccessfulArchiving()
-	    throws IOException {
-	bucketArchiverRunner.run();
-	InOrder inOrder = inOrder(bucketArchiver, bucket);
-	inOrder.verify(bucketArchiver).archiveBucket(bucket);
-	inOrder.verify(bucket).deleteBucket();
-    }
-
     public void run_successfulArchiving_closesAndDeletesBucketLock() {
 	bucketArchiverRunner.run();
 	verify(bucketLock).closeLock();
