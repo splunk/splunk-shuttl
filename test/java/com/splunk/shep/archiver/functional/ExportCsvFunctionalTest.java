@@ -14,11 +14,8 @@
 // limitations under the License.
 package com.splunk.shep.archiver.functional;
 
-import static com.splunk.shep.testutil.UtilsFile.*;
-import static java.util.Arrays.*;
 import static org.testng.AssertJUnit.*;
 
-import java.net.URI;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -40,7 +37,6 @@ import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.thaw.BucketFormatChooser;
 import com.splunk.shep.archiver.thaw.BucketFormatResolver;
 import com.splunk.shep.testutil.UtilsBucket;
-import com.splunk.shep.testutil.UtilsEnvironment;
 
 @Test(enabled = true, groups = { "integration" })
 public class ExportCsvFunctionalTest {
@@ -52,7 +48,8 @@ public class ExportCsvFunctionalTest {
 
     @BeforeMethod
     public void setUp() {
-	ArchiveConfiguration csvConfig = constructCsvArchiveConfigration();
+	ArchiveConfiguration csvConfig = UtilsArchiverFunctional
+		.getLocalCsvArchiveConfigration();
 	ArchiveFileSystem localFileSystem = ArchiveFileSystemFactory
 		.getWithConfiguration(csvConfig);
 	csvBucketArchiver = BucketArchiverFactory
@@ -76,35 +73,15 @@ public class ExportCsvFunctionalTest {
 	FileUtils.deleteQuietly(bucket.getDirectory());
     }
 
-    private ArchiveConfiguration constructCsvArchiveConfigration() {
-	String archivePath = createTempDirectory().getAbsolutePath();
-	URI archivingRoot = URI.create("file:" + archivePath);
-	URI tmpDirectory = URI.create("file:/tmp");
-	BucketFormat bucketFormat = BucketFormat.CSV;
-	ArchiveConfiguration config = new ArchiveConfiguration(bucketFormat,
-		archivingRoot, "clusterName", "serverName",
-		asList(bucketFormat), tmpDirectory);
-	return config;
-    }
-
     @Parameters(value = { "splunk.home" })
-    public void _givenSplunkHomeAndBucketInSplunkBucketFormat_archivedAsCsvFormat(
+    public void archiveBucketAsCsv_givenSplunkHomeAndBucketInSplunkBucketFormat_archivedAsCsvFormat(
 	    final String splunkHome) {
-	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
-
-	    @Override
-	    public void run() {
-		UtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			splunkHome);
-		archiveBucketInSplunkBucketFormatAsCsv();
-
-	    }
-	});
+	UtilsArchiverFunctional.archiveBucket(bucket, csvBucketArchiver,
+		splunkHome);
+	verifyBucketWasArchivedAsCsv();
     }
 
-    private void archiveBucketInSplunkBucketFormatAsCsv() {
-	assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
-	csvBucketArchiver.archiveBucket(bucket);
+    private void verifyBucketWasArchivedAsCsv() {
 	List<Bucket> buckets = bucketsLister.listBucketsInIndex(bucket
 		.getIndex());
 	List<Bucket> bucketsWithFormats = bucketFormatResolver
@@ -113,4 +90,5 @@ public class ExportCsvFunctionalTest {
 	assertEquals(1, bucketsWithFormats.size());
 	assertEquals(BucketFormat.CSV, bucketsWithFormats.get(0).getFormat());
     }
+
 }

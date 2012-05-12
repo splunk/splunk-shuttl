@@ -14,6 +14,10 @@
 // limitations under the License.
 package com.splunk.shep.archiver.functional;
 
+import static com.splunk.shep.testutil.UtilsFile.*;
+import static java.util.Arrays.*;
+import static org.testng.AssertJUnit.*;
+
 import java.io.IOException;
 import java.net.URI;
 
@@ -21,10 +25,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import com.splunk.shep.archiver.archive.ArchiveConfiguration;
+import com.splunk.shep.archiver.archive.BucketArchiver;
 import com.splunk.shep.archiver.archive.BucketArchiverFactory;
+import com.splunk.shep.archiver.archive.BucketFormat;
 import com.splunk.shep.archiver.archive.PathResolver;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.testutil.UtilsBucket;
+import com.splunk.shep.testutil.UtilsEnvironment;
 import com.splunk.shep.testutil.UtilsTestNG;
 
 /**
@@ -93,5 +101,46 @@ public class UtilsArchiverFunctional {
 	    UtilsTestNG.failForException(
 		    "Got interrupted when waiting for async archiving.", e);
 	}
+    }
+
+    /**
+     * @return
+     */
+    public static ArchiveConfiguration getLocalCsvArchiveConfigration() {
+	String archivePath = createTempDirectory().getAbsolutePath();
+	URI archivingRoot = URI.create("file:" + archivePath);
+	URI tmpDirectory = URI.create("file:/tmp");
+	BucketFormat bucketFormat = BucketFormat.CSV;
+	ArchiveConfiguration config = new ArchiveConfiguration(bucketFormat,
+		archivingRoot, "clusterName", "serverName",
+		asList(bucketFormat), tmpDirectory);
+	return config;
+    }
+
+    /**
+     * Archives bucket given a bucket and a bucketArchiver. Method exists to
+     * void duplication between tests that archives buckets.
+     */
+    public static void archiveBucket(final Bucket bucket,
+	    final BucketArchiver bucketArchiver) {
+	archiveBucket(bucket, bucketArchiver, "");
+    }
+
+    /**
+     * Archives bucket given splunkHome, bucket and a bucketArchiver. Method
+     * exists to void duplication between tests that archives buckets.
+     */
+    public static void archiveBucket(final Bucket bucket,
+	    final BucketArchiver bucketArchiver, final String splunkHome) {
+	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+	    @Override
+	    public void run() {
+		UtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
+			splunkHome);
+		assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
+		bucketArchiver.archiveBucket(bucket);
+	    }
+	});
     }
 }
