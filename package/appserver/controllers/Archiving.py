@@ -39,19 +39,19 @@ FAILED_HEADER = collections.OrderedDict([
                     ('bucket_bucketName','Name'), ('reason','Reason'), ('bucket_indexName','Index'), ('bucket_format','Format'), 
                     ('bucket_fromDate','From'), ('bucket_toDate','To'), ('bucket_size','Size'), ('bucket_uri','URI') ])
 
-def flatten(d, parent_key=''):
-    items = []
-    for k, v in d.items():
-        new_key = parent_key + '_' + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
-            items.extend(flatten(v, new_key).items())
-        else:
-            items.append((new_key, v))
-    return collections.OrderedDict(items)
-
 
 class Archiving(controllers.BaseController):
     '''Archiving Controller'''
+
+    def flatten(self, d, parent_key=''):
+        flattenedItems = []
+        for k, v in d.items():
+            new_key = parent_key + '_' + k if parent_key else k
+            if isinstance(v, collections.MutableMapping):
+                flattenedItems.extend(self.flatten(v, new_key).items())
+            else:
+                flattenedItems.append((new_key, v))
+        return collections.OrderedDict(flattenedItems)
 
     # Gives the entire archiver page
     @expose_page(must_login=True, methods=['GET']) 
@@ -141,7 +141,7 @@ class Archiving(controllers.BaseController):
                     responseData = {}
                     logger.error("thaw -got OK http response but None data")
                 else:
-                    responseData['failed'] = map( flatten , responseData['failed'] )
+                    responseData['failed'] = map( self.flatten , responseData['failed'] )
             else:
                 errors = [ "<h1>Got a NON 200 status code!</h1>", "Response header:", response[0], "Response body:", response[1] ]
 
