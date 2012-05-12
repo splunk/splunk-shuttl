@@ -26,14 +26,6 @@
     return noDataMsgReg.match(tableNameStr)
 %>
 
-<%def name="custom_css()">
-    <%lib:stylesheet_tags files="${['/static/app/shep/archiver.css',
-                                    '/static/app/shep/tablesorter-theme/blue/style.css']}" />
-    <%lib:script_tags files="${['/static/app/shep/archiver.js', 
-                                '/static/app/shep/jquery.tablesorter.js', 
-                                '/static/app/shep/jquery.tablesorter.pager.js']}" />
-</%def>
-
 <%def name="gen_bucket_list(buckets)">
   % if buckets is not None:
     <table id="bucket-table" class="tablesorter"> 
