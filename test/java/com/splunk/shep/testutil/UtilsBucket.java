@@ -178,7 +178,9 @@ public class UtilsBucket {
 	    FileNotFoundException, FileNotDirectoryException {
 	File realBucketDir = new File(REAL_BUCKET_URL.toURI())
 		.getAbsoluteFile();
-	File copyBucketDir = createTempDirectory();
+	File tempDirectory = createTempDirectory();
+	File copyBucketDir = createDirectoryInParent(tempDirectory,
+		realBucketDir.getName());
 	doTheCopy(realBucketDir, copyBucketDir);
 	return new Bucket("index", copyBucketDir);
     }

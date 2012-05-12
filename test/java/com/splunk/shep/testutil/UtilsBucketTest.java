@@ -165,4 +165,12 @@ public class UtilsBucketTest {
     private long sizeOfDir(File realBucket) {
 	return FileUtils.sizeOfDirectory(realBucket);
     }
+
+    @Test(groups = { "slow-unit" })
+    public void copyRealBucket_copySuccess_copyHasSameNameAsRealBucket()
+	    throws URISyntaxException {
+	File realBucket = new File(UtilsBucket.REAL_BUCKET_URL.toURI());
+	File copyBucket = UtilsBucket.copyRealBucket().getDirectory();
+	assertEquals(realBucket.getName(), copyBucket.getName());
+    }
 }

@@ -72,10 +72,10 @@ public class UtilsTestNG {
      */
     public static void assertBucketsGotSameIndexFormatAndName(Bucket bucket,
 	    Bucket capturedBucket) {
-	assertTrue(isBucketEqualOnIndexFormatAndName(bucket, capturedBucket));
 	assertEquals(bucket.getIndex(), capturedBucket.getIndex());
 	assertEquals(bucket.getName(), capturedBucket.getName());
 	assertEquals(bucket.getFormat(), capturedBucket.getFormat());
+	assertTrue(isBucketEqualOnIndexFormatAndName(bucket, capturedBucket));
     }
 
     public static boolean isBucketEqualOnIndexFormatAndName(Bucket bucket,

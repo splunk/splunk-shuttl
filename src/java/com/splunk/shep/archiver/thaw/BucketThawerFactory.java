@@ -29,24 +29,24 @@ public class BucketThawerFactory {
 
     public static BucketThawer createDefaultThawer() {
 	Service splunkService = getLoggedInSplunkService();
-	return createThawerWithSplunkSettings(splunkService);
+	SplunkSettings splunkSettings = getSplunkSettings(splunkService);
+	ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
+	return createWithSplunkSettingsAndConfig(splunkSettings, config);
     }
 
-    public static BucketThawer createThawerWithSplunkSettings(
-	    Service splunkService) {
+    public static BucketThawer createWithSplunkSettingsAndConfig(
+	    SplunkSettings splunkSettings, ArchiveConfiguration configuration) {
 	ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
-		.getConfiguredArchiveFileSystem();
-	ArchiveConfiguration archiveConfiguration = ArchiveConfiguration
-		.getSharedInstance();
-	PathResolver pathResolver = new PathResolver(archiveConfiguration);
+		.getWithConfiguration(configuration);
+	PathResolver pathResolver = new PathResolver(configuration);
 
 	ArchiveBucketsLister bucketsLister = bucketLister(archiveFileSystem,
 		pathResolver);
 	BucketFilter bucketFilter = new BucketFilter();
 	BucketFormatResolver bucketFormatResolver = getBucketFormatResolver(
-		archiveFileSystem, archiveConfiguration, pathResolver);
+		archiveFileSystem, configuration, pathResolver);
 	ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
-		archiveFileSystem, splunkService);
+		archiveFileSystem, splunkSettings);
 	return new BucketThawer(bucketsLister, bucketFilter,
 		bucketFormatResolver, thawBucketTransferer);
     }
@@ -71,9 +71,9 @@ public class BucketThawerFactory {
     }
 
     private static ThawBucketTransferer getThawBucketTransferer(
-	    ArchiveFileSystem archiveFileSystem, Service splunkService) {
+	    ArchiveFileSystem archiveFileSystem, SplunkSettings splunkSettings) {
 	ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
-		getSplunkSettings(splunkService));
+		splunkSettings);
 	ThawBucketTransferer thawBucketTransferer = new ThawBucketTransferer(
 		thawLocationProvider, archiveFileSystem);
 	return thawBucketTransferer;
