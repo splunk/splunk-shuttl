@@ -48,7 +48,8 @@ public class BucketThawerFactory {
 	ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
 		archiveFileSystem, splunkSettings);
 	return new BucketThawer(bucketsLister, bucketFilter,
-		bucketFormatResolver, thawBucketTransferer);
+		bucketFormatResolver, thawBucketTransferer,
+		new BucketRestorer());
     }
 
     private static ArchiveBucketsLister bucketLister(

@@ -39,6 +39,7 @@ public class BucketThawer {
     private final BucketFilter bucketFilter;
     private final BucketFormatResolver bucketFormatResolver;
     private final ThawBucketTransferer thawBucketTransferer;
+    private final BucketRestorer bucketRestorer;
 
     public static class ThawInfo {
 
@@ -61,7 +62,6 @@ public class BucketThawer {
 	public final String message;
     }
 
-
     /**
      * @param bucketsLister
      *            used for listing buckets in the archive.
@@ -72,15 +72,18 @@ public class BucketThawer {
      *            to resolve the format to thaw for the bucket.
      * @param thawBucketTransferer
      *            for transferring the buckets to thawed.
+     * @param bucketRestorer
      */
     public BucketThawer(ArchiveBucketsLister bucketsLister,
 	    BucketFilter bucketFilter,
 	    BucketFormatResolver bucketFormatResolver,
-	    ThawBucketTransferer thawBucketTransferer) {
+	    ThawBucketTransferer thawBucketTransferer,
+	    BucketRestorer bucketRestorer) {
 	this.archiveBucketsLister = bucketsLister;
 	this.bucketFilter = bucketFilter;
 	this.bucketFormatResolver = bucketFormatResolver;
 	this.thawBucketTransferer = thawBucketTransferer;
+	this.bucketRestorer = bucketRestorer;
     }
 
     /**
@@ -91,8 +94,8 @@ public class BucketThawer {
      *            The index to thaw from. If null, all existing indexes are
      *            thawed
      */
-    public List<ThawInfo> thawBuckets(String index,
-	    Date earliestTime, Date latestTime) {
+    public List<ThawInfo> thawBuckets(String index, Date earliestTime,
+	    Date latestTime) {
 	List<Bucket> bucketsInIndex = null;
 	if (index != null) {
 	    bucketsInIndex = archiveBucketsLister.listBucketsInIndex(index);
@@ -137,6 +140,10 @@ public class BucketThawer {
 			"exception", tempException));
 		thawInfo.add(new ThawInfo(bucket, ThawInfo.Status.FAILED,
 			message));
+	    } else {
+		for (ThawInfo thaw : thawInfo) {
+		    bucketRestorer.restoreToSplunkBucketFormat(thaw.bucket);
+		}
 	    }
 	}
 

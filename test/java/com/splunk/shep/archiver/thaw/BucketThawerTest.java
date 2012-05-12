@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shep.archiver.thaw;
 
+import static java.util.Arrays.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -27,6 +28,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shep.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shep.archiver.model.Bucket;
+import com.splunk.shep.testutil.UtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketThawerTest {
@@ -37,6 +39,7 @@ public class BucketThawerTest {
     ArchiveBucketsLister archiveBucketsLister;
     BucketFormatResolver bucketFormatResolver;
     ThawBucketTransferer thawBucketTransferer;
+    BucketRestorer bucketRestorer;
 
     String index;
     Date latestTime;
@@ -53,8 +56,9 @@ public class BucketThawerTest {
 	bucketFilter = mock(BucketFilter.class);
 	bucketFormatResolver = mock(BucketFormatResolver.class);
 	thawBucketTransferer = mock(ThawBucketTransferer.class);
+	bucketRestorer = mock(BucketRestorer.class);
 	bucketThawer = new BucketThawer(archiveBucketsLister, bucketFilter,
-		bucketFormatResolver, thawBucketTransferer);
+		bucketFormatResolver, thawBucketTransferer, bucketRestorer);
 	index = "index";
     }
 
@@ -67,7 +71,7 @@ public class BucketThawerTest {
 		latestTime);
     }
 
-    public void thawBuckes_givenFilteredBuckets_resolveBucketsFormats() {
+    public void thawBuckets_givenFilteredBuckets_resolveBucketsFormats() {
 	List<Bucket> filteredBuckets = buckets;
 	when(
 		bucketFilter.filterBucketsByTimeRange(anyListOf(Bucket.class),
@@ -77,41 +81,53 @@ public class BucketThawerTest {
 	verify(bucketFormatResolver).resolveBucketsFormats(filteredBuckets);
     }
 
-    public void thawBuckets_givenOneFilteredBucketWithFormatSet_transferBucketsToThawDirectory()
+    public void thawBuckets_givenOneFilteredBucketWithFormat_transferBucketsToThawDirectory()
 	    throws IOException {
 	Bucket bucketToThaw = mock(Bucket.class);
-	List<Bucket> filteredBucketsWithFormatSet = Arrays.asList(bucketToThaw);
-
-	when(
-		bucketFormatResolver
-			.resolveBucketsFormats(anyListOf(Bucket.class)))
-		.thenReturn(filteredBucketsWithFormatSet);
+	stubFilteredBucketsWithFormat(bucketToThaw);
 	bucketThawer.thawBuckets(index, earliestTime, latestTime);
 	verify(thawBucketTransferer).transferBucketToThaw(bucketToThaw);
     }
 
-    public void thawBuckets_givenZeroFilteredBucketWithFormatSet_noInteractionsWithBucketTransferer() {
-	List<Bucket> emptyListOfBuckets = Arrays.asList();
-	when(
-		bucketFormatResolver
-			.resolveBucketsFormats(anyListOf(Bucket.class)))
-		.thenReturn(emptyListOfBuckets);
+    public void thawBuckets_givenZeroFilteredBucketWithFormat_noInteractionsWithBucketTransferer() {
+	stubFilteredBucketsWithFormat(new Bucket[0]);
 	bucketThawer.thawBuckets(index, earliestTime, latestTime);
 	verifyZeroInteractions(thawBucketTransferer);
     }
 
-    public void thawBuckets_givenTwoFilteredBucketWithFormatSet_noInteractionsWithBucketTransferer()
+    public void thawBuckets_givenTwoFilteredBucketWithFormat_transfersBothBuckets()
 	    throws IOException {
 	Bucket bucket1 = mock(Bucket.class);
 	Bucket bucket2 = mock(Bucket.class);
-	List<Bucket> emptyListOfBuckets = Arrays.asList(bucket1, bucket2);
-	when(
-		bucketFormatResolver
-			.resolveBucketsFormats(anyListOf(Bucket.class)))
-		.thenReturn(emptyListOfBuckets);
+	stubFilteredBucketsWithFormat(bucket1, bucket2);
 	bucketThawer.thawBuckets(index, earliestTime, latestTime);
 	verify(thawBucketTransferer).transferBucketToThaw(bucket1);
 	verify(thawBucketTransferer).transferBucketToThaw(bucket2);
     }
 
+    public void thawBuckets_givenOneFilteredBucketWithFormat_restoresBucketToSplunkBucketFormat() {
+	Bucket bucket = UtilsBucket.createTestBucket();
+	stubFilteredBucketsWithFormat(bucket);
+	bucketThawer.thawBuckets(index, earliestTime, latestTime);
+	verify(bucketRestorer).restoreToSplunkBucketFormat(bucket);
+    }
+
+    public void thawBuckets_whenTransferBucketsFailToThaw_doesNotRestoreFailedBucket()
+	    throws IOException {
+	Bucket bucket = UtilsBucket.createTestBucket();
+	stubFilteredBucketsWithFormat(bucket);
+
+	doThrow(new IOException()).when(thawBucketTransferer)
+		.transferBucketToThaw(any(Bucket.class));
+	bucketThawer.thawBuckets(index, earliestTime, latestTime);
+	verifyZeroInteractions(bucketRestorer);
+    }
+
+    private void stubFilteredBucketsWithFormat(Bucket... bucket) {
+	List<Bucket> filteredBucketsWithFormat = asList(bucket);
+	when(
+		bucketFormatResolver
+			.resolveBucketsFormats(anyListOf(Bucket.class)))
+		.thenReturn(filteredBucketsWithFormat);
+    }
 }
