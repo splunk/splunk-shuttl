@@ -5,6 +5,16 @@ $(document).ready(function() {
   $('.loadingBig').hide();
   $('#thawedPage').hide();
   $('form input:visible:enabled:first').focus();
+  
+  // stretch
+  $(top.document.body).css('overflow', 'hidden');
+  parent.$('.IFrameInclude').height("100%");
+  parent.$('iframe').css('height', '100%')
+  function resize_height() { 
+    top.$('.IFrameInclude').parent().height( $(top.window).height()-top.$('.appHeaderWrapper').height()-40 );
+  };
+  resize_height();
+  $(window).resize( function() { resize_height(); });
 
   // Handler for events
   bindHandlers();
