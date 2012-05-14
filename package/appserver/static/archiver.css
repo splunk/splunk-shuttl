@@ -77,9 +77,11 @@ input.datetime-input {
     border-radius: 4px; 
 }
 .button {
-    /*background: url("overlay_gloss_28.png") repeat-x scroll left -2px #2B6D9A;*/
-    background-color: #2B6D9A;
+    background: #2B6D9A url(/static/img/skins/default/overlay_gloss_28.png) repeat-x left -3px;
+    /*background-color: #2B6D9A;*/
     border: medium none;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
     border-radius: 4px 4px 4px 4px;
     color: white;
     font-size: 12px;
