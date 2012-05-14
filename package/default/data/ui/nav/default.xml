@@ -16,7 +16,5 @@
         <view name="rests"/>
     </collection>
     
-    <collection label="Archiving">
-        <view name="archivings"/>
-    </collection>
+    <view name="archivings"/>
 </nav>
