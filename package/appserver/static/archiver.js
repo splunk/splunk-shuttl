@@ -179,7 +179,7 @@ function loading() {
     $('#bucket-list').hide();
     $('#bucket-list').prev('.loadingBig').show();
   } else if (button.hasClass('thaw')) {
-    $('#thawedPage').show(); // not shown from tha beginning
+    $('#thawedPage').show(); // not shown from the beginning
     $('#thawed-list').hide();
     $('#thawed-list').prev('.loadingBig').show();
   }
@@ -189,9 +189,6 @@ function loadingDone() {
   var button = $('#search-thaw-button');
   
   button.enable();
-
-  // Graphics
-  button.removeClass('loading');
   $('.loadingBig').hide();
 }
 
