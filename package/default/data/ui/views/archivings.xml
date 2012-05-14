@@ -19,6 +19,5 @@
 
   <module name="IFrameInclude" layoutPanel="viewHeader">
     <param name="src">/custom/shep/Archiving/show</param>
-    <param name="height">700</param>
   </module>
 </view>

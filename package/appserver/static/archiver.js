@@ -5,16 +5,6 @@ $(document).ready(function() {
   $('.loadingBig').hide();
   $('#thawedPage').hide();
   $('form input:visible:enabled:first').focus();
-  
-  // stretch
-  $(top.document.body).css('overflow', 'hidden');
-  parent.$('.IFrameInclude').height("100%");
-  parent.$('iframe').css('height', '100%')
-  function resize_height() { 
-    top.$('.IFrameInclude').parent().height( $(top.window).height()-top.$('.appHeaderWrapper').height()-40 );
-  };
-  resize_height();
-  $(window).resize( function() { resize_height(); });
 
   // Handler for events
   bindHandlers();
@@ -60,7 +50,10 @@ $(document).ready(function() {
       // dateISO: true
     }
   });
-  
+
+  // Search for all buckets
+  listBucketsPOST();
+
 });
 
 function bindHandlers() {
@@ -125,6 +118,7 @@ function listBucketsPOST() {
     complete: function() {
       loadingDone();
       $('#bucket-list').show();
+      resizePage(); // Resize body
     }
   });
 }
@@ -146,6 +140,7 @@ function thawBucketsPOST() {
     complete: function() {
       loadingDone();
       $('#thawed-list').show();
+      resizePage(); // Resize body
     }
   });
 }
@@ -160,6 +155,10 @@ function isFormValid() {
   } else {
     return false;
   }
+}
+
+function resizePage() {
+  top.$(".IFrameInclude").trigger("resizeBody");
 }
 
 $.fn.enable = function() {
@@ -184,6 +183,7 @@ function loading() {
     $('#thawed-list').hide();
     $('#thawed-list').prev('.loadingBig').show();
   }
+  resizePage();
 }
 function loadingDone() {
   var button = $('#search-thaw-button');

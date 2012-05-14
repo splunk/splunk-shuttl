@@ -89,9 +89,15 @@
           </table>
         </%def>
       </%self:gen_table_option_row>
-      <%self:gen_table_option_row id="Data size">
+      ## TODO:
+      ## <%self:gen_table_option_row id="Data size">
+      ##   <%def name="data()">
+      ##     <div id="data-size"></div>
+      ##   </%def>
+      ## </%self:gen_table_option_row>
+      <%self:gen_table_option_row>
         <%def name="data()">
-          <div id="data-size"></div>
+          <p><input id="search-thaw-button" class="search button" type="button" value=""></p>
         </%def>
       </%self:gen_table_option_row>
     </div>
@@ -104,14 +110,7 @@
       <%self:gen_table_option_row id="Buckets">
         <%def name="data()">
           <div class="loadingBig" style="background-position:left center;"></div>
-          <div id="bucket-list">
-            ${buckets.gen_tables(context['tables'], context['errors'])}
-          </div>
-        </%def>
-      </%self:gen_table_option_row>
-      <%self:gen_table_option_row>
-        <%def name="data()">
-          <input id="search-thaw-button" class="search button" type="button" value="">
+          <div id="bucket-list"></div>
         </%def>
       </%self:gen_table_option_row>
     </div>
