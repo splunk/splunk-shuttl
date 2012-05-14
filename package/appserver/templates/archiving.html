@@ -21,10 +21,6 @@
                                   '/static/app/shep/archiver.css']}" />
 </%def>
 
-<%def name="gen_form(method='POST', action=None)">
-    <form  method="${method}"  action="${action if action else ''}">
-</%def>
-
 <%def name="gen_select(indexes)">
   <div class="styled-select">
     <select class="indexes" name="index">
@@ -72,18 +68,12 @@
 </%def>
 
 <div id="archiver">
-  <!-- <p class="pageDesc"></p> -->
   <form name="search-thaw-buckets" id="search-thaw-buckets-form">
-
-  ##<input type="hidden" name="splunk_form_key" value="${util.getFormKey()|h}" />
-  ##${csrf_hidden_input()}
 
   <div id="archiverPage">
     <div class="table">
-      ##${gen_table_option_row(id="Index", data="${gen_select(indexes)}")}
-      ##<%self:gen_table_option_row id="Index" data=${gen_select(indexes)} />
       <%self:gen_table_option_row id="Index">
-        <%def name="data()">${gen_select(indexes)}</%def>
+        <%def name="data()">${gen_select(context['indexes'])}</%def>
       </%self:gen_table_option_row>
       <%self:gen_table_option_row id="Time Range">
         <%def name="data()">
