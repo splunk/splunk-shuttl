@@ -32,6 +32,10 @@ hr {
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
+/* Datepicker */
+img.ui-datepicker-trigger {
+    vertical-align: sub;
+}
 
 /* Tables, rows/data and lists */
 .table {
@@ -78,7 +82,6 @@ input.datetime-input {
 }
 .button {
     background: #2B6D9A url(/static/img/skins/default/overlay_gloss_28.png) repeat-x left -3px;
-    /*background-color: #2B6D9A;*/
     border: medium none;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -162,11 +165,6 @@ label.error {
 }
 .error, .error * {
     color: red;
-}
-
-/* Datepicker */
-img.ui-datepicker-trigger {
-    vertical-align: sub;
 }
 
 /* Debug */

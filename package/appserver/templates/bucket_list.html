@@ -1,9 +1,12 @@
 ## Parameters used:
 ##
 ## tables: a dictionary with the tables to create
-## tables={'bucket':['header1': "data"]}
+## I.e. tables={ 'bucket':['header1': "data"], ... }
 ##
-## data: i.e. a dictionary with data to show.
+## errors: A list of errors to show
+## I.e. errors=[ 'A error:', 'A error description' ]
+##
+## settings: Unused
 ##
 <%page expression_filter="h"/>
 <%inherit file="//layout/base.html" />
@@ -37,7 +40,6 @@
           <br />
         % endfor
       </div>
-      ##<% return '' %>
     % endif
 
     % if tables and len(tables):

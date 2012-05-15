@@ -43,6 +43,7 @@ FAILED_HEADER = collections.OrderedDict([
 class Archiving(controllers.BaseController):
     '''Archiving Controller'''
 
+    # Flattens a dictionary of dictionarys
     def flatten(self, d, parent_key=''):
         flattenedItems = []
         for k, v in d.items():
@@ -63,7 +64,7 @@ class Archiving(controllers.BaseController):
 
         return self.render_template('/shep:/templates/archiving.html', dict(errors=errors))
 
-    # Gives the entire archiver page
+    # Gives all indexes that are thawable
     @expose_page(must_login=True, methods=['GET']) 
     def list_indexes(self, **kwargs):
         
