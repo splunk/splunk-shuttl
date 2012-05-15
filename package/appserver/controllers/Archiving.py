@@ -58,36 +58,37 @@ class Archiving(controllers.BaseController):
     def show(self, **kwargs):
         
         errors = None
+        
+        logger.info('Show archiving page')
+
+        return self.render_template('/shep:/templates/archiving.html', dict(errors=errors))
+
+    # Gives the entire archiver page
+    @expose_page(must_login=True, methods=['GET']) 
+    def list_indexes(self, **kwargs):
+        
+        errors = None
         indexes = []
-        buckets = {}
         # may raise exception (ex. connection refused)
         indexesResponse = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/index/list');
-        bucketsResponse = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list');
 
         if DEBUG: 
             indexes = debugIndexes
-            buckets = debugBuckets
         else:
             # Check http status codes
-            if indexesResponse[0].status==200 and bucketsResponse[0].status==200:
+            if indexesResponse[0].status==200:
                 indexes = json.loads(indexesResponse[1], object_pairs_hook=collections.OrderedDict)
                 if not indexes: indexes = []
-                buckets = json.loads(bucketsResponse[1], object_pairs_hook=collections.OrderedDict)
-                if not buckets: buckets = {'buckets': {}} # loads may return null->None
             else:
                 # Error hadoop or rest (jetty) problem
                 errors = [ "<h1>Got a NON 200 status code!</h1>", 
-                    "Index response:", indexesResponse[0], indexesResponse[1],
-                    "Bucket response:", bucketsResponse[0], bucketsResponse[1] ]
+                    "Index response:", indexesResponse[0], indexesResponse[1] ]
 
         indexes = sorted(indexes)
-        buckets['SUPER_HEADER'] = SUPER_HEADER
-        buckets['buckets_NO_DATA_MSG'] = "No buckets in that range!"
+        
+        logger.debug('show - indexes: %s (%s)' % (indexes, type(indexes)))
 
-        logger.error('show - indexes: %s (%s)' % (indexes, type(indexes)))
-        logger.error('show - buckets: %s (%s)' % (buckets, type(buckets)))
-
-        return self.render_template('/shep:/templates/archiving.html', dict(indexes=indexes, tables=buckets, errors=errors))
+        return self.render_template('/shep:/templates/index_list.html', dict(indexes=indexes, errors=errors))
 
     # Gives a list of buckets for a specific index as an html table
     @expose_page(must_login=True, methods=['POST'])
@@ -96,10 +97,10 @@ class Archiving(controllers.BaseController):
         errors = None
         buckets = {}
 
-        logger.error('list_buckets - postArgs: %s (%s)' % (params, type(params)))
+        logger.debug('list_buckets - postArgs: %s (%s)' % (params, type(params)))
 
         bucketsResponse = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list', getargs=params)
-        logger.error('list_buckets - response: %s (%s)' % (bucketsResponse, type(bucketsResponse)))
+        logger.debug('list_buckets - response: %s (%s)' % (bucketsResponse, type(bucketsResponse)))
 
         if DEBUG: 
             time.sleep(2)
@@ -116,7 +117,7 @@ class Archiving(controllers.BaseController):
         buckets['SUPER_HEADER'] = SUPER_HEADER
         buckets['buckets_NO_DATA_MSG'] = "No buckets in that range!"
 
-        logger.error('list_buckets - buckets: %s (%s)' % (buckets, type(buckets)))
+        logger.debug('list_buckets - buckets: %s (%s)' % (buckets, type(buckets)))
 
         return self.render_template('/shep:/templates/bucket_list.html', dict(tables=buckets, errors=errors))
 
@@ -127,7 +128,7 @@ class Archiving(controllers.BaseController):
         errors = None
         responseData = {}
 
-        logger.error('thaw - postArgs: %s (%s)' % (params, type(params)))
+        logger.debug('thaw - postArgs: %s (%s)' % (params, type(params)))
 
         response = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/thaw', postargs=params, method='POST')
         
@@ -137,9 +138,16 @@ class Archiving(controllers.BaseController):
         else:
             if response[0].status==200:
                 responseData = json.loads(response[1], object_pairs_hook=collections.OrderedDict)
+                
+                # put thawed before failed
+                items = responseData.items()
+                items.reverse()
+                responseData = collections.OrderedDict(items)
+
                 if not responseData: # Should not happen, but if
                     responseData = {}
-                    logger.error("thaw -got OK http response but None data")
+                    logger.error("thaw - got OK http response but None data")
+                    errors = ['Error! Got no data as thaw response!']
                 else:
                     responseData['failed'] = map( self.flatten , responseData['failed'] )
             else:
@@ -151,7 +159,7 @@ class Archiving(controllers.BaseController):
         responseData['failed_HEADER'] = FAILED_HEADER
         responseData['thawed_NO_DATA_MSG'] = "No buckets to thaw!"
 
-        logger.error('thaw_buckets - buckets: %s (%s)' % (responseData, type(responseData)))
+        logger.debug('thaw_buckets - buckets: %s (%s)' % (responseData, type(responseData)))
 
         return self.render_template('/shep:/templates/bucket_list.html', dict(tables=responseData, errors=errors))  
 

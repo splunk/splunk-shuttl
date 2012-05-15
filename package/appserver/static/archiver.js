@@ -1,11 +1,9 @@
+// Debug
+var logger = Splunk.Logger.getLogger("Splunk.Shep.Archiver");
+
 $(document).ready(function() {
 
-  // Load UI
-  setSearchOrThawButtonToThaw();
-  $('.loadingBig').hide();
-  $('#thawedPage').hide();
-  $('form input:visible:enabled:first').focus();
-
+  logger.debug("Loaded Archiver");
   // Handler for events
   bindHandlers();
 
@@ -51,7 +49,14 @@ $(document).ready(function() {
     }
   });
 
-  // Search for all buckets
+  // Load UI
+  setSearchOrThawButtonToSearch();
+  $('.loadingBig').hide();
+  $('#thawedPage').hide();
+  $('form input:visible:enabled:first').focus();
+
+  // Search for indexes and list all buckets
+  listIndexesGET()
   listBucketsPOST();
 
 });
@@ -99,12 +104,24 @@ function listBucketsGET() {
     }
   });
 }
+function listIndexesGET() {
+  $.ajax({
+    url: 'list_indexes',
+    type: 'GET',
+    success: function(html) {
+      // Hack: create a div with the content, then extract what you need with a selector.
+      var optionElements = $("<div>").append(html).find('select.indexes');
+      $('select.indexes').html( optionElements.html() );
+      logger.debug('got indexes: ' + optionElements.html());
+    }
+  });
+}
 function listBucketsPOST() {
 
   if (!isFormValid()) return;
 
   var data = getPostArguments($('form'));
-  console.log(data);
+  logger.debug('list buckets with post data: ' + data);
   
   loading();
   $.ajax({
@@ -127,7 +144,7 @@ function thawBucketsPOST() {
   if (!isFormValid()) return;
 
   var data = getPostArguments($('form'));
-  console.log(data)
+  logger.debug('thaw buckets with post data: ' + data)
   
   loading();
   $.ajax({
@@ -210,7 +227,6 @@ function searchOrThawBuckets(event) {
     if (target.hasClass('search')) {
       listBucketsPOST();
     } else if (target.hasClass('thaw')) {
-      console.log("thaw something!?");
       thawBucketsPOST();
     }
   }
