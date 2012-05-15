@@ -17,11 +17,13 @@ package com.splunk.shep.archiver.thaw;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.Service;
+import com.splunk.shep.archiver.model.IllegalIndexException;
 import com.splunk.shep.testutil.UtilsMockito;
 
 @Test(groups = { "fast-unit" })
@@ -43,9 +45,18 @@ public class SplunkSettingsTest {
     }
 
     @Test(groups = { "fast-unit" })
-    public void getThawLocation_givenIndexAndSplunkService_getThawDirectoryForIndex() {
-	// Test
+    public void getThawLocation_givenIndexAndSplunkService_getThawDirectoryForIndex()
+	    throws IOException {
 	File actualThawLocation = splunkSettings.getThawLocation(indexName);
+	assertEquals(thawLocationPath, actualThawLocation.getAbsolutePath());
+    }
+
+    @Test(groups = { "fast-unit" }, expectedExceptions = { IllegalIndexException.class })
+    public void getThawLocation_givenInvalidIndexAndSplunkService_throws()
+	    throws IOException {
+	String nonexistantIndexName = "asd123";
+	File actualThawLocation = splunkSettings
+		.getThawLocation(nonexistantIndexName);
 	assertEquals(thawLocationPath, actualThawLocation.getAbsolutePath());
     }
 }

@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -38,6 +40,7 @@ import com.splunk.shep.archiver.thaw.BucketFilter;
 import com.splunk.shep.archiver.thaw.BucketFormatChooser;
 import com.splunk.shep.archiver.thaw.BucketFormatResolver;
 import com.splunk.shep.archiver.thaw.BucketThawer;
+import com.splunk.shep.archiver.thaw.BucketThawer.ThawInfo;
 import com.splunk.shep.archiver.thaw.BucketThawerFactory;
 import com.splunk.shep.archiver.thaw.StringDateConverter;
 import com.splunk.shep.metrics.ShepMetricsHelper;
@@ -48,9 +51,10 @@ import com.splunk.shep.server.model.BucketBean;
  */
 @Path(ENDPOINT_ARCHIVER)
 public class BucketArchiverRest {
-    private org.apache.log4j.Logger logger = Logger.getLogger(getClass());
+    private static final org.apache.log4j.Logger logger = Logger
+	    .getLogger(BucketArchiverRest.class);
 
-    // TODO: change to POST
+
     /**
      * Example on how to archive a bucket with this endpoint:
      * /archiver/bucket/archive?path=/local/Path/To/Bucket
@@ -58,11 +62,11 @@ public class BucketArchiverRest {
      * @param path
      *            to the bucket to be archived.
      */
-    @GET
+    @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Path(ENDPOINT_BUCKET_ARCHIVER)
-    public void archiveBucket(@QueryParam("path") String path,
-	    @QueryParam("index") String index) {
+    public void archiveBucket(@FormParam("path") String path,
+	    @FormParam("index") String index) {
 	
 	logMetricsAtEndpoint(ENDPOINT_BUCKET_ARCHIVER);
 	
@@ -83,22 +87,38 @@ public class BucketArchiverRest {
 	archiveBucketOnAnotherThread(index, path);
     }
 
-    // TODO: change to POST
-    @GET
+    /**
+     * Thaws a range of buckets in either a specific index or all indexes on the
+     * archiving fs.
+     * 
+     * @param index
+     *            Any index that exists in both the archiving filesystem and
+     *            splunk. Defaults to all indexes in the archiving fs.
+     * @param from
+     *            Start date of thawing interval (on the form yyyy-MM-dd).
+     *            Defaults to 0001-01-01.
+     * @param to
+     *            End date of thawing interval (on the form yyyy-MM-dd).
+     *            Defaults to 9999-12-31.
+     * @return
+     */
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path(ENDPOINT_BUCKET_THAW)
-    public String thawBuckets(
-	    @QueryParam("index") String index, @QueryParam("from") String from,
-	    @QueryParam("to") String to) {
+    public String thawBuckets(@FormParam("index") String index,
+	    @FormParam("from") String from, @FormParam("to") String to) {
 
 	logger.info(happened("Received REST request to thaw buckets",
 		"endpoint", ENDPOINT_BUCKET_THAW, "index", index, "from", from,
 		"to", to));
 
-	if (from == null || to == null) {
-	    logger.error(happened("Invalid time interval provided."));
-	    throw new IllegalArgumentException(
-		    "A valid time interval (from and to) must be provided");
+	if (from == null) {
+	    logger.info("No from time provided - defaulting to 0001-01-01");
+	    from = "0001-01-01";
+	}
+	if (to == null) {
+	    logger.info("No to time provided - defaulting to 9999-12-31");
+	    to = "9999-12-31";
 	}
 
 	Date fromDate = dateFromString(from);
@@ -109,35 +129,74 @@ public class BucketArchiverRest {
 		    "From and to date must be provided on the form yyyy-DD-mm");
 	}
 
-	if (index == null) {
-	    logger.error(happened("No index was provided."));
-	    throw new IllegalArgumentException("index must be specified");
-	}
-
 	// thaw
 	logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
 	BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
-	Map<String, List<Bucket>> buckets = bucketThawer.thawBuckets(index,
-		fromDate, toDate);
+	List<ThawInfo> thawInfo = bucketThawer.thawBuckets(index, fromDate, toDate);
 
-	List<BucketBean> failedBucketBeans = new ArrayList<BucketBean>();
+	return convertThawInfoToJSON(thawInfo);
+    }
+
+    /**
+     * Converts a list of ThawInfo objects into a 
+     * JSON object obeying the following schema:
+     * {
+     *   "thawed":
+     *   {
+     *     "type":"array",
+     *     "items":
+     *     {
+     *       "type":"BucketBean"
+     *     }
+     *   }
+     *   "failed":
+     *   {
+     *     "type":"array",
+     *     "items":
+     *     {
+     *       "type":"object",
+     *       "properties":
+     *       {
+     *         "bucket":
+     *         {
+     *           "type":"BucketBean"
+     *         }
+     *         "reason":
+     *         {
+     *           "type":"string"
+     *         }
+     *       }
+     *     }
+     *   }
+     * @param thawInfos 
+     * @return JSON object conforming to the above schema (as a string).
+     */
+    private String convertThawInfoToJSON(List<ThawInfo> thawInfos) {
 	List<BucketBean> thawedBucketBeans = new ArrayList<BucketBean>();
+	List<Map<String, Object>> failedBucketBeans = new ArrayList<Map<String, Object>>();
+	ObjectMapper mapper = new ObjectMapper();
 
-	for (Bucket bucket : buckets.get("thawed")) {
-	    BucketBean bucketBean = createBeanFromBucket(bucket);
-	    thawedBucketBeans.add(bucketBean);
+	for (ThawInfo info : thawInfos) {
+	    switch (info.status) {
+	    case THAWED:
+		thawedBucketBeans.add(createBeanFromBucket(info.bucket));
+		break;
+	    case FAILED:
+		Map<String, Object> temp = new HashMap<String, Object>();
+		temp.put("bucket", createBeanFromBucket(info.bucket));
+		temp.put("reason", info.message);
+		failedBucketBeans.add(temp);
+		break;
+	    default:
+		throw new RuntimeException("Unexpected enum constant: "
+			+ info.status);
+	    }
 	}
-
-	for (Bucket bucket : buckets.get("failed")) {
-	    BucketBean bucketBean = createBeanFromBucket(bucket);
-	    failedBucketBeans.add(bucketBean);
-	}
-	HashMap<String, List<BucketBean>> ret = new HashMap<String, List<BucketBean>>();
 	
+	HashMap<String, Object> ret = new HashMap<String, Object>();
 	ret.put("thawed", thawedBucketBeans);
 	ret.put("failed", failedBucketBeans);
-
-	ObjectMapper mapper = new ObjectMapper();
+	
 	try {
 	    return mapper.writeValueAsString(ret);
 	} catch (Exception e) {
@@ -183,19 +242,25 @@ public class BucketArchiverRest {
 	// get buckets by index (or all buckets if index is null)
 	List<Bucket> buckets = listBuckets(index);
 
+	if (from == null) {
+	    logger.info("No from time provided - defaulting to 0001-01-01");
+	    from = "0001-01-01";
+	}
+	if (to == null) {
+	    logger.info("No to time provided - defaulting to 9999-12-31");
+	    to = "9999-12-31";
+	}
+
 	// attempt to filter by date
-	if (from != null || to != null) {
-	    try {
-		Date fromDate = dateFromString(from);
-		Date toDate = dateFromString(to);
-		buckets = bucketFilter.filterBucketsByTimeRange(buckets,
-			fromDate, toDate);
-	    } catch (Exception e) {
-		logger.error(did(
-			"attempted to filter buckets by given date range",
-			e, null, "to", to, "from", from));
-		throw new RuntimeException(e);
-	    }
+	try {
+	    Date fromDate = dateFromString(from);
+	    Date toDate = dateFromString(to);
+	    buckets = bucketFilter.filterBucketsByTimeRange(buckets, fromDate,
+		    toDate);
+	} catch (Exception e) {
+	    logger.error(did("attempted to filter buckets by given date range",
+		    e, null, "to", to, "from", from));
+	    throw new RuntimeException(e);
 	}
 
 	for (Bucket bucket : buckets) {

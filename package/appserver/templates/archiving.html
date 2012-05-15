@@ -8,28 +8,17 @@
     logger = logging.getLogger('splunk.module.archiving')
 %>
 
+<%lib:script_tags files="${['/static/app/shep/jquery-ui/js/jquery-ui-1.8.19.custom.min.js', 
+                            '/static/app/shep/jquery-validation/jquery.validate.js',
+                            '/static/app/shep/archiver.js', 
+                            '/static/app/shep/jquery.tablesorter.js',
+                            '/static/app/shep/jquery.tablesorter.pager.js'
+                            ]}" />
 <%def name="custom_css()">
-    <%lib:stylesheet_tags files="${['/static/app/shep/jquery-ui/css/redmond/jquery-ui-1.8.19.custom.css', 
-                                    '/static/app/shep/archiver.css']}" />
-    <%lib:script_tags files="${['/static/app/shep/jquery-ui/js/jquery-ui-1.8.19.custom.min.js', 
-                                '/static/app/shep/jquery-validation/jquery.validate.js',
-                                '/static/app/shep/archiver.js', 
-                                '/static/app/shep/jquery.tablesorter.js']}" />
-</%def>
-
-<%def name="gen_form(method='POST', action=None)">
-    <form  method="${method}"  action="${action if action else ''}">
-</%def>
-
-<%def name="gen_select(indexes)">
-  <div class="styled-select">
-    <select class="indexes" name="index">
-        <option value="*">All</option>
-      % for index in indexes:
-        <option value="${index}">${index}</option>  
-      % endfor
-    </select>
-    </div>
+  <% parent.css() %>
+  <%lib:stylesheet_tags files="${['/static/app/shep/jquery-ui/css/redmond/jquery-ui-1.8.19.custom.css', 
+                                  '/static/app/shep/tablesorter-theme/blue/style.css',
+                                  '/static/app/shep/archiver.css']}" />
 </%def>
 
 <%def name="gen_table_option_row(id=None, data=None, row=None)">
@@ -68,18 +57,18 @@
 </%def>
 
 <div id="archiver">
-  <!-- <p class="pageDesc"></p> -->
   <form name="search-thaw-buckets" id="search-thaw-buckets-form">
-
-  ##<input type="hidden" name="splunk_form_key" value="${util.getFormKey()|h}" />
-  ##${csrf_hidden_input()}
 
   <div id="archiverPage">
     <div class="table">
-      ##${gen_table_option_row(id="Index", data="${gen_select(indexes)}")}
-      ##<%self:gen_table_option_row id="Index" data=${gen_select(indexes)} />
       <%self:gen_table_option_row id="Index">
-        <%def name="data()">${gen_select(indexes)}</%def>
+        <%def name="data()">
+          <div class="styled-select">
+            <select class="indexes" name="index">
+              <option value="*">All</option>
+            </select>
+          </div>
+        </%def>
       </%self:gen_table_option_row>
       <%self:gen_table_option_row id="Time Range">
         <%def name="data()">
@@ -95,19 +84,28 @@
           </table>
         </%def>
       </%self:gen_table_option_row>
-      <%self:gen_table_option_row id="Data size">
-        <%def name="data()">
-          <div id="data-size"></div>
-        </%def>
-      </%self:gen_table_option_row>
-      <%self:gen_table_option_row id="Buckets">
-        <%def name="data()">
-          ${buckets.gen_bucket_list(context['buckets'])}
-        </%def>
-      </%self:gen_table_option_row>
+      ## TODO:
+      ## <%self:gen_table_option_row id="Data size">
+      ##   <%def name="data()">
+      ##     <div id="data-size"></div>
+      ##   </%def>
+      ## </%self:gen_table_option_row>
       <%self:gen_table_option_row>
         <%def name="data()">
-          <input id="search-thaw-button" class="search button" type="button" value="Search for buckets in range">
+          <p><input id="search-thaw-button" class="search button" type="button" value=""></p>
+        </%def>
+      </%self:gen_table_option_row>
+    </div>
+  </div>
+
+  <hr />
+
+  <div id="bucketsPage">
+    <div class="table">
+      <%self:gen_table_option_row id="Buckets">
+        <%def name="data()">
+          <div class="loadingBig" style="background-position:left center;"></div>
+          <div id="bucket-list"></div>
         </%def>
       </%self:gen_table_option_row>
     </div>
@@ -116,8 +114,13 @@
   <hr />
 
   <div id="thawedPage">
-    <div class="table hidden">
-      ${gen_table_option_row(id="Thawed data", data="")}
+    <div class="table">
+      <%self:gen_table_option_row id="Thawed data">
+        <%def name="data()">
+          <div class="loadingBig" style="background-position:left center;"></div>
+          <div id="thawed-list"></div>
+        </%def>
+      </%self:gen_table_option_row>
     </div>
   </div>
 

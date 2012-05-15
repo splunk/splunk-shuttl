@@ -1,7 +1,7 @@
+/* Default style */
 body {
     font-family: Helvetica neue,Helvetica,Arial,sans-serif;
     font-size: 12px;
-    line-height: 150%;
     margin: 0;
     padding: 0;
 }
@@ -10,29 +10,34 @@ p {
     margin-top: 10px;
 }
 
+/* Archiver specific */
 .pageDesc {
     color: #666666;
     margin-bottom: 30px;
 }
-.border {
-    border: 1px solid;
-}
 #archiver {
     margin: 20px;
+    line-height: 150%;
 }
-#archiverPage, #thawedPage {
+#archiverPage, #bucketsPage, #thawedPage {
     width: 100%;
 }
-#archiver h1 {
+h1 {
     color: #2B6D9A;
     font-size: 24px;
 }
-#archiver hr {
+hr {
     border: 0;
     height: 0;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
+/* Datepicker */
+img.ui-datepicker-trigger {
+    vertical-align: sub;
+}
+
+/* Tables, rows/data and lists */
 .table {
     display: table;
     width: 100%;
@@ -43,7 +48,7 @@ p {
 .id {
     display: table-cell;
     width: 10%;
-    min-width: 150px;
+    min-width: 100px;
     vertical-align: top;
 }
 .id:after{
@@ -51,29 +56,42 @@ p {
 }
 .data {
     display: table-cell;
-    min-width: 400px;
+    min-width: 300px;
 }
 #data-size {
 
 }
-#bucket-list {
-
+table.tablesorter {
+    line-height: 100%;
+    width: auto;
+    margin-top: 0px;
 }
+table.tablesorter tr td {
+    word-wrap: break-word;
+    word-break: break-all;
+}
+table.tablesorter thead tr .header {
+    padding-right: 20px; /* tablesorter bug-fix: to small column-data will make the sorter icon overlap the column text */
+}
+
+/* Form */
 input.datetime-input { 
     -webkit-border-radius: 4px; 
     -moz-border-radius: 4px; 
     border-radius: 4px; 
 }
 .button {
-    /*background: url("overlay_gloss_28.png") repeat-x scroll left -2px #2B6D9A;*/
-    background-color: #2B6D9A;
+    background: #2B6D9A url(/static/img/skins/default/overlay_gloss_28.png) repeat-x left -3px;
     border: medium none;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
     border-radius: 4px 4px 4px 4px;
     color: white;
     font-size: 12px;
     margin-top: 10px;
     padding: 3px 5px 3px 5px;
     min-width: 100px;
+    min-height: 25px;
 }
 .button:hover {
     background-color: #3A7DAB;
@@ -82,27 +100,61 @@ input.datetime-input {
     background-color: #42799E;
     color: #ddd;
 }
+input.disabled, input.button[disabled="disabled"] {
+    background-color: #ddd;
+    color: #EDEDED;
+}
+input.disabled:hover, input.button:hover[disabled="disabled"] {
+    background-color: #ddd;
+    color: #EDEDED;
+}
+input.disabled:active, input.button:hover[disabled="disabled"] {
+    background-color: #ddd;
+    color: #EDEDED;
+}
 
+/* Properties */
 .noAfter:after {
     content: "";
+}
+.border {
+    border: 1px solid;
 }
 .hidden {
     display: none;
 }
-input.disabled, [disabled="disabled"] {
-    background-color: #ddd;
-    color: #EDEDED;
+
+/* Thaw-button */
+.thaw.button {
+    background-color: #FFC830;
 }
-input.disabled:hover, :hover[disabled="disabled"] {
-    background-color: #ddd;
-    color: #EDEDED;
+.thaw.button:hover {
+    background-color: #FFD45E;
 }
-input.disabled:active, :hover[disabled="disabled"] {
-    background-color: #ddd;
-    color: #EDEDED;
+.thaw.button:active {
+    background-color: #DBAD30;
 }
 
-/*Errors*/
+/* Loading */
+.loading, .loadingBig {
+    text-indent: -3000px;
+    overflow: hidden; /* IE what else to say */
+    height: 16px;
+    background-image: url(images/loading/loader_blue.gif);
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+.loadingBig {
+    height: 32px;
+    background-image: url(images/loading/loader_white.gif);
+}
+.search.loading {
+}
+.thaw.loading {
+    background-image: url(images/loading/loader_blue_on_grey.gif);
+}
+
+/* Errors */
 input.datetime-input.error {
     background-color: #FFCCCC;
 }
@@ -111,13 +163,8 @@ label.error {
     color: #FFA8A8;
     margin-left: 5px;
 }
-.error {
+.error, .error * {
     color: red;
-}
-
-/*Datepicker*/
-img.ui-datepicker-trigger {
-    vertical-align: sub;
 }
 
 /* Debug */

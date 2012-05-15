@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import com.splunk.EntityCollection;
 import com.splunk.Index;
 import com.splunk.Service;
+import com.splunk.shep.archiver.model.IllegalIndexException;
 
 /**
  * Gets settings from the configured Splunk.
@@ -41,15 +42,18 @@ public class SplunkSettings {
 
     /**
      * @return thaw location for specified index.
+     * @throws IllegalIndexException
+     *             if index does not exist in splunk
      */
-    public File getThawLocation(String index) {
+    public File getThawLocation(String index) throws IllegalIndexException {
 	EntityCollection<Index> indexes = splunkService.getIndexes();
 	Index splunkIndex = indexes.get(index);
 	if(splunkIndex == null) {
 	    logger.error(did("Attempted to get thaw location for index",
 		    "index not in splunk", null, "index", index,
 		    "splunk service", splunkService.getHost()));
-	    throw new RuntimeException("Index " + index + " does not exist in splunk");
+	    throw new IllegalIndexException("Index " + index
+		    + " does not exist in splunk");
 	}
 	String thawedPathExpanded = splunkIndex.getThawedPathExpanded();
 	return new File(thawedPathExpanded);

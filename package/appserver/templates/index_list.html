@@ -1,0 +1,24 @@
+<%page expression_filter="h"/>
+<%inherit file="//layout/base.html" />
+
+<%!
+  import logging
+  logger = logging.getLogger('splunk.module.archiving')
+%>
+
+<%def name="gen_select(indexes)">
+  <div class="styled-select">
+    <select class="indexes" name="index">
+      <option value="*">All</option>
+      % for index in indexes:
+      <option value="${index}">${index}</option>  
+      % endfor
+    </select>
+  </div>
+  <% 
+  	if errors:
+  		logger.error(errors);
+  %>
+</%def>
+
+${ gen_select( indexes=context['indexes'] ) }
