@@ -229,7 +229,7 @@ public class BucketArchiverRest {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path(ENDPOINT_LIST_BUCKETS)
-    public List<BucketBean> listBucketsForIndex(
+    public String listBucketsForIndex(
 	    @QueryParam("index") String index, @QueryParam("from") String from,
 	    @QueryParam("to") String to) {
 	logger.info(happened("Received REST request to list buckets",
@@ -238,6 +238,7 @@ public class BucketArchiverRest {
 
 	List<BucketBean> beans = new ArrayList<BucketBean>();
 	BucketFilter bucketFilter = new BucketFilter();
+	long totalBucketsSize = 0;
 
 	// get buckets by index (or all buckets if index is null)
 	List<Bucket> buckets = listBuckets(index);
@@ -266,8 +267,22 @@ public class BucketArchiverRest {
 	for (Bucket bucket : buckets) {
 	    BucketBean bucketBean = createBeanFromBucket(bucket);
 	    beans.add(bucketBean);
+	    totalBucketsSize += bucket.getSize();
 	}
-	return beans;
+
+	Map<String, Object> response = new HashMap<String, Object>();
+	response.put("buckets_TOTAL_SIZE",
+		FileUtils.byteCountToDisplaySize(totalBucketsSize));
+	response.put("buckets", beans);
+
+	try {
+	    return new ObjectMapper().writeValueAsString(response);
+	} catch (Exception e) {
+	    logger.error(did(
+		    "attempted to convert buckets and their total size to JSON string",
+		    e, null));
+	    throw new RuntimeException(e);
+	}
     }
 
     private Date dateFromString(String dateAsString) {

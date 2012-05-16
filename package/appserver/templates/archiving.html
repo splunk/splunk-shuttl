@@ -84,12 +84,11 @@
           </table>
         </%def>
       </%self:gen_table_option_row>
-      ## TODO:
-      ## <%self:gen_table_option_row id="Data size">
-      ##   <%def name="data()">
-      ##     <div id="data-size"></div>
-      ##   </%def>
-      ## </%self:gen_table_option_row>
+      <%self:gen_table_option_row id="Data size">
+        <%def name="data()">
+          <div id="data-size"></div>
+        </%def>
+      </%self:gen_table_option_row>
       <%self:gen_table_option_row>
         <%def name="data()">
           <p><input id="search-thaw-button" class="search button" type="button" value=""></p>

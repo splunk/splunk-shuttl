@@ -135,6 +135,7 @@ function listBucketsPOST() {
     complete: function() {
       loadingDone();
       $('#bucket-list').show();
+      $('#data-size').html( $('#buckets-table-total-size').html() );
       resizePage(); // Resize body
     }
   });

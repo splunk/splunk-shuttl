@@ -20,13 +20,18 @@
   headerReg = re.compile('^\w+(_HEADER){1}$')
   titleReg = re.compile('^\w+(_TITLE){1}$')
   noDataMsgReg = re.compile('^\w+(_NO_DATA_MSG){1}$')
+  totalSizeReg = re.compile('^\w+(_TOTAL_SIZE){1}$')
 
+  # def isSpecial(tableNameStr):
+    # return isHeader(tableNameStr) || isTitle(tableNameStr) || isNoDataMsg(tableNameStr) || isTotalSize(tableNameStr)
   def isHeader(tableNameStr):
     return headerReg.match(tableNameStr)
   def isTitle(tableNameStr):
     return titleReg.match(tableNameStr)
   def isNoDataMsg(tableNameStr):
     return noDataMsgReg.match(tableNameStr)
+  def isTotalSize(tableNameStr):
+    return totalSizeReg.match(tableNameStr)
 %>
 
 <%def name="gen_tables(tables, errors=None, settings={})">
@@ -52,7 +57,7 @@
           logger.debug('\n  tableName: %s \n  (%s) \n  tableVal: %s \n  (%s)' % (tableK, type(tableK), tableV, type(tableV)))
 
           ## Should not generate tables for headers, titles and no-data-messages.
-          if isHeader(str(tableK)) or isTitle(str(tableK)) or isNoDataMsg(str(tableK)):
+          if isHeader(str(tableK)) or isTitle(str(tableK)) or isNoDataMsg(str(tableK)) or isTotalSize(str(tableK)):
             continue
           
           ## Get table title
@@ -60,10 +65,18 @@
 
           ## NO_DATA_MSG
           noDataMsg = tables.get('%s_NO_DATA_MSG' % str(tableK))
+
+          ## Get total size of table elements.
+          tableTotalSize = tables.get('%s_TOTAL_SIZE' % str(tableK))
         %>
         % if noDataMsg or len(tableV):
           <div id="${tableK}-title" class="title">${tableTitle}</div>
         % endif
+        <div id="${tableK}-table-total-size" class="setting" style="display: none;">
+        % if tableTotalSize:
+           ${tableTotalSize}
+        % endif
+        </div>
         % if noDataMsg and not len(tableV): 
           <table id="${tableK}-table" class="error">
             <tr><td>
