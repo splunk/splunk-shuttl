@@ -14,6 +14,10 @@ For documentation, see:
 
 * http://docs.splunk.com/Documentation/Hadoop
 
+Key features as of v0.5 are:
+
+* An archiver for archiving data
+
 Key features as of v0.4.3 are:
 
 * Streaming of data via Splunk Forwarding to HDFS
