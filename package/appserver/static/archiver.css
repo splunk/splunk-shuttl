@@ -61,6 +61,9 @@ img.ui-datepicker-trigger {
 #data-size {
 
 }
+.generated-tables table {
+    margin-bottom: 20px;
+}
 table.tablesorter {
     line-height: 100%;
     width: auto;
@@ -164,6 +167,7 @@ label.error {
     margin-left: 5px;
 }
 .error, .error * {
+    line-height: 100%;
     color: red;
 }
 
