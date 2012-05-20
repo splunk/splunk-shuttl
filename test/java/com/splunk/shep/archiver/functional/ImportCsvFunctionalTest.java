@@ -62,7 +62,7 @@ public class ImportCsvFunctionalTest {
 	csvThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
 		splunkSettings, localCsvArchiveConfigration);
 
-	realBucket = UtilsBucket.copyRealBucket();
+	realBucket = UtilsBucket.createRealBucket();
 	csvArchiver = BucketArchiverFactory
 		.createWithConfiguration(localCsvArchiveConfigration);
     }

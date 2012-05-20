@@ -61,7 +61,10 @@ public class CsvBucketCreator {
     }
 
     private File createBucketDirectory(File csvFile) {
-	File bucketFile = new File(csvFile.getParentFile(), "csvBucket");
+	String csvFileNameWithoutExtension = FilenameUtils.getBaseName(csvFile
+		.getName());
+	File bucketFile = new File(csvFile.getParentFile(),
+		csvFileNameWithoutExtension);
 	bucketFile.mkdirs();
 	return bucketFile;
     }

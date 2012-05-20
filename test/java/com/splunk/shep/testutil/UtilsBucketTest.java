@@ -150,27 +150,43 @@ public class UtilsBucketTest {
     }
 
     @Test(groups = { "slow-unit" })
-    public void copyRealBucket_givenRealBucketExistsInTestResources_copyOfTheRealBucket()
+    public void createRealBucket_givenRealBucketExistsInTestResources_copyOfTheRealBucket()
 	    throws URISyntaxException {
 	File realBucket = new File(UtilsBucket.REAL_BUCKET_URL.toURI());
 	assertTrue(realBucket.exists());
-	File copyBucket = UtilsBucket.copyRealBucket().getDirectory();
-	assertEquals(realBucket.listFiles().length,
-		copyBucket.listFiles().length);
-	assertEquals(sizeOfDir(realBucket), sizeOfDir(copyBucket));
-	assertFalse(realBucket.getAbsolutePath().equals(
-		copyBucket.getAbsolutePath()));
-    }
-
-    private long sizeOfDir(File realBucket) {
-	return FileUtils.sizeOfDirectory(realBucket);
+	File copyBucket = UtilsBucket.createRealBucket().getDirectory();
+	UtilsTestNG.assertDirectoriesAreCopies(realBucket, copyBucket);
     }
 
     @Test(groups = { "slow-unit" })
-    public void copyRealBucket_copySuccess_copyHasSameNameAsRealBucket()
+    public void createRealBucket_createSuccess_createdBucketHasSameNameAsRealBucket()
 	    throws URISyntaxException {
 	File realBucket = new File(UtilsBucket.REAL_BUCKET_URL.toURI());
-	File copyBucket = UtilsBucket.copyRealBucket().getDirectory();
+	File copyBucket = UtilsBucket.createRealBucket().getDirectory();
 	assertEquals(realBucket.getName(), copyBucket.getName());
+    }
+
+    @Test(groups = { "slow-unit" })
+    public void createRealCsvBucket_givenRealCsvBucketExists_copyOfRealCsvBucket()
+	    throws URISyntaxException {
+	File realCsvBucket = new File(UtilsBucket.REAL_CSV_BUCKET_URL.toURI());
+	assertTrue(realCsvBucket.exists());
+	File copyOfCsvBucket = UtilsBucket.createRealCsvBucket().getDirectory();
+	UtilsTestNG.assertDirectoriesAreCopies(realCsvBucket, copyOfCsvBucket);
+    }
+
+    @Test(groups = { "slow-unit" })
+    public void createRealCsvBucket_createSuccess_createdBucketHasSameNameAsRealCsvBucket()
+	    throws URISyntaxException {
+	File realCsvBucket = new File(UtilsBucket.REAL_CSV_BUCKET_URL.toURI());
+	File createdCsvBucket = UtilsBucket.createRealCsvBucket()
+		.getDirectory();
+	assertEquals(realCsvBucket.getName(), createdCsvBucket.getName());
+    }
+
+    @Test(groups = { "slow-unit" })
+    public void createRealCsvBucket_createSuccess_bucketHasCsvFormat() {
+	Bucket csvBucket = UtilsBucket.createRealCsvBucket();
+	assertEquals(BucketFormat.CSV, csvBucket.getFormat());
     }
 }

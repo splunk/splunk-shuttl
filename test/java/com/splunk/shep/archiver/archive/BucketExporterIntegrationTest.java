@@ -68,7 +68,7 @@ public class BucketExporterIntegrationTest {
     }
 
     private void exportingBucketWithRealDataToCsvCreatesCsvBucket() {
-	Bucket realBucket = UtilsBucket.copyRealBucket();
+	Bucket realBucket = UtilsBucket.createRealBucket();
 	Bucket csvBucket = bucketExporter.exportBucketToFormat(realBucket,
 		BucketFormat.CSV);
 	assertEquals(realBucket.getName(), csvBucket.getName());

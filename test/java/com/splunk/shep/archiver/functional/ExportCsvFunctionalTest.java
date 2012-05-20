@@ -65,7 +65,7 @@ public class ExportCsvFunctionalTest {
 	bucketFormatResolver = new BucketFormatResolver(pathResolver,
 		localFileSystem, bucketFormatChooser);
 
-	bucket = UtilsBucket.copyRealBucket();
+	bucket = UtilsBucket.createRealBucket();
     }
 
     @AfterMethod

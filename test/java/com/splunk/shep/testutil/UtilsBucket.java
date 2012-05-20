@@ -5,15 +5,16 @@ import static com.splunk.shep.testutil.UtilsFile.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.testng.AssertJUnit;
 
 import com.splunk.shep.archiver.archive.BucketExporterIntegrationTest;
+import com.splunk.shep.archiver.archive.CsvBucketCreator;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
 
@@ -23,7 +24,9 @@ import com.splunk.shep.archiver.model.FileNotDirectoryException;
 public class UtilsBucket {
 
     /* package-private */static final URL REAL_BUCKET_URL = BucketExporterIntegrationTest.class
-	    .getResource("/splunk-buckets/db_1336330530_1336330530_0");
+	    .getResource("/splunk-buckets/SPLUNK_BUCKET/db_1336330530_1336330530_0");
+    /* package-private */static final URL REAL_CSV_BUCKET_URL = BucketExporterIntegrationTest.class
+	    .getResource("/splunk-buckets/CSV/db_1336330530_1336330530_0");
 
     /**
      * @return A bucket with random bucket and index names.
@@ -163,34 +166,58 @@ public class UtilsBucket {
     }
 
     /**
-     * @return
+     * @return bucket with real splunk bucket data in it.
      */
-    public static Bucket copyRealBucket() {
+    public static Bucket createRealBucket() {
+	return copyTestBucketWithUrl(REAL_BUCKET_URL);
+    }
+
+    /**
+     * @return create csv bucket with real splunk data.
+     */
+    public static Bucket createRealCsvBucket() {
+	Bucket realCsvBucketCopy = copyTestBucketWithUrl(REAL_CSV_BUCKET_URL);
+	File csvFile = getCsvFileFromCsvBucket(realCsvBucketCopy);
+	CsvBucketCreator csvBucketCreator = new CsvBucketCreator();
+	return csvBucketCreator.createBucketWithCsvFile(csvFile,
+		realCsvBucketCopy);
+    }
+
+    private static File getCsvFileFromCsvBucket(Bucket csvBucket) {
+	for (File file : csvBucket.getDirectory().listFiles()) {
+	    if (FilenameUtils.getExtension(file.getName()).equals("csv")) {
+		return file;
+	    }
+	}
+	throw new RuntimeException("Could not find csv file in csv bucket: "
+		+ csvBucket);
+    }
+
+    private static Bucket copyTestBucketWithUrl(URL bucketUrl) {
 	try {
-	    return doCopyRealBucket();
+	    return createTempCopyOfBucketFromDirectory(new File(
+		    bucketUrl.toURI()));
 	} catch (Exception e) {
-	    UtilsTestNG.failForException("Could not create real bucket", e);
+	    UtilsTestNG.failForException("Could not create bucket", e);
 	    return null;
 	}
     }
 
-    private static Bucket doCopyRealBucket() throws URISyntaxException,
-	    FileNotFoundException, FileNotDirectoryException {
-	File realBucketDir = new File(REAL_BUCKET_URL.toURI())
-		.getAbsoluteFile();
+    private static Bucket createTempCopyOfBucketFromDirectory(File realBucketDir)
+	    throws FileNotFoundException, FileNotDirectoryException {
 	File tempDirectory = createTempDirectory();
 	File copyBucketDir = createDirectoryInParent(tempDirectory,
 		realBucketDir.getName());
-	doTheCopy(realBucketDir, copyBucketDir);
+	copyDirectory(realBucketDir, copyBucketDir);
 	return new Bucket("index", copyBucketDir);
     }
 
-    private static void doTheCopy(File realBucketDir, File copyBucketDir) {
+    private static void copyDirectory(File from, File to) {
 	try {
-	    FileUtils.copyDirectory(realBucketDir, copyBucketDir);
+	    FileUtils.copyDirectory(from, to);
 	} catch (IOException e) {
-	    UtilsTestNG.failForException("Couldn't copy: " + realBucketDir
-		    + ", to: " + copyBucketDir, e);
+	    UtilsTestNG.failForException("Couldn't copy: " + from + ", to: "
+		    + to, e);
 	}
     }
 }

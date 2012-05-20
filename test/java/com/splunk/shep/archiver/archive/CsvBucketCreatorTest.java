@@ -89,6 +89,15 @@ public class CsvBucketCreatorTest {
 	assertFalse(csvFile.exists());
     }
 
+    public void _givenCsvFile_bucketDirectoryHasSameNameAsCsvFileWithoutExtension() {
+	Bucket csvBucket = csvBucketCreator.createBucketWithCsvFile(csvFile,
+		bucket);
+	File bucketDir = csvBucket.getDirectory();
+	String fileWithoutExtension = FilenameUtils.removeExtension(csvFile
+		.getName());
+	assertEquals(fileWithoutExtension, bucketDir.getName());
+    }
+
     // Sad path
 
     @Test(expectedExceptions = { IllegalArgumentException.class })
