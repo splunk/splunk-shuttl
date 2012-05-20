@@ -22,7 +22,6 @@ import static org.testng.AssertJUnit.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
@@ -35,7 +34,9 @@ import com.splunk.shep.archiver.archive.BucketArchiver;
 import com.splunk.shep.archiver.archive.BucketArchiverFactory;
 import com.splunk.shep.archiver.model.Bucket;
 import com.splunk.shep.archiver.model.FileNotDirectoryException;
+import com.splunk.shep.archiver.model.IllegalIndexException;
 import com.splunk.shep.archiver.thaw.BucketThawer;
+import com.splunk.shep.archiver.thaw.BucketThawer.ThawInfo;
 import com.splunk.shep.archiver.thaw.BucketThawerFactory;
 import com.splunk.shep.archiver.thaw.SplunkSettings;
 import com.splunk.shep.testutil.UtilsBucket;
@@ -51,7 +52,7 @@ public class ImportCsvFunctionalTest {
     private BucketArchiver csvArchiver;
 
     @BeforeMethod
-    public void setUp() {
+    public void setUp() throws IllegalIndexException {
 	localCsvArchiveConfigration = UtilsArchiverFunctional
 		.getLocalCsvArchiveConfigration();
 	SplunkSettings splunkSettings = mock(SplunkSettings.class);
@@ -76,13 +77,12 @@ public class ImportCsvFunctionalTest {
 	    String splunkHome) throws FileNotFoundException,
 	    FileNotDirectoryException {
 	archiveBucketAsCsvWithExportToolThatNeedsSplunkHome(splunkHome);
-	Map<String, List<Bucket>> thawBuckets = csvThawer.thawBuckets(
+	List<ThawInfo> thawBuckets = csvThawer.thawBuckets(
 		realBucket.getIndex(), realBucket.getEarliest(),
 		realBucket.getLatest());
-	List<Bucket> buckets = thawBuckets.get("thawed");
 
-	assertEquals(1, buckets.size());
-	Bucket thawedBucket = buckets.get(0);
+	assertEquals(1, thawBuckets.size());
+	Bucket thawedBucket = thawBuckets.get(0).bucket;
 	UtilsTestNG.assertBucketsGotSameIndexFormatAndName(realBucket,
 		thawedBucket);
 	assertEquals(sizeOfBucket(realBucket), sizeOfBucket(thawedBucket));

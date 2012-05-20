@@ -112,7 +112,7 @@ public class BucketThawer {
     }
 
     public List<ThawInfo> thawBuckets(List<Bucket> bucketsWithFormats) {
-	List<ThawInfo> thawInfo = new ArrayList<ThawInfo>();
+	List<ThawInfo> thawInfos = new ArrayList<ThawInfo>();
 
 	for (Bucket bucket : bucketsWithFormats) {
 	    logger.info(will("Attempting to thaw bucket", "bucket", bucket));
@@ -120,7 +120,7 @@ public class BucketThawer {
 	    String message = null;
 	    try {
 		thawBucketTransferer.transferBucketToThaw(bucket);
-		thawInfo.add(new ThawInfo(bucket, ThawInfo.Status.THAWED));
+		thawInfos.add(new ThawInfo(bucket, ThawInfo.Status.THAWED));
 		logger.info(done("Thawed bucket", "bucket", bucket));
 	    } catch (FileOverwriteException e) {
 		tempException = e;
@@ -138,15 +138,15 @@ public class BucketThawer {
 		logger.error(did("Tried to thaw bucket", tempException,
 			"Place the bucket in thaw", "bucket", bucket,
 			"exception", tempException));
-		thawInfo.add(new ThawInfo(bucket, ThawInfo.Status.FAILED,
+		thawInfos.add(new ThawInfo(bucket, ThawInfo.Status.FAILED,
 			message));
 	    } else {
-		for (ThawInfo thaw : thawInfo) {
-		    bucketRestorer.restoreToSplunkBucketFormat(thaw.bucket);
+		for (ThawInfo thawInfo : thawInfos) {
+		    bucketRestorer.restoreToSplunkBucketFormat(thawInfo.bucket);
 		}
 	    }
 	}
 
-	return thawInfo;
+	return thawInfos;
     }
 }
