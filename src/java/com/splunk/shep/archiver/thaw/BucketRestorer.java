@@ -26,8 +26,9 @@ public class BucketRestorer {
     /**
      * @param bucket
      *            to restore to {@link BucketFormat#SPLUNK_BUCKET}.
+     * @return
      */
-    public void restoreToSplunkBucketFormat(Bucket bucket) {
+    public Bucket restoreToSplunkBucketFormat(Bucket bucket) {
 	throw new UnsupportedOperationException();
     }
 

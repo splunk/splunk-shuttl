@@ -184,7 +184,7 @@ public class BucketArchiverRest {
 	    case FAILED:
 		Map<String, Object> temp = new HashMap<String, Object>();
 		temp.put("bucket", createBeanFromBucket(info.bucket));
-		temp.put("reason", info.message);
+		temp.put("reason", info.getExceptionMessage());
 		failedBucketBeans.add(temp);
 		break;
 	    default:

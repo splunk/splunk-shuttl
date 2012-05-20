@@ -43,23 +43,38 @@ public class BucketThawer {
 
     public static class ThawInfo {
 
-	public ThawInfo(Bucket bucket, Status status) {
-	    this(bucket, status, null);
-	}
+	public final Bucket bucket;
+	public final Status status;
+	private final Exception exception;
 
-	public ThawInfo(Bucket bucket, Status status, String message) {
+	public ThawInfo(Bucket bucket, Status status, Exception exception) {
 	    this.bucket = bucket;
 	    this.status = status;
-	    this.message = message;
+	    this.exception = exception;
 	}
 
 	public enum Status {
 	    THAWED, FAILED
+	}
+
+	/**
+	 * @return message from exception
+	 */
+	public String getExceptionMessage() {
+	    if (exception != null) {
+		if (exception instanceof FileOverwriteException) {
+		    return "Directory already exists - bucket is probably already thawed";
+		} else if (exception instanceof IllegalIndexException) {
+		    return "Given index does not exist in running Splunk instance";
+		} else if (exception instanceof IOException) {
+		    return exception.getMessage();
+		} else {
+		    return "Unexpected exception: " + exception.getMessage();
+		}
+	    }
+	    return "Did not get an exception when thawing.";
 	};
 
-	public final Bucket bucket;
-	public final Status status;
-	public final String message;
     }
 
     /**
@@ -115,38 +130,29 @@ public class BucketThawer {
 	List<ThawInfo> thawInfos = new ArrayList<ThawInfo>();
 
 	for (Bucket bucket : bucketsWithFormats) {
-	    logger.info(will("Attempting to thaw bucket", "bucket", bucket));
-	    Exception tempException = null;
-	    String message = null;
-	    try {
-		thawBucketTransferer.transferBucketToThaw(bucket);
-		thawInfos.add(new ThawInfo(bucket, ThawInfo.Status.THAWED));
-		logger.info(done("Thawed bucket", "bucket", bucket));
-	    } catch (FileOverwriteException e) {
-		tempException = e;
-		message = "Directory already exists - bucket is probably already thawed";
-	    } catch (IllegalIndexException e) {
-		// TODO: Thawing could be sped up by ignoring buckets in indexes
-		// we know don't exist
-		tempException = e;
-		message = "Given index does not exist in running Splunk instance";
-	    } catch (IOException e) {
-		tempException = e;
-		message = e.getMessage();
-	    }
-	    if (tempException != null) {
-		logger.error(did("Tried to thaw bucket", tempException,
-			"Place the bucket in thaw", "bucket", bucket,
-			"exception", tempException));
-		thawInfos.add(new ThawInfo(bucket, ThawInfo.Status.FAILED,
-			message));
-	    } else {
-		for (ThawInfo thawInfo : thawInfos) {
-		    bucketRestorer.restoreToSplunkBucketFormat(thawInfo.bucket);
-		}
-	    }
+	    thawInfos.add(thawBucket(bucket));
 	}
 
 	return thawInfos;
+    }
+
+    private ThawInfo thawBucket(Bucket bucket) {
+	logger.info(will("Attempting to thaw bucket", "bucket", bucket));
+	ThawInfo thawInfo = null;
+	try {
+	    thawBucketTransferer.transferBucketToThaw(bucket);
+	    Bucket thawedBucket = bucketRestorer
+		    .restoreToSplunkBucketFormat(bucket);
+	    logger.info(done("Thawed bucket", "bucket", bucket));
+	    thawInfo = new ThawInfo(bucket, ThawInfo.Status.THAWED, null);
+	} catch (Exception e) {
+	    // TODO: Thawing could be sped up by ignoring buckets in indexes
+	    // we know don't exist
+	    logger.error(did("Tried to thaw bucket", e,
+		    "Place the bucket in thaw", "bucket", bucket, "exception",
+		    e));
+	    thawInfo = new ThawInfo(bucket, ThawInfo.Status.FAILED, e);
+	}
+	return thawInfo;
     }
 }
