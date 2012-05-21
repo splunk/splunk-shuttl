@@ -1,14 +1,6 @@
 <endpoint name="admin/conf-dbspecs" showAppContext="1">
   <header>Database specs</header>
 
-  <menu name="knowledge_configurations">
-    <label>Hive database specs</label>
-    <id>hive_dbspec</id>
-    <url>/manager/%(namespace)s/admin/conf-dbspecs</url>
-    <description>View and edit your saved database specs.</description>
-    <order>55</order>
-  </menu>
-
   <elements>
     <element name="savedbspec" type="fieldset">
       <view name="list"/>
@@ -35,13 +27,6 @@
           <view name="edit"/>
           <view name="create"/>
           <key name="exampleText">TCP port that the database server is listening to for connections, such as 3306.</key>
-        </element>
-
-        <element name="schema" type="textfield" label="Schema">
-          <view name="list"/>
-          <view name="edit"/>
-          <view name="create"/>
-          <key name="exampleText">Schema to connect to (in Hive this is equivalent to a database), such as splunk.</key>
         </element>
 
         <element name="username" type="textfield" label="User name">
