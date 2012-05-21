@@ -201,7 +201,6 @@
 		<!-- Tests using resources that are not .java files. Should probably create a resource folder instead of putting non .java files in src/java -->
 		<antcall>
 			<target name="copy-test-resources" />
-			<target name="copy-src-resources" />
 		</antcall>
 	</target>
 
@@ -221,10 +220,6 @@
 		<copy todir="${test-classdir}">
 			<fileset dir="${test-resources-dir}" includes="**/*" />
 		</copy>
-	</target>
-
-	<target name="copy-src-resources">
-		<copy file="${srcdir}/com/splunk/shep/cli/ShepCLI.conf" todir="${classdir}/com/splunk/shep/cli" />
 	</target>
 
 	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">
