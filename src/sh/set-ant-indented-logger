@@ -1,7 +1,5 @@
-#!/bin/bash
 #
 # Source this file or set the ANT_ARGS yourself
+# 	Sets Ant to look in the contrib-folder for the indented logger.
 #
-
-echo "!!!Source this file or set the ANT_ARGS environment variable yourself???"
 export ANT_ARGS="-lib contrib/ant-libs/IndentedDefaultLogger.jar -logger com.splunk.shep.IndentedDefaultLogger"
