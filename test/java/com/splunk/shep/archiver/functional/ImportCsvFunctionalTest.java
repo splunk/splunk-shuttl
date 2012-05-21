@@ -42,7 +42,7 @@ import com.splunk.shep.archiver.thaw.SplunkSettings;
 import com.splunk.shep.testutil.UtilsBucket;
 import com.splunk.shep.testutil.UtilsTestNG;
 
-@Test(enabled = true, groups = { "functional" })
+@Test(enabled = false, groups = { "integration" })
 public class ImportCsvFunctionalTest {
 
     private ArchiveConfiguration localCsvArchiveConfigration;
