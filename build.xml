@@ -521,24 +521,7 @@
 	</target>
 
 	<target name="set-hadoop-download-url">
-		<if>
-			<equals arg1="${hadoop.version}" arg2="0.20.203.0" />
-			<then>
-				<property name="hadoop.version.url" value="hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
-			</then>
-		</if>
-		<if>
-			<equals arg1="${hadoop.version}" arg2="0.20.205.0" />
-			<then>
-				<property name="hadoop.version.url" value="hadoop-0.20.205.0/hadoop-0.20.205.0.tar.gz" />
-			</then>
-		</if>
-		<if>
-			<equals arg1="${hadoop.version}" arg2="1.0.0" />
-			<then>
-				<property name="hadoop.version.url" value="hadoop-1.0.0/hadoop-1.0.0.tar.gz" />
-			</then>
-		</if>
+		<property name="hadoop.version.url" value="hadoop-${hadoop.version}/hadoop-${hadoop.version}.tar.gz" />
 		<property name="hadoop.download.url" value="${hadoop.apache.org.hadoop.common.host}/${hadoop.version.url}" />
 	</target>
 
@@ -826,8 +809,8 @@
 		<copy todir="${splunk.extracted.dir}/etc" file="${basedir}/archiver-UI-Debug-files/log.cfg" />
 	</target>
 	<target name="helper-archiver-activate-archiver-test-index" depends="set-shep-app-home">
-		<copy todir="${shep.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/indexes.conf" overwrite="true"/>
-		<copy todir="${shep.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/app.conf" overwrite="true"/>
+		<copy todir="${shep.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/indexes.conf" overwrite="true" />
+		<copy todir="${shep.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/app.conf" overwrite="true" />
 	</target>
 	<target name="helper-archiver-test-hadoop">
 		<exec executable="${hadoop.home}/bin/hadoop">
