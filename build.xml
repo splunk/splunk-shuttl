@@ -249,9 +249,6 @@
 		<antcall target="test" />
 		<antcall target="integration-tests" />
 		<antcall target="functional-tests" />
-		<!-- in-memory-tests to be converted to testng unit test -->
-		<!-- and added to either fast-unit or slow-unit group -->
-		<antcall target="in-memory-test" />
 	</target>
 
 	<target name="clean-built-classes-then-compile" depends="clean-built-classes, compile" />
@@ -1066,13 +1063,6 @@
 	<!-- Run by hooks -->
 	<target name="pre-commit" depends="clean-built-classes, do-compile, do-fast-unit-tests">
 		<fail if="testng.failed" message="Fast tests have failed." />
-	</target>
-
-	<!--hadoop unit test -->
-	<target name="in-memory-test" depends="compile">
-		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="embedded" outputdir="${builddir}/test-results">
-			<classfileset dir="${test-classdir}" includes="**/*.class" />
-		</testng>
 	</target>
 
 	<target name="doc">
