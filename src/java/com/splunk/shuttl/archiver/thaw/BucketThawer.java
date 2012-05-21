@@ -141,8 +141,8 @@ public class BucketThawer {
 	ThawInfo thawInfo = null;
 	try {
 	    thawBucketTransferer.transferBucketToThaw(bucket);
-	    Bucket thawedBucket = bucketRestorer
-		    .restoreToSplunkBucketFormat(bucket);
+	    // Bucket thawedBucket = bucketRestorer
+	    // .restoreToSplunkBucketFormat(bucket);
 	    logger.info(done("Thawed bucket", "bucket", bucket));
 	    thawInfo = new ThawInfo(bucket, ThawInfo.Status.THAWED, null);
 	} catch (Exception e) {
