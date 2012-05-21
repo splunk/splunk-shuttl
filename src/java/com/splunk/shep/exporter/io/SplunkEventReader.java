@@ -30,7 +30,6 @@ import com.splunk.shep.ShepConstants.OutputMode;
 import com.splunk.shep.exporter.SplunkEventFormatter;
 import com.splunk.shep.exporter.model.ShepExport;
 import com.splunk.shep.exporter.model.SplunkEvent;
-import com.splunk.shep.mapreduce.lib.rest.SplunkXMLStream;
 
 /**
  * @author hyan

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.mapreduce.lib.rest.util;
+package com.splunk.shep.exporter.io;
 
 import java.io.IOException;
 import java.io.Reader;

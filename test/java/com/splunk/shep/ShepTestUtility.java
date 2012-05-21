@@ -45,9 +45,9 @@ import com.splunk.EntityCollection;
 import com.splunk.Index;
 import com.splunk.Service;
 import com.splunk.shep.ShepConstants.OutputMode;
+import com.splunk.shep.exporter.io.SplunkXMLStream;
 import com.splunk.shep.exporter.model.ShepExport;
 import com.splunk.shep.exporter.model.SplunkEvent;
-import com.splunk.shep.mapreduce.lib.rest.SplunkXMLStream;
 
 /**
  * @author hyan

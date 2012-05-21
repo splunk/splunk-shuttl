@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shep.mapreduce.lib.rest;
+package com.splunk.shep.exporter.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,6 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shep.mapreduce.lib.rest.util.ReaderWrapper;
 
 /**
  * This returns the results of a splunk search as a map of name-value pairs
