@@ -1,8 +1,8 @@
 
-Shep - Integration of Splunk and Hadoop
+Shuttl - Integration of Splunk and Hadoop
 =======================================
 
-Shep is a collection of integration modules to enable
+Shuttl is a collection of integration modules to enable
 seamless data flow and processing between Splunk, the
 NoSQL platform for machine data, and Hadoop.
 
@@ -23,10 +23,10 @@ Key features as of v0.4.3 are:
 * Streaming of data via Splunk Forwarding to HDFS
 * SplunkInputFormat and SplunkOutputFormat classes for use in Hadoop
 * Automatic batch rolling of indexed data to HDFS
-* Developer friendly building and testing shep
+* Developer friendly building and testing shuttl
 
 Note: earlier versions of the forwarding mechanism relied on
-Flume. That dependency is now removed, and Shep will write
+Flume. That dependency is now removed, and Shuttl will write
 direct to HDFS without a Flume intermediary.
 
 Prerequisites
@@ -68,7 +68,7 @@ Environment setup:
 
 	% source setjavaenv
 
-Building Shep:
+Building Shuttl:
 
 	% ./buildit.sh
 
@@ -84,12 +84,12 @@ If everything goes well, you should see the message
 
 You'll need to build once, before you can use Eclipse
 This .eclipse.templates directory contains templates for generating Eclipse files to configure
-Eclipse for shep development.
+Eclipse for shuttl development.
 
 
 ### Coding Conventions
 
-The Shep code base is to follow the standard java conventions:
+The Shuttl code base is to follow the standard java conventions:
 http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html
 
 Getting Started
@@ -99,11 +99,11 @@ Set the `JAVA_HOME` environment variable
 
 Make sure that you can run `ssh localhost` without having to enter a password*
 
-Cd into to the splunk-shep directory and run the following:
+Cd into to the splunk-shuttl directory and run the following:
 
 Put a .tgz packaged Splunk in the put-splunk-tgz-here directory**
 
-Build shep:
+Build shuttl:
 
 	$ ./buildit.sh
 

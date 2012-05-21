@@ -21,9 +21,9 @@
 set -e
 set -u
 
-cd $SPLUNK_HOME/etc/apps/shep/
+cd $SPLUNK_HOME/etc/apps/shuttl/
 
 index=$1
 bucket=$2
 
-exec -a splunk-bucket-freezer $JAVA_HOME/bin/java -cp ./bin/*:./lib/* com.splunk.shep.archiver.archive.BucketFreezer $index $bucket
+exec -a splunk-bucket-freezer $JAVA_HOME/bin/java -cp ./bin/*:./lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $index $bucket

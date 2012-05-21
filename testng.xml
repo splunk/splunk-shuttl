@@ -8,7 +8,7 @@
 
 	<test name="Test" preserve-order="true">
 		<classes>
-			<class name="com.splunk.shep.archiver.fileSystem.HadoopFileSystemArchiveTest" />
+			<class name="com.splunk.shuttl.archiver.fileSystem.HadoopFileSystemArchiveTest" />
 		</classes>
 	</test> <!-- Test -->
 </suite> <!-- Suite -->

@@ -1,4 +1,4 @@
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Shep" default="build" basedir=".">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Shuttl" default="build" basedir=".">
 	<!-- property files -->
 	<property file="build.properties" />
 	<property file="default.properties" />
@@ -14,7 +14,7 @@
 	<property name="classdir" value="${builddir}/classes" />
 	<property name="test-classdir" value="${builddir}/testclasses" />
 	<property name="testng.jar" value="testng-6.4.jar" />
-	<property name="appname" value="shep" />
+	<property name="appname" value="shuttl" />
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
 	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
@@ -48,7 +48,7 @@
 	<path id="build.classpath">
 		<pathelement location="${splunk-sdk}/splunk.jar" />
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
-		<pathelement location="${basedir}/src/java/com/splunk/shep/connector/conf" />
+		<pathelement location="${basedir}/src/java/com/splunk/shuttl/connector/conf" />
 		<pathelement path="${classdir}" />
 		<pathelement path="${test-classdir}" />
 		<fileset dir="${libdir}">
@@ -148,8 +148,8 @@
 		<tstamp>
 			<format property="noslashtime" timezone="America/Los_Angeles" pattern="yyyyMMddhhmmss" />
 		</tstamp>
-		<copy file="${srcdir}/com/splunk/shep/server/version.properties" todir="${classdir}/com/splunk/shep/server/" />
-		<replace file="${classdir}/com/splunk/shep/server/version.properties">
+		<copy file="${srcdir}/com/splunk/shuttl/server/version.properties" todir="${classdir}/com/splunk/shuttl/server/" />
+		<replace file="${classdir}/com/splunk/shuttl/server/version.properties">
 			<replacefilter token="@DATE@" value="${time} US/Pacific" />
 			<replacefilter token="@REVISION@" value="${git.revision}" />
 			<replacefilter token="@BRANCH@" value="${git.branch}" />
@@ -157,7 +157,7 @@
 		</replace>
 
 		<loadproperties>
-			<file file="${classdir}/com/splunk/shep/server/version.properties" />
+			<file file="${classdir}/com/splunk/shuttl/server/version.properties" />
 		</loadproperties>
 
 		<!-- TODO add ${git.branch} into the suffix after properly fixing the retrival of branch name -->
@@ -271,7 +271,7 @@
 		<!-- Test group 'fast'. We think about adding more groups in the future -->
 		<testng classpathref="build.classpath" groups="integration" outputdir="${builddir}/test-results/integration">
 			<propertyset refid="testng" />
-			<classfileset dir="${test-classdir}" includes="**/*.class" excludes="**/ShepForwarderRestTest.class" />
+			<classfileset dir="${test-classdir}" includes="**/*.class" excludes="**/ShuttlForwarderRestTest.class" />
 		</testng>
 	</target>
 
@@ -287,7 +287,7 @@
 		<antcall>
 			<target name="splunk-teardown" />
 			<target name="hadoop-teardown" />
-			<target name="shep-teardown" />
+			<target name="shuttl-teardown" />
 		</antcall>
 	</target>
 
@@ -310,7 +310,7 @@
 		<antcall>
 			<target name="splunk-stop" />
 			<target name="hadoop-teardown" />
-			<target name="shep-teardwon" />
+			<target name="shuttl-teardwon" />
 		</antcall>
 	</target>
 
@@ -512,10 +512,10 @@
 		</antcall>
 	</target>
 
-	<target name="shep-teardown">
+	<target name="shuttl-teardown">
 		<exec executable="curl">
 			<arg value="-s" />
-			<arg line="http://localhost:9090/shep/rest/server/shutdown" />
+			<arg line="http://localhost:9090/shuttl/rest/server/shutdown" />
 		</exec>
 	</target>
 
@@ -533,9 +533,9 @@
 
 	<target name="splunk-configure-and-start">
 		<antcall>
-			<target name="install-shep-splunk-app" />
+			<target name="install-shuttl-splunk-app" />
 			<target name="splunk-start" />
-			<target name="enable-shep-splunk-app" />
+			<target name="enable-shuttl-splunk-app" />
 		</antcall>
 	</target>
 
@@ -572,29 +572,29 @@
 		<fail unless="foundSplunkTgz" message="There has to be a splunk version packaged with .tgz in ${splunk.tgz.dir}" />
 	</target>
 
-	<target name="install-shep-splunk-app">
+	<target name="install-shuttl-splunk-app">
 		<antcall>
-			<target name="remove-shep-splunk-app" />
-			<target name="do-install-shep-splunk-app" />
+			<target name="remove-shuttl-splunk-app" />
+			<target name="do-install-shuttl-splunk-app" />
 		</antcall>
 	</target>
 
-	<target name="remove-shep-splunk-app" depends="set-shep-app-home,check-if-shep-app-exists" if="existsShepDir">
-		<delete dir="${shep.app.home}" />
+	<target name="remove-shuttl-splunk-app" depends="set-shuttl-app-home,check-if-shuttl-app-exists" if="existsShuttlDir">
+		<delete dir="${shuttl.app.home}" />
 	</target>
 
-	<target name="check-if-shep-app-exists" depends="set-shep-app-home">
-		<condition property="existsShepDir">
-			<available file="${shep.app.home}" type="dir" />
+	<target name="check-if-shuttl-app-exists" depends="set-shuttl-app-home">
+		<condition property="existsShuttlDir">
+			<available file="${shuttl.app.home}" type="dir" />
 		</condition>
 	</target>
 
-	<target name="set-shep-app-home" depends="set-splunk-home">
+	<target name="set-shuttl-app-home" depends="set-splunk-home">
 		<property name="splunk.apps.home" value="${splunk.home}/etc/apps" />
-		<property name="shep.app.home" value="${splunk.apps.home}/shep" />
+		<property name="shuttl.app.home" value="${splunk.apps.home}/shuttl" />
 	</target>
 
-	<target name="do-install-shep-splunk-app" depends="create-splunk-app">
+	<target name="do-install-shuttl-splunk-app" depends="create-splunk-app">
 		<antcall target="splunk-stop" />
 		<exec executable="tar" osfamily="unix">
 			<arg value="xf" />
@@ -603,10 +603,10 @@
 		</exec>
 	</target>
 
-	<target name="re-install-shep-splunk-app" depends="set-splunk-home">
+	<target name="re-install-shuttl-splunk-app" depends="set-splunk-home">
 		<antcall>
 			<target name="splunk-stop" />
-			<target name="remove-shep-splunk-app" />
+			<target name="remove-shuttl-splunk-app" />
 			<target name="splunk-configure-and-start" />
 		</antcall>
 	</target>
@@ -641,23 +641,23 @@
 		</exec>
 	</target>
 
-	<target name="enable-shep-splunk-app" depends="check-if-shep-is-enabled" unless="isShepAlreadyEnabled">
+	<target name="enable-shuttl-splunk-app" depends="check-if-shuttl-is-enabled" unless="isShuttlAlreadyEnabled">
 		<exec executable="curl" osfamily="unix">
 			<arg value="-s" />
 			<arg line="-u ${splunk.username}:${splunk.password}" />
-			<arg line="-k https://localhost:8089/services/apps/local/shep/enable" />
+			<arg line="-k https://localhost:8089/services/apps/local/shuttl/enable" />
 			<arg line="-X POST" />
 		</exec>
 	</target>
 
-	<target name="check-if-shep-is-enabled">
+	<target name="check-if-shuttl-is-enabled">
 		<shellscript shell="sh" outputproperty="isEnabled">
-			${splunk.home}/bin/splunk display app 2> /dev/null | grep shep | grep -o ENABLED
+			${splunk.home}/bin/splunk display app 2> /dev/null | grep shuttl | grep -o ENABLED
 		</shellscript>
 		<if>
 			<equals arg1="${isEnabled}" arg2="ENABLED" />
 			<then>
-				<property name="isShepAlreadyEnabled" value="true" />
+				<property name="isShuttlAlreadyEnabled" value="true" />
 			</then>
 		</if>
 	</target>
@@ -684,19 +684,19 @@
 		<copy todir="${splunk.extracted.dir}/lib/python2.7/site-packages/splunk/appserver/mrsparkle/controllers/" file="${basedir}/archiver-UI-Debug-files/__init__.py" />
 		<copy todir="${splunk.extracted.dir}/etc" file="${basedir}/archiver-UI-Debug-files/log.cfg" />
 	</target>
-	<target name="helper-archiver-activate-archiver-test-index" depends="set-shep-app-home">
-		<copy todir="${shep.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/indexes.conf" overwrite="true" />
-		<copy todir="${shep.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/app.conf" overwrite="true" />
+	<target name="helper-archiver-activate-archiver-test-index" depends="set-shuttl-app-home">
+		<copy todir="${shuttl.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/indexes.conf" overwrite="true" />
+		<copy todir="${shuttl.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/app.conf" overwrite="true" />
 	</target>
 	<target name="helper-archiver-test-hadoop">
 		<exec executable="${hadoop.home}/bin/hadoop">
 			<arg line="fs -ls /" />
 		</exec>
 	</target>
-	<target name="archiver-sync-package" depends="set-shep-app-home">
+	<target name="archiver-sync-package" depends="set-shuttl-app-home">
 		<exec executable="sh" osfamily="unix">
 			<arg value="-c" />
-			<arg line="'rsync -vr --delete ${package.dir}/* ${shep.app.home} | tail -n 3'" />
+			<arg line="'rsync -vr --delete ${package.dir}/* ${shuttl.app.home} | tail -n 3'" />
 		</exec>
 	</target>
 	<target name="archiver-sync-package-and-restart-splunk-web">
@@ -752,7 +752,7 @@
 
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties>
-			<file file="${classdir}/com/splunk/shep/server/version.properties" />
+			<file file="${classdir}/com/splunk/shuttl/server/version.properties" />
 		</loadproperties>
 		<property name="name.api.versioned" value="${appname}-api-${version}" />
 		<property name="name.api.versioned.path" value="${builddir}/jar/${name.api.versioned}.jar" />
@@ -769,40 +769,40 @@
 		<mkdir dir="${builddir}/jar" />
 		<jar destfile="${name.server.versioned.path}" basedir="${classdir}">
 			<manifest>
-				<section name="com/splunk/shep">
-					<attribute name="Implementation-Title" value="Shep" />
+				<section name="com/splunk/shuttl">
+					<attribute name="Implementation-Title" value="Shuttl" />
 					<attribute name="Implementation-Version" value="${version}" />
 					<attribute name="Implementation-Vendor" value="Splunk" />
 				</section>
-				<attribute name="Main-Class" value="com.splunk.shep.server.ShepJettyServer" />
+				<attribute name="Main-Class" value="com.splunk.shuttl.server.ShuttlJettyServer" />
 			</manifest>
-			<include name="com/splunk/shep/customsearch/**" />
-			<include name="com/splunk/shep/s2s/**" />
-			<include name="com/splunk/shep/server/**" />
-			<include name="com/splunk/shep/metrics/**" />
-			<include name="com/splunk/shep/exporter/**" />
-			<include name="com/splunk/shep/*" />
-			<include name="com/splunk/shep/archiver/**" />
+			<include name="com/splunk/shuttl/customsearch/**" />
+			<include name="com/splunk/shuttl/s2s/**" />
+			<include name="com/splunk/shuttl/server/**" />
+			<include name="com/splunk/shuttl/metrics/**" />
+			<include name="com/splunk/shuttl/exporter/**" />
+			<include name="com/splunk/shuttl/*" />
+			<include name="com/splunk/shuttl/archiver/**" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.api.versioned.path}" basedir="${classdir}">
 			<manifest>
-				<section name="com/splunk/shep">
-					<attribute name="Implementation-Title" value="Shep" />
+				<section name="com/splunk/shuttl">
+					<attribute name="Implementation-Title" value="Shuttl" />
 					<attribute name="Implementation-Version" value="${version}" />
 					<attribute name="Implementation-Vendor" value="Splunk" />
 				</section>
 			</manifest>
-			<include name="com/splunk/shep/mapred/**" />
-			<include name="com/splunk/shep/mapreduce/**" />
-			<include name="com/splunk/shep/exporter/**" />
-			<include name="com/splunk/shep/ShepConstants.class" />
+			<include name="com/splunk/shuttl/mapred/**" />
+			<include name="com/splunk/shuttl/mapreduce/**" />
+			<include name="com/splunk/shuttl/exporter/**" />
+			<include name="com/splunk/shuttl/ShuttlConstants.class" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.test.versioned.path}" basedir="${test-classdir}">
 			<manifest>
-				<section name="com/splunk/shep">
-					<attribute name="Implementation-Title" value="Shep" />
+				<section name="com/splunk/shuttl">
+					<attribute name="Implementation-Title" value="Shuttl" />
 					<attribute name="Implementation-Version" value="${version}" />
 					<attribute name="Implementation-Vendor" value="Splunk" />
 				</section>
@@ -811,14 +811,14 @@
 		</jar>
 		<jar destfile="${name.cli.versioned.path}" basedir="${classdir}">
 			<manifest>
-				<section name="com/splunk/shep">
-					<attribute name="Implementation-Title" value="Shep" />
+				<section name="com/splunk/shuttl">
+					<attribute name="Implementation-Title" value="Shuttl" />
 					<attribute name="Implementation-Version" value="${version}" />
 					<attribute name="Implementation-Vendor" value="Splunk" />
 				</section>
-				<attribute name="Main-Class" value="com.splunk.shep.cli.ShepCLI" />
+				<attribute name="Main-Class" value="com.splunk.shuttl.cli.ShuttlCLI" />
 			</manifest>
-			<include name="com/splunk/shep/cli/**" />
+			<include name="com/splunk/shuttl/cli/**" />
 		</jar>
 	</target>
 
@@ -906,7 +906,7 @@
 	</target>
 
 	<target name="copy-lib-jars-to-test-dir" depends="jar, versionized-jar-name">
-		<copy todir="${build-cache}/shep/testlib">
+		<copy todir="${build-cache}/shuttl/testlib">
 			<fileset dir="${libdir}" includes="testng-*.jar,
                           mockito-*.jar,
                           jetty-6.1.26.jar,
@@ -921,8 +921,8 @@
                           jackson-*.jar" />
 			<fileset dir="${splunk-sdk}" />
 		</copy>
-		<copy file="${name.test.versioned.path}" todir="${build-cache}/shep/testlib" />
-		<copy file="${name.cli.versioned.path}" todir="${build-cache}/shep/testlib" />
+		<copy file="${name.test.versioned.path}" todir="${build-cache}/shuttl/testlib" />
+		<copy file="${name.cli.versioned.path}" todir="${build-cache}/shuttl/testlib" />
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->
@@ -931,15 +931,15 @@
 	</target>
 
 	<target name="splunk2flume2console">
-		<java classname="com.splunk.shep.connector.tests.Splunk2Flume2ConsoleTest">
-			<arg value="src/java/com/splunk/shep/connector/tests/splunk2flume.conf" />
+		<java classname="com.splunk.shuttl.connector.tests.Splunk2Flume2ConsoleTest">
+			<arg value="src/java/com/splunk/shuttl/connector/tests/splunk2flume.conf" />
 			<classpath refid="build.classpath" />
 		</java>
 	</target>
 
 	<target name="state-machine-test">
-		<java classname="com.splunk.shep.connector.tests.StateMachineTest">
-			<arg value="src/java/com/splunk/shep/connector/tests/s2s.data" />
+		<java classname="com.splunk.shuttl.connector.tests.StateMachineTest">
+			<arg value="src/java/com/splunk/shuttl/connector/tests/s2s.data" />
 			<classpath refid="build.classpath" />
 		</java>
 	</target>
@@ -950,7 +950,7 @@
 	</target>
 
 	<target name="doc">
-		<javadoc classpathref="build.classpath" destdir="build/docs/api" version="true" use="true" bottom="Copyright © 2012 Splunk, Inc. All rights reserved." windowtitle="Shep">
+		<javadoc classpathref="build.classpath" destdir="build/docs/api" version="true" use="true" bottom="Copyright © 2012 Splunk, Inc. All rights reserved." windowtitle="Shuttl">
 			<packageset dir="src/java" defaultexcludes="yes">
 				<exclude name="com/splunk/**/tests/**" />
 				<include name="com/splunk/**" />

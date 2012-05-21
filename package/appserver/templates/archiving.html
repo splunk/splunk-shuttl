@@ -8,17 +8,17 @@
     logger = logging.getLogger('splunk.module.archiving')
 %>
 
-<%lib:script_tags files="${['/static/app/shep/jquery-ui/js/jquery-ui-1.8.19.custom.min.js', 
-                            '/static/app/shep/jquery-validation/jquery.validate.js',
-                            '/static/app/shep/archiver.js', 
-                            '/static/app/shep/jquery.tablesorter.js',
-                            '/static/app/shep/jquery.tablesorter.pager.js'
+<%lib:script_tags files="${['/static/app/shuttl/jquery-ui/js/jquery-ui-1.8.19.custom.min.js', 
+                            '/static/app/shuttl/jquery-validation/jquery.validate.js',
+                            '/static/app/shuttl/archiver.js', 
+                            '/static/app/shuttl/jquery.tablesorter.js',
+                            '/static/app/shuttl/jquery.tablesorter.pager.js'
                             ]}" />
 <%def name="custom_css()">
   <% parent.css() %>
-  <%lib:stylesheet_tags files="${['/static/app/shep/jquery-ui/css/redmond/jquery-ui-1.8.19.custom.css', 
-                                  '/static/app/shep/tablesorter-theme/blue/style.css',
-                                  '/static/app/shep/archiver.css']}" />
+  <%lib:stylesheet_tags files="${['/static/app/shuttl/jquery-ui/css/redmond/jquery-ui-1.8.19.custom.css', 
+                                  '/static/app/shuttl/tablesorter-theme/blue/style.css',
+                                  '/static/app/shuttl/archiver.css']}" />
 </%def>
 
 <%def name="gen_table_option_row(id=None, data=None, row=None)">

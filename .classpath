@@ -33,11 +33,6 @@
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-impl-2.9.0.jar"/>
 	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-core-1.0.0.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://hadoop.apache.org/common/docs/r1.0.0/api"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.6.jar"/>
 	<classpathentry kind="lib" path="contrib/splunk-sdk/splunk.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
@@ -52,7 +47,6 @@
 	<classpathentry kind="lib" path="lib/jersey-bundle-1.11.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-servlet-1.11.jar"/>
 	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-test-1.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-util-6.1.26.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-6.1.26.jar"/>
 	<classpathentry kind="lib" path="lib/javax.servlet-api-3.0.1.jar"/>
@@ -64,5 +58,7 @@
 	<classpathentry kind="lib" path="lib/jackson-xc-1.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/jsp-api-2.1-6.1.14.jar"/>
 	<classpathentry kind="lib" path="lib/asm-3.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-core-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-test-1.0.1.jar"/>
 	<classpathentry kind="output" path="eclipse-bin"/>
 </classpath>

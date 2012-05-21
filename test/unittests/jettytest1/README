@@ -1,8 +1,0 @@
-This README helps you to run Shep functionality in a Jetty server on your host.
-The splunk connector jar needs to be deployed to Jetty to run.
-Also the jars in the jarlist file need to be copied to the jettydir/lib/ext dir.
-Use the jetty.xml in this dir to run the jetty server.
-Ensure that the port # of the S2SConnector is the same as the one in the outputs.conf of the shep app,
-This is for the Phase I testing of Jetty-Shep Integration.
-Run jetty as -
-java -Dsplunk.home=<your splunk dir> -jar start.jar

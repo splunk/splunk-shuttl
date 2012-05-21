@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:archiverConf xmlns:ns2="com.splunk.shep.server.model">
+<ns2:archiverConf xmlns:ns2="com.splunk.shuttl.server.model">
     <archiverRootURI>hdfs://localhost:9000/archiver_root</archiverRootURI>
     <tmpDirectory>/tmp</tmpDirectory>
     <clusterName>cluster_name</clusterName>
     <serverName>server_name</serverName>
     <indexNames>
         <indexName>main</indexName>
-        <indexName>shep</indexName>
+        <indexName>shuttl</indexName>
     </indexNames>
 </ns2:archiverConf>

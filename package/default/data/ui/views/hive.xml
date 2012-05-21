@@ -22,7 +22,7 @@
       </list>
     </param>
     <param name="groupLabel">Browse connections:</param>
-    <param name="namespace">shep</param>
+    <param name="namespace">shuttl</param>
     <param name="settingToCreate">savedSpecs</param>
     <param name="entityPath">admin/conf-dbspecs</param>
     <module name="HiddenSearch" layoutPanel="panel_row2_col1" group="Select schema">

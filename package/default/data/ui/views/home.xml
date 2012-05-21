@@ -1,5 +1,5 @@
 <view autoCancelInterval="90" isPersistable="true" isSticky="true" isVisible="true" objectMode="viewconf" onunloadCancelJobs="true" template="dashboard.html">
-  <label>Shep Home</label>
+  <label>shuttl Home</label>
   <module name="AccountBar" layoutPanel="appHeader"/>
   <module name="AppBar" layoutPanel="navigationHeader"/>
   <module name="Message" layoutPanel="messaging">
@@ -29,13 +29,13 @@
   <module name="StaticContentSample" layoutPanel="panel_row1_col1" group="Setup Hive access">
     <param name="text">
     &lt;ol&gt;
-    &lt;li&gt;Create a &lt;a href="../../manager/shep/admin/conf-dbspecs/_new?action=edit&amp;ns=shep"&gt;&lt;u&gt;new Hive database connection (database spec)&lt;/u&gt;&lt;/a&gt; and set the appropriate permissions.&lt;/li&gt;
+    &lt;li&gt;Create a &lt;a href="../../manager/shuttl/admin/conf-dbspecs/_new?action=edit&amp;ns=shuttl"&gt;&lt;u&gt;new Hive database connection (database spec)&lt;/u&gt;&lt;/a&gt; and set the appropriate permissions.&lt;/li&gt;
     &lt;li&gt;(Optional) &lt;a href="hive"&gt;&lt;u&gt;Explore your Hive databases&lt;/u&gt;&lt;/a&gt; before creating a new lookup.&lt;/li&gt;
     &lt;/ol&gt;
     &lt;br&gt;&lt;br&gt;&lt;br&gt;
     Other useful pages:
     &lt;p&gt; &lt;a href="hive"&gt;&lt;u&gt;Explore your Hive databases&lt;/u&gt;&lt;/a&gt;&lt;/p&gt;
-    &lt;p&gt; &lt;a href="../../manager/shep/admin/conf-dbspecs"&gt;&lt;u&gt;Manage database connections&lt;/u&gt;&lt;/a&gt;&lt;/p&gt;
+    &lt;p&gt; &lt;a href="../../manager/shuttl/admin/conf-dbspecs"&gt;&lt;u&gt;Manage database connections&lt;/u&gt;&lt;/a&gt;&lt;/p&gt;
     </param>
   </module>
 

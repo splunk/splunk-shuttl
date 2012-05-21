@@ -1,5 +1,5 @@
-export SPLUNKSRC=$SPLUNK_HOME/etc/apps/shep/bin
-export FLUME_LIB=$SPLUNK_HOME/etc/apps/shep/lib
+export SPLUNKSRC=$SPLUNK_HOME/etc/apps/shuttl/bin
+export FLUME_LIB=$SPLUNK_HOME/etc/apps/shuttl/lib
 export SPLUNK_HADOOP_CONNECTOR=`ls *.jar`
 export HADOOP_HOME=<your hadoop installation root dir>
 export HADOOP_CONF=$HADOOP_HOME/conf
