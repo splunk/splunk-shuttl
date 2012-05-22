@@ -15,22 +15,22 @@ echo ""
 ret_code=0
 if [[ ! -f $loremIpsum ]]; then
 	
-	echo "Get some random input data"
-	curl http://loripsum.net/api/1000/verylong > $loremIpsum
-	ret_code=$?
-	
+	curl http://loripsum.net/api/1000/verylong > $loremIpsum || ret_code=1
+	echo ""
+
 	if [[ $ret_code != 0 ]]; then
 		echo "Error when getting input data!"
 		exit $ret_code
 	else
-		echo "Got some random input data!"
+		echo "Got some random input data!\n"
 	fi
 fi
 
 i=0
-while [ $i -lt 20 ]; do 
-	$splunkPath/bin/splunk add oneshot $loremIpsum -index $index
-	sleep 1
+while [ $i -lt 20 -a $ret_code -eq 0 ]; do 
+	$splunkPath/bin/splunk add oneshot $loremIpsum -index $index || ret_code=1
 	let i++
 done
-echo "Added $i oneshots to splunk!"
+
+test $ret_code -eq 0 && echo "\nAdded $i oneshots to splunk!"
+exit $ret_code
