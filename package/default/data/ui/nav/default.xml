@@ -1,17 +1,3 @@
 <nav>
-    <view name="home" default='true'/>
-    <view name="flashtimeline" />
-
-   <collection label="Forwarding">
-        <view name="events" />
-        <view name="sources" />
-        <view name="sourcetypes" />
-        <view name="hosts" />
-    </collection>
-    
-    <collection label="REST">
-        <view name="rests"/>
-    </collection>
-    
-    <view name="archivings"/>
+    <view name="archivings" default='true' />
 </nav>
