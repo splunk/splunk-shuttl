@@ -42,7 +42,7 @@ public class ArchiverFunctionalTest {
     @BeforeMethod(groups = { "functional" })
     public void setUp() throws IOException {
 	UtilsMBean.registerShuttlArchiverMBean();
-	fileSystem = UtilsArchiverFunctional.getHadoopFileSystem();
+	// fileSystem = UtilsArchiverFunctional.getHadoopFileSystem();
     }
 
     @AfterMethod
@@ -74,7 +74,7 @@ public class ArchiverFunctionalTest {
 	    assertTrue(!bucketDirectory.exists());
 	    assertTrue(fileSystem.exists(new Path(archivedUri)));
 	} finally {
-	    UtilsArchiverFunctional.cleanArchivePathInHadoopFileSystem();
+	    // UtilsArchiverFunctional.cleanArchivePathInHadoopFileSystem();
 	}
     }
 

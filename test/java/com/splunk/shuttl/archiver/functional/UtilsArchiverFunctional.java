@@ -23,7 +23,6 @@ import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
@@ -31,7 +30,6 @@ import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
 import com.splunk.shuttl.testutil.UtilsEnvironment;
 import com.splunk.shuttl.testutil.UtilsTestNG;
 
@@ -58,12 +56,13 @@ public class UtilsArchiverFunctional {
     }
 
     /**
+     * @param hadoopPort2
+     * @param hadoopHost2
      * @return Hadoop {@link FileSystem} configured with shuttl's default host
      *         and port values.
      */
-    public static FileSystem getHadoopFileSystem() {
-	String hadoopHost = "localhost";
-	String hadoopPort = "9000"; // TODO THIS IS NOT OK.!
+    public static FileSystem getHadoopFileSystem(String hadoopHost,
+	    String hadoopPort) {
 	try {
 	    return FileSystem.get(
 		    URI.create("hdfs://" + hadoopHost + ":" + hadoopPort),
@@ -72,21 +71,6 @@ public class UtilsArchiverFunctional {
 	    e.printStackTrace();
 	    UtilsTestNG.failForException("Couldn't get Hadoop file system.", e);
 	    return null;
-	}
-    }
-
-    public static void cleanArchivePathInHadoopFileSystem() {
-	FileSystem hadoopFileSystem = getHadoopFileSystem();
-	Bucket dummyBucket = UtilsBucket.createTestBucket();
-	URI hadoopArchivedBucketURI = getHadoopArchivedBucketURI(dummyBucket);
-	try {
-	    hadoopFileSystem.delete(new Path(hadoopArchivedBucketURI)
-		    .getParent().getParent().getParent().getParent()
-		    .getParent(), true);
-	} catch (IOException e) {
-	    e.printStackTrace();
-	    UtilsTestNG.failForException("Could not clean hadoop file system",
-		    e);
 	}
     }
 

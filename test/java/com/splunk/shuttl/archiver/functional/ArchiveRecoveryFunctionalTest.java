@@ -74,7 +74,7 @@ public class ArchiveRecoveryFunctionalTest {
 		bucketLocker, successfulRealRestHandler,
 		realFailedBucketsArchiver);
 
-	hadoopFileSystem = UtilsArchiverFunctional.getHadoopFileSystem();
+	// hadoopFileSystem = UtilsArchiverFunctional.getHadoopFileSystem();
     }
 
     @AfterMethod
@@ -122,7 +122,7 @@ public class ArchiveRecoveryFunctionalTest {
 	    assertTrue(hadoopFileSystem.exists(new Path(secondBucketURI)));
 	    assertTrue(hadoopFileSystem.exists(new Path(thirdBucketURI)));
 	} finally {
-	    UtilsArchiverFunctional.cleanArchivePathInHadoopFileSystem();
+	    // UtilsArchiverFunctional.cleanArchivePathInHadoopFileSystem();
 	}
     }
 }
