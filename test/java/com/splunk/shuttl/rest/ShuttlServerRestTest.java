@@ -35,7 +35,7 @@ public class ShuttlServerRestTest {
     private static String basePath = "/shuttl/rest/server";
     private Client client;
     
-    @BeforeClass(groups = { "integration" })
+    @BeforeClass(groups = { "end-to-end" })
     public void setUpClient() {
 	System.out.println("*** Running ShuttlServerRestTest ***");
 	client = Client.create();
@@ -49,7 +49,7 @@ public class ShuttlServerRestTest {
 	}
     }
 
-    @Test(groups = { "integration" })
+    @Test(groups = { "end-to-end" })
     public void getDefaultHost() throws URISyntaxException {
 	URI defaultHostUri = new URI("http", null, shuttlHost, shuttlMgmtPort,
 		(basePath + "/defaulthost"), null, null);
@@ -65,7 +65,7 @@ public class ShuttlServerRestTest {
 		+ response);
     }
 
-    @Test(groups = { "integration" })
+    @Test(groups = { "end-to-end" })
     public void getDefaultPort() throws URISyntaxException {
 	URI defaultPortUri = new URI("http", null, shuttlHost, shuttlMgmtPort,
 		(basePath + "/defaultport"), null, null);

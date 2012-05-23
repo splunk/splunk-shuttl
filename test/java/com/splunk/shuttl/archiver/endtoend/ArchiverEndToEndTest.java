@@ -14,20 +14,26 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.endtoend;
 
+import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -47,8 +53,9 @@ import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.UtilsBucket;
 import com.splunk.shuttl.testutil.UtilsFile;
 import com.splunk.shuttl.testutil.UtilsMBean;
+import com.splunk.shuttl.testutil.UtilsTestNG;
 
-@Test(enabled = false, groups = { "end-to-end" })
+@Test(enabled = true, groups = { "end-to-end" })
 public class ArchiverEndToEndTest {
 
     File tempDirectory;
@@ -59,26 +66,33 @@ public class ArchiverEndToEndTest {
     File thawDirectoryLocation;
     Path tmpPath;
     private ArchiveConfiguration archiveConfiguration;
+    private String shuttlHost;
+    private int shuttlPort;
 
     @Parameters(value = { "splunk.username", "splunk.password", "splunk.host",
-	    "splunk.mgmtport", "hadoop.host", "hadoop.port" })
+	    "splunk.mgmtport", "hadoop.host", "hadoop.port", "shuttl.host",
+	    "shuttl.port" })
     public void setUp(String splunkUserName, String splunkPw,
 	    String splunkHost, String splunkPort, String hadoopHost,
-	    String hadoopPort) throws Exception {
-	setUp(splunkUserName, splunkPw, splunkHost, splunkPort);
+	    String hadoopPort, String shuttlHost, String shuttlPort)
+	    throws Exception {
+	setUp(splunkUserName, splunkPw, splunkHost, splunkPort, shuttlHost,
+		shuttlPort);
 	archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket();
 	tearDown(hadoopHost, hadoopPort);
     }
 
     private void setUp(String splunkUserName, String splunkPw,
-	    String splunkHost, String splunkPort) throws IllegalIndexException {
+	    String splunkHost, String splunkPort, String shuttlHost,
+	    String shuttlPort) throws IllegalIndexException {
+	this.shuttlHost = shuttlHost;
+	this.shuttlPort = Integer.parseInt(shuttlPort);
 	UtilsMBean.registerShuttlArchiverMBean();
 	archiveConfiguration = ArchiveConfiguration.getSharedInstance();
 	thawIndex = "shuttl";
 	tempDirectory = createTempDirectory();
 	successfulBucketFreezer = getSuccessfulBucketFreezer();
 
-	// CONFIG
 	Service service = new Service(splunkHost, Integer.parseInt(splunkPort));
 	service.login(splunkUserName, splunkPw);
 	assertTrue(service.getIndexes().containsKey(thawIndex));
@@ -118,26 +132,59 @@ public class ArchiverEndToEndTest {
 
 	File[] listFiles = thawDirectoryLocation.listFiles();
 	assertEquals(1, listFiles.length);
-	assertEquals(bucketToFreeze.getName(), listFiles[0].getName());
+	File thawedBucket = listFiles[0];
+	assertEquals(bucketToFreeze.getName(), thawedBucket.getName());
     }
 
     private boolean isThawDirectoryEmpty() {
 	return UtilsFile.isDirectoryEmpty(thawDirectoryLocation);
     }
 
-    private void callRestToThawBuckets(String index, Date earliest, Date latest)
-	    throws Exception {
-	String requestString = "http://localhost:9090/shuttl/rest/archiver/bucket/thaw?index="
-		+ index
-		+ "&from="
-		+ earliest.getTime()
-		+ "&to="
-		+ latest.getTime();
-	HttpGet request = new HttpGet(requestString);
-	new DefaultHttpClient().execute(request);
+    private void callRestToThawBuckets(String index, Date earliest, Date latest) {
+	HttpPost thawPostRequest = getThawPostRequest(index, earliest, latest);
+	executePostRequest(thawPostRequest);
     }
 
-    public void Thawer_archivingBucketsInThreeDifferentTimeRanges_filterByOnlyOneOfTheTimeRanges()
+    private HttpPost getThawPostRequest(String index, Date earliest, Date latest) {
+	URI thawEndpoint = getThawEndpoint();
+	HttpPost httpPost = new HttpPost(thawEndpoint);
+	List<BasicNameValuePair> postParams = asList(nameValue("index", index),
+		nameValue("from", earliest.getTime()),
+		nameValue("to", latest.getTime()));
+	setParamsToPostRequest(httpPost, postParams);
+	return httpPost;
+    }
+
+    private void setParamsToPostRequest(HttpPost httpPost,
+	    List<BasicNameValuePair> postParams) {
+	try {
+	    httpPost.setEntity(new UrlEncodedFormEntity(postParams));
+	} catch (UnsupportedEncodingException e) {
+	    UtilsTestNG.failForException(
+		    "Could not create url encoded form entity with params: "
+			    + postParams, e);
+	}
+    }
+
+    private void executePostRequest(HttpPost httpPost) {
+	try {
+	    new DefaultHttpClient().execute(httpPost);
+	} catch (Exception e) {
+	    UtilsTestNG.failForException("Could not execute post: " + httpPost,
+		    e);
+	}
+    }
+
+    private BasicNameValuePair nameValue(String name, Object index) {
+	return new BasicNameValuePair(name, index.toString());
+    }
+
+    private URI getThawEndpoint() {
+	return URI.create("http://" + shuttlHost + ":" + shuttlPort + "/"
+		+ ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_THAW);
+    }
+
+    private void Thawer_archivingBucketsInThreeDifferentTimeRanges_filterByOnlyOneOfTheTimeRanges()
 	    throws Exception {
 	Date earliest = new Date(1332295013);
 	Date latest = new Date(earliest.getTime() + 26);

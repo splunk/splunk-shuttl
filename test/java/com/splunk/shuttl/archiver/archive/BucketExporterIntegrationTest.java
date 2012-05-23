@@ -28,8 +28,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.BucketExporter;
-import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.testutil.UtilsBucket;
@@ -38,7 +36,7 @@ import com.splunk.shuttl.testutil.UtilsEnvironment;
 /**
  * Test real classes and splunk's export tool.
  */
-@Test(groups = { "integration" })
+@Test(groups = { "functional" })
 public class BucketExporterIntegrationTest {
 
     private BucketExporter bucketExporter;
@@ -54,7 +52,7 @@ public class BucketExporterIntegrationTest {
 	FileUtils.deleteQuietly(getArchiverDirectory());
     }
 
-    @Test(groups = { "integration" })
+    @Test(groups = { "functional" })
     @Parameters(value = { "splunk.home" })
     public void exportBucketToFormat_splunkHomeSetExportingBucketWithRealDataToCsv_createsCsvBucket(
 	    final String splunkHome) {

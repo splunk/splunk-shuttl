@@ -36,13 +36,13 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
+import com.splunk.shuttl.archiver.thaw.BucketThawer.ThawInfo;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
-import com.splunk.shuttl.archiver.thaw.BucketThawer.ThawInfo;
 import com.splunk.shuttl.testutil.UtilsBucket;
 import com.splunk.shuttl.testutil.UtilsTestNG;
 
-@Test(enabled = false, groups = { "integration" })
+@Test(enabled = false, groups = { "functional" })
 public class ImportCsvFunctionalTest {
 
     private ArchiveConfiguration localCsvArchiveConfigration;

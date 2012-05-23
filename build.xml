@@ -223,8 +223,8 @@
 
 	<target name="test-all" depends="clean-built-classes-then-compile">
 		<antcall target="test" />
-		<antcall target="integration-tests" />
 		<antcall target="functional-tests" />
+		<antcall target="end-to-end-tests" />
 	</target>
 
 	<target name="clean-built-classes-then-compile" depends="clean-built-classes, compile" />
@@ -237,6 +237,8 @@
 		<propertyref name="splunk.mgmtport" />
 		<propertyref name="hadoop.host" />
 		<propertyref name="hadoop.port" />
+		<propertyref name="shuttl.host" />
+		<propertyref name="shuttl.port" />
 	</propertyset>
 
 	<target name="fast-unit-tests" depends="compile, do-fast-unit-tests" />
@@ -256,34 +258,20 @@
 		</testng>
 	</target>
 
-	<target name="integration-tests" depends="jar">
-		<antcall>
-			<target name="splunk-setup" />
-		</antcall>
-		<antcall>
-			<target name="do-integration-tests" />
-		</antcall>
-		<antcall>
-			<target name="splunk-teardown" />
-		</antcall>
-	</target>
-
-	<target name="do-integration-tests" depends="compile,set-splunk-home">
-		<!-- Test group 'fast'. We think about adding more groups in the future -->
-		<testng classpathref="build.classpath" groups="integration" outputdir="${builddir}/test-results/integration">
+	<target name="functional-tests" depends="jar,compile,set-splunk-home">
+		<testng classpathref="build.classpath" groups="functional" outputdir="${builddir}/test-results/functional">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" excludes="**/ShuttlForwarderRestTest.class" />
 		</testng>
 	</target>
 
-	<!-- super-slow tests are tests that are in need of hadoop. -->
-	<target name="functional-tests" depends="jar">
+	<target name="end-to-end" depends="jar">
 		<antcall>
 			<target name="hadoop-setup" />
 			<target name="splunk-setup" />
 		</antcall>
 		<antcall>
-			<target name="do-functional-tests" />
+			<target name="do-end-to-end-tests" />
 		</antcall>
 		<antcall>
 			<target name="splunk-teardown" />
@@ -292,9 +280,9 @@
 		</antcall>
 	</target>
 
-	<target name="do-functional-tests" depends="compile,set-splunk-home">
+	<target name="do-end-to-end-tests" depends="compile,set-splunk-home">
 		<!-- these use splunk and hadoop -->
-		<testng classpathref="build.classpath" groups="functional" outputdir="${builddir}/test-results/functional">
+		<testng classpathref="build.classpath" groups="end-to-end" outputdir="${builddir}/test-results/end-to-end">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
