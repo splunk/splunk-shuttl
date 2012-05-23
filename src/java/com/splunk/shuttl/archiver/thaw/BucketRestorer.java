@@ -29,7 +29,7 @@ public class BucketRestorer {
      * @return
      */
     public Bucket restoreToSplunkBucketFormat(Bucket bucket) {
-	throw new UnsupportedOperationException();
+	return bucket;
     }
 
 }
