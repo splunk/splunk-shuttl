@@ -266,7 +266,7 @@
 		</testng>
 	</target>
 
-	<target name="end-to-end" depends="jar">
+	<target name="end-to-end-tests" depends="jar">
 		<antcall>
 			<target name="hadoop-setup" />
 			<target name="splunk-setup" />

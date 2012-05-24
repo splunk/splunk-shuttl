@@ -4,61 +4,18 @@
 	<classpathentry kind="src" path="test/java"/>
 	<classpathentry kind="src" path="test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="contrib/flume-0.9.3-CDH3B4/flume-0.9.3-CDH3B4-core.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://logging.apache.org/log4j/1.2/apidocs/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/testng-6.4.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://testng.org/javadocs/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/httpclient-4.1.2.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/httpcore-4.1.2.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://hc.apache.org/httpcomponents-core-ga/httpcore/apidocs"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons-io-2.3.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://commons.apache.org/io/apidocs/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/xerces-impl-2.9.0.jar"/>
-	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
-	<classpathentry kind="lib" path="lib/commons-configuration-1.6.jar"/>
-	<classpathentry kind="lib" path="contrib/splunk-sdk/splunk.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/jasper-compiler-5.5.12.jar"/>
-	<classpathentry kind="lib" path="lib/jasper-runtime-5.5.12.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-all-server-8.1.0.v20120127.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://download.eclipse.org/jetty/8.1.0.v20120127/apidocs"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/jersey-bundle-1.11.jar"/>
-	<classpathentry kind="lib" path="lib/jersey-servlet-1.11.jar"/>
-	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-util-6.1.26.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-6.1.26.jar"/>
-	<classpathentry kind="lib" path="lib/javax.servlet-api-3.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/mockito-all-1.9.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-exec-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-core-asl-1.9.5.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.5.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-xc-1.9.5.jar"/>
-	<classpathentry kind="lib" path="lib/jsp-api-2.1-6.1.14.jar"/>
-	<classpathentry kind="lib" path="lib/asm-3.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-core-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-test-1.0.1.jar"/>
+	<classpathentry kind="lib" path="contrib/splunk-sdk/splunk.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.5.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-all-server-8.1.0.v20120127.jar"/>
+	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-asl-1.9.5.jar"/>
+	<classpathentry kind="lib" path="lib/mockito-all-1.9.0.jar"/>
+	<classpathentry kind="lib" path="lib/testng-6.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.1.2.jar"/>
 	<classpathentry kind="output" path="eclipse-bin"/>
 </classpath>
