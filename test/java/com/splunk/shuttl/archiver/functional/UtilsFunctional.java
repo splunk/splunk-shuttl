@@ -38,7 +38,7 @@ import com.splunk.shuttl.testutil.UtilsTestNG;
 /**
  * Util methods for functional archiver tests
  */
-public class UtilsArchiverFunctional {
+public class UtilsFunctional {
     /**
      * Uses the {@link BucketArchiverFactory#createDefaultArchiver()} to get its
      * {@link PathResolver} and retrieve the URI for the bucket as param.

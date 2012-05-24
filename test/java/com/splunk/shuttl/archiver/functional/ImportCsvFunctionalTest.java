@@ -53,7 +53,7 @@ public class ImportCsvFunctionalTest {
 
     @BeforeMethod
     public void setUp() throws IllegalIndexException {
-	localCsvArchiveConfigration = UtilsArchiverFunctional
+	localCsvArchiveConfigration = UtilsFunctional
 		.getLocalCsvArchiveConfigration();
 	SplunkSettings splunkSettings = mock(SplunkSettings.class);
 	thawDirectory = createTempDirectory();
@@ -89,7 +89,7 @@ public class ImportCsvFunctionalTest {
     }
 
     private void archiveBucketAsCsvWithExportToolThatNeedsSplunkHome(String splunkHome) {
-	UtilsArchiverFunctional.archiveBucket(realBucket, csvArchiver,
+	UtilsFunctional.archiveBucket(realBucket, csvArchiver,
 		splunkHome);
     }
 

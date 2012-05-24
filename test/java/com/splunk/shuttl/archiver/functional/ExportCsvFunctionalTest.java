@@ -48,7 +48,7 @@ public class ExportCsvFunctionalTest {
 
     @BeforeMethod
     public void setUp() {
-	ArchiveConfiguration csvConfig = UtilsArchiverFunctional
+	ArchiveConfiguration csvConfig = UtilsFunctional
 		.getLocalCsvArchiveConfigration();
 	ArchiveFileSystem localFileSystem = ArchiveFileSystemFactory
 		.getWithConfiguration(csvConfig);
@@ -76,7 +76,7 @@ public class ExportCsvFunctionalTest {
     @Parameters(value = { "splunk.home" })
     public void archiveBucketAsCsv_givenSplunkHomeAndBucketInSplunkBucketFormat_archivedAsCsvFormat(
 	    final String splunkHome) {
-	UtilsArchiverFunctional.archiveBucket(bucket, csvBucketArchiver,
+	UtilsFunctional.archiveBucket(bucket, csvBucketArchiver,
 		splunkHome);
 	verifyBucketWasArchivedAsCsv();
     }

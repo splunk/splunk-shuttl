@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.functional;
 
-import static com.splunk.shuttl.archiver.functional.UtilsArchiverFunctional.*;
+import static com.splunk.shuttl.archiver.functional.UtilsFunctional.*;
 import static com.splunk.shuttl.testutil.UtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;

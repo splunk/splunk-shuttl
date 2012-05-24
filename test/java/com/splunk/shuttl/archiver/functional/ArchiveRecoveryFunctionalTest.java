@@ -103,9 +103,9 @@ public class ArchiveRecoveryFunctionalTest {
 			    .getDirectory().getAbsolutePath());
 
 	    // Verify bucket archiving failed.
-	    URI firstBucketURI = UtilsArchiverFunctional
+	    URI firstBucketURI = UtilsFunctional
 		    .getHadoopArchivedBucketURI(firstFailingBucket);
-	    URI secondBucketURI = UtilsArchiverFunctional
+	    URI secondBucketURI = UtilsFunctional
 		    .getHadoopArchivedBucketURI(secondFailingBucket);
 	    assertFalse(hadoopFileSystem.exists(new Path(firstBucketURI)));
 	    assertFalse(hadoopFileSystem.exists(new Path(secondBucketURI)));
@@ -113,10 +113,10 @@ public class ArchiveRecoveryFunctionalTest {
 	    successfulBucketFreezerWithRecovery.freezeBucket(successfulBucket
 		    .getIndex(), successfulBucket.getDirectory()
 		    .getAbsolutePath());
-	    UtilsArchiverFunctional.waitForAsyncArchiving();
+	    UtilsFunctional.waitForAsyncArchiving();
 
 	    // Verification
-	    URI thirdBucketURI = UtilsArchiverFunctional
+	    URI thirdBucketURI = UtilsFunctional
 		    .getHadoopArchivedBucketURI(successfulBucket);
 	    assertTrue(hadoopFileSystem.exists(new Path(firstBucketURI)));
 	    assertTrue(hadoopFileSystem.exists(new Path(secondBucketURI)));
