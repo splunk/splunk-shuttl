@@ -43,10 +43,13 @@ public class UtilsFunctional {
      * Uses the {@link BucketArchiverFactory#createDefaultArchiver()} to get its
      * {@link PathResolver} and retrieve the URI for the bucket as param.
      * 
+     * @param config
+     * 
      * @return URI to archived bucket in hadoop.
      */
-    public static URI getHadoopArchivedBucketURI(Bucket bucket) {
-	return getRealPathResolver().resolveArchivePath(bucket);
+    public static URI getHadoopArchivedBucketURI(ArchiveConfiguration config,
+	    Bucket bucket) {
+	return new PathResolver(config).resolveArchivePath(bucket);
     }
 
     /**

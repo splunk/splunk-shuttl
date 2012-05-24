@@ -73,6 +73,12 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		logger.warn(did("Sent an archive bucket request",
 			"Got a null response", "A non-null response"));
 	    }
+	} catch (HttpResponseException e) {
+	    logger.error(did("Sent an archive bucket reuqest",
+		    "Got non ok http_status",
+		    "expected HttpStatus.SC_OK or SC_NO_CONTENT",
+		    "http_status", e.getStatusCode(), "bucket_name",
+		    bucket.getName()));
 	} catch (ClientProtocolException e) {
 	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
 	} catch (IOException e) {
@@ -117,11 +123,6 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	    }
 	    break;
 	default:
-	    logger.error(did("Sent an archive bucket reuqest",
-		    "Got non ok http_status",
-		    "expected HttpStatus.SC_OK or SC_NO_CONTENT",
-		    "http_status", statusCode, "bucket_name", bucket.getName(),
-		    "entity", entity));
 	    throw new HttpResponseException(statusCode,
 		    "Unexpected response when archiving bucket.");
 	}
