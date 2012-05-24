@@ -53,7 +53,7 @@ public class ThawFunctionalTest {
     @BeforeMethod
     public void setUp() throws IllegalIndexException {
 	thawIndex = "someIndex";
-	config = getTempLocalFileSystemConfiguration();
+	config = getLocalFileSystemConfiguration();
 	archiveFileSystem = ArchiveFileSystemFactory
 		.getWithConfiguration(config);
 	bucketArchiver = BucketArchiverFactory

@@ -93,7 +93,7 @@ public class UtilsFunctional {
      * @return archive configuration for archiving in a temporary folder on the
      *         local file system with normal {@link BucketFormat.SPLUNK_BUCKET}
      */
-    public static ArchiveConfiguration getTempLocalFileSystemConfiguration() {
+    public static ArchiveConfiguration getLocalFileSystemConfiguration() {
 	return getLocalFileSystemConfigurationWithFormat(BucketFormat.SPLUNK_BUCKET);
     }
 

@@ -14,65 +14,65 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.functional;
 
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
+import static com.splunk.shuttl.archiver.functional.UtilsFunctional.*;
+import static org.testng.AssertJUnit.*;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.BucketFreezer;
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
+import com.splunk.shuttl.archiver.archive.BucketArchiver;
+import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.ShellClassRunner;
 import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsMBean;
 
-@Test(enabled = false, groups = { "functional" })
+@Test(groups = { "functional" })
 public class ArchiverFunctionalTest {
 
-    private FileSystem fileSystem;
+    private ArchiveConfiguration config;
+    private BucketArchiver bucketArchiver;
+    private ArchiveFileSystem archiveFileSystem;
 
     @BeforeMethod(groups = { "functional" })
     public void setUp() throws IOException {
-	UtilsMBean.registerShuttlArchiverMBean();
-	// fileSystem = UtilsArchiverFunctional.getHadoopFileSystem();
+	config = getLocalFileSystemConfiguration();
+	archiveFileSystem = ArchiveFileSystemFactory
+		.getWithConfiguration(config);
+	bucketArchiver = BucketArchiverFactory
+		.createWithConfigurationAndArchiveFileSystem(config,
+			archiveFileSystem);
     }
 
     @AfterMethod
     public void tearDown() throws IOException {
-	FileUtils.deleteDirectory(getArchiverDirectory());
+	tearDownLocalConfig(config);
     }
 
-    public void Archiver_givenExistingBucket_archiveIt()
-	    throws InterruptedException, IOException {
-	// Setup
-	try {
-	    Bucket bucket = UtilsBucket.createTestBucket();
-	    File bucketDirectory = bucket.getDirectory();
+    public void Archiver_givenExistingBucket_archiveIt() throws IOException {
+	Bucket bucket = UtilsBucket.createTestBucket();
 
-	    // Test
-	    ShellClassRunner shellClassRunner = new ShellClassRunner();
-	    shellClassRunner.runClassAsync(BucketFreezer.class,
-		    bucket.getIndex(), bucketDirectory.getAbsolutePath());
-	    // new BucketArchiverRest.BucketArchiverRunner(
-	    // bucketDirectory.getAbsolutePath());
-	    int exitCode = shellClassRunner.getExitCode();
+	bucketArchiver.archiveBucket(bucket);
 
-	    UtilsFunctional.waitForAsyncArchiving();
+	verifyByListingBucketInArchiveFileSystem(bucket);
+    }
 
-	    // Verify
-	    // URI archivedUri = UtilsFunctional
-	    // .getHadoopArchivedBucketURI(bucket);
-	    // assertEquals(0, exitCode);
-	    // assertTrue(!bucketDirectory.exists());
-	    // assertTrue(fileSystem.exists(new Path(archivedUri)));
-	} finally {
-	    // UtilsArchiverFunctional.cleanArchivePathInHadoopFileSystem();
-	}
+    private void verifyByListingBucketInArchiveFileSystem(Bucket bucket)
+	    throws IOException {
+	URI bucketArchiveUri = bucketArchiver.getPathResolver()
+		.resolveArchivePath(bucket);
+	URI bucketParentUri = new Path(bucketArchiveUri).getParent().toUri();
+	List<URI> urisAtBucketsParent = archiveFileSystem
+		.listPath(bucketParentUri);
+	assertEquals(1, urisAtBucketsParent.size());
+	assertEquals(bucketArchiveUri, urisAtBucketsParent.get(0));
     }
 
 }
