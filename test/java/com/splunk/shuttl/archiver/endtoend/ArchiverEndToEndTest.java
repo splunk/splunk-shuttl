@@ -55,7 +55,7 @@ import com.splunk.shuttl.testutil.UtilsFile;
 import com.splunk.shuttl.testutil.UtilsMBean;
 import com.splunk.shuttl.testutil.UtilsTestNG;
 
-@Test(enabled = true, groups = { "end-to-end" })
+@Test(groups = { "end-to-end" })
 public class ArchiverEndToEndTest {
 
     File tempDirectory;
@@ -72,10 +72,10 @@ public class ArchiverEndToEndTest {
     @Parameters(value = { "splunk.username", "splunk.password", "splunk.host",
 	    "splunk.mgmtport", "hadoop.host", "hadoop.port", "shuttl.host",
 	    "shuttl.port" })
-    public void setUp(String splunkUserName, String splunkPw,
-	    String splunkHost, String splunkPort, String hadoopHost,
-	    String hadoopPort, String shuttlHost, String shuttlPort)
-	    throws Exception {
+    public void archiveBucketAndThawItBack(String splunkUserName,
+	    String splunkPw, String splunkHost, String splunkPort,
+	    String hadoopHost, String hadoopPort, String shuttlHost,
+	    String shuttlPort) throws Exception {
 	setUp(splunkUserName, splunkPw, splunkHost, splunkPort, shuttlHost,
 		shuttlPort);
 	archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket();
@@ -182,28 +182,6 @@ public class ArchiverEndToEndTest {
     private URI getThawEndpoint() {
 	return URI.create("http://" + shuttlHost + ":" + shuttlPort + "/"
 		+ ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_THAW);
-    }
-
-    private void Thawer_archivingBucketsInThreeDifferentTimeRanges_filterByOnlyOneOfTheTimeRanges()
-	    throws Exception {
-	Date earliest = new Date(1332295013);
-	Date latest = new Date(earliest.getTime() + 26);
-	for (int i = 0; i < 3; i++) {
-	    Date early = new Date(earliest.getTime() + i * 100);
-	    Date later = new Date(early.getTime() + 30);
-	    Bucket bucket = UtilsBucket.createBucketWithIndexAndTimeRange(
-		    thawIndex, early, later);
-	    successfulBucketFreezer.freezeBucket(bucket.getIndex(), bucket
-		    .getDirectory().getAbsolutePath());
-	    assertFalse(bucket.getDirectory().exists());
-	}
-	int bucketsInThawLocation = thawDirectoryLocation.listFiles().length;
-	assertEquals(0, bucketsInThawLocation);
-
-	callRestToThawBuckets(thawIndex, earliest, latest);
-	bucketsInThawLocation = thawDirectoryLocation.listFiles().length;
-	assertEquals(1, bucketsInThawLocation);
-	FileUtils.forceDelete(thawDirectoryLocation.listFiles()[0]);
     }
 
     private void tearDown(String hadoopHost, String hadoopPort) {

@@ -18,9 +18,11 @@ import static com.splunk.shuttl.testutil.UtilsFile.*;
 import static java.util.Arrays.*;
 import static org.testng.AssertJUnit.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
@@ -74,9 +76,6 @@ public class UtilsArchiverFunctional {
 	}
     }
 
-    /**
-     * 
-     */
     public static void waitForAsyncArchiving() {
 	try {
 	    Thread.sleep(500);
@@ -88,17 +87,29 @@ public class UtilsArchiverFunctional {
     }
 
     /**
-     * @return
+     * @return archive configuration for archiving in a temporary folder on the
+     *         local file system with normal {@link BucketFormat.SPLUNK_BUCKET}
+     */
+    public static ArchiveConfiguration getTempLocalFileSystemConfiguration() {
+	return getLocalFileSystemConfigurationWithFormat(BucketFormat.SPLUNK_BUCKET);
+    }
+
+    /**
+     * @return configuration configurated for using local file system and CSV
+     *         format for buckets.
      */
     public static ArchiveConfiguration getLocalCsvArchiveConfigration() {
+	BucketFormat bucketFormat = BucketFormat.CSV;
+	return getLocalFileSystemConfigurationWithFormat(bucketFormat);
+    }
+
+    private static ArchiveConfiguration getLocalFileSystemConfigurationWithFormat(
+	    BucketFormat bucketFormat) {
 	String archivePath = createTempDirectory().getAbsolutePath();
 	URI archivingRoot = URI.create("file:" + archivePath);
 	URI tmpDirectory = URI.create("file:/tmp");
-	BucketFormat bucketFormat = BucketFormat.CSV;
-	ArchiveConfiguration config = new ArchiveConfiguration(bucketFormat,
-		archivingRoot, "clusterName", "serverName",
-		asList(bucketFormat), tmpDirectory);
-	return config;
+	return new ArchiveConfiguration(bucketFormat, archivingRoot,
+		"clusterName", "serverName", asList(bucketFormat), tmpDirectory);
     }
 
     /**
@@ -126,5 +137,14 @@ public class UtilsArchiverFunctional {
 		bucketArchiver.archiveBucket(bucket);
 	    }
 	});
+    }
+
+    /**
+     * Delete archiving and temp directory of a config that's configured to
+     * archive on the local file system.
+     */
+    public static void tearDownLocalConfig(ArchiveConfiguration config) {
+	FileUtils.deleteQuietly(new File(config.getArchivingRoot()));
+	FileUtils.deleteQuietly(new File(config.getTmpDirectory()));
     }
 }
