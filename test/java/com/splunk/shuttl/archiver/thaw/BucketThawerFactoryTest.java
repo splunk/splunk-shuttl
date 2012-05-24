@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.testutil.UtilsMBean;
 
 public class BucketThawerFactoryTest {
@@ -33,7 +32,7 @@ public class BucketThawerFactoryTest {
 	assertEquals(0, method.getParameterTypes().length);
     }
 
-    @Test(groups = { "functional" })
+    @Test(groups = { "end-to-end" })
     public void createDefaultThawer_realConfigurationWithSplunk_notNull()
 	    throws Exception {
 	UtilsMBean.registerShuttlArchiverMBean();

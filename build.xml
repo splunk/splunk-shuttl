@@ -216,14 +216,15 @@
 
 	<!-- run test via testNG -->
 	<taskdef resource="testngtasks" classpath="${libdir}/${testng.jar}" />
+
 	<target name="test" depends="clean-built-classes-then-compile">
 		<antcall target="fast-unit-tests" />
 		<antcall target="slow-unit-tests" />
+		<antcall target="functional-tests" />
 	</target>
 
 	<target name="test-all" depends="clean-built-classes-then-compile">
 		<antcall target="test" />
-		<antcall target="functional-tests" />
 		<antcall target="end-to-end-tests" />
 	</target>
 

@@ -38,7 +38,7 @@ import com.splunk.shuttl.archiver.thaw.BucketFormatChooser;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
 import com.splunk.shuttl.testutil.UtilsBucket;
 
-@Test(enabled = true, groups = { "functional" })
+@Test(groups = { "functional" })
 public class ExportCsvFunctionalTest {
 
     private BucketArchiver csvBucketArchiver;

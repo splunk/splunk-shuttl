@@ -21,10 +21,6 @@ import java.net.URI;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.fileSystem.UnsupportedUriException;
-
 public class ArchiveFileSystemFactoryTest {
 
     @Test(groups = { "fast-unit" })
@@ -47,7 +43,7 @@ public class ArchiveFileSystemFactoryTest {
 	assertNotNull(fileSystem);
     }
 
-    @Test(groups = { "functional" })
+    @Test(groups = { "end-to-end" })
     @Parameters({ "hadoop.host", "hadoop.port" })
     public void getForUriToTmpDir_givenHdfsUri_nonNullFileSystem(String host,
 	    String port) {
