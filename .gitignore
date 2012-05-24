@@ -1,4 +1,6 @@
-consolesink.log
+# Logs
+/shuttl.log
+/consolesink.log
 
 # Mac Noise
 .DS_Store
