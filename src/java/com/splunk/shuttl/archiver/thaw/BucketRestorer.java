@@ -23,13 +23,36 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketRestorer {
 
+    private final CsvImporter csvImporter;
+
+    /**
+     * @param csvImporter
+     *            to import buckets from CSV to SPLUNK_BUCKET.
+     */
+    public BucketRestorer(CsvImporter csvImporter) {
+	this.csvImporter = csvImporter;
+    }
+
     /**
      * @param bucket
      *            to restore to {@link BucketFormat#SPLUNK_BUCKET}.
      * @return
      */
     public Bucket restoreToSplunkBucketFormat(Bucket bucket) {
-	return bucket;
+	if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)) {
+	    return bucket;
+	} else if (bucket.getFormat().equals(BucketFormat.CSV)) {
+	    return csvImporter.importBucketFromCsv(bucket);
+	} else {
+	    throw new UnsupportedOperationException();
+	}
+    }
+
+    /**
+     * Convenience method for creating an instance.
+     */
+    public static BucketRestorer create() {
+	return new BucketRestorer(new CsvImporter());
     }
 
 }

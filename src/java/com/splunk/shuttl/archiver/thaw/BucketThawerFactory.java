@@ -49,7 +49,7 @@ public class BucketThawerFactory {
 		archiveFileSystem, splunkSettings);
 	return new BucketThawer(bucketsLister, bucketFilter,
 		bucketFormatResolver, thawBucketTransferer,
-		new BucketRestorer());
+		BucketRestorer.create());
     }
 
     private static ArchiveBucketsLister bucketLister(
