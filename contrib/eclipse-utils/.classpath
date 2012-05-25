@@ -7,6 +7,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.3.jar"/>
+        <classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+        <classpathentry kind="lib" path="lib/commons-configuration-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-core-@HADOOP.VERSION@.jar"/>
 	<classpathentry kind="lib" path="contrib/splunk-sdk/splunk.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.5.jar"/>
