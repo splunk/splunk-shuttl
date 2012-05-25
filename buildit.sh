@@ -14,6 +14,12 @@
 # See the License for the specific language governing permissions and                                  
 # limitations under the License.
 
-. setjavaenv
-ant 
+export SHUTTLDIR=$(dirname $0)
 
+## Setup ant
+export ANT_HOME="$SHUTTLDIR/contrib/apache-ant-1.8.2"
+
+# Setting our ant before everyone elses.
+export PATH="$ANT_HOME/bin:$PATH"
+
+ant
