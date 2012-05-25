@@ -5,10 +5,14 @@
 	<parameter name="splunk.password" value="changeme" />
 	<parameter name="splunk.host" value="localhost" />
 	<parameter name="splunk.mgmtport" value="8089" />
+	<parameter name="hadoop.host" value="localhost" />
+	<parameter name="hadoop.port" value="9000" />
+	<parameter name="shuttl.host" value="localhost" />
+	<parameter name="shuttl.port" value="9090" />
 
 	<test name="Test" preserve-order="true">
 		<classes>
-			<class name="com.splunk.shuttl.archiver.fileSystem.HadoopFileSystemArchiveTest" />
+			<class name="com.splunk.shuttl.archiver.endtoend.ArchiverEndToEndTest" />
 		</classes>
 	</test> <!-- Test -->
 </suite> <!-- Suite -->
