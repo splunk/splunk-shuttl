@@ -1,5 +1,3 @@
-// Splunk2Flume.java
-//
 // Copyright (C) 2011 Splunk Inc.
 //
 // Splunk Inc. licenses this file
