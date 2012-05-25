@@ -26,7 +26,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -34,18 +33,6 @@ import com.splunk.shuttl.ShuttlConstants;
 
 @Test(groups = { "end-to-end" })
 public class ShuttlServerRestTest {
-
-    @BeforeClass(groups = { "end-to-end" })
-    public void setUpClient() {
-	waitForServerToStart();
-    }
-
-    private void waitForServerToStart() {
-	try {
-	    Thread.sleep(3000);
-	} catch (InterruptedException e) {
-	}
-    }
 
     @Parameters(value = { "shuttl.host", "shuttl.port" })
     public void getDefaultHost(String shuttlHost, String shuttlPort)
