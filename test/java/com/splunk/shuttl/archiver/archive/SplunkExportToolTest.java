@@ -24,8 +24,6 @@ import java.util.Map;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.SplunkEnrivonmentNotSetException;
-import com.splunk.shuttl.archiver.archive.SplunkExportTool;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
 @Test(groups = { "fast-unit" })
@@ -39,7 +37,7 @@ public class SplunkExportToolTest {
     }
 
     @Test(expectedExceptions = { SplunkEnrivonmentNotSetException.class })
-    public void getExecutableFile_noSplunkHomeEnvironmentSet_returnBucketAndLogWarning() {
+    public void getExecutableCommand_noSplunkHomeEnvironmentSet_thrownException() {
 	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
@@ -77,6 +75,17 @@ public class SplunkExportToolTest {
 		Map<String, String> keyValue = splunkExportTool
 			.getEnvironmentVariables();
 		assertEquals("/splunk/home", keyValue.get("SPLUNK_HOME"));
+	    }
+	});
+    }
+
+    @Test(expectedExceptions = { SplunkEnrivonmentNotSetException.class })
+    public void getEnvironmentVariables_splunkHomeIsNotSet_throwsException() {
+	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+	    @Override
+	    public void run() {
+		splunkExportTool.getEnvironmentVariables();
 	    }
 	});
     }

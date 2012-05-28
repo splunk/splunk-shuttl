@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
@@ -78,25 +77,6 @@ public class CsvImporterTest {
 
 	csvImporter.importBucketFromCsv(csvBucket);
 	assertFalse(csvFile.exists());
-    }
-
-    @Test(groups = { "functional" }, enabled = false)
-    @Parameters(value = { "splunk.home" })
-    public void _givenSplunkHomeAndRealData_createSplunkBucketFromImport(
-	    String splunkHome) {
-	SplunkImportTool importTool = new SplunkImportTool(splunkHome);
-	ShellExecutor shellExecutor = new ShellExecutor(Runtime.getRuntime());
-	CsvImporter integratedCsvImporter = new CsvImporter(importTool,
-		shellExecutor);
-	Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
-	Bucket importedBucket = integratedCsvImporter
-		.importBucketFromCsv(csvBucket);
-	assertEquals(BucketFormat.SPLUNK_BUCKET, importedBucket.getFormat());
-	assertEquals(csvBucket.getName(), importedBucket.getName());
-	assertEquals(csvBucket.getDirectory(), importedBucket.getDirectory());
-	assertEquals(csvBucket.getIndex(), importedBucket.getIndex());
-	assertEquals(csvBucket.getLatest(), importedBucket.getLatest());
-	assertEquals(csvBucket.getEarliest(), importedBucket.getEarliest());
     }
 
     @SuppressWarnings("unchecked")

@@ -63,7 +63,7 @@ public class CsvImporter {
 	String[] importCommand = createCommandForImportingBucket(bucket);
 	int exit = executeImportCommand(importCommand);
 	deleteCsvFileOnSuccessfulImport(bucket, exit);
-	return null;
+	return createNewBucket(bucket);
     }
 
     private int executeImportCommand(String[] fullCommand) {
@@ -100,11 +100,20 @@ public class CsvImporter {
 	return csvBucket.getFormat().equals(BucketFormat.CSV);
     }
 
+    private Bucket createNewBucket(Bucket bucket) {
+	try {
+	    return new Bucket(bucket.getIndex(), bucket.getDirectory());
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    throw new RuntimeException(e);
+	}
+    }
+
     /**
      * @return {@link CsvImporter} with default construction logic.
      */
     public static CsvImporter create() {
-	return new CsvImporter(SplunkImportTool.create(), new ShellExecutor(
+	return new CsvImporter(new SplunkImportTool(), new ShellExecutor(
 		Runtime.getRuntime()));
     }
 

@@ -17,10 +17,11 @@ package com.splunk.shuttl.archiver.archive;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+
+import com.splunk.shuttl.archiver.util.SplunkEnvironment;
 
 /**
  * Calls Splunk's exporttool for exporting a bucket to a new format. I.e. csv
@@ -31,28 +32,20 @@ public class SplunkExportTool {
 	    .getLogger(SplunkExportTool.class);
 
     /**
-     * @return the exporttool file.
+     * @return command to execute the export tool.
      */
     public String getExecutableCommand() {
-	if (isSplunkHomeEnvironmentSet()) {
-	    return new File(getSplunkHome(), "/bin/exporttool")
-		    .getAbsolutePath();
+	if (SplunkEnvironment.isSplunkHomeSet()) {
+	    return getPathToExecutableExportTool();
 	} else {
 	    logWarningAboutNotExportingTheBucket();
 	    throw new SplunkEnrivonmentNotSetException();
 	}
     }
 
-    /**
-     * @return true if $SPLUNK_HOME enviroment variable is set. It's needed to
-     *         locate the exporttool.
-     */
-    private boolean isSplunkHomeEnvironmentSet() {
-	return getSplunkHome() != null;
-    }
-
-    private String getSplunkHome() {
-	return System.getenv("SPLUNK_HOME");
+    private String getPathToExecutableExportTool() {
+	return new File(SplunkEnvironment.getSplunkHome(), "/bin/exporttool")
+		.getAbsolutePath();
     }
 
     private void logWarningAboutNotExportingTheBucket() {
@@ -61,12 +54,14 @@ public class SplunkExportTool {
     }
 
     /**
-     * @return
+     * @return environment variables to run export tool.
      */
     public Map<String, String> getEnvironmentVariables() {
-	Map<String, String> environmentVars = new HashMap<String, String>();
-	environmentVars.put("SPLUNK_HOME", getSplunkHome());
-	return environmentVars;
+	if (SplunkEnvironment.isSplunkHomeSet()) {
+	    return SplunkEnvironment.getEnvironment();
+	} else {
+	    throw new SplunkEnrivonmentNotSetException();
+	}
     }
 
 }

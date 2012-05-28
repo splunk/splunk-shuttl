@@ -16,37 +16,34 @@ package com.splunk.shuttl.archiver.thaw;
 
 import java.util.Map;
 
+import com.splunk.shuttl.archiver.archive.SplunkEnrivonmentNotSetException;
+import com.splunk.shuttl.archiver.util.SplunkEnvironment;
+
 /**
  * Class to represent the import tool in Splunk's bin directory.
  */
 public class SplunkImportTool {
 
     /**
-     * @param splunkHome
-     */
-    public SplunkImportTool(String splunkHome) {
-	// TODO Auto-generated constructor stub
-    }
-
-    /**
      * @return command for executing Splunk import tool.
      */
     public String getExecutableCommand() {
-	throw new UnsupportedOperationException();
+	if (!SplunkEnvironment.isSplunkHomeSet()) {
+	    throw new SplunkEnrivonmentNotSetException();
+	} else {
+	    return getPathToImportTool();
+	}
+    }
+
+    private String getPathToImportTool() {
+	return SplunkEnvironment.getSplunkHome() + "/bin/importtool";
     }
 
     /**
      * @return the environment needed to run the command.
      */
     public Map<String, String> getEnvironment() {
-	throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @return
-     */
-    public static SplunkImportTool create() {
-	return null;
+	return SplunkEnvironment.getEnvironment();
     }
 
 }
