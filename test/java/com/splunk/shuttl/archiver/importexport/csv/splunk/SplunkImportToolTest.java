@@ -12,7 +12,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.thaw;
+package com.splunk.shuttl.archiver.importexport.csv.splunk;
+
+import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkImportTool;
+import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkTool;
+
 
 public class SplunkImportToolTest extends SplunkToolTest {
 

@@ -12,16 +12,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.thaw;
+package com.splunk.shuttl.archiver.importexport;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.importexport.csv.CsvImporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
  * Restores a {@link Bucket} that's in any {@link BucketFormat} to
  * {@link BucketFormat#SPLUNK_BUCKET}.
  */
-public class BucketRestorer {
+public class BucketImporter {
 
     private final CsvImporter csvImporter;
 
@@ -29,7 +30,7 @@ public class BucketRestorer {
      * @param csvImporter
      *            to import buckets from CSV to SPLUNK_BUCKET.
      */
-    public BucketRestorer(CsvImporter csvImporter) {
+    public BucketImporter(CsvImporter csvImporter) {
 	this.csvImporter = csvImporter;
     }
 
@@ -51,8 +52,8 @@ public class BucketRestorer {
     /**
      * Convenience method for creating an instance.
      */
-    public static BucketRestorer create() {
-	return new BucketRestorer(CsvImporter.create());
+    public static BucketImporter create() {
+	return new BucketImporter(CsvImporter.create());
     }
 
 }

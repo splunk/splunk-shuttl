@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shuttl.archiver.archive;
+package com.splunk.shuttl.archiver.importexport;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Mockito.*;
@@ -24,11 +24,11 @@ import java.io.File;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.BucketExporter;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.archive.CsvBucketCreator;
-import com.splunk.shuttl.archiver.archive.CsvExporter;
 import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
+import com.splunk.shuttl.archiver.importexport.BucketExporter;
+import com.splunk.shuttl.archiver.importexport.csv.CsvBucketCreator;
+import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 

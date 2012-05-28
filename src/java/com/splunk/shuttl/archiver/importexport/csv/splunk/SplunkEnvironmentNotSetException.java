@@ -12,14 +12,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.util;
-
-import com.splunk.shuttl.archiver.model.Bucket;
+package com.splunk.shuttl.archiver.importexport.csv.splunk;
 
 /**
- * Expected csv file was not found in a {@link Bucket}.
+ * Exception thrown when Splunk Environment is not entirely set up. I.e.
+ * $SPLUNK_HOME.
  */
-public class NoCsvFileFoundException extends RuntimeException {
+public class SplunkEnvironmentNotSetException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 

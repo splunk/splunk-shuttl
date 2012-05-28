@@ -26,11 +26,11 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
-import com.splunk.shuttl.archiver.thaw.BucketRestorer;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.ThawBucketTransferer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -44,7 +44,7 @@ public class BucketThawerTest {
     ArchiveBucketsLister archiveBucketsLister;
     BucketFormatResolver bucketFormatResolver;
     ThawBucketTransferer thawBucketTransferer;
-    BucketRestorer bucketRestorer;
+    BucketImporter bucketImporter;
 
     String index;
     Date latestTime;
@@ -61,9 +61,9 @@ public class BucketThawerTest {
 	bucketFilter = mock(BucketFilter.class);
 	bucketFormatResolver = mock(BucketFormatResolver.class);
 	thawBucketTransferer = mock(ThawBucketTransferer.class);
-	bucketRestorer = mock(BucketRestorer.class);
+	bucketImporter = mock(BucketImporter.class);
 	bucketThawer = new BucketThawer(archiveBucketsLister, bucketFilter,
-		bucketFormatResolver, thawBucketTransferer, bucketRestorer);
+		bucketFormatResolver, thawBucketTransferer, bucketImporter);
 	index = "index";
     }
 
@@ -114,7 +114,7 @@ public class BucketThawerTest {
 	Bucket bucket = TUtilsBucket.createTestBucket();
 	stubFilteredBucketsWithFormat(bucket);
 	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verify(bucketRestorer).restoreToSplunkBucketFormat(bucket);
+	verify(bucketImporter).restoreToSplunkBucketFormat(bucket);
     }
 
     public void thawBuckets_whenTransferBucketsFailToThaw_doesNotRestoreFailedBucket()
@@ -125,7 +125,7 @@ public class BucketThawerTest {
 	doThrow(new IOException()).when(thawBucketTransferer)
 		.transferBucketToThaw(any(Bucket.class));
 	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verifyZeroInteractions(bucketRestorer);
+	verifyZeroInteractions(bucketImporter);
     }
 
     private void stubFilteredBucketsWithFormat(Bucket... bucket) {

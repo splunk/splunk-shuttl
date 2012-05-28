@@ -19,6 +19,7 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 
@@ -49,7 +50,7 @@ public class BucketThawerFactory {
 		archiveFileSystem, splunkSettings);
 	return new BucketThawer(bucketsLister, bucketFilter,
 		bucketFormatResolver, thawBucketTransferer,
-		BucketRestorer.create());
+		BucketImporter.create());
     }
 
     private static ArchiveBucketsLister bucketLister(

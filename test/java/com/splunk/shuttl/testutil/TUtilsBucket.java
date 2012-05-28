@@ -27,8 +27,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.testng.AssertJUnit;
 
-import com.splunk.shuttl.archiver.archive.BucketExporterIntegrationTest;
-import com.splunk.shuttl.archiver.archive.CsvBucketCreator;
+import com.splunk.shuttl.archiver.importexport.BucketExporterIntegrationTest;
+import com.splunk.shuttl.archiver.importexport.csv.CsvBucketCreator;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.util.UtilsBucket;

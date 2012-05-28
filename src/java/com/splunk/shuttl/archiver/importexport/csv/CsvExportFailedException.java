@@ -12,16 +12,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.thaw;
+package com.splunk.shuttl.archiver.importexport.csv;
 
 /**
- * Class to represent the import tool in Splunk's bin directory.
+ * Exception for when a bucket csv export fails.
  */
-public class SplunkImportTool extends SplunkTool {
+public class CsvExportFailedException extends RuntimeException {
 
-    @Override
-    public String getToolName() {
-	return "importtool";
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * @param string
+     */
+    public CsvExportFailedException(String string) {
+	super(string);
     }
 
 }

@@ -12,31 +12,16 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.archive;
-
-import java.io.File;
-
-import com.splunk.shuttl.archiver.model.Bucket;
+package com.splunk.shuttl.archiver.importexport.csv.splunk;
 
 /**
- * Class for getting a .csv file that's unique for a bucket.
+ * Class to represent the import tool in Splunk's bin directory.
  */
-public class GetsBucketsCsvFile {
+public class SplunkImportTool extends SplunkTool {
 
-    private final File csvDirectory;
-
-    public GetsBucketsCsvFile(File csvDirectory) {
-	this.csvDirectory = csvDirectory;
+    @Override
+    public String getToolName() {
+	return "importtool";
     }
 
-    /**
-     * @return not yet existing .csv file unique for the {@link Bucket}
-     */
-    public File getCsvFile(Bucket bucket) {
-	File file = new File(csvDirectory, bucket.getName() + ".csv");
-	if (file.exists()) {
-	    file.delete();
-	}
-	return file;
-    }
 }

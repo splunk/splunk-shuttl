@@ -12,12 +12,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.util;
+package com.splunk.shuttl.archiver.importexport.csv.splunk;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.splunk.shuttl.archiver.archive.SplunkEnrivonmentNotSetException;
 
 /**
  * Methods for verifying that Splunk's environment is set.
@@ -38,7 +37,7 @@ public class SplunkEnvironment {
 
     private static void throwExceptionIfSplunkHomeIsNotSet() {
 	if (!isSplunkHomeSet()) {
-	    throw new SplunkEnrivonmentNotSetException();
+	    throw new SplunkEnvironmentNotSetException();
 	}
     }
 

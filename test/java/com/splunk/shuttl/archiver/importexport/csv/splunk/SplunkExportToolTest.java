@@ -9,21 +9,22 @@
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.m
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.archive;
+package com.splunk.shuttl.archiver.importexport.csv.splunk;
 
-import com.splunk.shuttl.archiver.thaw.SplunkTool;
+import org.testng.annotations.Test;
 
-/**
- * Calls Splunk's exporttool for exporting a bucket to a new format. I.e. csv
- */
-public class SplunkExportTool extends SplunkTool {
+import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkExportTool;
+import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkTool;
+
+
+@Test(groups = { "fast-unit" })
+public class SplunkExportToolTest extends SplunkToolTest {
 
     @Override
-    public String getToolName() {
-	return "exporttool";
+    protected SplunkTool getInstance() {
+	return new SplunkExportTool();
     }
-
 }

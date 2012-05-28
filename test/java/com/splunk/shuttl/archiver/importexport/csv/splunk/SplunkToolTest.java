@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.thaw;
+package com.splunk.shuttl.archiver.importexport.csv.splunk;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
@@ -22,8 +22,9 @@ import java.io.File;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.SplunkEnrivonmentNotSetException;
-import com.splunk.shuttl.archiver.util.SplunkEnvironment;
+import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkEnvironment;
+import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkEnvironmentNotSetException;
+import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkTool;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
 @Test(groups = { "fast-unit" })
@@ -56,7 +57,7 @@ public abstract class SplunkToolTest {
 	});
     }
 
-    @Test(expectedExceptions = { SplunkEnrivonmentNotSetException.class })
+    @Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
     public void getExecutableCommand_splunkHomeIsNotSet_throwException() {
 	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
@@ -81,7 +82,7 @@ public abstract class SplunkToolTest {
 	});
     }
 
-    @Test(expectedExceptions = { SplunkEnrivonmentNotSetException.class })
+    @Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
     public void getEnvironment_default_getsAllTheSplunkEnvironments() {
 	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 

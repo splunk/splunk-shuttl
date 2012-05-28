@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.archive;
+package com.splunk.shuttl.archiver.importexport.csv;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.apache.commons.io.FilenameUtils.*;
@@ -27,8 +27,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.archive.CsvBucketCreator;
-import com.splunk.shuttl.archiver.archive.CsvFileNotFoundException;
+import com.splunk.shuttl.archiver.importexport.csv.CsvBucketCreator;
+import com.splunk.shuttl.archiver.importexport.csv.CsvFileNotFoundException;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 

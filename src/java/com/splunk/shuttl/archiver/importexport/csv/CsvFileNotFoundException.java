@@ -12,11 +12,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.thaw;
+package com.splunk.shuttl.archiver.importexport.csv;
 
 /**
- *
+ * Csv file did not exist.
  */
-public class LocatesSplunkTools {
+public class CsvFileNotFoundException extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    public CsvFileNotFoundException(String string) {
+	super(string);
+    }
 
 }

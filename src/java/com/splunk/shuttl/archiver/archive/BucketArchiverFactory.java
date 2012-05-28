@@ -16,6 +16,7 @@ package com.splunk.shuttl.archiver.archive;
 
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.importexport.BucketExporter;
 
 /**
  * Construction code for creating BucketArchivers that archives in different

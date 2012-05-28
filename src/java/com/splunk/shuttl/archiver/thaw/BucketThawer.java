@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.fileSystem.FileOverwriteException;
+import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
@@ -39,7 +40,7 @@ public class BucketThawer {
     private final BucketFilter bucketFilter;
     private final BucketFormatResolver bucketFormatResolver;
     private final ThawBucketTransferer thawBucketTransferer;
-    private final BucketRestorer bucketRestorer;
+    private final BucketImporter bucketImporter;
 
     public static class ThawInfo {
 
@@ -87,18 +88,18 @@ public class BucketThawer {
      *            to resolve the format to thaw for the bucket.
      * @param thawBucketTransferer
      *            for transferring the buckets to thawed.
-     * @param bucketRestorer
+     * @param bucketImporter
      */
     public BucketThawer(ArchiveBucketsLister bucketsLister,
 	    BucketFilter bucketFilter,
 	    BucketFormatResolver bucketFormatResolver,
 	    ThawBucketTransferer thawBucketTransferer,
-	    BucketRestorer bucketRestorer) {
+	    BucketImporter bucketImporter) {
 	this.archiveBucketsLister = bucketsLister;
 	this.bucketFilter = bucketFilter;
 	this.bucketFormatResolver = bucketFormatResolver;
 	this.thawBucketTransferer = thawBucketTransferer;
-	this.bucketRestorer = bucketRestorer;
+	this.bucketImporter = bucketImporter;
     }
 
     /**
@@ -141,7 +142,7 @@ public class BucketThawer {
 	ThawInfo thawInfo = null;
 	try {
 	    thawBucketTransferer.transferBucketToThaw(bucket);
-	    Bucket thawedBucket = bucketRestorer
+	    Bucket thawedBucket = bucketImporter
 		    .restoreToSplunkBucketFormat(bucket);
 	    logger.info(done("Thawed bucket", "bucket", bucket));
 	    thawInfo = new ThawInfo(bucket, ThawInfo.Status.THAWED, null);

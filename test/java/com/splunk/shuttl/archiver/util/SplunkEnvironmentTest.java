@@ -23,7 +23,8 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.SplunkEnrivonmentNotSetException;
+import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkEnvironment;
+import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkEnvironmentNotSetException;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
 @Test(groups = { "fast-unit" })
@@ -46,7 +47,7 @@ public class SplunkEnvironmentTest {
 	});
     }
 
-    @Test(expectedExceptions = { SplunkEnrivonmentNotSetException.class })
+    @Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
     public void getSplunkHome_noSplunkHomeEnvironmentSet_thrownException() {
 	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
@@ -71,7 +72,7 @@ public class SplunkEnvironmentTest {
 	});
     }
 
-    @Test(expectedExceptions = { SplunkEnrivonmentNotSetException.class })
+    @Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
     public void getEnvironmentVariables_splunkHomeIsNotSet_throwsException() {
 	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 

@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.thaw;
+package com.splunk.shuttl.archiver.importexport;
 
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -21,26 +21,28 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.importexport.BucketImporter;
+import com.splunk.shuttl.archiver.importexport.csv.CsvImporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
-public class BucketRestorerTest {
+public class BucketImporterTest {
 
-    private BucketRestorer bucketRestorer;
+    private BucketImporter bucketImporter;
     private CsvImporter csvImporter;
 
     @BeforeMethod
     public void setUp() {
 	csvImporter = mock(CsvImporter.class);
-	bucketRestorer = new BucketRestorer(csvImporter);
+	bucketImporter = new BucketImporter(csvImporter);
     }
 
     @Test(groups = { "fast-unit" })
     public void _bucketInSplunkBucketFormat_sameBucket() {
 	Bucket bucket = TUtilsBucket.createTestBucket();
 	assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
-	Bucket restoredBucket = bucketRestorer
+	Bucket restoredBucket = bucketImporter
 		.restoreToSplunkBucketFormat(bucket);
 	assertTrue(restoredBucket == bucket);
     }
@@ -50,7 +52,7 @@ public class BucketRestorerTest {
 	Bucket importedBucket = mock(Bucket.class);
 	when(csvImporter.importBucketFromCsv(realCsvBucket)).thenReturn(
 		importedBucket);
-	Bucket restoredBucket = bucketRestorer
+	Bucket restoredBucket = bucketImporter
 		.restoreToSplunkBucketFormat(realCsvBucket);
 	assertEquals(importedBucket, restoredBucket);
     }
@@ -59,7 +61,7 @@ public class BucketRestorerTest {
     public void _bucketInUnknownFormat_throwsUnsupportedOperationException() {
 	Bucket unknownBucket = mock(Bucket.class);
 	when(unknownBucket.getFormat()).thenReturn(BucketFormat.UNKNOWN);
-	bucketRestorer.restoreToSplunkBucketFormat(unknownBucket);
+	bucketImporter.restoreToSplunkBucketFormat(unknownBucket);
     }
 
 }
