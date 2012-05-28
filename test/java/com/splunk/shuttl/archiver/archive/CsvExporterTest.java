@@ -27,7 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.BucketCsvFile;
+import com.splunk.shuttl.archiver.archive.GetsBucketsCsvFile;
 import com.splunk.shuttl.archiver.archive.CsvExportFailedException;
 import com.splunk.shuttl.archiver.archive.CsvExporter;
 import com.splunk.shuttl.archiver.archive.ShellExecutor;
@@ -40,7 +40,7 @@ public class CsvExporterTest {
 
     private CsvExporter csvExporter;
     private SplunkExportTool exportTool;
-    private BucketCsvFile bucketCsvFile;
+    private GetsBucketsCsvFile getsBucketsCsvFile;
     private Bucket bucket;
     private ShellExecutor shellExecutor;
     private Map<String, String> emptyMap;
@@ -48,9 +48,9 @@ public class CsvExporterTest {
     @BeforeMethod
     public void setUp() {
 	exportTool = mock(SplunkExportTool.class);
-	bucketCsvFile = mock(BucketCsvFile.class);
+	getsBucketsCsvFile = mock(GetsBucketsCsvFile.class);
 	shellExecutor = mock(ShellExecutor.class);
-	csvExporter = new CsvExporter(exportTool, bucketCsvFile, shellExecutor);
+	csvExporter = new CsvExporter(exportTool, getsBucketsCsvFile, shellExecutor);
 
 	bucket = UtilsBucket.createTestBucket();
 	emptyMap = Collections.<String, String> emptyMap();
@@ -60,7 +60,7 @@ public class CsvExporterTest {
 	    throws IOException {
 	when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
 	when(exportTool.getEnvironmentVariables()).thenReturn(emptyMap);
-	when(bucketCsvFile.getCsvFile(bucket)).thenReturn(createTestFile());
+	when(getsBucketsCsvFile.getCsvFile(bucket)).thenReturn(createTestFile());
 	String bucketPath = bucket.getDirectory().getAbsolutePath();
 
 	String[] command = new String[] { "/exporttool/path", bucketPath,
@@ -78,7 +78,7 @@ public class CsvExporterTest {
 		.thenReturn(1);
 
 	when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
-	when(bucketCsvFile.getCsvFile(bucket)).thenReturn(
+	when(getsBucketsCsvFile.getCsvFile(bucket)).thenReturn(
 		new File("/dummy/file"));
 	csvExporter.exportBucketToCsv(bucket);
     }
@@ -87,7 +87,7 @@ public class CsvExporterTest {
     @Test(groups = { "fast-unit" }, expectedExceptions = { CsvExportFailedException.class })
     public void exportBucketToCsv_csvFileDoesNotExistAfterExport_throwCsvExportFailedException() {
 	File nonExistantCsvFile = createTestFile();
-	when(bucketCsvFile.getCsvFile(bucket)).thenReturn(nonExistantCsvFile);
+	when(getsBucketsCsvFile.getCsvFile(bucket)).thenReturn(nonExistantCsvFile);
 
 	when(shellExecutor.executeCommand(anyMap(), (String[]) anyObject()))
 		.thenReturn(0);

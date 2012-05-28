@@ -25,21 +25,21 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.BucketCsvFile;
+import com.splunk.shuttl.archiver.archive.GetsBucketsCsvFile;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.UtilsBucket;
 
 @Test(groups = { "fast-unit" })
-public class BucketCsvFileTest {
+public class GetsBucketsCsvFileTest {
 
     private File csvDirectory;
-    private BucketCsvFile bucketCsvFile;
+    private GetsBucketsCsvFile getsBucketsCsvFile;
     private Bucket bucket;
 
     @BeforeMethod
     public void setUp() {
 	csvDirectory = createTempDirectory();
-	bucketCsvFile = new BucketCsvFile(csvDirectory);
+	getsBucketsCsvFile = new GetsBucketsCsvFile(csvDirectory);
 	bucket = UtilsBucket.createTestBucket();
     }
 
@@ -50,29 +50,29 @@ public class BucketCsvFileTest {
 
     @Test(groups = { "fast-unit" })
     public void getCsvOuputFileFromBucket_givenCsvDirectory_createsFileInTheDirectory() {
-	File csvFile = bucketCsvFile.getCsvFile(bucket);
+	File csvFile = getsBucketsCsvFile.getCsvFile(bucket);
 	assertEquals(csvDirectory, csvFile.getParentFile());
     }
 
     public void getCsvOutputFileFromBucket_givenBucket_containsBucketNameForUniquness() {
-	File csvFile = bucketCsvFile.getCsvFile(bucket);
+	File csvFile = getsBucketsCsvFile.getCsvFile(bucket);
 	assertTrue(csvFile.getName().contains(bucket.getName()));
     }
 
     public void getCsvOuputFileFromBucket_givenBucket_hasCsvExtension() {
-	File csvFile = bucketCsvFile.getCsvFile(bucket);
+	File csvFile = getsBucketsCsvFile.getCsvFile(bucket);
 	assertTrue(csvFile.getName().endsWith(".csv"));
     }
 
     public void getCsvOuputFileFromBucket_givenBucket_doesNotExist() {
-	assertFalse(bucketCsvFile.getCsvFile(bucket).exists());
+	assertFalse(getsBucketsCsvFile.getCsvFile(bucket).exists());
     }
 
     public void getCsvOutputFileFromBucket_givenFileAlreadyExists_doesNotExist()
 	    throws IOException {
-	File csvFile = bucketCsvFile.getCsvFile(bucket);
+	File csvFile = getsBucketsCsvFile.getCsvFile(bucket);
 	assertTrue(csvFile.createNewFile());
-	File csvFile2 = bucketCsvFile.getCsvFile(bucket);
+	File csvFile2 = getsBucketsCsvFile.getCsvFile(bucket);
 	assertFalse(csvFile2.exists());
     }
 

@@ -36,7 +36,7 @@ public class BucketRestorer {
     /**
      * @param bucket
      *            to restore to {@link BucketFormat#SPLUNK_BUCKET}.
-     * @return
+     * @return bucket in {@link BucketFormat#SPLUNK_BUCKET}
      */
     public Bucket restoreToSplunkBucketFormat(Bucket bucket) {
 	if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)) {
