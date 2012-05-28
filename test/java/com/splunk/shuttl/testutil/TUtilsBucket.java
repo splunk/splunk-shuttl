@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.testng.AssertJUnit;
 
@@ -32,6 +31,7 @@ import com.splunk.shuttl.archiver.archive.BucketExporterIntegrationTest;
 import com.splunk.shuttl.archiver.archive.CsvBucketCreator;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
+import com.splunk.shuttl.archiver.util.UtilsBucket;
 
 /**
  * Util for creating a physical and valid bucket on the file system.
@@ -192,20 +192,10 @@ public class TUtilsBucket {
      */
     public static Bucket createRealCsvBucket() {
 	Bucket realCsvBucketCopy = copyTestBucketWithUrl(REAL_CSV_BUCKET_URL);
-	File csvFile = getCsvFileFromCsvBucket(realCsvBucketCopy);
+	File csvFile = UtilsBucket.getCsvFile(realCsvBucketCopy);
 	CsvBucketCreator csvBucketCreator = new CsvBucketCreator();
 	return csvBucketCreator.createBucketWithCsvFile(csvFile,
 		realCsvBucketCopy);
-    }
-
-    private static File getCsvFileFromCsvBucket(Bucket csvBucket) {
-	for (File file : csvBucket.getDirectory().listFiles()) {
-	    if (FilenameUtils.getExtension(file.getName()).equals("csv")) {
-		return file;
-	    }
-	}
-	throw new RuntimeException("Could not find csv file in csv bucket: "
-		+ csvBucket);
     }
 
     private static Bucket copyTestBucketWithUrl(URL bucketUrl) {
