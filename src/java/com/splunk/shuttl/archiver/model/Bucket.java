@@ -82,8 +82,7 @@ public class Bucket {
      * @throws FileNotFoundException
      * @throws FileNotDirectoryException
      */
-    public Bucket(URI uri, String index, String bucketName,
- BucketFormat format)
+    public Bucket(URI uri, String index, String bucketName, BucketFormat format)
 	    throws FileNotFoundException, FileNotDirectoryException {
 	this(uri, getFileFromUri(uri), index, bucketName, format, null);
     }
@@ -103,8 +102,8 @@ public class Bucket {
      * @throws FileNotDirectoryException
      */
     public Bucket(URI uri, String index, String bucketName,
-	    BucketFormat format, Long size)
-	    throws FileNotFoundException, FileNotDirectoryException {
+	    BucketFormat format, Long size) throws FileNotFoundException,
+	    FileNotDirectoryException {
 	this(uri, getFileFromUri(uri), index, bucketName, format, size);
     }
 
@@ -195,22 +194,33 @@ public class Bucket {
      *             if the destination directory does not exist
      * @throws FileNotDirectoryException
      */
-    public Bucket moveBucketToDir(File destinationDirectory)
-	    throws FileNotFoundException, FileNotDirectoryException {
+    public Bucket moveBucketToDir(File destinationDirectory) {
+	if (!destinationDirectory.exists()) {
+	    throw new DirectoryDidNotExistException("Cannot move bucket to: "
+		    + destinationDirectory.getAbsolutePath()
+		    + ", because directory did not exist.");
+	}
+	if (!destinationDirectory.isDirectory()) {
+	    throw new FileNotDirectoryException("Cannot move bucket to: "
+		    + destinationDirectory.getAbsolutePath()
+		    + ", because it's not a directory");
+	}
 	logger.debug(will("Attempting to move bucket", "bucket", this,
 		"destination", destinationDirectory));
 	File originDirectory = getDirectory();
-	verifyDirectoryExists(destinationDirectory);
-	File newName = new File(destinationDirectory.getAbsolutePath(),
-		originDirectory.getName());
+	File newName = new File(destinationDirectory, originDirectory.getName());
 	if (!originDirectory.renameTo(newName)) {
-	    logger.error(did("Attempted to move bucket", "move failed", null,
-		    "bucket", this, "destination", destinationDirectory));
-	    throw new RuntimeException("Couldn't move bucket to destination: "
-		    + destinationDirectory);
+	    logMoveFailureAndThrowException(destinationDirectory);
 	}
+	return BucketFactory.createBucketWithIndexAndDirectory(getIndex(),
+		newName);
+    }
 
-	return new Bucket(getIndex(), newName);
+    private void logMoveFailureAndThrowException(File destinationDirectory) {
+	logger.error(did("Attempted to move bucket", "move failed", null,
+		"bucket", this, "destination", destinationDirectory));
+	throw new RuntimeException("Couldn't move bucket to destination: "
+		+ destinationDirectory);
     }
 
     /**
@@ -282,4 +292,5 @@ public class Bucket {
     public long getSize() {
 	return size.longValue();
     }
+
 }

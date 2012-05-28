@@ -22,9 +22,9 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
-import com.splunk.shuttl.archiver.importexport.csv.CsvImporter;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkImportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
@@ -38,7 +38,8 @@ public class CsvImporterFunctionalTest {
     public void setUp() {
 	SplunkImportTool importTool = new SplunkImportTool();
 	ShellExecutor shellExecutor = new ShellExecutor(Runtime.getRuntime());
-	integratedCsvImporter = new CsvImporter(importTool, shellExecutor);
+	integratedCsvImporter = new CsvImporter(importTool, shellExecutor,
+		new BucketFactory());
 	csvBucket = TUtilsBucket.createRealCsvBucket();
     }
 

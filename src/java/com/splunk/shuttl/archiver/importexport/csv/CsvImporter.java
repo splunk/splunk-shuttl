@@ -25,6 +25,7 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkImportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.util.UtilsBucket;
 
 /**
@@ -34,15 +35,17 @@ public class CsvImporter {
 
     private final SplunkImportTool splunkImportTool;
     private final ShellExecutor shellExecutor;
+    private final BucketFactory bucketFactory;
 
     /**
      * Uses the {@link ShellExecutor} to invoke the {@link SplunkImportTool} and
      * import a bucket.
      */
     public CsvImporter(SplunkImportTool splunkImportTool,
-	    ShellExecutor shellExecutor) {
+	    ShellExecutor shellExecutor, BucketFactory bucketFactory) {
 	this.splunkImportTool = splunkImportTool;
 	this.shellExecutor = shellExecutor;
+	this.bucketFactory = bucketFactory;
     }
 
     /**
@@ -63,8 +66,9 @@ public class CsvImporter {
     private Bucket getImportedBucketCsvBucket(Bucket bucket) {
 	String[] importCommand = createCommandForImportingBucket(bucket);
 	int exit = executeImportCommand(importCommand);
+	Bucket newBucket = createNewBucket(bucket);
 	deleteCsvFileOnSuccessfulImport(bucket, exit);
-	return createNewBucket(bucket);
+	return newBucket;
     }
 
     private int executeImportCommand(String[] fullCommand) {
@@ -102,12 +106,8 @@ public class CsvImporter {
     }
 
     private Bucket createNewBucket(Bucket bucket) {
-	try {
-	    return new Bucket(bucket.getIndex(), bucket.getDirectory());
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    throw new RuntimeException(e);
-	}
+	return bucketFactory.createWithIndexAndDirectory(bucket.getIndex(),
+		bucket.getDirectory());
     }
 
     /**
@@ -115,7 +115,7 @@ public class CsvImporter {
      */
     public static CsvImporter create() {
 	return new CsvImporter(new SplunkImportTool(), new ShellExecutor(
-		Runtime.getRuntime()));
+		Runtime.getRuntime()), new BucketFactory());
     }
 
 }

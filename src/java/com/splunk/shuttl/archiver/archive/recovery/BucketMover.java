@@ -17,14 +17,13 @@ package com.splunk.shuttl.archiver.archive.recovery;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
+import com.splunk.shuttl.archiver.model.BucketFactory;
 
 /**
  * Class for moving buckets to the location passed to
@@ -54,30 +53,14 @@ public class BucketMover {
     public Bucket moveBucket(Bucket bucket) {
 	logger.debug(will("moving bucket", "bucket", bucket, "destination",
 		movedBucketsLocation));
-
-	Bucket movedBucket = null;
-	try {
-	    movedBucket = moveBucketToMovedBucketsLocationAndPerserveItsIndex(bucket);
-	    logger.debug(did("moved bucket", "success", null, "bucket", bucket,
-		    "destination", movedBucketsLocation));
-	    return movedBucket;
-	} catch (FileNotFoundException e) {
-	    logger.error(did("Tried to move bucket",
-		    "Destination did not exist", null, "bucket", bucket,
-		    "exception", e, "destination", movedBucketsLocation));
-	    throw new RuntimeException(e);
-	} catch (FileNotDirectoryException e) {
-	    logger.error(did("Tried to move bucket",
-		    "Destination was not a directory", null, "bucket", bucket,
-		    "exception", e, "destination", movedBucketsLocation));
-	    throw new RuntimeException(e);
-	}
-
+	Bucket movedBucket = moveBucketToMovedBucketsLocationAndPerserveItsIndex(bucket);
+	logger.debug(did("moved bucket", "success", null, "bucket", bucket,
+		"destination", movedBucketsLocation));
+	return movedBucket;
     }
 
     private Bucket moveBucketToMovedBucketsLocationAndPerserveItsIndex(
-	    Bucket bucket) throws FileNotFoundException,
-	    FileNotDirectoryException {
+	    Bucket bucket) {
 	File indexDirectory = new File(movedBucketsLocation, bucket.getIndex());
 	indexDirectory.mkdirs();
 	return bucket.moveBucketToDir(indexDirectory);
@@ -110,26 +93,10 @@ public class BucketMover {
 	File[] bucketsInIndex = file.listFiles();
 	if (bucketsInIndex != null) {
 	    for (File bucket : bucketsInIndex) {
-		movedBuckets.add(createBucketWithErrorHandling(index, bucket));
+		movedBuckets.add(BucketFactory
+			.createBucketWithIndexAndDirectory(index, bucket));
 	    }
 	}
     }
 
-    private Bucket createBucketWithErrorHandling(String index, File bucketFile) {
-	try {
-	    return new Bucket(index, bucketFile);
-	} catch (FileNotFoundException e) {
-	    logger.debug(did("Created bucket from file",
-		    "Got FileNotFoundException", "To create bucket from file",
-		    "file", bucketFile, "exception", e));
-	    throw new RuntimeException(e);
-	} catch (FileNotDirectoryException e) {
-	    logger.debug(did("Created bucket from file",
-		    "Got FileNotDirectoryException",
-		    "To create bucket from file", "file", bucketFile,
-		    "exception", e));
-	    e.printStackTrace();
-	    throw new RuntimeException(e);
-	}
-    }
 }

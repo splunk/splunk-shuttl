@@ -16,9 +16,9 @@ package com.splunk.shuttl.archiver.importexport.csv.splunk;
 
 import java.util.Map;
 
-
 /**
- * 
+ * The extending classes implement the {@link SplunkTool#getToolName()} to
+ * become a tool which lives in splunk's bin directory.
  */
 public abstract class SplunkTool {
 

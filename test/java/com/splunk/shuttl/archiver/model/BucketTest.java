@@ -32,8 +32,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
@@ -156,16 +154,16 @@ public class BucketTest {
     }
 
     @Test(expectedExceptions = { FileNotDirectoryException.class })
-    public void moveBucket_givenNonDirectory_throwFileNotDirectoryException()
-	    throws FileNotFoundException, FileNotDirectoryException {
+    public void moveBucket_givenNonDirectory_throwFileNotDirectoryException() {
 	File file = TUtilsFile.createTestFile();
 	TUtilsBucket.createTestBucket().moveBucketToDir(file);
     }
 
-    @Test(expectedExceptions = { FileNotFoundException.class })
-    public void moveBucket_givenNonExistingDirectory_throwFileNotFoundException()
-	    throws FileNotFoundException, FileNotDirectoryException {
+    @Test(expectedExceptions = { DirectoryDidNotExistException.class })
+    public void moveBucket_givenNonExistingDirectory_throwFileNotFoundException() {
 	File nonExistingDir = new File("non-existing-dir");
+	nonExistingDir.mkdirs();
+	FileUtils.deleteQuietly(nonExistingDir);
 	TUtilsBucket.createTestBucket().moveBucketToDir(nonExistingDir);
     }
 
