@@ -9,10 +9,11 @@
 	<parameter name="hadoop.port" value="9000" />
 	<parameter name="shuttl.host" value="localhost" />
 	<parameter name="shuttl.port" value="9090" />
+	<parameter name="splunk.home" value="./build-cache/splunk" />
 
 	<test name="Test" preserve-order="true">
 		<classes>
-			<class name="com.splunk.shuttl.archiver.endtoend.ArchiverEndToEndTest" />
+			<class name="com.splunk.shuttl.archiver.thaw.CsvImporterFunctionalTest" />
 		</classes>
 	</test> <!-- Test -->
 </suite> <!-- Suite -->
