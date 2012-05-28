@@ -17,27 +17,40 @@ package com.splunk.shuttl.archiver.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.splunk.shuttl.archiver.archive.SplunkEnrivonmentNotSetException;
+
 /**
  * Methods for verifying that Splunk's environment is set.
  */
 public class SplunkEnvironment {
 
     /**
-     * @return true if $SPLUNK_HOME enviroment variable is set. It's needed to
-     *         locate the exporttool.
+     * @return the value of the environmen variable 'SPLUNK_HOME'
      */
-    public static boolean isSplunkHomeSet() {
-	return getSplunkHome() != null;
+    public static String getSplunkHome() {
+	throwExceptionIfSplunkHomeIsNotSet();
+	return getSplunkHomeFromSystem();
     }
 
-    public static String getSplunkHome() {
+    private static String getSplunkHomeFromSystem() {
 	return System.getenv("SPLUNK_HOME");
+    }
+
+    private static void throwExceptionIfSplunkHomeIsNotSet() {
+	if (!isSplunkHomeSet()) {
+	    throw new SplunkEnrivonmentNotSetException();
+	}
+    }
+
+    private static boolean isSplunkHomeSet() {
+	return getSplunkHomeFromSystem() != null;
     }
 
     /**
      * @return environment variables needed to run Splunk executables.
      */
     public static Map<String, String> getEnvironment() {
+	throwExceptionIfSplunkHomeIsNotSet();
 	Map<String, String> environmentVars = new HashMap<String, String>();
 	environmentVars.put("SPLUNK_HOME", SplunkEnvironment.getSplunkHome());
 	return environmentVars;

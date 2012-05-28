@@ -14,36 +14,14 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import java.util.Map;
-
-import com.splunk.shuttl.archiver.archive.SplunkEnrivonmentNotSetException;
-import com.splunk.shuttl.archiver.util.SplunkEnvironment;
-
 /**
  * Class to represent the import tool in Splunk's bin directory.
  */
-public class SplunkImportTool {
+public class SplunkImportTool extends SplunkTool {
 
-    /**
-     * @return command for executing Splunk import tool.
-     */
-    public String getExecutableCommand() {
-	if (!SplunkEnvironment.isSplunkHomeSet()) {
-	    throw new SplunkEnrivonmentNotSetException();
-	} else {
-	    return getPathToImportTool();
-	}
-    }
-
-    private String getPathToImportTool() {
-	return SplunkEnvironment.getSplunkHome() + "/bin/importtool";
-    }
-
-    /**
-     * @return the environment needed to run the command.
-     */
-    public Map<String, String> getEnvironment() {
-	return SplunkEnvironment.getEnvironment();
+    @Override
+    public String getToolName() {
+	return "importtool";
     }
 
 }

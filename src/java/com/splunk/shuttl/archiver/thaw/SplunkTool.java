@@ -12,18 +12,34 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.archive;
+package com.splunk.shuttl.archiver.thaw;
 
-import com.splunk.shuttl.archiver.thaw.SplunkTool;
+import java.util.Map;
+
+import com.splunk.shuttl.archiver.util.SplunkEnvironment;
 
 /**
- * Calls Splunk's exporttool for exporting a bucket to a new format. I.e. csv
+ * 
  */
-public class SplunkExportTool extends SplunkTool {
+public abstract class SplunkTool {
 
-    @Override
-    public String getToolName() {
-	return "exporttool";
+    private static final String TOOL_LOCATION = "/bin/";
+
+    public abstract String getToolName();
+
+    /**
+     * @return command for executing Splunk import tool.
+     */
+    public String getExecutableCommand() {
+	return SplunkEnvironment.getSplunkHome() + TOOL_LOCATION
+		+ getToolName();
+    }
+
+    /**
+     * @return the environment needed to run the command.
+     */
+    public Map<String, String> getEnvironment() {
+	return SplunkEnvironment.getEnvironment();
     }
 
 }

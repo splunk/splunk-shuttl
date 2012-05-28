@@ -14,60 +14,11 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.testng.AssertJUnit.*;
+public class SplunkImportToolTest extends SplunkToolTest {
 
-import java.io.File;
-
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import com.splunk.shuttl.archiver.archive.SplunkEnrivonmentNotSetException;
-import com.splunk.shuttl.archiver.util.SplunkEnvironment;
-import com.splunk.shuttl.testutil.TUtilsEnvironment;
-
-@Test(groups = { "fast-unit" })
-public class SplunkImportToolTest {
-
-    private SplunkImportTool splunkImportTool;
-
-    @BeforeMethod
-    public void setUp() {
-	splunkImportTool = new SplunkImportTool();
+    @Override
+    protected SplunkTool getInstance() {
+	return new SplunkImportTool();
     }
 
-    @Test(groups = { "fast-unit" })
-    public void getExecutableCommand_theImportToolIsInSplunkHome_pathToExecutable() {
-	final File splunkHome = createTempDirectory();
-	File bin = createDirectoryInParent(splunkHome, "bin");
-	final File importTool = createFileInParent(bin, "importtool");
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
-
-	    @Override
-	    public void run() {
-		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			splunkHome.getAbsolutePath());
-		String pathToExecutable = splunkImportTool
-			.getExecutableCommand();
-		assertEquals(importTool.getAbsolutePath(), pathToExecutable);
-	    }
-	});
-    }
-
-    @Test(expectedExceptions = { SplunkEnrivonmentNotSetException.class })
-    public void getExecutableCommand_splunkHomeIsNotSet_throwException() {
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
-
-	    @Override
-	    public void run() {
-		assertTrue(System.getenv("SPLUNK_HOME") == null);
-		splunkImportTool.getExecutableCommand();
-	    }
-	});
-    }
-
-    public void getEnvironment_default_getsAllTheSplunkEnvironments() {
-	assertEquals(SplunkEnvironment.getEnvironment(),
-		splunkImportTool.getEnvironment());
-    }
 }

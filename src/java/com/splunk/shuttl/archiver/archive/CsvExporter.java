@@ -50,7 +50,7 @@ public class CsvExporter {
     public File exportBucketToCsv(Bucket bucket) {
 	File csvFile = getsBucketsCsvFile.getCsvFile(bucket);
 	String[] command = constructCommand(bucket, csvFile);
-	Map<String, String> env = exportTool.getEnvironmentVariables();
+	Map<String, String> env = exportTool.getEnvironment();
 	int exit = shellExecutor.executeCommand(env, asList(command));
 	throwCsvExceptionIfExportFailed(csvFile, exit, command);
 	return csvFile;
