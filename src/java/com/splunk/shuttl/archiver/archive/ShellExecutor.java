@@ -47,16 +47,16 @@ public class ShellExecutor {
      *            variables to run with.
      * @return exit code of the executed command.
      */
-    public int executeCommand(Map<String, String> env, String... command) {
+    public int executeCommand(Map<String, String> env, List<String> command) {
 	process = runCommand(command, env);
 	return waitForProcessToExit();
     }
 
-    private Process runCommand(String[] command, Map<String, String> env) {
+    private Process runCommand(List<String> command, Map<String, String> env) {
 	try {
 	    String[] keyValues = getKeyValuesFromEnv(env);
 	    System.out.println(Arrays.toString(keyValues));
-	    return runtime.exec(command, keyValues);
+	    return runtime.exec((String[]) command.toArray(), keyValues);
 	} catch (IOException e) {
 	    logger.error(did("Executed a command with runtime", e,
 		    "Command to be executed", "command", command));

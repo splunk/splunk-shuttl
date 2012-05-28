@@ -16,6 +16,7 @@ package com.splunk.shuttl.archiver.archive;
 
 import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
+import static java.util.Arrays.*;
 
 import java.io.File;
 import java.util.Arrays;
@@ -50,7 +51,7 @@ public class CsvExporter {
 	File csvFile = getsBucketsCsvFile.getCsvFile(bucket);
 	String[] command = constructCommand(bucket, csvFile);
 	Map<String, String> env = exportTool.getEnvironmentVariables();
-	int exit = shellExecutor.executeCommand(env, command);
+	int exit = shellExecutor.executeCommand(env, asList(command));
 	throwCsvExceptionIfExportFailed(csvFile, exit, command);
 	return csvFile;
     }

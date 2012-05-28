@@ -15,6 +15,7 @@
 package com.splunk.shuttl.archiver.archive;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static java.util.Arrays.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -27,11 +28,6 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.GetsBucketsCsvFile;
-import com.splunk.shuttl.archiver.archive.CsvExportFailedException;
-import com.splunk.shuttl.archiver.archive.CsvExporter;
-import com.splunk.shuttl.archiver.archive.ShellExecutor;
-import com.splunk.shuttl.archiver.archive.SplunkExportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -65,7 +61,8 @@ public class CsvExporterTest {
 
 	String[] command = new String[] { "/exporttool/path", bucketPath,
 		"/csv/path", "-csv" };
-	when(shellExecutor.executeCommand(emptyMap, command)).thenReturn(0);
+	when(shellExecutor.executeCommand(emptyMap, asList(command)))
+		.thenReturn(0);
 
 	csvExporter.exportBucketToCsv(bucket);
     }
@@ -74,7 +71,7 @@ public class CsvExporterTest {
     @Test(groups = { "fast-unit" }, expectedExceptions = { CsvExportFailedException.class })
     public void exportBucketToCsv_nonZeroExitStatus_throwCsvExportFailedException()
 	    throws IOException, InterruptedException {
-	when(shellExecutor.executeCommand(anyMap(), (String[]) anyObject()))
+	when(shellExecutor.executeCommand(anyMap(), anyList()))
 		.thenReturn(1);
 
 	when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
@@ -89,7 +86,7 @@ public class CsvExporterTest {
 	File nonExistantCsvFile = createTestFile();
 	when(getsBucketsCsvFile.getCsvFile(bucket)).thenReturn(nonExistantCsvFile);
 
-	when(shellExecutor.executeCommand(anyMap(), (String[]) anyObject()))
+	when(shellExecutor.executeCommand(anyMap(), anyList()))
 		.thenReturn(0);
 	when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
 

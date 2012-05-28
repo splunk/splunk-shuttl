@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
+import static java.util.Arrays.*;
 import static org.testng.AssertJUnit.*;
 
 import java.util.HashMap;
@@ -21,8 +22,6 @@ import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import com.splunk.shuttl.archiver.archive.ShellExecutor;
 
 @Test(groups = { "fast-unit" })
 public class ShellExecutorTest {
@@ -39,7 +38,7 @@ public class ShellExecutorTest {
     public void executeCommand_givenEnvironmentVariable_echoThatEnvVar() {
 	env.put("SHELL_EXECUTOR", "foo");
 	String[] command = new String[] { "sh", "-c", "echo ${SHELL_EXECUTOR}" };
-	shellExecutor.executeCommand(env, command);
+	shellExecutor.executeCommand(env, asList(command));
 	List<String> out = shellExecutor.getStdOut();
 	assertEquals(1, out.size());
 	assertEquals("foo", out.get(0));

@@ -52,7 +52,7 @@ public class BucketRestorer {
      * Convenience method for creating an instance.
      */
     public static BucketRestorer create() {
-	return new BucketRestorer(new CsvImporter());
+	return new BucketRestorer(CsvImporter.create());
     }
 
 }
