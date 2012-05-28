@@ -24,19 +24,19 @@ import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 
 @Test(groups = { "fast-unit" })
-public class UtilsMbeanTest {
+public class TUtilsMbeanTest {
 
     @Test(groups = { "fast-unit" })
     public void registerShuttlArchiverMBean_notRegistered_registersMbean()
 	    throws InstanceNotFoundException {
-	UtilsMBean.registerShuttlArchiverMBean();
+	TUtilsMBean.registerShuttlArchiverMBean();
 	ShuttlArchiverMBean proxy = MBeanUtils.getMBeanInstance(
 		ShuttlArchiverMBean.OBJECT_NAME, ShuttlArchiverMBean.class);
 	assertNotNull(proxy);
     }
 
     public void registerShuttlArchiverMBean_twice_ok() {
-	UtilsMBean.registerShuttlArchiverMBean();
-	UtilsMBean.registerShuttlArchiverMBean();
+	TUtilsMBean.registerShuttlArchiverMBean();
+	TUtilsMBean.registerShuttlArchiverMBean();
     }
 }

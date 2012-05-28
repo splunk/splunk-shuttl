@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import com.splunk.Service;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
-import com.splunk.shuttl.testutil.UtilsMockito;
+import com.splunk.shuttl.testutil.TUtilsMockito;
 
 @Test(groups = { "fast-unit" })
 public class SplunkSettingsTest {
@@ -39,7 +39,7 @@ public class SplunkSettingsTest {
     public void setUp() {
 	indexName = "index";
 	thawLocationPath = "/path/to/thaw";
-	splunkService = UtilsMockito
+	splunkService = TUtilsMockito
 		.createSplunkServiceReturningThawPathForIndex(indexName,
 			thawLocationPath);
 	splunkSettings = new SplunkSettings(splunkService);

@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.apache.commons.io.FilenameUtils.*;
 import static org.testng.Assert.*;
 
@@ -30,7 +30,7 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.CsvBucketCreator;
 import com.splunk.shuttl.archiver.archive.CsvFileNotFoundException;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class CsvBucketCreatorTest {
@@ -44,7 +44,7 @@ public class CsvBucketCreatorTest {
     public void setUp() {
 	dir = createTempDirectory();
 	csvFile = createFileInParent(dir, "csvFile.csv");
-	bucket = UtilsBucket.createTestBucket();
+	bucket = TUtilsBucket.createTestBucket();
 	csvBucketCreator = new CsvBucketCreator();
     }
 

@@ -109,7 +109,7 @@ public class ShellClassRunnerTest {
     }
 
     public void getJavaExecutablePath_withNoJAVA_HOME_executablePathIsjava() {
-	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
 	    public void run() {
@@ -119,12 +119,12 @@ public class ShellClassRunnerTest {
     }
 
     public void getJavaExecutablePath_withJAVA_HOMEset_executablePathIsFromJavaHome() {
-	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
 	    public void run() {
 		String javaHome = "/java/home";
-		UtilsEnvironment.setEnvironmentVariable("JAVA_HOME", javaHome);
+		TUtilsEnvironment.setEnvironmentVariable("JAVA_HOME", javaHome);
 		assertEquals(javaHome + "/bin/java",
 			shellClassRunner.getJavaExecutablePath());
 	    }

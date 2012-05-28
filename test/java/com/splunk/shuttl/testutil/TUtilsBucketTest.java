@@ -15,7 +15,7 @@
 
 package com.splunk.shuttl.testutil;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -30,13 +30,13 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 @Test(groups = { "fast-unit" })
-public class UtilsBucketTest {
+public class TUtilsBucketTest {
 
     Bucket bucket;
 
     @BeforeMethod
     public void setUp() {
-	bucket = UtilsBucket.createTestBucket();
+	bucket = TUtilsBucket.createTestBucket();
     }
 
     @Test(groups = { "fast-unit" })
@@ -71,7 +71,7 @@ public class UtilsBucketTest {
 	    Long.parseLong(nameComponents[3]);
 
 	} catch (NumberFormatException e) {
-	    UtilsTestNG.failForException("Couldn't parse the numbers", e);
+	    TUtilsTestNG.failForException("Couldn't parse the numbers", e);
 	}
 	assertTrue(earliest < latest);
     }
@@ -82,7 +82,7 @@ public class UtilsBucketTest {
 
     public void createTestBucketWithIndexAndName_validArguments_correctNameAndIndex() {
 	String bucketName = "db_12351290_12351235_1";
-	Bucket bucket = UtilsBucket.createTestBucketWithIndexAndName(
+	Bucket bucket = TUtilsBucket.createTestBucketWithIndexAndName(
 		"index-name", bucketName);
 	assertEquals("index-name", bucket.getIndex());
 	assertEquals(bucketName, bucket.getName());
@@ -90,26 +90,26 @@ public class UtilsBucketTest {
     }
 
     public void createFileFormatedAsBucket_validArgument_theDirCanBeUsedToCreateABucket() {
-	File bucketDir = UtilsBucket
+	File bucketDir = TUtilsBucket
 		.createFileFormatedAsBucket("db_12351290_12351235_1");
 	try {
 	    new Bucket("index-name", bucketDir);
 	} catch (Exception e) {
-	    UtilsTestNG
+	    TUtilsTestNG
 		    .failForException("Coudn't create a valid bucket dir", e);
 	}
     }
 
     public void createBucketInDirectory_givenDirectory_createsBucketInThatDirectory() {
-	File parent = UtilsFile.createTempDirectory();
-	Bucket bucketCreated = UtilsBucket.createBucketInDirectory(parent);
+	File parent = TUtilsFile.createTempDirectory();
+	Bucket bucketCreated = TUtilsBucket.createBucketInDirectory(parent);
 	assertEquals(parent, bucketCreated.getDirectory().getParentFile());
     }
 
     public void createBucketWithTimes_givenEarliestLatest_bucketNameStartsWith_db_earliest_latest() {
 	Date earliest = new Date(12351235);
 	Date latest = new Date(earliest.getTime() + 100);
-	Bucket bucketWithTimes = UtilsBucket.createBucketWithTimes(earliest,
+	Bucket bucketWithTimes = TUtilsBucket.createBucketWithTimes(earliest,
 		latest);
 	String expectedBucketNameStart = "db_" + latest.getTime() + "_"
 		+ earliest.getTime();
@@ -121,7 +121,7 @@ public class UtilsBucketTest {
 	File parent = null;
 	try {
 	    parent = createTempDirectory();
-	    Bucket bucket = UtilsBucket.createBucketInDirectoryWithTimes(
+	    Bucket bucket = TUtilsBucket.createBucketInDirectoryWithTimes(
 		    parent, new Date(), new Date());
 	    assertEquals(parent.getAbsolutePath(), bucket.getDirectory()
 		    .getParentFile().getAbsolutePath());
@@ -136,7 +136,7 @@ public class UtilsBucketTest {
 	    parent = createTempDirectory();
 	    Date earliest = new Date();
 	    Date latest = new Date();
-	    Bucket bucketWithTimes = UtilsBucket
+	    Bucket bucketWithTimes = TUtilsBucket
 		    .createBucketInDirectoryWithTimes(parent, earliest, latest);
 	    String expectedBucketNameStart = "db_" + earliest.getTime() + "_"
 		    + latest.getTime();
@@ -149,7 +149,7 @@ public class UtilsBucketTest {
 
     public void createBucketWithName_givenName_bucketWithName() {
 	String name = "name";
-	Bucket bucket = UtilsBucket.createBucketWithName(name);
+	Bucket bucket = TUtilsBucket.createBucketWithName(name);
 	assertEquals(name, bucket.getName());
     }
 
@@ -157,7 +157,7 @@ public class UtilsBucketTest {
 	String index = "index";
 	Date earliest = new Date(12345678);
 	Date latest = new Date(earliest.getTime() + 100);
-	Bucket bucket = UtilsBucket.createBucketWithIndexAndTimeRange(index,
+	Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(index,
 		earliest, latest);
 	assertEquals(index, bucket.getIndex());
 	assertEquals(earliest, bucket.getEarliest());
@@ -167,41 +167,41 @@ public class UtilsBucketTest {
     @Test(groups = { "slow-unit" })
     public void createRealBucket_givenRealBucketExistsInTestResources_copyOfTheRealBucket()
 	    throws URISyntaxException {
-	File realBucket = new File(UtilsBucket.REAL_BUCKET_URL.toURI());
+	File realBucket = new File(TUtilsBucket.REAL_BUCKET_URL.toURI());
 	assertTrue(realBucket.exists());
-	File copyBucket = UtilsBucket.createRealBucket().getDirectory();
-	UtilsTestNG.assertDirectoriesAreCopies(realBucket, copyBucket);
+	File copyBucket = TUtilsBucket.createRealBucket().getDirectory();
+	TUtilsTestNG.assertDirectoriesAreCopies(realBucket, copyBucket);
     }
 
     @Test(groups = { "slow-unit" })
     public void createRealBucket_createSuccess_createdBucketHasSameNameAsRealBucket()
 	    throws URISyntaxException {
-	File realBucket = new File(UtilsBucket.REAL_BUCKET_URL.toURI());
-	File copyBucket = UtilsBucket.createRealBucket().getDirectory();
+	File realBucket = new File(TUtilsBucket.REAL_BUCKET_URL.toURI());
+	File copyBucket = TUtilsBucket.createRealBucket().getDirectory();
 	assertEquals(realBucket.getName(), copyBucket.getName());
     }
 
     @Test(groups = { "slow-unit" })
     public void createRealCsvBucket_givenRealCsvBucketExists_copyOfRealCsvBucket()
 	    throws URISyntaxException {
-	File realCsvBucket = new File(UtilsBucket.REAL_CSV_BUCKET_URL.toURI());
+	File realCsvBucket = new File(TUtilsBucket.REAL_CSV_BUCKET_URL.toURI());
 	assertTrue(realCsvBucket.exists());
-	File copyOfCsvBucket = UtilsBucket.createRealCsvBucket().getDirectory();
-	UtilsTestNG.assertDirectoriesAreCopies(realCsvBucket, copyOfCsvBucket);
+	File copyOfCsvBucket = TUtilsBucket.createRealCsvBucket().getDirectory();
+	TUtilsTestNG.assertDirectoriesAreCopies(realCsvBucket, copyOfCsvBucket);
     }
 
     @Test(groups = { "slow-unit" })
     public void createRealCsvBucket_createSuccess_createdBucketHasSameNameAsRealCsvBucket()
 	    throws URISyntaxException {
-	File realCsvBucket = new File(UtilsBucket.REAL_CSV_BUCKET_URL.toURI());
-	File createdCsvBucket = UtilsBucket.createRealCsvBucket()
+	File realCsvBucket = new File(TUtilsBucket.REAL_CSV_BUCKET_URL.toURI());
+	File createdCsvBucket = TUtilsBucket.createRealCsvBucket()
 		.getDirectory();
 	assertEquals(realCsvBucket.getName(), createdCsvBucket.getName());
     }
 
     @Test(groups = { "slow-unit" })
     public void createRealCsvBucket_createSuccess_bucketHasCsvFormat() {
-	Bucket csvBucket = UtilsBucket.createRealCsvBucket();
+	Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
 	assertEquals(BucketFormat.CSV, csvBucket.getFormat());
     }
 }

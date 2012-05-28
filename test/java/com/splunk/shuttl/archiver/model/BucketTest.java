@@ -15,7 +15,7 @@
 
 package com.splunk.shuttl.archiver.model;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -34,8 +34,8 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
-import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsFile;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsFile;
 
 @Test(groups = { "fast-unit" })
 public class BucketTest {
@@ -50,21 +50,21 @@ public class BucketTest {
 
     @Test(groups = { "fast-unit" })
     public void getIndex_validArguments_correctIndexName() throws IOException {
-	File file = UtilsFile.createTempDirectory();
+	File file = TUtilsFile.createTempDirectory();
 	Bucket bucket = new Bucket("index-name", file);
 	assertEquals("index-name", bucket.getIndex());
     }
 
     public void getIndex_absolutePathToBucketEndingWithSlash_correctIndexName()
 	    throws IOException {
-	File file = UtilsFile.createTempDirectory();
+	File file = TUtilsFile.createTempDirectory();
 	Bucket bucket = new Bucket("index-name", file.getAbsolutePath() + "/");
 	assertEquals("index-name", bucket.getIndex());
     }
 
     public void createWithAbsolutePath_takingStringToAnExistingDirectory_notNullBucket()
 	    throws IOException {
-	File tempDir = UtilsFile.createTempDirectory();
+	File tempDir = TUtilsFile.createTempDirectory();
 	assertNotNull(new Bucket("indexName", tempDir));
     }
 
@@ -79,14 +79,14 @@ public class BucketTest {
     @Test(expectedExceptions = { FileNotDirectoryException.class })
     public void createWithAbsolutePath_wherePathIsAFileNotADirectory_throwFileNotDirectoryException()
 	    throws IOException {
-	File file = UtilsFile.createTestFile();
+	File file = TUtilsFile.createTestFile();
 	assertTrue(file.isFile());
 	new Bucket("index-name", file);
     }
 
     public void createWithAbsolutePath_rawdataDirectoryExistsInsideBucket_getFormatReturnsSplunkBucket()
 	    throws IOException {
-	Bucket fakeBucket = UtilsBucket.createTestBucket();
+	Bucket fakeBucket = TUtilsBucket.createTestBucket();
 	Bucket bucket = new Bucket("index-name", fakeBucket.getDirectory());
 	assertEquals(bucket.getFormat(), BucketFormat.SPLUNK_BUCKET);
     }
@@ -97,14 +97,14 @@ public class BucketTest {
      */
     public void createWithAbsolutePath_rawdataNotInBucket_bucketFormatIsUnknown()
 	    throws IOException {
-	File file = UtilsFile.createTempDirectory();
+	File file = TUtilsFile.createTempDirectory();
 	Bucket bucket = new Bucket("index-name", file);
 	assertEquals(BucketFormat.UNKNOWN, bucket.getFormat());
     }
 
     public void getName_givenExistingDirectory_correctBucketName()
 	    throws IOException {
-	Bucket fakeBucket = UtilsBucket.createTestBucketWithIndexAndName(
+	Bucket fakeBucket = TUtilsBucket.createTestBucketWithIndexAndName(
 		"index-name", "db_12351235_12351290_1");
 	Bucket bucket = new Bucket("index-name", fakeBucket.getDirectory());
 	assertEquals("db_12351235_12351290_1", bucket.getName());
@@ -113,7 +113,7 @@ public class BucketTest {
 
     public void createWithAbsolutePath_givenExistingDirectory_getDirectoryShouldReturnThatDirectoryWithTheSameAbsolutePath()
 	    throws IOException {
-	File existingDirectory = UtilsBucket
+	File existingDirectory = TUtilsBucket
 		.createFileFormatedAsBucket("db_12351235_12351290_1");
 	Bucket bucket = new Bucket("index-name", existingDirectory);
 	assertEquals(existingDirectory.getAbsolutePath(), bucket.getDirectory()
@@ -122,8 +122,8 @@ public class BucketTest {
 
     public void moveBucket_givenExistingDirectory_keepIndexFormatAndBucketName()
 	    throws IOException {
-	Bucket bucket = UtilsBucket.createTestBucket();
-	File directoryToMoveTo = UtilsFile.createTempDirectory();
+	Bucket bucket = TUtilsBucket.createTestBucket();
+	File directoryToMoveTo = TUtilsFile.createTempDirectory();
 
 	Bucket movedBucket = bucket.moveBucketToDir(directoryToMoveTo);
 
@@ -144,8 +144,8 @@ public class BucketTest {
 
     public void moveBucket_givenExistingDirectory_removeOldBucket()
 	    throws IOException {
-	Bucket bucket = UtilsBucket.createTestBucket();
-	File directoryToMoveTo = UtilsFile.createTempDirectory();
+	Bucket bucket = TUtilsBucket.createTestBucket();
+	File directoryToMoveTo = TUtilsFile.createTempDirectory();
 	File oldPath = new File(bucket.getDirectory().getAbsolutePath());
 	bucket.moveBucketToDir(directoryToMoveTo);
 
@@ -158,27 +158,27 @@ public class BucketTest {
     @Test(expectedExceptions = { FileNotDirectoryException.class })
     public void moveBucket_givenNonDirectory_throwFileNotDirectoryException()
 	    throws FileNotFoundException, FileNotDirectoryException {
-	File file = UtilsFile.createTestFile();
-	UtilsBucket.createTestBucket().moveBucketToDir(file);
+	File file = TUtilsFile.createTestFile();
+	TUtilsBucket.createTestBucket().moveBucketToDir(file);
     }
 
     @Test(expectedExceptions = { FileNotFoundException.class })
     public void moveBucket_givenNonExistingDirectory_throwFileNotFoundException()
 	    throws FileNotFoundException, FileNotDirectoryException {
 	File nonExistingDir = new File("non-existing-dir");
-	UtilsBucket.createTestBucket().moveBucketToDir(nonExistingDir);
+	TUtilsBucket.createTestBucket().moveBucketToDir(nonExistingDir);
     }
 
     public void moveBucket_givenDirectoryWithContents_contentShouldBeMoved()
 	    throws IOException {
 	// Setup
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	String contentsFileName = "contents";
 	// Creation
-	File contents = UtilsFile.createFileInParent(bucket.getDirectory(),
+	File contents = TUtilsFile.createFileInParent(bucket.getDirectory(),
 		contentsFileName);
-	UtilsFile.populateFileWithRandomContent(contents);
-	File directoryToMoveTo = UtilsFile.createTempDirectory();
+	TUtilsFile.populateFileWithRandomContent(contents);
+	File directoryToMoveTo = TUtilsFile.createTempDirectory();
 	List<String> contentLines = IOUtils.readLines(new FileReader(contents));
 
 	// Test
@@ -197,14 +197,14 @@ public class BucketTest {
 
     public void deleteBucket_createdValidBucket_bucketRemovedFromFileSystem()
 	    throws IOException {
-	Bucket createdBucket = UtilsBucket.createTestBucket();
+	Bucket createdBucket = TUtilsBucket.createTestBucket();
 	createdBucket.deleteBucket();
 	assertTrue(!createdBucket.getDirectory().exists());
     }
 
     public void deleteBucket_createdValidBucket_onlyBucketFolderRemovedFromFileSystem()
 	    throws IOException {
-	Bucket createdBucket = UtilsBucket.createTestBucket();
+	Bucket createdBucket = TUtilsBucket.createTestBucket();
 	File bucketParent = createdBucket.getDirectory().getParentFile();
 	createdBucket.deleteBucket();
 	assertTrue(!createdBucket.getDirectory().exists());
@@ -213,7 +213,7 @@ public class BucketTest {
 
     public void equals_givenTwoBucketsCreatedWithSameIndexAndSameAbsolutePath_equalEachother()
 	    throws IOException {
-	Bucket testBucket = UtilsBucket.createTestBucket();
+	Bucket testBucket = TUtilsBucket.createTestBucket();
 	String index = testBucket.getIndex();
 	String absolutePath = testBucket.getDirectory().getAbsolutePath();
 
@@ -225,14 +225,14 @@ public class BucketTest {
     public void getFormat_afterHaveBeingMoved_returnTheSameValueAsBeforeTheMove()
 	    throws IOException {
 	rootTestDirectory = createTempDirectory();
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	BucketFormat format = bucket.getFormat();
 	bucket.moveBucketToDir(rootTestDirectory);
 	assertEquals(format, bucket.getFormat());
     }
 
     public void getURI_validBucket_notNullURI() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	assertNotNull(bucket.getURI());
     }
 

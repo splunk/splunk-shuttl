@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.model;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.FileNotFoundException;

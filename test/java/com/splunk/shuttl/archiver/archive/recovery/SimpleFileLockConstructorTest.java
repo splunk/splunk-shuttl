@@ -28,8 +28,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.recovery.SimpleFileLock;
-import com.splunk.shuttl.testutil.UtilsFile;
-import com.splunk.shuttl.testutil.UtilsTestNG;
+import com.splunk.shuttl.testutil.TUtilsFile;
+import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 /**
  * Fixture: Created with constructor that takes {@link FileChannel} to make sure
@@ -60,12 +60,12 @@ public class SimpleFileLockConstructorTest {
     }
 
     private FileOutputStream getOutputStreamToTempFile() {
-	File file = UtilsFile.createTestFile();
+	File file = TUtilsFile.createTestFile();
 	try {
 	    return new FileOutputStream(file);
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();
-	    UtilsTestNG.failForException("Could not open InputStream"
+	    TUtilsTestNG.failForException("Could not open InputStream"
 		    + " for file: " + file, e);
 	    return null;
 	}

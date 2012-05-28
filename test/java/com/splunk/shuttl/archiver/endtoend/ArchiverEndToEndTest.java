@@ -15,7 +15,7 @@
 package com.splunk.shuttl.archiver.endtoend;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -50,10 +50,10 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
-import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsFile;
-import com.splunk.shuttl.testutil.UtilsMBean;
-import com.splunk.shuttl.testutil.UtilsTestNG;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsFile;
+import com.splunk.shuttl.testutil.TUtilsMBean;
+import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 @Test(groups = { "end-to-end" })
 public class ArchiverEndToEndTest {
@@ -87,7 +87,7 @@ public class ArchiverEndToEndTest {
 	    String shuttlPort) throws IllegalIndexException {
 	this.shuttlHost = shuttlHost;
 	this.shuttlPort = Integer.parseInt(shuttlPort);
-	UtilsMBean.registerShuttlArchiverMBean();
+	TUtilsMBean.registerShuttlArchiverMBean();
 	archiveConfiguration = ArchiveConfiguration.getSharedInstance();
 	thawIndex = "shuttl";
 	tempDirectory = createTempDirectory();
@@ -117,7 +117,7 @@ public class ArchiverEndToEndTest {
 	Date earliest = new Date(1332295013);
 	Date latest = new Date(earliest.getTime() + 26);
 
-	Bucket bucketToFreeze = UtilsBucket.createBucketWithIndexAndTimeRange(
+	Bucket bucketToFreeze = TUtilsBucket.createBucketWithIndexAndTimeRange(
 		thawIndex, earliest, latest);
 	successfulBucketFreezer.freezeBucket(bucketToFreeze.getIndex(),
 		bucketToFreeze.getDirectory().getAbsolutePath());
@@ -137,7 +137,7 @@ public class ArchiverEndToEndTest {
     }
 
     private boolean isThawDirectoryEmpty() {
-	return UtilsFile.isDirectoryEmpty(thawDirectoryLocation);
+	return TUtilsFile.isDirectoryEmpty(thawDirectoryLocation);
     }
 
     private void callRestToThawBuckets(String index, Date earliest, Date latest) {
@@ -160,7 +160,7 @@ public class ArchiverEndToEndTest {
 	try {
 	    httpPost.setEntity(new UrlEncodedFormEntity(postParams));
 	} catch (UnsupportedEncodingException e) {
-	    UtilsTestNG.failForException(
+	    TUtilsTestNG.failForException(
 		    "Could not create url encoded form entity with params: "
 			    + postParams, e);
 	}
@@ -170,7 +170,7 @@ public class ArchiverEndToEndTest {
 	try {
 	    new DefaultHttpClient().execute(httpPost);
 	} catch (Exception e) {
-	    UtilsTestNG.failForException("Could not execute post: " + httpPost,
+	    TUtilsTestNG.failForException("Could not execute post: " + httpPost,
 		    e);
 	}
     }

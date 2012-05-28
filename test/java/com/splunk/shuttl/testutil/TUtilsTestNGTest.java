@@ -25,7 +25,7 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 @Test(groups = { "fast-unit" })
-public class UtilsTestNGTest {
+public class TUtilsTestNGTest {
 
     URI uri = URI.create("remote:/valid/uri");
     String index = "index";
@@ -35,8 +35,8 @@ public class UtilsTestNGTest {
     Bucket bucket2;
 
     private void isBucketEqualTest() {
-	UtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket1, bucket2);
-	assertTrue(UtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket1,
+	TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket1, bucket2);
+	assertTrue(TUtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket1,
 		bucket2));
     }
 
@@ -70,7 +70,7 @@ public class UtilsTestNGTest {
     }
 
     private void isBucketDifferentTest() {
-	assertFalse(UtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket1,
+	assertFalse(TUtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket1,
 		bucket2));
     }
 

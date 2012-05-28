@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketRestorerTest {
@@ -38,7 +38,7 @@ public class BucketRestorerTest {
 
     @Test(groups = { "fast-unit" })
     public void _bucketInSplunkBucketFormat_sameBucket() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
 	Bucket restoredBucket = bucketRestorer
 		.restoreToSplunkBucketFormat(bucket);
@@ -46,7 +46,7 @@ public class BucketRestorerTest {
     }
 
     public void _bucketInCsvFormat_returnBucketFromCsvImporter() {
-	Bucket realCsvBucket = UtilsBucket.createRealCsvBucket();
+	Bucket realCsvBucket = TUtilsBucket.createRealCsvBucket();
 	Bucket importedBucket = mock(Bucket.class);
 	when(csvImporter.importBucketFromCsv(realCsvBucket)).thenReturn(
 		importedBucket);

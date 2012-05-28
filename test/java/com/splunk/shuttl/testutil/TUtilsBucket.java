@@ -15,7 +15,7 @@
 
 package com.splunk.shuttl.testutil;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,7 +36,7 @@ import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 /**
  * Util for creating a physical and valid bucket on the file system.
  */
-public class UtilsBucket {
+public class TUtilsBucket {
 
     /* package-private */static final URL REAL_BUCKET_URL = BucketExporterIntegrationTest.class
 	    .getResource("/splunk-buckets/SPLUNK_BUCKET/db_1336330530_1336330530_0");
@@ -79,7 +79,7 @@ public class UtilsBucket {
 	try {
 	    testBucket = new Bucket(index, bucketDir);
 	} catch (Exception e) {
-	    UtilsTestNG.failForException("Couldn't create a test bucket", e);
+	    TUtilsTestNG.failForException("Couldn't create a test bucket", e);
 	    throw new RuntimeException(
 		    "There was a UtilsTestNG.failForException() method call above me that stoped me from happening. Where did it go?");
 	}
@@ -92,14 +92,14 @@ public class UtilsBucket {
      * @return A directory formated as a bucket.
      */
     public static File createFileFormatedAsBucket(String bucketName) {
-	File bucketDir = UtilsFile.createTmpDirectoryWithName(bucketName);
+	File bucketDir = TUtilsFile.createTmpDirectoryWithName(bucketName);
 	return formatDirectoryToBeABucket(bucketDir);
     }
 
     private static File formatDirectoryToBeABucket(File bucketDir) {
-	File rawdata = UtilsFile.createDirectoryInParent(bucketDir, "rawdata");
-	File slices = UtilsFile.createFileInParent(rawdata, "slices.dat");
-	UtilsFile.populateFileWithRandomContent(slices);
+	File rawdata = TUtilsFile.createDirectoryInParent(bucketDir, "rawdata");
+	File slices = TUtilsFile.createFileInParent(rawdata, "slices.dat");
+	TUtilsFile.populateFileWithRandomContent(slices);
 	return bucketDir;
     }
 
@@ -135,7 +135,7 @@ public class UtilsBucket {
 
     private static File createFileFormatedAsBucketInDirectoryWithName(
 	    File parent, String bucketName) {
-	File child = UtilsFile.createDirectoryInParent(parent, bucketName);
+	File child = TUtilsFile.createDirectoryInParent(parent, bucketName);
 	return formatDirectoryToBeABucket(child);
     }
 
@@ -213,7 +213,7 @@ public class UtilsBucket {
 	    return createTempCopyOfBucketFromDirectory(new File(
 		    bucketUrl.toURI()));
 	} catch (Exception e) {
-	    UtilsTestNG.failForException("Could not create bucket", e);
+	    TUtilsTestNG.failForException("Could not create bucket", e);
 	    return null;
 	}
     }
@@ -231,7 +231,7 @@ public class UtilsBucket {
 	try {
 	    FileUtils.copyDirectory(from, to);
 	} catch (IOException e) {
-	    UtilsTestNG.failForException("Couldn't copy: " + from + ", to: "
+	    TUtilsTestNG.failForException("Couldn't copy: " + from + ", to: "
 		    + to, e);
 	}
     }

@@ -22,12 +22,12 @@ import org.apache.hadoop.fs.Path;
 import org.testng.annotations.Test;
 
 @Test(groups = { "fast-unit" })
-public class UtilsPathTest {
+public class TUtilsPathTest {
 
     @Test(groups = { "fast-unit" })
     public void safePath_should_beSeparated_by_HomeDirectoryAndNameOfTestCase_toAchieve_nicerStructure() {
-	FileSystem fileSystem = UtilsFileSystem.getLocalFileSystem();
-	Path safePath = UtilsPath.getSafeDirectory(fileSystem);
+	FileSystem fileSystem = TUtilsFileSystem.getLocalFileSystem();
+	Path safePath = TUtilsPath.getSafeDirectory(fileSystem);
 	Path expected = new Path(fileSystem.getHomeDirectory() + "/"
 		+ this.getClass().getName());
 	assertEquals(safePath, expected);

@@ -32,7 +32,7 @@ import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "functional" })
 public class ArchiverFunctionalTest {
@@ -57,7 +57,7 @@ public class ArchiverFunctionalTest {
     }
 
     public void Archiver_givenExistingBucket_archiveIt() throws IOException {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 
 	bucketArchiver.archiveBucket(bucket);
 

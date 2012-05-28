@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketDeleterTest {
@@ -37,7 +37,7 @@ public class BucketDeleterTest {
 
     @BeforeMethod
     public void setUp() {
-	bucket = UtilsBucket.createTestBucket();
+	bucket = TUtilsBucket.createTestBucket();
 	logger = mock(Logger.class);
 	bucketDeleter = new BucketDeleter(logger);
     }

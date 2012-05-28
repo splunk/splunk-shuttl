@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.SplunkEnrivonmentNotSetException;
 import com.splunk.shuttl.archiver.archive.SplunkExportTool;
-import com.splunk.shuttl.testutil.UtilsEnvironment;
+import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
 @Test(groups = { "fast-unit" })
 public class SplunkExportToolTest {
@@ -40,7 +40,7 @@ public class SplunkExportToolTest {
 
     @Test(expectedExceptions = { SplunkEnrivonmentNotSetException.class })
     public void getExecutableFile_noSplunkHomeEnvironmentSet_returnBucketAndLogWarning() {
-	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
 	    public void run() {
@@ -54,12 +54,12 @@ public class SplunkExportToolTest {
 	final File splunkHome = createTempDirectory();
 	File bin = createDirectoryInParent(splunkHome, "bin");
 	createFileInParent(bin, "exporttool");
-	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
 	    public void run() {
 		String splunkHomePath = splunkHome.getAbsolutePath();
-		UtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
+		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
 			splunkHomePath);
 		String command = splunkExportTool.getExecutableCommand();
 		assertEquals(command, splunkHomePath + "/bin/exporttool");
@@ -68,11 +68,11 @@ public class SplunkExportToolTest {
     }
 
     public void getEnvironmentVariables_splunkHomeIsSet_getsSplunkHome() {
-	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
 	    public void run() {
-		UtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
+		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
 			"/splunk/home");
 		Map<String, String> keyValue = splunkExportTool
 			.getEnvironmentVariables();

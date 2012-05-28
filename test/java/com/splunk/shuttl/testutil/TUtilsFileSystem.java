@@ -27,7 +27,7 @@ import org.apache.hadoop.fs.Path;
  * exceptions while doing any operations the tests will fail with appropriate
  * message.
  */
-public class UtilsFileSystem {
+public class TUtilsFileSystem {
 
     /**
      * Creates a local filesystem failing the test if it can't.
@@ -37,7 +37,7 @@ public class UtilsFileSystem {
 	try {
 	    return FileSystem.getLocal(configuration);
 	} catch (IOException e) {
-	    UtilsTestNG.failForException("Couldn't create a local filesystem",
+	    TUtilsTestNG.failForException("Couldn't create a local filesystem",
 		    e);
 	    return null; // Will not be executed.
 	}
@@ -48,12 +48,12 @@ public class UtilsFileSystem {
      */
     public static File getFileFromFileSystem(FileSystem fileSystem,
 	    Path pathOftheFileOnRemote) {
-	File retrivedFile = UtilsFile.createTestFilePath();
+	File retrivedFile = TUtilsFile.createTestFilePath();
 	Path localFilePath = new Path(retrivedFile.toURI());
 	try {
 	    fileSystem.copyToLocalFile(pathOftheFileOnRemote, localFilePath);
 	} catch (IOException e) {
-	    UtilsTestNG.failForException(
+	    TUtilsTestNG.failForException(
 		    "Can't retrive the file from remote filesystem", e);
 	}
 	return retrivedFile;

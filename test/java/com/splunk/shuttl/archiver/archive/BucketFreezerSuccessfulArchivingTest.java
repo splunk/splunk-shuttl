@@ -15,7 +15,7 @@
 package com.splunk.shuttl.archiver.archive;
 
 import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -38,8 +38,8 @@ import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsTestNG;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 /**
  * Fixture: HttpClient returns HttpStatus codes that represent successful
@@ -104,7 +104,7 @@ public class BucketFreezerSuccessfulArchivingTest {
     }
 
     public void freezeBucket_givenBucket_callRestWithMovedBucket() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 
 	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 		.getAbsolutePath());
@@ -116,19 +116,19 @@ public class BucketFreezerSuccessfulArchivingTest {
 	assertEquals(1, bucketCaptor.getAllValues().size());
 	Bucket capturedBucket = bucketCaptor.getValue();
 
-	UtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket,
+	TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket,
 		capturedBucket);
     }
 
     public void freezeBucket_givenBucket_callItToRecoverBuckets() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 		.getAbsolutePath());
 	verify(failedBucketsArchiver).archiveFailedBuckets(archiveRestHandler);
     }
 
     public void freezeBucket_givenBucket_triesToRestoreBucketsAFTERCallingRest() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 		.getAbsolutePath());
 	InOrder inOrder = inOrder(archiveRestHandler, failedBucketsArchiver);

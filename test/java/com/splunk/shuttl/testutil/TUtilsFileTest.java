@@ -27,14 +27,14 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 @Test(groups = { "fast-unit" })
-public class UtilsFileTest {
+public class TUtilsFileTest {
 
     @Test(groups = { "fast-unit" })
     public void createTempDirectory_tenTwo_uniqueAndNotNull() {
 	int times = 2;
 	Set<String> absolutePaths = new HashSet<String>();
 	for (int i = 0; i < times; i++) {
-	    String absolutePath = UtilsFile.createTempDirectory()
+	    String absolutePath = TUtilsFile.createTempDirectory()
 		    .getAbsolutePath();
 	    assertNotNull(absolutePath);
 	    absolutePaths.add(absolutePath);
@@ -43,28 +43,28 @@ public class UtilsFileTest {
     }
 
     public void createTempDirectory_containNameOfThisTestClass_whenCalled() {
-	File tempDir = UtilsFile.createTempDirectory();
+	File tempDir = TUtilsFile.createTempDirectory();
 	String dirName = tempDir.getName();
 	assertTrue(dirName.contains(getClass().getSimpleName()));
     }
 
     public void createNamedTempDirectory_fileDoesNotExist_getsCreated() {
-	File dir = UtilsFile.createPrefixedTempDirectory("NameOfTheDirectory");
+	File dir = TUtilsFile.createPrefixedTempDirectory("NameOfTheDirectory");
 	assertTrue(dir.exists());
     }
 
     public void createNamedTempDirectory_containsNameOfThisClass_toProvideUniquenessToTheDirectory() {
-	File dir = UtilsFile.createPrefixedTempDirectory("someName");
+	File dir = TUtilsFile.createPrefixedTempDirectory("someName");
 	String dirName = dir.getName();
 	assertTrue(dirName.contains(getClass().getSimpleName()));
     }
 
     public void createNamedTempDirectory_withFileAsParentParameter_createsTheDirectoryInParent()
 	    throws IOException {
-	File parent = UtilsFile.createPrefixedTempDirectory("parent");
-	File child = UtilsFile.createDirectoryInParent(parent, "child");
+	File parent = TUtilsFile.createPrefixedTempDirectory("parent");
+	File child = TUtilsFile.createDirectoryInParent(parent, "child");
 	assertEquals(parent.listFiles()[0], child);
-	File childsChild = UtilsFile.createDirectoryInParent(child,
+	File childsChild = TUtilsFile.createDirectoryInParent(child,
 		"childsChild");
 	assertEquals(child.listFiles()[0], childsChild);
 
@@ -76,22 +76,22 @@ public class UtilsFileTest {
     }
 
     public void createTestFileWithContentsOfFile_validInput_diffrentPaths() {
-	File file = UtilsFile.createTestFileWithRandomContent();
-	File newFile = UtilsFile.createTestFileWithContentsOfFile(file);
+	File file = TUtilsFile.createTestFileWithRandomContent();
+	File newFile = TUtilsFile.createTestFileWithContentsOfFile(file);
 	AssertJUnit.assertFalse(file.getPath().equals(newFile.getPath()));
     }
 
     public void createTestFileWithContentsOfFile_validInput_sameContent() {
-	File file = UtilsFile.createTestFileWithRandomContent();
-	File newFile = UtilsFile.createTestFileWithContentsOfFile(file);
-	UtilsTestNG.assertFileContentsEqual(file, newFile);
+	File file = TUtilsFile.createTestFileWithRandomContent();
+	File newFile = TUtilsFile.createTestFileWithContentsOfFile(file);
+	TUtilsTestNG.assertFileContentsEqual(file, newFile);
     }
 
     public void createFileInParent_givenNameOfFile_createFileInParent()
 	    throws IOException {
 	String childFileName = "child";
-	File parent = UtilsFile.createTempDirectory();
-	File child = UtilsFile.createFileInParent(parent, childFileName);
+	File parent = TUtilsFile.createTempDirectory();
+	File child = TUtilsFile.createFileInParent(parent, childFileName);
 	assertEquals(parent, child.getParentFile());
 	assertEquals(childFileName, child.getName());
 
@@ -100,7 +100,7 @@ public class UtilsFileTest {
     }
 
     public void createTmpDirectoryWithName_givenAName_createAnExistingDirectoryWithSPecifiedName() {
-	File file = UtilsFile
+	File file = TUtilsFile
 		.createTmpDirectoryWithName("this is the name of the file");
 
 	assertTrue(file.exists());
@@ -109,16 +109,16 @@ public class UtilsFileTest {
     }
 
     public void isDirectoryEmpty_givenNewTempDirectory_empty() {
-	File tempDirectory = UtilsFile.createTempDirectory();
-	assertTrue(UtilsFile.isDirectoryEmpty(tempDirectory));
+	File tempDirectory = TUtilsFile.createTempDirectory();
+	assertTrue(TUtilsFile.isDirectoryEmpty(tempDirectory));
     }
 
     public void isDirectoryEmpty_givenDirectoryWithAChildDirectory_notEmpty()
 	    throws IOException {
-	File dirWithChildDir = UtilsFile.createTempDirectory();
+	File dirWithChildDir = TUtilsFile.createTempDirectory();
 	try {
-	    UtilsFile.createDirectoryInParent(dirWithChildDir, "childDir");
-	    assertTrue(!UtilsFile.isDirectoryEmpty(dirWithChildDir));
+	    TUtilsFile.createDirectoryInParent(dirWithChildDir, "childDir");
+	    assertTrue(!TUtilsFile.isDirectoryEmpty(dirWithChildDir));
 	} finally {
 	    FileUtils.deleteDirectory(dirWithChildDir);
 	}
@@ -126,17 +126,17 @@ public class UtilsFileTest {
 
     public void isDirectoryEmpty_givenDirectoryWithAChildFile_notEmpty()
 	    throws IOException {
-	File dirWithChildFile = UtilsFile.createTempDirectory();
+	File dirWithChildFile = TUtilsFile.createTempDirectory();
 	try {
-	    UtilsFile.createFileInParent(dirWithChildFile, "childFile");
-	    assertTrue(!UtilsFile.isDirectoryEmpty(dirWithChildFile));
+	    TUtilsFile.createFileInParent(dirWithChildFile, "childFile");
+	    assertTrue(!TUtilsFile.isDirectoryEmpty(dirWithChildFile));
 	} finally {
 	    FileUtils.deleteDirectory(dirWithChildFile);
 	}
     }
 
     public void createTestFileWithName_givenName_createsFileWithName() {
-	File namedFile = UtilsFile.createTestFileWithName("name");
+	File namedFile = TUtilsFile.createTestFileWithName("name");
 	assertEquals("name", namedFile.getName());
     }
 }

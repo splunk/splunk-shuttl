@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.functional;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -39,8 +39,8 @@ import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawer.ThawInfo;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
-import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsTestNG;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 @Test(enabled = false, groups = { "functional" })
 public class ImportCsvFunctionalTest {
@@ -62,7 +62,7 @@ public class ImportCsvFunctionalTest {
 	csvThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
 		splunkSettings, localCsvArchiveConfigration);
 
-	realBucket = UtilsBucket.createRealBucket();
+	realBucket = TUtilsBucket.createRealBucket();
 	csvArchiver = BucketArchiverFactory
 		.createWithConfiguration(localCsvArchiveConfigration);
     }
@@ -83,7 +83,7 @@ public class ImportCsvFunctionalTest {
 
 	assertEquals(1, thawBuckets.size());
 	Bucket thawedBucket = thawBuckets.get(0).bucket;
-	UtilsTestNG.assertBucketsGotSameIndexFormatAndName(realBucket,
+	TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(realBucket,
 		thawedBucket);
 	assertEquals(sizeOfBucket(realBucket), sizeOfBucket(thawedBucket));
     }

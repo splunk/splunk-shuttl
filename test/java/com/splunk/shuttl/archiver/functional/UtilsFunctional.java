@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.functional;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static java.util.Arrays.*;
 import static org.testng.AssertJUnit.*;
 
@@ -32,8 +32,8 @@ import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsEnvironment;
-import com.splunk.shuttl.testutil.UtilsTestNG;
+import com.splunk.shuttl.testutil.TUtilsEnvironment;
+import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 /**
  * Util methods for functional archiver tests
@@ -74,7 +74,7 @@ public class UtilsFunctional {
 		    new Configuration());
 	} catch (IOException e) {
 	    e.printStackTrace();
-	    UtilsTestNG.failForException("Couldn't get Hadoop file system.", e);
+	    TUtilsTestNG.failForException("Couldn't get Hadoop file system.", e);
 	    return null;
 	}
     }
@@ -84,7 +84,7 @@ public class UtilsFunctional {
 	    Thread.sleep(500);
 	} catch (InterruptedException e) {
 	    e.printStackTrace();
-	    UtilsTestNG.failForException(
+	    TUtilsTestNG.failForException(
 		    "Got interrupted when waiting for async archiving.", e);
 	}
     }
@@ -130,11 +130,11 @@ public class UtilsFunctional {
      */
     public static void archiveBucket(final Bucket bucket,
 	    final BucketArchiver bucketArchiver, final String splunkHome) {
-	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
 	    public void run() {
-		UtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
+		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
 			splunkHome);
 		assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
 		bucketArchiver.archiveBucket(bucket);

@@ -27,8 +27,8 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsMBean;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsMBean;
 
 @Test(groups = { "fast-unit" })
 public class PathResolverTest {
@@ -53,7 +53,7 @@ public class PathResolverTest {
 	bucketIndex = "index";
 	bucketName = "bucket_name_id";
 	bucketFormat = BucketFormat.SPLUNK_BUCKET;
-	bucket = UtilsBucket.createTestBucketWithIndexAndName(bucketIndex,
+	bucket = TUtilsBucket.createTestBucketWithIndexAndName(bucketIndex,
 		bucketName);
     }
 
@@ -154,7 +154,7 @@ public class PathResolverTest {
     }
 
     public void getConfigured_registeredMBean_getsPathResolverInstance() {
-	UtilsMBean.registerShuttlArchiverMBean();
+	TUtilsMBean.registerShuttlArchiverMBean();
 	PathResolver pr = PathResolver.getConfigured();
 	assertNotNull(pr);
     }

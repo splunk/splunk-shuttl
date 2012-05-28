@@ -30,8 +30,8 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
-import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsEnvironment;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
 /**
  * Test real classes and splunk's export tool.
@@ -56,11 +56,11 @@ public class BucketExporterIntegrationTest {
     @Parameters(value = { "splunk.home" })
     public void exportBucketToFormat_splunkHomeSetExportingBucketWithRealDataToCsv_createsCsvBucket(
 	    final String splunkHome) {
-	UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 	    @Override
 	    public void run() {
-		UtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
+		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
 			splunkHome);
 		exportingBucketWithRealDataToCsvCreatesCsvBucket();
 	    }
@@ -68,7 +68,7 @@ public class BucketExporterIntegrationTest {
     }
 
     private void exportingBucketWithRealDataToCsvCreatesCsvBucket() {
-	Bucket realBucket = UtilsBucket.createRealBucket();
+	Bucket realBucket = TUtilsBucket.createRealBucket();
 	Bucket csvBucket = bucketExporter.exportBucketToFormat(realBucket,
 		BucketFormat.CSV);
 	assertEquals(realBucket.getName(), csvBucket.getName());

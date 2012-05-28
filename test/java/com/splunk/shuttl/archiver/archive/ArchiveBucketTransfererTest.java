@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.ArchiveBucketTransferer;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsTestNG;
+import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 @Test(groups = { "fast-unit" })
 public class ArchiveBucketTransfererTest {
@@ -45,7 +45,7 @@ public class ArchiveBucketTransfererTest {
 	    return new URI(uri);
 	} catch (URISyntaxException e) {
 	    e.printStackTrace();
-	    UtilsTestNG.failForException("Could not create uri: " + uri, e);
+	    TUtilsTestNG.failForException("Could not create uri: " + uri, e);
 	    return null;
 	}
     }

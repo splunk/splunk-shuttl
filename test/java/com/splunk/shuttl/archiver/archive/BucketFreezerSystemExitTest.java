@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
-import com.splunk.shuttl.testutil.UtilsFile;
+import com.splunk.shuttl.testutil.TUtilsFile;
 
 /**
  * Fixture: Calling the main method of BucketFreezer. Testing exit codes.
@@ -56,7 +56,7 @@ public class BucketFreezerSystemExitTest {
 
     @Test(groups = { "fast-unit" })
     public void main_existingDirecotry_returnCode0() throws IOException {
-	File directory = UtilsFile.createTempDirectory();
+	File directory = TUtilsFile.createTempDirectory();
 	runMainWithDepentencies_withArguments("index-name",
 		directory.getAbsolutePath());
 	verify(runtimeMock).exit(0);
@@ -94,7 +94,7 @@ public class BucketFreezerSystemExitTest {
     }
 
     public void main_nonExistingFile_returnMinus3() {
-	File file = UtilsFile.createTestFilePath();
+	File file = TUtilsFile.createTestFilePath();
 	runMainWithDepentencies_withArguments("index-name",
 		file.getAbsolutePath());
 	verify(runtimeMock).exit(-3);

@@ -29,7 +29,7 @@ import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class FailedBucketsArchiverTest {
@@ -51,7 +51,7 @@ public class FailedBucketsArchiverTest {
     private List<Bucket> stubXBucketsInBucketMover(int x) {
 	List<Bucket> buckets = new ArrayList<Bucket>();
 	for (int i = 0; i < x; i++) {
-	    Bucket movedBucket = UtilsBucket.createTestBucket();
+	    Bucket movedBucket = TUtilsBucket.createTestBucket();
 	    buckets.add(movedBucket);
 	}
 	when(bucketMover.getMovedBuckets()).thenReturn(buckets);

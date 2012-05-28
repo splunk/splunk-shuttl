@@ -22,7 +22,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketTimesTest {
@@ -43,12 +43,12 @@ public class BucketTimesTest {
 
     @Test(groups = { "fast-unit" })
     public void getEarliest_givenEarliest_earliest() {
-	Bucket bucket = UtilsBucket.createBucketWithTimes(earliest, new Date());
+	Bucket bucket = TUtilsBucket.createBucketWithTimes(earliest, new Date());
 	assertEquals(earliest, bucket.getEarliest());
     }
 
     public void getLatest_givenLatest_latest() {
-	Bucket bucket = UtilsBucket.createBucketWithTimes(new Date(), latest);
+	Bucket bucket = TUtilsBucket.createBucketWithTimes(new Date(), latest);
 	assertEquals(latest, bucket.getLatest());
     }
 

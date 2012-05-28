@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -33,7 +33,7 @@ import com.splunk.shuttl.archiver.archive.CsvExporter;
 import com.splunk.shuttl.archiver.archive.ShellExecutor;
 import com.splunk.shuttl.archiver.archive.SplunkExportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class CsvExporterTest {
@@ -52,7 +52,7 @@ public class CsvExporterTest {
 	shellExecutor = mock(ShellExecutor.class);
 	csvExporter = new CsvExporter(exportTool, getsBucketsCsvFile, shellExecutor);
 
-	bucket = UtilsBucket.createTestBucket();
+	bucket = TUtilsBucket.createTestBucket();
 	emptyMap = Collections.<String, String> emptyMap();
     }
 

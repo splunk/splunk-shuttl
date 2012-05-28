@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive.recovery;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -29,8 +29,8 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsFile;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsFile;
 
 @Test(groups = { "fast-unit" })
 public class BucketMoverTest {
@@ -40,7 +40,7 @@ public class BucketMoverTest {
 
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
-	moveBucketLocation = UtilsFile.createTempDirectory();
+	moveBucketLocation = TUtilsFile.createTempDirectory();
 	bucketMover = new BucketMover(moveBucketLocation);
     }
 
@@ -82,7 +82,7 @@ public class BucketMoverTest {
     public void getMovedBuckets_givenTwoBucketsWithSameIndexInMoveLocation_listWithTheTwoBuckets() {
 	String index = "a";
 	Bucket movedBucket = createBucketInMoveLocationWithIndexPreserved(index);
-	Bucket movedBucketSameIndex = UtilsBucket
+	Bucket movedBucketSameIndex = TUtilsBucket
 		.createBucketInDirectoryWithIndex(movedBucket.getDirectory()
 			.getParentFile(), index);
 
@@ -99,7 +99,7 @@ public class BucketMoverTest {
 
     public void moveBucket_givenBucket_movedBucketTo_moveLocation_Index_BucketName() {
 	assertTrue(isDirectoryEmpty(moveBucketLocation));
-	Bucket bucketToMove = UtilsBucket.createTestBucket();
+	Bucket bucketToMove = TUtilsBucket.createTestBucket();
 
 	Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
 	assertTrue(!isDirectoryEmpty(moveBucketLocation));
@@ -107,7 +107,7 @@ public class BucketMoverTest {
     }
 
     public void getMovedBuckets_afterSuccessfullyMovedABucketUsingMoveBucketToMove_getBucketThatMoved() {
-	Bucket bucketToMove = UtilsBucket.createTestBucket();
+	Bucket bucketToMove = TUtilsBucket.createTestBucket();
 	bucketMover.moveBucket(bucketToMove);
 
 	List<Bucket> movedBucket = bucketMover.getMovedBuckets();
@@ -119,7 +119,7 @@ public class BucketMoverTest {
     }
 
     public void getMovedBuckets_afterCreatingLockInMoveLocation_emptyList() {
-	File lock = UtilsFile.createFileInParent(moveBucketLocation, "lock");
+	File lock = TUtilsFile.createFileInParent(moveBucketLocation, "lock");
 	assertTrue(lock.isFile());
 	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
 	assertTrue(movedBuckets.isEmpty());
@@ -134,9 +134,9 @@ public class BucketMoverTest {
     }
 
     private Bucket createBucketInMoveLocationWithIndexPreserved(String index) {
-	File directoryRepresentingIndex = UtilsFile.createDirectoryInParent(
+	File directoryRepresentingIndex = TUtilsFile.createDirectoryInParent(
 		moveBucketLocation, index);
-	return UtilsBucket.createBucketInDirectoryWithIndex(
+	return TUtilsBucket.createBucketInDirectoryWithIndex(
 		directoryRepresentingIndex, index);
     }
 }

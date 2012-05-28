@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 /**
  * Fixture: Makes sure that {@link ArchiveRestHandler} calls rest as recovery.
@@ -37,7 +37,7 @@ public class ArchiveRestHandlerRecoveryTest {
     @Test(groups = { "fast-unit" })
     public void recoverFailedBucket_givenHttpClient_executeRequestOnFailedBucket()
 	    throws ClientProtocolException, IOException {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	HttpClient httpClient = mock(HttpClient.class);
 	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
 		httpClient);

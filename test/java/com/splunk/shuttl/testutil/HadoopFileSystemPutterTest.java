@@ -50,7 +50,7 @@ public class HadoopFileSystemPutterTest {
 
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
-	fileSystem = UtilsFileSystem.getLocalFileSystem();
+	fileSystem = TUtilsFileSystem.getLocalFileSystem();
 	putter = HadoopFileSystemPutter.create(fileSystem);
     }
 

@@ -30,12 +30,12 @@ import org.testng.annotations.Test;
  * hard to debug.<br/>
  * <br/>
  * Util class for running in a modified environment. Use
- * {@link UtilsEnvironment#runInCleanEnvironment(Runnable)} and call
- * {@link UtilsEnvironment#setEnvironment(Map)} and
- * {@link UtilsEnvironment#setEnvironmentVariable(String, String)} from within
+ * {@link TUtilsEnvironment#runInCleanEnvironment(Runnable)} and call
+ * {@link TUtilsEnvironment#setEnvironment(Map)} and
+ * {@link TUtilsEnvironment#setEnvironmentVariable(String, String)} from within
  * the {@link Runnable}, to use this class in a safe way.
  */
-public class UtilsEnvironment {
+public class TUtilsEnvironment {
 
     /**
      * Clear the current environment. Should not be used outside the class or
@@ -109,12 +109,12 @@ public class UtilsEnvironment {
      * 
      */
     public static void runInCleanEnvironment(Runnable runnable) {
-	Map<String, String> copy = UtilsEnvironment.copyEnvironment();
-	UtilsEnvironment.clearEnvironment();
+	Map<String, String> copy = TUtilsEnvironment.copyEnvironment();
+	TUtilsEnvironment.clearEnvironment();
 	try {
 	    runnable.run();
 	} finally {
-	    UtilsEnvironment.setEnvironment(copy);
+	    TUtilsEnvironment.setEnvironment(copy);
 	}
     }
 
@@ -129,45 +129,45 @@ public class UtilsEnvironment {
 
 	@BeforeClass(groups = { "fast-unit" })
 	public void setUp() {
-	    copyEnv = UtilsEnvironment.copyEnvironment();
+	    copyEnv = TUtilsEnvironment.copyEnvironment();
 	}
 
 	@AfterMethod(groups = { "fast-unit" })
 	public void teardDown() {
-	    UtilsEnvironment.setEnvironment(copyEnv);
+	    TUtilsEnvironment.setEnvironment(copyEnv);
 	    assertEnvironmentIsNotEmpty();
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void clearEnvironment_defaultState_emptySystemEnvironment() {
 	    assertEnvironmentIsNotEmpty();
-	    UtilsEnvironment.clearEnvironment();
+	    TUtilsEnvironment.clearEnvironment();
 	    assertTrue(System.getenv().isEmpty());
 	}
 
 	public void setEnvironment_givenMapWithKeyValue_setEnvironmentToTheMap() {
 	    Map<String, String> env = new HashMap<String, String>();
 	    env.put("fisk", "disk");
-	    UtilsEnvironment.setEnvironment(env);
+	    TUtilsEnvironment.setEnvironment(env);
 	    assertEquals(System.getenv(), env);
 	}
 
 	public void setEnvironmentVariable_keyValue_setsTheKeyToValue() {
-	    UtilsEnvironment.setEnvironmentVariable("key", "value");
+	    TUtilsEnvironment.setEnvironmentVariable("key", "value");
 	    assertEquals("value", System.getenv().get("key"));
 	}
 
 	public void copyEnvironment_defaultState_returnsACopyOfTheSystemEnvironment() {
-	    Map<String, String> copy = UtilsEnvironment.copyEnvironment();
-	    UtilsEnvironment.clearEnvironment();
+	    Map<String, String> copy = TUtilsEnvironment.copyEnvironment();
+	    TUtilsEnvironment.clearEnvironment();
 	    assertTrue(!copy.isEmpty());
 	    assertTrue(System.getenv().isEmpty());
 	}
 
 	public void runInCleanEnvironment_withRunnable_runRunnableWithNoEnvironmentVariables() {
-	    Map<String, String> copy = UtilsEnvironment.copyEnvironment();
+	    Map<String, String> copy = TUtilsEnvironment.copyEnvironment();
 	    final Boolean[] isRun = new Boolean[] { false };
-	    UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	    TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 		@Override
 		public void run() {
@@ -182,7 +182,7 @@ public class UtilsEnvironment {
 	public void runInCleanEnvironment_runnableThrowsException_stillRestoresEnvironment() {
 	    assertEnvironmentIsNotEmpty();
 	    try {
-		UtilsEnvironment.runInCleanEnvironment(new Runnable() {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 		    @Override
 		    public void run() {

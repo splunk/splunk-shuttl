@@ -20,7 +20,7 @@ import com.splunk.shuttl.server.mbeans.ShuttlArchiverForTests;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 
-public class UtilsMBean {
+public class TUtilsMBean {
 
     /**
      * Registers the ShuttlArchiverMBean
@@ -32,7 +32,7 @@ public class UtilsMBean {
 	} catch (InstanceAlreadyExistsException e1) {
 	    // Ok.
 	} catch (Exception e) {
-	    UtilsTestNG.failForException(
+	    TUtilsTestNG.failForException(
 		    "Could not register ShuttlArchiverMBean", e);
 	}
     }

@@ -15,7 +15,7 @@
 package com.splunk.shuttl.archiver.archive.recovery;
 
 import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.recovery.BucketLock;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketLockTest {
@@ -43,7 +43,7 @@ public class BucketLockTest {
     public void setUp() {
 	testRootDirectory = createTempDirectory();
 	locksDirectory = createTempDirectory();
-	bucket = UtilsBucket.createBucketInDirectory(testRootDirectory);
+	bucket = TUtilsBucket.createBucketInDirectory(testRootDirectory);
 	bucketLock = new BucketLock(bucket, locksDirectory);
     }
 

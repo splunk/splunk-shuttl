@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.recovery.SimpleFileLock;
 import com.splunk.shuttl.archiver.archive.recovery.SimpleFileLock.LockAlreadyClosedException;
 import com.splunk.shuttl.archiver.archive.recovery.SimpleFileLock.NotLockedException;
-import com.splunk.shuttl.testutil.UtilsFile;
+import com.splunk.shuttl.testutil.TUtilsFile;
 
 /**
  * Fixture: Abstract. Gets an instance of {@link SimpleFileLock} from
@@ -38,7 +38,7 @@ public class SimpleFileLockTest {
 
     @BeforeMethod(groups = { "fast-unit" })
     public void setUp() {
-	simpleFileLock = SimpleFileLock.createFromFile(UtilsFile
+	simpleFileLock = SimpleFileLock.createFromFile(TUtilsFile
 		.createTestFile());
     }
 
@@ -79,7 +79,7 @@ public class SimpleFileLockTest {
     }
 
     public void createFromFile_nonExistingFile_createTheFile() {
-	File nonExistingFile = UtilsFile.createTestFilePath();
+	File nonExistingFile = TUtilsFile.createTestFilePath();
 	assertTrue(!nonExistingFile.exists());
 	SimpleFileLock.createFromFile(nonExistingFile);
 	assertTrue(nonExistingFile.exists());

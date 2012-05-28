@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -28,7 +28,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.archiver.thaw.ThawLocationProvider;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class ThawLocationProviderTest {
@@ -40,7 +40,7 @@ public class ThawLocationProviderTest {
 
     @BeforeMethod
     public void setUp() throws IllegalIndexException {
-	bucket = UtilsBucket.createTestBucket();
+	bucket = TUtilsBucket.createTestBucket();
 	splunkSettings = mock(SplunkSettings.class);
 	thawLocationProvider = new ThawLocationProvider(splunkSettings);
 

@@ -23,8 +23,8 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsMBean;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsMBean;
 
 /**
  * Test for generating a lot of demo data, that can then be showed off manually.
@@ -38,7 +38,7 @@ public class ArchiveLotsOfBucketsWithDifferentTimeRanges {
 
     @BeforeMethod
     public void setUp() {
-	UtilsMBean.registerShuttlArchiverMBean();
+	TUtilsMBean.registerShuttlArchiverMBean();
 	bucketArchiver = BucketArchiverFactory.createConfiguredArchiver();
     }
 
@@ -51,7 +51,7 @@ public class ArchiveLotsOfBucketsWithDifferentTimeRanges {
 	Date earliest = startDate;
 	for (int i = 0; i < TWO_YEARS_OF_DAYS; i++) {
 	    Date latest = new Date(earliest.getTime());
-	    Bucket bucket = UtilsBucket.createBucketWithIndexAndTimeRange(
+	    Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
 		    "shuttl", earliest, latest);
 	    bucketArchiver.archiveBucket(bucket);
 	    earliest = new Date(latest.getTime() + 1 + MILLI_SECONDS_IN_A_DAY);

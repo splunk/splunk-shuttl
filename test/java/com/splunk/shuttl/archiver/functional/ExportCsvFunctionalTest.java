@@ -36,7 +36,7 @@ import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketFormatChooser;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "functional" })
 public class ExportCsvFunctionalTest {
@@ -65,7 +65,7 @@ public class ExportCsvFunctionalTest {
 	bucketFormatResolver = new BucketFormatResolver(pathResolver,
 		localFileSystem, bucketFormatChooser);
 
-	bucket = UtilsBucket.createRealBucket();
+	bucket = TUtilsBucket.createRealBucket();
     }
 
     @AfterMethod

@@ -32,13 +32,13 @@ import org.testng.AssertJUnit;
  * All the utils regarding files goes in here. If there are exceptions while
  * doing any operations the test will fail with appropriate message.
  */
-public class UtilsFile {
+public class TUtilsFile {
 
     /**
      * @return a temporary file with random content.
      * 
-     * @see UtilsFile#createTestFile()
-     * @see UtilsFile#createTestFileWithRandomContent()
+     * @see TUtilsFile#createTestFile()
+     * @see TUtilsFile#createTestFileWithRandomContent()
      */
     public static File createTestFileWithRandomContent() {
 	File testFile = createTestFile();
@@ -55,10 +55,10 @@ public class UtilsFile {
     public static File createTestFile() {
 	File testFile = null;
 	try {
-	    testFile = File.createTempFile(UtilsFile.class.getSimpleName(), "");
+	    testFile = File.createTempFile(TUtilsFile.class.getSimpleName(), "");
 	    testFile.deleteOnExit();
 	} catch (IOException e) {
-	    UtilsTestNG.failForException("Couldn't create a test file.", e);
+	    TUtilsTestNG.failForException("Couldn't create a test file.", e);
 	}
 	return testFile;
     }
@@ -87,7 +87,7 @@ public class UtilsFile {
 	    printStream.println(RandomStringUtils.randomAlphanumeric(1000));
 	    printStream.flush();
 	} catch (FileNotFoundException e) {
-	    UtilsTestNG.failForException("Failed to write random content", e);
+	    TUtilsTestNG.failForException("Failed to write random content", e);
 	} finally {
 	    IOUtils.closeQuietly(printStream);
 	}
@@ -125,7 +125,7 @@ public class UtilsFile {
 	try {
 	    FileUtils.forceDeleteOnExit(tmpDirectory);
 	} catch (IOException e) {
-	    UtilsTestNG.failForException(
+	    TUtilsTestNG.failForException(
 		    "Could not force delete tmpDirectory: " + tmpDirectory, e);
 	}
 	return tmpDirectory;
@@ -150,14 +150,14 @@ public class UtilsFile {
 
     private static void createDirectory(File dir) {
 	if (!dir.mkdir()) {
-	    UtilsTestNG.failForException(
+	    TUtilsTestNG.failForException(
 		    "Could not create directory: " + dir.getAbsolutePath(),
 		    new RuntimeException());
 	}
 	try {
 	    FileUtils.forceDeleteOnExit(dir);
 	} catch (IOException e) {
-	    UtilsTestNG.failForException("Could not force delete on exit: "
+	    TUtilsTestNG.failForException("Could not force delete on exit: "
 		    + dir.getAbsolutePath(), new RuntimeException(e));
 	}
     }
@@ -204,7 +204,7 @@ public class UtilsFile {
 	    child.createNewFile();
 	} catch (IOException e) {
 	    e.printStackTrace();
-	    UtilsTestNG.failForException("Could not create file: " + child, e);
+	    TUtilsTestNG.failForException("Could not create file: " + child, e);
 	}
 	child.deleteOnExit();
 	return child;
@@ -219,7 +219,7 @@ public class UtilsFile {
 	try {
 	    FileUtils.copyFile(file, newFile);
 	} catch (IOException e) {
-	    UtilsTestNG.failForException(
+	    TUtilsTestNG.failForException(
 		    "Couldn't create file with contents of " + file.toString(),
 		    e);
 	}
@@ -240,6 +240,6 @@ public class UtilsFile {
      * @return a file named a certain way.
      */
     public static File createTestFileWithName(String name) {
-	return UtilsFile.createFileInParent(FileUtils.getTempDirectory(), name);
+	return TUtilsFile.createFileInParent(FileUtils.getTempDirectory(), name);
     }
 }

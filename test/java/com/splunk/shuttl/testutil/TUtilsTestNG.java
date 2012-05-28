@@ -30,7 +30,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 /**
  * All the utils regarding testng goes in here.
  */
-public class UtilsTestNG {
+public class TUtilsTestNG {
 
     /**
      * Fails a test with specified message and the stacktrace of specified

@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketFilterTest {
@@ -72,14 +72,14 @@ public class BucketFilterTest {
     }
 
     public void filterBucketsByTimeRange_givenBucketWithEarliestAndLatestEqualToFilterEarliest_doNotFilterBucket() {
-	Bucket bucket = UtilsBucket.createBucketWithTimes(earliest, earliest);
+	Bucket bucket = TUtilsBucket.createBucketWithTimes(earliest, earliest);
 	filterBuckets(bucket);
 	assertEquals(1, filteredBuckets.size());
 	assertEquals(bucket, filteredBuckets.get(0));
     }
 
     public void filterBucketsByTimeRange_givenBucketWithEarliestAndLatestEqualToFilterLatest_doNotFilterBucket() {
-	Bucket bucket = UtilsBucket.createBucketWithTimes(latest, latest);
+	Bucket bucket = TUtilsBucket.createBucketWithTimes(latest, latest);
 	filterBuckets(bucket);
 	assertEquals(1, filteredBuckets.size());
 	assertEquals(bucket, filteredBuckets.get(0));
@@ -104,15 +104,15 @@ public class BucketFilterTest {
     }
 
     public void filterBucketsByTimeRange_givenTwoBucketsWithEarliestAndLatestWithinFilterTimeRange_returnBothBuckets() {
-	Bucket bucket1 = UtilsBucket.createBucketWithTimes(earliest, latest);
-	Bucket bucket2 = UtilsBucket.createBucketWithTimes(earliest, latest);
+	Bucket bucket1 = TUtilsBucket.createBucketWithTimes(earliest, latest);
+	Bucket bucket2 = TUtilsBucket.createBucketWithTimes(earliest, latest);
 	filterBuckets(bucket1, bucket2);
 	assertEquals(2, filteredBuckets.size());
 	assertTrue(filteredBuckets.containsAll(Arrays.asList(bucket1, bucket2)));
     }
 
     private Bucket createBucketWithEarliestAndLatestSetToDate(Date date) {
-	return UtilsBucket.createBucketWithTimes(date, date);
+	return TUtilsBucket.createBucketWithTimes(date, date);
     }
 
 }

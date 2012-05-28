@@ -32,7 +32,7 @@ import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketFormatChooser;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketFormatResolverTest {
@@ -84,7 +84,7 @@ public class BucketFormatResolverTest {
 
     @SuppressWarnings("unchecked")
     public void resolveBucketsFormats_givenChosenFormat_resolvingUriForBucketWithFormat() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 	when(bucketFormatChooser.chooseBucketFormat(anyList())).thenReturn(
 		format);
@@ -97,7 +97,7 @@ public class BucketFormatResolverTest {
 
     @SuppressWarnings("unchecked")
     public void resolveBucketsFormats_givenBucketToResolveForAndChosenFormat_bucketWithFormatIndexAndName() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 	when(bucketFormatChooser.chooseBucketFormat(anyList())).thenReturn(
 		format);

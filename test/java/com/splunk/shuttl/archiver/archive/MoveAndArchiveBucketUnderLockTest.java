@@ -24,7 +24,7 @@ import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.archive.MoveAndArchiveBucketUnderLock;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class MoveAndArchiveBucketUnderLockTest {
@@ -36,7 +36,7 @@ public class MoveAndArchiveBucketUnderLockTest {
 
     @BeforeMethod
     public void setUp() {
-	bucket = UtilsBucket.createTestBucket();
+	bucket = TUtilsBucket.createTestBucket();
 	bucketMover = mock(BucketMover.class);
 	archiveRestHandler = mock(ArchiveRestHandler.class);
 	moveAndArchiveBucketUnderLock = new MoveAndArchiveBucketUnderLock(

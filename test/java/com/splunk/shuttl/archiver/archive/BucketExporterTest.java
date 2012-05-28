@@ -15,7 +15,7 @@
 
 package com.splunk.shuttl.archiver.archive;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -30,7 +30,7 @@ import com.splunk.shuttl.archiver.archive.CsvBucketCreator;
 import com.splunk.shuttl.archiver.archive.CsvExporter;
 import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketExporterTest {
@@ -62,7 +62,7 @@ public class BucketExporterTest {
     }
 
     public void exportBucketToFormat_exportsSplunkBucketWithCsvExporter_createsAndReturnsBucketFromCsvFile() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	File csvFile = createTestFile();
 	when(csvExporter.exportBucketToCsv(bucket)).thenReturn(csvFile);
 	Bucket csvBucket = mock(Bucket.class);

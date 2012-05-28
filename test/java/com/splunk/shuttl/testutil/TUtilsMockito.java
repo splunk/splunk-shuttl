@@ -34,7 +34,7 @@ import com.splunk.Service;
  * All the utils regarding Mockito goes in here. If there are exceptions while
  * doing any operations the tests will fail with appropriate message.
  */
-public class UtilsMockito {
+public class TUtilsMockito {
 
     /**
      * @return an HttpClient that always returns HTTP OK coded responses when
@@ -61,7 +61,7 @@ public class UtilsMockito {
 	    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(
 		    new BasicHttpResponse(statusLine));
 	} catch (Exception e) {
-	    UtilsTestNG.failForException(
+	    TUtilsTestNG.failForException(
 		    "Could not assign return value for execute", e);
 	}
 	when(statusLine.getStatusCode()).thenReturn(getAnyHttpStatus());
@@ -88,7 +88,7 @@ public class UtilsMockito {
 	    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(
 		    new BasicHttpResponse(statusLine));
 	} catch (Exception e) {
-	    UtilsTestNG.failForException(
+	    TUtilsTestNG.failForException(
 		    "Couldn't assign return value for execute", e);
 	}
 	return httpClient;

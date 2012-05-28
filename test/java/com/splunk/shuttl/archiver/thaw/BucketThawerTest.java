@@ -33,7 +33,7 @@ import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
 import com.splunk.shuttl.archiver.thaw.BucketRestorer;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.ThawBucketTransferer;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketThawerTest {
@@ -111,7 +111,7 @@ public class BucketThawerTest {
     }
 
     public void thawBuckets_givenOneFilteredBucketWithFormat_restoresBucketToSplunkBucketFormat() {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	stubFilteredBucketsWithFormat(bucket);
 	bucketThawer.thawBuckets(index, earliestTime, latestTime);
 	verify(bucketRestorer).restoreToSplunkBucketFormat(bucket);
@@ -119,7 +119,7 @@ public class BucketThawerTest {
 
     public void thawBuckets_whenTransferBucketsFailToThaw_doesNotRestoreFailedBucket()
 	    throws IOException {
-	Bucket bucket = UtilsBucket.createTestBucket();
+	Bucket bucket = TUtilsBucket.createTestBucket();
 	stubFilteredBucketsWithFormat(bucket);
 
 	doThrow(new IOException()).when(thawBucketTransferer)

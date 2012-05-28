@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.GetsBucketsCsvFile;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class GetsBucketsCsvFileTest {
@@ -40,7 +40,7 @@ public class GetsBucketsCsvFileTest {
     public void setUp() {
 	csvDirectory = createTempDirectory();
 	getsBucketsCsvFile = new GetsBucketsCsvFile(csvDirectory);
-	bucket = UtilsBucket.createTestBucket();
+	bucket = TUtilsBucket.createTestBucket();
     }
 
     @AfterMethod

@@ -15,7 +15,7 @@
 package com.splunk.shuttl.archiver.endtoend;
 
 import static com.splunk.shuttl.archiver.functional.UtilsFunctional.*;
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -38,9 +38,9 @@ import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.functional.UtilsFunctional;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsMBean;
-import com.splunk.shuttl.testutil.UtilsMockito;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsMBean;
+import com.splunk.shuttl.testutil.TUtilsMockito;
 
 @Test(groups = { "end-to-end" })
 public class ArchiveRecoveryEndToEndTest {
@@ -62,7 +62,7 @@ public class ArchiveRecoveryEndToEndTest {
     }
 
     private void setUp(String hadoopHost, String hadoopPort) {
-	UtilsMBean.registerShuttlArchiverMBean();
+	TUtilsMBean.registerShuttlArchiverMBean();
 	config = ArchiveConfiguration.getSharedInstance();
 	hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
 
@@ -72,7 +72,7 @@ public class ArchiveRecoveryEndToEndTest {
 	BucketMover bucketMover = new BucketMover(safeLocation);
 	BucketLocker bucketLocker = new BucketLocker();
 	ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(
-		UtilsMockito.createInternalServerErrorHttpClientMock());
+		TUtilsMockito.createInternalServerErrorHttpClientMock());
 	ArchiveRestHandler successfulRealRestHandler = new ArchiveRestHandler(
 		new DefaultHttpClient());
 
@@ -107,11 +107,11 @@ public class ArchiveRecoveryEndToEndTest {
     private void givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets()
 	    throws IOException, InterruptedException {
 	// Setup buckets
-	Bucket firstFailingBucket = UtilsBucket
+	Bucket firstFailingBucket = TUtilsBucket
 		.createBucketInDirectory(originalBucketLocation);
-	Bucket secondFailingBucket = UtilsBucket
+	Bucket secondFailingBucket = TUtilsBucket
 		.createBucketInDirectory(originalBucketLocation);
-	Bucket successfulBucket = UtilsBucket
+	Bucket successfulBucket = TUtilsBucket
 		.createBucketInDirectory(originalBucketLocation);
 
 	// Test

@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.recovery.SimpleFileLock;
 import com.splunk.shuttl.testutil.ShellClassRunner;
-import com.splunk.shuttl.testutil.UtilsTestNG;
+import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 /**
  * Fixture: Creating SimpleFileLocks in different JVMs.<br/>
@@ -54,7 +54,7 @@ public class SimpleFileLockTwoJVMsTest {
 	try {
 	    FileUtils.forceDelete(fileToLock);
 	} catch (IOException e) {
-	    UtilsTestNG.failForException("Tried force delete on"
+	    TUtilsTestNG.failForException("Tried force delete on"
 		    + " file, got IOException", e);
 	}
     }

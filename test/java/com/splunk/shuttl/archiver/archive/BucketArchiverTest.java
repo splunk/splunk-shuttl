@@ -31,7 +31,7 @@ import com.splunk.shuttl.archiver.archive.BucketExporter;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketArchiverTest {
@@ -55,7 +55,7 @@ public class BucketArchiverTest {
 	bucketArchiver = new BucketArchiver(config, exporter, pathResolver,
 		archiveBucketTransferer, deletesBuckets);
 
-	bucket = UtilsBucket.createTestBucket();
+	bucket = TUtilsBucket.createTestBucket();
     }
 
     @Test(groups = { "fast-unit" })
@@ -90,7 +90,7 @@ public class BucketArchiverTest {
     }
 
     public void archiveBucket_givenBucketAndBucketDeleter_deletesBucketWithBucketDeleter() {
-	Bucket exportedBucket = UtilsBucket.createTestBucket();
+	Bucket exportedBucket = TUtilsBucket.createTestBucket();
 	when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
 		.thenReturn(exportedBucket);
 	bucketArchiver.archiveBucket(bucket);
@@ -99,7 +99,7 @@ public class BucketArchiverTest {
     }
 
     public void archiveBucket_whenExceptionIsThrown_deleteExportedBucketButNotOriginalBucket() {
-	Bucket exportedBucket = UtilsBucket.createTestBucket();
+	Bucket exportedBucket = TUtilsBucket.createTestBucket();
 	when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
 		.thenReturn(exportedBucket);
 	when(pathResolver.resolveArchivePath(any(Bucket.class))).thenThrow(

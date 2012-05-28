@@ -15,7 +15,7 @@
 package com.splunk.shuttl.archiver.functional;
 
 import static com.splunk.shuttl.archiver.functional.UtilsFunctional.*;
-import static com.splunk.shuttl.testutil.UtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -37,8 +37,8 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
-import com.splunk.shuttl.testutil.UtilsBucket;
-import com.splunk.shuttl.testutil.UtilsFile;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsFile;
 
 @Test(groups = { "functional" })
 public class ThawFunctionalTest {
@@ -59,7 +59,7 @@ public class ThawFunctionalTest {
 	bucketArchiver = BucketArchiverFactory
 		.createWithConfigurationAndArchiveFileSystem(config,
 			archiveFileSystem);
-	thawDirectory = UtilsFile.createTempDirectory();
+	thawDirectory = TUtilsFile.createTempDirectory();
 
 	SplunkSettings splunkSettings = mock(SplunkSettings.class);
 	when(splunkSettings.getThawLocation(thawIndex)).thenReturn(
@@ -77,7 +77,7 @@ public class ThawFunctionalTest {
     public void Thawer_givenOneArchivedBucket_thawArchivedBucket() {
 	Date earliest = new Date();
 	Date latest = earliest;
-	Bucket bucket = UtilsBucket.createBucketWithIndexAndTimeRange(
+	Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
 		thawIndex, earliest, latest);
 	archiveBucket(bucket, bucketArchiver);
 
@@ -95,7 +95,7 @@ public class ThawFunctionalTest {
 	for (int i = 0; i < 3; i++) {
 	    Date early = new Date(earliest.getTime() + i * 100);
 	    Date later = new Date(early.getTime() + 30);
-	    Bucket bucket = UtilsBucket.createBucketWithIndexAndTimeRange(
+	    Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
 		    thawIndex, early, later);
 	    archiveBucket(bucket, bucketArchiver);
 	    assertFalse(bucket.getDirectory().exists());

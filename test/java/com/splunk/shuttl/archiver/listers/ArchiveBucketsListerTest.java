@@ -32,7 +32,7 @@ import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.UtilsTestNG;
+import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 @Test(groups = { "fast-unit" })
 public class ArchiveBucketsListerTest {
@@ -105,9 +105,9 @@ public class ArchiveBucketsListerTest {
 	Bucket bucket1 = new Bucket(bucketUri1, index, bucketName1, null, null);
 	Bucket bucket2 = new Bucket(bucketUri2, index, bucketName2, null, null);
 	for (Bucket bucket : buckets) {
-	    assertTrue(UtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket1,
+	    assertTrue(TUtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket1,
 		    bucket)
-		    || UtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket2,
+		    || TUtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket2,
 			    bucket));
 	}
     }

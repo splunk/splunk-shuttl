@@ -26,7 +26,7 @@ import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.ThawBucketTransferer;
 import com.splunk.shuttl.archiver.thaw.ThawLocationProvider;
-import com.splunk.shuttl.testutil.UtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class ThawBucketTransfererTest {
@@ -38,7 +38,7 @@ public class ThawBucketTransfererTest {
 
     @BeforeMethod
     public void setUp() {
-	bucket = UtilsBucket.createTestBucket();
+	bucket = TUtilsBucket.createTestBucket();
 	thawLocationProvider = mock(ThawLocationProvider.class);
 	archiveFileSystem = mock(ArchiveFileSystem.class);
 	bucketTransferer = new ThawBucketTransferer(thawLocationProvider,
