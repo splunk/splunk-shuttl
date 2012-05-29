@@ -17,8 +17,6 @@ package com.splunk.shuttl.archiver.thaw;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -27,8 +25,6 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class ThawBucketTransferer {
 
-	private final static Logger logger = Logger
-			.getLogger(ThawBucketTransferer.class);
 	private final ThawLocationProvider thawLocationProvider;
 	private final ArchiveFileSystem archiveFileSystem;
 

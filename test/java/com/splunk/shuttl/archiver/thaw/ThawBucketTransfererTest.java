@@ -14,7 +14,9 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
+import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,5 +54,17 @@ public class ThawBucketTransfererTest {
 		bucketTransferer.transferBucketToThaw(bucket);
 
 		verify(archiveFileSystem).getFile(file, bucket.getURI());
+	}
+
+	public void transferBucketToThaw_archiveFileSystemThrowsIOException_keepThrowing()
+			throws IOException {
+		doThrow(IOException.class).when(archiveFileSystem).getFile(any(File.class),
+				eq(bucket.getURI()));
+		try {
+			bucketTransferer.transferBucketToThaw(bucket);
+			fail();
+		} catch (IOException e) {
+			// We should come here instead of the fail call.
+		}
 	}
 }
