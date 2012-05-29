@@ -64,15 +64,14 @@ public class BucketThawerTest {
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void thawBuckets_givenTimeRange_filterBucketTimeRange() {
-		when(archiveBucketsLister.listBucketsInIndex(anyString())).thenReturn(
-				buckets);
+	public void thawBuckets_givenTimeRangeAndBucketsInAnIndex_filterBucketsOnTimeRange() {
+		when(archiveBucketsLister.listBucketsInIndex(index)).thenReturn(buckets);
 		bucketThawer.thawBuckets(index, earliestTime, latestTime);
 		verify(bucketFilter).filterBucketsByTimeRange(buckets, earliestTime,
 				latestTime);
 	}
 
-	public void thawBuckets_givenFilteredBuckets_resolveBucketsFormats() {
+	public void thawBuckets_givenBucketsFilteredOnTimeRange_resolveBucketsFormats() {
 		List<Bucket> filteredBuckets = buckets;
 		when(
 				bucketFilter.filterBucketsByTimeRange(anyListOf(Bucket.class),
@@ -109,7 +108,7 @@ public class BucketThawerTest {
 		Bucket bucket = TUtilsBucket.createBucket();
 		stubFilteredBucketsWithFormat(bucket);
 		bucketThawer.thawBuckets(index, earliestTime, latestTime);
-		verify(bucketImporter).restoreToSplunkBucketFormat(bucket);
+		verify(bucketImporter).restoreToSplunkBucketFormat(any(Bucket.class));
 	}
 
 	public void thawBuckets_whenTransferBucketsFailToThaw_doesNotRestoreFailedBucket()
@@ -128,4 +127,5 @@ public class BucketThawerTest {
 		when(bucketFormatResolver.resolveBucketsFormats(anyListOf(Bucket.class)))
 				.thenReturn(filteredBucketsWithFormat);
 	}
+
 }

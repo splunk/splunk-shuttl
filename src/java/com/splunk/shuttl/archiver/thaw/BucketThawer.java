@@ -14,18 +14,15 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import static com.splunk.shuttl.archiver.LogFormatter.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.splunk.shuttl.archiver.fileSystem.FileOverwriteException;
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
+import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 
@@ -35,12 +32,8 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
  */
 public class BucketThawer {
 
-	private static final Logger logger = Logger.getLogger(BucketThawer.class);
-	private final ArchiveBucketsLister archiveBucketsLister;
-	private final BucketFilter bucketFilter;
-	private final BucketFormatResolver bucketFormatResolver;
-	private final ThawBucketTransferer thawBucketTransferer;
-	private final BucketImporter bucketImporter;
+	private final ListsBucketsFiltered listsBucketsFiltered;
+	private final GetsBucketsFromArchive getsBucketsFromArchive;
 
 	public static class ThawInfo {
 
@@ -91,11 +84,10 @@ public class BucketThawer {
 	public BucketThawer(ArchiveBucketsLister bucketsLister,
 			BucketFilter bucketFilter, BucketFormatResolver bucketFormatResolver,
 			ThawBucketTransferer thawBucketTransferer, BucketImporter bucketImporter) {
-		this.archiveBucketsLister = bucketsLister;
-		this.bucketFilter = bucketFilter;
-		this.bucketFormatResolver = bucketFormatResolver;
-		this.thawBucketTransferer = thawBucketTransferer;
-		this.bucketImporter = bucketImporter;
+		this.listsBucketsFiltered = new ListsBucketsFiltered(bucketsLister,
+				bucketFilter, bucketFormatResolver);
+		this.getsBucketsFromArchive = new GetsBucketsFromArchive(
+				thawBucketTransferer, bucketImporter);
 	}
 
 	/**
@@ -107,44 +99,27 @@ public class BucketThawer {
 	 */
 	public List<ThawInfo> thawBuckets(String index, Date earliestTime,
 			Date latestTime) {
-		List<Bucket> bucketsInIndex = null;
-		if (index != null)
-			bucketsInIndex = archiveBucketsLister.listBucketsInIndex(index);
-		else
-			// no index specified - use all indexes
-			bucketsInIndex = archiveBucketsLister.listBuckets();
-		List<Bucket> filteredBuckets = bucketFilter.filterBucketsByTimeRange(
-				bucketsInIndex, earliestTime, latestTime);
-		List<Bucket> bucketsWithFormats = bucketFormatResolver
-				.resolveBucketsFormats(filteredBuckets);
-
-		return thawBuckets(bucketsWithFormats);
+		List<Bucket> bucketsToThaw = getBucketsToThaw(index, earliestTime,
+				latestTime);
+		return thawBuckets(bucketsToThaw);
 	}
 
-	public List<ThawInfo> thawBuckets(List<Bucket> bucketsWithFormats) {
+	private List<Bucket> getBucketsToThaw(String index, Date earliestTime,
+			Date latestTime) {
+		if (index == null)
+			return listsBucketsFiltered.listFilteredBuckets(earliestTime, latestTime);
+		else
+			return listsBucketsFiltered.listFilteredBucketsAtIndex(index,
+					earliestTime, latestTime);
+	}
+
+	private List<ThawInfo> thawBuckets(List<Bucket> bucketsWithFormats) {
 		List<ThawInfo> thawInfos = new ArrayList<ThawInfo>();
 
 		for (Bucket bucket : bucketsWithFormats)
-			thawInfos.add(thawBucket(bucket));
+			thawInfos.add(getsBucketsFromArchive.getBucketFromArchive(bucket));
 
 		return thawInfos;
 	}
 
-	private ThawInfo thawBucket(Bucket bucket) {
-		logger.info(will("Attempting to thaw bucket", "bucket", bucket));
-		ThawInfo thawInfo = null;
-		try {
-			thawBucketTransferer.transferBucketToThaw(bucket);
-			Bucket thawedBucket = bucketImporter.restoreToSplunkBucketFormat(bucket);
-			logger.info(done("Thawed bucket", "bucket", bucket));
-			thawInfo = new ThawInfo(bucket, ThawInfo.Status.THAWED, null);
-		} catch (Exception e) {
-			// TODO: Thawing could be sped up by ignoring buckets in indexes
-			// we know don't exist
-			logger.error(did("Tried to thaw bucket", e, "Place the bucket in thaw",
-					"bucket", bucket, "exception", e));
-			thawInfo = new ThawInfo(bucket, ThawInfo.Status.FAILED, e);
-		}
-		return thawInfo;
-	}
 }

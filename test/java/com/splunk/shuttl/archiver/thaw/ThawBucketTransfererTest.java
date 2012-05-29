@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -48,12 +49,12 @@ public class ThawBucketTransfererTest {
 	@Test(groups = { "fast-unit" })
 	public void transferBucketToThaw_givenBucket_transferBucketFromArchiveToPathWhereParentIsThawLocation()
 			throws IOException {
-		File file = mock(File.class);
+		File bucketLocation = createDirectory();
 		when(thawLocationProvider.getLocationInThawForBucket(bucket)).thenReturn(
-				file);
+				bucketLocation);
 		bucketTransferer.transferBucketToThaw(bucket);
 
-		verify(archiveFileSystem).getFile(file, bucket.getURI());
+		verify(archiveFileSystem).getFile(bucketLocation, bucket.getURI());
 	}
 
 	public void transferBucketToThaw_archiveFileSystemThrowsIOException_keepThrowing()

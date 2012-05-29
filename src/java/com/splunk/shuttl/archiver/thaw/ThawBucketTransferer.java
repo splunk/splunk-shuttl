@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.BucketFactory;
 
 /**
  * Transfers bucket to thaw.
@@ -36,10 +37,15 @@ public class ThawBucketTransferer {
 
 	/**
 	 * Transfers an archived bucket in the thaw directory of the bucket's index.
+	 * 
+	 * @return the transferred bucket.
 	 */
-	public void transferBucketToThaw(Bucket bucket) throws IOException {
+	public Bucket transferBucketToThaw(Bucket bucket) throws IOException {
 		File bucketsThawLocation = thawLocationProvider
 				.getLocationInThawForBucket(bucket);
 		archiveFileSystem.getFile(bucketsThawLocation, bucket.getURI());
+		// TODO: test this.
+		return BucketFactory.createBucketWithIndexAndDirectory(bucket.getIndex(),
+				bucketsThawLocation);
 	}
 }
