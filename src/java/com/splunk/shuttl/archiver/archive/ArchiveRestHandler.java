@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -53,86 +54,28 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 
 	public void callRestToArchiveBucket(Bucket bucket) {
 		HttpResponse response = null;
-
 		try {
-			HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
-
-			if (logger.isDebugEnabled())
-				logger.debug(will("Send an archive bucket request", "request_uri",
-						archiveBucketRequest.getURI()));
-
-			response = httpClient.execute(archiveBucketRequest);
-
-			if (response != null)
-				handleResponseFromDoingArchiveBucketRequest(response, bucket);
-			else
-				// LOG: warning! Response was null. This happens in our tests
-				// when we mock the httpClient. Should never happen otherwise.
-				// Should it?
-				logger.warn(did("Sent an archive bucket request",
-						"Got a null response", "A non-null response"));
+			response = executingHttpRequestForArchivingBucket(bucket);
 		} catch (HttpResponseException e) {
-			logger.error(did("Sent an archive bucket reuqest",
-					"Got non ok http_status",
-					"expected HttpStatus.SC_OK or SC_NO_CONTENT", "http_status",
-					e.getStatusCode(), "bucket_name", bucket.getName()));
-		} catch (ClientProtocolException e) {
-			handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
+			logHttpResponseException(bucket, e);
 		} catch (IOException e) {
-			handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
+			logIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
 		} finally {
-			consumeResponseHandlingErrors(response);
+			if (response != null)
+				consumeResponseHandlingErrors(response);
 		}
 	}
 
-	private void consumeResponseHandlingErrors(HttpResponse response) {
-		if (response != null)
-			try {
-				EntityUtils.consume(response.getEntity());
-			} catch (IOException e) {
-				logger.error(did(
-						"Tried to consume http response of archive bucket request", e,
-						"no exception", "response", response));
-			}
-	}
+	private HttpResponse executingHttpRequestForArchivingBucket(Bucket bucket)
+			throws UnsupportedEncodingException, IOException,
+			ClientProtocolException, HttpResponseException {
+		HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
 
-	private void handleResponseFromDoingArchiveBucketRequest(
-			HttpResponse response, Bucket bucket) throws HttpResponseException {
-		int statusCode = response.getStatusLine().getStatusCode();
-
-		String entity = null;
-		try {
-			entity = EntityUtils.toString(response.getEntity());
-		} catch (Exception e) {
-			// ignore Exceptions - we just want the entity for logging anyway
-		}
-
-		// TODO handle the different status codes
-		switch (statusCode) {
-		case HttpStatus.SC_OK:
-		case HttpStatus.SC_NO_CONTENT:
-			if (logger.isDebugEnabled())
-				logger.debug(done("Got http response from archiveBucketRequest",
-						"status_code", statusCode, "bucket_name", bucket.getName(),
-						"entity", entity));
-			break;
-		default:
-			throw new HttpResponseException(statusCode,
-					"Unexpected response when archiving bucket.");
-		}
-	}
-
-	private void handleIOExceptionGenereratedByDoingArchiveBucketRequest(
-			IOException e, Bucket bucket) {
-
-		// TODO this method should handle the errors in case the bucket transfer
-		// fails. In this state there is no way of telling if the bucket was
-		// actually transfered or not.
-
-		logger.error(did("Sent archive bucket request", "got IOException",
-				"request to succeed", "exception", e, "bucket_name", bucket.getName(),
-				"cause", e.getCause()));
-		throw new RuntimeException(e);
+		logger.debug(will("Send an archive bucket request", "request_uri",
+				archiveBucketRequest.getURI()));
+		HttpResponse response = httpClient.execute(archiveBucketRequest);
+		handleResponseFromDoingArchiveBucketRequest(response, bucket);
+		return response;
 	}
 
 	private static HttpUriRequest createBucketArchiveRequest(Bucket bucket)
@@ -151,6 +94,62 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 
 		request.setEntity(new UrlEncodedFormEntity(params));
 		return request;
+	}
+
+	private void handleResponseFromDoingArchiveBucketRequest(
+			HttpResponse response, Bucket bucket) throws HttpResponseException {
+		switch (response.getStatusLine().getStatusCode()) {
+		case HttpStatus.SC_OK:
+		case HttpStatus.SC_NO_CONTENT:
+			logSuccess(response, bucket, response.getStatusLine().getStatusCode());
+			break;
+		default:
+			throw new HttpResponseException(response.getStatusLine().getStatusCode(),
+					"Unexpected response when archiving bucket.");
+		}
+	}
+
+	private void logSuccess(HttpResponse response, Bucket bucket, int statusCode) {
+		String entity = getEntityFromResponse(response);
+		logger.debug(done("Got http response from archiveBucketRequest",
+				"status_code", statusCode, "bucket_name", bucket.getName(), "entity",
+				entity));
+	}
+
+	/**
+	 * @return entity from the response as a string.
+	 */
+	private String getEntityFromResponse(HttpResponse response) {
+		try {
+			HttpEntity entity = response.getEntity();
+			return entity != null ? EntityUtils.toString(entity) : "";
+		} catch (IOException e) {
+			// Ignore.
+			return "";
+		}
+	}
+
+	private void logHttpResponseException(Bucket bucket, HttpResponseException e) {
+		logger.error(did("Sent an archive bucket reuqest",
+				"Got non ok http_status", "expected HttpStatus.SC_OK or SC_NO_CONTENT",
+				"http_status", e.getStatusCode(), "bucket_name", bucket.getName()));
+	}
+
+	private void logIOExceptionGenereratedByDoingArchiveBucketRequest(
+			IOException e, Bucket bucket) {
+		logger.error(did("Sent archive bucket request", "got IOException",
+				"request to succeed", "exception", e, "bucket_name", bucket.getName(),
+				"cause", e.getCause()));
+	}
+
+	private void consumeResponseHandlingErrors(HttpResponse response) {
+		try {
+			EntityUtils.consume(response.getEntity());
+		} catch (IOException e) {
+			logger.error(did(
+					"Tried to consume http response of archive bucket request", e,
+					"no exception", "response", response));
+		}
 	}
 
 	/*

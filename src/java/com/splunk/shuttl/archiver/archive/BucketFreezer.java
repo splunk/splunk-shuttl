@@ -87,7 +87,6 @@ public class BucketFreezer {
 
 	private void moveAndArchiveBucket(String indexName, String path)
 			throws FileNotFoundException, FileNotDirectoryException {
-
 		Bucket bucket = new Bucket(indexName, path);
 
 		bucketLocker.callBucketHandlerUnderSharedLock(bucket,

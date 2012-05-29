@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -31,15 +32,15 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
  * Fixture: Makes sure that {@link ArchiveRestHandler} calls rest as recovery.
  */
 @Test(groups = { "fast-unit" })
-public class ArchiveRestHandlerRecoveryTest {
+public class ArchiveRestHandlerTest {
 
 	@Test(groups = { "fast-unit" })
-	public void recoverFailedBucket_givenHttpClient_executeRequestOnFailedBucket()
+	public void callRestToArchiveBucket_givenBucket_executesRequestOnHttpClient()
 			throws ClientProtocolException, IOException {
 		Bucket bucket = TUtilsBucket.createBucket();
-		HttpClient httpClient = mock(HttpClient.class);
+		HttpClient httpClient = mock(HttpClient.class, Mockito.RETURNS_MOCKS);
 		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(httpClient);
-		archiveRestHandler.handleSharedLockedBucket(bucket);
+		archiveRestHandler.callRestToArchiveBucket(bucket);
 
 		verify(httpClient).execute(any(HttpUriRequest.class));
 	}
