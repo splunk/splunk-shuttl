@@ -13,7 +13,7 @@
 
 	<test name="Test" preserve-order="true">
 		<classes>
-			<class name="com.splunk.shuttl.archiver.thaw.CsvImporterFunctionalTest" />
+			<class name="com.splunk.shuttl.archiver.importexport.csv.CsvImporterFunctionalTest" />
 		</classes>
 	</test> <!-- Test -->
 </suite> <!-- Suite -->

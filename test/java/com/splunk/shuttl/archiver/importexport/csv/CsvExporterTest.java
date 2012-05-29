@@ -38,7 +38,7 @@ public class CsvExporterTest {
 
     private CsvExporter csvExporter;
     private SplunkExportTool exportTool;
-    private GetsBucketsCsvFile getsBucketsCsvFile;
+    private GetsBucketsCsvExportFile getsBucketsCsvExportFile;
     private Bucket bucket;
     private ShellExecutor shellExecutor;
     private Map<String, String> emptyMap;
@@ -46,9 +46,9 @@ public class CsvExporterTest {
     @BeforeMethod
     public void setUp() {
 	exportTool = mock(SplunkExportTool.class);
-	getsBucketsCsvFile = mock(GetsBucketsCsvFile.class);
+	getsBucketsCsvExportFile = mock(GetsBucketsCsvExportFile.class);
 	shellExecutor = mock(ShellExecutor.class);
-	csvExporter = new CsvExporter(exportTool, getsBucketsCsvFile,
+	csvExporter = new CsvExporter(exportTool, getsBucketsCsvExportFile,
 		shellExecutor);
 
 	bucket = TUtilsBucket.createTestBucket();
@@ -60,7 +60,7 @@ public class CsvExporterTest {
 	when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
 	when(exportTool.getEnvironment()).thenReturn(emptyMap);
 	File csvFile = createTestFile();
-	when(getsBucketsCsvFile.getCsvFile(bucket)).thenReturn(csvFile);
+	when(getsBucketsCsvExportFile.getCsvFile(bucket)).thenReturn(csvFile);
 	String bucketPath = bucket.getDirectory().getAbsolutePath();
 
 	csvExporter.exportBucketToCsv(bucket);
@@ -77,7 +77,7 @@ public class CsvExporterTest {
 	when(shellExecutor.executeCommand(anyMap(), anyList())).thenReturn(1);
 
 	when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
-	when(getsBucketsCsvFile.getCsvFile(bucket)).thenReturn(
+	when(getsBucketsCsvExportFile.getCsvFile(bucket)).thenReturn(
 		new File("/dummy/file"));
 	csvExporter.exportBucketToCsv(bucket);
     }
@@ -86,7 +86,7 @@ public class CsvExporterTest {
     @Test(groups = { "fast-unit" }, expectedExceptions = { CsvExportFailedException.class })
     public void exportBucketToCsv_csvFileDoesNotExistAfterExport_throwCsvExportFailedException() {
 	File nonExistantCsvFile = createTestFile();
-	when(getsBucketsCsvFile.getCsvFile(bucket)).thenReturn(
+	when(getsBucketsCsvExportFile.getCsvFile(bucket)).thenReturn(
 		nonExistantCsvFile);
 
 	when(shellExecutor.executeCommand(anyMap(), anyList())).thenReturn(0);

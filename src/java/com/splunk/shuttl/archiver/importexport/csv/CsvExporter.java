@@ -36,13 +36,13 @@ public class CsvExporter {
     private static final Logger logger = Logger.getLogger(CsvExporter.class);
 
     private final SplunkExportTool exportTool;
-    private final GetsBucketsCsvFile getsBucketsCsvFile;
+    private final GetsBucketsCsvExportFile getsBucketsCsvExportFile;
     private final ShellExecutor shellExecutor;
 
     public CsvExporter(SplunkExportTool exportTool,
-	    GetsBucketsCsvFile getsBucketsCsvFile, ShellExecutor shellExecutor) {
+	    GetsBucketsCsvExportFile getsBucketsCsvExportFile, ShellExecutor shellExecutor) {
 	this.exportTool = exportTool;
-	this.getsBucketsCsvFile = getsBucketsCsvFile;
+	this.getsBucketsCsvExportFile = getsBucketsCsvExportFile;
 	this.shellExecutor = shellExecutor;
     }
 
@@ -50,7 +50,7 @@ public class CsvExporter {
      * @return Csv file of the {@link Bucket}
      */
     public File exportBucketToCsv(Bucket bucket) {
-	File csvFile = getsBucketsCsvFile.getCsvFile(bucket);
+	File csvFile = getsBucketsCsvExportFile.getCsvFile(bucket);
 	String[] command = constructCommand(bucket, csvFile);
 	Map<String, String> env = exportTool.getEnvironment();
 	int exit = shellExecutor.executeCommand(env, asList(command));
@@ -89,7 +89,7 @@ public class CsvExporter {
      * @return a CsvExporter
      */
     public static CsvExporter create() {
-	return new CsvExporter(new SplunkExportTool(), new GetsBucketsCsvFile(
+	return new CsvExporter(new SplunkExportTool(), new GetsBucketsCsvExportFile(
 		getCsvDirectory()), ShellExecutor.getInstance());
     }
 

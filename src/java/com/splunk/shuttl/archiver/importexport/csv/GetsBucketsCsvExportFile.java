@@ -21,11 +21,11 @@ import com.splunk.shuttl.archiver.model.Bucket;
 /**
  * Class for getting a .csv file that's unique for a bucket.
  */
-public class GetsBucketsCsvFile {
+public class GetsBucketsCsvExportFile {
 
     private final File csvDirectory;
 
-    public GetsBucketsCsvFile(File csvDirectory) {
+    public GetsBucketsCsvExportFile(File csvDirectory) {
 	this.csvDirectory = csvDirectory;
     }
 
