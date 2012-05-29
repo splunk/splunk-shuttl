@@ -26,6 +26,8 @@ And see the [Splunk documentation][] for instructions on installing and more.
 [splunk-download]:http://www.splunk.com/download
 
 
+
+
 Building from Source
 --------------------
 
@@ -58,7 +60,9 @@ Eclipse for shuttl development.
 
 ### Coding Conventions
 
-The Shuttl code base is to follow the standard java conventions:
+The Shuttl code base is to follow the standard java conventions except for using braces for all for-loops, if-statements etc. We try to not use braces to avoid too much indentation. We rely on having tests to catch any mistake done by forgetting braces, when having more than one line after an if-statement or for-loop.
+
+The standard java conventions can be found here:
 http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html
 
 Getting Started
