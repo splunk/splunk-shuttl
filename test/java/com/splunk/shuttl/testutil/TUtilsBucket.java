@@ -47,8 +47,8 @@ public class TUtilsBucket {
 	 * @return A bucket with random bucket and index names.
 	 * @see #createTestBucketWithName(String, String)
 	 */
-	public static Bucket createTestBucket() {
-		return createTestBucketWithIndexAndName(randomIndexName(),
+	public static Bucket createBucket() {
+		return createBucketWithIndexAndName(randomIndexName(),
 				randomBucketName());
 
 	}
@@ -67,7 +67,7 @@ public class TUtilsBucket {
 	/**
 	 * @return A bucket with specified index and bucket names.
 	 */
-	public static Bucket createTestBucketWithIndexAndName(String index,
+	public static Bucket createBucketWithIndexAndName(String index,
 			String bucketName) {
 		File bucketDir = createFileFormatedAsBucket(bucketName);
 		return createBucketWithIndexInDirectory(index, bucketDir);
@@ -92,7 +92,7 @@ public class TUtilsBucket {
 	 * @return A directory formated as a bucket.
 	 */
 	public static File createFileFormatedAsBucket(String bucketName) {
-		File bucketDir = TUtilsFile.createTmpDirectoryWithName(bucketName);
+		File bucketDir = TUtilsFile.createDirectoryWithName(bucketName);
 		return formatDirectoryToBeABucket(bucketDir);
 	}
 
@@ -153,7 +153,7 @@ public class TUtilsBucket {
 	public static Bucket createBucketWithIndexAndTimeRange(String index,
 			Date earliest, Date latest) {
 		String name = getNameWithEarliestAndLatestTime(earliest, latest);
-		return createTestBucketWithIndexAndName(index, name);
+		return createBucketWithIndexAndName(index, name);
 	}
 
 	private static String getNameWithEarliestAndLatestTime(Date earliest,
@@ -177,27 +177,27 @@ public class TUtilsBucket {
 	 * Creates test bucket with specified name and random index.
 	 */
 	public static Bucket createBucketWithName(String name) {
-		return createTestBucketWithIndexAndName(randomIndexName(), name);
+		return createBucketWithIndexAndName(randomIndexName(), name);
 	}
 
 	/**
 	 * @return bucket with real splunk bucket data in it.
 	 */
 	public static Bucket createRealBucket() {
-		return copyTestBucketWithUrl(REAL_BUCKET_URL);
+		return copyBucketWithUrl(REAL_BUCKET_URL);
 	}
 
 	/**
 	 * @return create csv bucket with real splunk data.
 	 */
 	public static Bucket createRealCsvBucket() {
-		Bucket realCsvBucketCopy = copyTestBucketWithUrl(REAL_CSV_BUCKET_URL);
+		Bucket realCsvBucketCopy = copyBucketWithUrl(REAL_CSV_BUCKET_URL);
 		File csvFile = UtilsBucket.getCsvFile(realCsvBucketCopy);
 		CsvBucketCreator csvBucketCreator = new CsvBucketCreator();
 		return csvBucketCreator.createBucketWithCsvFile(csvFile, realCsvBucketCopy);
 	}
 
-	private static Bucket copyTestBucketWithUrl(URL bucketUrl) {
+	private static Bucket copyBucketWithUrl(URL bucketUrl) {
 		try {
 			return createTempCopyOfBucketFromDirectory(new File(bucketUrl.toURI()));
 		} catch (Exception e) {
@@ -208,7 +208,7 @@ public class TUtilsBucket {
 
 	private static Bucket createTempCopyOfBucketFromDirectory(File realBucketDir)
 			throws FileNotFoundException, FileNotDirectoryException {
-		File tempDirectory = createTempDirectory();
+		File tempDirectory = createDirectory();
 		File copyBucketDir = createDirectoryInParent(tempDirectory,
 				realBucketDir.getName());
 		copyDirectory(realBucketDir, copyBucketDir);

@@ -39,7 +39,7 @@ public class BucketImporterTest {
 
 	@Test(groups = { "fast-unit" })
 	public void _bucketInSplunkBucketFormat_sameBucket() {
-		Bucket bucket = TUtilsBucket.createTestBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
 		assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
 		Bucket restoredBucket = bucketImporter.restoreToSplunkBucketFormat(bucket);
 		assertTrue(restoredBucket == bucket);

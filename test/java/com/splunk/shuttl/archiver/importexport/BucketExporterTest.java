@@ -61,8 +61,8 @@ public class BucketExporterTest {
 	}
 
 	public void exportBucketToFormat_exportsSplunkBucketWithCsvExporter_createsAndReturnsBucketFromCsvFile() {
-		Bucket bucket = TUtilsBucket.createTestBucket();
-		File csvFile = createTestFile();
+		Bucket bucket = TUtilsBucket.createBucket();
+		File csvFile = createFile();
 		when(csvExporter.exportBucketToCsv(bucket)).thenReturn(csvFile);
 		Bucket csvBucket = mock(Bucket.class);
 		when(csvBucketCreator.createBucketWithCsvFile(csvFile, bucket)).thenReturn(

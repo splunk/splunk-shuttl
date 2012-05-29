@@ -73,7 +73,7 @@ public class RemoteBucketTest {
 	@Test(expectedExceptions = { RemoteBucketException.class })
 	public void moveBucketToDir_initWithNonFileUri_throwsRemoteBucketException()
 			throws FileNotFoundException, FileNotDirectoryException {
-		bucket.moveBucketToDir(createTempDirectory());
+		bucket.moveBucketToDir(createDirectory());
 	}
 
 	@Test(expectedExceptions = { RemoteBucketException.class })

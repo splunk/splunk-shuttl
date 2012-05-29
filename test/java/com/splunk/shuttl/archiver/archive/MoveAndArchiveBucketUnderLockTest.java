@@ -34,7 +34,7 @@ public class MoveAndArchiveBucketUnderLockTest {
 
 	@BeforeMethod
 	public void setUp() {
-		bucket = TUtilsBucket.createTestBucket();
+		bucket = TUtilsBucket.createBucket();
 		bucketMover = mock(BucketMover.class);
 		archiveRestHandler = mock(ArchiveRestHandler.class);
 		moveAndArchiveBucketUnderLock = new MoveAndArchiveBucketUnderLock(

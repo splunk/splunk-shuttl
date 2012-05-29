@@ -80,7 +80,7 @@ public class CsvImporterTest {
 		when(shellExecutor.executeCommand(anyMap(), anyList())).thenReturn(0);
 		when(
 				bucketFactory.createWithIndexAndDirectory(anyString(), any(File.class)))
-				.thenReturn(TUtilsBucket.createTestBucket());
+				.thenReturn(TUtilsBucket.createBucket());
 
 		Bucket importedBucket = csvImporter.importBucketFromCsv(csvBucket);
 		assertNotNull(importedBucket);
@@ -117,7 +117,7 @@ public class CsvImporterTest {
 
 	@Test(expectedExceptions = { IllegalArgumentException.class })
 	public void _bucketNotInCsvFormat_throwsIllegalArgumentException() {
-		Bucket nonCsvBucket = TUtilsBucket.createTestBucket();
+		Bucket nonCsvBucket = TUtilsBucket.createBucket();
 		assertNotEquals(BucketFormat.CSV, nonCsvBucket.getFormat());
 		csvImporter.importBucketFromCsv(nonCsvBucket);
 	}

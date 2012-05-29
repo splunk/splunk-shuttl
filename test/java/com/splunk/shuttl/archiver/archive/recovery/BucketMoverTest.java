@@ -39,7 +39,7 @@ public class BucketMoverTest {
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
-		moveBucketLocation = TUtilsFile.createTempDirectory();
+		moveBucketLocation = TUtilsFile.createDirectory();
 		bucketMover = new BucketMover(moveBucketLocation);
 	}
 
@@ -98,7 +98,7 @@ public class BucketMoverTest {
 
 	public void moveBucket_givenBucket_movedBucketTo_moveLocation_Index_BucketName() {
 		assertTrue(isDirectoryEmpty(moveBucketLocation));
-		Bucket bucketToMove = TUtilsBucket.createTestBucket();
+		Bucket bucketToMove = TUtilsBucket.createBucket();
 
 		Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
 		assertTrue(!isDirectoryEmpty(moveBucketLocation));
@@ -106,7 +106,7 @@ public class BucketMoverTest {
 	}
 
 	public void getMovedBuckets_afterSuccessfullyMovedABucketUsingMoveBucketToMove_getBucketThatMoved() {
-		Bucket bucketToMove = TUtilsBucket.createTestBucket();
+		Bucket bucketToMove = TUtilsBucket.createBucket();
 		bucketMover.moveBucket(bucketToMove);
 
 		List<Bucket> movedBucket = bucketMover.getMovedBuckets();

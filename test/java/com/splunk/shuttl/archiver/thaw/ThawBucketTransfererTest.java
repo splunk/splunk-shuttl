@@ -36,7 +36,7 @@ public class ThawBucketTransfererTest {
 
 	@BeforeMethod
 	public void setUp() {
-		bucket = TUtilsBucket.createTestBucket();
+		bucket = TUtilsBucket.createBucket();
 		thawLocationProvider = mock(ThawLocationProvider.class);
 		archiveFileSystem = mock(ArchiveFileSystem.class);
 		bucketTransferer = new ThawBucketTransferer(thawLocationProvider,

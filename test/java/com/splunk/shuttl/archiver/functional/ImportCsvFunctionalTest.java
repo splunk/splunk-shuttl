@@ -56,7 +56,7 @@ public class ImportCsvFunctionalTest {
 		localCsvArchiveConfigration = UtilsFunctional
 				.getLocalCsvArchiveConfigration();
 		SplunkSettings splunkSettings = mock(SplunkSettings.class);
-		thawDirectory = createTempDirectory();
+		thawDirectory = createDirectory();
 		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawDirectory);
 		csvThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
 				splunkSettings, localCsvArchiveConfigration);

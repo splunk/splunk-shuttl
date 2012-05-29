@@ -36,7 +36,7 @@ public class TUtilsBucketTest {
 
 	@BeforeMethod
 	public void setUp() {
-		bucket = TUtilsBucket.createTestBucket();
+		bucket = TUtilsBucket.createBucket();
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -81,7 +81,7 @@ public class TUtilsBucketTest {
 
 	public void createTestBucketWithIndexAndName_validArguments_correctNameAndIndex() {
 		String bucketName = "db_12351290_12351235_1";
-		Bucket bucket = TUtilsBucket.createTestBucketWithIndexAndName("index-name",
+		Bucket bucket = TUtilsBucket.createBucketWithIndexAndName("index-name",
 				bucketName);
 		assertEquals("index-name", bucket.getIndex());
 		assertEquals(bucketName, bucket.getName());
@@ -99,7 +99,7 @@ public class TUtilsBucketTest {
 	}
 
 	public void createBucketInDirectory_givenDirectory_createsBucketInThatDirectory() {
-		File parent = TUtilsFile.createTempDirectory();
+		File parent = TUtilsFile.createDirectory();
 		Bucket bucketCreated = TUtilsBucket.createBucketInDirectory(parent);
 		assertEquals(parent, bucketCreated.getDirectory().getParentFile());
 	}
@@ -117,7 +117,7 @@ public class TUtilsBucketTest {
 	public void createBucketInDirectoryWithTimes_givenDirectory_createsBucketInTheDirectory() {
 		File parent = null;
 		try {
-			parent = createTempDirectory();
+			parent = createDirectory();
 			Bucket bucket = TUtilsBucket.createBucketInDirectoryWithTimes(parent,
 					new Date(), new Date());
 			assertEquals(parent.getAbsolutePath(), bucket.getDirectory()
@@ -130,7 +130,7 @@ public class TUtilsBucketTest {
 	public void createBucketInDirectoryWithTimes_givenTimes_bucketNameStartsWith_db_earliest_latest() {
 		File parent = null;
 		try {
-			parent = createTempDirectory();
+			parent = createDirectory();
 			Date earliest = new Date();
 			Date latest = new Date();
 			Bucket bucketWithTimes = TUtilsBucket.createBucketInDirectoryWithTimes(

@@ -40,8 +40,8 @@ public class BucketLockTest {
 
 	@BeforeMethod
 	public void setUp() {
-		testRootDirectory = createTempDirectory();
-		locksDirectory = createTempDirectory();
+		testRootDirectory = createDirectory();
+		locksDirectory = createDirectory();
 		bucket = TUtilsBucket.createBucketInDirectory(testRootDirectory);
 		bucketLock = new BucketLock(bucket, locksDirectory);
 	}

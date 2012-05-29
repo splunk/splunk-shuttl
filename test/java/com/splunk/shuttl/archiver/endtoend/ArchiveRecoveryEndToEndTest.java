@@ -66,8 +66,8 @@ public class ArchiveRecoveryEndToEndTest {
 		config = ArchiveConfiguration.getSharedInstance();
 		hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
 
-		safeLocation = createTempDirectory();
-		originalBucketLocation = createTempDirectory();
+		safeLocation = createDirectory();
+		originalBucketLocation = createDirectory();
 
 		BucketMover bucketMover = new BucketMover(safeLocation);
 		BucketLocker bucketLocker = new BucketLocker();

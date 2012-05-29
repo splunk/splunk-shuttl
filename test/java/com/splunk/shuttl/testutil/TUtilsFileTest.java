@@ -34,7 +34,7 @@ public class TUtilsFileTest {
 		int times = 2;
 		Set<String> absolutePaths = new HashSet<String>();
 		for (int i = 0; i < times; i++) {
-			String absolutePath = TUtilsFile.createTempDirectory().getAbsolutePath();
+			String absolutePath = TUtilsFile.createDirectory().getAbsolutePath();
 			assertNotNull(absolutePath);
 			absolutePaths.add(absolutePath);
 		}
@@ -42,25 +42,25 @@ public class TUtilsFileTest {
 	}
 
 	public void createTempDirectory_containNameOfThisTestClass_whenCalled() {
-		File tempDir = TUtilsFile.createTempDirectory();
+		File tempDir = TUtilsFile.createDirectory();
 		String dirName = tempDir.getName();
 		assertTrue(dirName.contains(getClass().getSimpleName()));
 	}
 
 	public void createNamedTempDirectory_fileDoesNotExist_getsCreated() {
-		File dir = TUtilsFile.createPrefixedTempDirectory("NameOfTheDirectory");
+		File dir = TUtilsFile.createPrefixedDirectory("NameOfTheDirectory");
 		assertTrue(dir.exists());
 	}
 
 	public void createNamedTempDirectory_containsNameOfThisClass_toProvideUniquenessToTheDirectory() {
-		File dir = TUtilsFile.createPrefixedTempDirectory("someName");
+		File dir = TUtilsFile.createPrefixedDirectory("someName");
 		String dirName = dir.getName();
 		assertTrue(dirName.contains(getClass().getSimpleName()));
 	}
 
 	public void createNamedTempDirectory_withFileAsParentParameter_createsTheDirectoryInParent()
 			throws IOException {
-		File parent = TUtilsFile.createPrefixedTempDirectory("parent");
+		File parent = TUtilsFile.createPrefixedDirectory("parent");
 		File child = TUtilsFile.createDirectoryInParent(parent, "child");
 		assertEquals(parent.listFiles()[0], child);
 		File childsChild = TUtilsFile.createDirectoryInParent(child, "childsChild");
@@ -74,21 +74,21 @@ public class TUtilsFileTest {
 	}
 
 	public void createTestFileWithContentsOfFile_validInput_diffrentPaths() {
-		File file = TUtilsFile.createTestFileWithRandomContent();
-		File newFile = TUtilsFile.createTestFileWithContentsOfFile(file);
+		File file = TUtilsFile.createFileWithRandomContent();
+		File newFile = TUtilsFile.createFileWithContentsOfFile(file);
 		AssertJUnit.assertFalse(file.getPath().equals(newFile.getPath()));
 	}
 
 	public void createTestFileWithContentsOfFile_validInput_sameContent() {
-		File file = TUtilsFile.createTestFileWithRandomContent();
-		File newFile = TUtilsFile.createTestFileWithContentsOfFile(file);
+		File file = TUtilsFile.createFileWithRandomContent();
+		File newFile = TUtilsFile.createFileWithContentsOfFile(file);
 		TUtilsTestNG.assertFileContentsEqual(file, newFile);
 	}
 
 	public void createFileInParent_givenNameOfFile_createFileInParent()
 			throws IOException {
 		String childFileName = "child";
-		File parent = TUtilsFile.createTempDirectory();
+		File parent = TUtilsFile.createDirectory();
 		File child = TUtilsFile.createFileInParent(parent, childFileName);
 		assertEquals(parent, child.getParentFile());
 		assertEquals(childFileName, child.getName());
@@ -99,7 +99,7 @@ public class TUtilsFileTest {
 
 	public void createTmpDirectoryWithName_givenAName_createAnExistingDirectoryWithSPecifiedName() {
 		File file = TUtilsFile
-				.createTmpDirectoryWithName("this is the name of the file");
+				.createDirectoryWithName("this is the name of the file");
 
 		assertTrue(file.exists());
 		assertTrue(file.isDirectory());
@@ -107,13 +107,13 @@ public class TUtilsFileTest {
 	}
 
 	public void isDirectoryEmpty_givenNewTempDirectory_empty() {
-		File tempDirectory = TUtilsFile.createTempDirectory();
+		File tempDirectory = TUtilsFile.createDirectory();
 		assertTrue(TUtilsFile.isDirectoryEmpty(tempDirectory));
 	}
 
 	public void isDirectoryEmpty_givenDirectoryWithAChildDirectory_notEmpty()
 			throws IOException {
-		File dirWithChildDir = TUtilsFile.createTempDirectory();
+		File dirWithChildDir = TUtilsFile.createDirectory();
 		try {
 			TUtilsFile.createDirectoryInParent(dirWithChildDir, "childDir");
 			assertTrue(!TUtilsFile.isDirectoryEmpty(dirWithChildDir));
@@ -124,7 +124,7 @@ public class TUtilsFileTest {
 
 	public void isDirectoryEmpty_givenDirectoryWithAChildFile_notEmpty()
 			throws IOException {
-		File dirWithChildFile = TUtilsFile.createTempDirectory();
+		File dirWithChildFile = TUtilsFile.createDirectory();
 		try {
 			TUtilsFile.createFileInParent(dirWithChildFile, "childFile");
 			assertTrue(!TUtilsFile.isDirectoryEmpty(dirWithChildFile));

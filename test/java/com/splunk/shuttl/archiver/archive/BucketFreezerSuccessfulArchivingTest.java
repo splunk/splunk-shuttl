@@ -53,7 +53,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void beforeClass() throws ClientProtocolException, IOException {
-		tempTestDirectory = createTempDirectory();
+		tempTestDirectory = createDirectory();
 		archiveRestHandler = mock(ArchiveRestHandler.class);
 		failedBucketsArchiver = mock(FailedBucketsArchiver.class);
 		bucketFreezer = new BucketFreezer(new BucketMover(tempTestDirectory),
@@ -69,7 +69,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 	@Test(groups = { "fast-unit" })
 	public void should_moveDirectoryToaSafeLocation_when_givenPath()
 			throws IOException {
-		File dirToBeMoved = createTempDirectory();
+		File dirToBeMoved = createDirectory();
 		File safeLocationDirectory = tempTestDirectory;
 		assertTrue(isDirectoryEmpty(safeLocationDirectory));
 
@@ -86,7 +86,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 
 	public void freezeBucket_givenNonExistingSafeLocation_createSafeLocation()
 			throws IOException {
-		File dirToBeMoved = createTempDirectory();
+		File dirToBeMoved = createDirectory();
 		System.err.println(tempTestDirectory);
 		assertTrue(FileUtils.deleteQuietly(tempTestDirectory));
 		File nonExistingSafeLocation = tempTestDirectory;
@@ -102,7 +102,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 	}
 
 	public void freezeBucket_givenBucket_callRestWithMovedBucket() {
-		Bucket bucket = TUtilsBucket.createTestBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
 
 		bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 				.getAbsolutePath());
@@ -117,14 +117,14 @@ public class BucketFreezerSuccessfulArchivingTest {
 	}
 
 	public void freezeBucket_givenBucket_callItToRecoverBuckets() {
-		Bucket bucket = TUtilsBucket.createTestBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
 		bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 				.getAbsolutePath());
 		verify(failedBucketsArchiver).archiveFailedBuckets(archiveRestHandler);
 	}
 
 	public void freezeBucket_givenBucket_triesToRestoreBucketsAFTERCallingRest() {
-		Bucket bucket = TUtilsBucket.createTestBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
 		bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
 				.getAbsolutePath());
 		InOrder inOrder = inOrder(archiveRestHandler, failedBucketsArchiver);

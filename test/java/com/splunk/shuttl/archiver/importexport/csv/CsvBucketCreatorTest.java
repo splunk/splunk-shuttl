@@ -40,9 +40,9 @@ public class CsvBucketCreatorTest {
 
 	@BeforeMethod
 	public void setUp() {
-		dir = createTempDirectory();
+		dir = createDirectory();
 		csvFile = createFileInParent(dir, "csvFile.csv");
-		bucket = TUtilsBucket.createTestBucket();
+		bucket = TUtilsBucket.createBucket();
 		csvBucketCreator = new CsvBucketCreator();
 	}
 

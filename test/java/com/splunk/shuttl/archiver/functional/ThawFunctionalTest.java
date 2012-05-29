@@ -57,7 +57,7 @@ public class ThawFunctionalTest {
 		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
 		bucketArchiver = BucketArchiverFactory
 				.createWithConfigurationAndArchiveFileSystem(config, archiveFileSystem);
-		thawDirectory = TUtilsFile.createTempDirectory();
+		thawDirectory = TUtilsFile.createDirectory();
 
 		SplunkSettings splunkSettings = mock(SplunkSettings.class);
 		when(splunkSettings.getThawLocation(thawIndex)).thenReturn(thawDirectory);

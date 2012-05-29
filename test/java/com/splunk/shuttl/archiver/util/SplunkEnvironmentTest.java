@@ -32,7 +32,7 @@ public class SplunkEnvironmentTest {
 
 	public void getSplunkHome_splunkHomeIsSet_commandToExecuteExportTool()
 			throws IOException {
-		final File splunkHome = createTempDirectory();
+		final File splunkHome = createDirectory();
 		File bin = createDirectoryInParent(splunkHome, "bin");
 		createFileInParent(bin, "exporttool");
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {

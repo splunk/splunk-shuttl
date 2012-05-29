@@ -37,7 +37,7 @@ public class SimpleFileLockTest {
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
-		simpleFileLock = SimpleFileLock.createFromFile(TUtilsFile.createTestFile());
+		simpleFileLock = SimpleFileLock.createFromFile(TUtilsFile.createFile());
 	}
 
 	@AfterMethod(groups = { "fast-unit" })
@@ -77,7 +77,7 @@ public class SimpleFileLockTest {
 	}
 
 	public void createFromFile_nonExistingFile_createTheFile() {
-		File nonExistingFile = TUtilsFile.createTestFilePath();
+		File nonExistingFile = TUtilsFile.createFilePath();
 		assertTrue(!nonExistingFile.exists());
 		SimpleFileLock.createFromFile(nonExistingFile);
 		assertTrue(nonExistingFile.exists());

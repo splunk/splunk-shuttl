@@ -51,7 +51,7 @@ public class CsvExporterTest {
 		csvExporter = new CsvExporter(exportTool, getsBucketsCsvExportFile,
 				shellExecutor);
 
-		bucket = TUtilsBucket.createTestBucket();
+		bucket = TUtilsBucket.createBucket();
 		emptyMap = Collections.<String, String> emptyMap();
 	}
 
@@ -59,7 +59,7 @@ public class CsvExporterTest {
 			throws IOException {
 		when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
 		when(exportTool.getEnvironment()).thenReturn(emptyMap);
-		File csvFile = createTestFile();
+		File csvFile = createFile();
 		when(getsBucketsCsvExportFile.getCsvFile(bucket)).thenReturn(csvFile);
 		String bucketPath = bucket.getDirectory().getAbsolutePath();
 
@@ -85,7 +85,7 @@ public class CsvExporterTest {
 	@SuppressWarnings("unchecked")
 	@Test(groups = { "fast-unit" }, expectedExceptions = { CsvExportFailedException.class })
 	public void exportBucketToCsv_csvFileDoesNotExistAfterExport_throwCsvExportFailedException() {
-		File nonExistantCsvFile = createTestFile();
+		File nonExistantCsvFile = createFile();
 		when(getsBucketsCsvExportFile.getCsvFile(bucket)).thenReturn(
 				nonExistantCsvFile);
 

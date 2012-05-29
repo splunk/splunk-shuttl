@@ -56,7 +56,7 @@ public class BucketFreezerSystemExitTest {
 
 	@Test(groups = { "fast-unit" })
 	public void main_existingDirecotry_returnCode0() throws IOException {
-		File directory = TUtilsFile.createTempDirectory();
+		File directory = TUtilsFile.createDirectory();
 		runMainWithDepentencies_withArguments("index-name",
 				directory.getAbsolutePath());
 		verify(runtimeMock).exit(0);
@@ -93,7 +93,7 @@ public class BucketFreezerSystemExitTest {
 	}
 
 	public void main_nonExistingFile_returnMinus3() {
-		File file = TUtilsFile.createTestFilePath();
+		File file = TUtilsFile.createFilePath();
 		runMainWithDepentencies_withArguments("index-name", file.getAbsolutePath());
 		verify(runtimeMock).exit(-3);
 	}

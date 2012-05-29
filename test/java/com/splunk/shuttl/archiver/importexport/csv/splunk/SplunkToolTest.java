@@ -38,7 +38,7 @@ public abstract class SplunkToolTest {
 
 	@Test(groups = { "fast-unit" })
 	public void getExecutableCommand_theImportToolIsInSplunkHome_pathToExecutable() {
-		final File splunkHome = createTempDirectory();
+		final File splunkHome = createDirectory();
 		File bin = createDirectoryInParent(splunkHome, "bin");
 		final File importTool = createFileInParent(bin, splunkTool.getToolName());
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {

@@ -59,7 +59,7 @@ public class SimpleFileLockConstructorTest {
 	}
 
 	private FileOutputStream getOutputStreamToTempFile() {
-		File file = TUtilsFile.createTestFile();
+		File file = TUtilsFile.createFile();
 		try {
 			return new FileOutputStream(file);
 		} catch (FileNotFoundException e) {

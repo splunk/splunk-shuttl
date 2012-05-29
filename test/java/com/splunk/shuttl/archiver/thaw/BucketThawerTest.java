@@ -106,7 +106,7 @@ public class BucketThawerTest {
 	}
 
 	public void thawBuckets_givenOneFilteredBucketWithFormat_restoresBucketToSplunkBucketFormat() {
-		Bucket bucket = TUtilsBucket.createTestBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
 		stubFilteredBucketsWithFormat(bucket);
 		bucketThawer.thawBuckets(index, earliestTime, latestTime);
 		verify(bucketImporter).restoreToSplunkBucketFormat(bucket);
@@ -114,7 +114,7 @@ public class BucketThawerTest {
 
 	public void thawBuckets_whenTransferBucketsFailToThaw_doesNotRestoreFailedBucket()
 			throws IOException {
-		Bucket bucket = TUtilsBucket.createTestBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
 		stubFilteredBucketsWithFormat(bucket);
 
 		doThrow(new IOException()).when(thawBucketTransferer).transferBucketToThaw(

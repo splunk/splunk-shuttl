@@ -36,7 +36,7 @@ public class BucketDeleterTest {
 
 	@BeforeMethod
 	public void setUp() {
-		bucket = TUtilsBucket.createTestBucket();
+		bucket = TUtilsBucket.createBucket();
 		logger = mock(Logger.class);
 		bucketDeleter = new BucketDeleter(logger);
 	}

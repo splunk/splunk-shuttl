@@ -49,7 +49,7 @@ public class UtilsBucketTest {
 
 	@Test(expectedExceptions = { IllegalArgumentException.class })
 	public void getCsvFile_emptyBucket_throwsException() {
-		Bucket emptyBucket = TUtilsBucket.createTestBucket();
+		Bucket emptyBucket = TUtilsBucket.createBucket();
 		FileUtils.deleteQuietly(emptyBucket.getDirectory());
 		assertTrue(emptyBucket.getDirectory().mkdirs());
 		UtilsBucket.getCsvFile(emptyBucket);
@@ -57,7 +57,7 @@ public class UtilsBucketTest {
 
 	@Test(expectedExceptions = { NoCsvFileFoundException.class })
 	public void getCsvFile_noCsvFile_throwsRuntimeException() {
-		Bucket bucketWithoutCsvFile = TUtilsBucket.createTestBucket();
+		Bucket bucketWithoutCsvFile = TUtilsBucket.createBucket();
 		UtilsBucket.getCsvFile(bucketWithoutCsvFile);
 	}
 }

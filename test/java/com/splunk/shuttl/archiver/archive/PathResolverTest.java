@@ -50,7 +50,7 @@ public class PathResolverTest {
 		bucketIndex = "index";
 		bucketName = "bucket_name_id";
 		bucketFormat = BucketFormat.SPLUNK_BUCKET;
-		bucket = TUtilsBucket.createTestBucketWithIndexAndName(bucketIndex,
+		bucket = TUtilsBucket.createBucketWithIndexAndName(bucketIndex,
 				bucketName);
 	}
 

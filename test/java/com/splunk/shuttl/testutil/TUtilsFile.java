@@ -37,11 +37,11 @@ public class TUtilsFile {
 	/**
 	 * @return a temporary file with random content.
 	 * 
-	 * @see TUtilsFile#createTestFile()
-	 * @see TUtilsFile#createTestFileWithRandomContent()
+	 * @see TUtilsFile#createFile()
+	 * @see TUtilsFile#createFileWithRandomContent()
 	 */
-	public static File createTestFileWithRandomContent() {
-		File testFile = createTestFile();
+	public static File createFileWithRandomContent() {
+		File testFile = createFile();
 		populateFileWithRandomContent(testFile);
 		return testFile;
 	}
@@ -50,9 +50,9 @@ public class TUtilsFile {
 	 * @return a temporary, existing, empty file that will be deleted when the VM
 	 *         terminates.
 	 * 
-	 * @see #createTestFilePath()
+	 * @see TUtilsFile#createFilePath()
 	 */
-	public static File createTestFile() {
+	public static File createFile() {
 		File testFile = null;
 		try {
 			testFile = File.createTempFile(TUtilsFile.class.getSimpleName(), "");
@@ -67,10 +67,10 @@ public class TUtilsFile {
 	 * @return a temporary file path. The returned file doesn't exist, but the the
 	 *         path to the file was valid at the time of this method call.
 	 * 
-	 * @see #createTestFile()
+	 * @see TUtilsFile#createFile()
 	 */
-	public static File createTestFilePath() {
-		File testFile = createTestFile();
+	public static File createFilePath() {
+		File testFile = createFile();
 		AssertJUnit.assertTrue(testFile.delete());
 		return testFile;
 	}
@@ -101,7 +101,7 @@ public class TUtilsFile {
 	 * 
 	 * @return temporary directory that's deleted when the VM terminates.
 	 */
-	public static File createTempDirectory() {
+	public static File createDirectory() {
 		// TODO: There's a race condition here - the directory might be
 		// created between the calls to getUniquelyNamedFile() and
 		// createDirectory().
@@ -119,8 +119,8 @@ public class TUtilsFile {
 	 *          The name of the directory to be created.
 	 * @return A directory with specified name that will be removed on JVM exit
 	 */
-	public static File createTmpDirectoryWithName(String name) {
-		File tmpDirectory = new File(createTempDirectory(), name);
+	public static File createDirectoryWithName(String name) {
+		File tmpDirectory = new File(createDirectory(), name);
 		createDirectory(tmpDirectory);
 		try {
 			FileUtils.forceDeleteOnExit(tmpDirectory);
@@ -171,7 +171,7 @@ public class TUtilsFile {
 	 *          name of the temp directory
 	 * @return temporary directory that's deleted when the VM terminates.
 	 */
-	public static File createPrefixedTempDirectory(String string) {
+	public static File createPrefixedDirectory(String string) {
 		File dir = getUniquelyNamedFileWithPrefix(string);
 		if (dir.exists())
 			throw new RuntimeException(new FileExistsException());
@@ -213,8 +213,8 @@ public class TUtilsFile {
 	 * @return a new file having same contents (but different path) as the
 	 *         specified file.
 	 */
-	public static File createTestFileWithContentsOfFile(File file) {
-		File newFile = createTestFile();
+	public static File createFileWithContentsOfFile(File file) {
+		File newFile = createFile();
 		try {
 			FileUtils.copyFile(file, newFile);
 		} catch (IOException e) {

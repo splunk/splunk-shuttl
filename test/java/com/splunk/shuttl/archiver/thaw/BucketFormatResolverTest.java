@@ -82,7 +82,7 @@ public class BucketFormatResolverTest {
 
 	@SuppressWarnings("unchecked")
 	public void resolveBucketsFormats_givenChosenFormat_resolvingUriForBucketWithFormat() {
-		Bucket bucket = TUtilsBucket.createTestBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
 		BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 		when(bucketFormatChooser.chooseBucketFormat(anyList())).thenReturn(format);
 
@@ -94,7 +94,7 @@ public class BucketFormatResolverTest {
 
 	@SuppressWarnings("unchecked")
 	public void resolveBucketsFormats_givenBucketToResolveForAndChosenFormat_bucketWithFormatIndexAndName() {
-		Bucket bucket = TUtilsBucket.createTestBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
 		BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 		when(bucketFormatChooser.chooseBucketFormat(anyList())).thenReturn(format);
 		List<Bucket> bucketsWithFormat = bucketFormatResolver

@@ -38,7 +38,7 @@ public class ThawLocationProviderTest {
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
-		bucket = TUtilsBucket.createTestBucket();
+		bucket = TUtilsBucket.createBucket();
 		splunkSettings = mock(SplunkSettings.class);
 		thawLocationProvider = new ThawLocationProvider(splunkSettings);
 
@@ -47,7 +47,7 @@ public class ThawLocationProviderTest {
 
 	private void stubSplunkSettingsToReturnThawLocation()
 			throws IllegalIndexException {
-		thawLocation = createTestFilePath();
+		thawLocation = createFilePath();
 		when(splunkSettings.getThawLocation(bucket.getIndex())).thenReturn(
 				thawLocation);
 	}

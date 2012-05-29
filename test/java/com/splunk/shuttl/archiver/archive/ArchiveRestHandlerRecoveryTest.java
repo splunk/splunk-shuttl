@@ -36,7 +36,7 @@ public class ArchiveRestHandlerRecoveryTest {
 	@Test(groups = { "fast-unit" })
 	public void recoverFailedBucket_givenHttpClient_executeRequestOnFailedBucket()
 			throws ClientProtocolException, IOException {
-		Bucket bucket = TUtilsBucket.createTestBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
 		HttpClient httpClient = mock(HttpClient.class);
 		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(httpClient);
 		archiveRestHandler.handleSharedLockedBucket(bucket);

@@ -37,9 +37,9 @@ public class GetsBucketsCsvFileTest {
 
 	@BeforeMethod
 	public void setUp() {
-		csvDirectory = createTempDirectory();
+		csvDirectory = createDirectory();
 		getsBucketsCsvExportFile = new GetsBucketsCsvExportFile(csvDirectory);
-		bucket = TUtilsBucket.createTestBucket();
+		bucket = TUtilsBucket.createBucket();
 	}
 
 	@AfterMethod

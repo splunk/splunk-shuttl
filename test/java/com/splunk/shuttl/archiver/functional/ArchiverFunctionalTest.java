@@ -55,7 +55,7 @@ public class ArchiverFunctionalTest {
 	}
 
 	public void Archiver_givenExistingBucket_archiveIt() throws IOException {
-		Bucket bucket = TUtilsBucket.createTestBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
 
 		bucketArchiver.archiveBucket(bucket);
 

@@ -47,7 +47,7 @@ public class TUtilsFileSystem {
 	 */
 	public static File getFileFromFileSystem(FileSystem fileSystem,
 			Path pathOftheFileOnRemote) {
-		File retrivedFile = TUtilsFile.createTestFilePath();
+		File retrivedFile = TUtilsFile.createFilePath();
 		Path localFilePath = new Path(retrivedFile.toURI());
 		try {
 			fileSystem.copyToLocalFile(pathOftheFileOnRemote, localFilePath);

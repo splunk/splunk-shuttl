@@ -40,7 +40,7 @@ public class BucketLockerTest {
 
 	@BeforeMethod
 	public void setUp() {
-		tempTestDirectory = createTempDirectory();
+		tempTestDirectory = createDirectory();
 		bucket = TUtilsBucket.createBucketInDirectory(tempTestDirectory);
 		bucketLocker = new BucketLocker();
 	}

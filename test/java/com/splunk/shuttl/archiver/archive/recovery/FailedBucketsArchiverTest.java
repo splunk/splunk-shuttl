@@ -47,7 +47,7 @@ public class FailedBucketsArchiverTest {
 	private List<Bucket> stubXBucketsInBucketMover(int x) {
 		List<Bucket> buckets = new ArrayList<Bucket>();
 		for (int i = 0; i < x; i++) {
-			Bucket movedBucket = TUtilsBucket.createTestBucket();
+			Bucket movedBucket = TUtilsBucket.createBucket();
 			buckets.add(movedBucket);
 		}
 		when(bucketMover.getMovedBuckets()).thenReturn(buckets);

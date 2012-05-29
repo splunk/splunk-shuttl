@@ -89,7 +89,7 @@ public class ArchiverEndToEndTest {
 		TUtilsMBean.registerShuttlArchiverMBean();
 		archiveConfiguration = ArchiveConfiguration.getSharedInstance();
 		thawIndex = "shuttl";
-		tempDirectory = createTempDirectory();
+		tempDirectory = createDirectory();
 		successfulBucketFreezer = getSuccessfulBucketFreezer();
 
 		Service service = new Service(splunkHost, Integer.parseInt(splunkPort));

@@ -49,7 +49,7 @@ public class BucketArchiverTest {
 		bucketArchiver = new BucketArchiver(config, exporter, pathResolver,
 				archiveBucketTransferer, deletesBuckets);
 
-		bucket = TUtilsBucket.createTestBucket();
+		bucket = TUtilsBucket.createBucket();
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -84,7 +84,7 @@ public class BucketArchiverTest {
 	}
 
 	public void archiveBucket_givenBucketAndBucketDeleter_deletesBucketWithBucketDeleter() {
-		Bucket exportedBucket = TUtilsBucket.createTestBucket();
+		Bucket exportedBucket = TUtilsBucket.createBucket();
 		when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
 				.thenReturn(exportedBucket);
 		bucketArchiver.archiveBucket(bucket);
@@ -93,7 +93,7 @@ public class BucketArchiverTest {
 	}
 
 	public void archiveBucket_whenExceptionIsThrown_deleteExportedBucketButNotOriginalBucket() {
-		Bucket exportedBucket = TUtilsBucket.createTestBucket();
+		Bucket exportedBucket = TUtilsBucket.createBucket();
 		when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
 				.thenReturn(exportedBucket);
 		when(pathResolver.resolveArchivePath(any(Bucket.class))).thenThrow(
