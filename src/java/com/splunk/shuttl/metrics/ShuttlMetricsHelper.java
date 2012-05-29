@@ -21,15 +21,15 @@ import org.apache.log4j.Logger;
 
 /**
  * @author hyan
- *
+ * 
  */
 public class ShuttlMetricsHelper {
 
-    public static void update(Logger logger, String logMessage) {
-	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	PrintStream ps = new PrintStream(baos);
-	ps.print(logMessage);
-	logger.info(baos.toString());
-	baos.reset();
-    }
+	public static void update(Logger logger, String logMessage) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos);
+		ps.print(logMessage);
+		logger.info(baos.toString());
+		baos.reset();
+	}
 }

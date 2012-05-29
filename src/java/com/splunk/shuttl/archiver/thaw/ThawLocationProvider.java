@@ -24,25 +24,25 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class ThawLocationProvider {
 
-    private final SplunkSettings splunkSettings;
+	private final SplunkSettings splunkSettings;
 
-    /**
-     * @param splunkSettings
-     *            for looking up the thaw directory.
-     */
-    public ThawLocationProvider(SplunkSettings splunkSettings) {
-	this.splunkSettings = splunkSettings;
-    }
+	/**
+	 * @param splunkSettings
+	 *          for looking up the thaw directory.
+	 */
+	public ThawLocationProvider(SplunkSettings splunkSettings) {
+		this.splunkSettings = splunkSettings;
+	}
 
-    /**
-     * @param bucket
-     *            to get location in thaw for.
-     * @throws IOException
-     *             if that location can not be found.
-     */
-    public File getLocationInThawForBucket(Bucket bucket) throws IOException {
-	File thawLocation = splunkSettings.getThawLocation(bucket.getIndex());
-	return new File(thawLocation, bucket.getName());
-    }
+	/**
+	 * @param bucket
+	 *          to get location in thaw for.
+	 * @throws IOException
+	 *           if that location can not be found.
+	 */
+	public File getLocationInThawForBucket(Bucket bucket) throws IOException {
+		File thawLocation = splunkSettings.getThawLocation(bucket.getIndex());
+		return new File(thawLocation, bucket.getName());
+	}
 
 }

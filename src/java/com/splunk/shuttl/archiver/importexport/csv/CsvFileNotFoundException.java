@@ -19,10 +19,10 @@ package com.splunk.shuttl.archiver.importexport.csv;
  */
 public class CsvFileNotFoundException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public CsvFileNotFoundException(String string) {
-	super(string);
-    }
+	public CsvFileNotFoundException(String string) {
+		super(string);
+	}
 
 }

@@ -14,15 +14,11 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.importexport.csv.splunk;
 
-import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkImportTool;
-import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkTool;
-
-
 public class SplunkImportToolTest extends SplunkToolTest {
 
-    @Override
-    protected SplunkTool getInstance() {
-	return new SplunkImportTool();
-    }
+	@Override
+	protected SplunkTool getInstance() {
+		return new SplunkImportTool();
+	}
 
 }

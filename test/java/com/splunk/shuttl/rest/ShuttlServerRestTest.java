@@ -34,50 +34,50 @@ import com.splunk.shuttl.ShuttlConstants;
 @Test(groups = { "end-to-end" })
 public class ShuttlServerRestTest {
 
-    @Parameters(value = { "shuttl.host", "shuttl.port" })
-    public void getDefaultHost(String shuttlHost, String shuttlPort)
-	    throws URISyntaxException, ClientProtocolException, IOException {
-	URI defaultHostUri = getUriForServerEndpoint(shuttlHost, shuttlPort,
-		ShuttlConstants.ENDPOINT_DEFAULT_HOST);
+	@Parameters(value = { "shuttl.host", "shuttl.port" })
+	public void getDefaultHost(String shuttlHost, String shuttlPort)
+			throws URISyntaxException, ClientProtocolException, IOException {
+		URI defaultHostUri = getUriForServerEndpoint(shuttlHost, shuttlPort,
+				ShuttlConstants.ENDPOINT_DEFAULT_HOST);
 
-	HttpResponse response = getResponseFromShuttlServer(defaultHostUri);
-	List<String> lines = getLinesFromResponse(response);
-	assertEquals(1, lines.size());
-	assertEquals("localhost", lines.get(0));
-    }
+		HttpResponse response = getResponseFromShuttlServer(defaultHostUri);
+		List<String> lines = getLinesFromResponse(response);
+		assertEquals(1, lines.size());
+		assertEquals("localhost", lines.get(0));
+	}
 
-    private URI getUriForServerEndpoint(String shuttlHost, String shuttlPort,
-	    String defaultPortEndpoint) throws URISyntaxException {
-	String serverEndpoints = "/" + ShuttlConstants.ENDPOINT_CONTEXT
-		+ ShuttlConstants.ENDPOINT_SERVER;
-	return new URI("http", null, shuttlHost, Integer.parseInt(shuttlPort),
-		serverEndpoints + defaultPortEndpoint, null, null);
-    }
+	private URI getUriForServerEndpoint(String shuttlHost, String shuttlPort,
+			String defaultPortEndpoint) throws URISyntaxException {
+		String serverEndpoints = "/" + ShuttlConstants.ENDPOINT_CONTEXT
+				+ ShuttlConstants.ENDPOINT_SERVER;
+		return new URI("http", null, shuttlHost, Integer.parseInt(shuttlPort),
+				serverEndpoints + defaultPortEndpoint, null, null);
+	}
 
-    private HttpResponse getResponseFromShuttlServer(URI requestUri)
-	    throws IOException, ClientProtocolException {
-	HttpGet httpGet = new HttpGet(requestUri);
-	HttpResponse response = new DefaultHttpClient().execute(httpGet);
-	int status = response.getStatusLine().getStatusCode();
-	assertEquals(200, status, "Unexpected status. response=" + response);
-	return response;
-    }
+	private HttpResponse getResponseFromShuttlServer(URI requestUri)
+			throws IOException, ClientProtocolException {
+		HttpGet httpGet = new HttpGet(requestUri);
+		HttpResponse response = new DefaultHttpClient().execute(httpGet);
+		int status = response.getStatusLine().getStatusCode();
+		assertEquals(200, status, "Unexpected status. response=" + response);
+		return response;
+	}
 
-    private List<String> getLinesFromResponse(HttpResponse response)
-	    throws IOException {
-	return IOUtils.readLines(response.getEntity().getContent());
-    }
+	private List<String> getLinesFromResponse(HttpResponse response)
+			throws IOException {
+		return IOUtils.readLines(response.getEntity().getContent());
+	}
 
-    @Parameters(value = { "shuttl.host", "shuttl.port" })
-    public void getDefaultPort(String shuttlHost, String shuttlPort)
-	    throws URISyntaxException, IOException {
-	URI defaultPortUri = getUriForServerEndpoint(shuttlHost, shuttlPort,
-		ShuttlConstants.ENDPOINT_DEFAULT_PORT);
+	@Parameters(value = { "shuttl.host", "shuttl.port" })
+	public void getDefaultPort(String shuttlHost, String shuttlPort)
+			throws URISyntaxException, IOException {
+		URI defaultPortUri = getUriForServerEndpoint(shuttlHost, shuttlPort,
+				ShuttlConstants.ENDPOINT_DEFAULT_PORT);
 
-	HttpResponse response = getResponseFromShuttlServer(defaultPortUri);
-	List<String> lines = getLinesFromResponse(response);
-	assertEquals(1, lines.size());
-	assertEquals(9000, Integer.parseInt(lines.get(0)));
-    }
+		HttpResponse response = getResponseFromShuttlServer(defaultPortUri);
+		List<String> lines = getLinesFromResponse(response);
+		assertEquals(1, lines.size());
+		assertEquals(9000, Integer.parseInt(lines.get(0)));
+	}
 
 }

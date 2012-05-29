@@ -23,20 +23,19 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class GetsBucketsCsvExportFile {
 
-    private final File csvDirectory;
+	private final File csvDirectory;
 
-    public GetsBucketsCsvExportFile(File csvDirectory) {
-	this.csvDirectory = csvDirectory;
-    }
-
-    /**
-     * @return not yet existing .csv file unique for the {@link Bucket}
-     */
-    public File getCsvFile(Bucket bucket) {
-	File file = new File(csvDirectory, bucket.getName() + ".csv");
-	if (file.exists()) {
-	    file.delete();
+	public GetsBucketsCsvExportFile(File csvDirectory) {
+		this.csvDirectory = csvDirectory;
 	}
-	return file;
-    }
+
+	/**
+	 * @return not yet existing .csv file unique for the {@link Bucket}
+	 */
+	public File getCsvFile(Bucket bucket) {
+		File file = new File(csvDirectory, bucket.getName() + ".csv");
+		if (file.exists())
+			file.delete();
+		return file;
+	}
 }

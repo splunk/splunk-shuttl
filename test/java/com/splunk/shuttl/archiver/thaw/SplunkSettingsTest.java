@@ -24,40 +24,38 @@ import org.testng.annotations.Test;
 
 import com.splunk.Service;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsMockito;
 
 @Test(groups = { "fast-unit" })
 public class SplunkSettingsTest {
 
-    SplunkSettings splunkSettings;
-    Service splunkService;
-    private String indexName;
-    private String thawLocationPath;
+	SplunkSettings splunkSettings;
+	Service splunkService;
+	private String indexName;
+	private String thawLocationPath;
 
-    @BeforeMethod
-    public void setUp() {
-	indexName = "index";
-	thawLocationPath = "/path/to/thaw";
-	splunkService = TUtilsMockito
-		.createSplunkServiceReturningThawPathForIndex(indexName,
-			thawLocationPath);
-	splunkSettings = new SplunkSettings(splunkService);
-    }
+	@BeforeMethod
+	public void setUp() {
+		indexName = "index";
+		thawLocationPath = "/path/to/thaw";
+		splunkService = TUtilsMockito.createSplunkServiceReturningThawPathForIndex(
+				indexName, thawLocationPath);
+		splunkSettings = new SplunkSettings(splunkService);
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void getThawLocation_givenIndexAndSplunkService_getThawDirectoryForIndex()
-	    throws IOException {
-	File actualThawLocation = splunkSettings.getThawLocation(indexName);
-	assertEquals(thawLocationPath, actualThawLocation.getAbsolutePath());
-    }
+	@Test(groups = { "fast-unit" })
+	public void getThawLocation_givenIndexAndSplunkService_getThawDirectoryForIndex()
+			throws IOException {
+		File actualThawLocation = splunkSettings.getThawLocation(indexName);
+		assertEquals(thawLocationPath, actualThawLocation.getAbsolutePath());
+	}
 
-    @Test(groups = { "fast-unit" }, expectedExceptions = { IllegalIndexException.class })
-    public void getThawLocation_givenInvalidIndexAndSplunkService_throws()
-	    throws IOException {
-	String nonexistantIndexName = "asd123";
-	File actualThawLocation = splunkSettings
-		.getThawLocation(nonexistantIndexName);
-	assertEquals(thawLocationPath, actualThawLocation.getAbsolutePath());
-    }
+	@Test(groups = { "fast-unit" }, expectedExceptions = { IllegalIndexException.class })
+	public void getThawLocation_givenInvalidIndexAndSplunkService_throws()
+			throws IOException {
+		String nonexistantIndexName = "asd123";
+		File actualThawLocation = splunkSettings
+				.getThawLocation(nonexistantIndexName);
+		assertEquals(thawLocationPath, actualThawLocation.getAbsolutePath());
+	}
 }

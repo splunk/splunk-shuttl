@@ -25,62 +25,60 @@ import java.io.RandomAccessFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-
 /**
  * File utils for production code. Using the name UtilsFile instead of FileUtils
  * to avoid naming collisions with {@link FileUtils}.
  */
 public class UtilsFile {
 
-    private final static Logger logger = Logger.getLogger(UtilsFile.class);
+	private final static Logger logger = Logger.getLogger(UtilsFile.class);
 
-    /**
-     * Creates a {@link File} and its parents without throwing exceptions. See
-     * {@link FileUtils#touch(File)}
-     */
-    public static void touch(File file) {
-	try {
-	    FileUtils.touch(file);
-	} catch (IOException e) {
-	    logger.debug(did("Tried to create file and its parents",
-		    "Got IOException", "The file to be created", "file", file,
-		    "exception", e));
-	    throw new RuntimeException(e);
+	/**
+	 * Creates a {@link File} and its parents without throwing exceptions. See
+	 * {@link FileUtils#touch(File)}
+	 */
+	public static void touch(File file) {
+		try {
+			FileUtils.touch(file);
+		} catch (IOException e) {
+			logger.debug(did("Tried to create file and its parents",
+					"Got IOException", "The file to be created", "file", file,
+					"exception", e));
+			throw new RuntimeException(e);
+		}
 	}
-    }
 
-    /**
-     * @return {@link FileOutputStream} for the file sent in. Logs and throws a
-     *         RuntimeException if something goes wrong.
-     */
+	/**
+	 * @return {@link FileOutputStream} for the file sent in. Logs and throws a
+	 *         RuntimeException if something goes wrong.
+	 */
 
-    public static FileOutputStream getFileOutputStreamSilent(File file) {
-	try {
-	    return new FileOutputStream(file);
-	} catch (FileNotFoundException e) {
-	    logger.debug(did(
-		    "Created a FileOuputStream for file: "
-			    + file.getAbsolutePath(),
-		    "Got FileNotFoundException", "File to exist", "file", file,
-		    "exception", e));
-	    throw new RuntimeException(e);
+	public static FileOutputStream getFileOutputStreamSilent(File file) {
+		try {
+			return new FileOutputStream(file);
+		} catch (FileNotFoundException e) {
+			logger.debug(did(
+					"Created a FileOuputStream for file: " + file.getAbsolutePath(),
+					"Got FileNotFoundException", "File to exist", "file", file,
+					"exception", e));
+			throw new RuntimeException(e);
+		}
 	}
-    }
 
-    /**
-     * @param file
-     * @return
-     */
-    public static RandomAccessFile getRandomAccessFileSilent(File file) {
-	try {
-	    return new RandomAccessFile(file, "rw");
-	} catch (FileNotFoundException e) {
-	    logger.debug(did(
-		    "Created a RandomAccessFile for file: "
-			    + file.getAbsolutePath(), e,
-		    "To create the RandomAccessFile object", "file", file,
-		    "exception", e));
-	    throw new RuntimeException(e);
+	/**
+	 * @param file
+	 * @return
+	 */
+	public static RandomAccessFile getRandomAccessFileSilent(File file) {
+		try {
+			return new RandomAccessFile(file, "rw");
+		} catch (FileNotFoundException e) {
+			logger
+					.debug(did(
+							"Created a RandomAccessFile for file: " + file.getAbsolutePath(),
+							e, "To create the RandomAccessFile object", "file", file,
+							"exception", e));
+			throw new RuntimeException(e);
+		}
 	}
-    }
 }

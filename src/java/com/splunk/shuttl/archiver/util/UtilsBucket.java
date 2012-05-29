@@ -26,29 +26,26 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class UtilsBucket {
 
-    /**
-     * @return the csv {@link File} representing the bucket
-     * @throws {@link NoCsvFileFoundException} when no csv file was found.
-     */
-    public static File getCsvFile(Bucket csvBucket) {
-	if (isBucketEmpty(csvBucket)) {
-	    throw new IllegalArgumentException("Bucket was empty!");
-	} else {
-	    return getTheCsvFileFromBucket(csvBucket);
+	/**
+	 * @return the csv {@link File} representing the bucket
+	 * @throws {@link NoCsvFileFoundException} when no csv file was found.
+	 */
+	public static File getCsvFile(Bucket csvBucket) {
+		if (isBucketEmpty(csvBucket))
+			throw new IllegalArgumentException("Bucket was empty!");
+		else
+			return getTheCsvFileFromBucket(csvBucket);
 	}
-    }
 
-    private static boolean isBucketEmpty(Bucket csvBucket) {
-	return csvBucket.getDirectory().listFiles().length == 0;
-    }
-
-    private static File getTheCsvFileFromBucket(Bucket csvBucket) {
-	for (File file : csvBucket.getDirectory().listFiles()) {
-	    if (FilenameUtils.getExtension(file.getName()).equals("csv")) {
-		return file;
-	    }
+	private static boolean isBucketEmpty(Bucket csvBucket) {
+		return csvBucket.getDirectory().listFiles().length == 0;
 	}
-	throw new NoCsvFileFoundException();
-    }
+
+	private static File getTheCsvFileFromBucket(Bucket csvBucket) {
+		for (File file : csvBucket.getDirectory().listFiles())
+			if (FilenameUtils.getExtension(file.getName()).equals("csv"))
+				return file;
+		throw new NoCsvFileFoundException();
+	}
 
 }

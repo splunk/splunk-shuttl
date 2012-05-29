@@ -31,72 +31,66 @@ import com.splunk.shuttl.archiver.model.BucketFactory;
  */
 public class BucketMover {
 
-    private final static Logger logger = Logger.getLogger(BucketMover.class);
-    private final File movedBucketsLocation;
+	private final static Logger logger = Logger.getLogger(BucketMover.class);
+	private final File movedBucketsLocation;
 
-    /**
-     * @param movedBucketsLocationPath
-     *            path to the failed buckets location
-     */
-    public BucketMover(File movedBucketsLocation) {
-	this.movedBucketsLocation = movedBucketsLocation;
-    }
-
-    /**
-     * Move a bucket to the location passed to the constructor
-     * {@link #BucketMover(String)}
-     * 
-     * @param bucket
-     *            to move
-     * @return the new bucket moved to the new location.
-     */
-    public Bucket moveBucket(Bucket bucket) {
-	logger.debug(will("moving bucket", "bucket", bucket, "destination",
-		movedBucketsLocation));
-	Bucket movedBucket = moveBucketToMovedBucketsLocationAndPerserveItsIndex(bucket);
-	logger.debug(did("moved bucket", "success", null, "bucket", bucket,
-		"destination", movedBucketsLocation));
-	return movedBucket;
-    }
-
-    private Bucket moveBucketToMovedBucketsLocationAndPerserveItsIndex(
-	    Bucket bucket) {
-	File indexDirectory = new File(movedBucketsLocation, bucket.getIndex());
-	indexDirectory.mkdirs();
-	return bucket.moveBucketToDir(indexDirectory);
-    }
-
-    /**
-     * @return list of buckets in the failed buckets location that can be
-     *         transfered
-     */
-    public List<Bucket> getMovedBuckets() {
-	ArrayList<Bucket> movedBuckets = new ArrayList<Bucket>();
-
-	File[] listFiles = movedBucketsLocation.listFiles();
-	// This will fail when the buckets structure has changed.
-	if (listFiles != null) {
-	    for (File file : listFiles) {
-		if (file.isFile()) {
-		    continue; // Ignore regular files.
-		} else {
-		    addBucketsFromIndexDirectory(movedBuckets, file);
-		}
-	    }
+	/**
+	 * @param movedBucketsLocationPath
+	 *          path to the failed buckets location
+	 */
+	public BucketMover(File movedBucketsLocation) {
+		this.movedBucketsLocation = movedBucketsLocation;
 	}
-	return movedBuckets;
-    }
 
-    private void addBucketsFromIndexDirectory(ArrayList<Bucket> movedBuckets,
-	    File file) {
-	String index = file.getName();
-	File[] bucketsInIndex = file.listFiles();
-	if (bucketsInIndex != null) {
-	    for (File bucket : bucketsInIndex) {
-		movedBuckets.add(BucketFactory
-			.createBucketWithIndexAndDirectory(index, bucket));
-	    }
+	/**
+	 * Move a bucket to the location passed to the constructor
+	 * {@link #BucketMover(String)}
+	 * 
+	 * @param bucket
+	 *          to move
+	 * @return the new bucket moved to the new location.
+	 */
+	public Bucket moveBucket(Bucket bucket) {
+		logger.debug(will("moving bucket", "bucket", bucket, "destination",
+				movedBucketsLocation));
+		Bucket movedBucket = moveBucketToMovedBucketsLocationAndPerserveItsIndex(bucket);
+		logger.debug(did("moved bucket", "success", null, "bucket", bucket,
+				"destination", movedBucketsLocation));
+		return movedBucket;
 	}
-    }
+
+	private Bucket moveBucketToMovedBucketsLocationAndPerserveItsIndex(
+			Bucket bucket) {
+		File indexDirectory = new File(movedBucketsLocation, bucket.getIndex());
+		indexDirectory.mkdirs();
+		return bucket.moveBucketToDir(indexDirectory);
+	}
+
+	/**
+	 * @return list of buckets in the failed buckets location that can be
+	 *         transfered
+	 */
+	public List<Bucket> getMovedBuckets() {
+		ArrayList<Bucket> movedBuckets = new ArrayList<Bucket>();
+
+		File[] listFiles = movedBucketsLocation.listFiles();
+		if (listFiles != null)
+			for (File file : listFiles)
+				if (!file.isFile())
+					addBucketsFromIndexDirectory(movedBuckets, file);
+				else
+					continue; // Ignore regular files.
+		return movedBuckets;
+	}
+
+	private void addBucketsFromIndexDirectory(ArrayList<Bucket> movedBuckets,
+			File file) {
+		String index = file.getName();
+		File[] bucketsInIndex = file.listFiles();
+		if (bucketsInIndex != null)
+			for (File bucket : bucketsInIndex)
+				movedBuckets.add(BucketFactory.createBucketWithIndexAndDirectory(index,
+						bucket));
+	}
 
 }

@@ -45,100 +45,96 @@ import com.splunk.shuttl.testutil.TUtilsMockito;
 @Test(groups = { "end-to-end" })
 public class ArchiveRecoveryEndToEndTest {
 
-    File safeLocation;
-    File originalBucketLocation;
+	File safeLocation;
+	File originalBucketLocation;
 
-    BucketFreezer failingBucketFreezerWithoutRecovery;
-    BucketFreezer successfulBucketFreezerWithRecovery;
-    FileSystem hadoopFileSystem;
-    private ArchiveConfiguration config;
+	BucketFreezer failingBucketFreezerWithoutRecovery;
+	BucketFreezer successfulBucketFreezerWithRecovery;
+	FileSystem hadoopFileSystem;
+	private ArchiveConfiguration config;
 
-    @Parameters(value = { "hadoop.host", "hadoop.port" })
-    public void Archiver_givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets(
-	    String hadoopHost, String hadoopPort) throws Exception {
-	setUp(hadoopHost, hadoopPort);
-	givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets();
-	tearDown();
-    }
-
-    private void setUp(String hadoopHost, String hadoopPort) {
-	TUtilsMBean.registerShuttlArchiverMBean();
-	config = ArchiveConfiguration.getSharedInstance();
-	hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
-
-	safeLocation = createTempDirectory();
-	originalBucketLocation = createTempDirectory();
-
-	BucketMover bucketMover = new BucketMover(safeLocation);
-	BucketLocker bucketLocker = new BucketLocker();
-	ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(
-		TUtilsMockito.createInternalServerErrorHttpClientMock());
-	ArchiveRestHandler successfulRealRestHandler = new ArchiveRestHandler(
-		new DefaultHttpClient());
-
-	FailedBucketsArchiver noOpFailedBucketsArchiver = mock(FailedBucketsArchiver.class);
-	FailedBucketsArchiver realFailedBucketsArchiver = new FailedBucketsArchiver(
-		bucketMover, bucketLocker);
-
-	failingBucketFreezerWithoutRecovery = new BucketFreezer(bucketMover,
-		bucketLocker, internalErrorRestHandler,
-		noOpFailedBucketsArchiver);
-
-	successfulBucketFreezerWithRecovery = new BucketFreezer(bucketMover,
-		bucketLocker, successfulRealRestHandler,
-		realFailedBucketsArchiver);
-    }
-
-    public void tearDown() {
-	FileUtils.deleteQuietly(originalBucketLocation);
-	FileUtils.deleteQuietly(safeLocation);
-	cleanHadoopFileSystem();
-    }
-
-    private void cleanHadoopFileSystem() {
-	try {
-	    hadoopFileSystem.delete(new Path(config.getArchivingRoot()), true);
-	    hadoopFileSystem.delete(new Path(config.getTmpDirectory()), true);
-	} catch (IOException e) {
-	    e.printStackTrace();
+	@Parameters(value = { "hadoop.host", "hadoop.port" })
+	public void Archiver_givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets(
+			String hadoopHost, String hadoopPort) throws Exception {
+		setUp(hadoopHost, hadoopPort);
+		givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets();
+		tearDown();
 	}
-    }
 
-    private void givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets()
-	    throws IOException, InterruptedException {
-	// Setup buckets
-	Bucket firstFailingBucket = TUtilsBucket
-		.createBucketInDirectory(originalBucketLocation);
-	Bucket secondFailingBucket = TUtilsBucket
-		.createBucketInDirectory(originalBucketLocation);
-	Bucket successfulBucket = TUtilsBucket
-		.createBucketInDirectory(originalBucketLocation);
+	private void setUp(String hadoopHost, String hadoopPort) {
+		TUtilsMBean.registerShuttlArchiverMBean();
+		config = ArchiveConfiguration.getSharedInstance();
+		hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
 
-	// Test
-	failingBucketFreezerWithoutRecovery.freezeBucket(firstFailingBucket
-		.getIndex(), firstFailingBucket.getDirectory()
-		.getAbsolutePath());
-	failingBucketFreezerWithoutRecovery.freezeBucket(secondFailingBucket
-		.getIndex(), secondFailingBucket.getDirectory()
-		.getAbsolutePath());
+		safeLocation = createTempDirectory();
+		originalBucketLocation = createTempDirectory();
 
-	// Verify bucket archiving failed.
-	URI firstBucketURI = UtilsFunctional.getHadoopArchivedBucketURI(config,
-		firstFailingBucket);
-	URI secondBucketURI = UtilsFunctional.getHadoopArchivedBucketURI(
-		config, secondFailingBucket);
-	assertFalse(hadoopFileSystem.exists(new Path(firstBucketURI)));
-	assertFalse(hadoopFileSystem.exists(new Path(secondBucketURI)));
+		BucketMover bucketMover = new BucketMover(safeLocation);
+		BucketLocker bucketLocker = new BucketLocker();
+		ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(
+				TUtilsMockito.createInternalServerErrorHttpClientMock());
+		ArchiveRestHandler successfulRealRestHandler = new ArchiveRestHandler(
+				new DefaultHttpClient());
 
-	successfulBucketFreezerWithRecovery.freezeBucket(successfulBucket
-		.getIndex(), successfulBucket.getDirectory().getAbsolutePath());
-	UtilsFunctional.waitForAsyncArchiving();
+		FailedBucketsArchiver noOpFailedBucketsArchiver = mock(FailedBucketsArchiver.class);
+		FailedBucketsArchiver realFailedBucketsArchiver = new FailedBucketsArchiver(
+				bucketMover, bucketLocker);
 
-	// Verification
-	URI thirdBucketURI = UtilsFunctional.getHadoopArchivedBucketURI(config,
-		successfulBucket);
-	assertTrue(hadoopFileSystem.exists(new Path(firstBucketURI)));
-	assertTrue(hadoopFileSystem.exists(new Path(secondBucketURI)));
-	assertTrue(hadoopFileSystem.exists(new Path(thirdBucketURI)));
-    }
+		failingBucketFreezerWithoutRecovery = new BucketFreezer(bucketMover,
+				bucketLocker, internalErrorRestHandler, noOpFailedBucketsArchiver);
+
+		successfulBucketFreezerWithRecovery = new BucketFreezer(bucketMover,
+				bucketLocker, successfulRealRestHandler, realFailedBucketsArchiver);
+	}
+
+	public void tearDown() {
+		FileUtils.deleteQuietly(originalBucketLocation);
+		FileUtils.deleteQuietly(safeLocation);
+		cleanHadoopFileSystem();
+	}
+
+	private void cleanHadoopFileSystem() {
+		try {
+			hadoopFileSystem.delete(new Path(config.getArchivingRoot()), true);
+			hadoopFileSystem.delete(new Path(config.getTmpDirectory()), true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets()
+			throws IOException, InterruptedException {
+		// Setup buckets
+		Bucket firstFailingBucket = TUtilsBucket
+				.createBucketInDirectory(originalBucketLocation);
+		Bucket secondFailingBucket = TUtilsBucket
+				.createBucketInDirectory(originalBucketLocation);
+		Bucket successfulBucket = TUtilsBucket
+				.createBucketInDirectory(originalBucketLocation);
+
+		// Test
+		failingBucketFreezerWithoutRecovery.freezeBucket(firstFailingBucket
+				.getIndex(), firstFailingBucket.getDirectory().getAbsolutePath());
+		failingBucketFreezerWithoutRecovery.freezeBucket(secondFailingBucket
+				.getIndex(), secondFailingBucket.getDirectory().getAbsolutePath());
+
+		// Verify bucket archiving failed.
+		URI firstBucketURI = UtilsFunctional.getHadoopArchivedBucketURI(config,
+				firstFailingBucket);
+		URI secondBucketURI = UtilsFunctional.getHadoopArchivedBucketURI(config,
+				secondFailingBucket);
+		assertFalse(hadoopFileSystem.exists(new Path(firstBucketURI)));
+		assertFalse(hadoopFileSystem.exists(new Path(secondBucketURI)));
+
+		successfulBucketFreezerWithRecovery.freezeBucket(successfulBucket
+				.getIndex(), successfulBucket.getDirectory().getAbsolutePath());
+		UtilsFunctional.waitForAsyncArchiving();
+
+		// Verification
+		URI thirdBucketURI = UtilsFunctional.getHadoopArchivedBucketURI(config,
+				successfulBucket);
+		assertTrue(hadoopFileSystem.exists(new Path(firstBucketURI)));
+		assertTrue(hadoopFileSystem.exists(new Path(secondBucketURI)));
+		assertTrue(hadoopFileSystem.exists(new Path(thirdBucketURI)));
+	}
 }

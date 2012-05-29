@@ -20,46 +20,44 @@ import java.net.URI;
 
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.util.UtilsURI;
-
 @Test(groups = { "fast-unit" })
 public class UtilsURITest {
 
-    /**
-     * <pre>
-     * "file:/a/b/c" -> "c"
-     * </pre>
-     */
-    @Test(groups = { "fast-unit" })
-    public void getFileNameWithTrimmedEndingFileSeparator_uriToDirWithoutEndingFileSeparator_dirNameOnly() {
-	URI uriToTest = URI.create("file:/a/b/c");
-	String baseName = UtilsURI
-		.getFileNameWithTrimmedEndingFileSeparator(uriToTest);
-	assertEquals("c", baseName);
-    }
+	/**
+	 * <pre>
+	 * "file:/a/b/c" -> "c"
+	 * </pre>
+	 */
+	@Test(groups = { "fast-unit" })
+	public void getFileNameWithTrimmedEndingFileSeparator_uriToDirWithoutEndingFileSeparator_dirNameOnly() {
+		URI uriToTest = URI.create("file:/a/b/c");
+		String baseName = UtilsURI
+				.getFileNameWithTrimmedEndingFileSeparator(uriToTest);
+		assertEquals("c", baseName);
+	}
 
-    /**
-     * <pre>
-     * "file:/a/b/c/" -> "c"
-     * </pre>
-     */
-    public void getFileNameWithTrimmedEndingFileSeparator_uriToDirWithEndingFileSeparator_dirNameOnly() {
-	URI uriToTest = URI.create("file:/a/b/c/");
-	String baseName = UtilsURI
-		.getFileNameWithTrimmedEndingFileSeparator(uriToTest);
-	assertEquals("c", baseName);
-    }
+	/**
+	 * <pre>
+	 * "file:/a/b/c/" -> "c"
+	 * </pre>
+	 */
+	public void getFileNameWithTrimmedEndingFileSeparator_uriToDirWithEndingFileSeparator_dirNameOnly() {
+		URI uriToTest = URI.create("file:/a/b/c/");
+		String baseName = UtilsURI
+				.getFileNameWithTrimmedEndingFileSeparator(uriToTest);
+		assertEquals("c", baseName);
+	}
 
-    /**
-     * <pre>
-     * "file:/a/b/c.txt" -> "c.txt"
-     * </pre>
-     */
-    public void getFileNameWithTrimmedEndingFileSeparator_uriToTxtFile_txtFileOnly() {
-	URI uriToTest = URI.create("file:/a/b/c.txt");
-	String baseName = UtilsURI
-		.getFileNameWithTrimmedEndingFileSeparator(uriToTest);
-	assertEquals("c.txt", baseName);
-    }
+	/**
+	 * <pre>
+	 * "file:/a/b/c.txt" -> "c.txt"
+	 * </pre>
+	 */
+	public void getFileNameWithTrimmedEndingFileSeparator_uriToTxtFile_txtFileOnly() {
+		URI uriToTest = URI.create("file:/a/b/c.txt");
+		String baseName = UtilsURI
+				.getFileNameWithTrimmedEndingFileSeparator(uriToTest);
+		assertEquals("c.txt", baseName);
+	}
 
 }

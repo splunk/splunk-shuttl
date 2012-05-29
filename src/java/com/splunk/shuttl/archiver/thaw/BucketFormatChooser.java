@@ -30,73 +30,70 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
  */
 public class BucketFormatChooser {
 
-    private final static Logger logger = Logger
-	    .getLogger(BucketFormatChooser.class);
+	private final static Logger logger = Logger
+			.getLogger(BucketFormatChooser.class);
 
-    public static final BucketFormat DEFAULT_FORMAT_WHEN_NO_PRIORITIZING = BucketFormat.SPLUNK_BUCKET;
+	public static final BucketFormat DEFAULT_FORMAT_WHEN_NO_PRIORITIZING = BucketFormat.SPLUNK_BUCKET;
 
-    private final ArchiveConfiguration configuration;
+	private final ArchiveConfiguration configuration;
 
-    /**
-     * @param configuration
-     */
-    public BucketFormatChooser(ArchiveConfiguration configuration) {
-	this.configuration = configuration;
-    }
-
-    /**
-     * @param {@link Set} of formats.
-     * @return the bucket format of choice. Primarily based on configuration and
-     *         then defaults.
-     */
-    public BucketFormat chooseBucketFormat(List<BucketFormat> formats) {
-	if (formats.isEmpty()) {
-	    logger.warn(warn("Chose bucket format.",
-		    "There were no formats to chose between.",
-		    "Chose bucket format UNKNOWN", "chosen_bucket_format",
-		    BucketFormat.UNKNOWN));
-	    return BucketFormat.UNKNOWN;
-	} else if (formats.size() == 1) {
-	    return formats.iterator().next();
-	} else {
-	    return chooseFormatBasedOnPrioritizingOrDefaults(formats);
+	/**
+	 * @param configuration
+	 */
+	public BucketFormatChooser(ArchiveConfiguration configuration) {
+		this.configuration = configuration;
 	}
-    }
 
-    private BucketFormat chooseFormatBasedOnPrioritizingOrDefaults(
-	    List<BucketFormat> availableFormats) {
-	BucketFormat chosenFormat = null;
-	if (existsPrioritizedFormats()) {
-	    chosenFormat = chooseFromPrioritizedFormat(availableFormats);
+	/**
+	 * @param {@link Set} of formats.
+	 * @return the bucket format of choice. Primarily based on configuration and
+	 *         then defaults.
+	 */
+	public BucketFormat chooseBucketFormat(List<BucketFormat> formats) {
+		if (formats.isEmpty())
+			return unknownBucketFormatWithLogWarning();
+		else if (formats.size() == 1)
+			return formats.iterator().next();
+		else
+			return chooseFormatBasedOnPrioritizingOrDefaults(formats);
 	}
-	if (chosenFormat == null) {
-	    chosenFormat = chooseFromDefaultsAndAvailableFormats(availableFormats);
-	}
-	return chosenFormat;
-    }
 
-    private boolean existsPrioritizedFormats() {
-	return !configuration.getBucketFormatPriority().isEmpty();
-    }
-
-    private BucketFormat chooseFromPrioritizedFormat(
-	    List<BucketFormat> availableFormats) {
-	Set<BucketFormat> formatSet = new HashSet<BucketFormat>(
-		availableFormats);
-	for (BucketFormat prioFormat : configuration.getBucketFormatPriority()) {
-	    if (formatSet.contains(prioFormat)) {
-		return prioFormat;
-	    }
+	private BucketFormat unknownBucketFormatWithLogWarning() {
+		logger.warn(warn("Chose bucket format.",
+				"There were no formats to chose between.",
+				"Chose bucket format UNKNOWN", "chosen_bucket_format",
+				BucketFormat.UNKNOWN));
+		return BucketFormat.UNKNOWN;
 	}
-	return null;
-    }
 
-    private BucketFormat chooseFromDefaultsAndAvailableFormats(
-	    List<BucketFormat> availableFormats) {
-	if (availableFormats.contains(DEFAULT_FORMAT_WHEN_NO_PRIORITIZING)) {
-	    return DEFAULT_FORMAT_WHEN_NO_PRIORITIZING;
-	} else {
-	    return availableFormats.get(0);
+	private BucketFormat chooseFormatBasedOnPrioritizingOrDefaults(
+			List<BucketFormat> availableFormats) {
+		BucketFormat chosenFormat = null;
+		if (existsPrioritizedFormats())
+			chosenFormat = chooseFromPrioritizedFormat(availableFormats);
+		if (chosenFormat == null)
+			chosenFormat = chooseFromDefaultsAndAvailableFormats(availableFormats);
+		return chosenFormat;
 	}
-    }
+
+	private boolean existsPrioritizedFormats() {
+		return !configuration.getBucketFormatPriority().isEmpty();
+	}
+
+	private BucketFormat chooseFromPrioritizedFormat(
+			List<BucketFormat> availableFormats) {
+		Set<BucketFormat> formatSet = new HashSet<BucketFormat>(availableFormats);
+		for (BucketFormat prioFormat : configuration.getBucketFormatPriority())
+			if (formatSet.contains(prioFormat))
+				return prioFormat;
+		return null;
+	}
+
+	private BucketFormat chooseFromDefaultsAndAvailableFormats(
+			List<BucketFormat> availableFormats) {
+		if (availableFormats.contains(DEFAULT_FORMAT_WHEN_NO_PRIORITIZING))
+			return DEFAULT_FORMAT_WHEN_NO_PRIORITIZING;
+		else
+			return availableFormats.get(0);
+	}
 }

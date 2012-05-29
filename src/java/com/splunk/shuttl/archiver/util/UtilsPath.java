@@ -21,22 +21,22 @@ import org.apache.hadoop.fs.Path;
  */
 public class UtilsPath {
 
-    /**
-     * When appending the scheme is taking from pathToAppend and only the actual
-     * path is taking from pathThatWillBeAppended
-     * 
-     * @param pathThatWillBeAppended
-     *            This is the base path the scheme will be taken from this one.
-     * @param pathToAppend
-     *            The path string is taken from this argument and appended to
-     *            the previous one.
-     * 
-     * @return a new Path created by appending 'pathToAppend' to
-     *         'pathThatWillBeAppended'
-     */
-    public static Path createPathByAppending(Path pathThatWillBeAppended,
-	    Path pathToAppend) {
-	return pathThatWillBeAppended.suffix(pathToAppend.toUri().getPath());
-    }
+	/**
+	 * When appending the scheme is taking from pathToAppend and only the actual
+	 * path is taking from pathThatWillBeAppended
+	 * 
+	 * @param pathThatWillBeAppended
+	 *          This is the base path the scheme will be taken from this one.
+	 * @param pathToAppend
+	 *          The path string is taken from this argument and appended to the
+	 *          previous one.
+	 * 
+	 * @return a new Path created by appending 'pathToAppend' to
+	 *         'pathThatWillBeAppended'
+	 */
+	public static Path createPathByAppending(Path pathThatWillBeAppended,
+			Path pathToAppend) {
+		return pathThatWillBeAppended.suffix(pathToAppend.toUri().getPath());
+	}
 
 }

@@ -27,7 +27,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.SimpleFileLock;
 import com.splunk.shuttl.testutil.TUtilsFile;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
@@ -38,49 +37,49 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 @Test(groups = { "fast-unit" })
 public class SimpleFileLockConstructorTest {
 
-    SimpleFileLock simpleFileLock;
-    FileChannel fileChannel;
+	SimpleFileLock simpleFileLock;
+	FileChannel fileChannel;
 
-    @BeforeMethod(groups = { "fast-unit" })
-    public void setUp() {
-	fileChannel = getFileChannel();
-	simpleFileLock = new SimpleFileLock(fileChannel);
-    }
-
-    @AfterMethod(groups = { "fast-unit" })
-    public void tearDown() {
-	IOUtils.closeQuietly(fileChannel);
-    }
-
-    /**
-     * @return
-     */
-    private FileChannel getFileChannel() {
-	return getOutputStreamToTempFile().getChannel();
-    }
-
-    private FileOutputStream getOutputStreamToTempFile() {
-	File file = TUtilsFile.createTestFile();
-	try {
-	    return new FileOutputStream(file);
-	} catch (FileNotFoundException e) {
-	    e.printStackTrace();
-	    TUtilsTestNG.failForException("Could not open InputStream"
-		    + " for file: " + file, e);
-	    return null;
+	@BeforeMethod(groups = { "fast-unit" })
+	public void setUp() {
+		fileChannel = getFileChannel();
+		simpleFileLock = new SimpleFileLock(fileChannel);
 	}
-    }
 
-    @Test(groups = { "fast-unit" })
-    public void closeLock_givenFileChannelToFailedBucketsLock_doesntCloseChannelWhenFileChannelIsNotOpen()
-	    throws IOException {
-	simpleFileLock.closeLock();
-	assertTrue(!fileChannel.isOpen());
-    }
+	@AfterMethod(groups = { "fast-unit" })
+	public void tearDown() {
+		IOUtils.closeQuietly(fileChannel);
+	}
 
-    public void closeLock_givenClosedFileChannel_doesNotThrowAnything() {
-	IOUtils.closeQuietly(fileChannel);
-	assertTrue(!fileChannel.isOpen());
-	simpleFileLock.closeLock();
-    }
+	/**
+	 * @return
+	 */
+	private FileChannel getFileChannel() {
+		return getOutputStreamToTempFile().getChannel();
+	}
+
+	private FileOutputStream getOutputStreamToTempFile() {
+		File file = TUtilsFile.createTestFile();
+		try {
+			return new FileOutputStream(file);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			TUtilsTestNG.failForException("Could not open InputStream"
+					+ " for file: " + file, e);
+			return null;
+		}
+	}
+
+	@Test(groups = { "fast-unit" })
+	public void closeLock_givenFileChannelToFailedBucketsLock_doesntCloseChannelWhenFileChannelIsNotOpen()
+			throws IOException {
+		simpleFileLock.closeLock();
+		assertTrue(!fileChannel.isOpen());
+	}
+
+	public void closeLock_givenClosedFileChannel_doesNotThrowAnything() {
+		IOUtils.closeQuietly(fileChannel);
+		assertTrue(!fileChannel.isOpen());
+		simpleFileLock.closeLock();
+	}
 }

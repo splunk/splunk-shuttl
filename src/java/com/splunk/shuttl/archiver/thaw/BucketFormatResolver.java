@@ -37,111 +37,104 @@ import com.splunk.shuttl.archiver.util.UtilsURI;
  */
 public class BucketFormatResolver {
 
-    private final static Logger logger = Logger
-	    .getLogger(BucketFormatResolver.class);
-    private final PathResolver pathResolver;
-    private final ArchiveFileSystem archiveFileSystem;
-    private final BucketFormatChooser bucketFormatChooser;
+	private final static Logger logger = Logger
+			.getLogger(BucketFormatResolver.class);
+	private final PathResolver pathResolver;
+	private final ArchiveFileSystem archiveFileSystem;
+	private final BucketFormatChooser bucketFormatChooser;
 
-    /**
-     * @param pathResolver
-     *            to resolve formats home for buckets.
-     * @param archiveFileSystem
-     *            to list formats in.
-     * @param bucketFormatChooser
-     *            for deciding which of the format to thaw.
-     */
-    public BucketFormatResolver(PathResolver pathResolver,
-	    ArchiveFileSystem archiveFileSystem,
-	    BucketFormatChooser bucketFormatChooser) {
-	this.pathResolver = pathResolver;
-	this.archiveFileSystem = archiveFileSystem;
-	this.bucketFormatChooser = bucketFormatChooser;
-    }
-
-    /**
-     * @param buckets
-     *            without {@link BucketFormat} set.
-     * @return buckets with {@link BucketFormat} set.
-     */
-    public List<Bucket> resolveBucketsFormats(List<Bucket> buckets) {
-	List<Bucket> bucketsWithFormat = new ArrayList<Bucket>();
-	for (Bucket bucket : buckets) {
-	    bucketsWithFormat.add(getBucketWithResolvedFormat(bucket));
+	/**
+	 * @param pathResolver
+	 *          to resolve formats home for buckets.
+	 * @param archiveFileSystem
+	 *          to list formats in.
+	 * @param bucketFormatChooser
+	 *          for deciding which of the format to thaw.
+	 */
+	public BucketFormatResolver(PathResolver pathResolver,
+			ArchiveFileSystem archiveFileSystem,
+			BucketFormatChooser bucketFormatChooser) {
+		this.pathResolver = pathResolver;
+		this.archiveFileSystem = archiveFileSystem;
+		this.bucketFormatChooser = bucketFormatChooser;
 	}
-	return bucketsWithFormat;
-    }
 
-    private Bucket getBucketWithResolvedFormat(Bucket bucket) {
-	List<BucketFormat> availableFormats = getAvailableFormatsForBucket(bucket);
-	BucketFormat chosenFormat = bucketFormatChooser
-		.chooseBucketFormat(availableFormats);
-	URI uriToBucketWithChosenBucket = pathResolver
-		.resolveArchivedBucketURI(bucket.getIndex(),
-			bucket.getName(), chosenFormat);
-	Long bucketSize = getBucketSize(bucket);
-	return createBucketWithErrorHandling(bucket, chosenFormat,
-		uriToBucketWithChosenBucket, bucketSize);
-    }
-
-    private List<BucketFormat> getAvailableFormatsForBucket(Bucket bucket) {
-	URI formatsHomeForBucket = pathResolver
-		.getFormatsHome(bucket.getIndex(),
-			bucket.getName());
-	List<URI> archivedFormats = listArchivedFormatsWithErrorHandling(
-		formatsHomeForBucket, bucket);
-	return getBucketFormats(archivedFormats);
-    }
-
-    private List<URI> listArchivedFormatsWithErrorHandling(
-	    URI formatsHomeForBucket, Bucket bucket) {
-	try {
-	    return archiveFileSystem.listPath(formatsHomeForBucket);
-	} catch (IOException e) {
-	    logger.warn(warn("Listed formats home for a bucket", e,
-		    "Will not list any formats for bucket", "formats_home",
-		    formatsHomeForBucket, "bucket", bucket, "exception", e));
-	    return Collections.emptyList();
+	/**
+	 * @param buckets
+	 *          without {@link BucketFormat} set.
+	 * @return buckets with {@link BucketFormat} set.
+	 */
+	public List<Bucket> resolveBucketsFormats(List<Bucket> buckets) {
+		List<Bucket> bucketsWithFormat = new ArrayList<Bucket>();
+		for (Bucket bucket : buckets)
+			bucketsWithFormat.add(getBucketWithResolvedFormat(bucket));
+		return bucketsWithFormat;
 	}
-    }
 
-    private List<BucketFormat> getBucketFormats(List<URI> formatUris) {
-	List<BucketFormat> formats = new ArrayList<BucketFormat>();
-	for (URI uri : formatUris) {
-	    String formatName = UtilsURI
-		    .getFileNameWithTrimmedEndingFileSeparator(uri);
-	    formats.add(BucketFormat.valueOf(formatName));
+	private Bucket getBucketWithResolvedFormat(Bucket bucket) {
+		List<BucketFormat> availableFormats = getAvailableFormatsForBucket(bucket);
+		BucketFormat chosenFormat = bucketFormatChooser
+				.chooseBucketFormat(availableFormats);
+		URI uriToBucketWithChosenBucket = pathResolver.resolveArchivedBucketURI(
+				bucket.getIndex(), bucket.getName(), chosenFormat);
+		Long bucketSize = getBucketSize(bucket);
+		return createBucketWithErrorHandling(bucket, chosenFormat,
+				uriToBucketWithChosenBucket, bucketSize);
 	}
-	return formats;
-    }
 
-    private Bucket createBucketWithErrorHandling(Bucket bucket,
-	    BucketFormat chosenFormat, URI uriToBucketWithChosenBucket,
-	    Long bucketSize) {
-	try {
-	    return new Bucket(uriToBucketWithChosenBucket, bucket.getIndex(),
-		    bucket.getName(), chosenFormat, bucketSize);
-	} catch (IOException e) {
-	    logger.debug(did(
-		    "Created bucket with format",
-		    e,
-		    "To create bucket from another bucket, only changing the format.",
-		    "bucket", bucket, "bucket_format", chosenFormat,
-		    "exception", e));
-	    throw new RuntimeException(e);
+	private List<BucketFormat> getAvailableFormatsForBucket(Bucket bucket) {
+		URI formatsHomeForBucket = pathResolver.getFormatsHome(bucket.getIndex(),
+				bucket.getName());
+		List<URI> archivedFormats = listArchivedFormatsWithErrorHandling(
+				formatsHomeForBucket, bucket);
+		return getBucketFormats(archivedFormats);
 	}
-    }
 
-    private Long getBucketSize(Bucket bucket) {
-	try {
-	    Long size = archiveFileSystem.getSize(bucket.getURI());
-	    return size;
-	} catch (Exception e) {
-	    // unable to obtain size - log error and return null
-	    logger.error(did(
-		    "tried to get size of bucket on archive filesystem", e,
-		    null, "bucket", bucket));
-	    return null;
+	private List<URI> listArchivedFormatsWithErrorHandling(
+			URI formatsHomeForBucket, Bucket bucket) {
+		try {
+			return archiveFileSystem.listPath(formatsHomeForBucket);
+		} catch (IOException e) {
+			logger.warn(warn("Listed formats home for a bucket", e,
+					"Will not list any formats for bucket", "formats_home",
+					formatsHomeForBucket, "bucket", bucket, "exception", e));
+			return Collections.emptyList();
+		}
 	}
-    }
+
+	private List<BucketFormat> getBucketFormats(List<URI> formatUris) {
+		List<BucketFormat> formats = new ArrayList<BucketFormat>();
+		for (URI uri : formatUris) {
+			String formatName = UtilsURI
+					.getFileNameWithTrimmedEndingFileSeparator(uri);
+			formats.add(BucketFormat.valueOf(formatName));
+		}
+		return formats;
+	}
+
+	private Bucket createBucketWithErrorHandling(Bucket bucket,
+			BucketFormat chosenFormat, URI uriToBucketWithChosenBucket,
+			Long bucketSize) {
+		try {
+			return new Bucket(uriToBucketWithChosenBucket, bucket.getIndex(),
+					bucket.getName(), chosenFormat, bucketSize);
+		} catch (IOException e) {
+			logger.debug(did("Created bucket with format", e,
+					"To create bucket from another bucket, only changing the format.",
+					"bucket", bucket, "bucket_format", chosenFormat, "exception", e));
+			throw new RuntimeException(e);
+		}
+	}
+
+	private Long getBucketSize(Bucket bucket) {
+		try {
+			Long size = archiveFileSystem.getSize(bucket.getURI());
+			return size;
+		} catch (Exception e) {
+			// unable to obtain size - log error and return null
+			logger.error(did("tried to get size of bucket on archive filesystem", e,
+					null, "bucket", bucket));
+			return null;
+		}
+	}
 }

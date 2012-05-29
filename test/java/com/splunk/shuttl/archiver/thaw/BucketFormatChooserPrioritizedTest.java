@@ -25,47 +25,43 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.thaw.BucketFormatChooser;
 
 @Test(groups = { "fast-unit" })
 public class BucketFormatChooserPrioritizedTest {
 
-    BucketFormatChooser bucketFormatChooser;
-    ArchiveConfiguration configuration;
+	BucketFormatChooser bucketFormatChooser;
+	ArchiveConfiguration configuration;
 
-    @BeforeMethod
-    public void setUp() {
-	configuration = mock(ArchiveConfiguration.class);
-	bucketFormatChooser = new BucketFormatChooser(configuration);
+	@BeforeMethod
+	public void setUp() {
+		configuration = mock(ArchiveConfiguration.class);
+		bucketFormatChooser = new BucketFormatChooser(configuration);
 
-	stubPrioritizedBucketFormatsAsUnknownThenSplunkBucket();
-    }
+		stubPrioritizedBucketFormatsAsUnknownThenSplunkBucket();
+	}
 
-    private void stubPrioritizedBucketFormatsAsUnknownThenSplunkBucket() {
-	when(configuration.getBucketFormatPriority())
-		.thenReturn(
-			Arrays.asList(BucketFormat.UNKNOWN,
-				BucketFormat.SPLUNK_BUCKET));
-    }
+	private void stubPrioritizedBucketFormatsAsUnknownThenSplunkBucket() {
+		when(configuration.getBucketFormatPriority()).thenReturn(
+				Arrays.asList(BucketFormat.UNKNOWN, BucketFormat.SPLUNK_BUCKET));
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void chooseBucketFormat_givenUnknownFormatIsMostPrioritized_chooseUnknownFormatOutOfSplunkAndUnknown() {
-	List<BucketFormat> formats = Arrays.asList(BucketFormat.SPLUNK_BUCKET,
-		BucketFormat.UNKNOWN);
+	@Test(groups = { "fast-unit" })
+	public void chooseBucketFormat_givenUnknownFormatIsMostPrioritized_chooseUnknownFormatOutOfSplunkAndUnknown() {
+		List<BucketFormat> formats = Arrays.asList(BucketFormat.SPLUNK_BUCKET,
+				BucketFormat.UNKNOWN);
 
-	BucketFormat chosenFormat = bucketFormatChooser
-		.chooseBucketFormat(formats);
-	assertEquals(chosenFormat, BucketFormat.UNKNOWN);
-    }
+		BucketFormat chosenFormat = bucketFormatChooser.chooseBucketFormat(formats);
+		assertEquals(chosenFormat, BucketFormat.UNKNOWN);
+	}
 
-    public void chooseBucketFormat_givenUnknownFormatNotInAvailableFormats_returnSecondPriorityFormat() {
-	List<BucketFormat> secondPriorityFormat = Arrays.asList(
-		BucketFormat.SPLUNK_BUCKET, BucketFormat.SPLUNK_BUCKET);
-	assertEquals(2, secondPriorityFormat.size());
+	public void chooseBucketFormat_givenUnknownFormatNotInAvailableFormats_returnSecondPriorityFormat() {
+		List<BucketFormat> secondPriorityFormat = Arrays.asList(
+				BucketFormat.SPLUNK_BUCKET, BucketFormat.SPLUNK_BUCKET);
+		assertEquals(2, secondPriorityFormat.size());
 
-	BucketFormat chosenFormat = bucketFormatChooser
-		.chooseBucketFormat(secondPriorityFormat);
-	assertEquals(chosenFormat, BucketFormat.SPLUNK_BUCKET);
-    }
+		BucketFormat chosenFormat = bucketFormatChooser
+				.chooseBucketFormat(secondPriorityFormat);
+		assertEquals(chosenFormat, BucketFormat.SPLUNK_BUCKET);
+	}
 
 }

@@ -30,34 +30,34 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 @Test(groups = { "fast-unit" })
 public class UtilsBucketTest {
 
-    public void getCsvFile_givenCsvBucket_getsTheCsvFile() {
-	Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
-	File csvFile = UtilsBucket.getCsvFile(csvBucket);
-	assertFileIsCsv(csvFile);
-    }
+	public void getCsvFile_givenCsvBucket_getsTheCsvFile() {
+		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
+		File csvFile = UtilsBucket.getCsvFile(csvBucket);
+		assertFileIsCsv(csvFile);
+	}
 
-    private void assertFileIsCsv(File csvFile) {
-	assertEquals("csv", FilenameUtils.getExtension(csvFile.getName()));
-    }
+	private void assertFileIsCsv(File csvFile) {
+		assertEquals("csv", FilenameUtils.getExtension(csvFile.getName()));
+	}
 
-    public void getCsvFile_givenCsvBucketWithMoreThanOneFile_getsTheCsvFile() {
-	Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
-	createFileInParent(csvBucket.getDirectory(), "abc.foo");
-	createFileInParent(csvBucket.getDirectory(), "xyz.bar");
-	assertFileIsCsv(UtilsBucket.getCsvFile(csvBucket));
-    }
+	public void getCsvFile_givenCsvBucketWithMoreThanOneFile_getsTheCsvFile() {
+		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
+		createFileInParent(csvBucket.getDirectory(), "abc.foo");
+		createFileInParent(csvBucket.getDirectory(), "xyz.bar");
+		assertFileIsCsv(UtilsBucket.getCsvFile(csvBucket));
+	}
 
-    @Test(expectedExceptions = { IllegalArgumentException.class })
-    public void getCsvFile_emptyBucket_throwsException() {
-	Bucket emptyBucket = TUtilsBucket.createTestBucket();
-	FileUtils.deleteQuietly(emptyBucket.getDirectory());
-	assertTrue(emptyBucket.getDirectory().mkdirs());
-	UtilsBucket.getCsvFile(emptyBucket);
-    }
+	@Test(expectedExceptions = { IllegalArgumentException.class })
+	public void getCsvFile_emptyBucket_throwsException() {
+		Bucket emptyBucket = TUtilsBucket.createTestBucket();
+		FileUtils.deleteQuietly(emptyBucket.getDirectory());
+		assertTrue(emptyBucket.getDirectory().mkdirs());
+		UtilsBucket.getCsvFile(emptyBucket);
+	}
 
-    @Test(expectedExceptions = { NoCsvFileFoundException.class })
-    public void getCsvFile_noCsvFile_throwsRuntimeException() {
-	Bucket bucketWithoutCsvFile = TUtilsBucket.createTestBucket();
-	UtilsBucket.getCsvFile(bucketWithoutCsvFile);
-    }
+	@Test(expectedExceptions = { NoCsvFileFoundException.class })
+	public void getCsvFile_noCsvFile_throwsRuntimeException() {
+		Bucket bucketWithoutCsvFile = TUtilsBucket.createTestBucket();
+		UtilsBucket.getCsvFile(bucketWithoutCsvFile);
+	}
 }

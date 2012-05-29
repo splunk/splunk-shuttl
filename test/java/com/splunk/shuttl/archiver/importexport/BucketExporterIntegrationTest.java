@@ -29,7 +29,6 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.importexport.BucketExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -41,45 +40,44 @@ import com.splunk.shuttl.testutil.TUtilsEnvironment;
 @Test(groups = { "functional" })
 public class BucketExporterIntegrationTest {
 
-    private BucketExporter bucketExporter;
+	private BucketExporter bucketExporter;
 
-    @BeforeMethod
-    public void setUp() throws FileNotFoundException,
-	    FileNotDirectoryException, URISyntaxException {
-	bucketExporter = BucketExporter.create();
-    }
+	@BeforeMethod
+	public void setUp() throws FileNotFoundException, FileNotDirectoryException,
+			URISyntaxException {
+		bucketExporter = BucketExporter.create();
+	}
 
-    @AfterMethod
-    public void tearDown() {
-	FileUtils.deleteQuietly(getArchiverDirectory());
-    }
+	@AfterMethod
+	public void tearDown() {
+		FileUtils.deleteQuietly(getArchiverDirectory());
+	}
 
-    @Test(groups = { "functional" })
-    @Parameters(value = { "splunk.home" })
-    public void exportBucketToFormat_splunkHomeSetExportingBucketWithRealDataToCsv_createsCsvBucket(
-	    final String splunkHome) {
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	@Test(groups = { "functional" })
+	@Parameters(value = { "splunk.home" })
+	public void exportBucketToFormat_splunkHomeSetExportingBucketWithRealDataToCsv_createsCsvBucket(
+			final String splunkHome) {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-	    @Override
-	    public void run() {
-		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			splunkHome);
-		exportingBucketWithRealDataToCsvCreatesCsvBucket();
-	    }
-	});
-    }
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				exportingBucketWithRealDataToCsvCreatesCsvBucket();
+			}
+		});
+	}
 
-    private void exportingBucketWithRealDataToCsvCreatesCsvBucket() {
-	Bucket realBucket = TUtilsBucket.createRealBucket();
-	Bucket csvBucket = bucketExporter.exportBucketToFormat(realBucket,
-		BucketFormat.CSV);
-	assertEquals(realBucket.getName(), csvBucket.getName());
-	assertEquals(BucketFormat.CSV, csvBucket.getFormat());
-	assertEquals(1, csvBucket.getDirectory().listFiles().length);
-	File csvFile = csvBucket.getDirectory().listFiles()[0];
-	assertEquals("csv", FilenameUtils.getExtension(csvFile.getName()));
-	long csvFileSize = csvFile.length();
-	assertTrue(0 < csvFileSize);
-    }
+	private void exportingBucketWithRealDataToCsvCreatesCsvBucket() {
+		Bucket realBucket = TUtilsBucket.createRealBucket();
+		Bucket csvBucket = bucketExporter.exportBucketToFormat(realBucket,
+				BucketFormat.CSV);
+		assertEquals(realBucket.getName(), csvBucket.getName());
+		assertEquals(BucketFormat.CSV, csvBucket.getFormat());
+		assertEquals(1, csvBucket.getDirectory().listFiles().length);
+		File csvFile = csvBucket.getDirectory().listFiles()[0];
+		assertEquals("csv", FilenameUtils.getExtension(csvFile.getName()));
+		long csvFileSize = csvFile.length();
+		assertTrue(0 < csvFileSize);
+	}
 
 }

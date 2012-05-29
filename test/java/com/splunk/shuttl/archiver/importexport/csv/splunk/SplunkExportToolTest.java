@@ -16,15 +16,11 @@ package com.splunk.shuttl.archiver.importexport.csv.splunk;
 
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkExportTool;
-import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkTool;
-
-
 @Test(groups = { "fast-unit" })
 public class SplunkExportToolTest extends SplunkToolTest {
 
-    @Override
-    protected SplunkTool getInstance() {
-	return new SplunkExportTool();
-    }
+	@Override
+	protected SplunkTool getInstance() {
+		return new SplunkExportTool();
+	}
 }

@@ -22,39 +22,39 @@ import com.splunk.shuttl.server.model.ArchiverConfiguration;
 
 /**
  * @author kpakkirisamy
- *
+ * 
  */
 public interface ShuttlArchiverMBean extends ArchiverConfiguration {
 
-    public static final String OBJECT_NAME = "com.splunk.shuttl.mbeans:type=Archiver";
+	public static final String OBJECT_NAME = "com.splunk.shuttl.mbeans:type=Archiver";
 
-    /**
-     * Saves MBean attributes to backing xml
-     * 
-     * @throws ShuttlMBeanException
-     */
-    public void save() throws ShuttlMBeanException, IOException,
-	    InstanceNotFoundException;
+	/**
+	 * Saves MBean attributes to backing xml
+	 * 
+	 * @throws ShuttlMBeanException
+	 */
+	public void save() throws ShuttlMBeanException, IOException,
+			InstanceNotFoundException;
 
-    /**
-     * Reloads MBean attributes from backing xml
-     * 
-     * @throws ShuttlMBeanException
-     */
-    public void refresh() throws ShuttlMBeanException, IOException,
-	    InstanceNotFoundException;;
+	/**
+	 * Reloads MBean attributes from backing xml
+	 * 
+	 * @throws ShuttlMBeanException
+	 */
+	public void refresh() throws ShuttlMBeanException, IOException,
+			InstanceNotFoundException;;
 
-    /**
-     * Adds an index to be archived
-     * 
-     * @param name
-     */
-    public void addIndex(String name);
+	/**
+	 * Adds an index to be archived
+	 * 
+	 * @param name
+	 */
+	public void addIndex(String name);
 
-    /**
-     * deletes an index from being archived
-     * 
-     * @param name
-     */
-    public void deleteIndex(String name);
+	/**
+	 * deletes an index from being archived
+	 * 
+	 * @param name
+	 */
+	public void deleteIndex(String name);
 }

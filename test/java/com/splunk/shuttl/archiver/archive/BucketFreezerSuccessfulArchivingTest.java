@@ -31,12 +31,10 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
-import com.splunk.shuttl.archiver.archive.BucketFreezer;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
+import com.splunk.shuttl.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
-import com.splunk.shuttl.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
@@ -48,94 +46,92 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 @Test(groups = { "fast-unit" })
 public class BucketFreezerSuccessfulArchivingTest {
 
-    File tempTestDirectory;
-    BucketFreezer bucketFreezer;
-    ArchiveRestHandler archiveRestHandler;
-    FailedBucketsArchiver failedBucketsArchiver;
+	File tempTestDirectory;
+	BucketFreezer bucketFreezer;
+	ArchiveRestHandler archiveRestHandler;
+	FailedBucketsArchiver failedBucketsArchiver;
 
-    @BeforeMethod(groups = { "fast-unit" })
-    public void beforeClass() throws ClientProtocolException, IOException {
-	tempTestDirectory = createTempDirectory();
-	archiveRestHandler = mock(ArchiveRestHandler.class);
-	failedBucketsArchiver = mock(FailedBucketsArchiver.class);
-	bucketFreezer = new BucketFreezer(new BucketMover(tempTestDirectory),
-		new BucketLocker(), archiveRestHandler, failedBucketsArchiver);
-    }
+	@BeforeMethod(groups = { "fast-unit" })
+	public void beforeClass() throws ClientProtocolException, IOException {
+		tempTestDirectory = createTempDirectory();
+		archiveRestHandler = mock(ArchiveRestHandler.class);
+		failedBucketsArchiver = mock(FailedBucketsArchiver.class);
+		bucketFreezer = new BucketFreezer(new BucketMover(tempTestDirectory),
+				new BucketLocker(), archiveRestHandler, failedBucketsArchiver);
+	}
 
-    @AfterMethod(groups = { "fast-unit" })
-    public void tearDownFast() {
-	FileUtils.deleteQuietly(tempTestDirectory);
-	FileUtils.deleteQuietly(getArchiverDirectory());
-    }
+	@AfterMethod(groups = { "fast-unit" })
+	public void tearDownFast() {
+		FileUtils.deleteQuietly(tempTestDirectory);
+		FileUtils.deleteQuietly(getArchiverDirectory());
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void should_moveDirectoryToaSafeLocation_when_givenPath()
-	    throws IOException {
-	File dirToBeMoved = createTempDirectory();
-	File safeLocationDirectory = tempTestDirectory;
-	assertTrue(isDirectoryEmpty(safeLocationDirectory));
+	@Test(groups = { "fast-unit" })
+	public void should_moveDirectoryToaSafeLocation_when_givenPath()
+			throws IOException {
+		File dirToBeMoved = createTempDirectory();
+		File safeLocationDirectory = tempTestDirectory;
+		assertTrue(isDirectoryEmpty(safeLocationDirectory));
 
-	// Test
-	int exitStatus = bucketFreezer.freezeBucket("index-name",
-		dirToBeMoved.getAbsolutePath());
-	assertEquals(0, exitStatus);
+		// Test
+		int exitStatus = bucketFreezer.freezeBucket("index-name",
+				dirToBeMoved.getAbsolutePath());
+		assertEquals(0, exitStatus);
 
-	// Verify
-	assertTrue(!dirToBeMoved.exists());
-	assertTrue(safeLocationDirectory.exists());
-	assertTrue(!isDirectoryEmpty(safeLocationDirectory));
-    }
+		// Verify
+		assertTrue(!dirToBeMoved.exists());
+		assertTrue(safeLocationDirectory.exists());
+		assertTrue(!isDirectoryEmpty(safeLocationDirectory));
+	}
 
-    public void freezeBucket_givenNonExistingSafeLocation_createSafeLocation()
-	    throws IOException {
-	File dirToBeMoved = createTempDirectory();
-	System.err.println(tempTestDirectory);
-	assertTrue(FileUtils.deleteQuietly(tempTestDirectory));
-	File nonExistingSafeLocation = tempTestDirectory;
-	assertTrue(!nonExistingSafeLocation.exists());
-	System.err.println(tempTestDirectory.getName());
+	public void freezeBucket_givenNonExistingSafeLocation_createSafeLocation()
+			throws IOException {
+		File dirToBeMoved = createTempDirectory();
+		System.err.println(tempTestDirectory);
+		assertTrue(FileUtils.deleteQuietly(tempTestDirectory));
+		File nonExistingSafeLocation = tempTestDirectory;
+		assertTrue(!nonExistingSafeLocation.exists());
+		System.err.println(tempTestDirectory.getName());
 
-	// Test
-	bucketFreezer.freezeBucket("index", dirToBeMoved.getAbsolutePath());
+		// Test
+		bucketFreezer.freezeBucket("index", dirToBeMoved.getAbsolutePath());
 
-	// Verify
-	assertTrue(!dirToBeMoved.exists());
-	assertTrue(nonExistingSafeLocation.exists());
-    }
+		// Verify
+		assertTrue(!dirToBeMoved.exists());
+		assertTrue(nonExistingSafeLocation.exists());
+	}
 
-    public void freezeBucket_givenBucket_callRestWithMovedBucket() {
-	Bucket bucket = TUtilsBucket.createTestBucket();
+	public void freezeBucket_givenBucket_callRestWithMovedBucket() {
+		Bucket bucket = TUtilsBucket.createTestBucket();
 
-	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
-		.getAbsolutePath());
+		bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
+				.getAbsolutePath());
 
-	ArgumentCaptor<Bucket> bucketCaptor = ArgumentCaptor
-		.forClass(Bucket.class);
-	verify(archiveRestHandler, times(1)).callRestToArchiveBucket(
-		bucketCaptor.capture());
-	assertEquals(1, bucketCaptor.getAllValues().size());
-	Bucket capturedBucket = bucketCaptor.getValue();
+		ArgumentCaptor<Bucket> bucketCaptor = ArgumentCaptor.forClass(Bucket.class);
+		verify(archiveRestHandler, times(1)).callRestToArchiveBucket(
+				bucketCaptor.capture());
+		assertEquals(1, bucketCaptor.getAllValues().size());
+		Bucket capturedBucket = bucketCaptor.getValue();
 
-	TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket,
-		capturedBucket);
-    }
+		TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(bucket, capturedBucket);
+	}
 
-    public void freezeBucket_givenBucket_callItToRecoverBuckets() {
-	Bucket bucket = TUtilsBucket.createTestBucket();
-	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
-		.getAbsolutePath());
-	verify(failedBucketsArchiver).archiveFailedBuckets(archiveRestHandler);
-    }
+	public void freezeBucket_givenBucket_callItToRecoverBuckets() {
+		Bucket bucket = TUtilsBucket.createTestBucket();
+		bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
+				.getAbsolutePath());
+		verify(failedBucketsArchiver).archiveFailedBuckets(archiveRestHandler);
+	}
 
-    public void freezeBucket_givenBucket_triesToRestoreBucketsAFTERCallingRest() {
-	Bucket bucket = TUtilsBucket.createTestBucket();
-	bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
-		.getAbsolutePath());
-	InOrder inOrder = inOrder(archiveRestHandler, failedBucketsArchiver);
-	inOrder.verify(archiveRestHandler, times(1)).callRestToArchiveBucket(
-		any(Bucket.class));
-	inOrder.verify(failedBucketsArchiver).archiveFailedBuckets(
-		any(SharedLockBucketHandler.class));
-	inOrder.verifyNoMoreInteractions();
-    }
+	public void freezeBucket_givenBucket_triesToRestoreBucketsAFTERCallingRest() {
+		Bucket bucket = TUtilsBucket.createTestBucket();
+		bucketFreezer.freezeBucket(bucket.getIndex(), bucket.getDirectory()
+				.getAbsolutePath());
+		InOrder inOrder = inOrder(archiveRestHandler, failedBucketsArchiver);
+		inOrder.verify(archiveRestHandler, times(1)).callRestToArchiveBucket(
+				any(Bucket.class));
+		inOrder.verify(failedBucketsArchiver).archiveFailedBuckets(
+				any(SharedLockBucketHandler.class));
+		inOrder.verifyNoMoreInteractions();
+	}
 }

@@ -24,35 +24,33 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.thaw.ThawBucketTransferer;
-import com.splunk.shuttl.archiver.thaw.ThawLocationProvider;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class ThawBucketTransfererTest {
 
-    ThawBucketTransferer bucketTransferer;
-    Bucket bucket;
-    ArchiveFileSystem archiveFileSystem;
-    ThawLocationProvider thawLocationProvider;
+	ThawBucketTransferer bucketTransferer;
+	Bucket bucket;
+	ArchiveFileSystem archiveFileSystem;
+	ThawLocationProvider thawLocationProvider;
 
-    @BeforeMethod
-    public void setUp() {
-	bucket = TUtilsBucket.createTestBucket();
-	thawLocationProvider = mock(ThawLocationProvider.class);
-	archiveFileSystem = mock(ArchiveFileSystem.class);
-	bucketTransferer = new ThawBucketTransferer(thawLocationProvider,
-		archiveFileSystem);
-    }
+	@BeforeMethod
+	public void setUp() {
+		bucket = TUtilsBucket.createTestBucket();
+		thawLocationProvider = mock(ThawLocationProvider.class);
+		archiveFileSystem = mock(ArchiveFileSystem.class);
+		bucketTransferer = new ThawBucketTransferer(thawLocationProvider,
+				archiveFileSystem);
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void transferBucketToThaw_givenBucket_transferBucketFromArchiveToPathWhereParentIsThawLocation()
-	    throws IOException {
-	File file = mock(File.class);
-	when(thawLocationProvider.getLocationInThawForBucket(bucket))
-		.thenReturn(file);
-	bucketTransferer.transferBucketToThaw(bucket);
+	@Test(groups = { "fast-unit" })
+	public void transferBucketToThaw_givenBucket_transferBucketFromArchiveToPathWhereParentIsThawLocation()
+			throws IOException {
+		File file = mock(File.class);
+		when(thawLocationProvider.getLocationInThawForBucket(bucket)).thenReturn(
+				file);
+		bucketTransferer.transferBucketToThaw(bucket);
 
-	verify(archiveFileSystem).getFile(file, bucket.getURI());
-    }
+		verify(archiveFileSystem).getFile(file, bucket.getURI());
+	}
 }

@@ -20,8 +20,6 @@ import static org.mockito.Mockito.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
-import com.splunk.shuttl.archiver.archive.MoveAndArchiveBucketUnderLock;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -29,38 +27,38 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 @Test(groups = { "fast-unit" })
 public class MoveAndArchiveBucketUnderLockTest {
 
-    MoveAndArchiveBucketUnderLock moveAndArchiveBucketUnderLock;
-    BucketMover bucketMover;
-    Bucket bucket;
-    ArchiveRestHandler archiveRestHandler;
+	MoveAndArchiveBucketUnderLock moveAndArchiveBucketUnderLock;
+	BucketMover bucketMover;
+	Bucket bucket;
+	ArchiveRestHandler archiveRestHandler;
 
-    @BeforeMethod
-    public void setUp() {
-	bucket = TUtilsBucket.createTestBucket();
-	bucketMover = mock(BucketMover.class);
-	archiveRestHandler = mock(ArchiveRestHandler.class);
-	moveAndArchiveBucketUnderLock = new MoveAndArchiveBucketUnderLock(
-		bucketMover, archiveRestHandler);
-    }
+	@BeforeMethod
+	public void setUp() {
+		bucket = TUtilsBucket.createTestBucket();
+		bucketMover = mock(BucketMover.class);
+		archiveRestHandler = mock(ArchiveRestHandler.class);
+		moveAndArchiveBucketUnderLock = new MoveAndArchiveBucketUnderLock(
+				bucketMover, archiveRestHandler);
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void moveThenArchiveBucket_givenBucket_movesTheBucket() {
-	moveAndArchiveBucketUnderLock.moveThenArchiveBucket(bucket);
-	verify(bucketMover).moveBucket(bucket);
-    }
+	@Test(groups = { "fast-unit" })
+	public void moveThenArchiveBucket_givenBucket_movesTheBucket() {
+		moveAndArchiveBucketUnderLock.moveThenArchiveBucket(bucket);
+		verify(bucketMover).moveBucket(bucket);
+	}
 
-    public void moveThenArchiveBucket_givenBucket_archivesTheMovedBucket() {
-	Bucket movedBucket = mock(Bucket.class);
-	when(bucketMover.moveBucket(bucket)).thenReturn(movedBucket);
-	moveAndArchiveBucketUnderLock.moveThenArchiveBucket(bucket);
-	verify(archiveRestHandler).callRestToArchiveBucket(movedBucket);
-    }
+	public void moveThenArchiveBucket_givenBucket_archivesTheMovedBucket() {
+		Bucket movedBucket = mock(Bucket.class);
+		when(bucketMover.moveBucket(bucket)).thenReturn(movedBucket);
+		moveAndArchiveBucketUnderLock.moveThenArchiveBucket(bucket);
+		verify(archiveRestHandler).callRestToArchiveBucket(movedBucket);
+	}
 
-    public void handleLockedBucket_givenBucket_movesAndArchivesTheBucket() {
-	moveAndArchiveBucketUnderLock.handleSharedLockedBucket(bucket);
-	verify(bucketMover).moveBucket(bucket);
-	verify(archiveRestHandler).callRestToArchiveBucket(any(Bucket.class));
-	verifyNoMoreInteractions(bucketMover, archiveRestHandler);
-    }
+	public void handleLockedBucket_givenBucket_movesAndArchivesTheBucket() {
+		moveAndArchiveBucketUnderLock.handleSharedLockedBucket(bucket);
+		verify(bucketMover).moveBucket(bucket);
+		verify(archiveRestHandler).callRestToArchiveBucket(any(Bucket.class));
+		verifyNoMoreInteractions(bucketMover, archiveRestHandler);
+	}
 
 }

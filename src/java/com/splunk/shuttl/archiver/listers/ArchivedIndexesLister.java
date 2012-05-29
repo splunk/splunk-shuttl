@@ -32,46 +32,44 @@ import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
  */
 public class ArchivedIndexesLister {
 
-    private final static Logger logger = Logger
-	    .getLogger(ArchivedIndexesLister.class);
-    private final PathResolver pathResolver;
-    private final ArchiveFileSystem fileSystem;
+	private final static Logger logger = Logger
+			.getLogger(ArchivedIndexesLister.class);
+	private final PathResolver pathResolver;
+	private final ArchiveFileSystem fileSystem;
 
-    /**
-     * @param pathResolver
-     *            used to resolve paths on {@link ArchiveFileSystem}
-     * @param fileSystem
-     *            {@link ArchiveFileSystem} to list indexes on
-     */
-    public ArchivedIndexesLister(PathResolver pathResolver,
-	    ArchiveFileSystem fileSystem) {
-	this.pathResolver = pathResolver;
-	this.fileSystem = fileSystem;
-    }
-
-    /**
-     * @return {@link List} of indexes that are archived in a
-     *         {@link ArchiveFileSystem}
-     */
-    public List<String> listIndexes() {
-	URI indexesHome = pathResolver.getIndexesHome();
-	List<URI> indexUris = listIndexesUrisOnArchiveFileSystem(indexesHome);
-	List<String> indexes = new ArrayList<String>();
-	for (URI uri : indexUris) {
-	    indexes.add(FilenameUtils.getName(uri.getPath()));
+	/**
+	 * @param pathResolver
+	 *          used to resolve paths on {@link ArchiveFileSystem}
+	 * @param fileSystem
+	 *          {@link ArchiveFileSystem} to list indexes on
+	 */
+	public ArchivedIndexesLister(PathResolver pathResolver,
+			ArchiveFileSystem fileSystem) {
+		this.pathResolver = pathResolver;
+		this.fileSystem = fileSystem;
 	}
-	return indexes;
-    }
 
-    private List<URI> listIndexesUrisOnArchiveFileSystem(URI indexesHome) {
-	try {
-	    return fileSystem.listPath(indexesHome);
-	} catch (IOException e) {
-	    logger.debug(did("Listed indexes at indexesHome",
-		    "Got IOException",
-		    "To list indexes on the archive filesystem",
-		    "indexes_home", indexesHome, "exception", e));
-	    throw new RuntimeException(e);
+	/**
+	 * @return {@link List} of indexes that are archived in a
+	 *         {@link ArchiveFileSystem}
+	 */
+	public List<String> listIndexes() {
+		URI indexesHome = pathResolver.getIndexesHome();
+		List<URI> indexUris = listIndexesUrisOnArchiveFileSystem(indexesHome);
+		List<String> indexes = new ArrayList<String>();
+		for (URI uri : indexUris)
+			indexes.add(FilenameUtils.getName(uri.getPath()));
+		return indexes;
 	}
-    }
+
+	private List<URI> listIndexesUrisOnArchiveFileSystem(URI indexesHome) {
+		try {
+			return fileSystem.listPath(indexesHome);
+		} catch (IOException e) {
+			logger.debug(did("Listed indexes at indexesHome", "Got IOException",
+					"To list indexes on the archive filesystem", "indexes_home",
+					indexesHome, "exception", e));
+			throw new RuntimeException(e);
+		}
+	}
 }

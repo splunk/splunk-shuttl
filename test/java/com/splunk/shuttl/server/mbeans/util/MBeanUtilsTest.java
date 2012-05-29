@@ -30,71 +30,67 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
-import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 
 @Test(groups = { "fast-unit" })
 public class MBeanUtilsTest {
 
-    ObjectName objectName;
-    String objectNameString;
-    MBeanServer mbs;
-    Class<ShuttlArchiver> realClass;
-    Class<ShuttlArchiverMBean> interfaceClass;
+	ObjectName objectName;
+	String objectNameString;
+	MBeanServer mbs;
+	Class<ShuttlArchiver> realClass;
+	Class<ShuttlArchiverMBean> interfaceClass;
 
-    @BeforeMethod
-    public void setUp() throws MalformedObjectNameException,
-	    NullPointerException {
-	mbs = ManagementFactory.getPlatformMBeanServer();
-	objectNameString = ShuttlArchiverMBean.OBJECT_NAME;
-	objectName = new ObjectName(objectNameString);
-	realClass = ShuttlArchiver.class;
-	interfaceClass = ShuttlArchiverMBean.class;
-    }
-
-    @AfterMethod
-    public void tearDown() throws MBeanRegistrationException,
-	    InstanceNotFoundException {
-	if (mbs.isRegistered(objectName)) {
-	    mbs.unregisterMBean(objectName);
+	@BeforeMethod
+	public void setUp() throws MalformedObjectNameException, NullPointerException {
+		mbs = ManagementFactory.getPlatformMBeanServer();
+		objectNameString = ShuttlArchiverMBean.OBJECT_NAME;
+		objectName = new ObjectName(objectNameString);
+		realClass = ShuttlArchiver.class;
+		interfaceClass = ShuttlArchiverMBean.class;
 	}
-	assertFalse(mbs.isRegistered(objectName));
-    }
 
-    @Test(groups = { "fast-unit" })
-    public void registerMBean_notRegisteredMBean_registersMBean()
-	    throws Exception {
-	assertFalse(mbs.isRegistered(objectName));
+	@AfterMethod
+	public void tearDown() throws MBeanRegistrationException,
+			InstanceNotFoundException {
+		if (mbs.isRegistered(objectName))
+			mbs.unregisterMBean(objectName);
+		assertFalse(mbs.isRegistered(objectName));
+	}
 
-	MBeanUtils.registerMBean(objectNameString, realClass);
-	assertTrue(mbs.isRegistered(objectName));
-    }
+	@Test(groups = { "fast-unit" })
+	public void registerMBean_notRegisteredMBean_registersMBean()
+			throws Exception {
+		assertFalse(mbs.isRegistered(objectName));
 
-    public void registerMBean_registeredMBean_doesNothing() throws Exception {
-	MBeanUtils.registerMBean(objectNameString, realClass);
-	assertTrue(mbs.isRegistered(objectName));
+		MBeanUtils.registerMBean(objectNameString, realClass);
+		assertTrue(mbs.isRegistered(objectName));
+	}
 
-	MBeanUtils.registerMBean(objectNameString, realClass);
-    }
+	public void registerMBean_registeredMBean_doesNothing() throws Exception {
+		MBeanUtils.registerMBean(objectNameString, realClass);
+		assertTrue(mbs.isRegistered(objectName));
 
-    public void getMBeanInstance_registeredMBean_getsInstance()
-	    throws Exception {
-	MBeanUtils.registerMBean(objectNameString, realClass);
-	ShuttlArchiverMBean instance = MBeanUtils.getMBeanInstance(
-		objectNameString, interfaceClass);
-	assertNotNull(instance);
-    }
+		MBeanUtils.registerMBean(objectNameString, realClass);
+	}
 
-    @Test(expectedExceptions = { InstanceNotFoundException.class })
-    public void getMBeanInstance_notRegisteredInstance_throwInstanceNotFoundException()
-	    throws Exception {
-	assertFalse(mbs.isRegistered(objectName));
-	MBeanUtils.getMBeanInstance(objectNameString, interfaceClass);
-    }
+	public void getMBeanInstance_registeredMBean_getsInstance() throws Exception {
+		MBeanUtils.registerMBean(objectNameString, realClass);
+		ShuttlArchiverMBean instance = MBeanUtils.getMBeanInstance(
+				objectNameString, interfaceClass);
+		assertNotNull(instance);
+	}
 
-    @Test(expectedExceptions = { RuntimeException.class })
-    public void getMBeanInstance_invalidObjectName_throwRuntimeException()
-	    throws InstanceNotFoundException {
-	MBeanUtils.getMBeanInstance("fiskDirskrsko=-", interfaceClass);
-    }
+	@Test(expectedExceptions = { InstanceNotFoundException.class })
+	public void getMBeanInstance_notRegisteredInstance_throwInstanceNotFoundException()
+			throws Exception {
+		assertFalse(mbs.isRegistered(objectName));
+		MBeanUtils.getMBeanInstance(objectNameString, interfaceClass);
+	}
+
+	@Test(expectedExceptions = { RuntimeException.class })
+	public void getMBeanInstance_invalidObjectName_throwRuntimeException()
+			throws InstanceNotFoundException {
+		MBeanUtils.getMBeanInstance("fiskDirskrsko=-", interfaceClass);
+	}
 
 }

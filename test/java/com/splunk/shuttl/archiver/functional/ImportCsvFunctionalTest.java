@@ -45,55 +45,53 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 @Test(enabled = false, groups = { "functional" })
 public class ImportCsvFunctionalTest {
 
-    private ArchiveConfiguration localCsvArchiveConfigration;
-    private File thawDirectory;
-    private BucketThawer csvThawer;
-    private Bucket realBucket;
-    private BucketArchiver csvArchiver;
+	private ArchiveConfiguration localCsvArchiveConfigration;
+	private File thawDirectory;
+	private BucketThawer csvThawer;
+	private Bucket realBucket;
+	private BucketArchiver csvArchiver;
 
-    @BeforeMethod
-    public void setUp() throws IllegalIndexException {
-	localCsvArchiveConfigration = UtilsFunctional
-		.getLocalCsvArchiveConfigration();
-	SplunkSettings splunkSettings = mock(SplunkSettings.class);
-	thawDirectory = createTempDirectory();
-	when(splunkSettings.getThawLocation(anyString())).thenReturn(
-		thawDirectory);
-	csvThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
-		splunkSettings, localCsvArchiveConfigration);
+	@BeforeMethod
+	public void setUp() throws IllegalIndexException {
+		localCsvArchiveConfigration = UtilsFunctional
+				.getLocalCsvArchiveConfigration();
+		SplunkSettings splunkSettings = mock(SplunkSettings.class);
+		thawDirectory = createTempDirectory();
+		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawDirectory);
+		csvThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
+				splunkSettings, localCsvArchiveConfigration);
 
-	realBucket = TUtilsBucket.createRealBucket();
-	csvArchiver = BucketArchiverFactory
-		.createWithConfiguration(localCsvArchiveConfigration);
-    }
+		realBucket = TUtilsBucket.createRealBucket();
+		csvArchiver = BucketArchiverFactory
+				.createWithConfiguration(localCsvArchiveConfigration);
+	}
 
-    @AfterMethod
-    public void tearDown() {
-	FileUtils.deleteQuietly(thawDirectory);
-    }
+	@AfterMethod
+	public void tearDown() {
+		FileUtils.deleteQuietly(thawDirectory);
+	}
 
-    @Parameters(value = { "splunk.home" })
-    public void _givenArchivedCsvBucket_thawedBucketEqualsArchivedRealBucket(
-	    String splunkHome) throws FileNotFoundException,
-	    FileNotDirectoryException {
-	archiveBucketAsCsvWithExportToolThatNeedsSplunkHome(splunkHome);
-	List<ThawInfo> thawBuckets = csvThawer.thawBuckets(
-		realBucket.getIndex(), realBucket.getEarliest(),
-		realBucket.getLatest());
+	@Parameters(value = { "splunk.home" })
+	public void _givenArchivedCsvBucket_thawedBucketEqualsArchivedRealBucket(
+			String splunkHome) throws FileNotFoundException,
+			FileNotDirectoryException {
+		archiveBucketAsCsvWithExportToolThatNeedsSplunkHome(splunkHome);
+		List<ThawInfo> thawBuckets = csvThawer.thawBuckets(realBucket.getIndex(),
+				realBucket.getEarliest(), realBucket.getLatest());
 
-	assertEquals(1, thawBuckets.size());
-	Bucket thawedBucket = thawBuckets.get(0).bucket;
-	TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(realBucket,
-		thawedBucket);
-	assertEquals(sizeOfBucket(realBucket), sizeOfBucket(thawedBucket));
-    }
+		assertEquals(1, thawBuckets.size());
+		Bucket thawedBucket = thawBuckets.get(0).bucket;
+		TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(realBucket,
+				thawedBucket);
+		assertEquals(sizeOfBucket(realBucket), sizeOfBucket(thawedBucket));
+	}
 
-    private void archiveBucketAsCsvWithExportToolThatNeedsSplunkHome(String splunkHome) {
-	UtilsFunctional.archiveBucket(realBucket, csvArchiver,
-		splunkHome);
-    }
+	private void archiveBucketAsCsvWithExportToolThatNeedsSplunkHome(
+			String splunkHome) {
+		UtilsFunctional.archiveBucket(realBucket, csvArchiver, splunkHome);
+	}
 
-    private long sizeOfBucket(Bucket b) {
-	return FileUtils.sizeOfDirectory(b.getDirectory());
-    }
+	private long sizeOfBucket(Bucket b) {
+		return FileUtils.sizeOfDirectory(b.getDirectory());
+	}
 }

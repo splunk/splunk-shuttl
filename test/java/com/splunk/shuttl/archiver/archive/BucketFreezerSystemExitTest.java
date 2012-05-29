@@ -38,70 +38,68 @@ import com.splunk.shuttl.testutil.TUtilsFile;
 @Test(groups = { "fast-unit" })
 public class BucketFreezerSystemExitTest {
 
-    Runtime runtimeMock;
-    private BucketFreezer bucketFreezer;
+	Runtime runtimeMock;
+	private BucketFreezer bucketFreezer;
 
-    @BeforeMethod(groups = { "fast-unit" })
-    public void setUp() {
-	runtimeMock = mock(Runtime.class);
-	bucketFreezer = new BucketFreezer(new BucketMover(getSafeDirectory()),
-		new BucketLocker(), mock(ArchiveRestHandler.class),
-		mock(FailedBucketsArchiver.class));
-    }
+	@BeforeMethod(groups = { "fast-unit" })
+	public void setUp() {
+		runtimeMock = mock(Runtime.class);
+		bucketFreezer = new BucketFreezer(new BucketMover(getSafeDirectory()),
+				new BucketLocker(), mock(ArchiveRestHandler.class),
+				mock(FailedBucketsArchiver.class));
+	}
 
-    @AfterMethod(groups = { "fast-unit" })
-    public void tearDown() throws IOException {
-	FileUtils.deleteDirectory(getArchiverDirectory());
-    }
+	@AfterMethod(groups = { "fast-unit" })
+	public void tearDown() throws IOException {
+		FileUtils.deleteDirectory(getArchiverDirectory());
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void main_existingDirecotry_returnCode0() throws IOException {
-	File directory = TUtilsFile.createTempDirectory();
-	runMainWithDepentencies_withArguments("index-name",
-		directory.getAbsolutePath());
-	verify(runtimeMock).exit(0);
-    }
+	@Test(groups = { "fast-unit" })
+	public void main_existingDirecotry_returnCode0() throws IOException {
+		File directory = TUtilsFile.createTempDirectory();
+		runMainWithDepentencies_withArguments("index-name",
+				directory.getAbsolutePath());
+		verify(runtimeMock).exit(0);
+	}
 
-    public void main_noArguments_returnCodeMinus1() {
-	runMainWithDepentencies_withArguments();
-	verify(runtimeMock).exit(-1);
-    }
+	public void main_noArguments_returnCodeMinus1() {
+		runMainWithDepentencies_withArguments();
+		verify(runtimeMock).exit(-1);
+	}
 
-    public void main_oneArgument_returnCodeMinus1() {
-	runMainWithDepentencies_withArguments("index-name");
-	verify(runtimeMock).exit(-1);
-    }
+	public void main_oneArgument_returnCodeMinus1() {
+		runMainWithDepentencies_withArguments("index-name");
+		verify(runtimeMock).exit(-1);
+	}
 
-    public void main_threeArguments_returnCodeMinus1() {
-	runMainWithDepentencies_withArguments("index-name", "/path/to/file",
-		"too-many-arguments");
-	verify(runtimeMock).exit(-1);
-    }
+	public void main_threeArguments_returnCodeMinus1() {
+		runMainWithDepentencies_withArguments("index-name", "/path/to/file",
+				"too-many-arguments");
+		verify(runtimeMock).exit(-1);
+	}
 
-    public void main_tooManyArguments_returnCodeMinus1() {
-	runMainWithDepentencies_withArguments("index-name", "/path/to/file",
-		"too-many-arguments", "too", "many", "arguments");
-	verify(runtimeMock).exit(-1);
-    }
+	public void main_tooManyArguments_returnCodeMinus1() {
+		runMainWithDepentencies_withArguments("index-name", "/path/to/file",
+				"too-many-arguments", "too", "many", "arguments");
+		verify(runtimeMock).exit(-1);
+	}
 
-    public void main_fileNotADirectory_returnCodeMinus2() throws IOException {
-	File file = File.createTempFile("ArchiveTest", ".tmp");
-	file.deleteOnExit();
-	assertTrue(!file.isDirectory());
-	runMainWithDepentencies_withArguments("index-name",
-		file.getAbsolutePath());
-	verify(runtimeMock).exit(-2);
-    }
+	public void main_fileNotADirectory_returnCodeMinus2() throws IOException {
+		File file = File.createTempFile("ArchiveTest", ".tmp");
+		file.deleteOnExit();
+		assertTrue(!file.isDirectory());
+		runMainWithDepentencies_withArguments("index-name", file.getAbsolutePath());
+		verify(runtimeMock).exit(-2);
+	}
 
-    public void main_nonExistingFile_returnMinus3() {
-	File file = TUtilsFile.createTestFilePath();
-	runMainWithDepentencies_withArguments("index-name",
-		file.getAbsolutePath());
-	verify(runtimeMock).exit(-3);
-    }
+	public void main_nonExistingFile_returnMinus3() {
+		File file = TUtilsFile.createTestFilePath();
+		runMainWithDepentencies_withArguments("index-name", file.getAbsolutePath());
+		verify(runtimeMock).exit(-3);
+	}
 
-    private void runMainWithDepentencies_withArguments(String... args) {
-	BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezer, args);
-    }
+	private void runMainWithDepentencies_withArguments(String... args) {
+		BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezer, args);
+	}
 
 }

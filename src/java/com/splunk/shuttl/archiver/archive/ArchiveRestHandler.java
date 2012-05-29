@@ -43,133 +43,126 @@ import com.splunk.shuttl.server.mbeans.rest.BucketArchiverRest;
  */
 public class ArchiveRestHandler implements SharedLockBucketHandler {
 
-    private final static Logger logger = Logger
-	    .getLogger(ArchiveRestHandler.class);
-    private final HttpClient httpClient;
+	private final static Logger logger = Logger
+			.getLogger(ArchiveRestHandler.class);
+	private final HttpClient httpClient;
 
-    public ArchiveRestHandler(HttpClient httpClient) {
-	this.httpClient = httpClient;
-    }
-
-    public void callRestToArchiveBucket(Bucket bucket) {
-	HttpResponse response = null;
-
-	try {
-	    HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
-
-	    if (logger.isDebugEnabled()) {
-		logger.debug(will("Send an archive bucket request",
-			"request_uri", archiveBucketRequest.getURI()));
-	    }
-
-	    response = httpClient.execute(archiveBucketRequest);
-
-	    if (response != null) {
-		handleResponseFromDoingArchiveBucketRequest(response, bucket);
-	    } else {
-		// LOG: warning! Response was null. This happens in our tests
-		// when we mock the httpClient. Should never happen otherwise.
-		// Should it?
-		logger.warn(did("Sent an archive bucket request",
-			"Got a null response", "A non-null response"));
-	    }
-	} catch (HttpResponseException e) {
-	    logger.error(did("Sent an archive bucket reuqest",
-		    "Got non ok http_status",
-		    "expected HttpStatus.SC_OK or SC_NO_CONTENT",
-		    "http_status", e.getStatusCode(), "bucket_name",
-		    bucket.getName()));
-	} catch (ClientProtocolException e) {
-	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
-	} catch (IOException e) {
-	    handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
-	} finally {
-	    consumeResponseHandlingErrors(response);
-	}
-    }
-
-    private void consumeResponseHandlingErrors(HttpResponse response) {
-	if (response != null) {
-	    try {
-		EntityUtils.consume(response.getEntity());
-	    } catch (IOException e) {
-		logger.error(did(
-			"Tried to consume http response of archive bucket request",
-			e, "no exception", "response", response));
-	    }
-	}
-    }
-
-    private void handleResponseFromDoingArchiveBucketRequest(
-	    HttpResponse response, Bucket bucket) throws HttpResponseException {
-	int statusCode = response.getStatusLine().getStatusCode();
-
-	String entity = null;
-	try {
-	    entity = EntityUtils.toString(response.getEntity());
-	} catch (Exception e) {
-	    // ignore Exceptions - we just want the entity for logging anyway
+	public ArchiveRestHandler(HttpClient httpClient) {
+		this.httpClient = httpClient;
 	}
 
-	// TODO handle the different status codes
-	switch (statusCode) {
-	case HttpStatus.SC_OK:
-	case HttpStatus.SC_NO_CONTENT:
-	    if (logger.isDebugEnabled()) {
-		logger.debug(done(
-			"Got http response from archiveBucketRequest",
-			"status_code", statusCode, "bucket_name",
-			bucket.getName(), "entity", entity));
-	    }
-	    break;
-	default:
-	    throw new HttpResponseException(statusCode,
-		    "Unexpected response when archiving bucket.");
+	public void callRestToArchiveBucket(Bucket bucket) {
+		HttpResponse response = null;
+
+		try {
+			HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
+
+			if (logger.isDebugEnabled())
+				logger.debug(will("Send an archive bucket request", "request_uri",
+						archiveBucketRequest.getURI()));
+
+			response = httpClient.execute(archiveBucketRequest);
+
+			if (response != null)
+				handleResponseFromDoingArchiveBucketRequest(response, bucket);
+			else
+				// LOG: warning! Response was null. This happens in our tests
+				// when we mock the httpClient. Should never happen otherwise.
+				// Should it?
+				logger.warn(did("Sent an archive bucket request",
+						"Got a null response", "A non-null response"));
+		} catch (HttpResponseException e) {
+			logger.error(did("Sent an archive bucket reuqest",
+					"Got non ok http_status",
+					"expected HttpStatus.SC_OK or SC_NO_CONTENT", "http_status",
+					e.getStatusCode(), "bucket_name", bucket.getName()));
+		} catch (ClientProtocolException e) {
+			handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
+		} catch (IOException e) {
+			handleIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
+		} finally {
+			consumeResponseHandlingErrors(response);
+		}
 	}
-    }
 
-    private void handleIOExceptionGenereratedByDoingArchiveBucketRequest(
-	    IOException e, Bucket bucket) {
+	private void consumeResponseHandlingErrors(HttpResponse response) {
+		if (response != null)
+			try {
+				EntityUtils.consume(response.getEntity());
+			} catch (IOException e) {
+				logger.error(did(
+						"Tried to consume http response of archive bucket request", e,
+						"no exception", "response", response));
+			}
+	}
 
-	// TODO this method should handle the errors in case the bucket transfer
-	// fails. In this state there is no way of telling if the bucket was
-	// actually transfered or not.
+	private void handleResponseFromDoingArchiveBucketRequest(
+			HttpResponse response, Bucket bucket) throws HttpResponseException {
+		int statusCode = response.getStatusLine().getStatusCode();
 
-	logger.error(did("Sent archive bucket request", "got IOException",
-		"request to succeed", "exception", e, "bucket_name",
-		bucket.getName(), "cause", e.getCause()));
-	throw new RuntimeException(e);
-    }
+		String entity = null;
+		try {
+			entity = EntityUtils.toString(response.getEntity());
+		} catch (Exception e) {
+			// ignore Exceptions - we just want the entity for logging anyway
+		}
 
-    private static HttpUriRequest createBucketArchiveRequest(Bucket bucket)
-	    throws UnsupportedEncodingException {
-	// CONFIG configure the host and port with a general solution.
-	String requestString = "http://localhost:9090/"
-		+ ShuttlConstants.ENDPOINT_CONTEXT
-		+ ShuttlConstants.ENDPOINT_ARCHIVER
-		+ ShuttlConstants.ENDPOINT_BUCKET_ARCHIVER;
+		// TODO handle the different status codes
+		switch (statusCode) {
+		case HttpStatus.SC_OK:
+		case HttpStatus.SC_NO_CONTENT:
+			if (logger.isDebugEnabled())
+				logger.debug(done("Got http response from archiveBucketRequest",
+						"status_code", statusCode, "bucket_name", bucket.getName(),
+						"entity", entity));
+			break;
+		default:
+			throw new HttpResponseException(statusCode,
+					"Unexpected response when archiving bucket.");
+		}
+	}
 
-	HttpPost request = new HttpPost(requestString);
+	private void handleIOExceptionGenereratedByDoingArchiveBucketRequest(
+			IOException e, Bucket bucket) {
 
-	ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
-	params.add(new BasicNameValuePair("path", bucket.getDirectory()
-		.getAbsolutePath()));
-	params.add(new BasicNameValuePair("index", bucket.getIndex()));
+		// TODO this method should handle the errors in case the bucket transfer
+		// fails. In this state there is no way of telling if the bucket was
+		// actually transfered or not.
 
-	request.setEntity(new UrlEncodedFormEntity(params));
-	return request;
-    }
+		logger.error(did("Sent archive bucket request", "got IOException",
+				"request to succeed", "exception", e, "bucket_name", bucket.getName(),
+				"cause", e.getCause()));
+		throw new RuntimeException(e);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.splunk.shuttl.archiver.archive.recovery.BucketLocker.LockedBucketHandler
-     * #handleLockedBucket(com.splunk.shuttl.archiver.model.Bucket)
-     */
-    @Override
-    public void handleSharedLockedBucket(Bucket bucket) {
-	callRestToArchiveBucket(bucket);
-    }
+	private static HttpUriRequest createBucketArchiveRequest(Bucket bucket)
+			throws UnsupportedEncodingException {
+		// CONFIG configure the host and port with a general solution.
+		String requestString = "http://localhost:9090/"
+				+ ShuttlConstants.ENDPOINT_CONTEXT + ShuttlConstants.ENDPOINT_ARCHIVER
+				+ ShuttlConstants.ENDPOINT_BUCKET_ARCHIVER;
+
+		HttpPost request = new HttpPost(requestString);
+
+		ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("path", bucket.getDirectory()
+				.getAbsolutePath()));
+		params.add(new BasicNameValuePair("index", bucket.getIndex()));
+
+		request.setEntity(new UrlEncodedFormEntity(params));
+		return request;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.splunk.shuttl.archiver.archive.recovery.BucketLocker.LockedBucketHandler
+	 * #handleLockedBucket(com.splunk.shuttl.archiver.model.Bucket)
+	 */
+	@Override
+	public void handleSharedLockedBucket(Bucket bucket) {
+		callRestToArchiveBucket(bucket);
+	}
 
 }

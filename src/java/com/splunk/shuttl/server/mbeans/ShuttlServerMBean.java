@@ -15,6 +15,7 @@
 package com.splunk.shuttl.server.mbeans;
 
 import com.splunk.shuttl.server.model.ServerConf;
+
 /**
  * 
  * @author kpakkirisamy
@@ -22,160 +23,160 @@ import com.splunk.shuttl.server.model.ServerConf;
  */
 public interface ShuttlServerMBean {
 
-    /**
-     * 
-     * @return String The default HDFS cluster host name
-     */
-    public String getDefHadoopClusterHost() throws ShuttlMBeanException;
+	/**
+	 * 
+	 * @return String The default HDFS cluster host name
+	 */
+	public String getDefHadoopClusterHost() throws ShuttlMBeanException;
 
-    /**
-     * 
-     * @return String The default HDFS cluster port
-     */
-    public int getDefHadoopClusterPort() throws ShuttlMBeanException;
+	/**
+	 * 
+	 * @return String The default HDFS cluster port
+	 */
+	public int getDefHadoopClusterPort() throws ShuttlMBeanException;
 
-    /**
-     * Name of the host on which is running
-     * 
-     * @return
-     * @throws ShuttlMBeanException
-     */
-    public String getShuttlHostName() throws ShuttlMBeanException;
+	/**
+	 * Name of the host on which is running
+	 * 
+	 * @return
+	 * @throws ShuttlMBeanException
+	 */
+	public String getShuttlHostName() throws ShuttlMBeanException;
 
-    /**
-     * Returns an array of Hadoop Cluster Names
-     * 
-     * @return
-     */
-    public String[] getHadoopClusterNames();
+	/**
+	 * Returns an array of Hadoop Cluster Names
+	 * 
+	 * @return
+	 */
+	public String[] getHadoopClusterNames();
 
-    /**
-     * adds a Hadoop Cluster configuration
-     * 
-     * @param name
-     */
-    public void addHadoopCluster(String name);
+	/**
+	 * adds a Hadoop Cluster configuration
+	 * 
+	 * @param name
+	 */
+	public void addHadoopCluster(String name);
 
-    /**
-     * Deletes a Hadoop Cluster
-     * 
-     * @param name
-     */
-    public void deleteHadoopCluster(String name);
+	/**
+	 * Deletes a Hadoop Cluster
+	 * 
+	 * @param name
+	 */
+	public void deleteHadoopCluster(String name);
 
-    /**
-     * Checks whether a given Hadoop Cluster is the default
-     * 
-     * @param clustername
-     * @return
-     * @throws ShuttlMBeanException
-     */
-    public boolean isDefault(String clustername) throws ShuttlMBeanException;
+	/**
+	 * Checks whether a given Hadoop Cluster is the default
+	 * 
+	 * @param clustername
+	 * @return
+	 * @throws ShuttlMBeanException
+	 */
+	public boolean isDefault(String clustername) throws ShuttlMBeanException;
 
-    /**
-     * Sets a cluster as the default to work with
-     * 
-     * @param clustername
-     * @throws ShuttlMBeanException
-     */
-    public void setDefault(String clustername) throws ShuttlMBeanException;
+	/**
+	 * Sets a cluster as the default to work with
+	 * 
+	 * @param clustername
+	 * @throws ShuttlMBeanException
+	 */
+	public void setDefault(String clustername) throws ShuttlMBeanException;
 
-    /**
-     * 
-     * @param name
-     *            The name of the cluster
-     * @return String HDFS cluster host name (namenode)
-     */
-    public String getHadoopClusterHost(String name) throws ShuttlMBeanException;
+	/**
+	 * 
+	 * @param name
+	 *          The name of the cluster
+	 * @return String HDFS cluster host name (namenode)
+	 */
+	public String getHadoopClusterHost(String name) throws ShuttlMBeanException;
 
-    /**
-     * Sets the namenode host of a hadoop cluster
-     * 
-     * @param name
-     *            Name of the cluster
-     * @param host
-     *            Namenode host name
-     * @throws ShuttlMBeanException
-     */
-    public void setHadoopClusterHost(String name, String host)
-	    throws ShuttlMBeanException;
+	/**
+	 * Sets the namenode host of a hadoop cluster
+	 * 
+	 * @param name
+	 *          Name of the cluster
+	 * @param host
+	 *          Namenode host name
+	 * @throws ShuttlMBeanException
+	 */
+	public void setHadoopClusterHost(String name, String host)
+			throws ShuttlMBeanException;
 
-    /**
-     * 
-     * @param name
-     *            The name of the cluster
-     * @return String HDFS cluster host name (namenode)
-     */
-    public int getHadoopClusterPort(String name) throws ShuttlMBeanException;
+	/**
+	 * 
+	 * @param name
+	 *          The name of the cluster
+	 * @return String HDFS cluster host name (namenode)
+	 */
+	public int getHadoopClusterPort(String name) throws ShuttlMBeanException;
 
-    /**
-     * Sets the namenode port of a hadoop cluster
-     * 
-     * @param name
-     *            Name of the cluster
-     * @param port
-     *            Namenode port
-     * @throws ShuttlMBeanException
-     */
-    public void setHadoopClusterPort(String name, int port)
-	    throws ShuttlMBeanException;
+	/**
+	 * Sets the namenode port of a hadoop cluster
+	 * 
+	 * @param name
+	 *          Name of the cluster
+	 * @param port
+	 *          Namenode port
+	 * @throws ShuttlMBeanException
+	 */
+	public void setHadoopClusterPort(String name, int port)
+			throws ShuttlMBeanException;
 
-    /**
-     * 
-     * @return String HTTP/REST Listener Host
-     */
-    public String getHttpHost();
+	/**
+	 * 
+	 * @return String HTTP/REST Listener Host
+	 */
+	public String getHttpHost();
 
-    /**
-     * Sets the Network endpoint/hostname for the REST endpoints on this server
-     * 
-     * @param host
-     *            String
-     */
-    public void setHttpHost(String host);
+	/**
+	 * Sets the Network endpoint/hostname for the REST endpoints on this server
+	 * 
+	 * @param host
+	 *          String
+	 */
+	public void setHttpHost(String host);
 
-    /**
-     * Gets the HTTP port of the REST endpoints on this server
-     * 
-     * @return int HTTP/REST Listener port
-     */
-    public int getHttpPort();
+	/**
+	 * Gets the HTTP port of the REST endpoints on this server
+	 * 
+	 * @return int HTTP/REST Listener port
+	 */
+	public int getHttpPort();
 
-    /**
-     * Sets the HTTP port of the REST endpoints on this server
-     * 
-     * @param port
-     *            HTTP port
-     * @return
-     */
-    public void setHttpPort(int port);
+	/**
+	 * Sets the HTTP port of the REST endpoints on this server
+	 * 
+	 * @param port
+	 *          HTTP port
+	 * @return
+	 */
+	public void setHttpPort(int port);
 
-    /**
-     * Gets the name of the Splunk cluster to which it belongs
-     * 
-     * @return
-     */
-    public String getSplunkClusterName();
+	/**
+	 * Gets the name of the Splunk cluster to which it belongs
+	 * 
+	 * @return
+	 */
+	public String getSplunkClusterName();
 
-    /**
-     * Sets the name of the Splunk cluster to which it belongs
-     * 
-     * @return
-     */
-    public void setSplunkClusterName(String name);
+	/**
+	 * Sets the name of the Splunk cluster to which it belongs
+	 * 
+	 * @return
+	 */
+	public void setSplunkClusterName(String name);
 
-    /**
-     * Saves the MBean state into an xml file
-     * 
-     */
-    public void save() throws ShuttlMBeanException;
+	/**
+	 * Saves the MBean state into an xml file
+	 * 
+	 */
+	public void save() throws ShuttlMBeanException;
 
-    /**
-     * Refreshes the MBeans with values from XML file
-     */
-    public void refresh() throws ShuttlMBeanException;
+	/**
+	 * Refreshes the MBeans with values from XML file
+	 */
+	public void refresh() throws ShuttlMBeanException;
 
-    public ServerConf getServerConf();
+	public ServerConf getServerConf();
 
-    public void setServerConf(ServerConf conf);
+	public void setServerConf(ServerConf conf);
 }

@@ -43,73 +43,70 @@ import com.splunk.shuttl.testutil.TUtilsFile;
 @Test(groups = { "functional" })
 public class ThawFunctionalTest {
 
-    private String thawIndex;
-    private BucketArchiver bucketArchiver;
-    private ArchiveFileSystem archiveFileSystem;
-    private File thawDirectory;
-    private BucketThawer bucketThawer;
-    private ArchiveConfiguration config;
+	private String thawIndex;
+	private BucketArchiver bucketArchiver;
+	private ArchiveFileSystem archiveFileSystem;
+	private File thawDirectory;
+	private BucketThawer bucketThawer;
+	private ArchiveConfiguration config;
 
-    @BeforeMethod
-    public void setUp() throws IllegalIndexException {
-	thawIndex = "someIndex";
-	config = getLocalFileSystemConfiguration();
-	archiveFileSystem = ArchiveFileSystemFactory
-		.getWithConfiguration(config);
-	bucketArchiver = BucketArchiverFactory
-		.createWithConfigurationAndArchiveFileSystem(config,
-			archiveFileSystem);
-	thawDirectory = TUtilsFile.createTempDirectory();
+	@BeforeMethod
+	public void setUp() throws IllegalIndexException {
+		thawIndex = "someIndex";
+		config = getLocalFileSystemConfiguration();
+		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
+		bucketArchiver = BucketArchiverFactory
+				.createWithConfigurationAndArchiveFileSystem(config, archiveFileSystem);
+		thawDirectory = TUtilsFile.createTempDirectory();
 
-	SplunkSettings splunkSettings = mock(SplunkSettings.class);
-	when(splunkSettings.getThawLocation(thawIndex)).thenReturn(
-		thawDirectory);
-	bucketThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
-		splunkSettings, config);
-    }
-
-    @AfterMethod
-    public void tearDown() {
-	FileUtils.deleteQuietly(thawDirectory);
-	tearDownLocalConfig(config);
-    }
-
-    public void Thawer_givenOneArchivedBucket_thawArchivedBucket() {
-	Date earliest = new Date();
-	Date latest = earliest;
-	Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
-		thawIndex, earliest, latest);
-	archiveBucket(bucket, bucketArchiver);
-
-	assertTrue(isDirectoryEmpty(thawDirectory));
-	bucketThawer.thawBuckets(thawIndex, earliest, latest);
-	assertExactlyOneDirectoryInThawDirectory();
-	String thawedName = thawDirectory.listFiles()[0].getName();
-	assertEquals(bucket.getName(), thawedName);
-    }
-
-    public void Thawer_archivingBucketsInThreeDifferentTimeRanges_filterByOnlyOneOfTheTimeRanges()
-	    throws Exception {
-	Date earliest = new Date(1332295013);
-	Date latest = new Date(earliest.getTime() + 26);
-	for (int i = 0; i < 3; i++) {
-	    Date early = new Date(earliest.getTime() + i * 100);
-	    Date later = new Date(early.getTime() + 30);
-	    Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
-		    thawIndex, early, later);
-	    archiveBucket(bucket, bucketArchiver);
-	    assertFalse(bucket.getDirectory().exists());
+		SplunkSettings splunkSettings = mock(SplunkSettings.class);
+		when(splunkSettings.getThawLocation(thawIndex)).thenReturn(thawDirectory);
+		bucketThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
+				splunkSettings, config);
 	}
-	assertTrue(isDirectoryEmpty(thawDirectory));
 
-	bucketThawer.thawBuckets(thawIndex, earliest, latest);
-	assertExactlyOneDirectoryInThawDirectory();
-    }
+	@AfterMethod
+	public void tearDown() {
+		FileUtils.deleteQuietly(thawDirectory);
+		tearDownLocalConfig(config);
+	}
 
-    private void assertExactlyOneDirectoryInThawDirectory() {
-	File[] filesThawed = thawDirectory.listFiles();
-	int bucketsInThawLocation = filesThawed.length;
-	assertEquals(1, bucketsInThawLocation);
-	assertTrue(filesThawed[0].isDirectory());
-    }
+	public void Thawer_givenOneArchivedBucket_thawArchivedBucket() {
+		Date earliest = new Date();
+		Date latest = earliest;
+		Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(thawIndex,
+				earliest, latest);
+		archiveBucket(bucket, bucketArchiver);
+
+		assertTrue(isDirectoryEmpty(thawDirectory));
+		bucketThawer.thawBuckets(thawIndex, earliest, latest);
+		assertExactlyOneDirectoryInThawDirectory();
+		String thawedName = thawDirectory.listFiles()[0].getName();
+		assertEquals(bucket.getName(), thawedName);
+	}
+
+	public void Thawer_archivingBucketsInThreeDifferentTimeRanges_filterByOnlyOneOfTheTimeRanges()
+			throws Exception {
+		Date earliest = new Date(1332295013);
+		Date latest = new Date(earliest.getTime() + 26);
+		for (int i = 0; i < 3; i++) {
+			Date early = new Date(earliest.getTime() + i * 100);
+			Date later = new Date(early.getTime() + 30);
+			Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(thawIndex,
+					early, later);
+			archiveBucket(bucket, bucketArchiver);
+			assertFalse(bucket.getDirectory().exists());
+		}
+		assertTrue(isDirectoryEmpty(thawDirectory));
+
+		bucketThawer.thawBuckets(thawIndex, earliest, latest);
+		assertExactlyOneDirectoryInThawDirectory();
+	}
+
+	private void assertExactlyOneDirectoryInThawDirectory() {
+		File[] filesThawed = thawDirectory.listFiles();
+		int bucketsInThawLocation = filesThawed.length;
+		assertEquals(1, bucketsInThawLocation);
+		assertTrue(filesThawed[0].isDirectory());
+	}
 }

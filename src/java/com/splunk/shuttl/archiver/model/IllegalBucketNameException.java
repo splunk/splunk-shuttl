@@ -19,9 +19,9 @@ package com.splunk.shuttl.archiver.model;
  */
 public class IllegalBucketNameException extends RuntimeException {
 
-    /**
-     * default generated serial version uid
-     */
-    private static final long serialVersionUID = 1L;
+	/**
+	 * default generated serial version uid
+	 */
+	private static final long serialVersionUID = 1L;
 
 }

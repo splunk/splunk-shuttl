@@ -58,159 +58,157 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 @Test(groups = { "end-to-end" })
 public class ArchiverEndToEndTest {
 
-    File tempDirectory;
-    BucketFreezer successfulBucketFreezer;
-    BucketThawer bucketThawer;
-    SplunkSettings splunkSettings;
-    String thawIndex;
-    File thawDirectoryLocation;
-    Path tmpPath;
-    private ArchiveConfiguration archiveConfiguration;
-    private String shuttlHost;
-    private int shuttlPort;
+	File tempDirectory;
+	BucketFreezer successfulBucketFreezer;
+	BucketThawer bucketThawer;
+	SplunkSettings splunkSettings;
+	String thawIndex;
+	File thawDirectoryLocation;
+	Path tmpPath;
+	private ArchiveConfiguration archiveConfiguration;
+	private String shuttlHost;
+	private int shuttlPort;
 
-    @Parameters(value = { "splunk.username", "splunk.password", "splunk.host",
-	    "splunk.mgmtport", "hadoop.host", "hadoop.port", "shuttl.host",
-	    "shuttl.port" })
-    public void archiveBucketAndThawItBack(String splunkUserName,
-	    String splunkPw, String splunkHost, String splunkPort,
-	    String hadoopHost, String hadoopPort, String shuttlHost,
-	    String shuttlPort) throws Exception {
-	setUp(splunkUserName, splunkPw, splunkHost, splunkPort, shuttlHost,
-		shuttlPort);
-	archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket();
-	tearDown(hadoopHost, hadoopPort);
-    }
-
-    private void setUp(String splunkUserName, String splunkPw,
-	    String splunkHost, String splunkPort, String shuttlHost,
-	    String shuttlPort) throws IllegalIndexException {
-	this.shuttlHost = shuttlHost;
-	this.shuttlPort = Integer.parseInt(shuttlPort);
-	TUtilsMBean.registerShuttlArchiverMBean();
-	archiveConfiguration = ArchiveConfiguration.getSharedInstance();
-	thawIndex = "shuttl";
-	tempDirectory = createTempDirectory();
-	successfulBucketFreezer = getSuccessfulBucketFreezer();
-
-	Service service = new Service(splunkHost, Integer.parseInt(splunkPort));
-	service.login(splunkUserName, splunkPw);
-	assertTrue(service.getIndexes().containsKey(thawIndex));
-	splunkSettings = BucketThawerFactory.getSplunkSettings(service);
-	thawDirectoryLocation = splunkSettings.getThawLocation(thawIndex);
-    }
-
-    private BucketFreezer getSuccessfulBucketFreezer() {
-	File movedBucketsLocation = createDirectoryInParent(tempDirectory,
-		ArchiverEndToEndTest.class.getName() + "-safeBuckets");
-	BucketMover bucketMover = new BucketMover(movedBucketsLocation);
-	BucketLocker bucketLocker = new BucketLocker();
-	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-		new DefaultHttpClient());
-
-	return new BucketFreezer(bucketMover, bucketLocker, archiveRestHandler,
-		mock(FailedBucketsArchiver.class));
-    }
-
-    private void archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket()
-	    throws Exception {
-	Date earliest = new Date(1332295013);
-	Date latest = new Date(earliest.getTime() + 26);
-
-	Bucket bucketToFreeze = TUtilsBucket.createBucketWithIndexAndTimeRange(
-		thawIndex, earliest, latest);
-	successfulBucketFreezer.freezeBucket(bucketToFreeze.getIndex(),
-		bucketToFreeze.getDirectory().getAbsolutePath());
-
-	boolean bucketToFreezeExists = bucketToFreeze.getDirectory().exists();
-	assertFalse(bucketToFreezeExists);
-
-	assertTrue(isThawDirectoryEmpty());
-
-	callRestToThawBuckets(thawIndex, earliest, latest);
-	assertFalse(isThawDirectoryEmpty());
-
-	File[] listFiles = thawDirectoryLocation.listFiles();
-	assertEquals(1, listFiles.length);
-	File thawedBucket = listFiles[0];
-	assertEquals(bucketToFreeze.getName(), thawedBucket.getName());
-    }
-
-    private boolean isThawDirectoryEmpty() {
-	return TUtilsFile.isDirectoryEmpty(thawDirectoryLocation);
-    }
-
-    private void callRestToThawBuckets(String index, Date earliest, Date latest) {
-	HttpPost thawPostRequest = getThawPostRequest(index, earliest, latest);
-	executePostRequest(thawPostRequest);
-    }
-
-    private HttpPost getThawPostRequest(String index, Date earliest, Date latest) {
-	URI thawEndpoint = getThawEndpoint();
-	HttpPost httpPost = new HttpPost(thawEndpoint);
-	List<BasicNameValuePair> postParams = asList(nameValue("index", index),
-		nameValue("from", earliest.getTime()),
-		nameValue("to", latest.getTime()));
-	setParamsToPostRequest(httpPost, postParams);
-	return httpPost;
-    }
-
-    private void setParamsToPostRequest(HttpPost httpPost,
-	    List<BasicNameValuePair> postParams) {
-	try {
-	    httpPost.setEntity(new UrlEncodedFormEntity(postParams));
-	} catch (UnsupportedEncodingException e) {
-	    TUtilsTestNG.failForException(
-		    "Could not create url encoded form entity with params: "
-			    + postParams, e);
+	@Parameters(value = { "splunk.username", "splunk.password", "splunk.host",
+			"splunk.mgmtport", "hadoop.host", "hadoop.port", "shuttl.host",
+			"shuttl.port" })
+	public void archiveBucketAndThawItBack(String splunkUserName,
+			String splunkPw, String splunkHost, String splunkPort, String hadoopHost,
+			String hadoopPort, String shuttlHost, String shuttlPort) throws Exception {
+		setUp(splunkUserName, splunkPw, splunkHost, splunkPort, shuttlHost,
+				shuttlPort);
+		archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket();
+		tearDown(hadoopHost, hadoopPort);
 	}
-    }
 
-    private void executePostRequest(HttpPost httpPost) {
-	try {
-	    new DefaultHttpClient().execute(httpPost);
-	} catch (Exception e) {
-	    TUtilsTestNG.failForException("Could not execute post: " + httpPost,
-		    e);
+	private void setUp(String splunkUserName, String splunkPw, String splunkHost,
+			String splunkPort, String shuttlHost, String shuttlPort)
+			throws IllegalIndexException {
+		this.shuttlHost = shuttlHost;
+		this.shuttlPort = Integer.parseInt(shuttlPort);
+		TUtilsMBean.registerShuttlArchiverMBean();
+		archiveConfiguration = ArchiveConfiguration.getSharedInstance();
+		thawIndex = "shuttl";
+		tempDirectory = createTempDirectory();
+		successfulBucketFreezer = getSuccessfulBucketFreezer();
+
+		Service service = new Service(splunkHost, Integer.parseInt(splunkPort));
+		service.login(splunkUserName, splunkPw);
+		assertTrue(service.getIndexes().containsKey(thawIndex));
+		splunkSettings = BucketThawerFactory.getSplunkSettings(service);
+		thawDirectoryLocation = splunkSettings.getThawLocation(thawIndex);
 	}
-    }
 
-    private BasicNameValuePair nameValue(String name, Object index) {
-	return new BasicNameValuePair(name, index.toString());
-    }
+	private BucketFreezer getSuccessfulBucketFreezer() {
+		File movedBucketsLocation = createDirectoryInParent(tempDirectory,
+				ArchiverEndToEndTest.class.getName() + "-safeBuckets");
+		BucketMover bucketMover = new BucketMover(movedBucketsLocation);
+		BucketLocker bucketLocker = new BucketLocker();
+		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
+				new DefaultHttpClient());
 
-    private URI getThawEndpoint() {
-	return URI.create("http://" + shuttlHost + ":" + shuttlPort + "/"
-		+ ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_THAW);
-    }
-
-    private void tearDown(String hadoopHost, String hadoopPort) {
-	FileUtils.deleteQuietly(tempDirectory);
-	FileSystem hadoopFileSystem = UtilsFunctional
-		.getHadoopFileSystem(hadoopHost, hadoopPort);
-	for (File dir : thawDirectoryLocation.listFiles()) {
-	    FileUtils.deleteQuietly(dir);
+		return new BucketFreezer(bucketMover, bucketLocker, archiveRestHandler,
+				mock(FailedBucketsArchiver.class));
 	}
-	deleteArchivingTmpPath(hadoopFileSystem);
-	deleteArchivingRoot(hadoopFileSystem);
-    }
 
-    private void deleteArchivingTmpPath(FileSystem hadoopFileSystem) {
-	try {
-	    URI configuredTmp = archiveConfiguration.getTmpDirectory();
-	    hadoopFileSystem.delete(new Path(configuredTmp), true);
-	} catch (IOException e) {
-	    e.printStackTrace();
-	}
-    }
+	private void archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket()
+			throws Exception {
+		Date earliest = new Date(1332295013);
+		Date latest = new Date(earliest.getTime() + 26);
 
-    private void deleteArchivingRoot(FileSystem hadoopFileSystem) {
-	try {
-	    URI configuredRoot = archiveConfiguration.getArchivingRoot();
-	    hadoopFileSystem.delete(new Path(configuredRoot), true);
-	} catch (IOException e) {
-	    e.printStackTrace();
+		Bucket bucketToFreeze = TUtilsBucket.createBucketWithIndexAndTimeRange(
+				thawIndex, earliest, latest);
+		successfulBucketFreezer.freezeBucket(bucketToFreeze.getIndex(),
+				bucketToFreeze.getDirectory().getAbsolutePath());
+
+		boolean bucketToFreezeExists = bucketToFreeze.getDirectory().exists();
+		assertFalse(bucketToFreezeExists);
+
+		assertTrue(isThawDirectoryEmpty());
+
+		callRestToThawBuckets(thawIndex, earliest, latest);
+		assertFalse(isThawDirectoryEmpty());
+
+		File[] listFiles = thawDirectoryLocation.listFiles();
+		assertEquals(1, listFiles.length);
+		File thawedBucket = listFiles[0];
+		assertEquals(bucketToFreeze.getName(), thawedBucket.getName());
 	}
-    }
+
+	private boolean isThawDirectoryEmpty() {
+		return TUtilsFile.isDirectoryEmpty(thawDirectoryLocation);
+	}
+
+	private void callRestToThawBuckets(String index, Date earliest, Date latest) {
+		HttpPost thawPostRequest = getThawPostRequest(index, earliest, latest);
+		executePostRequest(thawPostRequest);
+	}
+
+	private HttpPost getThawPostRequest(String index, Date earliest, Date latest) {
+		URI thawEndpoint = getThawEndpoint();
+		HttpPost httpPost = new HttpPost(thawEndpoint);
+		List<BasicNameValuePair> postParams = asList(nameValue("index", index),
+				nameValue("from", earliest.getTime()),
+				nameValue("to", latest.getTime()));
+		setParamsToPostRequest(httpPost, postParams);
+		return httpPost;
+	}
+
+	private void setParamsToPostRequest(HttpPost httpPost,
+			List<BasicNameValuePair> postParams) {
+		try {
+			httpPost.setEntity(new UrlEncodedFormEntity(postParams));
+		} catch (UnsupportedEncodingException e) {
+			TUtilsTestNG
+					.failForException(
+							"Could not create url encoded form entity with params: "
+									+ postParams, e);
+		}
+	}
+
+	private void executePostRequest(HttpPost httpPost) {
+		try {
+			new DefaultHttpClient().execute(httpPost);
+		} catch (Exception e) {
+			TUtilsTestNG.failForException("Could not execute post: " + httpPost, e);
+		}
+	}
+
+	private BasicNameValuePair nameValue(String name, Object index) {
+		return new BasicNameValuePair(name, index.toString());
+	}
+
+	private URI getThawEndpoint() {
+		return URI.create("http://" + shuttlHost + ":" + shuttlPort + "/"
+				+ ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_THAW);
+	}
+
+	private void tearDown(String hadoopHost, String hadoopPort) {
+		FileUtils.deleteQuietly(tempDirectory);
+		FileSystem hadoopFileSystem = UtilsFunctional.getHadoopFileSystem(
+				hadoopHost, hadoopPort);
+		for (File dir : thawDirectoryLocation.listFiles())
+			FileUtils.deleteQuietly(dir);
+		deleteArchivingTmpPath(hadoopFileSystem);
+		deleteArchivingRoot(hadoopFileSystem);
+	}
+
+	private void deleteArchivingTmpPath(FileSystem hadoopFileSystem) {
+		try {
+			URI configuredTmp = archiveConfiguration.getTmpDirectory();
+			hadoopFileSystem.delete(new Path(configuredTmp), true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void deleteArchivingRoot(FileSystem hadoopFileSystem) {
+		try {
+			URI configuredRoot = archiveConfiguration.getArchivingRoot();
+			hadoopFileSystem.delete(new Path(configuredRoot), true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 }

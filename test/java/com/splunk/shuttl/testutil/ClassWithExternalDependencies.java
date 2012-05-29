@@ -20,8 +20,8 @@ import org.apache.http.client.ClientProtocolException;
  * Used with {@link ShellClassRunnerTest}, to test external dependencies.
  */
 public class ClassWithExternalDependencies {
-    public static void main(String[] args) {
-	new ClientProtocolException();
-	System.exit(ShellClassRunnerTest.EXIT_CODE);
-    }
+	public static void main(String[] args) {
+		new ClientProtocolException();
+		System.exit(ShellClassRunnerTest.EXIT_CODE);
+	}
 }

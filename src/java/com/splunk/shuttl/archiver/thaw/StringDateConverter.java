@@ -23,31 +23,31 @@ import java.util.Date;
  */
 public class StringDateConverter {
 
-    /**
-     * @return
-     */
-    public static Date convert(String dateAsString) {
-	Date date = tryLongDate(dateAsString);
-	if (date != null)
-	    return date;
-	else
-	    return parseString(dateAsString);
-    }
-
-    private static Date tryLongDate(String dateAsString) {
-	try {
-	    return new Date(Long.parseLong(dateAsString));
-	} catch (NumberFormatException e) {
-	    return null;
+	/**
+	 * @return
+	 */
+	public static Date convert(String dateAsString) {
+		Date date = tryLongDate(dateAsString);
+		if (date != null)
+			return date;
+		else
+			return parseString(dateAsString);
 	}
-    }
 
-    private static Date parseString(String dateAsString) {
-	try {
-	    return new SimpleDateFormat("yyyy-MM-dd").parse(dateAsString);
-	} catch (ParseException e) {
-	    return null;
+	private static Date tryLongDate(String dateAsString) {
+		try {
+			return new Date(Long.parseLong(dateAsString));
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
-    }
+
+	private static Date parseString(String dateAsString) {
+		try {
+			return new SimpleDateFormat("yyyy-MM-dd").parse(dateAsString);
+		} catch (ParseException e) {
+			return null;
+		}
+	}
 
 }

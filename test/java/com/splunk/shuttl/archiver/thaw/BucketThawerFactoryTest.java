@@ -24,18 +24,17 @@ import com.splunk.shuttl.testutil.TUtilsMBean;
 
 public class BucketThawerFactoryTest {
 
-    @Test(groups = { "fast-unit" })
-    public void createDefaultThawer_default_noParameters()
-	    throws SecurityException, NoSuchMethodException {
-	Method method = BucketThawerFactory.class
-		.getMethod("createDefaultThawer");
-	assertEquals(0, method.getParameterTypes().length);
-    }
+	@Test(groups = { "fast-unit" })
+	public void createDefaultThawer_default_noParameters()
+			throws SecurityException, NoSuchMethodException {
+		Method method = BucketThawerFactory.class.getMethod("createDefaultThawer");
+		assertEquals(0, method.getParameterTypes().length);
+	}
 
-    @Test(groups = { "end-to-end" })
-    public void createDefaultThawer_realConfigurationWithSplunk_notNull()
-	    throws Exception {
-	TUtilsMBean.registerShuttlArchiverMBean();
-	assertNotNull(BucketThawerFactory.createDefaultThawer());
-    }
+	@Test(groups = { "end-to-end" })
+	public void createDefaultThawer_realConfigurationWithSplunk_notNull()
+			throws Exception {
+		TUtilsMBean.registerShuttlArchiverMBean();
+		assertNotNull(BucketThawerFactory.createDefaultThawer());
+	}
 }

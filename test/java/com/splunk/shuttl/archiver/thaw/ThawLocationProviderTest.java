@@ -26,47 +26,45 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
-import com.splunk.shuttl.archiver.thaw.ThawLocationProvider;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class ThawLocationProviderTest {
 
-    ThawLocationProvider thawLocationProvider;
-    SplunkSettings splunkSettings;
-    Bucket bucket;
-    File thawLocation;
+	ThawLocationProvider thawLocationProvider;
+	SplunkSettings splunkSettings;
+	Bucket bucket;
+	File thawLocation;
 
-    @BeforeMethod
-    public void setUp() throws IllegalIndexException {
-	bucket = TUtilsBucket.createTestBucket();
-	splunkSettings = mock(SplunkSettings.class);
-	thawLocationProvider = new ThawLocationProvider(splunkSettings);
+	@BeforeMethod
+	public void setUp() throws IllegalIndexException {
+		bucket = TUtilsBucket.createTestBucket();
+		splunkSettings = mock(SplunkSettings.class);
+		thawLocationProvider = new ThawLocationProvider(splunkSettings);
 
-	stubSplunkSettingsToReturnThawLocation();
-    }
+		stubSplunkSettingsToReturnThawLocation();
+	}
 
-    private void stubSplunkSettingsToReturnThawLocation()
-	    throws IllegalIndexException {
-	thawLocation = createTestFilePath();
-	when(splunkSettings.getThawLocation(bucket.getIndex())).thenReturn(
-		thawLocation);
-    }
+	private void stubSplunkSettingsToReturnThawLocation()
+			throws IllegalIndexException {
+		thawLocation = createTestFilePath();
+		when(splunkSettings.getThawLocation(bucket.getIndex())).thenReturn(
+				thawLocation);
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void getLocationInThawForBucket_givenThawLocation_returnedBucketDirectorysParentIsThawLocation()
-	    throws IOException {
-	File locationInThawDirectory = thawLocationProvider
-		.getLocationInThawForBucket(bucket);
-	assertEquals(thawLocation.getAbsolutePath(), locationInThawDirectory
-		.getParentFile().getAbsolutePath());
-    }
+	@Test(groups = { "fast-unit" })
+	public void getLocationInThawForBucket_givenThawLocation_returnedBucketDirectorysParentIsThawLocation()
+			throws IOException {
+		File locationInThawDirectory = thawLocationProvider
+				.getLocationInThawForBucket(bucket);
+		assertEquals(thawLocation.getAbsolutePath(), locationInThawDirectory
+				.getParentFile().getAbsolutePath());
+	}
 
-    public void getLocationInThawForBucket_givenThawLocation_directoryHasNameOfBucket()
-	    throws IOException {
-	File bucketsLocation = thawLocationProvider
-		.getLocationInThawForBucket(bucket);
-	assertEquals(bucket.getName(), bucketsLocation.getName());
-    }
+	public void getLocationInThawForBucket_givenThawLocation_directoryHasNameOfBucket()
+			throws IOException {
+		File bucketsLocation = thawLocationProvider
+				.getLocationInThawForBucket(bucket);
+		assertEquals(bucket.getName(), bucketsLocation.getName());
+	}
 }

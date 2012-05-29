@@ -25,110 +25,106 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 
 @Test(groups = { "fast-unit" })
 public class ArchiveConfigurationTest {
 
-    private ShuttlArchiverMBean mBean;
+	private ShuttlArchiverMBean mBean;
 
-    @BeforeMethod
-    public void setUp() {
-	mBean = mock(ShuttlArchiverMBean.class);
-    }
+	@BeforeMethod
+	public void setUp() {
+		mBean = mock(ShuttlArchiverMBean.class);
+	}
 
-    private ArchiveConfiguration createConfiguration() {
-	return ArchiveConfiguration.createConfigurationWithMBean(mBean);
-    }
+	private ArchiveConfiguration createConfiguration() {
+		return ArchiveConfiguration.createConfigurationWithMBean(mBean);
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void getArchiveFormat_givenAnyFormatAsStringInMBean_returnsBucketFormat() {
-	when(mBean.getArchiveFormat()).thenReturn(
-		BucketFormat.SPLUNK_BUCKET.name());
-	BucketFormat archiveFormat = createConfiguration().getArchiveFormat();
-	assertNotNull(archiveFormat);
-    }
+	@Test(groups = { "fast-unit" })
+	public void getArchiveFormat_givenAnyFormatAsStringInMBean_returnsBucketFormat() {
+		when(mBean.getArchiveFormat())
+				.thenReturn(BucketFormat.SPLUNK_BUCKET.name());
+		BucketFormat archiveFormat = createConfiguration().getArchiveFormat();
+		assertNotNull(archiveFormat);
+	}
 
-    public void getArchiveFormat_givenNullFormat_null() {
-	when(mBean.getArchiveFormat()).thenReturn(null);
-	assertNull(createConfiguration().getArchiveFormat());
-    }
+	public void getArchiveFormat_givenNullFormat_null() {
+		when(mBean.getArchiveFormat()).thenReturn(null);
+		assertNull(createConfiguration().getArchiveFormat());
+	}
 
-    public void getArchivingRoot_givenNullUri_null() {
-	when(mBean.getArchiverRootURI()).thenReturn(null);
-	assertNull(createConfiguration().getArchivingRoot());
-    }
+	public void getArchivingRoot_givenNullUri_null() {
+		when(mBean.getArchiverRootURI()).thenReturn(null);
+		assertNull(createConfiguration().getArchivingRoot());
+	}
 
-    public void getArchivingRoot_givenUriInMBean_returnSameUriAsInMBean() {
-	String uriString = "valid:/uri";
-	URI expectedUri = URI.create(uriString);
-	when(mBean.getArchiverRootURI()).thenReturn(uriString);
-	URI actualUri = createConfiguration().getArchivingRoot();
-	assertEquals(expectedUri, actualUri);
-    }
+	public void getArchivingRoot_givenUriInMBean_returnSameUriAsInMBean() {
+		String uriString = "valid:/uri";
+		URI expectedUri = URI.create(uriString);
+		when(mBean.getArchiverRootURI()).thenReturn(uriString);
+		URI actualUri = createConfiguration().getArchivingRoot();
+		assertEquals(expectedUri, actualUri);
+	}
 
-    public void getClusterName_stubbedMBeanClusterName_sameAsInMBean() {
-	String expected = "clusterName";
-	when(mBean.getClusterName()).thenReturn(expected);
-	String actual = createConfiguration().getClusterName();
-	assertEquals(expected, actual);
-    }
+	public void getClusterName_stubbedMBeanClusterName_sameAsInMBean() {
+		String expected = "clusterName";
+		when(mBean.getClusterName()).thenReturn(expected);
+		String actual = createConfiguration().getClusterName();
+		assertEquals(expected, actual);
+	}
 
-    public void getServerName_stubbedMBeanServerName_sameAsInMBean() {
-	String expected = "serverName";
-	when(mBean.getServerName()).thenReturn(expected);
-	String actual = createConfiguration().getServerName();
-	assertEquals(expected, actual);
-    }
+	public void getServerName_stubbedMBeanServerName_sameAsInMBean() {
+		String expected = "serverName";
+		when(mBean.getServerName()).thenReturn(expected);
+		String actual = createConfiguration().getServerName();
+		assertEquals(expected, actual);
+	}
 
-    public void getBucketFormatPriority_noFormats_emptyList() {
-	when(mBean.getBucketFormatPriority()).thenReturn(
-		new ArrayList<String>());
-	List<BucketFormat> priorityList = createConfiguration()
-		.getBucketFormatPriority();
-	assertEquals(new ArrayList<BucketFormat>(), priorityList);
-    }
+	public void getBucketFormatPriority_noFormats_emptyList() {
+		when(mBean.getBucketFormatPriority()).thenReturn(new ArrayList<String>());
+		List<BucketFormat> priorityList = createConfiguration()
+				.getBucketFormatPriority();
+		assertEquals(new ArrayList<BucketFormat>(), priorityList);
+	}
 
-    public void getBucketFormatPriority_oneFormat_listWithThatOneFormat() {
-	List<String> format = Arrays.asList(BucketFormat.SPLUNK_BUCKET.name());
-	when(mBean.getBucketFormatPriority()).thenReturn(format);
-	List<BucketFormat> priorityList = createConfiguration()
-		.getBucketFormatPriority();
-	assertEquals(1, priorityList.size());
-	assertEquals(BucketFormat.SPLUNK_BUCKET, priorityList.get(0));
-    }
+	public void getBucketFormatPriority_oneFormat_listWithThatOneFormat() {
+		List<String> format = Arrays.asList(BucketFormat.SPLUNK_BUCKET.name());
+		when(mBean.getBucketFormatPriority()).thenReturn(format);
+		List<BucketFormat> priorityList = createConfiguration()
+				.getBucketFormatPriority();
+		assertEquals(1, priorityList.size());
+		assertEquals(BucketFormat.SPLUNK_BUCKET, priorityList.get(0));
+	}
 
-    public void getBucketFormatPriority_twoFormats_listWithThoseTwoFormats() {
-	List<String> formats = Arrays.asList(BucketFormat.SPLUNK_BUCKET.name(),
-		BucketFormat.UNKNOWN.name());
-	when(mBean.getBucketFormatPriority()).thenReturn(formats);
-	List<BucketFormat> priorityList = createConfiguration()
-		.getBucketFormatPriority();
-	assertEquals(2, priorityList.size());
-	assertEquals(BucketFormat.SPLUNK_BUCKET, priorityList.get(0));
-	assertEquals(BucketFormat.UNKNOWN, priorityList.get(1));
-    }
+	public void getBucketFormatPriority_twoFormats_listWithThoseTwoFormats() {
+		List<String> formats = Arrays.asList(BucketFormat.SPLUNK_BUCKET.name(),
+				BucketFormat.UNKNOWN.name());
+		when(mBean.getBucketFormatPriority()).thenReturn(formats);
+		List<BucketFormat> priorityList = createConfiguration()
+				.getBucketFormatPriority();
+		assertEquals(2, priorityList.size());
+		assertEquals(BucketFormat.SPLUNK_BUCKET, priorityList.get(0));
+		assertEquals(BucketFormat.UNKNOWN, priorityList.get(1));
+	}
 
-    public void getTmpDirectory_givenNullArchivingRoot_null() {
-	when(mBean.getArchiverRootURI()).thenReturn(null);
-	assertNull(createConfiguration().getTmpDirectory());
-    }
+	public void getTmpDirectory_givenNullArchivingRoot_null() {
+		when(mBean.getArchiverRootURI()).thenReturn(null);
+		assertNull(createConfiguration().getTmpDirectory());
+	}
 
-    public void getTmpDirectory_givenArchivingRootUriAndTmpDirectoryString_combineForTmpDirectoryUri() {
-	when(mBean.getArchiverRootURI()).thenReturn("valid:/uri");
-	when(mBean.getTmpDirectory()).thenReturn("/tmp");
-	URI tmpDirectory = createConfiguration().getTmpDirectory();
-	assertEquals(URI.create("valid:/tmp"), tmpDirectory);
-    }
+	public void getTmpDirectory_givenArchivingRootUriAndTmpDirectoryString_combineForTmpDirectoryUri() {
+		when(mBean.getArchiverRootURI()).thenReturn("valid:/uri");
+		when(mBean.getTmpDirectory()).thenReturn("/tmp");
+		URI tmpDirectory = createConfiguration().getTmpDirectory();
+		assertEquals(URI.create("valid:/tmp"), tmpDirectory);
+	}
 
-    public void getTmpDirectory_givenUriWithHostAndPort_keepingHostAndPortInUri() {
-	when(mBean.getArchiverRootURI())
-		.thenReturn("hdfz://localhost:8000/uri");
-	when(mBean.getTmpDirectory()).thenReturn("/tmp");
-	URI tmpDirectory = createConfiguration().getTmpDirectory();
-	assertEquals(URI.create("hdfz://localhost:8000/tmp"), tmpDirectory);
-    }
+	public void getTmpDirectory_givenUriWithHostAndPort_keepingHostAndPortInUri() {
+		when(mBean.getArchiverRootURI()).thenReturn("hdfz://localhost:8000/uri");
+		when(mBean.getTmpDirectory()).thenReturn("/tmp");
+		URI tmpDirectory = createConfiguration().getTmpDirectory();
+		assertEquals(URI.create("hdfz://localhost:8000/tmp"), tmpDirectory);
+	}
 
 }

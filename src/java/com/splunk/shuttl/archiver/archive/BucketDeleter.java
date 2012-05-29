@@ -27,35 +27,35 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketDeleter {
 
-    private final Logger logger;
+	private final Logger logger;
 
-    public BucketDeleter(Logger logger) {
-	this.logger = logger;
-    }
-
-    /**
-     * @param bucket
-     *            to delete.
-     */
-    public void deleteBucket(Bucket bucket) {
-	try {
-	    bucket.deleteBucket();
-	} catch (IOException e) {
-	    logAndIgnoreDeletionException(bucket, e);
+	public BucketDeleter(Logger logger) {
+		this.logger = logger;
 	}
-    }
 
-    private void logAndIgnoreDeletionException(Bucket bucket, IOException e) {
-	logger.warn(warn("Deleted a bucket from local file system, "
-		+ "because archiving was complete.", e,
-		"Will ignore this exception", "bucket", bucket, "exception", e));
-    }
+	/**
+	 * @param bucket
+	 *          to delete.
+	 */
+	public void deleteBucket(Bucket bucket) {
+		try {
+			bucket.deleteBucket();
+		} catch (IOException e) {
+			logAndIgnoreDeletionException(bucket, e);
+		}
+	}
 
-    /**
-     * @return
-     */
-    public static BucketDeleter create() {
-	return new BucketDeleter(Logger.getLogger(BucketDeleter.class));
-    }
+	private void logAndIgnoreDeletionException(Bucket bucket, IOException e) {
+		logger.warn(warn("Deleted a bucket from local file system, "
+				+ "because archiving was complete.", e, "Will ignore this exception",
+				"bucket", bucket, "exception", e));
+	}
+
+	/**
+	 * @return
+	 */
+	public static BucketDeleter create() {
+		return new BucketDeleter(Logger.getLogger(BucketDeleter.class));
+	}
 
 }

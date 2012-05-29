@@ -16,26 +16,26 @@ package com.splunk.shuttl.server.services;
 
 /**
  * @author kpakkirisamy
- *
+ * 
  */
 public interface SplunkService {
-    public static String RUNNING = "running";
-    public static String STOPPED = "stopped";
+	public static String RUNNING = "running";
+	public static String STOPPED = "stopped";
 
-    /**
-     * Starts the service
-     */
-    public void start() throws Exception;
+	/**
+	 * Starts the service
+	 */
+	public void start() throws Exception;
 
-    /**
-     * Stops the service
-     */
-    public void stop() throws Exception;
+	/**
+	 * Stops the service
+	 */
+	public void stop() throws Exception;
 
-    /**
-     * returns a status message
-     * 
-     * @return
-     */
-    public String getStatus();
+	/**
+	 * returns a status message
+	 * 
+	 * @return
+	 */
+	public String getStatus();
 }

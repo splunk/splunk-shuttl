@@ -27,23 +27,23 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class ThawBucketTransferer {
 
-    private final static Logger logger = Logger
-	    .getLogger(ThawBucketTransferer.class);
-    private final ThawLocationProvider thawLocationProvider;
-    private final ArchiveFileSystem archiveFileSystem;
+	private final static Logger logger = Logger
+			.getLogger(ThawBucketTransferer.class);
+	private final ThawLocationProvider thawLocationProvider;
+	private final ArchiveFileSystem archiveFileSystem;
 
-    public ThawBucketTransferer(ThawLocationProvider thawLocationProvider,
-	    ArchiveFileSystem archiveFileSystem) {
-	this.thawLocationProvider = thawLocationProvider;
-	this.archiveFileSystem = archiveFileSystem;
-    }
+	public ThawBucketTransferer(ThawLocationProvider thawLocationProvider,
+			ArchiveFileSystem archiveFileSystem) {
+		this.thawLocationProvider = thawLocationProvider;
+		this.archiveFileSystem = archiveFileSystem;
+	}
 
-    /**
-     * Transfers an archived bucket in the thaw directory of the bucket's index.
-     */
-    public void transferBucketToThaw(Bucket bucket) throws IOException {
-	File bucketsThawLocation = thawLocationProvider
-		.getLocationInThawForBucket(bucket);
-	archiveFileSystem.getFile(bucketsThawLocation, bucket.getURI());
-    }
+	/**
+	 * Transfers an archived bucket in the thaw directory of the bucket's index.
+	 */
+	public void transferBucketToThaw(Bucket bucket) throws IOException {
+		File bucketsThawLocation = thawLocationProvider
+				.getLocationInThawForBucket(bucket);
+		archiveFileSystem.getFile(bucketsThawLocation, bucket.getURI());
+	}
 }

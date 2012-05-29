@@ -30,40 +30,37 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
  */
 public class BucketFactory {
 
-    private static final Logger logger = Logger.getLogger(BucketFactory.class);
+	private static final Logger logger = Logger.getLogger(BucketFactory.class);
 
-    /**
-     * Instance method for
-     * {@link BucketFactory#createWithIndexAndDirectory(String, File), which
-     * makes it mockable and testable.
-     */
-    public Bucket createWithIndexAndDirectory(String index, File bucketFile) {
-	return BucketFactory.createBucketWithIndexAndDirectory(index,
-		bucketFile);
-    }
-
-    /**
-     * @return Bucket instance with specified index and bucket. Suitable for
-     *         creating bucket with {@link BucketFormat#SPLUNK_BUCKET}, since
-     *         the format can be decided from the directory.
-     */
-    public static Bucket createBucketWithIndexAndDirectory(String index,
-	    File bucketFile) {
-	try {
-	    return new Bucket(index, bucketFile);
-	} catch (FileNotFoundException e) {
-	    logger.debug(did("Created bucket from file",
-		    "Got FileNotFoundException", "To create bucket from file",
-		    "file", bucketFile, "exception", e));
-	    throw new RuntimeException(e);
-	} catch (FileNotDirectoryException e) {
-	    logger.debug(did("Created bucket from file",
-		    "Got FileNotDirectoryException",
-		    "To create bucket from file", "file", bucketFile,
-		    "exception", e));
-	    e.printStackTrace();
-	    throw new RuntimeException(e);
+	/**
+	 * Instance method for
+	 * {@link BucketFactory#createWithIndexAndDirectory(String, File), which makes
+	 * it mockable and testable.
+	 */
+	public Bucket createWithIndexAndDirectory(String index, File bucketFile) {
+		return BucketFactory.createBucketWithIndexAndDirectory(index, bucketFile);
 	}
-    }
+
+	/**
+	 * @return Bucket instance with specified index and bucket. Suitable for
+	 *         creating bucket with {@link BucketFormat#SPLUNK_BUCKET}, since the
+	 *         format can be decided from the directory.
+	 */
+	public static Bucket createBucketWithIndexAndDirectory(String index,
+			File bucketFile) {
+		try {
+			return new Bucket(index, bucketFile);
+		} catch (FileNotFoundException e) {
+			logger.debug(did("Created bucket from file", "Got FileNotFoundException",
+					"To create bucket from file", "file", bucketFile, "exception", e));
+			throw new RuntimeException(e);
+		} catch (FileNotDirectoryException e) {
+			logger.debug(did("Created bucket from file",
+					"Got FileNotDirectoryException", "To create bucket from file",
+					"file", bucketFile, "exception", e));
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
 
 }

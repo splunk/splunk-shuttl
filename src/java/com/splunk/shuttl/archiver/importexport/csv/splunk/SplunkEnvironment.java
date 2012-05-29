@@ -17,42 +17,40 @@ package com.splunk.shuttl.archiver.importexport.csv.splunk;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * Methods for verifying that Splunk's environment is set.
  */
 public class SplunkEnvironment {
 
-    /**
-     * @return the value of the environmen variable 'SPLUNK_HOME'
-     */
-    public static String getSplunkHome() {
-	throwExceptionIfSplunkHomeIsNotSet();
-	return getSplunkHomeFromSystem();
-    }
-
-    private static String getSplunkHomeFromSystem() {
-	return System.getenv("SPLUNK_HOME");
-    }
-
-    private static void throwExceptionIfSplunkHomeIsNotSet() {
-	if (!isSplunkHomeSet()) {
-	    throw new SplunkEnvironmentNotSetException();
+	/**
+	 * @return the value of the environmen variable 'SPLUNK_HOME'
+	 */
+	public static String getSplunkHome() {
+		throwExceptionIfSplunkHomeIsNotSet();
+		return getSplunkHomeFromSystem();
 	}
-    }
 
-    private static boolean isSplunkHomeSet() {
-	return getSplunkHomeFromSystem() != null;
-    }
+	private static String getSplunkHomeFromSystem() {
+		return System.getenv("SPLUNK_HOME");
+	}
 
-    /**
-     * @return environment variables needed to run Splunk executables.
-     */
-    public static Map<String, String> getEnvironment() {
-	throwExceptionIfSplunkHomeIsNotSet();
-	Map<String, String> environmentVars = new HashMap<String, String>();
-	environmentVars.put("SPLUNK_HOME", SplunkEnvironment.getSplunkHome());
-	return environmentVars;
-    }
+	private static void throwExceptionIfSplunkHomeIsNotSet() {
+		if (!isSplunkHomeSet())
+			throw new SplunkEnvironmentNotSetException();
+	}
+
+	private static boolean isSplunkHomeSet() {
+		return getSplunkHomeFromSystem() != null;
+	}
+
+	/**
+	 * @return environment variables needed to run Splunk executables.
+	 */
+	public static Map<String, String> getEnvironment() {
+		throwExceptionIfSplunkHomeIsNotSet();
+		Map<String, String> environmentVars = new HashMap<String, String>();
+		environmentVars.put("SPLUNK_HOME", SplunkEnvironment.getSplunkHome());
+		return environmentVars;
+	}
 
 }

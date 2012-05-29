@@ -21,9 +21,9 @@ package com.splunk.shuttl.archiver.model;
  */
 public class RemoteBucketException extends RuntimeException {
 
-    /**
-     * Default generated serial version uid
-     */
-    private static final long serialVersionUID = 1L;
+	/**
+	 * Default generated serial version uid
+	 */
+	private static final long serialVersionUID = 1L;
 
 }

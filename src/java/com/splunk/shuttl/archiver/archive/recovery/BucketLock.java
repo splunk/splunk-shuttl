@@ -27,42 +27,41 @@ import com.splunk.shuttl.archiver.util.UtilsFile;
  */
 public class BucketLock extends SimpleFileLock {
 
-    private final File lockFile;
+	private final File lockFile;
 
-    /**
-     * @param bucket
-     *            to create lock for.
-     */
-    public BucketLock(Bucket bucket) {
-	this(bucket, getLocksDirectory());
-    }
+	/**
+	 * @param bucket
+	 *          to create lock for.
+	 */
+	public BucketLock(Bucket bucket) {
+		this(bucket, getLocksDirectory());
+	}
 
-    public BucketLock(Bucket bucket, File locksDirectory) {
-	super(UtilsFile.getRandomAccessFileSilent(
-		(getLockFile(bucket, locksDirectory))).getChannel());
-	this.lockFile = getLockFile(bucket, locksDirectory);
-    }
+	public BucketLock(Bucket bucket, File locksDirectory) {
+		super(UtilsFile.getRandomAccessFileSilent(
+				(getLockFile(bucket, locksDirectory))).getChannel());
+		this.lockFile = getLockFile(bucket, locksDirectory);
+	}
 
-    /**
-     * @return File that controls the lock of this bucket.
-     */
-    /* package-private */File getLockFile() {
-	return lockFile;
-    }
+	/**
+	 * @return File that controls the lock of this bucket.
+	 */
+	/* package-private */File getLockFile() {
+		return lockFile;
+	}
 
-    private static File getLockFile(Bucket bucket, File locksDirectory) {
-	File lock = new File(locksDirectory, "bucket-" + bucket.getName()
-		+ ".lock");
-	UtilsFile.touch(lock);
-	return lock;
-    }
+	private static File getLockFile(Bucket bucket, File locksDirectory) {
+		File lock = new File(locksDirectory, "bucket-" + bucket.getName() + ".lock");
+		UtilsFile.touch(lock);
+		return lock;
+	}
 
-    /**
-     * Deletes the lock file only if it there's no one that has the file locked.
-     * 
-     * @return true if the file was deleted, false otherwise.
-     */
-    public boolean deleteLockFile() {
-	return getLockFile().delete();
-    }
+	/**
+	 * Deletes the lock file only if it there's no one that has the file locked.
+	 * 
+	 * @return true if the file was deleted, false otherwise.
+	 */
+	public boolean deleteLockFile() {
+		return getLockFile().delete();
+	}
 }

@@ -19,10 +19,10 @@ package com.splunk.shuttl.archiver.model;
  */
 public class DirectoryDidNotExistException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public DirectoryDidNotExistException(String string) {
-	super(string);
-    }
+	public DirectoryDidNotExistException(String string) {
+		super(string);
+	}
 
 }

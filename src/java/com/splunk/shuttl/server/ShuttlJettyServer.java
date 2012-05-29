@@ -31,33 +31,33 @@ import com.splunk.shuttl.server.mbeans.ShuttlServer;
  * 
  */
 public class ShuttlJettyServer {
-    public static void main(String args[]) {
-	org.apache.log4j.Logger logger = Logger.getLogger("ShuttlServer");
-	try {
-	    Server server = new Server();
+	public static void main(String args[]) {
+		org.apache.log4j.Logger logger = Logger.getLogger("ShuttlServer");
+		try {
+			Server server = new Server();
 
-	    // TODO: Replace paths relative to /bin/
-	    XmlConfiguration configuration = new XmlConfiguration(new File(
-		    "../jetty/shuttl.xml").toURI().toURL());
-	    configuration.configure(server);
+			// TODO: Replace paths relative to /bin/
+			XmlConfiguration configuration = new XmlConfiguration(new File(
+					"../jetty/shuttl.xml").toURI().toURL());
+			configuration.configure(server);
 
-	    // TODO: Replace paths relative to /bin/
-	    server.setHandler(new WebAppContext("../webapps/shuttl", "/shuttl"));
-	    ShuttlServer servermbean = new ShuttlServer();
-	    Connector connectors[] = server.getConnectors();
-	    for (Connector c : connectors) {
-		logger.debug("Connector Name: " + c.getName());
-		logger.debug("  host: " + c.getHost());
-		logger.debug("  port: " + c.getPort());
-		if (c.getName().equals("Splunk.Shuttl.Http")) {
-		    c.setHost(servermbean.getHttpHost());
-		    c.setPort(servermbean.getHttpPort());
+			// TODO: Replace paths relative to /bin/
+			server.setHandler(new WebAppContext("../webapps/shuttl", "/shuttl"));
+			ShuttlServer servermbean = new ShuttlServer();
+			Connector connectors[] = server.getConnectors();
+			for (Connector c : connectors) {
+				logger.debug("Connector Name: " + c.getName());
+				logger.debug("  host: " + c.getHost());
+				logger.debug("  port: " + c.getPort());
+				if (c.getName().equals("Splunk.Shuttl.Http")) {
+					c.setHost(servermbean.getHttpHost());
+					c.setPort(servermbean.getHttpPort());
+				}
+			}
+			server.start();
+		} catch (Exception e) {
+			logger.error("Error during startup", e);
+			System.exit(1);
 		}
-	    }
-	    server.start();
-	} catch (Exception e) {
-	    logger.error("Error during startup", e);
-	    System.exit(1);
 	}
-    }
 }

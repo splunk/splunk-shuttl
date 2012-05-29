@@ -24,12 +24,12 @@ import org.testng.annotations.Test;
 @Test(groups = { "fast-unit" })
 public class TUtilsPathTest {
 
-    @Test(groups = { "fast-unit" })
-    public void safePath_should_beSeparated_by_HomeDirectoryAndNameOfTestCase_toAchieve_nicerStructure() {
-	FileSystem fileSystem = TUtilsFileSystem.getLocalFileSystem();
-	Path safePath = TUtilsPath.getSafeDirectory(fileSystem);
-	Path expected = new Path(fileSystem.getHomeDirectory() + "/"
-		+ this.getClass().getName());
-	assertEquals(safePath, expected);
-    }
+	@Test(groups = { "fast-unit" })
+	public void safePath_should_beSeparated_by_HomeDirectoryAndNameOfTestCase_toAchieve_nicerStructure() {
+		FileSystem fileSystem = TUtilsFileSystem.getLocalFileSystem();
+		Path safePath = TUtilsPath.getSafeDirectory(fileSystem);
+		Path expected = new Path(fileSystem.getHomeDirectory() + "/"
+				+ this.getClass().getName());
+		assertEquals(safePath, expected);
+	}
 }

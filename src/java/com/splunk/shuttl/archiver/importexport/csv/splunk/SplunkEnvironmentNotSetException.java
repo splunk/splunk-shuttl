@@ -20,6 +20,6 @@ package com.splunk.shuttl.archiver.importexport.csv.splunk;
  */
 public class SplunkEnvironmentNotSetException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
 }

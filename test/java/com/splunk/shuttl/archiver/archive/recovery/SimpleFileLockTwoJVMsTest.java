@@ -24,7 +24,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.SimpleFileLock;
 import com.splunk.shuttl.testutil.ShellClassRunner;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
@@ -34,54 +33,54 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 @Test(groups = { "slow-unit" })
 public class SimpleFileLockTwoJVMsTest {
 
-    static final Integer EXIT_STATUS_ON_FALSE_LOCK = 47;
-    static File fileToLock = new File(SimpleFileLockTwoJVMsTest.class.getName()
-	    + "-fileToLock");
-    SimpleFileLock simpleFileLock;
+	static final Integer EXIT_STATUS_ON_FALSE_LOCK = 47;
+	static File fileToLock = new File(SimpleFileLockTwoJVMsTest.class.getName()
+			+ "-fileToLock");
+	SimpleFileLock simpleFileLock;
 
-    @BeforeMethod(groups = { "slow-unit" })
-    public void setUp() {
-	simpleFileLock = getSimpleFileLock();
-    }
-
-    @AfterMethod(groups = { "slow-unit" })
-    public void tearDown() {
-	deleteFileToLock();
-	assertTrue(!fileToLock.exists());
-    }
-
-    private void deleteFileToLock() {
-	try {
-	    FileUtils.forceDelete(fileToLock);
-	} catch (IOException e) {
-	    TUtilsTestNG.failForException("Tried force delete on"
-		    + " file, got IOException", e);
+	@BeforeMethod(groups = { "slow-unit" })
+	public void setUp() {
+		simpleFileLock = getSimpleFileLock();
 	}
-    }
 
-    @Test(groups = { "slow-unit" })
-    public void tryLockExclusive_inOtherJvmAfterLockingInThisJvm_false() {
-	assertTrue(simpleFileLock.tryLockExclusive());
-	ShellClassRunner otherJvmRunner = new ShellClassRunner();
-	otherJvmRunner.runClassAsync(FalseLockInOtherJVM.class);
-
-	assertEquals(EXIT_STATUS_ON_FALSE_LOCK, otherJvmRunner.getExitCode());
-    }
-
-    private static SimpleFileLock getSimpleFileLock() {
-	return SimpleFileLock.createFromFile(fileToLock);
-    }
-
-    private static class FalseLockInOtherJVM {
-
-	// It's launched with the ShellClassRunner.
-	@SuppressWarnings("unused")
-	public static void main(String[] args) {
-	    SimpleFileLock simpleFileLock = getSimpleFileLock();
-	    if (!simpleFileLock.tryLockExclusive())
-		System.exit(EXIT_STATUS_ON_FALSE_LOCK);
-	    else
-		System.exit(-1);
+	@AfterMethod(groups = { "slow-unit" })
+	public void tearDown() {
+		deleteFileToLock();
+		assertTrue(!fileToLock.exists());
 	}
-    }
+
+	private void deleteFileToLock() {
+		try {
+			FileUtils.forceDelete(fileToLock);
+		} catch (IOException e) {
+			TUtilsTestNG.failForException("Tried force delete on"
+					+ " file, got IOException", e);
+		}
+	}
+
+	@Test(groups = { "slow-unit" })
+	public void tryLockExclusive_inOtherJvmAfterLockingInThisJvm_false() {
+		assertTrue(simpleFileLock.tryLockExclusive());
+		ShellClassRunner otherJvmRunner = new ShellClassRunner();
+		otherJvmRunner.runClassAsync(FalseLockInOtherJVM.class);
+
+		assertEquals(EXIT_STATUS_ON_FALSE_LOCK, otherJvmRunner.getExitCode());
+	}
+
+	private static SimpleFileLock getSimpleFileLock() {
+		return SimpleFileLock.createFromFile(fileToLock);
+	}
+
+	private static class FalseLockInOtherJVM {
+
+		// It's launched with the ShellClassRunner.
+		@SuppressWarnings("unused")
+		public static void main(String[] args) {
+			SimpleFileLock simpleFileLock = getSimpleFileLock();
+			if (!simpleFileLock.tryLockExclusive())
+				System.exit(EXIT_STATUS_ON_FALSE_LOCK);
+			else
+				System.exit(-1);
+		}
+	}
 }

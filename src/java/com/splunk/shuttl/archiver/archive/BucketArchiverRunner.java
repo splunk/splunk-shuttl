@@ -29,57 +29,58 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketArchiverRunner implements Runnable {
 
-    private final static Logger logger = Logger
-	    .getLogger(BucketArchiverRunner.class);
+	private final static Logger logger = Logger
+			.getLogger(BucketArchiverRunner.class);
 
-    private final BucketArchiver bucketArchiver;
-    private final Bucket bucket;
-    private final BucketLock bucketLock;
+	private final BucketArchiver bucketArchiver;
+	private final Bucket bucket;
+	private final BucketLock bucketLock;
 
-    /**
-     * @param bucketArchiver
-     *            for archiving a bucket.
-     * @param bucket
-     *            to archive.
-     * @param bucketLock
-     *            which is already locked.
-     */
-    public BucketArchiverRunner(BucketArchiver bucketArchiver, Bucket bucket,
-	    BucketLock bucketLock) {
-	if (!bucketLock.isLocked()) {
-	    throw new NotLockedException("Bucket Lock has to be locked already"
-		    + " before archiving bucket");
+	/**
+	 * @param bucketArchiver
+	 *          for archiving a bucket.
+	 * @param bucket
+	 *          to archive.
+	 * @param bucketLock
+	 *          which is already locked.
+	 */
+	public BucketArchiverRunner(BucketArchiver bucketArchiver, Bucket bucket,
+			BucketLock bucketLock) {
+		if (!bucketLock.isLocked())
+			throw new NotLockedException("Bucket Lock has to be locked already"
+					+ " before archiving bucket");
+		this.bucketArchiver = bucketArchiver;
+		this.bucket = bucket;
+		this.bucketLock = bucketLock;
 	}
-	this.bucketArchiver = bucketArchiver;
-	this.bucket = bucket;
-	this.bucketLock = bucketLock;
-    }
 
-    @Override
-    public void run() {
-	if (!bucketLock.isLocked()) {
-	    logger.debug(did("Was going to archive bucket",
-		    "Bucket was not locked before archiving it",
-		    "Bucket must have been locked before archiving, "
-			    + "to make sure that it is safe to transfer "
-			    + "the bucket to archive without "
-			    + "any other modification.", "bucket", bucket));
-	    throw new IllegalStateException("Bucket should still be locked"
-		    + " when starting to archive "
-		    + "the bucket. Aborting archiving.");
-	} else {
-	    archiveBucket();
+	@Override
+	public void run() {
+		if (bucketLock.isLocked())
+			archiveBucket();
+		else
+			handleErrorThatBucketShouldStillBeLocked();
 	}
-    }
 
-    private void archiveBucket() {
-	try {
-	    logger.info(will("Archiving bucket", "bucket", bucket));
-	    bucketArchiver.archiveBucket(bucket);
-	    logger.info(done("Archived bucket", "bucket", bucket));
-	} finally {
-	    bucketLock.deleteLockFile();
-	    bucketLock.closeLock();
+	private void handleErrorThatBucketShouldStillBeLocked() {
+		logger.debug(did("Was going to archive bucket",
+				"Bucket was not locked before archiving it",
+				"Bucket must have been locked before archiving, "
+						+ "to make sure that it is safe to transfer "
+						+ "the bucket to archive without " + "any other modification.",
+				"bucket", bucket));
+		throw new IllegalStateException("Bucket should still be locked"
+				+ " when starting to archive " + "the bucket. Aborting archiving.");
 	}
-    }
+
+	private void archiveBucket() {
+		try {
+			logger.info(will("Archiving bucket", "bucket", bucket));
+			bucketArchiver.archiveBucket(bucket);
+			logger.info(done("Archived bucket", "bucket", bucket));
+		} finally {
+			bucketLock.deleteLockFile();
+			bucketLock.closeLock();
+		}
+	}
 }

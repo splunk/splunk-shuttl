@@ -25,24 +25,23 @@ import javax.xml.bind.Unmarshaller;
 
 /**
  * @author kpakkirisamy
- *
+ * 
  */
 public class JAXBUtils {
-    public static void save(Class confClass, Object confObj, String xmlFilePath)
-	    throws Exception {
-	JAXBContext context = JAXBContext.newInstance(confClass);
-	Marshaller m = context.createMarshaller();
-	m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-	m.marshal(confObj, new FileWriter(xmlFilePath));
-	
-    }
+	public static void save(Class confClass, Object confObj, String xmlFilePath)
+			throws Exception {
+		JAXBContext context = JAXBContext.newInstance(confClass);
+		Marshaller m = context.createMarshaller();
+		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		m.marshal(confObj, new FileWriter(xmlFilePath));
 
-    public static Object refresh(Class confClass,
- String xmlFilePath)
-	    throws JAXBException, FileNotFoundException {
-	JAXBContext context = JAXBContext.newInstance(confClass);
-	    Unmarshaller um = context.createUnmarshaller();
-	return um.unmarshal(new FileReader(xmlFilePath));
-    }
+	}
+
+	public static Object refresh(Class confClass, String xmlFilePath)
+			throws JAXBException, FileNotFoundException {
+		JAXBContext context = JAXBContext.newInstance(confClass);
+		Unmarshaller um = context.createUnmarshaller();
+		return um.unmarshal(new FileReader(xmlFilePath));
+	}
 
 }

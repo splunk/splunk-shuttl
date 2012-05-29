@@ -32,42 +32,42 @@ import com.splunk.shuttl.testutil.TUtilsMBean;
 @Test(enabled = false, groups = { "functional" })
 public class ArchiveLotsOfBucketsWithDifferentTimeRanges {
 
-    long MILLI_SECONDS_IN_A_DAY = 86400000;
-    int TWO_YEARS_OF_DAYS = 365 * 2;
-    private BucketArchiver bucketArchiver;
+	long MILLI_SECONDS_IN_A_DAY = 86400000;
+	int TWO_YEARS_OF_DAYS = 365 * 2;
+	private BucketArchiver bucketArchiver;
 
-    @BeforeMethod
-    public void setUp() {
-	TUtilsMBean.registerShuttlArchiverMBean();
-	bucketArchiver = BucketArchiverFactory.createConfiguredArchiver();
-    }
-
-    public void _archiveLotsOfBucketsWithDifferentTimeRanges_() {
-	archiveOneBucketPerDay();
-    }
-
-    private void archiveOneBucketPerDay() {
-	Date startDate = new Date(); // Today.
-	Date earliest = startDate;
-	for (int i = 0; i < TWO_YEARS_OF_DAYS; i++) {
-	    Date latest = new Date(earliest.getTime());
-	    Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
-		    "shuttl", earliest, latest);
-	    bucketArchiver.archiveBucket(bucket);
-	    earliest = new Date(latest.getTime() + 1 + MILLI_SECONDS_IN_A_DAY);
+	@BeforeMethod
+	public void setUp() {
+		TUtilsMBean.registerShuttlArchiverMBean();
+		bucketArchiver = BucketArchiverFactory.createConfiguredArchiver();
 	}
-	Date lastDate = earliest;
-	printInfoAboutData(startDate, lastDate);
-    }
 
-    private void printInfoAboutData(Date startDate, Date lastDate) {
-	Date diffDate = new Date(lastDate.getTime() - startDate.getTime());
+	public void _archiveLotsOfBucketsWithDifferentTimeRanges_() {
+		archiveOneBucketPerDay();
+	}
 
-	System.out.println("Start date: " + startDate + ", as time: "
-		+ startDate.getTime());
-	System.out.println("Last date: " + lastDate + ", as time: "
-		+ lastDate.getTime());
-	System.out.println("Time between dates: " + diffDate.getTime()
-		+ ", as date: " + new SimpleDateFormat().format(diffDate));
-    }
+	private void archiveOneBucketPerDay() {
+		Date startDate = new Date(); // Today.
+		Date earliest = startDate;
+		for (int i = 0; i < TWO_YEARS_OF_DAYS; i++) {
+			Date latest = new Date(earliest.getTime());
+			Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange("shuttl",
+					earliest, latest);
+			bucketArchiver.archiveBucket(bucket);
+			earliest = new Date(latest.getTime() + 1 + MILLI_SECONDS_IN_A_DAY);
+		}
+		Date lastDate = earliest;
+		printInfoAboutData(startDate, lastDate);
+	}
+
+	private void printInfoAboutData(Date startDate, Date lastDate) {
+		Date diffDate = new Date(lastDate.getTime() - startDate.getTime());
+
+		System.out.println("Start date: " + startDate + ", as time: "
+				+ startDate.getTime());
+		System.out.println("Last date: " + lastDate + ", as time: "
+				+ lastDate.getTime());
+		System.out.println("Time between dates: " + diffDate.getTime()
+				+ ", as date: " + new SimpleDateFormat().format(diffDate));
+	}
 }

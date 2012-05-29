@@ -22,18 +22,18 @@ import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 
 public class TUtilsMBean {
 
-    /**
-     * Registers the ShuttlArchiverMBean
-     */
-    public static void registerShuttlArchiverMBean() {
-	try {
-	    MBeanUtils.registerMBean(ShuttlArchiverMBean.OBJECT_NAME,
-		    ShuttlArchiverForTests.class);
-	} catch (InstanceAlreadyExistsException e1) {
-	    // Ok.
-	} catch (Exception e) {
-	    TUtilsTestNG.failForException(
-		    "Could not register ShuttlArchiverMBean", e);
+	/**
+	 * Registers the ShuttlArchiverMBean
+	 */
+	public static void registerShuttlArchiverMBean() {
+		try {
+			MBeanUtils.registerMBean(ShuttlArchiverMBean.OBJECT_NAME,
+					ShuttlArchiverForTests.class);
+		} catch (InstanceAlreadyExistsException e1) {
+			// Ok.
+		} catch (Exception e) {
+			TUtilsTestNG
+					.failForException("Could not register ShuttlArchiverMBean", e);
+		}
 	}
-    }
 }

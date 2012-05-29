@@ -39,115 +39,113 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
  * Util methods for functional archiver tests
  */
 public class UtilsFunctional {
-    /**
-     * Uses the {@link BucketArchiverFactory#createDefaultArchiver()} to get its
-     * {@link PathResolver} and retrieve the URI for the bucket as param.
-     * 
-     * @param config
-     * 
-     * @return URI to archived bucket in hadoop.
-     */
-    public static URI getHadoopArchivedBucketURI(ArchiveConfiguration config,
-	    Bucket bucket) {
-	return new PathResolver(config).resolveArchivePath(bucket);
-    }
-
-    /**
-     * @return path resolver used with the default archiver.
-     */
-    public static PathResolver getRealPathResolver() {
-	return BucketArchiverFactory.createConfiguredArchiver()
-		.getPathResolver();
-    }
-
-    /**
-     * @param hadoopPort2
-     * @param hadoopHost2
-     * @return Hadoop {@link FileSystem} configured with shuttl's default host
-     *         and port values.
-     */
-    public static FileSystem getHadoopFileSystem(String hadoopHost,
-	    String hadoopPort) {
-	try {
-	    return FileSystem.get(
-		    URI.create("hdfs://" + hadoopHost + ":" + hadoopPort),
-		    new Configuration());
-	} catch (IOException e) {
-	    e.printStackTrace();
-	    TUtilsTestNG.failForException("Couldn't get Hadoop file system.", e);
-	    return null;
+	/**
+	 * Uses the {@link BucketArchiverFactory#createDefaultArchiver()} to get its
+	 * {@link PathResolver} and retrieve the URI for the bucket as param.
+	 * 
+	 * @param config
+	 * 
+	 * @return URI to archived bucket in hadoop.
+	 */
+	public static URI getHadoopArchivedBucketURI(ArchiveConfiguration config,
+			Bucket bucket) {
+		return new PathResolver(config).resolveArchivePath(bucket);
 	}
-    }
 
-    public static void waitForAsyncArchiving() {
-	try {
-	    Thread.sleep(500);
-	} catch (InterruptedException e) {
-	    e.printStackTrace();
-	    TUtilsTestNG.failForException(
-		    "Got interrupted when waiting for async archiving.", e);
+	/**
+	 * @return path resolver used with the default archiver.
+	 */
+	public static PathResolver getRealPathResolver() {
+		return BucketArchiverFactory.createConfiguredArchiver().getPathResolver();
 	}
-    }
 
-    /**
-     * @return archive configuration for archiving in a temporary folder on the
-     *         local file system with normal {@link BucketFormat.SPLUNK_BUCKET}
-     */
-    public static ArchiveConfiguration getLocalFileSystemConfiguration() {
-	return getLocalFileSystemConfigurationWithFormat(BucketFormat.SPLUNK_BUCKET);
-    }
+	/**
+	 * @param hadoopPort2
+	 * @param hadoopHost2
+	 * @return Hadoop {@link FileSystem} configured with shuttl's default host and
+	 *         port values.
+	 */
+	public static FileSystem getHadoopFileSystem(String hadoopHost,
+			String hadoopPort) {
+		try {
+			return FileSystem.get(
+					URI.create("hdfs://" + hadoopHost + ":" + hadoopPort),
+					new Configuration());
+		} catch (IOException e) {
+			e.printStackTrace();
+			TUtilsTestNG.failForException("Couldn't get Hadoop file system.", e);
+			return null;
+		}
+	}
 
-    /**
-     * @return configuration configurated for using local file system and CSV
-     *         format for buckets.
-     */
-    public static ArchiveConfiguration getLocalCsvArchiveConfigration() {
-	BucketFormat bucketFormat = BucketFormat.CSV;
-	return getLocalFileSystemConfigurationWithFormat(bucketFormat);
-    }
+	public static void waitForAsyncArchiving() {
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			TUtilsTestNG.failForException(
+					"Got interrupted when waiting for async archiving.", e);
+		}
+	}
 
-    private static ArchiveConfiguration getLocalFileSystemConfigurationWithFormat(
-	    BucketFormat bucketFormat) {
-	String archivePath = createTempDirectory().getAbsolutePath();
-	URI archivingRoot = URI.create("file:" + archivePath);
-	URI tmpDirectory = URI.create("file:/tmp");
-	return new ArchiveConfiguration(bucketFormat, archivingRoot,
-		"clusterName", "serverName", asList(bucketFormat), tmpDirectory);
-    }
+	/**
+	 * @return archive configuration for archiving in a temporary folder on the
+	 *         local file system with normal {@link BucketFormat.SPLUNK_BUCKET}
+	 */
+	public static ArchiveConfiguration getLocalFileSystemConfiguration() {
+		return getLocalFileSystemConfigurationWithFormat(BucketFormat.SPLUNK_BUCKET);
+	}
 
-    /**
-     * Archives bucket given a bucket and a bucketArchiver. Method exists to
-     * void duplication between tests that archives buckets.
-     */
-    public static void archiveBucket(final Bucket bucket,
-	    final BucketArchiver bucketArchiver) {
-	archiveBucket(bucket, bucketArchiver, "");
-    }
+	/**
+	 * @return configuration configurated for using local file system and CSV
+	 *         format for buckets.
+	 */
+	public static ArchiveConfiguration getLocalCsvArchiveConfigration() {
+		BucketFormat bucketFormat = BucketFormat.CSV;
+		return getLocalFileSystemConfigurationWithFormat(bucketFormat);
+	}
 
-    /**
-     * Archives bucket given splunkHome, bucket and a bucketArchiver. Method
-     * exists to void duplication between tests that archives buckets.
-     */
-    public static void archiveBucket(final Bucket bucket,
-	    final BucketArchiver bucketArchiver, final String splunkHome) {
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	private static ArchiveConfiguration getLocalFileSystemConfigurationWithFormat(
+			BucketFormat bucketFormat) {
+		String archivePath = createTempDirectory().getAbsolutePath();
+		URI archivingRoot = URI.create("file:" + archivePath);
+		URI tmpDirectory = URI.create("file:/tmp");
+		return new ArchiveConfiguration(bucketFormat, archivingRoot, "clusterName",
+				"serverName", asList(bucketFormat), tmpDirectory);
+	}
 
-	    @Override
-	    public void run() {
-		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			splunkHome);
-		assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
-		bucketArchiver.archiveBucket(bucket);
-	    }
-	});
-    }
+	/**
+	 * Archives bucket given a bucket and a bucketArchiver. Method exists to void
+	 * duplication between tests that archives buckets.
+	 */
+	public static void archiveBucket(final Bucket bucket,
+			final BucketArchiver bucketArchiver) {
+		archiveBucket(bucket, bucketArchiver, "");
+	}
 
-    /**
-     * Delete archiving and temp directory of a config that's configured to
-     * archive on the local file system.
-     */
-    public static void tearDownLocalConfig(ArchiveConfiguration config) {
-	FileUtils.deleteQuietly(new File(config.getArchivingRoot()));
-	FileUtils.deleteQuietly(new File(config.getTmpDirectory()));
-    }
+	/**
+	 * Archives bucket given splunkHome, bucket and a bucketArchiver. Method
+	 * exists to void duplication between tests that archives buckets.
+	 */
+	public static void archiveBucket(final Bucket bucket,
+			final BucketArchiver bucketArchiver, final String splunkHome) {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
+				bucketArchiver.archiveBucket(bucket);
+			}
+		});
+	}
+
+	/**
+	 * Delete archiving and temp directory of a config that's configured to
+	 * archive on the local file system.
+	 */
+	public static void tearDownLocalConfig(ArchiveConfiguration config) {
+		FileUtils.deleteQuietly(new File(config.getArchivingRoot()));
+		FileUtils.deleteQuietly(new File(config.getTmpDirectory()));
+	}
 }

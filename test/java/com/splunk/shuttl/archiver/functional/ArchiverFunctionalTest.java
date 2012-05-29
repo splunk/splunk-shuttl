@@ -37,42 +37,39 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 @Test(groups = { "functional" })
 public class ArchiverFunctionalTest {
 
-    private ArchiveConfiguration config;
-    private BucketArchiver bucketArchiver;
-    private ArchiveFileSystem archiveFileSystem;
+	private ArchiveConfiguration config;
+	private BucketArchiver bucketArchiver;
+	private ArchiveFileSystem archiveFileSystem;
 
-    @BeforeMethod(groups = { "functional" })
-    public void setUp() throws IOException {
-	config = getLocalFileSystemConfiguration();
-	archiveFileSystem = ArchiveFileSystemFactory
-		.getWithConfiguration(config);
-	bucketArchiver = BucketArchiverFactory
-		.createWithConfigurationAndArchiveFileSystem(config,
-			archiveFileSystem);
-    }
+	@BeforeMethod(groups = { "functional" })
+	public void setUp() throws IOException {
+		config = getLocalFileSystemConfiguration();
+		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
+		bucketArchiver = BucketArchiverFactory
+				.createWithConfigurationAndArchiveFileSystem(config, archiveFileSystem);
+	}
 
-    @AfterMethod
-    public void tearDown() throws IOException {
-	tearDownLocalConfig(config);
-    }
+	@AfterMethod
+	public void tearDown() throws IOException {
+		tearDownLocalConfig(config);
+	}
 
-    public void Archiver_givenExistingBucket_archiveIt() throws IOException {
-	Bucket bucket = TUtilsBucket.createTestBucket();
+	public void Archiver_givenExistingBucket_archiveIt() throws IOException {
+		Bucket bucket = TUtilsBucket.createTestBucket();
 
-	bucketArchiver.archiveBucket(bucket);
+		bucketArchiver.archiveBucket(bucket);
 
-	verifyByListingBucketInArchiveFileSystem(bucket);
-    }
+		verifyByListingBucketInArchiveFileSystem(bucket);
+	}
 
-    private void verifyByListingBucketInArchiveFileSystem(Bucket bucket)
-	    throws IOException {
-	URI bucketArchiveUri = bucketArchiver.getPathResolver()
-		.resolveArchivePath(bucket);
-	URI bucketParentUri = new Path(bucketArchiveUri).getParent().toUri();
-	List<URI> urisAtBucketsParent = archiveFileSystem
-		.listPath(bucketParentUri);
-	assertEquals(1, urisAtBucketsParent.size());
-	assertEquals(bucketArchiveUri, urisAtBucketsParent.get(0));
-    }
+	private void verifyByListingBucketInArchiveFileSystem(Bucket bucket)
+			throws IOException {
+		URI bucketArchiveUri = bucketArchiver.getPathResolver().resolveArchivePath(
+				bucket);
+		URI bucketParentUri = new Path(bucketArchiveUri).getParent().toUri();
+		List<URI> urisAtBucketsParent = archiveFileSystem.listPath(bucketParentUri);
+		assertEquals(1, urisAtBucketsParent.size());
+		assertEquals(bucketArchiveUri, urisAtBucketsParent.get(0));
+	}
 
 }

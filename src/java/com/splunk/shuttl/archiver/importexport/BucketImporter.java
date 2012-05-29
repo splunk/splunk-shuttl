@@ -24,36 +24,35 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketImporter {
 
-    private final CsvImporter csvImporter;
+	private final CsvImporter csvImporter;
 
-    /**
-     * @param csvImporter
-     *            to import buckets from CSV to SPLUNK_BUCKET.
-     */
-    public BucketImporter(CsvImporter csvImporter) {
-	this.csvImporter = csvImporter;
-    }
-
-    /**
-     * @param bucket
-     *            to restore to {@link BucketFormat#SPLUNK_BUCKET}.
-     * @return bucket in {@link BucketFormat#SPLUNK_BUCKET}
-     */
-    public Bucket restoreToSplunkBucketFormat(Bucket bucket) {
-	if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)) {
-	    return bucket;
-	} else if (bucket.getFormat().equals(BucketFormat.CSV)) {
-	    return csvImporter.importBucketFromCsv(bucket);
-	} else {
-	    throw new UnsupportedOperationException();
+	/**
+	 * @param csvImporter
+	 *          to import buckets from CSV to SPLUNK_BUCKET.
+	 */
+	public BucketImporter(CsvImporter csvImporter) {
+		this.csvImporter = csvImporter;
 	}
-    }
 
-    /**
-     * Convenience method for creating an instance.
-     */
-    public static BucketImporter create() {
-	return new BucketImporter(CsvImporter.create());
-    }
+	/**
+	 * @param bucket
+	 *          to restore to {@link BucketFormat#SPLUNK_BUCKET}.
+	 * @return bucket in {@link BucketFormat#SPLUNK_BUCKET}
+	 */
+	public Bucket restoreToSplunkBucketFormat(Bucket bucket) {
+		if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET))
+			return bucket;
+		else if (bucket.getFormat().equals(BucketFormat.CSV))
+			return csvImporter.importBucketFromCsv(bucket);
+		else
+			throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Convenience method for creating an instance.
+	 */
+	public static BucketImporter create() {
+		return new BucketImporter(CsvImporter.create());
+	}
 
 }

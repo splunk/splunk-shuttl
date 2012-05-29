@@ -17,7 +17,7 @@ package com.splunk.shuttl.archiver.thaw;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -30,45 +30,51 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketFilter {
 
-    private final static Logger logger = Logger.getLogger(BucketFilter.class);
-    
-    /**
-     * Filters buckets by time range. Returns a list that satisfies the
-     * condition where it's within the time range.
-     * 
-     * @param buckets
-     *            to filter
-     * @param earliest
-     *            in the time range.
-     * @param latest
-     *            in the time range.
-     * @return list of buckets that's within this time range.
-     */
-    public List<Bucket> filterBucketsByTimeRange(List<Bucket> buckets,
-	    Date earliest, Date latest) {
-	if (earliest.after(latest)) {
-	    logger.warn(warn("Filtered buckets by time range",
-		    "Earliest time was later than latest time",
-		    "Filtered all buckets", "earliest_time", earliest,
-		    "latest_time", latest));
-	    return Arrays.asList();
-	}
-	ArrayList<Bucket> filteredBuckets = new ArrayList<Bucket>();
-	for (Bucket bucket : buckets) {
-	    if (isBucketWithinTimeRange(bucket, earliest, latest)) {
-		filteredBuckets.add(bucket);
-	    }
-	}
-	return filteredBuckets;
-    }
+	private final static Logger logger = Logger.getLogger(BucketFilter.class);
 
-    private boolean isBucketWithinTimeRange(Bucket bucket, Date earliest,
-	    Date latest) {
-	if (bucket.getLatest().before(earliest))
-	    return false;
-	if (bucket.getEarliest().after(latest))
-	    return false;
-	return true;
-    }
+	/**
+	 * Filters buckets by time range. Returns a list that satisfies the condition
+	 * where it's within the time range.
+	 * 
+	 * @param buckets
+	 *          to filter
+	 * @param earliest
+	 *          in the time range.
+	 * @param latest
+	 *          in the time range.
+	 * @return list of buckets that's within this time range.
+	 */
+	public List<Bucket> filterBucketsByTimeRange(List<Bucket> buckets,
+			Date earliest, Date latest) {
+		if (earliest.after(latest))
+			return emptyListWithLogWarning(earliest, latest);
+		else
+			return filterBucketsWithinTimeRange(buckets, earliest, latest);
+	}
+
+	private List<Bucket> filterBucketsWithinTimeRange(List<Bucket> buckets,
+			Date earliest, Date latest) {
+		ArrayList<Bucket> filteredBuckets = new ArrayList<Bucket>();
+		for (Bucket bucket : buckets)
+			if (isBucketWithinTimeRange(bucket, earliest, latest))
+				filteredBuckets.add(bucket);
+		return filteredBuckets;
+	}
+
+	private boolean isBucketWithinTimeRange(Bucket bucket, Date earliest,
+			Date latest) {
+		if (bucket.getLatest().before(earliest))
+			return false;
+		if (bucket.getEarliest().after(latest))
+			return false;
+		return true;
+	}
+
+	private List<Bucket> emptyListWithLogWarning(Date earliest, Date latest) {
+		logger.warn(warn("Filtered buckets by time range",
+				"Earliest time was later than latest time", "Filtered all buckets",
+				"earliest_time", earliest, "latest_time", latest));
+		return Collections.emptyList();
+	}
 
 }

@@ -18,17 +18,17 @@ import org.testng.annotations.BeforeSuite;
 
 public class EndToEndTestSetUp {
 
-    @BeforeSuite(groups = { "end-to-end" })
-    public void setUp() {
-	System.out.println("Waiting for server to start "
-		+ "before running end-to-end tests.");
-	waitForServerToStart();
-    }
-
-    private void waitForServerToStart() {
-	try {
-	    Thread.sleep(3000);
-	} catch (InterruptedException e) {
+	@BeforeSuite(groups = { "end-to-end" })
+	public void setUp() {
+		System.out.println("Waiting for server to start "
+				+ "before running end-to-end tests.");
+		waitForServerToStart();
 	}
-    }
+
+	private void waitForServerToStart() {
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+		}
+	}
 }

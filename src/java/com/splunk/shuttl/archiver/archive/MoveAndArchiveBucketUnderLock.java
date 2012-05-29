@@ -27,38 +27,38 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class MoveAndArchiveBucketUnderLock implements SharedLockBucketHandler {
 
-    private final BucketMover bucketMover;
-    private final ArchiveRestHandler archiveRestHandler;
+	private final BucketMover bucketMover;
+	private final ArchiveRestHandler archiveRestHandler;
 
-    /**
-     * @param bucketMover
-     * @param archiveRestHandler
-     */
-    public MoveAndArchiveBucketUnderLock(BucketMover bucketMover,
-	    ArchiveRestHandler archiveRestHandler) {
-	this.bucketMover = bucketMover;
-	this.archiveRestHandler = archiveRestHandler;
-    }
+	/**
+	 * @param bucketMover
+	 * @param archiveRestHandler
+	 */
+	public MoveAndArchiveBucketUnderLock(BucketMover bucketMover,
+			ArchiveRestHandler archiveRestHandler) {
+		this.bucketMover = bucketMover;
+		this.archiveRestHandler = archiveRestHandler;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.splunk.shuttl.archiver.archive.recovery.BucketLocker.LockedBucketHandler
-     * #handleLockedBucket(com.splunk.shuttl.archiver.model.Bucket)
-     */
-    @Override
-    public void handleSharedLockedBucket(Bucket bucket) {
-	moveThenArchiveBucket(bucket);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.splunk.shuttl.archiver.archive.recovery.BucketLocker.LockedBucketHandler
+	 * #handleLockedBucket(com.splunk.shuttl.archiver.model.Bucket)
+	 */
+	@Override
+	public void handleSharedLockedBucket(Bucket bucket) {
+		moveThenArchiveBucket(bucket);
+	}
 
-    /**
-     * @param bucket
-     *            to move and archive
-     */
-    public void moveThenArchiveBucket(Bucket bucket) {
-	Bucket movedBucket = bucketMover.moveBucket(bucket);
-	archiveRestHandler.callRestToArchiveBucket(movedBucket);
-    }
+	/**
+	 * @param bucket
+	 *          to move and archive
+	 */
+	public void moveThenArchiveBucket(Bucket bucket) {
+		Bucket movedBucket = bucketMover.moveBucket(bucket);
+		archiveRestHandler.callRestToArchiveBucket(movedBucket);
+	}
 
 }

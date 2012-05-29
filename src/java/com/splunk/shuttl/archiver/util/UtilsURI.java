@@ -24,37 +24,37 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class UtilsURI {
 
-    /**
-     * Trim eventual ending {@link File#separator}.<br/>
-     * Ex:<br/>
-     * 
-     * <pre>
-     * "file:/a/b/c" -> "/a/b/c"
-     * "file:/a/b/c/" -> "/a/b/c"
-     * "file:/a/b/c.txt" -> "/a/b/c.txt"
-     * </pre>
-     */
-    public static String getPathByTrimmingEndingFileSeparator(URI uri) {
-	String path = uri.getPath();
-	if (path.endsWith(File.separator))
-	    return path.substring(0, path.length() - 1);
-	else
-	    return path;
-    }
+	/**
+	 * Trim eventual ending {@link File#separator}.<br/>
+	 * Ex:<br/>
+	 * 
+	 * <pre>
+	 * "file:/a/b/c" -> "/a/b/c"
+	 * "file:/a/b/c/" -> "/a/b/c"
+	 * "file:/a/b/c.txt" -> "/a/b/c.txt"
+	 * </pre>
+	 */
+	public static String getPathByTrimmingEndingFileSeparator(URI uri) {
+		String path = uri.getPath();
+		if (path.endsWith(File.separator))
+			return path.substring(0, path.length() - 1);
+		else
+			return path;
+	}
 
-    /**
-     * Trim eventual ending {@link File#separator} and return base name.<br/>
-     * Ex:<br/>
-     * 
-     * <pre>
-     * "file:/a/b/c" -> "c"
-     * "file:/a/b/c/" -> "c"
-     * "file:/a/b/c.txt" -> "c.txt"
-     * </pre>
-     */
-    public static String getFileNameWithTrimmedEndingFileSeparator(URI uri) {
-	String path = getPathByTrimmingEndingFileSeparator(uri);
-	return FilenameUtils.getName(path);
-    }
+	/**
+	 * Trim eventual ending {@link File#separator} and return base name.<br/>
+	 * Ex:<br/>
+	 * 
+	 * <pre>
+	 * "file:/a/b/c" -> "c"
+	 * "file:/a/b/c/" -> "c"
+	 * "file:/a/b/c.txt" -> "c.txt"
+	 * </pre>
+	 */
+	public static String getFileNameWithTrimmedEndingFileSeparator(URI uri) {
+		String path = getPathByTrimmingEndingFileSeparator(uri);
+		return FilenameUtils.getName(path);
+	}
 
 }

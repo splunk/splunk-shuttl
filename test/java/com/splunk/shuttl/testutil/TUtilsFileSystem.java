@@ -29,33 +29,32 @@ import org.apache.hadoop.fs.Path;
  */
 public class TUtilsFileSystem {
 
-    /**
-     * Creates a local filesystem failing the test if it can't.
-     */
-    public static FileSystem getLocalFileSystem() {
-	Configuration configuration = new Configuration();
-	try {
-	    return FileSystem.getLocal(configuration);
-	} catch (IOException e) {
-	    TUtilsTestNG.failForException("Couldn't create a local filesystem",
-		    e);
-	    return null; // Will not be executed.
+	/**
+	 * Creates a local filesystem failing the test if it can't.
+	 */
+	public static FileSystem getLocalFileSystem() {
+		Configuration configuration = new Configuration();
+		try {
+			return FileSystem.getLocal(configuration);
+		} catch (IOException e) {
+			TUtilsTestNG.failForException("Couldn't create a local filesystem", e);
+			return null; // Will not be executed.
+		}
 	}
-    }
 
-    /**
-     * @return The file on specified path from specified filessystem.
-     */
-    public static File getFileFromFileSystem(FileSystem fileSystem,
-	    Path pathOftheFileOnRemote) {
-	File retrivedFile = TUtilsFile.createTestFilePath();
-	Path localFilePath = new Path(retrivedFile.toURI());
-	try {
-	    fileSystem.copyToLocalFile(pathOftheFileOnRemote, localFilePath);
-	} catch (IOException e) {
-	    TUtilsTestNG.failForException(
-		    "Can't retrive the file from remote filesystem", e);
+	/**
+	 * @return The file on specified path from specified filessystem.
+	 */
+	public static File getFileFromFileSystem(FileSystem fileSystem,
+			Path pathOftheFileOnRemote) {
+		File retrivedFile = TUtilsFile.createTestFilePath();
+		Path localFilePath = new Path(retrivedFile.toURI());
+		try {
+			fileSystem.copyToLocalFile(pathOftheFileOnRemote, localFilePath);
+		} catch (IOException e) {
+			TUtilsTestNG.failForException(
+					"Can't retrive the file from remote filesystem", e);
+		}
+		return retrivedFile;
 	}
-	return retrivedFile;
-    }
 }

@@ -34,77 +34,77 @@ import org.apache.hadoop.fs.Path;
  */
 public class HadoopFileSystemPutter {
 
-    public static class LocalFileNotFound extends RuntimeException {
-	private static final long serialVersionUID = 1L;
-    }
-
-    private final FileSystem fileSystem;
-
-    public HadoopFileSystemPutter(FileSystem fileSystem) {
-	this.fileSystem = fileSystem;
-    }
-
-    public void putFile(File source) {
-	if (!source.exists())
-	    throw new LocalFileNotFound();
-	else
-	    putFileOnHadoopFileSystemHandlingIOExceptions(source);
-    }
-
-    private void putFileOnHadoopFileSystemHandlingIOExceptions(File src) {
-	try {
-	    fileSystem.copyFromLocalFile(new Path(src.getPath()),
-		    getSafePathOnFileSystemForFile(src));
-	} catch (IOException e) {
-	    throw new RuntimeException(e);
+	public static class LocalFileNotFound extends RuntimeException {
+		private static final long serialVersionUID = 1L;
 	}
-    }
 
-    private Path getSafePathOnFileSystemForFile(File src) {
-	Path safeDirectory = getSafePathForClassPuttingFile();
-	return new Path(safeDirectory, src.getName());
-    }
+	private final FileSystem fileSystem;
 
-    private Path getSafePathForClassPuttingFile() {
-	Class<?> callerToThisMethod = MethodCallerHelper.getCallerToMyMethod();
-	Path safeDirectory = TUtilsPath.getSafeDirectory(fileSystem,
-		callerToThisMethod);
-	return safeDirectory;
-    }
-
-    public boolean isFileCopiedToFileSystem(File file) {
-	try {
-	    return fileSystem.exists(getSafePathOnFileSystemForFile(file));
-	} catch (IOException e) {
-	    throw new RuntimeException(e);
+	public HadoopFileSystemPutter(FileSystem fileSystem) {
+		this.fileSystem = fileSystem;
 	}
-    }
 
-    public Path getPathOfMyFiles() {
-	return getSafePathForClassPuttingFile();
-    }
-
-    public void deleteMyFiles() {
-	deletePathOnHadoopFileSystemHandlingIOException(getPathOfMyFiles());
-    }
-
-    private void deletePathOnHadoopFileSystemHandlingIOException(Path filesDir) {
-	try {
-	    fileSystem.delete(filesDir, true);
-	} catch (IOException e) {
-	    throw new RuntimeException(e);
+	public void putFile(File source) {
+		if (!source.exists())
+			throw new LocalFileNotFound();
+		else
+			putFileOnHadoopFileSystemHandlingIOExceptions(source);
 	}
-    }
 
-    public Path getPathForFile(File file) {
-	return getSafePathOnFileSystemForFile(file);
-    }
+	private void putFileOnHadoopFileSystemHandlingIOExceptions(File src) {
+		try {
+			fileSystem.copyFromLocalFile(new Path(src.getPath()),
+					getSafePathOnFileSystemForFile(src));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public static HadoopFileSystemPutter create(FileSystem fileSystem) {
-	return new HadoopFileSystemPutter(fileSystem);
-    }
+	private Path getSafePathOnFileSystemForFile(File src) {
+		Path safeDirectory = getSafePathForClassPuttingFile();
+		return new Path(safeDirectory, src.getName());
+	}
 
-    public Path getPathForFileName(String fileName) {
-	return getPathForFile(new File(fileName));
-    }
+	private Path getSafePathForClassPuttingFile() {
+		Class<?> callerToThisMethod = MethodCallerHelper.getCallerToMyMethod();
+		Path safeDirectory = TUtilsPath.getSafeDirectory(fileSystem,
+				callerToThisMethod);
+		return safeDirectory;
+	}
+
+	public boolean isFileCopiedToFileSystem(File file) {
+		try {
+			return fileSystem.exists(getSafePathOnFileSystemForFile(file));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Path getPathOfMyFiles() {
+		return getSafePathForClassPuttingFile();
+	}
+
+	public void deleteMyFiles() {
+		deletePathOnHadoopFileSystemHandlingIOException(getPathOfMyFiles());
+	}
+
+	private void deletePathOnHadoopFileSystemHandlingIOException(Path filesDir) {
+		try {
+			fileSystem.delete(filesDir, true);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Path getPathForFile(File file) {
+		return getSafePathOnFileSystemForFile(file);
+	}
+
+	public static HadoopFileSystemPutter create(FileSystem fileSystem) {
+		return new HadoopFileSystemPutter(fileSystem);
+	}
+
+	public Path getPathForFileName(String fileName) {
+		return getPathForFile(new File(fileName));
+	}
 }

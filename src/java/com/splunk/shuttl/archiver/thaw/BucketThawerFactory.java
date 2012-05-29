@@ -28,71 +28,70 @@ import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
  */
 public class BucketThawerFactory {
 
-    public static BucketThawer createDefaultThawer() {
-	Service splunkService = getLoggedInSplunkService();
-	SplunkSettings splunkSettings = getSplunkSettings(splunkService);
-	ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-	return createWithSplunkSettingsAndConfig(splunkSettings, config);
-    }
+	public static BucketThawer createDefaultThawer() {
+		Service splunkService = getLoggedInSplunkService();
+		SplunkSettings splunkSettings = getSplunkSettings(splunkService);
+		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
+		return createWithSplunkSettingsAndConfig(splunkSettings, config);
+	}
 
-    public static BucketThawer createWithSplunkSettingsAndConfig(
-	    SplunkSettings splunkSettings, ArchiveConfiguration configuration) {
-	ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
-		.getWithConfiguration(configuration);
-	PathResolver pathResolver = new PathResolver(configuration);
+	public static BucketThawer createWithSplunkSettingsAndConfig(
+			SplunkSettings splunkSettings, ArchiveConfiguration configuration) {
+		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
+				.getWithConfiguration(configuration);
+		PathResolver pathResolver = new PathResolver(configuration);
 
-	ArchiveBucketsLister bucketsLister = bucketLister(archiveFileSystem,
-		pathResolver);
-	BucketFilter bucketFilter = new BucketFilter();
-	BucketFormatResolver bucketFormatResolver = getBucketFormatResolver(
-		archiveFileSystem, configuration, pathResolver);
-	ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
-		archiveFileSystem, splunkSettings);
-	return new BucketThawer(bucketsLister, bucketFilter,
-		bucketFormatResolver, thawBucketTransferer,
-		BucketImporter.create());
-    }
+		ArchiveBucketsLister bucketsLister = bucketLister(archiveFileSystem,
+				pathResolver);
+		BucketFilter bucketFilter = new BucketFilter();
+		BucketFormatResolver bucketFormatResolver = getBucketFormatResolver(
+				archiveFileSystem, configuration, pathResolver);
+		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
+				archiveFileSystem, splunkSettings);
+		return new BucketThawer(bucketsLister, bucketFilter, bucketFormatResolver,
+				thawBucketTransferer, BucketImporter.create());
+	}
 
-    private static ArchiveBucketsLister bucketLister(
-	    ArchiveFileSystem archiveFileSystem, PathResolver pathResolver) {
-	ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
-		pathResolver, archiveFileSystem);
-	ArchiveBucketsLister bucketsLister = new ArchiveBucketsLister(
-		archiveFileSystem, indexesLister, pathResolver);
-	return bucketsLister;
-    }
+	private static ArchiveBucketsLister bucketLister(
+			ArchiveFileSystem archiveFileSystem, PathResolver pathResolver) {
+		ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
+				pathResolver, archiveFileSystem);
+		ArchiveBucketsLister bucketsLister = new ArchiveBucketsLister(
+				archiveFileSystem, indexesLister, pathResolver);
+		return bucketsLister;
+	}
 
-    private static BucketFormatResolver getBucketFormatResolver(
-	    ArchiveFileSystem archiveFileSystem,
-	    ArchiveConfiguration archiveConfiguration, PathResolver pathResolver) {
-	BucketFormatChooser bucketFormatChooser = new BucketFormatChooser(
-		archiveConfiguration);
-	BucketFormatResolver bucketFormatResolver = new BucketFormatResolver(
-		pathResolver, archiveFileSystem, bucketFormatChooser);
-	return bucketFormatResolver;
-    }
+	private static BucketFormatResolver getBucketFormatResolver(
+			ArchiveFileSystem archiveFileSystem,
+			ArchiveConfiguration archiveConfiguration, PathResolver pathResolver) {
+		BucketFormatChooser bucketFormatChooser = new BucketFormatChooser(
+				archiveConfiguration);
+		BucketFormatResolver bucketFormatResolver = new BucketFormatResolver(
+				pathResolver, archiveFileSystem, bucketFormatChooser);
+		return bucketFormatResolver;
+	}
 
-    private static ThawBucketTransferer getThawBucketTransferer(
-	    ArchiveFileSystem archiveFileSystem, SplunkSettings splunkSettings) {
-	ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
-		splunkSettings);
-	ThawBucketTransferer thawBucketTransferer = new ThawBucketTransferer(
-		thawLocationProvider, archiveFileSystem);
-	return thawBucketTransferer;
-    }
+	private static ThawBucketTransferer getThawBucketTransferer(
+			ArchiveFileSystem archiveFileSystem, SplunkSettings splunkSettings) {
+		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
+				splunkSettings);
+		ThawBucketTransferer thawBucketTransferer = new ThawBucketTransferer(
+				thawLocationProvider, archiveFileSystem);
+		return thawBucketTransferer;
+	}
 
-    // TODO: Communicating with splunk through splunk home is not nice.
-    // CONFIG
-    private static Service getLoggedInSplunkService() {
-	Service splunkService = new Service("localhost", 8089);
-	splunkService.login("admin", "changeme");
-	return splunkService;
-    }
+	// TODO: Communicating with splunk through splunk home is not nice.
+	// CONFIG
+	private static Service getLoggedInSplunkService() {
+		Service splunkService = new Service("localhost", 8089);
+		splunkService.login("admin", "changeme");
+		return splunkService;
+	}
 
-    /**
-     * @return
-     */
-    public static SplunkSettings getSplunkSettings(Service splunkService) {
-	return new SplunkSettings(splunkService);
-    }
+	/**
+	 * @return
+	 */
+	public static SplunkSettings getSplunkSettings(Service splunkService) {
+		return new SplunkSettings(splunkService);
+	}
 }

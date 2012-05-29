@@ -24,7 +24,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -34,15 +33,14 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 @Test(groups = { "fast-unit" })
 public class ArchiveRestHandlerRecoveryTest {
 
-    @Test(groups = { "fast-unit" })
-    public void recoverFailedBucket_givenHttpClient_executeRequestOnFailedBucket()
-	    throws ClientProtocolException, IOException {
-	Bucket bucket = TUtilsBucket.createTestBucket();
-	HttpClient httpClient = mock(HttpClient.class);
-	ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-		httpClient);
-	archiveRestHandler.handleSharedLockedBucket(bucket);
+	@Test(groups = { "fast-unit" })
+	public void recoverFailedBucket_givenHttpClient_executeRequestOnFailedBucket()
+			throws ClientProtocolException, IOException {
+		Bucket bucket = TUtilsBucket.createTestBucket();
+		HttpClient httpClient = mock(HttpClient.class);
+		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(httpClient);
+		archiveRestHandler.handleSharedLockedBucket(bucket);
 
-	verify(httpClient).execute(any(HttpUriRequest.class));
-    }
+		verify(httpClient).execute(any(HttpUriRequest.class));
+	}
 }

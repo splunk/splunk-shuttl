@@ -32,45 +32,44 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class ArchiveBucketTransferer {
 
-    private final ArchiveFileSystem archiveFileSystem;
-    private final static Logger logger = Logger
-	    .getLogger(ArchiveBucketTransferer.class);
+	private final ArchiveFileSystem archiveFileSystem;
+	private final static Logger logger = Logger
+			.getLogger(ArchiveBucketTransferer.class);
 
-    public ArchiveBucketTransferer(ArchiveFileSystem archive) {
-	archiveFileSystem = archive;
-    }
-
-    /**
-     * Transfers the bucket and its content to the archive.
-     * 
-     * @param bucket
-     *            to transfer to {@link ArchiveFileSystem}
-     * @param destination
-     *            on the {@link ArchiveFileSystem}
-     */
-    public void transferBucketToArchive(Bucket bucket, URI destination) {
-	logger.info(will("attempting to transfer bucket to archive", "bucket",
-		bucket, "destination", destination));
-	try {
-	    archiveFileSystem.putFileAtomically(bucket.getDirectory(), destination);
-	} catch (FileNotFoundException e) {
-	    logger.error(did("attempted to transfer bucket to archive",
-		    "bucket path does not exist", "success", "bucket", bucket,
-		    "destination", destination, "exception", e));
-	    throw new RuntimeException(e);
-	} catch (FileOverwriteException e) {
-	    logger.error(did(
-		    "attempted to transfer bucket to archive",
-		    "a bucket with the same path already exists on the filesystem",
-		    "success", "bucket", bucket, "destination", destination,
-		    "exception", e));
-	    throw new RuntimeException(e);
-	} catch (IOException e) {
-	    logger.error(did("attempted to transfer bucket to archive",
-		    "IOException raised", "success", "bucket", bucket,
-		    "destination", destination, "exception", e));
-	    throw new RuntimeException(e);
+	public ArchiveBucketTransferer(ArchiveFileSystem archive) {
+		archiveFileSystem = archive;
 	}
-    }
+
+	/**
+	 * Transfers the bucket and its content to the archive.
+	 * 
+	 * @param bucket
+	 *          to transfer to {@link ArchiveFileSystem}
+	 * @param destination
+	 *          on the {@link ArchiveFileSystem}
+	 */
+	public void transferBucketToArchive(Bucket bucket, URI destination) {
+		logger.info(will("attempting to transfer bucket to archive", "bucket",
+				bucket, "destination", destination));
+		try {
+			archiveFileSystem.putFileAtomically(bucket.getDirectory(), destination);
+		} catch (FileNotFoundException e) {
+			logger.error(did("attempted to transfer bucket to archive",
+					"bucket path does not exist", "success", "bucket", bucket,
+					"destination", destination, "exception", e));
+			throw new RuntimeException(e);
+		} catch (FileOverwriteException e) {
+			logger.error(did("attempted to transfer bucket to archive",
+					"a bucket with the same path already exists on the filesystem",
+					"success", "bucket", bucket, "destination", destination, "exception",
+					e));
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			logger.error(did("attempted to transfer bucket to archive",
+					"IOException raised", "success", "bucket", bucket, "destination",
+					destination, "exception", e));
+			throw new RuntimeException(e);
+		}
+	}
 
 }

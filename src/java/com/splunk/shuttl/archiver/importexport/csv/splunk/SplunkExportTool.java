@@ -14,15 +14,14 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.importexport.csv.splunk;
 
-
 /**
  * Calls Splunk's exporttool for exporting a bucket to a new format. I.e. csv
  */
 public class SplunkExportTool extends SplunkTool {
 
-    @Override
-    public String getToolName() {
-	return "exporttool";
-    }
+	@Override
+	public String getToolName() {
+		return "exporttool";
+	}
 
 }

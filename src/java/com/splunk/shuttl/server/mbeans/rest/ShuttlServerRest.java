@@ -43,132 +43,130 @@ import com.splunk.shuttl.server.model.ServerConf;
 // @Path("/server")
 @Path(ENDPOINT_SERVER)
 public class ShuttlServerRest {
-    private org.apache.log4j.Logger logger = Logger.getLogger(getClass());
-    
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path(ENDPOINT_DEFAULT_HOST)
-    public String getDefHadoopClusterHostText() {
-	String logMessage = String.format(
-		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-		ENDPOINT_SERVER, ENDPOINT_DEFAULT_HOST);
-	ShuttlMetricsHelper.update(logger, logMessage);
+	private org.apache.log4j.Logger logger = Logger.getLogger(getClass());
 
-	try {
-	    return (getProxy().getDefHadoopClusterHost());
-	} catch (Exception e) {
-	    logger.error(e);
-	    throw new ShuttlRestException(e.getMessage());
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path(ENDPOINT_DEFAULT_HOST)
+	public String getDefHadoopClusterHostText() {
+		String logMessage = String.format(
+				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+				ENDPOINT_SERVER, ENDPOINT_DEFAULT_HOST);
+		ShuttlMetricsHelper.update(logger, logMessage);
+
+		try {
+			return (getProxy().getDefHadoopClusterHost());
+		} catch (Exception e) {
+			logger.error(e);
+			throw new ShuttlRestException(e.getMessage());
+		}
 	}
-    }
 
-    // for debugging using browsers
-    @GET
-    @Produces(MediaType.TEXT_HTML)
-    @Path(ENDPOINT_DEFAULT_HOST)
-    public String getDefHadoopClusterHostHTML() {
-	String logMessage = String.format(
-		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-		ENDPOINT_SERVER, ENDPOINT_DEFAULT_HOST);
-	ShuttlMetricsHelper.update(logger, logMessage);
+	// for debugging using browsers
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	@Path(ENDPOINT_DEFAULT_HOST)
+	public String getDefHadoopClusterHostHTML() {
+		String logMessage = String.format(
+				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+				ENDPOINT_SERVER, ENDPOINT_DEFAULT_HOST);
+		ShuttlMetricsHelper.update(logger, logMessage);
 
-	try {
-	    return "<html> " + "<title>" + "Shuttl Rest Endpoint" + "</title>"
-		    + "<body><h1>" + getProxy().getDefHadoopClusterHost()
-		+ "</body></h1>" + "</html> ";
-	} catch (Exception e) {
-	    logger.error(e);
-	    throw new ShuttlRestException(e.getMessage());
+		try {
+			return "<html> " + "<title>" + "Shuttl Rest Endpoint" + "</title>"
+					+ "<body><h1>" + getProxy().getDefHadoopClusterHost()
+					+ "</body></h1>" + "</html> ";
+		} catch (Exception e) {
+			logger.error(e);
+			throw new ShuttlRestException(e.getMessage());
+		}
 	}
-    }
 
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path(ENDPOINT_DEFAULT_PORT)
-    public String getDefHadoopClusterPortText() {
-	String logMessage = String.format(
-		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-		ENDPOINT_SERVER, ENDPOINT_DEFAULT_PORT);
-	ShuttlMetricsHelper.update(logger, logMessage);
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path(ENDPOINT_DEFAULT_PORT)
+	public String getDefHadoopClusterPortText() {
+		String logMessage = String.format(
+				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+				ENDPOINT_SERVER, ENDPOINT_DEFAULT_PORT);
+		ShuttlMetricsHelper.update(logger, logMessage);
 
-	try {
-	    return (Integer.toString(getProxy().getDefHadoopClusterPort()));
-	} catch (Exception e) {
-	    logger.error(e);
-	    throw new ShuttlRestException(e.getMessage());
+		try {
+			return (Integer.toString(getProxy().getDefHadoopClusterPort()));
+		} catch (Exception e) {
+			logger.error(e);
+			throw new ShuttlRestException(e.getMessage());
+		}
 	}
-    }
 
-    // for debugging using browsers
-    @GET
-    @Produces(MediaType.TEXT_HTML) 
-    @Path(ENDPOINT_DEFAULT_PORT)
-    public String getDefHadoopClusterPortHTML() { 
-	String logMessage = String.format(
-		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-		ENDPOINT_SERVER, ENDPOINT_DEFAULT_PORT);
-	ShuttlMetricsHelper.update(logger, logMessage);
+	// for debugging using browsers
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	@Path(ENDPOINT_DEFAULT_PORT)
+	public String getDefHadoopClusterPortHTML() {
+		String logMessage = String.format(
+				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+				ENDPOINT_SERVER, ENDPOINT_DEFAULT_PORT);
+		ShuttlMetricsHelper.update(logger, logMessage);
 
-	try {
-	    return "<html> " + "<title>" + "Shuttl Rest Endpoint" + "</title>"
-		    + "<body><h1>" + getProxy().getDefHadoopClusterPort()
-		+"</body></h1>" + "</html> "; 
-	} catch (Exception e) {
-	    logger.error(e);
-	    throw new ShuttlRestException(e.getMessage());
+		try {
+			return "<html> " + "<title>" + "Shuttl Rest Endpoint" + "</title>"
+					+ "<body><h1>" + getProxy().getDefHadoopClusterPort()
+					+ "</body></h1>" + "</html> ";
+		} catch (Exception e) {
+			logger.error(e);
+			throw new ShuttlRestException(e.getMessage());
+		}
 	}
-    }
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/ServerConfiguration")
-    public ServerConf getServerConfiguration() {
-	try {
-	    ShuttlServerMBean mbean = getProxy();
-	    return mbean.getServerConf();
-	} catch (Exception e) {
-	    logger.error(e);
-	    throw new ShuttlRestException(e.getMessage());
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/ServerConfiguration")
+	public ServerConf getServerConfiguration() {
+		try {
+			ShuttlServerMBean mbean = getProxy();
+			return mbean.getServerConf();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new ShuttlRestException(e.getMessage());
+		}
 	}
-    }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/setServerConfiguration")
-    public void setServerConfiguration(ServerConf conf) {
-	try {
-	    ShuttlServerMBean mbean = getProxy();
-	    mbean.setServerConf(conf);
-	} catch (Exception e) {
-	    logger.error(e);
-	    throw new ShuttlRestException(e.getMessage());
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/setServerConfiguration")
+	public void setServerConfiguration(ServerConf conf) {
+		try {
+			ShuttlServerMBean mbean = getProxy();
+			mbean.setServerConf(conf);
+		} catch (Exception e) {
+			logger.error(e);
+			throw new ShuttlRestException(e.getMessage());
+		}
 	}
-    }
 
-    // hack for HADOOP-254. Remove before GA
-    // will generate a warning about a GET being void during runtime
-    // TODO
-    @GET
-    @Produces(MediaType.TEXT_HTML)
-    @Path(ENDPOINT_SHUTDOWN)
-    public void shutdownHTML() {
-	String logMessage = String.format(
-		" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-		ENDPOINT_SERVER, ENDPOINT_SHUTDOWN);
-	ShuttlMetricsHelper.update(logger, logMessage);
+	// hack for HADOOP-254. Remove before GA
+	// will generate a warning about a GET being void during runtime
+	// TODO
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	@Path(ENDPOINT_SHUTDOWN)
+	public void shutdownHTML() {
+		String logMessage = String.format(
+				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
+				ENDPOINT_SERVER, ENDPOINT_SHUTDOWN);
+		ShuttlMetricsHelper.update(logger, logMessage);
 
-	logger.info("Shuttl shutting down ..");
-	System.exit(0);
-    }
+		logger.info("Shuttl shutting down ..");
+		System.exit(0);
+	}
 
-    private ShuttlServerMBean getProxy() throws Exception {
-	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-	ObjectName name = new ObjectName("com.splunk.shuttl.mbeans:type=Server");
-	ShuttlServerMBean proxy = (com.splunk.shuttl.server.mbeans.ShuttlServerMBean) JMX
-		.newMBeanProxy(mbs, name,
-			com.splunk.shuttl.server.mbeans.ShuttlServerMBean.class);
-	return (proxy);
-    }
-
+	private ShuttlServerMBean getProxy() throws Exception {
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		ObjectName name = new ObjectName("com.splunk.shuttl.mbeans:type=Server");
+		ShuttlServerMBean proxy = JMX.newMBeanProxy(mbs, name,
+				com.splunk.shuttl.server.mbeans.ShuttlServerMBean.class);
+		return (proxy);
+	}
 
 }

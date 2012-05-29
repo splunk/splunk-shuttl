@@ -26,10 +26,10 @@ import javax.ws.rs.core.Response;
  * 
  */
 public class ShuttlRestException extends WebApplicationException {
-    static final long serialVersionUID = 213;
-    
-    public ShuttlRestException(String message) {
-	super(Response.status(500).entity(message).type(MediaType.TEXT_PLAIN)
-		.build());
-    }
+	static final long serialVersionUID = 213;
+
+	public ShuttlRestException(String message) {
+		super(Response.status(500).entity(message).type(MediaType.TEXT_PLAIN)
+				.build());
+	}
 }

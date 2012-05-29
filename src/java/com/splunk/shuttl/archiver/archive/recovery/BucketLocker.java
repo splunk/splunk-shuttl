@@ -22,51 +22,50 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketLocker {
 
-    /**
-     * LockedBucketHandler is not executed if the bucket cannot be locked
-     * exclusively first, and then converting the lock to being shared.
-     * 
-     * @return true if bucketHandler was called.
-     */
-    public boolean callBucketHandlerUnderSharedLock(Bucket bucket,
-	    SharedLockBucketHandler bucketHandler) {
-	return callBucketHandlerWithBucketSharedLock(new BucketLock(bucket),
-		bucket, bucketHandler);
-    }
-
-    /**
-     * Method exists for verifying that {@link BucketLock} is closed, whether it
-     * gets the lock or not.
-     * 
-     * @return true if handler was run.
-     */
-    /* package-private */boolean callBucketHandlerWithBucketSharedLock(
-	    BucketLock bucketLock, Bucket bucket,
-	    SharedLockBucketHandler bucketHandler) {
-	try {
-	    if (bucketLock.tryLockExclusive()) {
-		if (bucketLock.tryConvertExclusiveToSharedLock()) {
-		    bucketHandler.handleSharedLockedBucket(bucket);
-		    return true;
-		}
-	    }
-	} finally {
-	    bucketLock.closeLock();
+	/**
+	 * LockedBucketHandler is not executed if the bucket cannot be locked
+	 * exclusively first, and then converting the lock to being shared.
+	 */
+	public void callBucketHandlerUnderSharedLock(Bucket bucket,
+			SharedLockBucketHandler bucketHandler) {
+		callBucketHandlerWithBucketSharedLock(new BucketLock(bucket), bucket,
+				bucketHandler);
 	}
-	return false;
-    }
-
-    /**
-     * Interface for operating on a {@link Bucket} while it's locked with
-     * {@link BucketLock}.
-     */
-    public interface SharedLockBucketHandler {
 
 	/**
-	 * Do operations on a {@link Bucket} while it's locked with a
+	 * Method exists for verifying that {@link BucketLock} is closed, whether it
+	 * gets the lock or not.
+	 */
+	/* package-private */void callBucketHandlerWithBucketSharedLock(
+			BucketLock bucketLock, Bucket bucket,
+			SharedLockBucketHandler bucketHandler) {
+		try {
+			executeBucketHandlerIfSharedLockIsAcquired(bucketLock, bucket,
+					bucketHandler);
+		} finally {
+			bucketLock.closeLock();
+		}
+	}
+
+	private void executeBucketHandlerIfSharedLockIsAcquired(
+			BucketLock bucketLock, Bucket bucket,
+			SharedLockBucketHandler bucketHandler) {
+		if (bucketLock.tryLockExclusive())
+			if (bucketLock.tryConvertExclusiveToSharedLock())
+				bucketHandler.handleSharedLockedBucket(bucket);
+	}
+
+	/**
+	 * Interface for operating on a {@link Bucket} while it's locked with
 	 * {@link BucketLock}.
 	 */
-	void handleSharedLockedBucket(Bucket bucket);
-    }
+	public interface SharedLockBucketHandler {
+
+		/**
+		 * Do operations on a {@link Bucket} while it's locked with a
+		 * {@link BucketLock}.
+		 */
+		void handleSharedLockedBucket(Bucket bucket);
+	}
 
 }

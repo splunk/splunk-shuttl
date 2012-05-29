@@ -22,28 +22,26 @@ import java.util.GregorianCalendar;
 
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.thaw.StringDateConverter;
-
 @Test(groups = { "fast-unit" })
 public class StringDateConverterTest {
 
-    Calendar calendar = Calendar.getInstance();
+	Calendar calendar = Calendar.getInstance();
 
-    @Test(groups = { "fast-unit" })
-    public void convert_unixTime_getDateRepresentedByUnixTime() {
-	Date date = new Date();
-	String toConvert = date.getTime() + "";
-	Date actual = StringDateConverter.convert(toConvert);
-	assertEquals(date, actual);
-    }
+	@Test(groups = { "fast-unit" })
+	public void convert_unixTime_getDateRepresentedByUnixTime() {
+		Date date = new Date();
+		String toConvert = date.getTime() + "";
+		Date actual = StringDateConverter.convert(toConvert);
+		assertEquals(date, actual);
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void convert_yearMonthDate_date() {
-	// Month is 0-based 2012-01-01_00:00:00
-	Date expected = new GregorianCalendar(2012, 0, 1, 0, 0, 0).getTime();
+	@Test(groups = { "fast-unit" })
+	public void convert_yearMonthDate_date() {
+		// Month is 0-based 2012-01-01_00:00:00
+		Date expected = new GregorianCalendar(2012, 0, 1, 0, 0, 0).getTime();
 
-	Date actual = StringDateConverter.convert("2012-01-01_00:00:00");
+		Date actual = StringDateConverter.convert("2012-01-01_00:00:00");
 
-	assertEquals(actual, expected);
-    }
+		assertEquals(actual, expected);
+	}
 }

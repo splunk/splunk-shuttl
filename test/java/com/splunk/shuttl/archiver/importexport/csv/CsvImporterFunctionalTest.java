@@ -31,43 +31,42 @@ import com.splunk.shuttl.testutil.TUtilsEnvironment;
 @Test(groups = { "end-to-end" })
 public class CsvImporterFunctionalTest {
 
-    private CsvImporter integratedCsvImporter;
-    private Bucket csvBucket;
+	private CsvImporter integratedCsvImporter;
+	private Bucket csvBucket;
 
-    @BeforeMethod
-    public void setUp() {
-	SplunkImportTool importTool = new SplunkImportTool();
-	ShellExecutor shellExecutor = new ShellExecutor(Runtime.getRuntime());
-	integratedCsvImporter = new CsvImporter(importTool, shellExecutor,
-		new BucketFactory());
-	csvBucket = TUtilsBucket.createRealCsvBucket();
-    }
+	@BeforeMethod
+	public void setUp() {
+		SplunkImportTool importTool = new SplunkImportTool();
+		ShellExecutor shellExecutor = new ShellExecutor(Runtime.getRuntime());
+		integratedCsvImporter = new CsvImporter(importTool, shellExecutor,
+				new BucketFactory());
+		csvBucket = TUtilsBucket.createRealCsvBucket();
+	}
 
-    @Test(groups = { "end-to-end" })
-    @Parameters(value = { "splunk.home" })
-    public void CsvImporter_givenSplunkHomeAndRealInstances_createSplunkBucketFromImportedBucket(
-	    final String splunkHome) {
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	@Test(groups = { "end-to-end" })
+	@Parameters(value = { "splunk.home" })
+	public void CsvImporter_givenSplunkHomeAndRealInstances_createSplunkBucketFromImportedBucket(
+			final String splunkHome) {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-	    @Override
-	    public void run() {
-		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			splunkHome);
-		Bucket importedBucket = integratedCsvImporter
-			.importBucketFromCsv(csvBucket);
-		assertFormatIsChangedOnImportedBucket(csvBucket, importedBucket);
-	    }
-	});
-    }
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				Bucket importedBucket = integratedCsvImporter
+						.importBucketFromCsv(csvBucket);
+				assertFormatIsChangedOnImportedBucket(csvBucket, importedBucket);
+			}
+		});
+	}
 
-    private void assertFormatIsChangedOnImportedBucket(Bucket csvBucket,
-	    Bucket importedBucket) {
-	assertEquals(BucketFormat.SPLUNK_BUCKET, importedBucket.getFormat());
-	assertEquals(csvBucket.getName(), importedBucket.getName());
-	assertEquals(csvBucket.getDirectory(), importedBucket.getDirectory());
-	assertEquals(csvBucket.getIndex(), importedBucket.getIndex());
-	assertEquals(csvBucket.getLatest(), importedBucket.getLatest());
-	assertEquals(csvBucket.getEarliest(), importedBucket.getEarliest());
-    }
+	private void assertFormatIsChangedOnImportedBucket(Bucket csvBucket,
+			Bucket importedBucket) {
+		assertEquals(BucketFormat.SPLUNK_BUCKET, importedBucket.getFormat());
+		assertEquals(csvBucket.getName(), importedBucket.getName());
+		assertEquals(csvBucket.getDirectory(), importedBucket.getDirectory());
+		assertEquals(csvBucket.getIndex(), importedBucket.getIndex());
+		assertEquals(csvBucket.getLatest(), importedBucket.getLatest());
+		assertEquals(csvBucket.getEarliest(), importedBucket.getEarliest());
+	}
 
 }

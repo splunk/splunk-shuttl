@@ -24,37 +24,35 @@ import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketDeleterTest {
 
-    private Bucket bucket;
-    private BucketDeleter bucketDeleter;
-    private Logger logger;
+	private Bucket bucket;
+	private BucketDeleter bucketDeleter;
+	private Logger logger;
 
-    @BeforeMethod
-    public void setUp() {
-	bucket = TUtilsBucket.createTestBucket();
-	logger = mock(Logger.class);
-	bucketDeleter = new BucketDeleter(logger);
-    }
+	@BeforeMethod
+	public void setUp() {
+		bucket = TUtilsBucket.createTestBucket();
+		logger = mock(Logger.class);
+		bucketDeleter = new BucketDeleter(logger);
+	}
 
-    public void deleteBucket_givenExistingBucket_deletesBucket_deleteTwiceDoesNothing() {
-	assertTrue(bucket.getDirectory().exists());
-	bucketDeleter.deleteBucket(bucket);
-	assertFalse(bucket.getDirectory().exists());
-	bucketDeleter.deleteBucket(bucket);
-    }
+	public void deleteBucket_givenExistingBucket_deletesBucket_deleteTwiceDoesNothing() {
+		assertTrue(bucket.getDirectory().exists());
+		bucketDeleter.deleteBucket(bucket);
+		assertFalse(bucket.getDirectory().exists());
+		bucketDeleter.deleteBucket(bucket);
+	}
 
-    public void deleteBucket_deletionThrowsException_logsException()
-	    throws IOException {
-	Bucket throwsIOExceptionOnDelete = mock(Bucket.class);
-	doThrow(IOException.class).when(throwsIOExceptionOnDelete)
-		.deleteBucket();
-	bucketDeleter.deleteBucket(throwsIOExceptionOnDelete);
-	verify(logger).warn(anyString());
-    }
+	public void deleteBucket_deletionThrowsException_logsException()
+			throws IOException {
+		Bucket throwsIOExceptionOnDelete = mock(Bucket.class);
+		doThrow(IOException.class).when(throwsIOExceptionOnDelete).deleteBucket();
+		bucketDeleter.deleteBucket(throwsIOExceptionOnDelete);
+		verify(logger).warn(anyString());
+	}
 }

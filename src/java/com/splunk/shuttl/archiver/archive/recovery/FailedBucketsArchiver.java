@@ -28,37 +28,34 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class FailedBucketsArchiver {
 
-    private final BucketMover bucketMover;
-    private final BucketLocker bucketLocker;
-    private static Logger logger = Logger
-	    .getLogger(FailedBucketsArchiver.class);
+	private final BucketMover bucketMover;
+	private final BucketLocker bucketLocker;
+	private static Logger logger = Logger.getLogger(FailedBucketsArchiver.class);
 
-    /**
-     * @param bucketMover
-     *            for getting the failed buckets
-     */
-    public FailedBucketsArchiver(BucketMover bucketMover,
-	    BucketLocker bucketLocker) {
-	this.bucketMover = bucketMover;
-	this.bucketLocker = bucketLocker;
-    }
-
-    /**
-     * Recover failed buckets with handler. Any bucket that is available for
-     * recovery is sent to the {@link SharedLockBucketHandler}.
-     * 
-     * @param bucketHandler
-     *            to handle the moved buckets. Executes the handler if it was
-     *            possible to get a lock on the bucket.
-     */
-    public void archiveFailedBuckets(SharedLockBucketHandler bucketHandler) {
-	logger.debug(will("Archiving failed buckets", "failed buckets",
-		bucketMover.getMovedBuckets()));
-	
-	for (Bucket movedBucket : bucketMover.getMovedBuckets()) {
-	    bucketLocker.callBucketHandlerUnderSharedLock(movedBucket,
-		    bucketHandler);
+	/**
+	 * @param bucketMover
+	 *          for getting the failed buckets
+	 */
+	public FailedBucketsArchiver(BucketMover bucketMover,
+			BucketLocker bucketLocker) {
+		this.bucketMover = bucketMover;
+		this.bucketLocker = bucketLocker;
 	}
-    }
+
+	/**
+	 * Recover failed buckets with handler. Any bucket that is available for
+	 * recovery is sent to the {@link SharedLockBucketHandler}.
+	 * 
+	 * @param bucketHandler
+	 *          to handle the moved buckets. Executes the handler if it was
+	 *          possible to get a lock on the bucket.
+	 */
+	public void archiveFailedBuckets(SharedLockBucketHandler bucketHandler) {
+		logger.debug(will("Archiving failed buckets", "failed buckets",
+				bucketMover.getMovedBuckets()));
+
+		for (Bucket movedBucket : bucketMover.getMovedBuckets())
+			bucketLocker.callBucketHandlerUnderSharedLock(movedBucket, bucketHandler);
+	}
 
 }

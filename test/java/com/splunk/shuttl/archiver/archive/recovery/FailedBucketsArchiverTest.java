@@ -24,9 +24,6 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
-import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -34,51 +31,50 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 @Test(groups = { "fast-unit" })
 public class FailedBucketsArchiverTest {
 
-    FailedBucketsArchiver failedBucketsArchiver;
-    SharedLockBucketHandler sharedLockBucketHandler;
-    BucketMover bucketMover;
-    BucketLocker bucketLocker;
+	FailedBucketsArchiver failedBucketsArchiver;
+	SharedLockBucketHandler sharedLockBucketHandler;
+	BucketMover bucketMover;
+	BucketLocker bucketLocker;
 
-    @BeforeMethod(groups = { "fast-unit" })
-    public void setUp() {
-	bucketMover = mock(BucketMover.class);
-	bucketLocker = new BucketLocker();
-	sharedLockBucketHandler = mock(SharedLockBucketHandler.class);
-	failedBucketsArchiver = new FailedBucketsArchiver(bucketMover,
-		bucketLocker);
-    }
-
-    private List<Bucket> stubXBucketsInBucketMover(int x) {
-	List<Bucket> buckets = new ArrayList<Bucket>();
-	for (int i = 0; i < x; i++) {
-	    Bucket movedBucket = TUtilsBucket.createTestBucket();
-	    buckets.add(movedBucket);
+	@BeforeMethod(groups = { "fast-unit" })
+	public void setUp() {
+		bucketMover = mock(BucketMover.class);
+		bucketLocker = new BucketLocker();
+		sharedLockBucketHandler = mock(SharedLockBucketHandler.class);
+		failedBucketsArchiver = new FailedBucketsArchiver(bucketMover, bucketLocker);
 	}
-	when(bucketMover.getMovedBuckets()).thenReturn(buckets);
-	return buckets;
-    }
 
-    @Test(groups = { "fast-unit" })
-    public void archiveFailedBuckets_noMovedBuckets_neverRunLockedBucketHandler() {
-	failedBucketsArchiver.archiveFailedBuckets(sharedLockBucketHandler);
-	verify(sharedLockBucketHandler, times(0)).handleSharedLockedBucket(
-		any(Bucket.class));
-    }
+	private List<Bucket> stubXBucketsInBucketMover(int x) {
+		List<Bucket> buckets = new ArrayList<Bucket>();
+		for (int i = 0; i < x; i++) {
+			Bucket movedBucket = TUtilsBucket.createTestBucket();
+			buckets.add(movedBucket);
+		}
+		when(bucketMover.getMovedBuckets()).thenReturn(buckets);
+		return buckets;
+	}
 
-    public void archiveFailedBuckets_thereIsOneMovedBucket_letBucketLockerRunLockedBucketHandlerOnIt() {
-	List<Bucket> bucketsInBucketMover = stubXBucketsInBucketMover(1);
-	assertEquals(1, bucketsInBucketMover.size());
-	Bucket bucket = bucketsInBucketMover.get(0);
-	failedBucketsArchiver.archiveFailedBuckets(sharedLockBucketHandler);
+	@Test(groups = { "fast-unit" })
+	public void archiveFailedBuckets_noMovedBuckets_neverRunLockedBucketHandler() {
+		failedBucketsArchiver.archiveFailedBuckets(sharedLockBucketHandler);
+		verify(sharedLockBucketHandler, times(0)).handleSharedLockedBucket(
+				any(Bucket.class));
+	}
 
-	verify(sharedLockBucketHandler, times(1)).handleSharedLockedBucket(bucket);
-    }
+	public void archiveFailedBuckets_thereIsOneMovedBucket_letBucketLockerRunLockedBucketHandlerOnIt() {
+		List<Bucket> bucketsInBucketMover = stubXBucketsInBucketMover(1);
+		assertEquals(1, bucketsInBucketMover.size());
+		Bucket bucket = bucketsInBucketMover.get(0);
+		failedBucketsArchiver.archiveFailedBuckets(sharedLockBucketHandler);
 
-    public void archiveFailedBuckets_twoMovedBuckets_runLockedBucketHandlerTwice() {
-	List<Bucket> bucketsInBucketMover = stubXBucketsInBucketMover(2);
-	assertEquals(2, bucketsInBucketMover.size());
-	failedBucketsArchiver.archiveFailedBuckets(sharedLockBucketHandler);
-	verify(sharedLockBucketHandler, times(2)).handleSharedLockedBucket(
-		any(Bucket.class));
-    }
+		verify(sharedLockBucketHandler, times(1)).handleSharedLockedBucket(bucket);
+	}
+
+	public void archiveFailedBuckets_twoMovedBuckets_runLockedBucketHandlerTwice() {
+		List<Bucket> bucketsInBucketMover = stubXBucketsInBucketMover(2);
+		assertEquals(2, bucketsInBucketMover.size());
+		failedBucketsArchiver.archiveFailedBuckets(sharedLockBucketHandler);
+		verify(sharedLockBucketHandler, times(2)).handleSharedLockedBucket(
+				any(Bucket.class));
+	}
 }

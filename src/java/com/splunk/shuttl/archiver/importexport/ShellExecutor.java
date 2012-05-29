@@ -32,76 +32,74 @@ import org.apache.log4j.Logger;
  */
 public class ShellExecutor {
 
-    private static final Logger logger = Logger.getLogger(ShellExecutor.class);
+	private static final Logger logger = Logger.getLogger(ShellExecutor.class);
 
-    private final Runtime runtime;
+	private final Runtime runtime;
 
-    private Process process;
+	private Process process;
 
-    public ShellExecutor(Runtime runtime) {
-	this.runtime = runtime;
-    }
-
-    /**
-     * @param environment
-     *            variables to run with.
-     * @return exit code of the executed command.
-     */
-    public int executeCommand(Map<String, String> env, List<String> command) {
-	process = runCommand(command, env);
-	return waitForProcessToExit();
-    }
-
-    private Process runCommand(List<String> command, Map<String, String> env) {
-	try {
-	    String[] keyValues = getKeyValuesFromEnv(env);
-	    System.out.println(Arrays.toString(keyValues));
-	    return runtime.exec((String[]) command.toArray(), keyValues);
-	} catch (IOException e) {
-	    logger.error(did("Executed a command with runtime", e,
-		    "Command to be executed", "command", command));
-	    throw new RuntimeException(e);
+	public ShellExecutor(Runtime runtime) {
+		this.runtime = runtime;
 	}
-    }
 
-    private String[] getKeyValuesFromEnv(Map<String, String> env) {
-	List<String> keyValues = new ArrayList<String>();
-	for (Entry<String, String> keyValue : env.entrySet()) {
-	    keyValues.add(keyValue.getKey() + "=" + keyValue.getValue());
+	/**
+	 * @param environment
+	 *          variables to run with.
+	 * @return exit code of the executed command.
+	 */
+	public int executeCommand(Map<String, String> env, List<String> command) {
+		process = runCommand(command, env);
+		return waitForProcessToExit();
 	}
-	String[] kvs = new String[keyValues.size()];
-	for (int i = 0; i < keyValues.size(); i++) {
-	    kvs[i] = keyValues.get(i);
-	}
-	return kvs;
-    }
 
-    private int waitForProcessToExit() {
-	try {
-	    return process.waitFor();
-	} catch (InterruptedException e) {
-	    logger.debug(did("Waited for csv export process to finish.", e,
-		    "It to finish."));
-	    return 3;
+	private Process runCommand(List<String> command, Map<String, String> env) {
+		try {
+			String[] keyValues = getKeyValuesFromEnv(env);
+			System.out.println(Arrays.toString(keyValues));
+			return runtime.exec((String[]) command.toArray(), keyValues);
+		} catch (IOException e) {
+			logger.error(did("Executed a command with runtime", e,
+					"Command to be executed", "command", command));
+			throw new RuntimeException(e);
+		}
 	}
-    }
 
-    /**
-     * @return
-     */
-    public static ShellExecutor getInstance() {
-	return new ShellExecutor(Runtime.getRuntime());
-    }
-
-    /**
-     * @return
-     */
-    public List<String> getStdOut() {
-	try {
-	    return IOUtils.readLines(process.getInputStream());
-	} catch (IOException e) {
-	    return Collections.emptyList();
+	private String[] getKeyValuesFromEnv(Map<String, String> env) {
+		List<String> keyValues = new ArrayList<String>();
+		for (Entry<String, String> keyValue : env.entrySet())
+			keyValues.add(keyValue.getKey() + "=" + keyValue.getValue());
+		String[] kvs = new String[keyValues.size()];
+		for (int i = 0; i < keyValues.size(); i++)
+			kvs[i] = keyValues.get(i);
+		return kvs;
 	}
-    }
+
+	private int waitForProcessToExit() {
+		try {
+			return process.waitFor();
+		} catch (InterruptedException e) {
+			logger.debug(did("Waited for csv export process to finish.", e,
+					"It to finish."));
+			return 3;
+		}
+	}
+
+	/**
+	 * @return
+	 */
+	public static ShellExecutor getInstance() {
+		return new ShellExecutor(Runtime.getRuntime());
+	}
+
+	/**
+	 * @return
+	 */
+	public List<String> getStdOut() {
+		try {
+			return IOUtils.readLines(process.getInputStream());
+		} catch (IOException e) {
+			return Collections.emptyList();
+		}
+	}
 
 }

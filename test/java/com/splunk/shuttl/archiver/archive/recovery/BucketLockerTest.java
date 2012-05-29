@@ -27,8 +27,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketLock;
-import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -36,53 +34,60 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 @Test(groups = { "fast-unit" })
 public class BucketLockerTest {
 
-    File tempTestDirectory;
-    Bucket bucket;
-    BucketLocker bucketLocker;
+	File tempTestDirectory;
+	Bucket bucket;
+	BucketLocker bucketLocker;
 
-    @BeforeMethod
-    public void setUp() {
-	tempTestDirectory = createTempDirectory();
-	bucket = TUtilsBucket.createBucketInDirectory(tempTestDirectory);
-	bucketLocker = new BucketLocker();
-    }
-
-    @AfterMethod
-    public void tearDown() throws IOException {
-	FileUtils.deleteDirectory(tempTestDirectory);
-	FileUtils.deleteDirectory(getArchiverDirectory());
-    }
-
-    @Test(groups = { "fast-unit" })
-    public void callBucketHandlerUnderSharedLock_givenBucketThatCanBeLocked_executesRunnable() {
-	assertTrue(bucketLocker.callBucketHandlerUnderSharedLock(bucket,
-		new NoOpBucketHandler()));
-    }
-
-    public void callBucketHandlerUnderSharedLock_givenLockedBucket_doesNotExecuteRunnable() {
-	BucketLock bucketLock = new BucketLock(bucket);
-	assertTrue(bucketLock.tryLockExclusive());
-	assertFalse(bucketLocker.callBucketHandlerUnderSharedLock(bucket,
-		new NoOpBucketHandler()));
-    }
-
-    public void callBucketHandlerUnderSharedLock_runOnceAlreadyAndReleasedTheLock_executesRunnable() {
-	assertTrue(bucketLocker.callBucketHandlerUnderSharedLock(bucket,
-		new NoOpBucketHandler()));
-	assertTrue(bucketLocker.callBucketHandlerUnderSharedLock(bucket,
-		new NoOpBucketHandler()));
-    }
-
-    public void callBucketHandlerUnderSharedLock_givenLockedBucketHandler_callsBucketHandlerToHandleTheBucket() {
-	SharedLockBucketHandler bucketHandler = mock(SharedLockBucketHandler.class);
-	bucketLocker.callBucketHandlerUnderSharedLock(bucket, bucketHandler);
-	verify(bucketHandler).handleSharedLockedBucket(bucket);
-    }
-
-    public static class NoOpBucketHandler implements SharedLockBucketHandler {
-	@Override
-	public void handleSharedLockedBucket(Bucket bucket) {
-	    // Do nothing.
+	@BeforeMethod
+	public void setUp() {
+		tempTestDirectory = createTempDirectory();
+		bucket = TUtilsBucket.createBucketInDirectory(tempTestDirectory);
+		bucketLocker = new BucketLocker();
 	}
-    }
+
+	@AfterMethod
+	public void tearDown() throws IOException {
+		FileUtils.deleteDirectory(tempTestDirectory);
+		FileUtils.deleteDirectory(getArchiverDirectory());
+	}
+
+	@Test(groups = { "fast-unit" })
+	public void callBucketHandlerUnderSharedLock_givenBucketThatCanBeLocked_executesRunnable() {
+		NoOpBucketHandler bucketHandler = new NoOpBucketHandler();
+		bucketLocker.callBucketHandlerUnderSharedLock(bucket, bucketHandler);
+		assertTrue(bucketHandler.wasRun);
+	}
+
+	public void callBucketHandlerUnderSharedLock_givenLockedBucket_doesNotExecuteRunnable() {
+		BucketLock bucketLock = new BucketLock(bucket);
+		assertTrue(bucketLock.tryLockExclusive());
+		NoOpBucketHandler bucketHandler = new NoOpBucketHandler();
+		bucketLocker.callBucketHandlerUnderSharedLock(bucket, bucketHandler);
+		assertFalse(bucketHandler.wasRun);
+	}
+
+	public void callBucketHandlerUnderSharedLock_runOnceAlreadyAndReleasedTheLock_executesRunnableAgain() {
+		NoOpBucketHandler firstHandler = new NoOpBucketHandler();
+		NoOpBucketHandler secondHandler = new NoOpBucketHandler();
+		bucketLocker.callBucketHandlerUnderSharedLock(bucket, firstHandler);
+		bucketLocker.callBucketHandlerUnderSharedLock(bucket, secondHandler);
+		assertTrue(firstHandler.wasRun);
+		assertTrue(secondHandler.wasRun);
+	}
+
+	public void callBucketHandlerUnderSharedLock_givenLockedBucketHandler_callsBucketHandlerToHandleTheBucket() {
+		SharedLockBucketHandler bucketHandler = mock(SharedLockBucketHandler.class);
+		bucketLocker.callBucketHandlerUnderSharedLock(bucket, bucketHandler);
+		verify(bucketHandler).handleSharedLockedBucket(bucket);
+	}
+
+	public static class NoOpBucketHandler implements SharedLockBucketHandler {
+
+		public boolean wasRun = false;
+
+		@Override
+		public void handleSharedLockedBucket(Bucket bucket) {
+			wasRun = true;
+		}
+	}
 }

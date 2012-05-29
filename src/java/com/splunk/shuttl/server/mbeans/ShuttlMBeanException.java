@@ -18,15 +18,15 @@ import com.splunk.shuttl.server.ShuttlException;
 
 /**
  * @author kpakkirisamy
- *
+ * 
  */
 public class ShuttlMBeanException extends ShuttlException {
-    public ShuttlMBeanException(String s) {
-	super(s);
-    }
+	public ShuttlMBeanException(String s) {
+		super(s);
+	}
 
-    public ShuttlMBeanException(Exception e) {
-	super(e);
-    }
+	public ShuttlMBeanException(Exception e) {
+		super(e);
+	}
 
 }

@@ -41,54 +41,50 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 @Test(groups = { "functional" })
 public class ExportCsvFunctionalTest {
 
-    private BucketArchiver csvBucketArchiver;
-    private ArchiveBucketsLister bucketsLister;
-    private BucketFormatResolver bucketFormatResolver;
-    private Bucket bucket;
+	private BucketArchiver csvBucketArchiver;
+	private ArchiveBucketsLister bucketsLister;
+	private BucketFormatResolver bucketFormatResolver;
+	private Bucket bucket;
 
-    @BeforeMethod
-    public void setUp() {
-	ArchiveConfiguration csvConfig = UtilsFunctional
-		.getLocalCsvArchiveConfigration();
-	ArchiveFileSystem localFileSystem = ArchiveFileSystemFactory
-		.getWithConfiguration(csvConfig);
-	csvBucketArchiver = BucketArchiverFactory
-		.createWithConfigurationAndArchiveFileSystem(csvConfig,
-			localFileSystem);
-	PathResolver pathResolver = new PathResolver(csvConfig);
-	ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
-		pathResolver, localFileSystem);
-	bucketsLister = new ArchiveBucketsLister(localFileSystem,
-		indexesLister, pathResolver);
-	BucketFormatChooser bucketFormatChooser = new BucketFormatChooser(
-		csvConfig);
-	bucketFormatResolver = new BucketFormatResolver(pathResolver,
-		localFileSystem, bucketFormatChooser);
+	@BeforeMethod
+	public void setUp() {
+		ArchiveConfiguration csvConfig = UtilsFunctional
+				.getLocalCsvArchiveConfigration();
+		ArchiveFileSystem localFileSystem = ArchiveFileSystemFactory
+				.getWithConfiguration(csvConfig);
+		csvBucketArchiver = BucketArchiverFactory
+				.createWithConfigurationAndArchiveFileSystem(csvConfig, localFileSystem);
+		PathResolver pathResolver = new PathResolver(csvConfig);
+		ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
+				pathResolver, localFileSystem);
+		bucketsLister = new ArchiveBucketsLister(localFileSystem, indexesLister,
+				pathResolver);
+		BucketFormatChooser bucketFormatChooser = new BucketFormatChooser(csvConfig);
+		bucketFormatResolver = new BucketFormatResolver(pathResolver,
+				localFileSystem, bucketFormatChooser);
 
-	bucket = TUtilsBucket.createRealBucket();
-    }
+		bucket = TUtilsBucket.createRealBucket();
+	}
 
-    @AfterMethod
-    public void tearDown() {
-	FileUtils.deleteQuietly(bucket.getDirectory());
-    }
+	@AfterMethod
+	public void tearDown() {
+		FileUtils.deleteQuietly(bucket.getDirectory());
+	}
 
-    @Parameters(value = { "splunk.home" })
-    public void archiveBucketAsCsv_givenSplunkHomeAndBucketInSplunkBucketFormat_archivedAsCsvFormat(
-	    final String splunkHome) {
-	UtilsFunctional.archiveBucket(bucket, csvBucketArchiver,
-		splunkHome);
-	verifyBucketWasArchivedAsCsv();
-    }
+	@Parameters(value = { "splunk.home" })
+	public void archiveBucketAsCsv_givenSplunkHomeAndBucketInSplunkBucketFormat_archivedAsCsvFormat(
+			final String splunkHome) {
+		UtilsFunctional.archiveBucket(bucket, csvBucketArchiver, splunkHome);
+		verifyBucketWasArchivedAsCsv();
+	}
 
-    private void verifyBucketWasArchivedAsCsv() {
-	List<Bucket> buckets = bucketsLister.listBucketsInIndex(bucket
-		.getIndex());
-	List<Bucket> bucketsWithFormats = bucketFormatResolver
-		.resolveBucketsFormats(buckets);
+	private void verifyBucketWasArchivedAsCsv() {
+		List<Bucket> buckets = bucketsLister.listBucketsInIndex(bucket.getIndex());
+		List<Bucket> bucketsWithFormats = bucketFormatResolver
+				.resolveBucketsFormats(buckets);
 
-	assertEquals(1, bucketsWithFormats.size());
-	assertEquals(BucketFormat.CSV, bucketsWithFormats.get(0).getFormat());
-    }
+		assertEquals(1, bucketsWithFormats.size());
+		assertEquals(BucketFormat.CSV, bucketsWithFormats.get(0).getFormat());
+	}
 
 }

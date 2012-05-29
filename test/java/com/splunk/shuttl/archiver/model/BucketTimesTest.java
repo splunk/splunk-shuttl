@@ -21,35 +21,34 @@ import java.util.Date;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketTimesTest {
 
-    Date earliest;
-    Date latest;
+	Date earliest;
+	Date latest;
 
-    @BeforeMethod
-    public void setUp() {
-	earliest = new Date(12345678);
-	latest = new Date(earliest.getTime() + 100);
-    }
+	@BeforeMethod
+	public void setUp() {
+		earliest = new Date(12345678);
+		latest = new Date(earliest.getTime() + 100);
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void setUp_givenEarliestAndLatestDates_earliestIsBeforeLatest() {
-	assertTrue(earliest.before(latest));
-    }
+	@Test(groups = { "fast-unit" })
+	public void setUp_givenEarliestAndLatestDates_earliestIsBeforeLatest() {
+		assertTrue(earliest.before(latest));
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void getEarliest_givenEarliest_earliest() {
-	Bucket bucket = TUtilsBucket.createBucketWithTimes(earliest, new Date());
-	assertEquals(earliest, bucket.getEarliest());
-    }
+	@Test(groups = { "fast-unit" })
+	public void getEarliest_givenEarliest_earliest() {
+		Bucket bucket = TUtilsBucket.createBucketWithTimes(earliest, new Date());
+		assertEquals(earliest, bucket.getEarliest());
+	}
 
-    public void getLatest_givenLatest_latest() {
-	Bucket bucket = TUtilsBucket.createBucketWithTimes(new Date(), latest);
-	assertEquals(latest, bucket.getLatest());
-    }
+	public void getLatest_givenLatest_latest() {
+		Bucket bucket = TUtilsBucket.createBucketWithTimes(new Date(), latest);
+		assertEquals(latest, bucket.getLatest());
+	}
 
 }

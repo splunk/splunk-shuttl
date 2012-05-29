@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
-
 /**
  * {@link ShuttlArchiver} with path to archiver.xml configuration file.</br>
  * Remove this when we have a better way of configure our MBeans. Meaning when
@@ -23,20 +22,20 @@ package com.splunk.shuttl.server.mbeans;
 // TODO: Read the comment above and remove this class when things are better.
 public class ShuttlArchiverForTests extends ShuttlArchiver {
 
-    /**
-     * @throws ShuttlMBeanException
-     */
-    public ShuttlArchiverForTests() throws ShuttlMBeanException {
-	super();
-    }
+	/**
+	 * @throws ShuttlMBeanException
+	 */
+	public ShuttlArchiverForTests() throws ShuttlMBeanException {
+		super();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.splunk.shuttl.server.mbeans.ShuttlArchiver#getArchiverConfXml()
-     */
-    @Override
-    protected String getArchiverConfXml() {
-	return "package/conf/archiver.xml";
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.splunk.shuttl.server.mbeans.ShuttlArchiver#getArchiverConfXml()
+	 */
+	@Override
+	protected String getArchiverConfXml() {
+		return "package/conf/archiver.xml";
+	}
 }

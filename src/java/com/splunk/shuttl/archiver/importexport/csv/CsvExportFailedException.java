@@ -19,13 +19,13 @@ package com.splunk.shuttl.archiver.importexport.csv;
  */
 public class CsvExportFailedException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * @param string
-     */
-    public CsvExportFailedException(String string) {
-	super(string);
-    }
+	/**
+	 * @param string
+	 */
+	public CsvExportFailedException(String string) {
+		super(string);
+	}
 
 }

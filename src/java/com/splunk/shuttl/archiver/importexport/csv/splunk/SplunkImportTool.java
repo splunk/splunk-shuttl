@@ -19,9 +19,9 @@ package com.splunk.shuttl.archiver.importexport.csv.splunk;
  */
 public class SplunkImportTool extends SplunkTool {
 
-    @Override
-    public String getToolName() {
-	return "importtool";
-    }
+	@Override
+	public String getToolName() {
+		return "importtool";
+	}
 
 }

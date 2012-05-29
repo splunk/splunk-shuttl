@@ -27,7 +27,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFile;
@@ -35,108 +34,108 @@ import com.splunk.shuttl.testutil.TUtilsFile;
 @Test(groups = { "fast-unit" })
 public class BucketMoverTest {
 
-    BucketMover bucketMover;
-    File moveBucketLocation;
+	BucketMover bucketMover;
+	File moveBucketLocation;
 
-    @BeforeMethod(groups = { "fast-unit" })
-    public void setUp() {
-	moveBucketLocation = TUtilsFile.createTempDirectory();
-	bucketMover = new BucketMover(moveBucketLocation);
-    }
+	@BeforeMethod(groups = { "fast-unit" })
+	public void setUp() {
+		moveBucketLocation = TUtilsFile.createTempDirectory();
+		bucketMover = new BucketMover(moveBucketLocation);
+	}
 
-    @AfterMethod(groups = { "fast-unit" })
-    public void tearDown() throws IOException {
-	FileUtils.deleteDirectory(moveBucketLocation);
-    }
+	@AfterMethod(groups = { "fast-unit" })
+	public void tearDown() throws IOException {
+		FileUtils.deleteDirectory(moveBucketLocation);
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void getMovedBuckets_moveLocationDoesNotExist_emptyList() {
-	assertTrue(moveBucketLocation.delete());
-	assertTrue(!moveBucketLocation.exists());
-	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
-	assertTrue(movedBuckets.isEmpty());
-    }
+	@Test(groups = { "fast-unit" })
+	public void getMovedBuckets_moveLocationDoesNotExist_emptyList() {
+		assertTrue(moveBucketLocation.delete());
+		assertTrue(!moveBucketLocation.exists());
+		List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+		assertTrue(movedBuckets.isEmpty());
+	}
 
-    public void getMovedBuckets_givenBucketInMoveLocation_returnsListContainingTheMovedBucket()
-	    throws FileNotFoundException, IOException {
-	Bucket bucket = createBucketInMoveLocationWithIndexPreserved("index");
-	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
-	assertEquals(1, movedBuckets.size());
-	assertEquals(bucket, movedBuckets.get(0));
-    }
+	public void getMovedBuckets_givenBucketInMoveLocation_returnsListContainingTheMovedBucket()
+			throws FileNotFoundException, IOException {
+		Bucket bucket = createBucketInMoveLocationWithIndexPreserved("index");
+		List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+		assertEquals(1, movedBuckets.size());
+		assertEquals(bucket, movedBuckets.get(0));
+	}
 
-    public void getMovedBuckets_givenNoBucketsInMoveLocation_emptyList() {
-	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
-	assertTrue(movedBuckets.isEmpty());
-    }
+	public void getMovedBuckets_givenNoBucketsInMoveLocation_emptyList() {
+		List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+		assertTrue(movedBuckets.isEmpty());
+	}
 
-    public void getMovedBuckets_givenTwoBucketsWithDifferentIndexInMoveLocation_listWithTheTwoBuckets() {
-	Bucket movedBucketIndex = createBucketInMoveLocationWithIndexPreserved("a");
-	Bucket movedBucketAnotherIndex = createBucketInMoveLocationWithIndexPreserved("b");
-	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
-	assertEquals(2, movedBuckets.size());
-	assertTrue(movedBuckets.contains(movedBucketIndex));
-	assertTrue(movedBuckets.contains(movedBucketAnotherIndex));
-    }
+	public void getMovedBuckets_givenTwoBucketsWithDifferentIndexInMoveLocation_listWithTheTwoBuckets() {
+		Bucket movedBucketIndex = createBucketInMoveLocationWithIndexPreserved("a");
+		Bucket movedBucketAnotherIndex = createBucketInMoveLocationWithIndexPreserved("b");
+		List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+		assertEquals(2, movedBuckets.size());
+		assertTrue(movedBuckets.contains(movedBucketIndex));
+		assertTrue(movedBuckets.contains(movedBucketAnotherIndex));
+	}
 
-    public void getMovedBuckets_givenTwoBucketsWithSameIndexInMoveLocation_listWithTheTwoBuckets() {
-	String index = "a";
-	Bucket movedBucket = createBucketInMoveLocationWithIndexPreserved(index);
-	Bucket movedBucketSameIndex = TUtilsBucket
-		.createBucketInDirectoryWithIndex(movedBucket.getDirectory()
-			.getParentFile(), index);
+	public void getMovedBuckets_givenTwoBucketsWithSameIndexInMoveLocation_listWithTheTwoBuckets() {
+		String index = "a";
+		Bucket movedBucket = createBucketInMoveLocationWithIndexPreserved(index);
+		Bucket movedBucketSameIndex = TUtilsBucket
+				.createBucketInDirectoryWithIndex(movedBucket.getDirectory()
+						.getParentFile(), index);
 
-	// Assertions on buckets.
-	assertEquals(movedBucket.getIndex(), movedBucketSameIndex.getIndex());
-	assertEquals(movedBucket.getDirectory().getParent(),
-		movedBucketSameIndex.getDirectory().getParent());
+		// Assertions on buckets.
+		assertEquals(movedBucket.getIndex(), movedBucketSameIndex.getIndex());
+		assertEquals(movedBucket.getDirectory().getParent(), movedBucketSameIndex
+				.getDirectory().getParent());
 
-	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
-	assertEquals(2, movedBuckets.size());
-	assertTrue(movedBuckets.contains(movedBucket));
-	assertTrue(movedBuckets.contains(movedBucketSameIndex));
-    }
+		List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+		assertEquals(2, movedBuckets.size());
+		assertTrue(movedBuckets.contains(movedBucket));
+		assertTrue(movedBuckets.contains(movedBucketSameIndex));
+	}
 
-    public void moveBucket_givenBucket_movedBucketTo_moveLocation_Index_BucketName() {
-	assertTrue(isDirectoryEmpty(moveBucketLocation));
-	Bucket bucketToMove = TUtilsBucket.createTestBucket();
+	public void moveBucket_givenBucket_movedBucketTo_moveLocation_Index_BucketName() {
+		assertTrue(isDirectoryEmpty(moveBucketLocation));
+		Bucket bucketToMove = TUtilsBucket.createTestBucket();
 
-	Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
-	assertTrue(!isDirectoryEmpty(moveBucketLocation));
-	assertTrue(movedBucket.getDirectory().exists());
-    }
+		Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
+		assertTrue(!isDirectoryEmpty(moveBucketLocation));
+		assertTrue(movedBucket.getDirectory().exists());
+	}
 
-    public void getMovedBuckets_afterSuccessfullyMovedABucketUsingMoveBucketToMove_getBucketThatMoved() {
-	Bucket bucketToMove = TUtilsBucket.createTestBucket();
-	bucketMover.moveBucket(bucketToMove);
+	public void getMovedBuckets_afterSuccessfullyMovedABucketUsingMoveBucketToMove_getBucketThatMoved() {
+		Bucket bucketToMove = TUtilsBucket.createTestBucket();
+		bucketMover.moveBucket(bucketToMove);
 
-	List<Bucket> movedBucket = bucketMover.getMovedBuckets();
-	assertEquals(1, movedBucket.size());
-	Bucket actualBucket = movedBucket.get(0);
-	assertEquals(bucketToMove.getIndex(), actualBucket.getIndex());
-	assertEquals(bucketToMove.getName(), actualBucket.getName());
-	assertEquals(bucketToMove.getFormat(), actualBucket.getFormat());
-    }
+		List<Bucket> movedBucket = bucketMover.getMovedBuckets();
+		assertEquals(1, movedBucket.size());
+		Bucket actualBucket = movedBucket.get(0);
+		assertEquals(bucketToMove.getIndex(), actualBucket.getIndex());
+		assertEquals(bucketToMove.getName(), actualBucket.getName());
+		assertEquals(bucketToMove.getFormat(), actualBucket.getFormat());
+	}
 
-    public void getMovedBuckets_afterCreatingLockInMoveLocation_emptyList() {
-	File lock = TUtilsFile.createFileInParent(moveBucketLocation, "lock");
-	assertTrue(lock.isFile());
-	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
-	assertTrue(movedBuckets.isEmpty());
-    }
+	public void getMovedBuckets_afterCreatingLockInMoveLocation_emptyList() {
+		File lock = TUtilsFile.createFileInParent(moveBucketLocation, "lock");
+		assertTrue(lock.isFile());
+		List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+		assertTrue(movedBuckets.isEmpty());
+	}
 
-    public void getMovedBuckets_noBucketsInIndexDirectory_emptyList() {
-	File empty = createDirectoryInParent(moveBucketLocation, "index");
-	assertTrue(isDirectoryEmpty(empty));
+	public void getMovedBuckets_noBucketsInIndexDirectory_emptyList() {
+		File empty = createDirectoryInParent(moveBucketLocation, "index");
+		assertTrue(isDirectoryEmpty(empty));
 
-	List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
-	assertTrue(movedBuckets.isEmpty());
-    }
+		List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+		assertTrue(movedBuckets.isEmpty());
+	}
 
-    private Bucket createBucketInMoveLocationWithIndexPreserved(String index) {
-	File directoryRepresentingIndex = TUtilsFile.createDirectoryInParent(
-		moveBucketLocation, index);
-	return TUtilsBucket.createBucketInDirectoryWithIndex(
-		directoryRepresentingIndex, index);
-    }
+	private Bucket createBucketInMoveLocationWithIndexPreserved(String index) {
+		File directoryRepresentingIndex = TUtilsFile.createDirectoryInParent(
+				moveBucketLocation, index);
+		return TUtilsBucket.createBucketInDirectoryWithIndex(
+				directoryRepresentingIndex, index);
+	}
 }

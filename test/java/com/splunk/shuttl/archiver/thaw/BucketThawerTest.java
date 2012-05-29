@@ -29,110 +29,103 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.thaw.BucketFilter;
-import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
-import com.splunk.shuttl.archiver.thaw.BucketThawer;
-import com.splunk.shuttl.archiver.thaw.ThawBucketTransferer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketThawerTest {
 
-    BucketThawer bucketThawer;
+	BucketThawer bucketThawer;
 
-    BucketFilter bucketFilter;
-    ArchiveBucketsLister archiveBucketsLister;
-    BucketFormatResolver bucketFormatResolver;
-    ThawBucketTransferer thawBucketTransferer;
-    BucketImporter bucketImporter;
+	BucketFilter bucketFilter;
+	ArchiveBucketsLister archiveBucketsLister;
+	BucketFormatResolver bucketFormatResolver;
+	ThawBucketTransferer thawBucketTransferer;
+	BucketImporter bucketImporter;
 
-    String index;
-    Date latestTime;
-    List<Bucket> buckets;
-    Date earliestTime;
+	String index;
+	Date latestTime;
+	List<Bucket> buckets;
+	Date earliestTime;
 
-    @BeforeMethod
-    public void setUp() {
-	buckets = Arrays.asList(mock(Bucket.class));
-	earliestTime = mock(Date.class);
-	latestTime = mock(Date.class);
+	@BeforeMethod
+	public void setUp() {
+		buckets = Arrays.asList(mock(Bucket.class));
+		earliestTime = mock(Date.class);
+		latestTime = mock(Date.class);
 
-	archiveBucketsLister = mock(ArchiveBucketsLister.class);
-	bucketFilter = mock(BucketFilter.class);
-	bucketFormatResolver = mock(BucketFormatResolver.class);
-	thawBucketTransferer = mock(ThawBucketTransferer.class);
-	bucketImporter = mock(BucketImporter.class);
-	bucketThawer = new BucketThawer(archiveBucketsLister, bucketFilter,
-		bucketFormatResolver, thawBucketTransferer, bucketImporter);
-	index = "index";
-    }
+		archiveBucketsLister = mock(ArchiveBucketsLister.class);
+		bucketFilter = mock(BucketFilter.class);
+		bucketFormatResolver = mock(BucketFormatResolver.class);
+		thawBucketTransferer = mock(ThawBucketTransferer.class);
+		bucketImporter = mock(BucketImporter.class);
+		bucketThawer = new BucketThawer(archiveBucketsLister, bucketFilter,
+				bucketFormatResolver, thawBucketTransferer, bucketImporter);
+		index = "index";
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void thawBuckets_givenTimeRange_filterBucketTimeRange() {
-	when(archiveBucketsLister.listBucketsInIndex(anyString())).thenReturn(
-		buckets);
-	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verify(bucketFilter).filterBucketsByTimeRange(buckets, earliestTime,
-		latestTime);
-    }
+	@Test(groups = { "fast-unit" })
+	public void thawBuckets_givenTimeRange_filterBucketTimeRange() {
+		when(archiveBucketsLister.listBucketsInIndex(anyString())).thenReturn(
+				buckets);
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		verify(bucketFilter).filterBucketsByTimeRange(buckets, earliestTime,
+				latestTime);
+	}
 
-    public void thawBuckets_givenFilteredBuckets_resolveBucketsFormats() {
-	List<Bucket> filteredBuckets = buckets;
-	when(
-		bucketFilter.filterBucketsByTimeRange(anyListOf(Bucket.class),
-			any(Date.class), any(Date.class))).thenReturn(
-		filteredBuckets);
-	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verify(bucketFormatResolver).resolveBucketsFormats(filteredBuckets);
-    }
+	public void thawBuckets_givenFilteredBuckets_resolveBucketsFormats() {
+		List<Bucket> filteredBuckets = buckets;
+		when(
+				bucketFilter.filterBucketsByTimeRange(anyListOf(Bucket.class),
+						any(Date.class), any(Date.class))).thenReturn(filteredBuckets);
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		verify(bucketFormatResolver).resolveBucketsFormats(filteredBuckets);
+	}
 
-    public void thawBuckets_givenOneFilteredBucketWithFormat_transferBucketsToThawDirectory()
-	    throws IOException {
-	Bucket bucketToThaw = mock(Bucket.class);
-	stubFilteredBucketsWithFormat(bucketToThaw);
-	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verify(thawBucketTransferer).transferBucketToThaw(bucketToThaw);
-    }
+	public void thawBuckets_givenOneFilteredBucketWithFormat_transferBucketsToThawDirectory()
+			throws IOException {
+		Bucket bucketToThaw = mock(Bucket.class);
+		stubFilteredBucketsWithFormat(bucketToThaw);
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		verify(thawBucketTransferer).transferBucketToThaw(bucketToThaw);
+	}
 
-    public void thawBuckets_givenZeroFilteredBucketWithFormat_noInteractionsWithBucketTransferer() {
-	stubFilteredBucketsWithFormat(new Bucket[0]);
-	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verifyZeroInteractions(thawBucketTransferer);
-    }
+	public void thawBuckets_givenZeroFilteredBucketWithFormat_noInteractionsWithBucketTransferer() {
+		stubFilteredBucketsWithFormat(new Bucket[0]);
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		verifyZeroInteractions(thawBucketTransferer);
+	}
 
-    public void thawBuckets_givenTwoFilteredBucketWithFormat_transfersBothBuckets()
-	    throws IOException {
-	Bucket bucket1 = mock(Bucket.class);
-	Bucket bucket2 = mock(Bucket.class);
-	stubFilteredBucketsWithFormat(bucket1, bucket2);
-	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verify(thawBucketTransferer).transferBucketToThaw(bucket1);
-	verify(thawBucketTransferer).transferBucketToThaw(bucket2);
-    }
+	public void thawBuckets_givenTwoFilteredBucketWithFormat_transfersBothBuckets()
+			throws IOException {
+		Bucket bucket1 = mock(Bucket.class);
+		Bucket bucket2 = mock(Bucket.class);
+		stubFilteredBucketsWithFormat(bucket1, bucket2);
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		verify(thawBucketTransferer).transferBucketToThaw(bucket1);
+		verify(thawBucketTransferer).transferBucketToThaw(bucket2);
+	}
 
-    public void thawBuckets_givenOneFilteredBucketWithFormat_restoresBucketToSplunkBucketFormat() {
-	Bucket bucket = TUtilsBucket.createTestBucket();
-	stubFilteredBucketsWithFormat(bucket);
-	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verify(bucketImporter).restoreToSplunkBucketFormat(bucket);
-    }
+	public void thawBuckets_givenOneFilteredBucketWithFormat_restoresBucketToSplunkBucketFormat() {
+		Bucket bucket = TUtilsBucket.createTestBucket();
+		stubFilteredBucketsWithFormat(bucket);
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		verify(bucketImporter).restoreToSplunkBucketFormat(bucket);
+	}
 
-    public void thawBuckets_whenTransferBucketsFailToThaw_doesNotRestoreFailedBucket()
-	    throws IOException {
-	Bucket bucket = TUtilsBucket.createTestBucket();
-	stubFilteredBucketsWithFormat(bucket);
+	public void thawBuckets_whenTransferBucketsFailToThaw_doesNotRestoreFailedBucket()
+			throws IOException {
+		Bucket bucket = TUtilsBucket.createTestBucket();
+		stubFilteredBucketsWithFormat(bucket);
 
-	doThrow(new IOException()).when(thawBucketTransferer)
-		.transferBucketToThaw(any(Bucket.class));
-	bucketThawer.thawBuckets(index, earliestTime, latestTime);
-	verifyZeroInteractions(bucketImporter);
-    }
+		doThrow(new IOException()).when(thawBucketTransferer).transferBucketToThaw(
+				any(Bucket.class));
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		verifyZeroInteractions(bucketImporter);
+	}
 
-    private void stubFilteredBucketsWithFormat(Bucket... bucket) {
-	List<Bucket> filteredBucketsWithFormat = asList(bucket);
-	when(
-		bucketFormatResolver
-			.resolveBucketsFormats(anyListOf(Bucket.class)))
-		.thenReturn(filteredBucketsWithFormat);
-    }
+	private void stubFilteredBucketsWithFormat(Bucket... bucket) {
+		List<Bucket> filteredBucketsWithFormat = asList(bucket);
+		when(bucketFormatResolver.resolveBucketsFormats(anyListOf(Bucket.class)))
+				.thenReturn(filteredBucketsWithFormat);
+	}
 }

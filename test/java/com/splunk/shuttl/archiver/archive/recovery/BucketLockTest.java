@@ -27,57 +27,56 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketLock;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketLockTest {
 
-    File testRootDirectory;
-    File locksDirectory;
-    Bucket bucket;
-    BucketLock bucketLock;
+	File testRootDirectory;
+	File locksDirectory;
+	Bucket bucket;
+	BucketLock bucketLock;
 
-    @BeforeMethod
-    public void setUp() {
-	testRootDirectory = createTempDirectory();
-	locksDirectory = createTempDirectory();
-	bucket = TUtilsBucket.createBucketInDirectory(testRootDirectory);
-	bucketLock = new BucketLock(bucket, locksDirectory);
-    }
+	@BeforeMethod
+	public void setUp() {
+		testRootDirectory = createTempDirectory();
+		locksDirectory = createTempDirectory();
+		bucket = TUtilsBucket.createBucketInDirectory(testRootDirectory);
+		bucketLock = new BucketLock(bucket, locksDirectory);
+	}
 
-    @AfterMethod
-    public void tearDown() throws IOException {
-	FileUtils.deleteDirectory(testRootDirectory);
-	FileUtils.deleteDirectory(locksDirectory);
-    }
+	@AfterMethod
+	public void tearDown() throws IOException {
+		FileUtils.deleteDirectory(testRootDirectory);
+		FileUtils.deleteDirectory(locksDirectory);
+	}
 
-    @AfterTest
-    public void deleteDefaultBucketLockDirectory() throws IOException {
-	FileUtils.deleteDirectory(getArchiverDirectory());
-    }
+	@AfterTest
+	public void deleteDefaultBucketLockDirectory() throws IOException {
+		FileUtils.deleteDirectory(getArchiverDirectory());
+	}
 
-    @Test(groups = { "fast-unit" })
-    public void getLockFile_createdWithBucket_lockFilesNameIncludesBucketsNameForUniqueness() {
-	File lockFile = bucketLock.getLockFile();
-	assertTrue(lockFile.getName().contains(bucket.getName()));
-    }
+	@Test(groups = { "fast-unit" })
+	public void getLockFile_createdWithBucket_lockFilesNameIncludesBucketsNameForUniqueness() {
+		File lockFile = bucketLock.getLockFile();
+		assertTrue(lockFile.getName().contains(bucket.getName()));
+	}
 
-    public void getLockFile_createdWithLocksDirectory_lockFileIsInTheLocksDirectory() {
-	File lockFile = bucketLock.getLockFile();
-	assertEquals(locksDirectory.getAbsolutePath(), lockFile.getParentFile()
-		.getAbsolutePath());
-    }
+	public void getLockFile_createdWithLocksDirectory_lockFileIsInTheLocksDirectory() {
+		File lockFile = bucketLock.getLockFile();
+		assertEquals(locksDirectory.getAbsolutePath(), lockFile.getParentFile()
+				.getAbsolutePath());
+	}
 
-    public void deleteLockFile_bucketNotLocked_true() {
-	bucketLock.deleteLockFile();
-	assertFalse(bucketLock.getLockFile().exists());
-    }
+	public void deleteLockFile_bucketNotLocked_true() {
+		bucketLock.deleteLockFile();
+		assertFalse(bucketLock.getLockFile().exists());
+	}
 
-    public void deleteLockFile_bucketLocked_true() {
-	assertTrue(bucketLock.tryLockExclusive());
-	bucketLock.deleteLockFile();
-	assertFalse(bucketLock.getLockFile().exists());
-    }
+	public void deleteLockFile_bucketLocked_true() {
+		assertTrue(bucketLock.tryLockExclusive());
+		bucketLock.deleteLockFile();
+		assertFalse(bucketLock.getLockFile().exists());
+	}
 }

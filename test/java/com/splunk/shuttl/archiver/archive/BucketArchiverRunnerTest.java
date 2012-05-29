@@ -19,8 +19,6 @@ import static org.mockito.Mockito.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverRunner;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLock;
 import com.splunk.shuttl.archiver.archive.recovery.SimpleFileLock.NotLockedException;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -28,51 +26,50 @@ import com.splunk.shuttl.archiver.model.Bucket;
 @Test(groups = { "fast-unit" })
 public class BucketArchiverRunnerTest {
 
-    BucketArchiverRunner bucketArchiverRunner;
-    BucketArchiver bucketArchiver;
-    Bucket bucket;
-    BucketLock bucketLock;
+	BucketArchiverRunner bucketArchiverRunner;
+	BucketArchiver bucketArchiver;
+	Bucket bucket;
+	BucketLock bucketLock;
 
-    @BeforeMethod
-    public void setUp() {
-	bucketArchiver = mock(BucketArchiver.class);
-	bucket = mock(Bucket.class);
-	bucketLock = mock(BucketLock.class);
-	when(bucketLock.isLocked()).thenReturn(true);
-	bucketArchiverRunner = new BucketArchiverRunner(bucketArchiver, bucket,
-		bucketLock);
-    }
-
-    @Test(expectedExceptions = { NotLockedException.class })
-    public void constructor_bucketLockIsNotLocked_throwNotLockedException() {
-	BucketLock bucketLock = mock(BucketLock.class);
-	when(bucketLock.isLocked()).thenReturn(false);
-	new BucketArchiverRunner(bucketArchiver, bucket, bucketLock);
-    }
-
-    @Test(groups = { "fast-unit" })
-    public void run_successfulArchiving_closesAndDeletesBucketLock() {
-	bucketArchiverRunner.run();
-	verify(bucketLock).closeLock();
-	verify(bucketLock).deleteLockFile();
-    }
-
-    public void run_failedArchiving_closesAndDeletesBucketLock() {
-	doThrow(new RuntimeException()).when(bucketArchiver).archiveBucket(
-		bucket);
-	try {
-	    bucketArchiverRunner.run();
-	} catch (RuntimeException re) {
-	    // Do nothing.
+	@BeforeMethod
+	public void setUp() {
+		bucketArchiver = mock(BucketArchiver.class);
+		bucket = mock(Bucket.class);
+		bucketLock = mock(BucketLock.class);
+		when(bucketLock.isLocked()).thenReturn(true);
+		bucketArchiverRunner = new BucketArchiverRunner(bucketArchiver, bucket,
+				bucketLock);
 	}
-	verify(bucketLock).closeLock();
-	verify(bucketLock).deleteLockFile();
-    }
 
-    @Test(expectedExceptions = { IllegalStateException.class })
-    public void run_bucketLockUnlocked_throwIllegalStateException() {
-	when(bucketLock.isLocked()).thenReturn(false);
-	bucketArchiverRunner.run();
-    }
+	@Test(expectedExceptions = { NotLockedException.class })
+	public void constructor_bucketLockIsNotLocked_throwNotLockedException() {
+		BucketLock bucketLock = mock(BucketLock.class);
+		when(bucketLock.isLocked()).thenReturn(false);
+		new BucketArchiverRunner(bucketArchiver, bucket, bucketLock);
+	}
+
+	@Test(groups = { "fast-unit" })
+	public void run_successfulArchiving_closesAndDeletesBucketLock() {
+		bucketArchiverRunner.run();
+		verify(bucketLock).closeLock();
+		verify(bucketLock).deleteLockFile();
+	}
+
+	public void run_failedArchiving_closesAndDeletesBucketLock() {
+		doThrow(new RuntimeException()).when(bucketArchiver).archiveBucket(bucket);
+		try {
+			bucketArchiverRunner.run();
+		} catch (RuntimeException re) {
+			// Do nothing.
+		}
+		verify(bucketLock).closeLock();
+		verify(bucketLock).deleteLockFile();
+	}
+
+	@Test(expectedExceptions = { IllegalStateException.class })
+	public void run_bucketLockUnlocked_throwIllegalStateException() {
+		when(bucketLock.isLocked()).thenReturn(false);
+		bucketArchiverRunner.run();
+	}
 
 }

@@ -30,56 +30,53 @@ import com.splunk.shuttl.testutil.TUtilsEnvironment;
 @Test(groups = { "fast-unit" })
 public class SplunkEnvironmentTest {
 
-    public void getSplunkHome_splunkHomeIsSet_commandToExecuteExportTool()
-	    throws IOException {
-	final File splunkHome = createTempDirectory();
-	File bin = createDirectoryInParent(splunkHome, "bin");
-	createFileInParent(bin, "exporttool");
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	public void getSplunkHome_splunkHomeIsSet_commandToExecuteExportTool()
+			throws IOException {
+		final File splunkHome = createTempDirectory();
+		File bin = createDirectoryInParent(splunkHome, "bin");
+		createFileInParent(bin, "exporttool");
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-	    @Override
-	    public void run() {
-		String splunkHomePath = splunkHome.getAbsolutePath();
-		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			splunkHomePath);
-		assertEquals(splunkHomePath, SplunkEnvironment.getSplunkHome());
-	    }
-	});
-    }
+			@Override
+			public void run() {
+				String splunkHomePath = splunkHome.getAbsolutePath();
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHomePath);
+				assertEquals(splunkHomePath, SplunkEnvironment.getSplunkHome());
+			}
+		});
+	}
 
-    @Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
-    public void getSplunkHome_noSplunkHomeEnvironmentSet_thrownException() {
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	@Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
+	public void getSplunkHome_noSplunkHomeEnvironmentSet_thrownException() {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-	    @Override
-	    public void run() {
-		SplunkEnvironment.getSplunkHome();
-	    }
-	});
-    }
+			@Override
+			public void run() {
+				SplunkEnvironment.getSplunkHome();
+			}
+		});
+	}
 
-    public void getEnvironmentVariables_splunkHomeIsSet_getsSplunkHome() {
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	public void getEnvironmentVariables_splunkHomeIsSet_getsSplunkHome() {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-	    @Override
-	    public void run() {
-		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			"/splunk/home");
-		Map<String, String> keyValue = SplunkEnvironment
-			.getEnvironment();
-		assertEquals("/splunk/home", keyValue.get("SPLUNK_HOME"));
-	    }
-	});
-    }
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", "/splunk/home");
+				Map<String, String> keyValue = SplunkEnvironment.getEnvironment();
+				assertEquals("/splunk/home", keyValue.get("SPLUNK_HOME"));
+			}
+		});
+	}
 
-    @Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
-    public void getEnvironmentVariables_splunkHomeIsNotSet_throwsException() {
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	@Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
+	public void getEnvironmentVariables_splunkHomeIsNotSet_throwsException() {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-	    @Override
-	    public void run() {
-		SplunkEnvironment.getEnvironment();
-	    }
-	});
-    }
+			@Override
+			public void run() {
+				SplunkEnvironment.getEnvironment();
+			}
+		});
+	}
 }

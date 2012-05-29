@@ -27,67 +27,64 @@ import org.apache.log4j.Logger;
 
 public class MBeanUtils {
 
-    private static final MBeanServer mbs;
+	private static final MBeanServer mbs;
 
-    static {
-	mbs = ManagementFactory.getPlatformMBeanServer();
-    }
-
-    /**
-     * Registers an MBean
-     * 
-     * @param objectName
-     *            the name of the MBean to register.
-     * @param clazz
-     *            the MBean class to use.
-     * @throws Exception
-     */
-    public static void registerMBean(String name, Class<?> clazz)
-	    throws Exception {
-	ObjectName objectName = new ObjectName(name);
-	if (!mbs.isRegistered(objectName)) {
-	    mbs.registerMBean(clazz.newInstance(), objectName);
+	static {
+		mbs = ManagementFactory.getPlatformMBeanServer();
 	}
-    }
 
-    /**
-     * Retrieves an instance of a specific MBean
-     * 
-     * @param objectName
-     *            The object name
-     * @param clazz
-     *            Reference to the class wanted
-     * @return If the object name and class are correct, a reference to an
-     *         instance of the class
-     * @throws InstanceNotFoundException
-     */
-    public static <T> T getMBeanInstance(String name, Class<T> clazz)
-	    throws InstanceNotFoundException {
-	ObjectName objectName = getObjectNameWithErrorHandling(name, clazz);
-
-	// force exception if mbean is unregistred
-	mbs.getObjectInstance(objectName);
-	return clazz.cast(MBeanServerInvocationHandler.newProxyInstance(mbs,
-		objectName, clazz, false));
-    }
-
-    private static <T> ObjectName getObjectNameWithErrorHandling(String name,
-	    Class<T> clazz) {
-	ObjectName objectName = null;
-	try {
-	    objectName = new ObjectName(name);
-	} catch (Exception e) {
-	    logException(name, clazz, e);
-	    throw new RuntimeException(e);
+	/**
+	 * Registers an MBean
+	 * 
+	 * @param objectName
+	 *          the name of the MBean to register.
+	 * @param clazz
+	 *          the MBean class to use.
+	 * @throws Exception
+	 */
+	public static void registerMBean(String name, Class<?> clazz)
+			throws Exception {
+		ObjectName objectName = new ObjectName(name);
+		if (!mbs.isRegistered(objectName))
+			mbs.registerMBean(clazz.newInstance(), objectName);
 	}
-	return objectName;
-    }
 
-    private static <T> void logException(String name, Class<T> clazz,
-	    Exception e) {
-	Logger.getLogger(MBeanUtils.class).debug(
-		did("Tried creating ObjectName for MBean name: " + name, e,
-			"To create ObjectName", "mbean_name", name, "class"
-				+ clazz));
-    }
+	/**
+	 * Retrieves an instance of a specific MBean
+	 * 
+	 * @param objectName
+	 *          The object name
+	 * @param clazz
+	 *          Reference to the class wanted
+	 * @return If the object name and class are correct, a reference to an
+	 *         instance of the class
+	 * @throws InstanceNotFoundException
+	 */
+	public static <T> T getMBeanInstance(String name, Class<T> clazz)
+			throws InstanceNotFoundException {
+		ObjectName objectName = getObjectNameWithErrorHandling(name, clazz);
+
+		// force exception if mbean is unregistred
+		mbs.getObjectInstance(objectName);
+		return clazz.cast(MBeanServerInvocationHandler.newProxyInstance(mbs,
+				objectName, clazz, false));
+	}
+
+	private static <T> ObjectName getObjectNameWithErrorHandling(String name,
+			Class<T> clazz) {
+		ObjectName objectName = null;
+		try {
+			objectName = new ObjectName(name);
+		} catch (Exception e) {
+			logException(name, clazz, e);
+			throw new RuntimeException(e);
+		}
+		return objectName;
+	}
+
+	private static <T> void logException(String name, Class<T> clazz, Exception e) {
+		Logger.getLogger(MBeanUtils.class).debug(
+				did("Tried creating ObjectName for MBean name: " + name, e,
+						"To create ObjectName", "mbean_name", name, "class" + clazz));
+	}
 }

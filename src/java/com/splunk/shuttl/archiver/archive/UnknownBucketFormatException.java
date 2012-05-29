@@ -20,9 +20,9 @@ package com.splunk.shuttl.archiver.archive;
  */
 public class UnknownBucketFormatException extends IllegalArgumentException {
 
-    /**
-     * Default generated serial version uid.
-     */
-    private static final long serialVersionUID = 1L;
+	/**
+	 * Default generated serial version uid.
+	 */
+	private static final long serialVersionUID = 1L;
 
 }

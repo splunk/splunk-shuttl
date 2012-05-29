@@ -21,37 +21,37 @@ package com.splunk.shuttl.server;
  */
 public class ShuttlException extends Exception {
 
-    /**
+	/**
      * 
      */
-    public ShuttlException() {
-	super();
-	// TODO Auto-generated constructor stub
-    }
+	public ShuttlException() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
-    /**
-     * @param message
-     * @param cause
-     */
-    public ShuttlException(String message, Throwable cause) {
-	super(message, cause);
-	// TODO Auto-generated constructor stub
-    }
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public ShuttlException(String message, Throwable cause) {
+		super(message, cause);
+		// TODO Auto-generated constructor stub
+	}
 
-    /**
-     * @param message
-     */
-    public ShuttlException(String message) {
-	super(message);
-	// TODO Auto-generated constructor stub
-    }
+	/**
+	 * @param message
+	 */
+	public ShuttlException(String message) {
+		super(message);
+		// TODO Auto-generated constructor stub
+	}
 
-    /**
-     * @param cause
-     */
-    public ShuttlException(Throwable cause) {
-	super(cause);
-	// TODO Auto-generated constructor stub
-    }
+	/**
+	 * @param cause
+	 */
+	public ShuttlException(Throwable cause) {
+		super(cause);
+		// TODO Auto-generated constructor stub
+	}
 
 }

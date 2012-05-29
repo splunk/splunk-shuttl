@@ -33,264 +33,257 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
  */
 public class Bucket {
 
-    private final static Logger logger = Logger.getLogger(Bucket.class);
-    private final BucketFormat format;
-    private final File directory;
-    private final String indexName;
-    private final BucketName bucketName;
-    private final URI uri;
-    private final Long size; // size on file system in bytes
+	private final static Logger logger = Logger.getLogger(Bucket.class);
+	private final BucketFormat format;
+	private final File directory;
+	private final String indexName;
+	private final BucketName bucketName;
+	private final URI uri;
+	private final Long size; // size on file system in bytes
 
-    /**
-     * Bucket with an index and format<br/>
-     * 
-     * @param indexName
-     *            The name of the index that this bucket belongs to.
-     * @param directory
-     *            that is the bucket
-     * @throws FileNotFoundException
-     *             if the file doesn't exist
-     * @throws FileNotDirectoryException
-     *             if the file is not a directory
-     */
-    public Bucket(String indexName, File directory)
-	    throws FileNotFoundException, FileNotDirectoryException {
-	this(directory.toURI(), directory, indexName, directory.getName(),
-		BucketFormat.getFormatFromDirectory(directory), null);
-    }
-
-    /**
-     * Invokes {@link #Bucket(String, File)}, by creating a file from specified
-     * bucketPath
-     */
-    public Bucket(String indexName, String bucketPath)
-	    throws FileNotFoundException, FileNotDirectoryException {
-	this(indexName, new File(bucketPath));
-    }
-
-    /**
-     * Bucket created with an URI to support remote buckets.
-     * 
-     * @param uri
-     *            to bucket
-     * @param index
-     *            that the bucket belongs to.
-     * @param bucketName
-     *            that identifies the bucket
-     * @param format
-     *            of this bucket
-     * @throws FileNotFoundException
-     * @throws FileNotDirectoryException
-     */
-    public Bucket(URI uri, String index, String bucketName, BucketFormat format)
-	    throws FileNotFoundException, FileNotDirectoryException {
-	this(uri, getFileFromUri(uri), index, bucketName, format, null);
-    }
-
-    /**
-     * Bucket created with an URI to support remote buckets.
-     * 
-     * @param uri
-     *            to bucket
-     * @param index
-     *            that the bucket belongs to.
-     * @param bucketName
-     *            that identifies the bucket
-     * @param format
-     *            of this bucket
-     * @throws FileNotFoundException
-     * @throws FileNotDirectoryException
-     */
-    public Bucket(URI uri, String index, String bucketName,
-	    BucketFormat format, Long size) throws FileNotFoundException,
-	    FileNotDirectoryException {
-	this(uri, getFileFromUri(uri), index, bucketName, format, size);
-    }
-
-    private Bucket(URI uri, File directory, String index, String bucketName,
-	    BucketFormat format, Long size) throws FileNotFoundException,
-	    FileNotDirectoryException {
-	this.uri = uri;
-	this.directory = directory;
-	this.indexName = index;
-	this.bucketName = new BucketName(bucketName);
-	this.format = format;
-	this.size = size;
-	verifyDirectoryExists(directory);
-    }
-
-    private static File getFileFromUri(URI uri) {
-	if (uri != null && "file".equals(uri.getScheme())) {
-	    return new File(uri);
+	/**
+	 * Bucket with an index and format<br/>
+	 * 
+	 * @param indexName
+	 *          The name of the index that this bucket belongs to.
+	 * @param directory
+	 *          that is the bucket
+	 * @throws FileNotFoundException
+	 *           if the file doesn't exist
+	 * @throws FileNotDirectoryException
+	 *           if the file is not a directory
+	 */
+	public Bucket(String indexName, File directory) throws FileNotFoundException,
+			FileNotDirectoryException {
+		this(directory.toURI(), directory, indexName, directory.getName(),
+				BucketFormat.getFormatFromDirectory(directory), null);
 	}
-	return null;
-    }
 
-    private void verifyDirectoryExists(File directory)
-	    throws FileNotFoundException, FileNotDirectoryException {
-	if (!isUriSet() || isRemote())
-	    return; // Stop verifying.
-	if (!directory.exists()) {
-	    throw new FileNotFoundException("Could not find directory: "
-		    + directory);
-	} else if (!directory.isDirectory()) {
-	    throw new FileNotDirectoryException("Directory " + directory
-		    + " is not a directory");
+	/**
+	 * Invokes {@link #Bucket(String, File)}, by creating a file from specified
+	 * bucketPath
+	 */
+	public Bucket(String indexName, String bucketPath)
+			throws FileNotFoundException, FileNotDirectoryException {
+		this(indexName, new File(bucketPath));
 	}
-    }
 
-    private boolean isUriSet() {
-	return uri != null;
-    }
-
-    /**
-     * @return The directory that this bucket has its data in.
-     */
-    public File getDirectory() {
-	if (directory == null) {
-	    logger.debug(did("Got directory from bucket",
-		    "Bucket was remote and can't instantiate a File.", "",
-		    "bucket", this));
-	    throw new RemoteBucketException();
+	/**
+	 * Bucket created with an URI to support remote buckets.
+	 * 
+	 * @param uri
+	 *          to bucket
+	 * @param index
+	 *          that the bucket belongs to.
+	 * @param bucketName
+	 *          that identifies the bucket
+	 * @param format
+	 *          of this bucket
+	 * @throws FileNotFoundException
+	 * @throws FileNotDirectoryException
+	 */
+	public Bucket(URI uri, String index, String bucketName, BucketFormat format)
+			throws FileNotFoundException, FileNotDirectoryException {
+		this(uri, getFileFromUri(uri), index, bucketName, format, null);
 	}
-	return directory;
-    }
 
-    /**
-     * @return The name of this bucket.
-     */
-    public String getName() {
-	return bucketName.getName();
-    }
-
-    /**
-     * @return The name of the index that this bucket belong to.
-     */
-    public String getIndex() {
-	return indexName;
-    }
-
-    /**
-     * @return {@link BucketFormat} of this bucket.
-     */
-    public BucketFormat getFormat() {
-	return format;
-    }
-
-    /**
-     * @return {@link URI} of this bucket.
-     */
-    public URI getURI() {
-	return uri;
-    }
-
-    /**
-     * Moves the bucket.
-     * 
-     * @param destinationDirectory
-     *            destination directory
-     * @return a handle to the "new" bucket
-     * @throws FileNotFoundException
-     *             if the destination directory does not exist
-     * @throws FileNotDirectoryException
-     */
-    public Bucket moveBucketToDir(File destinationDirectory) {
-	if (!destinationDirectory.exists()) {
-	    throw new DirectoryDidNotExistException("Cannot move bucket to: "
-		    + destinationDirectory.getAbsolutePath()
-		    + ", because directory did not exist.");
+	/**
+	 * Bucket created with an URI to support remote buckets.
+	 * 
+	 * @param uri
+	 *          to bucket
+	 * @param index
+	 *          that the bucket belongs to.
+	 * @param bucketName
+	 *          that identifies the bucket
+	 * @param format
+	 *          of this bucket
+	 * @throws FileNotFoundException
+	 * @throws FileNotDirectoryException
+	 */
+	public Bucket(URI uri, String index, String bucketName, BucketFormat format,
+			Long size) throws FileNotFoundException, FileNotDirectoryException {
+		this(uri, getFileFromUri(uri), index, bucketName, format, size);
 	}
-	if (!destinationDirectory.isDirectory()) {
-	    throw new FileNotDirectoryException("Cannot move bucket to: "
-		    + destinationDirectory.getAbsolutePath()
-		    + ", because it's not a directory");
+
+	private Bucket(URI uri, File directory, String index, String bucketName,
+			BucketFormat format, Long size) throws FileNotFoundException,
+			FileNotDirectoryException {
+		this.uri = uri;
+		this.directory = directory;
+		this.indexName = index;
+		this.bucketName = new BucketName(bucketName);
+		this.format = format;
+		this.size = size;
+		verifyDirectoryExists(directory);
 	}
-	logger.debug(will("Attempting to move bucket", "bucket", this,
-		"destination", destinationDirectory));
-	File originDirectory = getDirectory();
-	File newName = new File(destinationDirectory, originDirectory.getName());
-	if (!originDirectory.renameTo(newName)) {
-	    logMoveFailureAndThrowException(destinationDirectory);
+
+	private static File getFileFromUri(URI uri) {
+		if (uri != null && "file".equals(uri.getScheme()))
+			return new File(uri);
+		return null;
 	}
-	return BucketFactory.createBucketWithIndexAndDirectory(getIndex(),
-		newName);
-    }
 
-    private void logMoveFailureAndThrowException(File destinationDirectory) {
-	logger.error(did("Attempted to move bucket", "move failed", null,
-		"bucket", this, "destination", destinationDirectory));
-	throw new RuntimeException("Couldn't move bucket to destination: "
-		+ destinationDirectory);
-    }
+	private void verifyDirectoryExists(File directory)
+			throws FileNotFoundException, FileNotDirectoryException {
+		if (!isUriSet() || isRemote())
+			return; // Stop verifying.
+		if (!directory.exists())
+			throw new FileNotFoundException("Could not find directory: " + directory);
+		else if (!directory.isDirectory())
+			throw new FileNotDirectoryException("Directory " + directory
+					+ " is not a directory");
+	}
 
-    /**
-     * Deletes the bucket from the file system.
-     * 
-     * @throws IOException
-     *             if it's not possible to delete the directory
-     */
-    public void deleteBucket() throws IOException {
-	FileUtils.deleteDirectory(getDirectory());
-    }
+	private boolean isUriSet() {
+		return uri != null;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-	if (this == obj)
-	    return true;
-	if (obj == null)
-	    return false;
-	if (getClass() != obj.getClass())
-	    return false;
-	Bucket other = (Bucket) obj;
-	if (directory == null) {
-	    if (other.directory != null)
-		return false;
-	} else if (!directory.getAbsolutePath().equals(
-		other.directory.getAbsolutePath()))
-	    return false;
-	if (indexName == null) {
-	    if (other.indexName != null)
-		return false;
-	} else if (!indexName.equals(other.indexName))
-	    return false;
-	return true;
-    }
+	/**
+	 * @return The directory that this bucket has its data in.
+	 */
+	public File getDirectory() {
+		if (directory == null) {
+			logger
+					.debug(did("Got directory from bucket",
+							"Bucket was remote and can't instantiate a File.", "", "bucket",
+							this));
+			throw new RemoteBucketException();
+		}
+		return directory;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-	return "Bucket [format=" + format + ", directory=" + directory
-		+ ", indexName=" + indexName + ", bucketName=" + bucketName
-		+ ", uri=" + uri + "]";
-    }
+	/**
+	 * @return The name of this bucket.
+	 */
+	public String getName() {
+		return bucketName.getName();
+	}
 
-    /**
-     * @return true if the bucket is not on the local file system.
-     */
-    public boolean isRemote() {
-	return !uri.getScheme().equals("file");
-    }
+	/**
+	 * @return The name of the index that this bucket belong to.
+	 */
+	public String getIndex() {
+		return indexName;
+	}
 
-    /**
-     * @return {@link Date} with earliest time of indexed data in the bucket.
-     */
-    public Date getEarliest() {
-	return new Date(bucketName.getEarliest());
-    }
+	/**
+	 * @return {@link BucketFormat} of this bucket.
+	 */
+	public BucketFormat getFormat() {
+		return format;
+	}
 
-    /**
-     * @return {@link Date} with latest time of indexed data in the bucket.
-     */
-    public Date getLatest() {
-	return new Date(bucketName.getLatest());
-    }
+	/**
+	 * @return {@link URI} of this bucket.
+	 */
+	public URI getURI() {
+		return uri;
+	}
 
-    public long getSize() {
-	return size.longValue();
-    }
+	/**
+	 * Moves the bucket.
+	 * 
+	 * @param destinationDirectory
+	 *          destination directory
+	 * @return a handle to the "new" bucket
+	 * @throws FileNotFoundException
+	 *           if the destination directory does not exist
+	 * @throws FileNotDirectoryException
+	 */
+	public Bucket moveBucketToDir(File destinationDirectory) {
+		if (!destinationDirectory.exists())
+			throw new DirectoryDidNotExistException("Cannot move bucket to: "
+					+ destinationDirectory.getAbsolutePath()
+					+ ", because directory did not exist.");
+		if (!destinationDirectory.isDirectory())
+			throw new FileNotDirectoryException("Cannot move bucket to: "
+					+ destinationDirectory.getAbsolutePath()
+					+ ", because it's not a directory");
+		logger.debug(will("Attempting to move bucket", "bucket", this,
+				"destination", destinationDirectory));
+		File originDirectory = getDirectory();
+		File newName = new File(destinationDirectory, originDirectory.getName());
+		if (!originDirectory.renameTo(newName))
+			logMoveFailureAndThrowException(destinationDirectory);
+		return BucketFactory.createBucketWithIndexAndDirectory(getIndex(), newName);
+	}
+
+	private void logMoveFailureAndThrowException(File destinationDirectory) {
+		logger.error(did("Attempted to move bucket", "move failed", null, "bucket",
+				this, "destination", destinationDirectory));
+		throw new RuntimeException("Couldn't move bucket to destination: "
+				+ destinationDirectory);
+	}
+
+	/**
+	 * Deletes the bucket from the file system.
+	 * 
+	 * @throws IOException
+	 *           if it's not possible to delete the directory
+	 */
+	public void deleteBucket() throws IOException {
+		FileUtils.deleteDirectory(getDirectory());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Bucket other = (Bucket) obj;
+		if (directory == null) {
+			if (other.directory != null)
+				return false;
+		} else if (!directory.getAbsolutePath().equals(
+				other.directory.getAbsolutePath()))
+			return false;
+		if (indexName == null) {
+			if (other.indexName != null)
+				return false;
+		} else if (!indexName.equals(other.indexName))
+			return false;
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Bucket [format=" + format + ", directory=" + directory
+				+ ", indexName=" + indexName + ", bucketName=" + bucketName + ", uri="
+				+ uri + "]";
+	}
+
+	/**
+	 * @return true if the bucket is not on the local file system.
+	 */
+	public boolean isRemote() {
+		return !uri.getScheme().equals("file");
+	}
+
+	/**
+	 * @return {@link Date} with earliest time of indexed data in the bucket.
+	 */
+	public Date getEarliest() {
+		return new Date(bucketName.getEarliest());
+	}
+
+	/**
+	 * @return {@link Date} with latest time of indexed data in the bucket.
+	 */
+	public Date getLatest() {
+		return new Date(bucketName.getLatest());
+	}
+
+	public long getSize() {
+		return size.longValue();
+	}
 
 }

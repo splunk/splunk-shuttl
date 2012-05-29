@@ -22,74 +22,69 @@ import java.io.File;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkEnvironment;
-import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkEnvironmentNotSetException;
-import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkTool;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
 @Test(groups = { "fast-unit" })
 public abstract class SplunkToolTest {
 
-    private SplunkTool splunkTool;
+	private SplunkTool splunkTool;
 
-    @BeforeMethod
-    public void setUp() {
-	splunkTool = getInstance();
-    }
+	@BeforeMethod
+	public void setUp() {
+		splunkTool = getInstance();
+	}
 
-    protected abstract SplunkTool getInstance();
+	protected abstract SplunkTool getInstance();
 
-    @Test(groups = { "fast-unit" })
-    public void getExecutableCommand_theImportToolIsInSplunkHome_pathToExecutable() {
-	final File splunkHome = createTempDirectory();
-	File bin = createDirectoryInParent(splunkHome, "bin");
-	final File importTool = createFileInParent(bin,
-		splunkTool.getToolName());
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	@Test(groups = { "fast-unit" })
+	public void getExecutableCommand_theImportToolIsInSplunkHome_pathToExecutable() {
+		final File splunkHome = createTempDirectory();
+		File bin = createDirectoryInParent(splunkHome, "bin");
+		final File importTool = createFileInParent(bin, splunkTool.getToolName());
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-	    @Override
-	    public void run() {
-		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			splunkHome.getAbsolutePath());
-		String pathToExecutable = splunkTool.getExecutableCommand();
-		assertEquals(importTool.getAbsolutePath(), pathToExecutable);
-	    }
-	});
-    }
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
+						splunkHome.getAbsolutePath());
+				String pathToExecutable = splunkTool.getExecutableCommand();
+				assertEquals(importTool.getAbsolutePath(), pathToExecutable);
+			}
+		});
+	}
 
-    @Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
-    public void getExecutableCommand_splunkHomeIsNotSet_throwException() {
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	@Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
+	public void getExecutableCommand_splunkHomeIsNotSet_throwException() {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-	    @Override
-	    public void run() {
-		assertTrue(System.getenv("SPLUNK_HOME") == null);
-		splunkTool.getExecutableCommand();
-	    }
-	});
-    }
+			@Override
+			public void run() {
+				assertTrue(System.getenv("SPLUNK_HOME") == null);
+				splunkTool.getExecutableCommand();
+			}
+		});
+	}
 
-    public void getEnvironment_splunkHomeIsSet_equalsSplunkEnvironment() {
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	public void getEnvironment_splunkHomeIsSet_equalsSplunkEnvironment() {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-	    @Override
-	    public void run() {
-		TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
-			"something");
-		assertEquals(SplunkEnvironment.getEnvironment(),
-			splunkTool.getEnvironment());
-	    }
-	});
-    }
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", "something");
+				assertEquals(SplunkEnvironment.getEnvironment(),
+						splunkTool.getEnvironment());
+			}
+		});
+	}
 
-    @Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
-    public void getEnvironment_default_getsAllTheSplunkEnvironments() {
-	TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+	@Test(expectedExceptions = { SplunkEnvironmentNotSetException.class })
+	public void getEnvironment_default_getsAllTheSplunkEnvironments() {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-	    @Override
-	    public void run() {
-		SplunkEnvironment.getEnvironment();
-	    }
-	});
-    }
+			@Override
+			public void run() {
+				SplunkEnvironment.getEnvironment();
+			}
+		});
+	}
 }

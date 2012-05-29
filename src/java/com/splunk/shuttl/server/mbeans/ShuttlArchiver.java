@@ -28,156 +28,156 @@ import com.splunk.shuttl.server.model.ArchiverConf;
  * @author kpakkirisamy
  */
 public class ShuttlArchiver implements ShuttlArchiverMBean {
-    // error messages
-    private static final String SHUTTL_ARCHIVER_INIT_FAILURE = "ShuttlArchiver init failure";
-    // end error messages
+	// error messages
+	private static final String SHUTTL_ARCHIVER_INIT_FAILURE = "ShuttlArchiver init failure";
+	// end error messages
 
-    private static String ARCHIVERCONF_XML = "etc/apps/shuttl/conf/archiver.xml";
-    private static Logger logger = Logger.getLogger(ShuttlArchiver.class);
-    private ArchiverConf conf;
-    private String xmlFilePath;
+	private static String ARCHIVERCONF_XML = "etc/apps/shuttl/conf/archiver.xml";
+	private static Logger logger = Logger.getLogger(ShuttlArchiver.class);
+	private ArchiverConf conf;
+	private String xmlFilePath;
 
-    public ShuttlArchiver() throws ShuttlMBeanException {
-	try {
-	    this.xmlFilePath = getArchiverConfXml();
-	    refresh();
-	} catch (Exception e) {
-	    logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
-	    throw new ShuttlMBeanException(e);
+	public ShuttlArchiver() throws ShuttlMBeanException {
+		try {
+			this.xmlFilePath = getArchiverConfXml();
+			refresh();
+		} catch (Exception e) {
+			logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
+			throw new ShuttlMBeanException(e);
+		}
 	}
-    }
 
-    protected String getArchiverConfXml() {
-	return System.getProperty("splunk.home") + ARCHIVERCONF_XML;
-    }
-
-    // used by tests
-    public ShuttlArchiver(String confFilePath) throws ShuttlMBeanException {
-	try {
-	    this.xmlFilePath = confFilePath;
-	    refresh();
-	} catch (Exception e) {
-	    logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
-	    throw new ShuttlMBeanException(e);
+	protected String getArchiverConfXml() {
+		return System.getProperty("splunk.home") + ARCHIVERCONF_XML;
 	}
-    }
 
-    @Override
-    public String getClusterName() {
-	return conf.getClusterName();
-    }
-
-    @Override
-    public void setClusterName(String clusterName) {
-	conf.setClusterName(clusterName);
-    }
-
-    @Override
-    public List<String> getIndexNames() {
-	return conf.getIndexNames();
-    }
-
-    @Override
-    public void setIndexNames(List<String> indexNames) {
-	conf.setIndexNames(indexNames);
-    }
-
-    @Override
-    public String getArchiveFormat() {
-	return conf.getArchiveFormat();
-    }
-
-    @Override
-    public void setArchiveFormat(String format) {
-	conf.setArchiveFormat(format);
-    }
-
-    @Override
-    public List<String> getBucketFormatPriority() {
-	return conf.getBucketFormatPriority();
-    }
-
-    @Override
-    public void setBucketFormatPriority(List<String> priorityList) {
-	conf.setBucketFormatPriority(priorityList);
-    }
-
-    @Override
-    public String getServerName() {
-	return conf.getServerName();
-    }
-
-    @Override
-    public void setServerName(String serverName) {
-	conf.setServerName(serverName);
-    }
-
-    @Override
-    public String getTmpDirectory() {
-	return conf.getTmpDirectory();
-    }
-
-    @Override
-    public void setTmpDirectory(String path) {
-	conf.setTmpDirectory(path);
-    }
-
-    @Override
-    public String getArchiverRootURI() {
-	return conf.getArchiverRootURI();
-    }
-
-    @Override
-    public void setArchiverRootURI(String uri) {
-	conf.setArchiverRootURI(uri);
-    }
-
-    @Override
-    public void addIndex(String name) {
-	if (conf.getIndexNames() == null) {
-	    conf.setIndexNames(new ArrayList<String>());
+	// used by tests
+	public ShuttlArchiver(String confFilePath) throws ShuttlMBeanException {
+		try {
+			this.xmlFilePath = confFilePath;
+			refresh();
+		} catch (Exception e) {
+			logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
+			throw new ShuttlMBeanException(e);
+		}
 	}
-	conf.getIndexNames().add(name);
-    }
 
-    @Override
-    public void deleteIndex(String name) {
-	conf.getIndexNames().remove(name);
-    }
-
-    @Override
-    public void save() throws ShuttlMBeanException { // TODO move to util class
-	try {
-	    JAXBUtils.save(ArchiverConf.class, this.conf, this.xmlFilePath);
-	} catch (Exception e) {
-	    logger.error(e);
-	    throw new ShuttlMBeanException(e);
+	@Override
+	public String getClusterName() {
+		return conf.getClusterName();
 	}
-    }
 
-    @Override
-    public void refresh() throws ShuttlMBeanException { // TODO move to util class
-	try {
-	    this.conf = (ArchiverConf) JAXBUtils.refresh(ArchiverConf.class,
-		    this.xmlFilePath);
-	} catch (FileNotFoundException fnfe) {
-	    this.conf = new ArchiverConf();
-	} catch (Exception e) {
-	    logger.error(e);
-	    throw new ShuttlMBeanException(e);
+	@Override
+	public void setClusterName(String clusterName) {
+		conf.setClusterName(clusterName);
 	}
-    }
 
-    /**
-     * @return
-     */
-    public static ShuttlArchiverMBean getMBeanProxy() {
-	try {
-	    return MBeanUtils.getMBeanInstance(ShuttlArchiverMBean.OBJECT_NAME,
-		    ShuttlArchiverMBean.class);
-	} catch (Exception e) {
-	    logger.error(e);
-	    throw new RuntimeException(e);
+	@Override
+	public List<String> getIndexNames() {
+		return conf.getIndexNames();
 	}
-    }
+
+	@Override
+	public void setIndexNames(List<String> indexNames) {
+		conf.setIndexNames(indexNames);
+	}
+
+	@Override
+	public String getArchiveFormat() {
+		return conf.getArchiveFormat();
+	}
+
+	@Override
+	public void setArchiveFormat(String format) {
+		conf.setArchiveFormat(format);
+	}
+
+	@Override
+	public List<String> getBucketFormatPriority() {
+		return conf.getBucketFormatPriority();
+	}
+
+	@Override
+	public void setBucketFormatPriority(List<String> priorityList) {
+		conf.setBucketFormatPriority(priorityList);
+	}
+
+	@Override
+	public String getServerName() {
+		return conf.getServerName();
+	}
+
+	@Override
+	public void setServerName(String serverName) {
+		conf.setServerName(serverName);
+	}
+
+	@Override
+	public String getTmpDirectory() {
+		return conf.getTmpDirectory();
+	}
+
+	@Override
+	public void setTmpDirectory(String path) {
+		conf.setTmpDirectory(path);
+	}
+
+	@Override
+	public String getArchiverRootURI() {
+		return conf.getArchiverRootURI();
+	}
+
+	@Override
+	public void setArchiverRootURI(String uri) {
+		conf.setArchiverRootURI(uri);
+	}
+
+	@Override
+	public void addIndex(String name) {
+		if (conf.getIndexNames() == null)
+			conf.setIndexNames(new ArrayList<String>());
+		conf.getIndexNames().add(name);
+	}
+
+	@Override
+	public void deleteIndex(String name) {
+		conf.getIndexNames().remove(name);
+	}
+
+	@Override
+	public void save() throws ShuttlMBeanException { // TODO move to util class
+		try {
+			JAXBUtils.save(ArchiverConf.class, this.conf, this.xmlFilePath);
+		} catch (Exception e) {
+			logger.error(e);
+			throw new ShuttlMBeanException(e);
+		}
+	}
+
+	@Override
+	public void refresh() throws ShuttlMBeanException { // TODO move to util
+		// class
+		try {
+			this.conf = (ArchiverConf) JAXBUtils.refresh(ArchiverConf.class,
+					this.xmlFilePath);
+		} catch (FileNotFoundException fnfe) {
+			this.conf = new ArchiverConf();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new ShuttlMBeanException(e);
+		}
+	}
+
+	/**
+	 * @return
+	 */
+	public static ShuttlArchiverMBean getMBeanProxy() {
+		try {
+			return MBeanUtils.getMBeanInstance(ShuttlArchiverMBean.OBJECT_NAME,
+					ShuttlArchiverMBean.class);
+		} catch (Exception e) {
+			logger.error(e);
+			throw new RuntimeException(e);
+		}
+	}
 }

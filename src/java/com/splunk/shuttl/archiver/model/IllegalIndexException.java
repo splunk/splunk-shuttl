@@ -21,13 +21,13 @@ import java.io.IOException;
  */
 public class IllegalIndexException extends IOException {
 
-    public IllegalIndexException(String message) {
-	super(message);
-    }
+	public IllegalIndexException(String message) {
+		super(message);
+	}
 
-    /**
-     * Default version UID
-     */
-    private static final long serialVersionUID = 1L;
+	/**
+	 * Default version UID
+	 */
+	private static final long serialVersionUID = 1L;
 
 }
