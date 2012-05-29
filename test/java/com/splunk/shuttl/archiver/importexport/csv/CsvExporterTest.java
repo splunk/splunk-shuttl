@@ -29,9 +29,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
-import com.splunk.shuttl.archiver.importexport.csv.CsvExportFailedException;
-import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
-import com.splunk.shuttl.archiver.importexport.csv.GetsBucketsCsvFile;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkExportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -58,20 +55,19 @@ public class CsvExporterTest {
 	emptyMap = Collections.<String, String> emptyMap();
     }
 
-    public void exportBucketToCsv_givenRuntimeExportToolAndOutputDir_callsRuntimeInTheCorrectWay()
+    public void exportBucketToCsv_givenExecutableCommandEnvironmentAndCsvExportPath_executesSpecifiedCommand()
 	    throws IOException {
 	when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
 	when(exportTool.getEnvironment()).thenReturn(emptyMap);
-	when(getsBucketsCsvFile.getCsvFile(bucket))
-		.thenReturn(createTestFile());
+	File csvFile = createTestFile();
+	when(getsBucketsCsvFile.getCsvFile(bucket)).thenReturn(csvFile);
 	String bucketPath = bucket.getDirectory().getAbsolutePath();
 
-	String[] command = new String[] { "/exporttool/path", bucketPath,
-		"/csv/path", "-csv" };
-	when(shellExecutor.executeCommand(emptyMap, asList(command)))
-		.thenReturn(0);
-
 	csvExporter.exportBucketToCsv(bucket);
+
+	String[] command = new String[] { "/exporttool/path", bucketPath,
+		csvFile.getAbsolutePath(), "-csv" };
+	verify(shellExecutor).executeCommand(emptyMap, asList(command));
     }
 
     @SuppressWarnings("unchecked")
