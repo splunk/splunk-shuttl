@@ -16,13 +16,18 @@ package com.splunk.shuttl.archiver.archive;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
+import static org.testng.Assert.*;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.log4j.Logger;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -34,14 +39,53 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 @Test(groups = { "fast-unit" })
 public class ArchiveRestHandlerTest {
 
+	private ArchiveRestHandler archiveRestHandler;
+	private HttpClient httpClient;
+	private Logger logger;
+
+	@BeforeMethod
+	public void setUp() {
+		httpClient = mock(HttpClient.class, Mockito.RETURNS_MOCKS);
+		logger = mock(Logger.class);
+		archiveRestHandler = new ArchiveRestHandler(httpClient, logger);
+	}
+
 	@Test(groups = { "fast-unit" })
 	public void callRestToArchiveBucket_givenBucket_executesRequestOnHttpClient()
 			throws ClientProtocolException, IOException {
 		Bucket bucket = TUtilsBucket.createBucket();
-		HttpClient httpClient = mock(HttpClient.class, Mockito.RETURNS_MOCKS);
-		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(httpClient);
 		archiveRestHandler.callRestToArchiveBucket(bucket);
 
 		verify(httpClient).execute(any(HttpUriRequest.class));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void callRestToArchiveBucket_httpClientThrowsClientProtocolException_caughtAndLogged()
+			throws ClientProtocolException, IOException {
+		when(httpClient.execute(any(HttpUriRequest.class))).thenThrow(
+				ClientProtocolException.class);
+		Bucket bucket = TUtilsBucket.createBucket();
+		archiveRestHandler.callRestToArchiveBucket(bucket);
+
+		verifyClassWasOnlyErrorLogged(ClientProtocolException.class);
+	}
+
+	private void verifyClassWasOnlyErrorLogged(Class<?> clazz) {
+		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+		verify(logger).error(captor.capture());
+		List<String> allErrorLogs = captor.getAllValues();
+		assertEquals(1, allErrorLogs.size());
+		assertTrue(allErrorLogs.get(0).contains(clazz.getSimpleName()));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void callRestToArchiveBucket_httpClientThrowsIOException_caughtAndLogged()
+			throws ClientProtocolException, IOException {
+		when(httpClient.execute(any(HttpUriRequest.class))).thenThrow(
+				IOException.class);
+		Bucket bucket = TUtilsBucket.createBucket();
+		archiveRestHandler.callRestToArchiveBucket(bucket);
+
+		verifyClassWasOnlyErrorLogged(IOException.class);
 	}
 }

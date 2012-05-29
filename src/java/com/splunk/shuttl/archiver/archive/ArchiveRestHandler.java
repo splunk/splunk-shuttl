@@ -44,18 +44,23 @@ import com.splunk.shuttl.server.mbeans.rest.BucketArchiverRest;
  */
 public class ArchiveRestHandler implements SharedLockBucketHandler {
 
-	private final static Logger logger = Logger
-			.getLogger(ArchiveRestHandler.class);
 	private final HttpClient httpClient;
+	private final Logger logger;
 
 	public ArchiveRestHandler(HttpClient httpClient) {
+		this(httpClient, Logger.getLogger(ArchiveRestHandler.class));
+	}
+
+	public ArchiveRestHandler(HttpClient httpClient, Logger logger) {
 		this.httpClient = httpClient;
+		this.logger = logger;
 	}
 
 	public void callRestToArchiveBucket(Bucket bucket) {
 		HttpResponse response = null;
 		try {
-			response = executingHttpRequestForArchivingBucket(bucket);
+			HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
+			response = executeArchiveBucketRequest(bucket, archiveBucketRequest);
 		} catch (HttpResponseException e) {
 			logHttpResponseException(bucket, e);
 		} catch (IOException e) {
@@ -64,18 +69,6 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 			if (response != null)
 				consumeResponseHandlingErrors(response);
 		}
-	}
-
-	private HttpResponse executingHttpRequestForArchivingBucket(Bucket bucket)
-			throws UnsupportedEncodingException, IOException,
-			ClientProtocolException, HttpResponseException {
-		HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
-
-		logger.debug(will("Send an archive bucket request", "request_uri",
-				archiveBucketRequest.getURI()));
-		HttpResponse response = httpClient.execute(archiveBucketRequest);
-		handleResponseFromDoingArchiveBucketRequest(response, bucket);
-		return response;
 	}
 
 	private static HttpUriRequest createBucketArchiveRequest(Bucket bucket)
@@ -94,6 +87,16 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 
 		request.setEntity(new UrlEncodedFormEntity(params));
 		return request;
+	}
+
+	private HttpResponse executeArchiveBucketRequest(Bucket bucket,
+			HttpUriRequest archiveBucketRequest) throws IOException,
+			ClientProtocolException, HttpResponseException {
+		logger.debug(will("Send an archive bucket request", "request_uri",
+				archiveBucketRequest.getURI()));
+		HttpResponse response = httpClient.execute(archiveBucketRequest);
+		handleResponseFromDoingArchiveBucketRequest(response, bucket);
+		return response;
 	}
 
 	private void handleResponseFromDoingArchiveBucketRequest(
