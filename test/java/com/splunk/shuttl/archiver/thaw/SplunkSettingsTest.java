@@ -50,7 +50,7 @@ public class SplunkSettingsTest {
 		assertEquals(thawLocationPath, actualThawLocation.getAbsolutePath());
 	}
 
-	@Test(groups = { "fast-unit" }, expectedExceptions = { IllegalIndexException.class })
+	@Test(expectedExceptions = { IllegalIndexException.class })
 	public void getThawLocation_givenInvalidIndexAndSplunkService_throws()
 			throws IOException {
 		String nonexistantIndexName = "asd123";

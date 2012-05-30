@@ -41,7 +41,6 @@ public class BucketBean {
 	 * Needed for JAX-RS
 	 */
 	public BucketBean() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public BucketBean(String format, String indexName, String bucketName,

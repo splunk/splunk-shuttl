@@ -100,8 +100,8 @@ public class ArchiveBucketsListerTest {
 
 		List<Bucket> buckets = archiveBucketsLister.listBucketsInIndex(index);
 		assertEquals(2, buckets.size());
-		Bucket bucket1 = new Bucket(bucketUri1, index, bucketName1, null, null);
-		Bucket bucket2 = new Bucket(bucketUri2, index, bucketName2, null, null);
+		Bucket bucket1 = new Bucket(bucketUri1, index, bucketName1, null);
+		Bucket bucket2 = new Bucket(bucketUri2, index, bucketName2, null);
 		for (Bucket bucket : buckets)
 			assertTrue(TUtilsTestNG
 					.isBucketEqualOnIndexFormatAndName(bucket1, bucket)
