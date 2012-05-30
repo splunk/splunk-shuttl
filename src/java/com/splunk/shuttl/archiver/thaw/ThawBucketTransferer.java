@@ -28,11 +28,13 @@ public class ThawBucketTransferer {
 
 	private final ThawLocationProvider thawLocationProvider;
 	private final ArchiveFileSystem archiveFileSystem;
+	private final BucketFactory bucketFactory;
 
 	public ThawBucketTransferer(ThawLocationProvider thawLocationProvider,
-			ArchiveFileSystem archiveFileSystem) {
+			ArchiveFileSystem archiveFileSystem, BucketFactory bucketFactory) {
 		this.thawLocationProvider = thawLocationProvider;
 		this.archiveFileSystem = archiveFileSystem;
+		this.bucketFactory = bucketFactory;
 	}
 
 	/**
@@ -44,8 +46,7 @@ public class ThawBucketTransferer {
 		File bucketsThawLocation = thawLocationProvider
 				.getLocationInThawForBucket(bucket);
 		archiveFileSystem.getFile(bucketsThawLocation, bucket.getURI());
-		// TODO: test this.
-		return BucketFactory.createBucketWithIndexAndDirectory(bucket.getIndex(),
+		return bucketFactory.createWithIndexAndDirectory(bucket.getIndex(),
 				bucketsThawLocation);
 	}
 }

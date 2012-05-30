@@ -22,6 +22,7 @@ import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
+import com.splunk.shuttl.archiver.model.BucketFactory;
 
 /**
  * Factory for getting {@link BucketThawer}
@@ -76,7 +77,7 @@ public class BucketThawerFactory {
 		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
 				splunkSettings);
 		ThawBucketTransferer thawBucketTransferer = new ThawBucketTransferer(
-				thawLocationProvider, archiveFileSystem);
+				thawLocationProvider, archiveFileSystem, new BucketFactory());
 		return thawBucketTransferer;
 	}
 
