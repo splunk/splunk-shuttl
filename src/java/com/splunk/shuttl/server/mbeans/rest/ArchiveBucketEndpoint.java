@@ -17,7 +17,7 @@ package com.splunk.shuttl.server.mbeans.rest;
 import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -32,7 +32,7 @@ import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.archive.BucketArchiverRunner;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLock;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
+import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.metrics.ShuttlMetricsHelper;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_ARCHIVER)
@@ -83,37 +83,19 @@ public class ArchiveBucketEndpoint {
 		new Thread(r).run();
 	}
 
-	private Runnable createBucketArchiverRunner(String indexName, String path) {
+	private Runnable createBucketArchiverRunner(String index, String path) {
 		BucketArchiver bucketArchiver = BucketArchiverFactory
 				.createConfiguredArchiver();
-		Bucket bucket = createBucketWithErrorHandling(indexName, path);
+		Bucket bucket = BucketFactory.createBucketWithIndexAndDirectory(index,
+				new File(path));
 		BucketLock bucketLock = new BucketLock(bucket);
+		throwExceptionIfSharedLockCannotBeAcquired(bucketLock);
+		return new BucketArchiverRunner(bucketArchiver, bucket, bucketLock);
+	}
+
+	private void throwExceptionIfSharedLockCannotBeAcquired(BucketLock bucketLock) {
 		if (!bucketLock.tryLockShared())
-			throw new IllegalStateException(
-					"We must ensure that the bucket archiver has a "
-							+ "lock to the bucket it will transfer");
-		Runnable r = new BucketArchiverRunner(bucketArchiver, bucket, bucketLock);
-		return r;
+			throw new IllegalStateException("We must ensure that the"
+					+ " bucket archiver has a " + "lock to the bucket it will transfer");
 	}
-
-	private Bucket createBucketWithErrorHandling(String indexName, String path) {
-		Bucket bucket;
-		try {
-			bucket = new Bucket(indexName, path);
-		} catch (FileNotFoundException e) {
-			logger.error(did(
-					"attempted to create bucket object from existing bucket directory",
-					"bucket directory did not exist", "existing bucket directory",
-					"path", path, "index name ", indexName));
-			throw new RuntimeException(e);
-		} catch (FileNotDirectoryException e) {
-			logger.error(did(
-					"attempted to create bucket object from existing bucket",
-					"specified path was a file", "specified path to be a directory",
-					"path", path, "index name ", indexName));
-			throw new RuntimeException(e);
-		}
-		return bucket;
-	}
-
 }
