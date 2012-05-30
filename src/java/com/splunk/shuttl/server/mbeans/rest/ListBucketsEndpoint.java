@@ -39,13 +39,10 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
-import com.splunk.shuttl.archiver.listers.ArchiveBucketsListerFactory;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
+import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
+import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.thaw.BucketFilter;
-import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
-import com.splunk.shuttl.archiver.thaw.BucketFormatResolverFactory;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
 import com.splunk.shuttl.server.model.BucketBean;
 
@@ -84,37 +81,17 @@ public class ListBucketsEndpoint {
 		logger.info(happened("Received REST request to list buckets", "endpoint",
 				ENDPOINT_LIST_BUCKETS, "index", index, "from", from, "to", to));
 
+		Date fromDate = getValidFromDate(from);
+		Date toDate = getValidToDate(to);
+
+		List<Bucket> filteredBucketsAtIndex = getFilteredBucketsAtIndex(index,
+				fromDate, toDate);
+
 		List<BucketBean> beans = new ArrayList<BucketBean>();
-		BucketFilter bucketFilter = new BucketFilter();
 		long totalBucketsSize = 0;
 
-		// get buckets by index (or all buckets if index is null)
-		List<Bucket> buckets = listBuckets(index);
-
-		if (from == null) {
-			logger.info("No from time provided - defaulting to 0001-01-01");
-			from = "0001-01-01";
-		}
-		if (to == null) {
-			logger.info("No to time provided - defaulting to 9999-12-31");
-			to = "9999-12-31";
-		}
-
-		// attempt to filter by date
-		try {
-			Date fromDate = StringDateConverter.convert(from);
-			Date toDate = StringDateConverter.convert(to);
-			buckets = bucketFilter
-					.filterBucketsByTimeRange(buckets, fromDate, toDate);
-		} catch (Exception e) {
-			logger.error(did("attempted to filter buckets by given date range", e,
-					null, "to", to, "from", from));
-			throw new RuntimeException(e);
-		}
-
-		for (Bucket bucket : buckets) {
-			BucketBean bucketBean = BucketBean.createBeanFromBucket(bucket);
-			beans.add(bucketBean);
+		for (Bucket bucket : filteredBucketsAtIndex) {
+			beans.add(BucketBean.createBeanFromBucket(bucket));
 			totalBucketsSize += bucket.getSize();
 		}
 
@@ -133,24 +110,37 @@ public class ListBucketsEndpoint {
 		}
 	}
 
-	private List<Bucket> listBuckets(String index) {
-		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-		ArchiveBucketsLister archiveBucketsLister = ArchiveBucketsListerFactory
-				.create(config);
-		BucketFormatResolver bucketFormatResolver = BucketFormatResolverFactory
-				.create(config);
-
-		List<Bucket> archivedBuckets = listBucketsAtIndex(index,
-				archiveBucketsLister);
-		return bucketFormatResolver.resolveBucketsFormats(archivedBuckets);
+	private Date getValidFromDate(String from) {
+		if (from == null) {
+			logger.info("No from time provided - defaulting to 0001-01-01");
+			from = "0001-01-01";
+		}
+		return StringDateConverter.convert(from);
 	}
 
-	private List<Bucket> listBucketsAtIndex(String index,
-			ArchiveBucketsLister bucketsLister) {
-		if (index == null || index.equals(""))
-			return bucketsLister.listBuckets();
+	private Date getValidToDate(String to) {
+		if (to == null) {
+			logger.info("No to time provided - defaulting to 9999-12-31");
+			to = "9999-12-31";
+		}
+		return StringDateConverter.convert(to);
+	}
+
+	private List<Bucket> getFilteredBucketsAtIndex(String index, Date fromDate,
+			Date toDate) {
+		ListsBucketsFiltered listsBucketsFiltered = getListsBucketsFiltered();
+		if (index == null)
+			return listsBucketsFiltered.listFilteredBuckets(fromDate, toDate);
 		else
-			return bucketsLister.listBucketsInIndex(index);
+			return listsBucketsFiltered.listFilteredBucketsAtIndex(index, fromDate,
+					toDate);
+	}
+
+	private ListsBucketsFiltered getListsBucketsFiltered() {
+		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
+		ListsBucketsFiltered listsBucketsFiltered = ListsBucketsFilteredFactory
+				.create(config);
+		return listsBucketsFiltered;
 	}
 
 }
