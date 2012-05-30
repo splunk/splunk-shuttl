@@ -37,10 +37,10 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.ShuttlConstants;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.server.mbeans.rest.BucketArchiverRest;
+import com.splunk.shuttl.server.mbeans.rest.ListBucketsEndpoint;
 
 /**
- * Handling all the calls and returns to and from {@link BucketArchiverRest}
+ * Handling all the calls and returns to and from {@link ListBucketsEndpoint}
  */
 public class ArchiveRestHandler implements SharedLockBucketHandler {
 

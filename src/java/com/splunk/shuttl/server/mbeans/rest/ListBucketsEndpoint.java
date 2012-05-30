@@ -40,22 +40,22 @@ import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
+import com.splunk.shuttl.archiver.listers.ArchiveBucketsListerFactory;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
-import com.splunk.shuttl.archiver.thaw.BucketFormatChooser;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
+import com.splunk.shuttl.archiver.thaw.BucketFormatResolverFactory;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
 import com.splunk.shuttl.server.model.BucketBean;
 
 /**
- * REST endpoints for archiving.
+ * Endpoint for listing buckets in the archive.
  */
 @Path(ENDPOINT_ARCHIVER)
-public class BucketArchiverRest {
+public class ListBucketsEndpoint {
 	private static final org.apache.log4j.Logger logger = Logger
-			.getLogger(BucketArchiverRest.class);
-
+			.getLogger(ListBucketsEndpoint.class);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -134,26 +134,23 @@ public class BucketArchiverRest {
 	}
 
 	private List<Bucket> listBuckets(String index) {
-		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
-				.getConfiguredArchiveFileSystem();
-		ArchiveConfiguration archiveConfiguration = ArchiveConfiguration
-				.getSharedInstance();
-		PathResolver pathResolver = new PathResolver(archiveConfiguration);
-		ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
-				pathResolver, archiveFileSystem);
-		ArchiveBucketsLister archiveBucketsLister = new ArchiveBucketsLister(
-				archiveFileSystem, indexesLister, pathResolver);
-		BucketFormatChooser bucketFormatChooser = new BucketFormatChooser(
-				archiveConfiguration);
-		BucketFormatResolver bucketFormatResolver = new BucketFormatResolver(
-				pathResolver, archiveFileSystem, bucketFormatChooser);
+		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
+		ArchiveBucketsLister archiveBucketsLister = ArchiveBucketsListerFactory
+				.create(config);
+		BucketFormatResolver bucketFormatResolver = BucketFormatResolverFactory
+				.create(config);
 
-		List<Bucket> archivedBuckets;
-		if (index == null || index.equals(""))
-			archivedBuckets = archiveBucketsLister.listBuckets();
-		else
-			archivedBuckets = archiveBucketsLister.listBucketsInIndex(index);
+		List<Bucket> archivedBuckets = listBucketsAtIndex(index,
+				archiveBucketsLister);
 		return bucketFormatResolver.resolveBucketsFormats(archivedBuckets);
+	}
+
+	private List<Bucket> listBucketsAtIndex(String index,
+			ArchiveBucketsLister bucketsLister) {
+		if (index == null || index.equals(""))
+			return bucketsLister.listBuckets();
+		else
+			return bucketsLister.listBucketsInIndex(index);
 	}
 
 }
