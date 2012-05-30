@@ -37,7 +37,6 @@ import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawer.FailedBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
-import com.splunk.shuttl.metrics.ShuttlMetricsHelper;
 import com.splunk.shuttl.server.model.BucketBean;
 
 /**
@@ -101,7 +100,7 @@ public class ThawBucketsEndpoint {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
 				ENDPOINT_ARCHIVER, endpoint);
-		ShuttlMetricsHelper.update(logger, logMessage);
+		logger.info(logMessage);
 	}
 
 	/**

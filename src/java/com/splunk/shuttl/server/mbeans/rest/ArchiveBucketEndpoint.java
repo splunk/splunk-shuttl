@@ -33,7 +33,6 @@ import com.splunk.shuttl.archiver.archive.BucketArchiverRunner;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLock;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
-import com.splunk.shuttl.metrics.ShuttlMetricsHelper;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_ARCHIVER)
 public class ArchiveBucketEndpoint {
@@ -72,7 +71,7 @@ public class ArchiveBucketEndpoint {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
 				ENDPOINT_ARCHIVER, endpoint);
-		ShuttlMetricsHelper.update(logger, logMessage);
+		logger.info(logMessage);
 	}
 
 	private void archiveBucketOnAnotherThread(String index, String path) {

@@ -30,7 +30,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.metrics.ShuttlMetricsHelper;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.model.ServerConf;
 
@@ -52,7 +51,7 @@ public class ShuttlServerRest {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
 				ENDPOINT_SERVER, ENDPOINT_DEFAULT_HOST);
-		ShuttlMetricsHelper.update(logger, logMessage);
+		logger.info(logMessage);
 
 		try {
 			return (getProxy().getDefHadoopClusterHost());
@@ -70,7 +69,7 @@ public class ShuttlServerRest {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
 				ENDPOINT_SERVER, ENDPOINT_DEFAULT_HOST);
-		ShuttlMetricsHelper.update(logger, logMessage);
+		logger.info(logMessage);
 
 		try {
 			return "<html> " + "<title>" + "Shuttl Rest Endpoint" + "</title>"
@@ -89,7 +88,7 @@ public class ShuttlServerRest {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
 				ENDPOINT_SERVER, ENDPOINT_DEFAULT_PORT);
-		ShuttlMetricsHelper.update(logger, logMessage);
+		logger.info(logMessage);
 
 		try {
 			return (Integer.toString(getProxy().getDefHadoopClusterPort()));
@@ -107,7 +106,7 @@ public class ShuttlServerRest {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
 				ENDPOINT_SERVER, ENDPOINT_DEFAULT_PORT);
-		ShuttlMetricsHelper.update(logger, logMessage);
+		logger.info(logMessage);
 
 		try {
 			return "<html> " + "<title>" + "Shuttl Rest Endpoint" + "</title>"
@@ -155,7 +154,7 @@ public class ShuttlServerRest {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
 				ENDPOINT_SERVER, ENDPOINT_SHUTDOWN);
-		ShuttlMetricsHelper.update(logger, logMessage);
+		logger.info(logMessage);
 
 		logger.info("Shuttl shutting down ..");
 		System.exit(0);
