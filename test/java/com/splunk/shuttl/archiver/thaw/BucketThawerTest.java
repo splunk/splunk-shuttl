@@ -19,7 +19,6 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -49,10 +48,6 @@ public class BucketThawerTest {
 
 	@BeforeMethod
 	public void setUp() {
-		buckets = Arrays.asList(mock(Bucket.class));
-		earliestTime = mock(Date.class);
-		latestTime = mock(Date.class);
-
 		archiveBucketsLister = mock(ArchiveBucketsLister.class);
 		bucketFilter = mock(BucketFilter.class);
 		bucketFormatResolver = mock(BucketFormatResolver.class);
@@ -61,23 +56,6 @@ public class BucketThawerTest {
 		bucketThawer = new BucketThawer(archiveBucketsLister, bucketFilter,
 				bucketFormatResolver, thawBucketTransferer, bucketImporter);
 		index = "index";
-	}
-
-	@Test(groups = { "fast-unit" })
-	public void thawBuckets_givenTimeRangeAndBucketsInAnIndex_filterBucketsOnTimeRange() {
-		when(archiveBucketsLister.listBucketsInIndex(index)).thenReturn(buckets);
-		bucketThawer.thawBuckets(index, earliestTime, latestTime);
-		verify(bucketFilter).filterBucketsByTimeRange(buckets, earliestTime,
-				latestTime);
-	}
-
-	public void thawBuckets_givenBucketsFilteredOnTimeRange_resolveBucketsFormats() {
-		List<Bucket> filteredBuckets = buckets;
-		when(
-				bucketFilter.filterBucketsByTimeRange(anyListOf(Bucket.class),
-						any(Date.class), any(Date.class))).thenReturn(filteredBuckets);
-		bucketThawer.thawBuckets(index, earliestTime, latestTime);
-		verify(bucketFormatResolver).resolveBucketsFormats(filteredBuckets);
 	}
 
 	public void thawBuckets_givenOneFilteredBucketWithFormat_transferBucketsToThawDirectory()
