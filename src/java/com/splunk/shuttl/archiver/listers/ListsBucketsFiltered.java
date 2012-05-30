@@ -49,7 +49,7 @@ public class ListsBucketsFiltered {
 	 */
 	public List<Bucket> listFilteredBuckets(Date earliestTime, Date latestTime) {
 		List<Bucket> allBuckets = bucketsLister.listBuckets();
-		return filterBuckets(allBuckets, earliestTime, latestTime);
+		return filterBucketsAndGiveThemFormats(allBuckets, earliestTime, latestTime);
 	}
 
 	/**
@@ -61,16 +61,15 @@ public class ListsBucketsFiltered {
 	public List<Bucket> listFilteredBucketsAtIndex(String index,
 			Date earliestTime, Date latestTime) {
 		List<Bucket> bucketsInIndex = bucketsLister.listBucketsInIndex(index);
-		return filterBuckets(bucketsInIndex, earliestTime, latestTime);
+		return filterBucketsAndGiveThemFormats(bucketsInIndex, earliestTime,
+				latestTime);
 	}
 
-	private List<Bucket> filterBuckets(List<Bucket> bucketsToFilter,
-			Date earliestTime, Date latestTime) {
+	private List<Bucket> filterBucketsAndGiveThemFormats(
+			List<Bucket> bucketsToFilter, Date earliestTime, Date latestTime) {
 		List<Bucket> filteredBuckets = bucketFilter.filterBucketsByTimeRange(
 				bucketsToFilter, earliestTime, latestTime);
-		List<Bucket> bucketsWithFormats = bucketFormatResolver
-				.resolveBucketsFormats(filteredBuckets);
-		return bucketsWithFormats;
+		return bucketFormatResolver.resolveBucketsFormats(filteredBuckets);
 	}
 
 }
