@@ -14,7 +14,14 @@
 // limitations under the License.
 package com.splunk.shuttl.server.model;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.apache.commons.io.FileUtils;
+
+import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
  * Bean for a bucket to respond with rest.
@@ -130,5 +137,21 @@ public class BucketBean {
 
 	public String getSize() {
 		return size;
+	}
+
+	/**
+	 * @param bucket
+	 *          to create bean from.
+	 */
+	public static BucketBean createBeanFromBucket(Bucket bucket) {
+		return new BucketBean(bucket.getFormat().name(), bucket.getIndex(),
+				bucket.getName(), bucket.getURI().toString(),
+				stringFromDate(bucket.getEarliest()),
+				stringFromDate(bucket.getLatest()),
+				FileUtils.byteCountToDisplaySize(bucket.getSize()));
+	}
+
+	private static String stringFromDate(Date date) {
+		return new SimpleDateFormat("yyyy-MM-dd").format(date).toString();
 	}
 }
