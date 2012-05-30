@@ -28,10 +28,14 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.testng.annotations.Parameters;
@@ -77,8 +81,11 @@ public class ArchiverEndToEndTest {
 			String hadoopPort, String shuttlHost, String shuttlPort) throws Exception {
 		setUp(splunkUserName, splunkPw, splunkHost, splunkPort, shuttlHost,
 				shuttlPort);
-		archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket();
-		tearDown(hadoopHost, hadoopPort);
+		try {
+			archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket();
+		} finally {
+			tearDown(hadoopHost, hadoopPort);
+		}
 	}
 
 	private void setUp(String splunkUserName, String splunkPw, String splunkHost,
@@ -121,6 +128,9 @@ public class ArchiverEndToEndTest {
 		successfulBucketFreezer.freezeBucket(bucketToFreeze.getIndex(),
 				bucketToFreeze.getDirectory().getAbsolutePath());
 
+		verifyFreezeByListingBucketInArchive(bucketToFreeze, thawIndex, earliest,
+				latest);
+
 		boolean bucketToFreezeExists = bucketToFreeze.getDirectory().exists();
 		assertFalse(bucketToFreezeExists);
 
@@ -135,17 +145,48 @@ public class ArchiverEndToEndTest {
 		assertEquals(bucketToFreeze.getName(), thawedBucket.getName());
 	}
 
+	private void verifyFreezeByListingBucketInArchive(Bucket bucket,
+			String index, Date earliest, Date latest) {
+		HttpGet listRequest = getListGetRequest(index, earliest, latest);
+		HttpResponse response = executeUriRequest(listRequest);
+		assertEquals(200, response.getStatusLine().getStatusCode());
+		List<String> lines = getLinesFromResponse(response);
+		assertEquals(1, lines.size());
+		assertTrue(lines.get(0).contains(
+				"\"bucketName\":\"" + bucket.getName() + "\""));
+	}
+
+	private HttpGet getListGetRequest(String index, Date earliest, Date latest) {
+		return new HttpGet(getArchiverEndpoint(ENDPOINT_LIST_BUCKETS)
+				+ createQuery(index, earliest, latest));
+	}
+
+	private String createQuery(String index, Date earliest, Date latest) {
+		return "?index=" + index + "&from=" + earliest.getTime() + "&to="
+				+ latest.getTime();
+	}
+
+	private List<String> getLinesFromResponse(HttpResponse response) {
+		try {
+			return IOUtils.readLines(response.getEntity().getContent());
+		} catch (IOException e) {
+			TUtilsTestNG.failForException("Could not read lines for http response.",
+					e);
+			return null;
+		}
+	}
+
 	private boolean isThawDirectoryEmpty() {
 		return TUtilsFile.isDirectoryEmpty(thawDirectoryLocation);
 	}
 
 	private void callRestToThawBuckets(String index, Date earliest, Date latest) {
 		HttpPost thawPostRequest = getThawPostRequest(index, earliest, latest);
-		executePostRequest(thawPostRequest);
+		executeUriRequest(thawPostRequest);
 	}
 
 	private HttpPost getThawPostRequest(String index, Date earliest, Date latest) {
-		URI thawEndpoint = getThawEndpoint();
+		URI thawEndpoint = getArchiverEndpoint(ENDPOINT_BUCKET_THAW);
 		HttpPost httpPost = new HttpPost(thawEndpoint);
 		List<BasicNameValuePair> postParams = asList(nameValue("index", index),
 				nameValue("from", earliest.getTime()),
@@ -166,11 +207,13 @@ public class ArchiverEndToEndTest {
 		}
 	}
 
-	private void executePostRequest(HttpPost httpPost) {
+	private HttpResponse executeUriRequest(HttpUriRequest request) {
 		try {
-			new DefaultHttpClient().execute(httpPost);
+			return new DefaultHttpClient().execute(request);
 		} catch (Exception e) {
-			TUtilsTestNG.failForException("Could not execute post: " + httpPost, e);
+			TUtilsTestNG.failForException(
+					"Could not execute uri request: " + request, e);
+			return null;
 		}
 	}
 
@@ -178,9 +221,9 @@ public class ArchiverEndToEndTest {
 		return new BasicNameValuePair(name, index.toString());
 	}
 
-	private URI getThawEndpoint() {
+	private URI getArchiverEndpoint(String endpoint) {
 		return URI.create("http://" + shuttlHost + ":" + shuttlPort + "/"
-				+ ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_THAW);
+				+ ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER + endpoint);
 	}
 
 	private void tearDown(String hadoopHost, String hadoopPort) {
