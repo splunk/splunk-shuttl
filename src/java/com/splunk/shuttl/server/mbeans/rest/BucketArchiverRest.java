@@ -18,7 +18,6 @@ package com.splunk.shuttl.server.mbeans.rest;
 import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
-import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,17 +39,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.util.ajax.JSON;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
-import com.splunk.shuttl.archiver.archive.BucketArchiverRunner;
 import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.archive.recovery.BucketLock;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
 import com.splunk.shuttl.archiver.thaw.BucketFormatChooser;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
@@ -68,37 +62,6 @@ import com.splunk.shuttl.server.model.BucketBean;
 public class BucketArchiverRest {
 	private static final org.apache.log4j.Logger logger = Logger
 			.getLogger(BucketArchiverRest.class);
-
-	/**
-	 * Example on how to archive a bucket with this endpoint:
-	 * /archiver/bucket/archive?path=/local/Path/To/Bucket
-	 * 
-	 * @param path
-	 *          to the bucket to be archived.
-	 */
-	@POST
-	@Produces(MediaType.TEXT_PLAIN)
-	@Path(ENDPOINT_BUCKET_ARCHIVER)
-	public void archiveBucket(@FormParam("path") String path,
-			@FormParam("index") String index) {
-
-		logMetricsAtEndpoint(ENDPOINT_BUCKET_ARCHIVER);
-
-		logger.info(happened("Received REST request to archive bucket", "endpoint",
-				ENDPOINT_BUCKET_ARCHIVER, "index", index, "path", path));
-
-		if (path == null) {
-			logger.error(happened("No path was provided."));
-			throw new IllegalArgumentException("path must be specified");
-		}
-
-		if (index == null) {
-			logger.error(happened("No index was provided."));
-			throw new IllegalArgumentException("index must be specified");
-		}
-
-		archiveBucketOnAnotherThread(index, path);
-	}
 
 	/**
 	 * Thaws a range of buckets in either a specific index or all indexes on the
@@ -278,47 +241,6 @@ public class BucketArchiverRest {
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
 				ENDPOINT_ARCHIVER, endpoint);
 		ShuttlMetricsHelper.update(logger, logMessage);
-	}
-
-	private void archiveBucketOnAnotherThread(String index, String path) {
-
-		logger.info(will("Attempting to archive bucket", "index", index, "path",
-				path));
-		Runnable r = createBucketArchiverRunner(index, path);
-		new Thread(r).run();
-	}
-
-	private Runnable createBucketArchiverRunner(String indexName, String path) {
-		BucketArchiver bucketArchiver = BucketArchiverFactory
-				.createConfiguredArchiver();
-		Bucket bucket = createBucketWithErrorHandling(indexName, path);
-		BucketLock bucketLock = new BucketLock(bucket);
-		if (!bucketLock.tryLockShared())
-			throw new IllegalStateException(
-					"We must ensure that the bucket archiver has a "
-							+ "lock to the bucket it will transfer");
-		Runnable r = new BucketArchiverRunner(bucketArchiver, bucket, bucketLock);
-		return r;
-	}
-
-	private Bucket createBucketWithErrorHandling(String indexName, String path) {
-		Bucket bucket;
-		try {
-			bucket = new Bucket(indexName, path);
-		} catch (FileNotFoundException e) {
-			logger.error(did(
-					"attempted to create bucket object from existing bucket directory",
-					"bucket directory did not exist", "existing bucket directory",
-					"path", path, "index name ", indexName));
-			throw new RuntimeException(e);
-		} catch (FileNotDirectoryException e) {
-			logger.error(did(
-					"attempted to create bucket object from existing bucket",
-					"specified path was a file", "specified path to be a directory",
-					"path", path, "index name ", indexName));
-			throw new RuntimeException(e);
-		}
-		return bucket;
 	}
 
 	private List<Bucket> listBuckets(String index) {
