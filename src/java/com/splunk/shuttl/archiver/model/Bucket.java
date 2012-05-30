@@ -114,8 +114,13 @@ public class Bucket {
 		this.indexName = index;
 		this.bucketName = new BucketName(bucketName);
 		this.format = format;
-		this.size = size;
 		verifyDirectoryExists(directory);
+		this.size = setSizeIfIsLocalBucket(uri, directory);
+	}
+
+	private Long setSizeIfIsLocalBucket(URI uri, File directory) {
+		return uri != null && !isRemote() ? FileUtils.sizeOfDirectory(directory)
+				: null;
 	}
 
 	private static File getFileFromUri(URI uri) {
@@ -282,8 +287,8 @@ public class Bucket {
 		return new Date(bucketName.getLatest());
 	}
 
-	public long getSize() {
-		return size.longValue();
+	public Long getSize() {
+		return size;
 	}
 
 }

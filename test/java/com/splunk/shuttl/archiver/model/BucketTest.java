@@ -102,8 +102,8 @@ public class BucketTest {
 
 	public void getName_givenExistingDirectory_correctBucketName()
 			throws IOException {
-		Bucket fakeBucket = TUtilsBucket.createBucketWithIndexAndName(
-				"index-name", "db_12351235_12351290_1");
+		Bucket fakeBucket = TUtilsBucket.createBucketWithIndexAndName("index-name",
+				"db_12351235_12351290_1");
 		Bucket bucket = new Bucket("index-name", fakeBucket.getDirectory());
 		assertEquals("db_12351235_12351290_1", bucket.getName());
 
@@ -270,6 +270,16 @@ public class BucketTest {
 			throws FileNotFoundException, FileNotDirectoryException {
 		new Bucket(URI.create("valid:/uri"), "index", "bucketName",
 				BucketFormat.UNKNOWN);
+	}
+
+	public void getSize_localBucket_notNull() throws IOException {
+		Bucket bucket = new Bucket(createDirectory().toURI(), null, null, null);
+		assertNotNull(bucket.getSize());
+	}
+
+	public void getSize_remoteBucket_null() throws IOException {
+		Bucket bucket = new Bucket(URI.create("remote:/bucket"), null, null, null);
+		assertNull(bucket.getSize());
 	}
 
 }
