@@ -14,17 +14,14 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.splunk.shuttl.archiver.fileSystem.FileOverwriteException;
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.model.IllegalIndexException;
 
 /**
  * Interacts with the archive to thaw buckets within the users needs, which is
@@ -34,38 +31,18 @@ public class BucketThawer {
 
 	private final ListsBucketsFiltered listsBucketsFiltered;
 	private final GetsBucketsFromArchive getsBucketsFromArchive;
+	private final List<Bucket> successfulThawedBuckets;
+	private final List<FailedBucket> failedBuckets;
 
-	public static class ThawInfo {
+	public static class FailedBucket {
 
 		public final Bucket bucket;
-		public final Status status;
-		private final Exception exception;
+		public final Exception exception;
 
-		public ThawInfo(Bucket bucket, Status status, Exception exception) {
+		public FailedBucket(Bucket bucket, Exception exception) {
 			this.bucket = bucket;
-			this.status = status;
 			this.exception = exception;
 		}
-
-		public enum Status {
-			THAWED, FAILED
-		}
-
-		/**
-		 * @return message from exception
-		 */
-		public String getExceptionMessage() {
-			if (exception != null)
-				if (exception instanceof FileOverwriteException)
-					return "Directory already exists - bucket is probably already thawed";
-				else if (exception instanceof IllegalIndexException)
-					return "Given index does not exist in running Splunk instance";
-				else if (exception instanceof IOException)
-					return exception.getMessage();
-				else
-					return "Unexpected exception: " + exception.getMessage();
-			return "Did not get an exception when thawing.";
-		};
 
 	}
 
@@ -84,42 +61,56 @@ public class BucketThawer {
 	public BucketThawer(ArchiveBucketsLister bucketsLister,
 			BucketFilter bucketFilter, BucketFormatResolver bucketFormatResolver,
 			ThawBucketTransferer thawBucketTransferer, BucketImporter bucketImporter) {
-		this.listsBucketsFiltered = new ListsBucketsFiltered(bucketsLister,
-				bucketFilter, bucketFormatResolver);
-		this.getsBucketsFromArchive = new GetsBucketsFromArchive(
-				thawBucketTransferer, bucketImporter);
+		this(new ListsBucketsFiltered(bucketsLister, bucketFilter,
+				bucketFormatResolver), new GetsBucketsFromArchive(thawBucketTransferer,
+				bucketImporter));
 	}
 
 	/**
-	 * Thaw buckets by listing buckets in an index, filter the buckets, resolve
-	 * their formats and lastly transferring them to the thaw directory.
-	 * 
-	 * @param index
-	 *          The index to thaw from. If null, all existing indexes are thawed
+	 * @param listsBucketsFiltered2
+	 * @param getsBucketsFromArchive2
 	 */
-	public List<ThawInfo> thawBuckets(String index, Date earliestTime,
-			Date latestTime) {
-		List<Bucket> bucketsToThaw = getBucketsToThaw(index, earliestTime,
-				latestTime);
-		return thawBuckets(bucketsToThaw);
+	public BucketThawer(ListsBucketsFiltered listsBucketsFiltered,
+			GetsBucketsFromArchive getsBucketsFromArchive) {
+		this.listsBucketsFiltered = listsBucketsFiltered;
+		this.getsBucketsFromArchive = getsBucketsFromArchive;
+		this.successfulThawedBuckets = new ArrayList<Bucket>();
+		this.failedBuckets = new ArrayList<FailedBucket>();
 	}
 
-	private List<Bucket> getBucketsToThaw(String index, Date earliestTime,
-			Date latestTime) {
-		if (index == null)
-			return listsBucketsFiltered.listFilteredBuckets(earliestTime, latestTime);
-		else
-			return listsBucketsFiltered.listFilteredBucketsAtIndex(index,
-					earliestTime, latestTime);
+	/**
+	 * Thaws bucket for a specific index within a time range.
+	 */
+	public void thawBuckets(String index, Date earliestTime, Date latestTime) {
+		List<Bucket> bucketsToThaw = listsBucketsFiltered
+				.listFilteredBucketsAtIndex(index, earliestTime, latestTime);
+		for (Bucket bucket : bucketsToThaw)
+			getThawedBucketFromArchive(bucket);
 	}
 
-	private List<ThawInfo> thawBuckets(List<Bucket> bucketsWithFormats) {
-		List<ThawInfo> thawInfos = new ArrayList<ThawInfo>();
+	private void getThawedBucketFromArchive(Bucket bucket) {
+		try {
+			Bucket thawedBucket = getsBucketsFromArchive.getBucketFromArchive(bucket);
+			successfulThawedBuckets.add(thawedBucket);
+		} catch (ThawTransferFailException e) {
+			failedBuckets.add(new FailedBucket(bucket, e));
+		} catch (ImportThawedBucketFailException e) {
+			failedBuckets.add(new FailedBucket(bucket, e));
+		}
+	}
 
-		for (Bucket bucket : bucketsWithFormats)
-			thawInfos.add(getsBucketsFromArchive.getBucketFromArchive(bucket));
+	/**
+	 * @return buckets that succeeded to be thawed.
+	 */
+	public List<Bucket> getThawedBuckets() {
+		return successfulThawedBuckets;
+	}
 
-		return thawInfos;
+	/**
+	 * @return buckets that failed to be thawed.
+	 */
+	public List<FailedBucket> getFailedBuckets() {
+		return failedBuckets;
 	}
 
 }

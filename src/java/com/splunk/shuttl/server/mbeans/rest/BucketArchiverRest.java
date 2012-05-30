@@ -55,7 +55,7 @@ import com.splunk.shuttl.archiver.thaw.BucketFilter;
 import com.splunk.shuttl.archiver.thaw.BucketFormatChooser;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
-import com.splunk.shuttl.archiver.thaw.BucketThawer.ThawInfo;
+import com.splunk.shuttl.archiver.thaw.BucketThawer.FailedBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
 import com.splunk.shuttl.metrics.ShuttlMetricsHelper;
@@ -144,9 +144,9 @@ public class BucketArchiverRest {
 		// thaw
 		logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
 		BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
-		List<ThawInfo> thawInfo = bucketThawer.thawBuckets(index, fromDate, toDate);
+		bucketThawer.thawBuckets(index, fromDate, toDate);
 
-		return convertThawInfoToJSON(thawInfo);
+		return convertThawInfoToJSON(bucketThawer);
 	}
 
 	/**
@@ -159,25 +159,20 @@ public class BucketArchiverRest {
 	 * @param thawInfos
 	 * @return JSON object conforming to the above schema (as a string).
 	 */
-	private String convertThawInfoToJSON(List<ThawInfo> thawInfos) {
+	private String convertThawInfoToJSON(BucketThawer bucketThawer) {
 		List<BucketBean> thawedBucketBeans = new ArrayList<BucketBean>();
 		List<Map<String, Object>> failedBucketBeans = new ArrayList<Map<String, Object>>();
 		ObjectMapper mapper = new ObjectMapper();
 
-		for (ThawInfo info : thawInfos)
-			switch (info.status) {
-			case THAWED:
-				thawedBucketBeans.add(createBeanFromBucket(info.bucket));
-				break;
-			case FAILED:
-				Map<String, Object> temp = new HashMap<String, Object>();
-				temp.put("bucket", createBeanFromBucket(info.bucket));
-				temp.put("reason", info.getExceptionMessage());
-				failedBucketBeans.add(temp);
-				break;
-			default:
-				throw new RuntimeException("Unexpected enum constant: " + info.status);
-			}
+		for (Bucket bucket : bucketThawer.getThawedBuckets())
+			thawedBucketBeans.add(createBeanFromBucket(bucket));
+
+		for (FailedBucket failedBucket : bucketThawer.getFailedBuckets()) {
+			Map<String, Object> temp = new HashMap<String, Object>();
+			temp.put("bucket", createBeanFromBucket(failedBucket.bucket));
+			temp.put("reason", failedBucket.exception.getClass().getSimpleName());
+			failedBucketBeans.add(temp);
+		}
 
 		HashMap<String, Object> ret = new HashMap<String, Object>();
 		ret.put("thawed", thawedBucketBeans);

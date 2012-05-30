@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.thaw.BucketThawer.ThawInfo;
 
 /**
  * Transfers and restores {@link Bucket}s from the archive to the local disk.
@@ -44,25 +43,39 @@ public class GetsBucketsFromArchive {
 	}
 
 	/**
-	 * @param bucket
-	 * @return
+	 * @return thawed bucket.
+	 * @throws ThawTransferFailException
+	 *           if the thawing fails.
+	 * @throws ImportThawedBucketFailException
+	 *           if the import of the thawed bucket fails.
 	 */
-	public ThawInfo getBucketFromArchive(Bucket bucket) {
+	public Bucket getBucketFromArchive(Bucket bucket)
+			throws ThawTransferFailException, ImportThawedBucketFailException {
 		logger.info(will("Attempting to thaw bucket", "bucket", bucket));
-		ThawInfo thawInfo = null;
+		Bucket thawedBucket = getTransferedBucket(bucket);
+		Bucket thawedImportedBucket = importThawedBucket(thawedBucket);
+		logger.info(done("Thawed bucket", "bucket", thawedImportedBucket));
+		return thawedImportedBucket;
+	}
+
+	private Bucket getTransferedBucket(Bucket bucket)
+			throws ThawTransferFailException {
 		try {
-			Bucket thawedBucket = thawBucketTransferer.transferBucketToThaw(bucket);
-			Bucket thawedImportedBucket = bucketImporter
-					.restoreToSplunkBucketFormat(thawedBucket);
-			logger.info(done("Thawed bucket", "bucket", thawedImportedBucket));
+			return thawBucketTransferer.transferBucketToThaw(bucket);
 		} catch (Exception e) {
-			// TODO: Thawing could be sped up by ignoring buckets in indexes
-			// we know don't exist
 			logger.error(did("Tried to thaw bucket", e, "Place the bucket in thaw",
 					"bucket", bucket, "exception", e));
-			thawInfo = new ThawInfo(bucket, ThawInfo.Status.FAILED, e);
+			throw new ThawTransferFailException(bucket);
 		}
-		return thawInfo;
+	}
+
+	private Bucket importThawedBucket(Bucket thawedBucket)
+			throws ImportThawedBucketFailException {
+		try {
+			return bucketImporter.restoreToSplunkBucketFormat(thawedBucket);
+		} catch (Exception e) {
+			throw new ImportThawedBucketFailException(thawedBucket);
+		}
 	}
 
 }

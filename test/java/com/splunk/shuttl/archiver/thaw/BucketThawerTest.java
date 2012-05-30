@@ -127,5 +127,4 @@ public class BucketThawerTest {
 		when(bucketFormatResolver.resolveBucketsFormats(anyListOf(Bucket.class)))
 				.thenReturn(filteredBucketsWithFormat);
 	}
-
 }

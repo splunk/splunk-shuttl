@@ -36,7 +36,6 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
-import com.splunk.shuttl.archiver.thaw.BucketThawer.ThawInfo;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -76,11 +75,12 @@ public class ImportCsvFunctionalTest {
 			String splunkHome) throws FileNotFoundException,
 			FileNotDirectoryException {
 		archiveBucketAsCsvWithExportToolThatNeedsSplunkHome(splunkHome);
-		List<ThawInfo> thawBuckets = csvThawer.thawBuckets(realBucket.getIndex(),
-				realBucket.getEarliest(), realBucket.getLatest());
+		csvThawer.thawBuckets(realBucket.getIndex(), realBucket.getEarliest(),
+				realBucket.getLatest());
+		List<Bucket> thawedBuckets = csvThawer.getThawedBuckets();
 
-		assertEquals(1, thawBuckets.size());
-		Bucket thawedBucket = thawBuckets.get(0).bucket;
+		assertEquals(1, thawedBuckets.size());
+		Bucket thawedBucket = thawedBuckets.get(0);
 		TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(realBucket,
 				thawedBucket);
 		assertEquals(sizeOfBucket(realBucket), sizeOfBucket(thawedBucket));
