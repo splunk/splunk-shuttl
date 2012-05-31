@@ -15,7 +15,9 @@
 package com.splunk.shuttl.archiver.bucketsize;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +29,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class ArchivedBucketSizeTest {
@@ -69,5 +72,33 @@ public class ArchivedBucketSizeTest {
 		archivedBucketsSize.putSize(bucket);
 		verify(archiveFileSystem).putFileAtomically(fileWithBucketsSize,
 				pathOnArchiveFileSystem);
+	}
+
+	public void getSize_givenUriToFileWithBucketSize_passesUriToBucketSizeFileForReading() {
+		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
+		URI uriToFileWIthBucketSize = URI.create("remote:/uri");
+		when(pathResolver.getBucketSizeFileUriForBucket(remoteBucket)).thenReturn(
+				uriToFileWIthBucketSize);
+		archivedBucketsSize.getSize(remoteBucket);
+		verify(bucketSizeFile).readSizeFromRemoteFile(uriToFileWIthBucketSize);
+	}
+
+	public void getSize_givenBucketFileSizeReadSuccessfully_returnValue() {
+		long size = 4711;
+		when(bucketSizeFile.readSizeFromRemoteFile(any(URI.class)))
+				.thenReturn(size);
+		long actualSize = archivedBucketsSize.getSize(TUtilsBucket
+				.createRemoteBucket());
+		assertEquals(size, actualSize);
+
+	}
+
+	// Sad path for when bucket is not remote. Log and just return size.
+
+	public void getSize_givenBucketIsNotRemote_returnSize() {
+		Bucket bucket = TUtilsBucket.createBucket();
+		assertFalse(bucket.isRemote());
+		Long size = archivedBucketsSize.getSize(bucket);
+		assertEquals(bucket.getSize(), size);
 	}
 }

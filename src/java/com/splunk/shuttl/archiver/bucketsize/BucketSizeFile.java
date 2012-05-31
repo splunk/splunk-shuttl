@@ -18,6 +18,7 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -68,6 +69,15 @@ public class BucketSizeFile {
 			IOException e) {
 		logger.debug(did("Tried to write to file for BucketSizeFile.", e,
 				"To write size to file", "file", file, "content", content));
+	}
+
+	/**
+	 * @param uriToFileWIthBucketSize
+	 * @return
+	 */
+	public long readSizeFromRemoteFile(URI uriToFileWIthBucketSize) {
+		// TODO Auto-generated method stub
+		return -1;
 	}
 
 }

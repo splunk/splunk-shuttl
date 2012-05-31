@@ -52,8 +52,16 @@ public class ArchivedBucketsSize {
 	/**
 	 * @return size of an archived bucket on the local file system.
 	 */
-	public long getSize(Bucket bucketInArchive) {
-		return 0;
+	public long getSize(Bucket bucket) {
+		if (bucket.isRemote())
+			return getSizeForRemoteBucket(bucket);
+		else
+			return bucket.getSize();
+	}
+
+	private long getSizeForRemoteBucket(Bucket bucket) {
+		URI fileUriForSizeFile = pathResolver.getBucketSizeFileUriForBucket(bucket);
+		return bucketSizeFile.readSizeFromRemoteFile(fileUriForSizeFile);
 	}
 
 	/**
