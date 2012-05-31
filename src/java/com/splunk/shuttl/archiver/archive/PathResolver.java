@@ -140,18 +140,12 @@ public class PathResolver {
 	}
 
 	/**
-	 * @return {@link URI} to where metadata about a specific bucket is stored.
-	 */
-	private URI getMetadataFolderForBucket(Bucket bucket) {
-		return null;
-	}
-
-	/**
 	 * @return {@link URI} to where a bucket's file with local disk size
 	 *         information.
 	 */
 	public URI getBucketSizeFileUriForBucket(Bucket bucket) {
-		return null;
+		return URI.create(getFormatsHome(bucket.getIndex(), bucket.getName())
+				.toString() + SEPARATOR + "bucket.size");
 	}
 
 }

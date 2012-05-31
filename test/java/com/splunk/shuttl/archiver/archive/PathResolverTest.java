@@ -50,8 +50,7 @@ public class PathResolverTest {
 		bucketIndex = "index";
 		bucketName = "bucket_name_id";
 		bucketFormat = BucketFormat.SPLUNK_BUCKET;
-		bucket = TUtilsBucket.createBucketWithIndexAndName(bucketIndex,
-				bucketName);
+		bucket = TUtilsBucket.createBucketWithIndexAndName(bucketIndex, bucketName);
 	}
 
 	private void stubArchiveConfiguration() {
@@ -154,6 +153,13 @@ public class PathResolverTest {
 		TUtilsMBean.registerShuttlArchiverMBean();
 		PathResolver pr = PathResolver.getConfigured();
 		assertNotNull(pr);
+	}
+
+	public void getBucketSizeFileUriForBucket_givenBucket_livesAfterPathUpToBucket_besideFormat() {
+		URI uritoFileWithBucketSize = pathResolver
+				.getBucketSizeFileUriForBucket(bucket);
+		assertEquals(URI.create(getArchivePathUpToBucket() + "/bucket.size"),
+				uritoFileWithBucketSize);
 	}
 
 }
