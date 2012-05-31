@@ -16,12 +16,11 @@ package com.splunk.shuttl.archiver.thaw;
 
 import com.splunk.Service;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
-import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
-import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
+import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
+import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 
 /**
@@ -40,36 +39,14 @@ public class BucketThawerFactory {
 			SplunkSettings splunkSettings, ArchiveConfiguration configuration) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(configuration);
-		PathResolver pathResolver = new PathResolver(configuration);
 
-		ArchiveBucketsLister bucketsLister = bucketLister(archiveFileSystem,
-				pathResolver);
-		BucketFilter bucketFilter = new BucketFilter();
-		BucketFormatResolver bucketFormatResolver = getBucketFormatResolver(
-				archiveFileSystem, configuration, pathResolver);
 		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
 				archiveFileSystem, splunkSettings);
-		return new BucketThawer(bucketsLister, bucketFilter, bucketFormatResolver,
+		ListsBucketsFiltered listsBucketsFiltered = ListsBucketsFilteredFactory
+				.create(configuration);
+		GetsBucketsFromArchive getsBucketsFromArchive = new GetsBucketsFromArchive(
 				thawBucketTransferer, BucketImporter.create());
-	}
-
-	private static ArchiveBucketsLister bucketLister(
-			ArchiveFileSystem archiveFileSystem, PathResolver pathResolver) {
-		ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
-				pathResolver, archiveFileSystem);
-		ArchiveBucketsLister bucketsLister = new ArchiveBucketsLister(
-				archiveFileSystem, indexesLister, pathResolver);
-		return bucketsLister;
-	}
-
-	private static BucketFormatResolver getBucketFormatResolver(
-			ArchiveFileSystem archiveFileSystem,
-			ArchiveConfiguration archiveConfiguration, PathResolver pathResolver) {
-		BucketFormatChooser bucketFormatChooser = new BucketFormatChooser(
-				archiveConfiguration);
-		BucketFormatResolver bucketFormatResolver = new BucketFormatResolver(
-				pathResolver, archiveFileSystem, bucketFormatChooser);
-		return bucketFormatResolver;
+		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive);
 	}
 
 	private static ThawBucketTransferer getThawBucketTransferer(

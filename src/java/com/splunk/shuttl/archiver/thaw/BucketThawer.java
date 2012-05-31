@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.splunk.shuttl.archiver.importexport.BucketImporter;
-import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -44,26 +42,6 @@ public class BucketThawer {
 			this.exception = exception;
 		}
 
-	}
-
-	/**
-	 * @param bucketsLister
-	 *          used for listing buckets in the archive.
-	 * @param bucketFilter
-	 *          filtering buckets to only get the buckets that satisfies the
-	 *          thawing needs.
-	 * @param bucketFormatResolver
-	 *          to resolve the format to thaw for the bucket.
-	 * @param thawBucketTransferer
-	 *          for transferring the buckets to thawed.
-	 * @param bucketImporter
-	 */
-	public BucketThawer(ArchiveBucketsLister bucketsLister,
-			BucketFilter bucketFilter, BucketFormatResolver bucketFormatResolver,
-			ThawBucketTransferer thawBucketTransferer, BucketImporter bucketImporter) {
-		this(new ListsBucketsFiltered(bucketsLister, bucketFilter,
-				bucketFormatResolver), new GetsBucketsFromArchive(thawBucketTransferer,
-				bucketImporter));
 	}
 
 	/**
