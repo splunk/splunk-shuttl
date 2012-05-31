@@ -56,22 +56,37 @@ public class ArchiveBucketTransferer {
 		try {
 			archiveFileSystem.putFileAtomically(bucket.getDirectory(), destination);
 		} catch (FileNotFoundException e) {
-			logger.error(did("attempted to transfer bucket to archive",
-					"bucket path does not exist", "success", "bucket", bucket,
-					"destination", destination, "exception", e));
+			logFileNotFoundException(bucket, destination, e);
 			throw new RuntimeException(e);
 		} catch (FileOverwriteException e) {
-			logger.error(did("attempted to transfer bucket to archive",
-					"a bucket with the same path already exists on the filesystem",
-					"success", "bucket", bucket, "destination", destination, "exception",
-					e));
+			logFileOverwriteException(bucket, destination, e);
 			throw new RuntimeException(e);
 		} catch (IOException e) {
-			logger.error(did("attempted to transfer bucket to archive",
-					"IOException raised", "success", "bucket", bucket, "destination",
-					destination, "exception", e));
+			logIOException(bucket, destination, e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	private void logFileNotFoundException(Bucket bucket, URI destination,
+			FileNotFoundException e) {
+		logger.error(did("attempted to transfer bucket to archive",
+				"bucket path does not exist", "success", "bucket", bucket,
+				"destination", destination, "exception", e));
+	}
+
+	private void logFileOverwriteException(Bucket bucket, URI destination,
+			FileOverwriteException e) {
+		logger
+				.error(did("attempted to transfer bucket to archive",
+						"a bucket with the same path already exists on the filesystem",
+						"success", "bucket", bucket, "destination", destination,
+						"exception", e));
+	}
+
+	private void logIOException(Bucket bucket, URI destination, IOException e) {
+		logger.error(did("attempted to transfer bucket to archive",
+				"IOException raised", "success", "bucket", bucket, "destination",
+				destination, "exception", e));
 	}
 
 }
