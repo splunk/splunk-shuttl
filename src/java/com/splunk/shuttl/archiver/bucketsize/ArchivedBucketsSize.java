@@ -38,18 +38,15 @@ public class ArchivedBucketsSize {
 	private final PathResolver pathResolver;
 	private final BucketSizeFile bucketSizeFile;
 	private final ArchiveFileSystem archiveFileSystem;
-	private final BucketSizeFilePathResolver bucketSizeFilePathResolver;
 
 	/**
 	 * @see ArchivedBucketsSize
 	 */
 	public ArchivedBucketsSize(PathResolver pathResolver,
-			BucketSizeFile bucketSizeFile, ArchiveFileSystem archiveFileSystem,
-			BucketSizeFilePathResolver bucketSizeFilePathResolver) {
+			BucketSizeFile bucketSizeFile, ArchiveFileSystem archiveFileSystem) {
 		this.pathResolver = pathResolver;
 		this.bucketSizeFile = bucketSizeFile;
 		this.archiveFileSystem = archiveFileSystem;
-		this.bucketSizeFilePathResolver = bucketSizeFilePathResolver;
 	}
 
 	/**
@@ -64,9 +61,7 @@ public class ArchivedBucketsSize {
 	 */
 	public void putSize(Bucket bucket) {
 		File fileWithBucketSize = bucketSizeFile.getFileWithBucketSize(bucket);
-		URI metadataFolder = pathResolver.getMetadataFolderForBucket(bucket);
-		URI bucketSizeFilePath = bucketSizeFilePathResolver
-				.resolveBucketSizeFilePath(fileWithBucketSize, metadataFolder);
+		URI bucketSizeFilePath = pathResolver.getBucketSizeFileUriForBucket(bucket);
 		try {
 			archiveFileSystem.putFileAtomically(fileWithBucketSize,
 					bucketSizeFilePath);
@@ -89,7 +84,7 @@ public class ArchivedBucketsSize {
 	public static ArchivedBucketsSize create(PathResolver pathResolver,
 			ArchiveFileSystem archiveFileSystem) {
 		return new ArchivedBucketsSize(pathResolver, new BucketSizeFile(),
-				archiveFileSystem, new BucketSizeFilePathResolver());
+				archiveFileSystem);
 	}
 
 }

@@ -15,7 +15,6 @@
 package com.splunk.shuttl.archiver.bucketsize;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.io.File;
@@ -36,16 +35,14 @@ public class ArchivedBucketSizeTest {
 	private PathResolver pathResolver;
 	private ArchiveFileSystem archiveFileSystem;
 	private BucketSizeFile bucketSizeFile;
-	private BucketSizeFilePathResolver bucketSizeFilePathResolver;
 
 	@BeforeMethod
 	public void setUp() {
 		pathResolver = mock(PathResolver.class);
 		archiveFileSystem = mock(ArchiveFileSystem.class);
 		bucketSizeFile = mock(BucketSizeFile.class);
-		bucketSizeFilePathResolver = mock(BucketSizeFilePathResolver.class);
 		archivedBucketsSize = new ArchivedBucketsSize(pathResolver, bucketSizeFile,
-				archiveFileSystem, bucketSizeFilePathResolver);
+				archiveFileSystem);
 	}
 
 	public void putSize_givenBucketSizeFile_getsFileWithBucketSize() {
@@ -57,21 +54,7 @@ public class ArchivedBucketSizeTest {
 	public void putSize_givenPathResolver_getsMetadataFolderForBucket() {
 		Bucket bucket = mock(Bucket.class);
 		archivedBucketsSize.putSize(bucket);
-		verify(pathResolver).getMetadataFolderForBucket(bucket);
-	}
-
-	public void putSize_givenMetadataFolderAndFileWithBucketSize_resolvesPathOnArchiveFileSystem() {
-		Bucket bucket = mock(Bucket.class);
-		File fileWithBucketSize = createFile();
-		when(bucketSizeFile.getFileWithBucketSize(bucket)).thenReturn(
-				fileWithBucketSize);
-		URI metadataFolderUri = URI.create("uri:/to/metadata/folder");
-		when(pathResolver.getMetadataFolderForBucket(bucket)).thenReturn(
-				metadataFolderUri);
-		archivedBucketsSize.putSize(bucket);
-		verify(bucketSizeFilePathResolver).resolveBucketSizeFilePath(
-				fileWithBucketSize, metadataFolderUri);
-
+		verify(pathResolver).getBucketSizeFileUriForBucket(bucket);
 	}
 
 	public void putSize_givenFileWithBucketSizeAndPathOnArchiveFileSystem_transfersFileWithSizeToArchiveFileSystem()
@@ -81,9 +64,7 @@ public class ArchivedBucketSizeTest {
 		when(bucketSizeFile.getFileWithBucketSize(bucket)).thenReturn(
 				fileWithBucketsSize);
 		URI pathOnArchiveFileSystem = URI.create("path:/on/archive/file/system");
-		when(
-				bucketSizeFilePathResolver.resolveBucketSizeFilePath(
-						eq(fileWithBucketsSize), any(URI.class))).thenReturn(
+		when(pathResolver.getBucketSizeFileUriForBucket(bucket)).thenReturn(
 				pathOnArchiveFileSystem);
 		archivedBucketsSize.putSize(bucket);
 		verify(archiveFileSystem).putFileAtomically(fileWithBucketsSize,
