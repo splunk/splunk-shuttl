@@ -14,16 +14,22 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.bucketsize;
 
+import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -31,10 +37,12 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 public class BucketSizeIOTest {
 
 	private BucketSizeIO bucketSizeIO;
+	private ArchiveFileSystem archiveFileSystem;
 
 	@BeforeMethod
 	public void setUp() {
-		bucketSizeIO = new BucketSizeIO();
+		archiveFileSystem = mock(ArchiveFileSystem.class);
+		bucketSizeIO = new BucketSizeIO(archiveFileSystem);
 	}
 
 	public void getFileWithBucketSize_givenBucket_returnsFileWithSizeOfBucket()
@@ -58,4 +66,18 @@ public class BucketSizeIOTest {
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
 		assertTrue(fileWithBucketSize.getName().contains("size"));
 	}
+
+	public void readSizeFromRemoteFile_givenArchiveFileSystem_getsInputStreamToFileWithSize()
+			throws FileNotFoundException {
+		Bucket bucket = TUtilsBucket.createBucket();
+		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
+		URI uriToFile = URI.create("uri:/to/remote/file/with/size");
+		InputStream inputStreamToFile = new FileInputStream(fileWithBucketSize);
+		when(archiveFileSystem.openFile(uriToFile)).thenReturn(inputStreamToFile);
+
+		Long sizeFromRemoteFile = bucketSizeIO.readSizeFromRemoteFile(uriToFile);
+		assertEquals(bucket.getSize(), sizeFromRemoteFile);
+	}
+
+	// Test closing stream for successful and unsuccessful reads.
 }

@@ -91,8 +91,8 @@ public class ArchiveBucketSize {
 	 */
 	public static ArchiveBucketSize create(PathResolver pathResolver,
 			ArchiveFileSystem archiveFileSystem) {
-		return new ArchiveBucketSize(pathResolver, new BucketSizeIO(),
-				archiveFileSystem);
+		return new ArchiveBucketSize(pathResolver, new BucketSizeIO(
+				archiveFileSystem), archiveFileSystem);
 	}
 
 }

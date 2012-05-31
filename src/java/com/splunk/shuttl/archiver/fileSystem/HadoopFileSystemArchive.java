@@ -18,6 +18,7 @@ package com.splunk.shuttl.archiver.fileSystem;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -179,5 +180,17 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 			}
 		}
 		return size;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem#openFile(java.net
+	 * .URI)
+	 */
+	@Override
+	public InputStream openFile(URI fileOnArchiveFileSystem) {
+		throw new UnsupportedOperationException();
 	}
 }

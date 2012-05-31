@@ -18,6 +18,7 @@ package com.splunk.shuttl.archiver.fileSystem;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
@@ -109,4 +110,11 @@ public interface ArchiveFileSystem {
 	 *           If there was any other problem with this operation
 	 */
 	Long getSize(URI uri) throws IOException;
+
+	/**
+	 * @param fileOnArchiveFileSystem
+	 *          A path to an existing file on the archiving file system.
+	 * @return an open {@link InputStream} to a file on the archive file system.
+	 */
+	InputStream openFile(URI fileOnArchiveFileSystem);
 }

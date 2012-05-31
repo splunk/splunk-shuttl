@@ -18,11 +18,15 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -31,6 +35,15 @@ import com.splunk.shuttl.archiver.model.Bucket;
 public class BucketSizeIO {
 
 	private static final Logger logger = Logger.getLogger(BucketSizeIO.class);
+	private final ArchiveFileSystem archiveFileSystem;
+
+	/**
+	 * @param archiveFileSystem
+	 *          to read the file size off of.
+	 */
+	public BucketSizeIO(ArchiveFileSystem archiveFileSystem) {
+		this.archiveFileSystem = archiveFileSystem;
+	}
 
 	/**
 	 * @return a file that contains information about the specified bucket's size.
@@ -72,12 +85,24 @@ public class BucketSizeIO {
 	}
 
 	/**
-	 * @param uriToFileWIthBucketSize
+	 * @param uriToFileWithBucketSize
 	 * @return
 	 */
-	public long readSizeFromRemoteFile(URI uriToFileWIthBucketSize) {
-		// TODO Auto-generated method stub
-		return -1;
+	public long readSizeFromRemoteFile(URI uriToFileWithBucketSize) {
+		InputStream inputStream = archiveFileSystem
+				.openFile(uriToFileWithBucketSize);
+		List<String> lines = getLinesFromInputStream(inputStream);
+		return Long.parseLong(lines.get(0));
+	}
+
+	private List<String> getLinesFromInputStream(InputStream inputStream) {
+		try {
+			return IOUtils.readLines(inputStream);
+		} catch (IOException e) {
+			throw new RuntimeException(e); // TODO: Test this, so it's documented that
+																			// this is expected
+			// behaviour.
+		}
 	}
 
 }
