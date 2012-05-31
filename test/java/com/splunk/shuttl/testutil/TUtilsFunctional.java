@@ -106,6 +106,15 @@ public class TUtilsFunctional {
 	}
 
 	/**
+	 * @see TUtilsFunctional#archiveBucket(Bucket, BucketArchiver)
+	 */
+	public static void archiveBucket(Bucket bucket, ArchiveConfiguration config) {
+		BucketArchiver bucketArchiver = BucketArchiverFactory
+				.createWithConfiguration(config);
+		archiveBucket(bucket, bucketArchiver);
+	}
+
+	/**
 	 * Archives bucket given a bucket and a bucketArchiver. Method exists to void
 	 * duplication between tests that archives buckets.
 	 */
@@ -139,4 +148,5 @@ public class TUtilsFunctional {
 		FileUtils.deleteQuietly(new File(config.getArchivingRoot()));
 		FileUtils.deleteQuietly(new File(config.getTmpDirectory()));
 	}
+
 }

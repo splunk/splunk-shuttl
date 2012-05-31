@@ -139,4 +139,11 @@ public class PathResolver {
 		return new PathResolver(archiveConfiguration);
 	}
 
+	/**
+	 * @return {@link URI} to where metadata about a specific bucket is stored.
+	 */
+	public URI getMetadataFolderForBucket(Bucket bucket) {
+		return null;
+	}
+
 }

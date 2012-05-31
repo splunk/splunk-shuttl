@@ -58,7 +58,8 @@ public class ArchiveBucketTransferer {
 				bucket, "destination", destination));
 		try {
 			archiveFileSystem.putFileAtomically(bucket.getDirectory(), destination);
-			archivedBucketsSize.putSize(bucket);
+			// TODO: un-comment this and enable tests.
+			// archivedBucketsSize.putSize(bucket);
 		} catch (FileNotFoundException e) {
 			logFileNotFoundException(bucket, destination, e);
 			throw new RuntimeException(e);
@@ -94,14 +95,13 @@ public class ArchiveBucketTransferer {
 	}
 
 	/**
-	 * @param archiveFileSystem2
-	 * @param config
-	 * @return
+	 * Instance of {@link ArchiveBucketTransferer} with file system and
+	 * configuration.
 	 */
 	public static ArchiveBucketTransferer create(
-			ArchiveFileSystem archiveFileSystem2, ArchiveConfiguration config) {
-		return new ArchiveBucketTransferer(archiveFileSystem2, new PathResolver(
-				config), new ArchivedBucketsSize());
+			ArchiveFileSystem archiveFileSystem, ArchiveConfiguration config) {
+		PathResolver pathResolver = new PathResolver(config);
+		return new ArchiveBucketTransferer(archiveFileSystem, pathResolver,
+				ArchivedBucketsSize.create(pathResolver, archiveFileSystem));
 	}
-
 }
