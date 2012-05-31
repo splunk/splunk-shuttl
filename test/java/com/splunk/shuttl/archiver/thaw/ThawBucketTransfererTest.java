@@ -81,8 +81,9 @@ public class ThawBucketTransfererTest {
 		when(thawLocationProvider.getLocationInThawForBucket(bucketToTransfer))
 				.thenReturn(bucketLocationOnLocalDisk);
 		when(
-				bucketFactory.createWithIndexAndDirectory(bucketToTransfer.getIndex(),
-						bucketLocationOnLocalDisk)).thenReturn(bucketOnLocalDisk);
+				bucketFactory.createWithIndexDirectoryAndSize(
+						bucketToTransfer.getIndex(), bucketLocationOnLocalDisk,
+						bucketToTransfer.getSize())).thenReturn(bucketOnLocalDisk);
 
 		Bucket actualBucket = bucketTransferer
 				.transferBucketToThaw(bucketToTransfer);

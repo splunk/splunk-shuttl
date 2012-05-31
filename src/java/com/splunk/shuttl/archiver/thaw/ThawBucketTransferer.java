@@ -46,7 +46,7 @@ public class ThawBucketTransferer {
 		File bucketsThawLocation = thawLocationProvider
 				.getLocationInThawForBucket(bucket);
 		archiveFileSystem.getFile(bucketsThawLocation, bucket.getURI());
-		return bucketFactory.createWithIndexAndDirectory(bucket.getIndex(),
-				bucketsThawLocation);
+		return bucketFactory.createWithIndexDirectoryAndSize(bucket.getIndex(),
+				bucketsThawLocation, bucket.getSize());
 	}
 }

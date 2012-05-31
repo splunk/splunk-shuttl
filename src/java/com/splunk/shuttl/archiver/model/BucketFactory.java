@@ -51,14 +51,39 @@ public class BucketFactory {
 		try {
 			return new Bucket(index, bucketFile);
 		} catch (FileNotFoundException e) {
-			logger.debug(did("Created bucket from file", "Got FileNotFoundException",
-					"To create bucket from file", "file", bucketFile, "exception", e));
+			logFileNotFoundException(bucketFile, e);
 			throw new RuntimeException(e);
 		} catch (FileNotDirectoryException e) {
-			logger.debug(did("Created bucket from file",
-					"Got FileNotDirectoryException", "To create bucket from file",
-					"file", bucketFile, "exception", e));
-			e.printStackTrace();
+			logFileNotDirectoryException(bucketFile, e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void logFileNotFoundException(File bucketFile,
+			FileNotFoundException e) {
+		logger.debug(did("Created bucket from file", "Got FileNotFoundException",
+				"To create bucket from file", "file", bucketFile, "exception", e));
+	}
+
+	private static void logFileNotDirectoryException(File bucketFile,
+			FileNotDirectoryException e) {
+		logger.debug(did("Created bucket from file",
+				"Got FileNotDirectoryException", "To create bucket from file", "file",
+				bucketFile, "exception", e));
+	}
+
+	/**
+	 * Creates a bucket with index, directory and size.
+	 */
+	public Bucket createWithIndexDirectoryAndSize(String index, File bucketFile,
+			Long size) {
+		try {
+			return new Bucket(index, bucketFile, size);
+		} catch (FileNotFoundException e) {
+			logFileNotFoundException(bucketFile, e);
+			throw new RuntimeException(e);
+		} catch (FileNotDirectoryException e) {
+			logFileNotDirectoryException(bucketFile, e);
 			throw new RuntimeException(e);
 		}
 	}

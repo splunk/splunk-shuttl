@@ -92,7 +92,6 @@ public class BucketSizeFunctionalTest {
 		assertEquals(bucketSize, archiveBucketSize.getSize(bucketInArchive));
 	}
 
-	@Test(enabled = false)
 	public void BucketSize_bucketRoundTrip_bucketGetSizeShouldBeTheSameBeforeArchiveAndAfterThaw() {
 		Bucket bucket = TUtilsBucket.createRealBucket();
 
