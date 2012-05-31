@@ -30,9 +30,12 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
-import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
-import com.splunk.shuttl.archiver.listers.ArchiveBucketsListerFactory;
+import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
+import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
@@ -41,7 +44,7 @@ import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
-@Test(groups = { "functional" }, enabled = false)
+@Test(groups = { "functional" })
 public class BucketSizeFunctionalTest {
 
 	private BucketArchiver bucketArchiver;
@@ -60,7 +63,11 @@ public class BucketSizeFunctionalTest {
 		bucketThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
 				splunkSettings, config);
 
-		// archivedBucketsSize = new ArchivedBucketsSize();
+		PathResolver pathResolver = new PathResolver(config);
+		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
+				.getWithConfiguration(config);
+		archiveBucketSize = ArchiveBucketSize.create(pathResolver,
+				archiveFileSystem);
 	}
 
 	@AfterMethod
@@ -69,21 +76,23 @@ public class BucketSizeFunctionalTest {
 		FileUtils.deleteQuietly(thawLocation);
 	}
 
-	public void BucketSize_archiveBucket_bucketHasSameSizeAsBeforeArchiving() {
+	public void BucketSize_archiveBucket_remoteBucketHasSameSizeAsBeforeArchiving() {
 		Bucket bucket = TUtilsBucket.createRealBucket();
 		long bucketSize = bucket.getSize();
 
 		TUtilsFunctional.archiveBucket(bucket, bucketArchiver);
-		ArchiveBucketsLister archiveBucketsLister = ArchiveBucketsListerFactory
+		ListsBucketsFiltered listsBucketsFiltered = ListsBucketsFilteredFactory
 				.create(config);
-		List<Bucket> listBucketsInIndex = archiveBucketsLister
-				.listBucketsInIndex(bucket.getIndex());
+		List<Bucket> listBucketsInIndex = listsBucketsFiltered
+				.listFilteredBucketsAtIndex(bucket.getIndex(), bucket.getEarliest(),
+						bucket.getLatest());
 
 		assertEquals(1, listBucketsInIndex.size());
 		Bucket bucketInArchive = listBucketsInIndex.get(0);
 		assertEquals(bucketSize, archiveBucketSize.getSize(bucketInArchive));
 	}
 
+	@Test(enabled = false)
 	public void BucketSize_bucketRoundTrip_bucketGetSizeShouldBeTheSameBeforeArchiveAndAfterThaw() {
 		Bucket bucket = TUtilsBucket.createRealBucket();
 

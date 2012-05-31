@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
-import org.apache.hadoop.fs.Path;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -59,19 +58,14 @@ public class ArchiverFunctionalTest {
 
 	public void Archiver_givenExistingBucket_archiveIt() throws IOException {
 		Bucket bucket = TUtilsBucket.createBucket();
+		int filesInBucket = bucket.getDirectory().listFiles().length;
 
 		bucketArchiver.archiveBucket(bucket);
 
-		verifyByListingBucketInArchiveFileSystem(bucket);
-	}
-
-	private void verifyByListingBucketInArchiveFileSystem(Bucket bucket)
-			throws IOException {
 		URI bucketArchiveUri = pathResolver.resolveArchivePath(bucket);
-		URI bucketParentUri = new Path(bucketArchiveUri).getParent().toUri();
-		List<URI> urisAtBucketsParent = archiveFileSystem.listPath(bucketParentUri);
-		assertEquals(1, urisAtBucketsParent.size());
-		assertEquals(bucketArchiveUri, urisAtBucketsParent.get(0));
+		List<URI> urisInBucketDirectoryInArchive = archiveFileSystem
+				.listPath(bucketArchiveUri);
+		assertTrue(filesInBucket <= urisInBucketDirectoryInArchive.size());
 	}
 
 }

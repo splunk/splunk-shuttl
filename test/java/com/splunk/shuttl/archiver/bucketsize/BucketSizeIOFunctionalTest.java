@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -37,15 +38,20 @@ public class BucketSizeIOFunctionalTest {
 	private BucketSizeIO bucketSizeIO;
 	private ArchiveFileSystem archiveFileSystem;
 	private PathResolver pathResolver;
+	private ArchiveConfiguration localConfig;
 
 	@BeforeMethod
 	public void setUp() {
-		ArchiveConfiguration localConfig = TUtilsFunctional
-				.getLocalFileSystemConfiguration();
+		localConfig = TUtilsFunctional.getLocalFileSystemConfiguration();
 		archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(localConfig);
 		pathResolver = new PathResolver(localConfig);
 		bucketSizeIO = new BucketSizeIO(archiveFileSystem);
+	}
+
+	@AfterMethod
+	public void tearDown() {
+		TUtilsFunctional.tearDownLocalConfig(localConfig);
 	}
 
 	public void BucketSizeIO_givenHadoopFileSystem_putsFileWithSizeAndReadsIt()

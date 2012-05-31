@@ -155,10 +155,11 @@ public class PathResolverTest {
 		assertNotNull(pr);
 	}
 
-	public void getBucketSizeFileUriForBucket_givenBucket_livesAfterPathUpToBucket_besideFormat() {
+	public void getBucketSizeFileUriForBucket_givenBucket_livesInAMetadataFolderInTheBucket() {
 		URI uritoFileWithBucketSize = pathResolver
 				.getBucketSizeFileUriForBucket(bucket);
-		assertEquals(URI.create(getArchivePathUpToBucket() + "/bucket.size"),
+		assertEquals(
+				URI.create(getArchivePathUpToFormat() + "/archive_meta/bucket.size"),
 				uritoFileWithBucketSize);
 	}
 

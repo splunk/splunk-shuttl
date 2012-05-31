@@ -58,8 +58,7 @@ public class ArchiveBucketTransferer {
 				bucket, "destination", destination));
 		try {
 			archiveFileSystem.putFileAtomically(bucket.getDirectory(), destination);
-			// TODO: un-comment this and enable tests.
-			// archivedBucketsSize.putSize(bucket);
+			archiveBucketSize.putSize(bucket);
 		} catch (FileNotFoundException e) {
 			logFileNotFoundException(bucket, destination, e);
 			throw new RuntimeException(e);

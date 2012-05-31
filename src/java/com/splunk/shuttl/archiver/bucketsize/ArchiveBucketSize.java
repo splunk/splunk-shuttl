@@ -70,13 +70,13 @@ public class ArchiveBucketSize {
 			// exist a ArchiveTransferer?
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		} catch (FileOverwriteException e) {
 			e.printStackTrace();
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 

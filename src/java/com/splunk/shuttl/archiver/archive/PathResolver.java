@@ -144,8 +144,8 @@ public class PathResolver {
 	 *         information.
 	 */
 	public URI getBucketSizeFileUriForBucket(Bucket bucket) {
-		return URI.create(getFormatsHome(bucket.getIndex(), bucket.getName())
-				.toString() + SEPARATOR + "bucket.size");
+		return URI.create(resolveArchivePath(bucket).toString() + SEPARATOR
+				+ "archive_meta" + SEPARATOR + "bucket.size");
 	}
 
 }

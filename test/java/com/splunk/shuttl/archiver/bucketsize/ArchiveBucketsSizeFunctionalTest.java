@@ -26,8 +26,8 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
-import com.splunk.shuttl.archiver.listers.ArchiveBucketsListerFactory;
+import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
+import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
@@ -37,7 +37,7 @@ public class ArchiveBucketsSizeFunctionalTest {
 
 	private ArchiveConfiguration config;
 	private ArchiveBucketSize archiveBucketSize;
-	private ArchiveBucketsLister archiveBucketsLister;
+	private ListsBucketsFiltered listsBucketsFiltered;
 
 	@BeforeMethod
 	public void setUp() {
@@ -47,7 +47,7 @@ public class ArchiveBucketsSizeFunctionalTest {
 		PathResolver pathResolver = new PathResolver(config);
 		archiveBucketSize = ArchiveBucketSize.create(pathResolver,
 				archiveFileSystem);
-		archiveBucketsLister = ArchiveBucketsListerFactory.create(config);
+		listsBucketsFiltered = ListsBucketsFilteredFactory.create(config);
 	}
 
 	@AfterMethod
@@ -60,9 +60,9 @@ public class ArchiveBucketsSizeFunctionalTest {
 		long realBucketSize = realBucket.getSize();
 		TUtilsFunctional.archiveBucket(realBucket, config);
 
-		archiveBucketSize.putSize(realBucket);
-
-		List<Bucket> buckets = archiveBucketsLister.listBuckets();
+		List<Bucket> buckets = listsBucketsFiltered
+				.listFilteredBucketsAtIndex(realBucket.getIndex(),
+						realBucket.getEarliest(), realBucket.getLatest());
 		assertEquals(1, buckets.size());
 		Bucket remoteBucket = buckets.get(0);
 		assertRealAndRemoteBucketsAreEqual(realBucket, remoteBucket);

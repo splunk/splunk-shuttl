@@ -74,14 +74,12 @@ public class ArchiveBucketTransfererTest {
 		assertNotNull(exception);
 	}
 
-	@Test(enabled = false)
 	public void transferBucketToArchive_givenSuccessfulBucketTransfer_putBucketSizeInArchive() {
 		Bucket bucket = mock(Bucket.class);
 		archiveBucketTransferer.transferBucketToArchive(bucket);
 		verify(archiveBucketSize).putSize(bucket);
 	}
 
-	@Test(enabled = false)
 	public void transferBucketToArchive_whenBucketTransferIsUnsuccessful_dontPutBucketSizeInArchive()
 			throws FileNotFoundException, FileOverwriteException, IOException {
 		doThrow(Exception.class).when(archive).putFileAtomically(any(File.class),
