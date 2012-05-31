@@ -33,19 +33,19 @@ import com.splunk.shuttl.archiver.model.Bucket;
  * and get the local file system size of the bucket, from the archive file
  * system.
  */
-public class ArchivedBucketsSize {
+public class ArchiveBucketSize {
 
 	private final PathResolver pathResolver;
-	private final BucketSizeFile bucketSizeFile;
+	private final BucketSizeIO bucketSizeIO;
 	private final ArchiveFileSystem archiveFileSystem;
 
 	/**
-	 * @see ArchivedBucketsSize
+	 * @see ArchiveBucketSize
 	 */
-	public ArchivedBucketsSize(PathResolver pathResolver,
-			BucketSizeFile bucketSizeFile, ArchiveFileSystem archiveFileSystem) {
+	public ArchiveBucketSize(PathResolver pathResolver,
+			BucketSizeIO bucketSizeIO, ArchiveFileSystem archiveFileSystem) {
 		this.pathResolver = pathResolver;
-		this.bucketSizeFile = bucketSizeFile;
+		this.bucketSizeIO = bucketSizeIO;
 		this.archiveFileSystem = archiveFileSystem;
 	}
 
@@ -61,14 +61,14 @@ public class ArchivedBucketsSize {
 
 	private long getSizeForRemoteBucket(Bucket bucket) {
 		URI fileUriForSizeFile = pathResolver.getBucketSizeFileUriForBucket(bucket);
-		return bucketSizeFile.readSizeFromRemoteFile(fileUriForSizeFile);
+		return bucketSizeIO.readSizeFromRemoteFile(fileUriForSizeFile);
 	}
 
 	/**
 	 * Put metadata on the {@link ArchiveFileSystem} about a bucket's size.
 	 */
 	public void putSize(Bucket bucket) {
-		File fileWithBucketSize = bucketSizeFile.getFileWithBucketSize(bucket);
+		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
 		URI bucketSizeFilePath = pathResolver.getBucketSizeFileUriForBucket(bucket);
 		try {
 			archiveFileSystem.putFileAtomically(fileWithBucketSize,
@@ -89,9 +89,9 @@ public class ArchivedBucketsSize {
 
 	/**
 	 */
-	public static ArchivedBucketsSize create(PathResolver pathResolver,
+	public static ArchiveBucketSize create(PathResolver pathResolver,
 			ArchiveFileSystem archiveFileSystem) {
-		return new ArchivedBucketsSize(pathResolver, new BucketSizeFile(),
+		return new ArchiveBucketSize(pathResolver, new BucketSizeIO(),
 				archiveFileSystem);
 	}
 

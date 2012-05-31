@@ -28,9 +28,9 @@ import com.splunk.shuttl.archiver.model.Bucket;
 /**
  * Logic for reading and writing a file with bucket size.
  */
-public class BucketSizeFile {
+public class BucketSizeIO {
 
-	private static final Logger logger = Logger.getLogger(BucketSizeFile.class);
+	private static final Logger logger = Logger.getLogger(BucketSizeIO.class);
 
 	/**
 	 * @return a file that contains information about the specified bucket's size.

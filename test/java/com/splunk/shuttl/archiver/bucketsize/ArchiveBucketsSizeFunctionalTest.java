@@ -33,10 +33,10 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
 @Test(groups = { "functional" }, enabled = false)
-public class ArchivedBucketsSizeFunctionalTest {
+public class ArchiveBucketsSizeFunctionalTest {
 
 	private ArchiveConfiguration config;
-	private ArchivedBucketsSize archivedBucketsSize;
+	private ArchiveBucketSize archiveBucketSize;
 	private ArchiveBucketsLister archiveBucketsLister;
 
 	@BeforeMethod
@@ -45,7 +45,7 @@ public class ArchivedBucketsSizeFunctionalTest {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
 		PathResolver pathResolver = new PathResolver(config);
-		archivedBucketsSize = ArchivedBucketsSize.create(pathResolver,
+		archiveBucketSize = ArchiveBucketSize.create(pathResolver,
 				archiveFileSystem);
 		archiveBucketsLister = ArchiveBucketsListerFactory.create(config);
 	}
@@ -60,14 +60,14 @@ public class ArchivedBucketsSizeFunctionalTest {
 		long realBucketSize = realBucket.getSize();
 		TUtilsFunctional.archiveBucket(realBucket, config);
 
-		archivedBucketsSize.putSize(realBucket);
+		archiveBucketSize.putSize(realBucket);
 
 		List<Bucket> buckets = archiveBucketsLister.listBuckets();
 		assertEquals(1, buckets.size());
 		Bucket remoteBucket = buckets.get(0);
 		assertRealAndRemoteBucketsAreEqual(realBucket, remoteBucket);
 
-		long remoteBucketSize = archivedBucketsSize.getSize(remoteBucket);
+		long remoteBucketSize = archiveBucketSize.getSize(remoteBucket);
 		assertEquals(realBucketSize, remoteBucketSize);
 	}
 

@@ -23,7 +23,7 @@ import java.net.URI;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.bucketsize.ArchivedBucketsSize;
+import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.FileOverwriteException;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -37,13 +37,13 @@ public class ArchiveBucketTransferer {
 	private final static Logger logger = Logger
 			.getLogger(ArchiveBucketTransferer.class);
 	private final PathResolver pathResolver;
-	private final ArchivedBucketsSize archivedBucketsSize;
+	private final ArchiveBucketSize archiveBucketSize;
 
 	public ArchiveBucketTransferer(ArchiveFileSystem archive,
-			PathResolver pathResolver, ArchivedBucketsSize archivedBucketsSize) {
+			PathResolver pathResolver, ArchiveBucketSize archiveBucketSize) {
 		this.archiveFileSystem = archive;
 		this.pathResolver = pathResolver;
-		this.archivedBucketsSize = archivedBucketsSize;
+		this.archiveBucketSize = archiveBucketSize;
 	}
 
 	/**
@@ -102,6 +102,6 @@ public class ArchiveBucketTransferer {
 			ArchiveFileSystem archiveFileSystem, ArchiveConfiguration config) {
 		PathResolver pathResolver = new PathResolver(config);
 		return new ArchiveBucketTransferer(archiveFileSystem, pathResolver,
-				ArchivedBucketsSize.create(pathResolver, archiveFileSystem));
+				ArchiveBucketSize.create(pathResolver, archiveFileSystem));
 	}
 }

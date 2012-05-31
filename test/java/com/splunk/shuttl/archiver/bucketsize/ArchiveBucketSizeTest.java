@@ -32,31 +32,31 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
-public class ArchivedBucketSizeTest {
+public class ArchiveBucketSizeTest {
 
-	private ArchivedBucketsSize archivedBucketsSize;
+	private ArchiveBucketSize archiveBucketSize;
 	private PathResolver pathResolver;
 	private ArchiveFileSystem archiveFileSystem;
-	private BucketSizeFile bucketSizeFile;
+	private BucketSizeIO bucketSizeIO;
 
 	@BeforeMethod
 	public void setUp() {
 		pathResolver = mock(PathResolver.class);
 		archiveFileSystem = mock(ArchiveFileSystem.class);
-		bucketSizeFile = mock(BucketSizeFile.class);
-		archivedBucketsSize = new ArchivedBucketsSize(pathResolver, bucketSizeFile,
+		bucketSizeIO = mock(BucketSizeIO.class);
+		archiveBucketSize = new ArchiveBucketSize(pathResolver, bucketSizeIO,
 				archiveFileSystem);
 	}
 
 	public void putSize_givenBucketSizeFile_getsFileWithBucketSize() {
 		Bucket bucket = mock(Bucket.class);
-		archivedBucketsSize.putSize(bucket);
-		verify(bucketSizeFile).getFileWithBucketSize(bucket);
+		archiveBucketSize.putSize(bucket);
+		verify(bucketSizeIO).getFileWithBucketSize(bucket);
 	}
 
 	public void putSize_givenPathResolver_getsMetadataFolderForBucket() {
 		Bucket bucket = mock(Bucket.class);
-		archivedBucketsSize.putSize(bucket);
+		archiveBucketSize.putSize(bucket);
 		verify(pathResolver).getBucketSizeFileUriForBucket(bucket);
 	}
 
@@ -64,12 +64,12 @@ public class ArchivedBucketSizeTest {
 			throws IOException {
 		Bucket bucket = mock(Bucket.class);
 		File fileWithBucketsSize = createFile();
-		when(bucketSizeFile.getFileWithBucketSize(bucket)).thenReturn(
+		when(bucketSizeIO.getFileWithBucketSize(bucket)).thenReturn(
 				fileWithBucketsSize);
 		URI pathOnArchiveFileSystem = URI.create("path:/on/archive/file/system");
 		when(pathResolver.getBucketSizeFileUriForBucket(bucket)).thenReturn(
 				pathOnArchiveFileSystem);
-		archivedBucketsSize.putSize(bucket);
+		archiveBucketSize.putSize(bucket);
 		verify(archiveFileSystem).putFileAtomically(fileWithBucketsSize,
 				pathOnArchiveFileSystem);
 	}
@@ -79,15 +79,15 @@ public class ArchivedBucketSizeTest {
 		URI uriToFileWIthBucketSize = URI.create("remote:/uri");
 		when(pathResolver.getBucketSizeFileUriForBucket(remoteBucket)).thenReturn(
 				uriToFileWIthBucketSize);
-		archivedBucketsSize.getSize(remoteBucket);
-		verify(bucketSizeFile).readSizeFromRemoteFile(uriToFileWIthBucketSize);
+		archiveBucketSize.getSize(remoteBucket);
+		verify(bucketSizeIO).readSizeFromRemoteFile(uriToFileWIthBucketSize);
 	}
 
 	public void getSize_givenBucketFileSizeReadSuccessfully_returnValue() {
 		long size = 4711;
-		when(bucketSizeFile.readSizeFromRemoteFile(any(URI.class)))
+		when(bucketSizeIO.readSizeFromRemoteFile(any(URI.class)))
 				.thenReturn(size);
-		long actualSize = archivedBucketsSize.getSize(TUtilsBucket
+		long actualSize = archiveBucketSize.getSize(TUtilsBucket
 				.createRemoteBucket());
 		assertEquals(size, actualSize);
 
@@ -98,7 +98,7 @@ public class ArchivedBucketSizeTest {
 	public void getSize_givenBucketIsNotRemote_returnSize() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		assertFalse(bucket.isRemote());
-		Long size = archivedBucketsSize.getSize(bucket);
+		Long size = archiveBucketSize.getSize(bucket);
 		assertEquals(bucket.getSize(), size);
 	}
 }

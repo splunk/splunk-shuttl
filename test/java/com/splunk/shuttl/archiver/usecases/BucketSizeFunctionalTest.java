@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
-import com.splunk.shuttl.archiver.bucketsize.ArchivedBucketsSize;
+import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -48,7 +48,7 @@ public class BucketSizeFunctionalTest {
 	private BucketThawer bucketThawer;
 	private ArchiveConfiguration config;
 	private File thawLocation;
-	private ArchivedBucketsSize archivedBucketsSize;
+	private ArchiveBucketSize archiveBucketSize;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
@@ -81,7 +81,7 @@ public class BucketSizeFunctionalTest {
 
 		assertEquals(1, listBucketsInIndex.size());
 		Bucket bucketInArchive = listBucketsInIndex.get(0);
-		assertEquals(bucketSize, archivedBucketsSize.getSize(bucketInArchive));
+		assertEquals(bucketSize, archiveBucketSize.getSize(bucketInArchive));
 	}
 
 	public void BucketSize_bucketRoundTrip_bucketGetSizeShouldBeTheSameBeforeArchiveAndAfterThaw() {

@@ -28,19 +28,19 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
-public class BucketSizeFileTest {
+public class BucketSizeIOTest {
 
-	private BucketSizeFile bucketSizeFile;
+	private BucketSizeIO bucketSizeIO;
 
 	@BeforeMethod
 	public void setUp() {
-		bucketSizeFile = new BucketSizeFile();
+		bucketSizeIO = new BucketSizeIO();
 	}
 
 	public void getFileWithBucketSize_givenBucket_returnsFileWithSizeOfBucket()
 			throws IOException {
 		Bucket bucket = TUtilsBucket.createRealBucket();
-		File fileWithBucketSize = bucketSizeFile.getFileWithBucketSize(bucket);
+		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
 		List<String> linesOfFile = FileUtils.readLines(fileWithBucketSize);
 		assertEquals(1, linesOfFile.size());
 		String firstLine = linesOfFile.get(0);
@@ -49,13 +49,13 @@ public class BucketSizeFileTest {
 
 	public void getFileWithBucketSize_givenBucket_fileNameContainsBucketNameForUniquness() {
 		Bucket bucket = TUtilsBucket.createBucket();
-		File fileWithBucketSize = bucketSizeFile.getFileWithBucketSize(bucket);
+		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
 		assertTrue(fileWithBucketSize.getName().contains(bucket.getName()));
 	}
 
 	public void getFileWithBucketSize_givenBucket_fileNameContainsSizeLitteralForExternalUnderstandingOfTheFile() {
 		Bucket bucket = TUtilsBucket.createBucket();
-		File fileWithBucketSize = bucketSizeFile.getFileWithBucketSize(bucket);
+		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
 		assertTrue(fileWithBucketSize.getName().contains("size"));
 	}
 }

@@ -27,7 +27,7 @@ import java.net.URI;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.bucketsize.ArchivedBucketsSize;
+import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.FileOverwriteException;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -39,15 +39,15 @@ public class ArchiveBucketTransfererTest {
 	private ArchiveFileSystem archive;
 	private PathResolver pathResolver;
 	private ArchiveBucketTransferer archiveBucketTransferer;
-	private ArchivedBucketsSize archivedBucketsSize;
+	private ArchiveBucketSize archiveBucketSize;
 
 	@BeforeMethod
 	public void setUp() {
 		archive = mock(ArchiveFileSystem.class);
 		pathResolver = mock(PathResolver.class);
-		archivedBucketsSize = mock(ArchivedBucketsSize.class);
+		archiveBucketSize = mock(ArchiveBucketSize.class);
 		archiveBucketTransferer = new ArchiveBucketTransferer(archive,
-				pathResolver, archivedBucketsSize);
+				pathResolver, archiveBucketSize);
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -78,7 +78,7 @@ public class ArchiveBucketTransfererTest {
 	public void transferBucketToArchive_givenSuccessfulBucketTransfer_putBucketSizeInArchive() {
 		Bucket bucket = mock(Bucket.class);
 		archiveBucketTransferer.transferBucketToArchive(bucket);
-		verify(archivedBucketsSize).putSize(bucket);
+		verify(archiveBucketSize).putSize(bucket);
 	}
 
 	@Test(enabled = false)
@@ -92,6 +92,6 @@ public class ArchiveBucketTransfererTest {
 		} catch (Exception e) {
 			// expected
 		}
-		verifyZeroInteractions(archivedBucketsSize);
+		verifyZeroInteractions(archiveBucketSize);
 	}
 }
