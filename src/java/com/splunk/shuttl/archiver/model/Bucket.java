@@ -69,6 +69,17 @@ public class Bucket {
 	}
 
 	/**
+	 * Creates a bucket with index, directory and size.
+	 * 
+	 * @see Bucket#Bucket(String, File)
+	 */
+	public Bucket(String index, File directory, Long size)
+			throws FileNotFoundException, FileNotDirectoryException {
+		this(directory.toURI(), directory, index, directory.getName(), BucketFormat
+				.getFormatFromDirectory(directory), size);
+	}
+
+	/**
 	 * Bucket created with an URI to support remote buckets.
 	 * 
 	 * @param uri
@@ -115,11 +126,11 @@ public class Bucket {
 		this.bucketName = new BucketName(bucketName);
 		this.format = format;
 		verifyDirectoryExists(directory);
-		this.size = setSizeIfIsLocalBucket(uri, directory);
+		this.size = size != null ? size : setSizeOnLocalBucket();
 	}
 
-	private Long setSizeIfIsLocalBucket(URI uri, File directory) {
-		return uri != null && !isRemote() ? FileUtils.sizeOfDirectory(directory)
+	private Long setSizeOnLocalBucket() {
+		return isUriSet() && !isRemote() ? FileUtils.sizeOfDirectory(directory)
 				: null;
 	}
 

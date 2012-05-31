@@ -19,8 +19,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.fileSystem.FileOverwriteException;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -81,6 +83,7 @@ public class ArchiveBucketSize {
 	}
 
 	/**
+	 * Instance with path resolver and archive file system.
 	 */
 	public static ArchiveBucketSize create(PathResolver pathResolver,
 			ArchiveFileSystem archiveFileSystem) {
@@ -88,4 +91,11 @@ public class ArchiveBucketSize {
 				archiveFileSystem), archiveFileSystem);
 	}
 
+	/**
+	 * Instance from config.
+	 */
+	public static ArchiveBucketSize create(ArchiveConfiguration config) {
+		return create(new PathResolver(config),
+				ArchiveFileSystemFactory.getWithConfiguration(config));
+	}
 }

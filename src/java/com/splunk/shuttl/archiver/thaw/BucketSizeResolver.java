@@ -14,8 +14,15 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -23,12 +30,45 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketSizeResolver {
 
+	private static final Logger logger = Logger
+			.getLogger(BucketSizeResolver.class);
+
+	private final ArchiveBucketSize archiveBucketSize;
+
+	/**
+	 * @param archiveBucketSize
+	 */
+	public BucketSizeResolver(ArchiveBucketSize archiveBucketSize) {
+		this.archiveBucketSize = archiveBucketSize;
+	}
+
 	/**
 	 * Takes a list of buckets and gives the buckets the size which is persisted
 	 * in the archive file system.
 	 */
 	public List<Bucket> resolveBucketsSizes(List<Bucket> bucketsWithFormats) {
-		return bucketsWithFormats;
+		ArrayList<Bucket> bucketsWithSize = new ArrayList<Bucket>();
+		for (Bucket bucket : bucketsWithFormats)
+			bucketsWithSize.add(createBucketWithSize(bucket));
+		return bucketsWithSize;
 	}
 
+	private Bucket createBucketWithSize(Bucket bucket) {
+		long size = archiveBucketSize.getSize(bucket);
+		return createBucketWithErrorHandling(bucket, size);
+	}
+
+	private Bucket createBucketWithErrorHandling(Bucket bucket, long size) {
+		try {
+			return new Bucket(bucket.getURI(), bucket.getIndex(), bucket.getName(),
+					bucket.getFormat(), size);
+		} catch (IOException e) {
+			logger
+					.error(did("Tried creating " + "bucket with size", e,
+							"To create a bucket from " + "an existing bucket object"
+									+ " keeping everything but size.", "bucket", bucket, "size",
+							size));
+			throw new RuntimeException(e);
+		}
+	}
 }
