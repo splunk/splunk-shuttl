@@ -208,8 +208,10 @@ public class TUtilsBucketTest {
 		assertTrue(TUtilsBucket.createRemoteBucket().getIndex() != null);
 	}
 
-	public void createRemoteBucket_noArguments_hasName() {
+	public void createRemoteBucket_noArguments_hasNameWithDates() {
 		assertTrue(TUtilsBucket.createRemoteBucket().getName() != null);
+		assertTrue(TUtilsBucket.createRemoteBucket().getEarliest() != null);
+		assertTrue(TUtilsBucket.createRemoteBucket().getLatest() != null);
 	}
 
 	public void createRemoteBucket_noArguments_hasSplunkBucketFormat() {

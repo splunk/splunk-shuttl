@@ -232,7 +232,8 @@ public class TUtilsBucket {
 	public static Bucket createRemoteBucket() {
 		try {
 			return new Bucket(URI.create("remote:/uri"), "itHasAnIndex",
-					"itHasABucketName", BucketFormat.SPLUNK_BUCKET);
+					getNameWithEarliestAndLatestTime(new Date(), new Date()),
+					BucketFormat.SPLUNK_BUCKET);
 		} catch (Exception e) {
 			TUtilsTestNG.failForException("Could not create remote bucket", e);
 			return null;
