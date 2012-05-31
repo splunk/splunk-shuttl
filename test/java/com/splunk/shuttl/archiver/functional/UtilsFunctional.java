@@ -53,13 +53,6 @@ public class UtilsFunctional {
 	}
 
 	/**
-	 * @return path resolver used with the default archiver.
-	 */
-	public static PathResolver getRealPathResolver() {
-		return BucketArchiverFactory.createConfiguredArchiver().getPathResolver();
-	}
-
-	/**
 	 * @param hadoopPort2
 	 * @param hadoopHost2
 	 * @return Hadoop {@link FileSystem} configured with shuttl's default host and

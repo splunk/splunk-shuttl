@@ -14,6 +14,8 @@
 	<test name="functional" preserve-order="true">
 		<classes>
 			<class name="com.splunk.shuttl.archiver.importexport.csv.CsvImporterFunctionalTest" />
+			<class name="com.splunk.shuttl.archiver.importexport.BucketExporterIntegrationTest" />
+
 		</classes>
 	</test> <!-- Test -->
 	

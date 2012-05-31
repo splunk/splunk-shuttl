@@ -92,7 +92,7 @@ public class ListBucketsEndpoint {
 
 		for (Bucket bucket : filteredBucketsAtIndex) {
 			beans.add(BucketBean.createBeanFromBucket(bucket));
-			totalBucketsSize += bucket.getSize();
+			totalBucketsSize += bucket.getSize() == null ? 0 : bucket.getSize();
 		}
 
 		Map<String, Object> response = new HashMap<String, Object>();

@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -40,6 +41,7 @@ public class ArchiverFunctionalTest {
 	private ArchiveConfiguration config;
 	private BucketArchiver bucketArchiver;
 	private ArchiveFileSystem archiveFileSystem;
+	private PathResolver pathResolver;
 
 	@BeforeMethod(groups = { "functional" })
 	public void setUp() throws IOException {
@@ -47,6 +49,7 @@ public class ArchiverFunctionalTest {
 		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
 		bucketArchiver = BucketArchiverFactory
 				.createWithConfigurationAndArchiveFileSystem(config, archiveFileSystem);
+		pathResolver = new PathResolver(config);
 	}
 
 	@AfterMethod
@@ -64,8 +67,7 @@ public class ArchiverFunctionalTest {
 
 	private void verifyByListingBucketInArchiveFileSystem(Bucket bucket)
 			throws IOException {
-		URI bucketArchiveUri = bucketArchiver.getPathResolver().resolveArchivePath(
-				bucket);
+		URI bucketArchiveUri = pathResolver.resolveArchivePath(bucket);
 		URI bucketParentUri = new Path(bucketArchiveUri).getParent().toUri();
 		List<URI> urisAtBucketsParent = archiveFileSystem.listPath(bucketParentUri);
 		assertEquals(1, urisAtBucketsParent.size());

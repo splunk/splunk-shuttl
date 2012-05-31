@@ -15,10 +15,7 @@
 
 package com.splunk.shuttl.archiver.archive;
 
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
-
-import java.net.URI;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -31,62 +28,34 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 public class BucketArchiverTest {
 
 	private BucketArchiver bucketArchiver;
-	private ArchiveConfiguration config;
 	private BucketExporter exporter;
-
-	private PathResolver pathResolver;
-	private Bucket bucket;
 	private ArchiveBucketTransferer archiveBucketTransferer;
 	private BucketDeleter deletesBuckets;
 
+	private Bucket bucket;
+
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
-		config = mock(ArchiveConfiguration.class);
 		exporter = mock(BucketExporter.class);
-		pathResolver = mock(PathResolver.class);
 		archiveBucketTransferer = mock(ArchiveBucketTransferer.class);
 		deletesBuckets = mock(BucketDeleter.class);
-		bucketArchiver = new BucketArchiver(config, exporter, pathResolver,
-				archiveBucketTransferer, deletesBuckets);
+		bucketArchiver = new BucketArchiver(exporter, archiveBucketTransferer,
+				deletesBuckets);
 
 		bucket = TUtilsBucket.createBucket();
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void archiveBucket_shouldUseTheArchiveFormatForExportingTheBucket() {
-		// Setup
-		BucketFormat format = BucketFormat.SPLUNK_BUCKET;
-		when(config.getArchiveFormat()).thenReturn(format);
-		// Test
-		bucketArchiver.archiveBucket(bucket);
-		// Verification
-		verify(exporter).exportBucketToFormat(bucket, format);
-	}
-
-	public void archiveBucket_shouldResolveArchivePathWithIndexBucketAndFormat() {
-		BucketFormat format = BucketFormat.SPLUNK_BUCKET;
-		when(config.getArchiveFormat()).thenReturn(format);
-		when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
-				.thenReturn(bucket);
-		bucketArchiver.archiveBucket(bucket);
-		verify(pathResolver).resolveArchivePath(bucket);
-	}
-
-	public void archiveBucket_givenArchiveBucketTransferer_letTransfererTransferTheBucket() {
-		URI path = URI.create("file:/some/path");
+	public void archiveBucket_givenBucket_exportsBucketAndTransfersBucket() {
 		Bucket exportedBucket = mock(Bucket.class);
-		when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
-				.thenReturn(exportedBucket);
-		when(pathResolver.resolveArchivePath(exportedBucket)).thenReturn(path);
+		when(exporter.exportBucket(bucket)).thenReturn(exportedBucket);
 		bucketArchiver.archiveBucket(bucket);
-		verify(archiveBucketTransferer).transferBucketToArchive(exportedBucket,
-				path);
+		verify(archiveBucketTransferer).transferBucketToArchive(exportedBucket);
 	}
 
-	public void archiveBucket_givenBucketAndBucketDeleter_deletesBucketWithBucketDeleter() {
-		Bucket exportedBucket = TUtilsBucket.createBucket();
-		when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
-				.thenReturn(exportedBucket);
+	public void archiveBucket_givenBucketAndExportedBucket_deletesBothBucketsWithBucketDeleter() {
+		Bucket exportedBucket = mock(Bucket.class);
+		when(exporter.exportBucket(bucket)).thenReturn(exportedBucket);
 		bucketArchiver.archiveBucket(bucket);
 		verify(deletesBuckets).deleteBucket(bucket);
 		verify(deletesBuckets).deleteBucket(exportedBucket);
@@ -94,10 +63,9 @@ public class BucketArchiverTest {
 
 	public void archiveBucket_whenExceptionIsThrown_deleteExportedBucketButNotOriginalBucket() {
 		Bucket exportedBucket = TUtilsBucket.createBucket();
-		when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
-				.thenReturn(exportedBucket);
-		when(pathResolver.resolveArchivePath(any(Bucket.class))).thenThrow(
-				new RuntimeException());
+		when(exporter.exportBucket(bucket)).thenReturn(exportedBucket);
+		doThrow(new RuntimeException()).when(archiveBucketTransferer)
+				.transferBucketToArchive(exportedBucket);
 		try {
 			bucketArchiver.archiveBucket(bucket);
 		} catch (Throwable e) {
@@ -108,8 +76,7 @@ public class BucketArchiverTest {
 	}
 
 	public void archiveBucket_whenExportBucketIsSameAsOriginalBucket_deleteBucketTwice() {
-		when(exporter.exportBucketToFormat(eq(bucket), any(BucketFormat.class)))
-				.thenReturn(bucket);
+		when(exporter.exportBucket(bucket)).thenReturn(bucket);
 		bucketArchiver.archiveBucket(bucket);
 		verify(deletesBuckets, times(2)).deleteBucket(bucket);
 	}

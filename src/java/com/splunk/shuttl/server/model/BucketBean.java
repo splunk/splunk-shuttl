@@ -143,11 +143,12 @@ public class BucketBean {
 	 *          to create bean from.
 	 */
 	public static BucketBean createBeanFromBucket(Bucket bucket) {
+		String size = FileUtils.byteCountToDisplaySize(bucket.getSize() == null ? 0
+				: bucket.getSize());
 		return new BucketBean(bucket.getFormat().name(), bucket.getIndex(),
 				bucket.getName(), bucket.getURI().toString(),
 				stringFromDate(bucket.getEarliest()),
-				stringFromDate(bucket.getLatest()),
-				FileUtils.byteCountToDisplaySize(bucket.getSize()));
+				stringFromDate(bucket.getLatest()), size);
 	}
 
 	private static String stringFromDate(Date date) {

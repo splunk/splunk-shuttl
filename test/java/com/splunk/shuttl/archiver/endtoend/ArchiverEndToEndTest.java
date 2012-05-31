@@ -149,7 +149,13 @@ public class ArchiverEndToEndTest {
 			String index, Date earliest, Date latest) {
 		HttpGet listRequest = getListGetRequest(index, earliest, latest);
 		HttpResponse response = executeUriRequest(listRequest);
-		assertEquals(200, response.getStatusLine().getStatusCode());
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (statusCode != 200) {
+			System.out.println("Did not get status code 200."
+					+ " Printing response. StatusCode: " + statusCode);
+			System.out.println(getLinesFromResponse(response));
+			fail();
+		}
 		List<String> lines = getLinesFromResponse(response);
 		assertEquals(1, lines.size());
 		assertTrue(lines.get(0).contains(

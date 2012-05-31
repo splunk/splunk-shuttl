@@ -35,9 +35,12 @@ public class ArchiveBucketTransferer {
 	private final ArchiveFileSystem archiveFileSystem;
 	private final static Logger logger = Logger
 			.getLogger(ArchiveBucketTransferer.class);
+	private final PathResolver pathResolver;
 
-	public ArchiveBucketTransferer(ArchiveFileSystem archive) {
-		archiveFileSystem = archive;
+	public ArchiveBucketTransferer(ArchiveFileSystem archive,
+			PathResolver pathResolver) {
+		this.archiveFileSystem = archive;
+		this.pathResolver = pathResolver;
 	}
 
 	/**
@@ -45,10 +48,9 @@ public class ArchiveBucketTransferer {
 	 * 
 	 * @param bucket
 	 *          to transfer to {@link ArchiveFileSystem}
-	 * @param destination
-	 *          on the {@link ArchiveFileSystem}
 	 */
-	public void transferBucketToArchive(Bucket bucket, URI destination) {
+	public void transferBucketToArchive(Bucket bucket) {
+		URI destination = pathResolver.resolveArchivePath(bucket);
 		logger.info(will("attempting to transfer bucket to archive", "bucket",
 				bucket, "destination", destination));
 		try {

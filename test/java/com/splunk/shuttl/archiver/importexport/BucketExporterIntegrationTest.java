@@ -15,6 +15,7 @@
 package com.splunk.shuttl.archiver.importexport;
 
 import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
+import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -28,6 +29,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
@@ -45,7 +47,9 @@ public class BucketExporterIntegrationTest {
 	@BeforeMethod
 	public void setUp() throws FileNotFoundException, FileNotDirectoryException,
 			URISyntaxException {
-		bucketExporter = BucketExporter.create();
+		ArchiveConfiguration config = mock(ArchiveConfiguration.class);
+		stub(config.getArchiveFormat()).toReturn(BucketFormat.CSV);
+		bucketExporter = BucketExporter.create(config);
 	}
 
 	@AfterMethod
@@ -69,8 +73,8 @@ public class BucketExporterIntegrationTest {
 
 	private void exportingBucketWithRealDataToCsvCreatesCsvBucket() {
 		Bucket realBucket = TUtilsBucket.createRealBucket();
-		Bucket csvBucket = bucketExporter.exportBucketToFormat(realBucket,
-				BucketFormat.CSV);
+		Bucket csvBucket = bucketExporter.exportBucket(realBucket);
+
 		assertEquals(realBucket.getName(), csvBucket.getName());
 		assertEquals(BucketFormat.CSV, csvBucket.getFormat());
 		assertEquals(1, csvBucket.getDirectory().listFiles().length);
