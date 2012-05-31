@@ -50,7 +50,7 @@ public class BucketArchiverFactory {
 			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem) {
 		return new BucketArchiver(
 				BucketExporter.create(config),
-				new ArchiveBucketTransferer(archiveFileSystem, new PathResolver(config)),
+				ArchiveBucketTransferer.create(archiveFileSystem, config),
 				BucketDeleter.create());
 
 	}

@@ -23,6 +23,7 @@ import java.net.URI;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.bucketsize.ArchivedBucketsSize;
 import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.fileSystem.FileOverwriteException;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -36,11 +37,13 @@ public class ArchiveBucketTransferer {
 	private final static Logger logger = Logger
 			.getLogger(ArchiveBucketTransferer.class);
 	private final PathResolver pathResolver;
+	private final ArchivedBucketsSize archivedBucketsSize;
 
 	public ArchiveBucketTransferer(ArchiveFileSystem archive,
-			PathResolver pathResolver) {
+			PathResolver pathResolver, ArchivedBucketsSize archivedBucketsSize) {
 		this.archiveFileSystem = archive;
 		this.pathResolver = pathResolver;
+		this.archivedBucketsSize = archivedBucketsSize;
 	}
 
 	/**
@@ -55,6 +58,7 @@ public class ArchiveBucketTransferer {
 				bucket, "destination", destination));
 		try {
 			archiveFileSystem.putFileAtomically(bucket.getDirectory(), destination);
+			archivedBucketsSize.putSize(bucket);
 		} catch (FileNotFoundException e) {
 			logFileNotFoundException(bucket, destination, e);
 			throw new RuntimeException(e);
@@ -87,6 +91,17 @@ public class ArchiveBucketTransferer {
 		logger.error(did("attempted to transfer bucket to archive",
 				"IOException raised", "success", "bucket", bucket, "destination",
 				destination, "exception", e));
+	}
+
+	/**
+	 * @param archiveFileSystem2
+	 * @param config
+	 * @return
+	 */
+	public static ArchiveBucketTransferer create(
+			ArchiveFileSystem archiveFileSystem2, ArchiveConfiguration config) {
+		return new ArchiveBucketTransferer(archiveFileSystem2, new PathResolver(
+				config), new ArchivedBucketsSize());
 	}
 
 }
