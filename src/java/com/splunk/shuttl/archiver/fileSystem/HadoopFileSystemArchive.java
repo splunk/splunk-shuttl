@@ -190,7 +190,7 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 	 * .URI)
 	 */
 	@Override
-	public InputStream openFile(URI fileOnArchiveFileSystem) {
-		throw new UnsupportedOperationException();
+	public InputStream openFile(URI fileOnArchiveFileSystem) throws IOException {
+		return hadoopFileSystem.open(new Path(fileOnArchiveFileSystem));
 	}
 }

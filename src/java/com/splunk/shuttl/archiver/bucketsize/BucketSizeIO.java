@@ -89,10 +89,17 @@ public class BucketSizeIO {
 	 * @return
 	 */
 	public long readSizeFromRemoteFile(URI uriToFileWithBucketSize) {
-		InputStream inputStream = archiveFileSystem
-				.openFile(uriToFileWithBucketSize);
+		InputStream inputStream = getInputStreamToFile(uriToFileWithBucketSize);
 		List<String> lines = getLinesFromInputStream(inputStream);
 		return Long.parseLong(lines.get(0));
+	}
+
+	private InputStream getInputStreamToFile(URI uriToFileWithBucketSize) {
+		try {
+			return archiveFileSystem.openFile(uriToFileWithBucketSize);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private List<String> getLinesFromInputStream(InputStream inputStream) {

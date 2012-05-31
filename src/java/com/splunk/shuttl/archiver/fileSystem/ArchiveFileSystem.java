@@ -115,6 +115,8 @@ public interface ArchiveFileSystem {
 	 * @param fileOnArchiveFileSystem
 	 *          A path to an existing file on the archiving file system.
 	 * @return an open {@link InputStream} to a file on the archive file system.
+	 * @throws IOException
+	 *           If there was any other problem with the operation.
 	 */
-	InputStream openFile(URI fileOnArchiveFileSystem);
+	InputStream openFile(URI fileOnArchiveFileSystem) throws IOException;
 }

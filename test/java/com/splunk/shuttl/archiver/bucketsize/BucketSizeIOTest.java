@@ -19,7 +19,6 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -68,7 +67,7 @@ public class BucketSizeIOTest {
 	}
 
 	public void readSizeFromRemoteFile_givenArchiveFileSystem_getsInputStreamToFileWithSize()
-			throws FileNotFoundException {
+			throws IOException {
 		Bucket bucket = TUtilsBucket.createBucket();
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
 		URI uriToFile = URI.create("uri:/to/remote/file/with/size");
