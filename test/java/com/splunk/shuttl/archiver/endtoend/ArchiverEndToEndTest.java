@@ -48,7 +48,6 @@ import com.splunk.shuttl.archiver.archive.BucketFreezer;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
-import com.splunk.shuttl.archiver.functional.UtilsFunctional;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
@@ -56,6 +55,7 @@ import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFile;
+import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
@@ -234,7 +234,7 @@ public class ArchiverEndToEndTest {
 
 	private void tearDown(String hadoopHost, String hadoopPort) {
 		FileUtils.deleteQuietly(tempDirectory);
-		FileSystem hadoopFileSystem = UtilsFunctional.getHadoopFileSystem(
+		FileSystem hadoopFileSystem = TUtilsFunctional.getHadoopFileSystem(
 				hadoopHost, hadoopPort);
 		for (File dir : thawDirectoryLocation.listFiles())
 			FileUtils.deleteQuietly(dir);

@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.functional;
+package com.splunk.shuttl.archiver.usecases;
 
 import static org.testng.AssertJUnit.*;
 
@@ -37,6 +37,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketFormatChooser;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsFunctional;
 
 @Test(groups = { "functional" })
 public class ExportCsvFunctionalTest {
@@ -48,7 +49,7 @@ public class ExportCsvFunctionalTest {
 
 	@BeforeMethod
 	public void setUp() {
-		ArchiveConfiguration csvConfig = UtilsFunctional
+		ArchiveConfiguration csvConfig = TUtilsFunctional
 				.getLocalCsvArchiveConfigration();
 		ArchiveFileSystem localFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(csvConfig);
@@ -74,7 +75,7 @@ public class ExportCsvFunctionalTest {
 	@Parameters(value = { "splunk.home" })
 	public void archiveBucketAsCsv_givenSplunkHomeAndBucketInSplunkBucketFormat_archivedAsCsvFormat(
 			final String splunkHome) {
-		UtilsFunctional.archiveBucket(bucket, csvBucketArchiver, splunkHome);
+		TUtilsFunctional.archiveBucket(bucket, csvBucketArchiver, splunkHome);
 		verifyBucketWasArchivedAsCsv();
 	}
 

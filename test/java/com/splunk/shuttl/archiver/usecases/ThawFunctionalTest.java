@@ -12,10 +12,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.functional;
+package com.splunk.shuttl.archiver.usecases;
 
-import static com.splunk.shuttl.archiver.functional.UtilsFunctional.*;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFunctional.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 

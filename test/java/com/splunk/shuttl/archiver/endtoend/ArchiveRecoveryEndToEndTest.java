@@ -14,8 +14,8 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.endtoend;
 
-import static com.splunk.shuttl.archiver.functional.UtilsFunctional.*;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static com.splunk.shuttl.testutil.TUtilsFunctional.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -36,9 +36,9 @@ import com.splunk.shuttl.archiver.archive.BucketFreezer;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
-import com.splunk.shuttl.archiver.functional.UtilsFunctional;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsMockito;
 
@@ -119,19 +119,19 @@ public class ArchiveRecoveryEndToEndTest {
 				.getIndex(), secondFailingBucket.getDirectory().getAbsolutePath());
 
 		// Verify bucket archiving failed.
-		URI firstBucketURI = UtilsFunctional.getHadoopArchivedBucketURI(config,
+		URI firstBucketURI = TUtilsFunctional.getHadoopArchivedBucketURI(config,
 				firstFailingBucket);
-		URI secondBucketURI = UtilsFunctional.getHadoopArchivedBucketURI(config,
+		URI secondBucketURI = TUtilsFunctional.getHadoopArchivedBucketURI(config,
 				secondFailingBucket);
 		assertFalse(hadoopFileSystem.exists(new Path(firstBucketURI)));
 		assertFalse(hadoopFileSystem.exists(new Path(secondBucketURI)));
 
 		successfulBucketFreezerWithRecovery.freezeBucket(successfulBucket
 				.getIndex(), successfulBucket.getDirectory().getAbsolutePath());
-		UtilsFunctional.waitForAsyncArchiving();
+		TUtilsFunctional.waitForAsyncArchiving();
 
 		// Verification
-		URI thirdBucketURI = UtilsFunctional.getHadoopArchivedBucketURI(config,
+		URI thirdBucketURI = TUtilsFunctional.getHadoopArchivedBucketURI(config,
 				successfulBucket);
 		assertTrue(hadoopFileSystem.exists(new Path(firstBucketURI)));
 		assertTrue(hadoopFileSystem.exists(new Path(secondBucketURI)));

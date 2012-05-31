@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.functional;
+package com.splunk.shuttl.archiver.usecases;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Matchers.*;
@@ -39,6 +39,7 @@ import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 @Test(enabled = false, groups = { "functional" })
@@ -52,7 +53,7 @@ public class ImportCsvFunctionalTest {
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
-		localCsvArchiveConfigration = UtilsFunctional
+		localCsvArchiveConfigration = TUtilsFunctional
 				.getLocalCsvArchiveConfigration();
 		SplunkSettings splunkSettings = mock(SplunkSettings.class);
 		thawDirectory = createDirectory();
@@ -88,7 +89,7 @@ public class ImportCsvFunctionalTest {
 
 	private void archiveBucketAsCsvWithExportToolThatNeedsSplunkHome(
 			String splunkHome) {
-		UtilsFunctional.archiveBucket(realBucket, csvArchiver, splunkHome);
+		TUtilsFunctional.archiveBucket(realBucket, csvArchiver, splunkHome);
 	}
 
 	private long sizeOfBucket(Bucket b) {

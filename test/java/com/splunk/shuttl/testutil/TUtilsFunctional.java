@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.functional;
+package com.splunk.shuttl.testutil;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static java.util.Arrays.*;
@@ -32,13 +32,11 @@ import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.TUtilsEnvironment;
-import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 /**
  * Util methods for functional archiver tests
  */
-public class UtilsFunctional {
+public class TUtilsFunctional {
 	/**
 	 * Uses the {@link BucketArchiverFactory#createDefaultArchiver()} to get its
 	 * {@link PathResolver} and retrieve the URI for the bucket as param.
