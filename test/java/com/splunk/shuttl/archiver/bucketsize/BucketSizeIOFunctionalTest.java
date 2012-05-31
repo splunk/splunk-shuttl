@@ -31,7 +31,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
-@Test(groups = { "functional" }, enabled = false)
+@Test(groups = { "functional" })
 public class BucketSizeIOFunctionalTest {
 
 	private BucketSizeIO bucketSizeIO;
@@ -50,7 +50,7 @@ public class BucketSizeIOFunctionalTest {
 
 	public void BucketSizeIO_givenHadoopFileSystem_putsFileWithSizeAndReadsIt()
 			throws IOException {
-		Bucket bucket = TUtilsBucket.createBucket();
+		Bucket bucket = TUtilsBucket.createRealBucket();
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
 		long bucketSize = bucket.getSize();
 		URI uriForFileWithBucketSize = pathResolver

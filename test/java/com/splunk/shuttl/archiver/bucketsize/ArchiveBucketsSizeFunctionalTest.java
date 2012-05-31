@@ -32,7 +32,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
-@Test(groups = { "functional" }, enabled = false)
+@Test(groups = { "functional" })
 public class ArchiveBucketsSizeFunctionalTest {
 
 	private ArchiveConfiguration config;

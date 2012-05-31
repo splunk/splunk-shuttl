@@ -92,13 +92,4 @@ public class ArchiveBucketSizeTest {
 		assertEquals(size, actualSize);
 
 	}
-
-	// Sad path for when bucket is not remote. Log and just return size.
-
-	public void getSize_givenBucketIsNotRemote_returnSize() {
-		Bucket bucket = TUtilsBucket.createBucket();
-		assertFalse(bucket.isRemote());
-		Long size = archiveBucketSize.getSize(bucket);
-		assertEquals(bucket.getSize(), size);
-	}
 }
