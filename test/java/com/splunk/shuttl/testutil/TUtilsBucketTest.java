@@ -199,4 +199,21 @@ public class TUtilsBucketTest {
 		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
 		assertEquals(BucketFormat.CSV, csvBucket.getFormat());
 	}
+
+	public void createRemoteBucket_noArguments_isRemote() {
+		assertTrue(TUtilsBucket.createRemoteBucket().isRemote());
+	}
+
+	public void createRemoteBucket_noArguments_hasIndex() {
+		assertTrue(TUtilsBucket.createRemoteBucket().getIndex() != null);
+	}
+
+	public void createRemoteBucket_noArguments_hasName() {
+		assertTrue(TUtilsBucket.createRemoteBucket().getName() != null);
+	}
+
+	public void createRemoteBucket_noArguments_hasSplunkBucketFormat() {
+		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
+		assertEquals(BucketFormat.SPLUNK_BUCKET, remoteBucket.getFormat());
+	}
 }

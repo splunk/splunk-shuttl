@@ -20,6 +20,7 @@ import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Date;
 
@@ -27,6 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.testng.AssertJUnit;
 
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.BucketExporterIntegrationTest;
 import com.splunk.shuttl.archiver.importexport.csv.CsvBucketCreator;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -48,8 +50,7 @@ public class TUtilsBucket {
 	 * @see #createTestBucketWithName(String, String)
 	 */
 	public static Bucket createBucket() {
-		return createBucketWithIndexAndName(randomIndexName(),
-				randomBucketName());
+		return createBucketWithIndexAndName(randomIndexName(), randomBucketName());
 
 	}
 
@@ -221,6 +222,20 @@ public class TUtilsBucket {
 		} catch (IOException e) {
 			TUtilsTestNG
 					.failForException("Couldn't copy: " + from + ", to: " + to, e);
+		}
+	}
+
+	/**
+	 * @return {@link Bucket} that is "fake-remote". It's not really archived some
+	 *         where, but the object represents a bucket that is remote.
+	 */
+	public static Bucket createRemoteBucket() {
+		try {
+			return new Bucket(URI.create("remote:/uri"), "itHasAnIndex",
+					"itHasABucketName", BucketFormat.SPLUNK_BUCKET);
+		} catch (Exception e) {
+			TUtilsTestNG.failForException("Could not create remote bucket", e);
+			return null;
 		}
 	}
 }
