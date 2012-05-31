@@ -20,10 +20,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -157,29 +155,6 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 			throws IOException {
 		if (hadoopFileSystem.exists(path))
 			throw new FileOverwriteException(path.toString() + " already exist.");
-	}
-
-	/**
-	 * There appears to be no method in the HDFS API that gives the size of a
-	 * directory, so we perform a search to get accurate directory sizes.
-	 */
-	@Override
-	public Long getSize(URI uri) throws IOException {
-		// DFS for now
-		FileStatus file = hadoopFileSystem.getFileStatus(createPathFromURI(uri));
-		long size = file.getLen();
-		if (file.isDir()) {
-			Stack<FileStatus> files = new Stack<FileStatus>();
-			files.add(file);
-			while (!files.isEmpty()) {
-				file = files.pop();
-				size += file.getLen();
-				if (file.isDir())
-					files
-							.addAll(Arrays.asList(hadoopFileSystem.listStatus(file.getPath())));
-			}
-		}
-		return size;
 	}
 
 	/*
