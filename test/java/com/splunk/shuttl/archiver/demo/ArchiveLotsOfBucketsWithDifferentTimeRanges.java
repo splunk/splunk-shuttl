@@ -29,7 +29,7 @@ import com.splunk.shuttl.testutil.TUtilsMBean;
 /**
  * Test for generating a lot of demo data, that can then be showed off manually.
  */
-@Test(enabled = false, groups = { "functional" })
+@Test(enabled = false, groups = { "demo" })
 public class ArchiveLotsOfBucketsWithDifferentTimeRanges {
 
 	long MILLI_SECONDS_IN_A_DAY = 86400000;
