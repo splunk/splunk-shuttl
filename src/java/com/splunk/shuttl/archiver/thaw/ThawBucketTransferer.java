@@ -17,7 +17,7 @@ package com.splunk.shuttl.archiver.thaw;
 import java.io.File;
 import java.io.IOException;
 
-import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 

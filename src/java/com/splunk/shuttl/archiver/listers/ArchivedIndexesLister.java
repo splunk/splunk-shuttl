@@ -25,7 +25,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 
 /**
  * Lists indexes in an {@link ArchiveFileSystem}

@@ -14,8 +14,8 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
-import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
 
 /**

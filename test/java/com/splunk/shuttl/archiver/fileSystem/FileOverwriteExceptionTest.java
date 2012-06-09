@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shuttl.archiver.fileSystem;
+package com.splunk.shuttl.archiver.filesystem;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;

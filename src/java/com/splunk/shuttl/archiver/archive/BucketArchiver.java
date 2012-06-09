@@ -15,7 +15,7 @@
 
 package com.splunk.shuttl.archiver.archive;
 
-import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 

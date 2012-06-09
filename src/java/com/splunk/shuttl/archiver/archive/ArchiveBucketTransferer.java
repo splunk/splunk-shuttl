@@ -24,8 +24,8 @@ import java.net.URI;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
-import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.fileSystem.FileOverwriteException;
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.FileOverwriteException;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**

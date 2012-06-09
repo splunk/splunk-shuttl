@@ -19,7 +19,7 @@ import java.net.URI;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.splunk.shuttl.archiver.fileSystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.util.UtilsURI;
 import com.splunk.shuttl.server.model.ArchiverConfiguration;
