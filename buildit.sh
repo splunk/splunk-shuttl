@@ -14,12 +14,11 @@
 # See the License for the specific language governing permissions and                                  
 # limitations under the License.
 
-export SHUTTLDIR=$(dirname $0)
+set -e
+set -u
 
-## Setup ant
-export ANT_HOME="$SHUTTLDIR/contrib/apache-ant-1.8.2"
+shuttl_dir=$(dirname $0)
 
-# Setting our ant before everyone elses.
-export PATH="$ANT_HOME/bin:$PATH"
-
+source $shuttl_dir/src/sh/set-ant-env.sh
 ant
+
