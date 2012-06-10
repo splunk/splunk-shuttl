@@ -15,6 +15,7 @@
 package com.splunk.shuttl.archiver.importexport.csv.splunk;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static java.util.Arrays.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -37,11 +38,11 @@ public abstract class SplunkToolTest {
 
 	protected abstract SplunkTool getInstance();
 
-	@Test(enabled = false, groups = { "fast-unit" })
-	public void getExecutableCommand_theImportToolIsInSplunkHome_pathToExecutable() {
+	@Test(groups = { "fast-unit" })
+	public void getExecutableCommand_givenSplunkHome_listWithSplunkCmdToolName() {
 		final File splunkHome = createDirectory();
 		File bin = createDirectoryInParent(splunkHome, "bin");
-		final File importTool = createFileInParent(bin, splunkTool.getToolName());
+		final File splunk = createFileInParent(bin, "splunk");
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 			@Override
@@ -49,7 +50,9 @@ public abstract class SplunkToolTest {
 				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
 						splunkHome.getAbsolutePath());
 				List<String> pathToExecutable = splunkTool.getExecutableCommand();
-				assertEquals(importTool.getAbsolutePath(), pathToExecutable);
+				assertEquals(
+						asList(splunk.getAbsolutePath(), "cmd", splunkTool.getToolName()),
+						pathToExecutable);
 			}
 		});
 	}
