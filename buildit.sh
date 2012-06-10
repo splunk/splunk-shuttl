@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and                                  
 # limitations under the License.
 
+shuttl_dir=$(cd $(/usr/bin/dirname $0) && pwd)
+
 set -e
 set -u
 
-shuttl_dir=$(dirname $0)
-
-source $shuttl_dir/src/sh/set-ant-env.sh
-ant
+source src/sh/set-ant-env.sh $shuttl_dir
+$ANT_HOME/bin/ant
 
