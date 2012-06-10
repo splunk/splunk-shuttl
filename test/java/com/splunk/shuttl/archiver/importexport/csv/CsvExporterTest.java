@@ -57,7 +57,8 @@ public class CsvExporterTest {
 
 	public void exportBucketToCsv_givenExecutableCommandEnvironmentAndCsvExportPath_executesSpecifiedCommand()
 			throws IOException {
-		when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
+		when(exportTool.getExecutableCommand()).thenReturn(
+				asList("/exporttool/path"));
 		when(exportTool.getEnvironment()).thenReturn(emptyMap);
 		File csvFile = createFile();
 		when(getsBucketsCsvExportFile.getCsvFile(bucket)).thenReturn(csvFile);
@@ -76,7 +77,8 @@ public class CsvExporterTest {
 			throws IOException, InterruptedException {
 		when(shellExecutor.executeCommand(anyMap(), anyList())).thenReturn(1);
 
-		when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
+		when(exportTool.getExecutableCommand()).thenReturn(
+				asList("/exporttool/path"));
 		when(getsBucketsCsvExportFile.getCsvFile(bucket)).thenReturn(
 				new File("/dummy/file"));
 		csvExporter.exportBucketToCsv(bucket);
@@ -90,7 +92,8 @@ public class CsvExporterTest {
 				nonExistantCsvFile);
 
 		when(shellExecutor.executeCommand(anyMap(), anyList())).thenReturn(0);
-		when(exportTool.getExecutableCommand()).thenReturn("/exporttool/path");
+		when(exportTool.getExecutableCommand()).thenReturn(
+				asList("/exporttool/path"));
 
 		FileUtils.deleteQuietly(nonExistantCsvFile);
 		csvExporter.exportBucketToCsv(bucket);

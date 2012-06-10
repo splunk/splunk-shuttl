@@ -21,6 +21,7 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
@@ -32,6 +33,7 @@ import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkImportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.util.UtilsBucket;
+import com.splunk.shuttl.archiver.util.UtilsList;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -57,19 +59,22 @@ public class CsvImporterTest {
 	@Test(groups = { "fast-unit" })
 	public void _givenCsvBucket_callsSplunkImportToolWithCsvFile() {
 		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
-		String importToolPath = "path/to/importtool";
-		when(splunkImportTool.getExecutableCommand()).thenReturn(importToolPath);
+		List<String> importTooExecutable = asList("path/to/importtool");
+		when(splunkImportTool.getExecutableCommand()).thenReturn(
+				importTooExecutable);
 		when(splunkImportTool.getEnvironment()).thenReturn(emptyMap);
 		File csvFile = UtilsBucket.getCsvFile(csvBucket);
-		String[] fullCommand = new String[] { importToolPath,
+		String[] arguments = new String[] {
 				csvBucket.getDirectory().getAbsolutePath(), // <-- should move
 				// this logic
 				// somewhere.
 				csvFile.getAbsolutePath() };
+		List<String> command = UtilsList.join(importTooExecutable,
+				asList(arguments));
 
 		csvImporter.importBucketFromCsv(csvBucket);
 
-		verify(shellExecutor).executeCommand(emptyMap, asList(fullCommand));
+		verify(shellExecutor).executeCommand(emptyMap, command);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -18,6 +18,7 @@ import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
+import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -47,7 +48,7 @@ public abstract class SplunkToolTest {
 			public void run() {
 				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME",
 						splunkHome.getAbsolutePath());
-				String pathToExecutable = splunkTool.getExecutableCommand();
+				List<String> pathToExecutable = splunkTool.getExecutableCommand();
 				assertEquals(importTool.getAbsolutePath(), pathToExecutable);
 			}
 		});

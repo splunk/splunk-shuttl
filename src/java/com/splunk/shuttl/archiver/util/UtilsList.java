@@ -12,33 +12,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.importexport.csv.splunk;
+package com.splunk.shuttl.archiver.util;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * The extending classes implement the {@link SplunkTool#getToolName()} to
- * become a tool which lives in splunk's bin directory.
+ * Utils for {@link List}
  */
-public abstract class SplunkTool {
-
-	public abstract String getToolName();
+public class UtilsList {
 
 	/**
-	 * @return command for executing Splunk import tool.
+	 * @param list1
+	 * @param list2
+	 * @return a list containing list1 and list2
 	 */
-	public List<String> getExecutableCommand() {
-		return Arrays.asList(SplunkEnvironment.getSplunkHome() + "/bin/splunk",
-				"cmd", getToolName());
-	}
-
-	/**
-	 * @return the environment needed to run the command.
-	 */
-	public Map<String, String> getEnvironment() {
-		return SplunkEnvironment.getEnvironment();
+	public static List<String> join(List<String> list1, List<String> list2) {
+		List<String> join = new ArrayList<String>(list1);
+		join.addAll(list2);
+		return join;
 	}
 
 }

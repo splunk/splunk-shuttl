@@ -16,10 +16,10 @@ package com.splunk.shuttl.archiver.importexport.csv;
 
 import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
-import static java.util.Arrays.*;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkExportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.util.UtilsList;
 
 /**
  * Exports a bucket to .csv format.
@@ -52,31 +53,30 @@ public class CsvExporter {
 	 */
 	public File exportBucketToCsv(Bucket bucket) {
 		File csvFile = getsBucketsCsvExportFile.getCsvFile(bucket);
-		String[] command = constructCommand(bucket, csvFile);
+		List<String> command = constructCommand(bucket, csvFile);
 		Map<String, String> env = exportTool.getEnvironment();
-		int exit = shellExecutor.executeCommand(env, asList(command));
+		int exit = shellExecutor.executeCommand(env, command);
 		throwCsvExceptionIfExportFailed(csvFile, exit, command);
 		return csvFile;
 	}
 
-	private String[] constructCommand(Bucket bucket, File csvFile) {
-		String exportToolCommand = exportTool.getExecutableCommand();
-		String[] command = new String[] { exportToolCommand,
+	private List<String> constructCommand(Bucket bucket, File csvFile) {
+		List<String> executableCommand = exportTool.getExecutableCommand();
+		List<String> arguments = Arrays.asList(new String[] {
 				bucket.getDirectory().getAbsolutePath(), csvFile.getAbsolutePath(),
-				"-csv" };
-		return command;
+				"-csv" });
+		return UtilsList.join(executableCommand, arguments);
 	}
 
 	private void throwCsvExceptionIfExportFailed(File csvFile, int exit,
-			String[] command) {
+			List<String> command) {
 		if (exit != 0) {
 			logger.debug(did("Exported a bucket to Csv",
 					"Got a non zero exit code from export tool",
 					"Zero exit code from export tool.", "exit_code", exit, "csv_file",
-					csvFile, "command", Arrays.toString(command)));
+					csvFile, "command", command));
 			throw new CsvExportFailedException("Exporttool exited with"
-					+ " non zero exit status. Ran exporttool with command: "
-					+ Arrays.toString(command));
+					+ " non zero exit status. Ran exporttool with command: " + command);
 		} else if (!csvFile.exists()) {
 			logger.debug(did("Exported a bucket to Csv",
 					"Csv file didn't exist after the export", "The csv file to exist",

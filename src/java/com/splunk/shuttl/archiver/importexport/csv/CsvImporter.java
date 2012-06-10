@@ -15,9 +15,10 @@
 package com.splunk.shuttl.archiver.importexport.csv;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
-import static java.util.Arrays.*;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -27,6 +28,7 @@ import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkImportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.util.UtilsBucket;
+import com.splunk.shuttl.archiver.util.UtilsList;
 
 /**
  * Imports Csv buckets and creates a Splunk Bucket.
@@ -63,26 +65,26 @@ public class CsvImporter {
 	}
 
 	private Bucket getImportedBucketCsvBucket(Bucket bucket) {
-		String[] importCommand = createCommandForImportingBucket(bucket);
+		List<String> importCommand = createCommandForImportingBucket(bucket);
 		int exit = executeImportCommand(importCommand);
 		Bucket newBucket = createNewBucket(bucket);
 		deleteCsvFileOnSuccessfulImport(bucket, exit);
 		return newBucket;
 	}
 
-	private int executeImportCommand(String[] fullCommand) {
+	private int executeImportCommand(List<String> importCommand) {
 		int exit = shellExecutor.executeCommand(splunkImportTool.getEnvironment(),
-				asList(fullCommand));
+				importCommand);
 		return exit;
 	}
 
-	private String[] createCommandForImportingBucket(Bucket bucket) {
-		String executableImportTool = splunkImportTool.getExecutableCommand();
+	private List<String> createCommandForImportingBucket(Bucket bucket) {
+		List<String> executableCommand = splunkImportTool.getExecutableCommand();
 		File bucketDirectory = bucket.getDirectory();
-		String[] fullCommand = new String[] { executableImportTool,
+		List<String> arguments = Arrays.asList(new String[] {
 				bucketDirectory.getAbsolutePath(),
-				UtilsBucket.getCsvFile(bucket).getAbsolutePath() };
-		return fullCommand;
+				UtilsBucket.getCsvFile(bucket).getAbsolutePath() });
+		return UtilsList.join(executableCommand, arguments);
 	}
 
 	private void deleteCsvFileOnSuccessfulImport(Bucket bucket, int exit) {

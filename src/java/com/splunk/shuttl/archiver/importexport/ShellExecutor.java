@@ -56,7 +56,7 @@ public class ShellExecutor {
 		try {
 			String[] keyValues = getKeyValuesFromEnv(env);
 			System.out.println(Arrays.toString(keyValues));
-			return runtime.exec((String[]) command.toArray(), keyValues);
+			return runtime.exec(command.toArray(new String[0]), keyValues);
 		} catch (IOException e) {
 			logger.error(did("Executed a command with runtime", e,
 					"Command to be executed", "command", command));
