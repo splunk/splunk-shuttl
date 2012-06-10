@@ -22,15 +22,13 @@ import java.util.Map;
  */
 public abstract class SplunkTool {
 
-	private static final String TOOL_LOCATION = "/bin/";
-
 	public abstract String getToolName();
 
 	/**
 	 * @return command for executing Splunk import tool.
 	 */
 	public String getExecutableCommand() {
-		return SplunkEnvironment.getSplunkHome() + TOOL_LOCATION + getToolName();
+		return SplunkEnvironment.getSplunkHome() + "/bin/splunk cmd " + getToolName();
 	}
 
 	/**

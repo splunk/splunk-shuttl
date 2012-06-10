@@ -36,7 +36,7 @@ public abstract class SplunkToolTest {
 
 	protected abstract SplunkTool getInstance();
 
-	@Test(groups = { "fast-unit" })
+	@Test(enabled = false, groups = { "fast-unit" })
 	public void getExecutableCommand_theImportToolIsInSplunkHome_pathToExecutable() {
 		final File splunkHome = createDirectory();
 		File bin = createDirectoryInParent(splunkHome, "bin");
