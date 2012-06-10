@@ -302,7 +302,6 @@
 		<antcall>
 			<target name="splunk-teardown" />
 			<target name="hadoop-teardown" />
-			<target name="shuttl-teardown" />
 		</antcall>
 	</target>
 
@@ -503,13 +502,6 @@
 		<antcall>
 			<target name="hadoop-stop" />
 		</antcall>
-	</target>
-
-	<target name="shuttl-teardown">
-		<exec executable="curl">
-			<arg value="-s" />
-			<arg line="http://localhost:9090/shuttl/rest/server/shutdown" />
-		</exec>
 	</target>
 
 	<target name="check-for-hadoop-binaries">
