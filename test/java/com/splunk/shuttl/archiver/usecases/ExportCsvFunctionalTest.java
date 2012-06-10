@@ -39,7 +39,7 @@ import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
-@Test(groups = { "functional" })
+@Test(groups = { "end-to-end" })
 public class ExportCsvFunctionalTest {
 
 	private BucketArchiver csvBucketArchiver;

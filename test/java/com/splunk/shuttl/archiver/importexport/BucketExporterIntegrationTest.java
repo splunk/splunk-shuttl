@@ -39,7 +39,7 @@ import com.splunk.shuttl.testutil.TUtilsEnvironment;
 /**
  * Test real classes and splunk's export tool.
  */
-@Test(groups = { "functional" })
+@Test(groups = { "end-to-end" })
 public class BucketExporterIntegrationTest {
 
 	private BucketExporter bucketExporter;
@@ -57,7 +57,7 @@ public class BucketExporterIntegrationTest {
 		FileUtils.deleteQuietly(getArchiverDirectory());
 	}
 
-	@Test(groups = { "functional" })
+	@Test(groups = { "end-to-end" })
 	@Parameters(value = { "splunk.home" })
 	public void exportBucketToFormat_splunkHomeSetExportingBucketWithRealDataToCsv_createsCsvBucket(
 			final String splunkHome) {
