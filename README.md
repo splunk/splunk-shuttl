@@ -1,6 +1,26 @@
 
-Shuttl - Moving data between Splunk and Hadoop
+Shuttl - Archiving for Splunk 
 =======================================
+
+Splunk is the premier technology for gaining Operational Intelligence on Machine Data. Since it
+can handle large volume of data at a fast rate, often times users will only want to analyze
+recent data, and data that is beyond a certain range is archived.
+
+Splunk provides hooks for allowing the administrator to designate archiving policies and
+actions. However, the actions are entirely implemented by the administrator of the system.
+
+Shuttl provides a full-lifecycle solution for data in Splunk.
+
+It can:
+* manage the transfer of data from Splunk to an archive system
+* enable an administrator to inventory/search the archive
+* allow an administrator to selectively restore archived data into "thawed"
+* remove archived data from thawed
+
+This works on the following systems
+* Attached storage
+* HDFS
+* S3 (in theory)
 
 Prerequisites
 -------------
@@ -9,7 +29,7 @@ Prerequisites
 
 Currently the Hadoop version used is 1.0.3
 
-You can download it from one of the mirror sites listed [here][hadoop-download].
+You can download it from one of the [mirror sites][hadoop-download].
 And see the [Hadoop documentation][] for instructions on installing and more.
 
 [hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.0.3
@@ -17,39 +37,19 @@ And see the [Hadoop documentation][] for instructions on installing and more.
 
 ### Splunk
 
-Currently the Splunk version used is 4.3.1
+Currently the Splunk version used is 4.3.3
 
-You can download it from [here][splunk-download]
-And see the [Splunk documentation][] for instructions on installing and more.
+You can download it [Splunk][splunk-download].  And see the [Splunk documentation][] for instructions on installing and more.
 
 [Splunk documentation]:http://docs.splunk.com/Documentation/Splunk/latest/User
 [splunk-download]:http://www.splunk.com/download
 
-
-
-
-Building from Source
---------------------
-
-### Requirements
-
-All you need is:
+### Java
 
 * Java JDK 6
 
-The build should work on both MacOSX and Linux.
-
-Building Shuttl:
-
-	% ./buildit.sh
-
-or
-
-	% ant
-
-If everything goes well, you should see the message
-
-	BUILD SUCCESSFUL
+Development
+--------------
 
 ### Eclipse Users
 
@@ -68,13 +68,10 @@ http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html
 Getting Started
 ---------------
 
-Set the `JAVA_HOME` environment variable
-
-Make sure that you can run `ssh localhost` without having to enter a password*
-
-Cd into to the splunk-shuttl directory and run the following:
-
-Put a .tgz packaged Splunk in the put-splunk-tgz-here directory**
+Ensure that:
+* `JAVA_HOME` environment variable is defined correctly
+* Make sure that you can run `ssh localhost` without having to enter a password
+* Make sure you have a tgz package of Splunk in the directory put-splunk-tgz-here (not needed if you are using your own Splunk instance, see below)
 
 Build shuttl:
 
@@ -84,8 +81,9 @@ Run the tests:
 
 	$ ant test-all
 
-* Here's how you setup passphraseless ssh: http://hadoop.apache.org/common/docs/current/single_node_setup.html#Setup+passphraseless
-** You don't need to do this if you want to run against your own Splunk instance.
+### How to Setup Passphraseless SSH
+
+Here's how you setup passphraseless ssh: http://hadoop.apache.org/common/docs/current/single_node_setup.html#Setup+passphraseless
 
 ### Test configuration
 
