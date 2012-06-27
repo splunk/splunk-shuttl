@@ -36,10 +36,6 @@ export = system
 access = read : [ * ], write : [ admin ]
 export = system
 
-[commands/hivequery]
-access = read : [ admin ], write : [ admin ]
-export = system
-
 [dbspecs]
 access = read : [ * ], write : [ admin ]
 export = system

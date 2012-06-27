@@ -1,0 +1,2 @@
+"_time",source,host,sourcetype,"_raw","_meta"
+1336330530,"source::/some/path/to/some/file/small_loremIpsum.txt","host::periksson-mbp15-2.local","sourcetype::small_loremIpsum-too_small","Lorem ipsum dolor sit amet, c","_indextime::1336330530 timestamp::none punct::____,_"

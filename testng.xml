@@ -5,10 +5,23 @@
 	<parameter name="splunk.password" value="changeme" />
 	<parameter name="splunk.host" value="localhost" />
 	<parameter name="splunk.mgmtport" value="8089" />
+	<parameter name="hadoop.host" value="localhost" />
+	<parameter name="hadoop.port" value="9000" />
+	<parameter name="shuttl.host" value="localhost" />
+	<parameter name="shuttl.port" value="9090" />
+	<parameter name="splunk.home" value="./build-cache/splunk" />
 
-	<test name="Test" preserve-order="true">
+	<test name="functional" preserve-order="true">
 		<classes>
-			<class name="com.splunk.shep.archiver.fileSystem.HadoopFileSystemArchiveTest" />
+			<class name="com.splunk.shuttl.archiver.importexport.csv.CsvImporterFunctionalTest" />
+			<class name="com.splunk.shuttl.archiver.importexport.BucketExporterIntegrationTest" />
+
+		</classes>
+	</test> <!-- Test -->
+	
+	<test name="end-to-end" preserve-order="true" enabled="true">
+		<classes>
+			<class name="com.splunk.shuttl.archiver.endtoend.ArchiverEndToEndTest" />
 		</classes>
 	</test> <!-- Test -->
 </suite> <!-- Suite -->

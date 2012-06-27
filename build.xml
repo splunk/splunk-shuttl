@@ -1,4 +1,4 @@
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Shep" default="build" basedir=".">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Shuttl" default="dist" basedir=".">
 	<!-- property files -->
 	<property file="build.properties" />
 	<property file="default.properties" />
@@ -14,12 +14,13 @@
 	<property name="classdir" value="${builddir}/classes" />
 	<property name="test-classdir" value="${builddir}/testclasses" />
 	<property name="testng.jar" value="testng-6.4.jar" />
-	<property name="appname" value="shep" />
+	<property name="appname" value="shuttl" />
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
 	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
 	<property name="srcdir" value="${basedir}/src/java/" />
 	<property name="testdir" value="${basedir}/test/java/" />
+	<property name="test-debug-dir" value="${basedir}/test/debug" />
 	<property name="test-resources-dir" value="${basedir}/test/resources" />
 	<property name="libdir" value="${basedir}/lib" />
 	<property name="ant-libs" value="${contribdir}/ant-libs" />
@@ -36,25 +37,6 @@
 	<property name="hadoop.extracted.path" value="${hadoop.extracted.dir}/${hadoop.download.name.extracted}" />
 	<property name="hadoop.extracted.conf.dir" value="${hadoop.extracted.path}/conf" />
 
-	<!-- hive properties -->
-	<!--
-	<property name="hive.download.url.prefix" value="http://www.gtlib.gatech.edu/pub/apache" />
-	-->
-	<property name="hive.download.url.prefix" value="http://archive.apache.org/dist" />
-	<property name="hive.basename" value="hive" />
-	<property name="hive.versname" value="${hive.basename}-${hive.version}" />
-	<property name="hive.fullname" value="${hive.versname}.tar.gz" />
-	<property name="hive.download.name" value="${hive.fullname}" />
-	<property name="hive.download.dir" value="${contribdir}" />
-	<property name="hive.download.path" value="${hive.download.dir}/${hive.download.name}" />
-	<property name="hive.extracted.dir" value="${build-cache}" />
-	<property name="hive.extracted.path" value="${hive.extracted.dir}/${hive.versname}" />
-	<property name="hive.home" value="${hive.extracted.path}" />
-	<!-- NOTE: unlike hadoop, will ignore env.HIVE_HOME -->
-	<property name="hive.extracted.conf.dir" value="${hive.extracted.path}/conf" />
-	<property name="hive.download.url" value="${hive.download.url.prefix}/${hive.basename}/${hive.versname}/${hive.fullname}" />
-	<property name="hive.home" value="${hive.extracted.path}" />
-
 	<!-- splunk properties -->
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
 	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
@@ -64,10 +46,15 @@
 	<property name="ivy.xml.original" value="${ivy.utils}/ivy.xml" />
 	<property name="ivy.xml.configurable" value="${basedir}/ivy.xml" />
 
+	<!-- eclipse classpath properties -->
+	<property name="eclipse.utils" value="${contribdir}/eclipse-utils" />
+	<property name="eclipse.classpath.original" value="${eclipse.utils}/.classpath" />
+	<property name="eclipse.classpath.configurable" value="${basedir}/.classpath" />
+
 	<path id="build.classpath">
 		<pathelement location="${splunk-sdk}/splunk.jar" />
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
-		<pathelement location="${basedir}/src/java/com/splunk/shep/connector/conf" />
+		<pathelement location="${basedir}/src/java/com/splunk/shuttl/connector/conf" />
 		<pathelement path="${classdir}" />
 		<pathelement path="${test-classdir}" />
 		<fileset dir="${libdir}">
@@ -121,16 +108,11 @@
 
 	<target name="clean-downloads">
 		<antcall target="clean-hadoop-download" />
-		<antcall target="clean-hive-download" />
 		<antcall target="clean-ivy-downloads" />
 	</target>
 
 	<target name="clean-hadoop-download">
 		<delete file="${hadoop.download.path}" />
-	</target>
-
-	<target name="clean-hive-download">
-		<delete file="${hive.download.path}" />
 	</target>
 
 	<target name="clean-ivy-downloads">
@@ -172,8 +154,8 @@
 		<tstamp>
 			<format property="noslashtime" timezone="America/Los_Angeles" pattern="yyyyMMddhhmmss" />
 		</tstamp>
-		<copy file="${srcdir}/com/splunk/shep/server/version.properties" todir="${classdir}/com/splunk/shep/server/" />
-		<replace file="${classdir}/com/splunk/shep/server/version.properties">
+		<copy file="${srcdir}/com/splunk/shuttl/server/version.properties" todir="${classdir}/com/splunk/shuttl/server/" />
+		<replace file="${classdir}/com/splunk/shuttl/server/version.properties">
 			<replacefilter token="@DATE@" value="${time} US/Pacific" />
 			<replacefilter token="@REVISION@" value="${git.revision}" />
 			<replacefilter token="@BRANCH@" value="${git.branch}" />
@@ -181,7 +163,7 @@
 		</replace>
 
 		<loadproperties>
-			<file file="${classdir}/com/splunk/shep/server/version.properties" />
+			<file file="${classdir}/com/splunk/shuttl/server/version.properties" />
 		</loadproperties>
 
 		<!-- TODO add ${git.branch} into the suffix after properly fixing the retrival of branch name -->
@@ -201,7 +183,6 @@
 		<!-- Tests using resources that are not .java files. Should probably create a resource folder instead of putting non .java files in src/java -->
 		<antcall>
 			<target name="copy-test-resources" />
-			<target name="copy-src-resources" />
 		</antcall>
 	</target>
 
@@ -223,11 +204,7 @@
 		</copy>
 	</target>
 
-	<target name="copy-src-resources">
-		<copy file="${srcdir}/com/splunk/shep/cli/ShepCLI.conf" todir="${classdir}/com/splunk/shep/cli" />
-	</target>
-
-	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml" unless="isIvyResolved">
+	<target name="ivy-resolve" description="--> retrieve dependencies with ivy" depends="setup-ivy-xml, setup-eclipse-classpath" unless="isIvyResolved">
 		<ivy:retrieve />
 		<property name="isIvyResolved" value="true" />
 	</target>
@@ -237,26 +214,40 @@
 		<copy file="${ivy.xml.original}" tofile="${ivy.xml.configurable}" />
 		<replace file="${ivy.xml.configurable}">
 			<replacefilter token="@HADOOP.VERSION@" value="${hadoop.version}" />
-			<replacefilter token="@HIVE.VERSION@" value="${hive.version}" />
 			<replacefilter token="@EDIT.THIS.FILE.DESCRIPTION.PATTERN@" value="DO NOT edit this file. This file was configued at runtime by build.xml. To see changes here, edit ${ivy.xml.original}" />
 		</replace>
 		<chmod perm="ugo-w" file="${ivy.xml.configurable}" />
 	</target>
 
+	<target name="setup-eclipse-classpath">
+		<delete file="${eclipse.classpath.configurable}" />
+		<copy file="${eclipse.classpath.original}" tofile="${eclipse.classpath.configurable}" />
+		<replace file="${eclipse.classpath.configurable}">
+			<replacefilter token="@HADOOP.VERSION@" value="${hadoop.version}" />
+			<replacefilter token="@EDIT.THIS.FILE.DESCRIPTION.PATTERN@" value="DO NOT edit this file. This file was configued at runtime by build.xml. To see changes here, edit ${eclipse.classpath.original}" />
+		</replace>
+		<chmod perm="ugo-w" file="${eclipse.classpath.configurable}" />
+	</target>
+
 	<!-- run test via testNG -->
 	<taskdef resource="testngtasks" classpath="${libdir}/${testng.jar}" />
-	<target name="test" depends="clean-built-classes-then-compile">
-		<antcall target="fast-unit-tests" />
-		<antcall target="slow-unit-tests" />
+
+	<target name="test" depends="do-test">
+		<fail if="testng.failed" message="Tests have failed." />
+	</target>
+
+	<target name="do-test" depends="clean-built-classes-then-compile">
+		<antcallback return="testng.failed">
+			<target name="fast-unit-tests" />
+			<target name="slow-unit-tests" />
+			<target name="functional-tests" />
+		</antcallback>
 	</target>
 
 	<target name="test-all" depends="clean-built-classes-then-compile">
-		<antcall target="test" />
-		<antcall target="integration-tests" />
-		<antcall target="functional-tests" />
-		<!-- in-memory-tests to be converted to testng unit test -->
-		<!-- and added to either fast-unit or slow-unit group -->
-		<antcall target="in-memory-test" />
+		<antcallback target="do-test" return="testng.failed" />
+		<antcallback target="run-end-to-end-tests-with-setup" return="testng.failed" />
+		<fail if="testng.failed" message="Tests have failed." />
 	</target>
 
 	<target name="clean-built-classes-then-compile" depends="clean-built-classes, compile" />
@@ -269,6 +260,8 @@
 		<propertyref name="splunk.mgmtport" />
 		<propertyref name="hadoop.host" />
 		<propertyref name="hadoop.port" />
+		<propertyref name="shuttl.host" />
+		<propertyref name="shuttl.port" />
 	</propertyset>
 
 	<target name="fast-unit-tests" depends="compile, do-fast-unit-tests" />
@@ -288,69 +281,33 @@
 		</testng>
 	</target>
 
-	<target name="integration-tests" depends="jar">
-		<antcall>
-			<target name="splunk-setup" />
-		</antcall>
-		<antcall>
-			<target name="do-integration-tests" />
-		</antcall>
-		<antcall>
-			<target name="splunk-teardown" />
-		</antcall>
-	</target>
-
-	<target name="do-integration-tests" depends="compile,set-splunk-home">
-		<!-- Test group 'fast'. We think about adding more groups in the future -->
-		<testng classpathref="build.classpath" groups="integration" outputdir="${builddir}/test-results/integration">
+	<target name="functional-tests" depends="jar,compile,set-splunk-home">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="functional" outputdir="${builddir}/test-results/functional">
 			<propertyset refid="testng" />
-			<classfileset dir="${test-classdir}" includes="**/*.class" excludes="**/ShepForwarderRestTest.class" />
+			<classfileset dir="${test-classdir}" includes="**/*.class" excludes="**/ShuttlForwarderRestTest.class" />
 		</testng>
 	</target>
 
-	<!-- super-slow tests are tests that are in need of hadoop. -->
-	<target name="functional-tests" depends="jar">
+	<target name="end-to-end-tests">
+		<antcallback target="run-end-to-end-tests-with-setup" return="testng.failed" />
+		<fail if="testng.failed" message="Tests have failed." />
+	</target>
+
+	<target name="run-end-to-end-tests-with-setup" depends="jar">
 		<antcall>
 			<target name="hadoop-setup" />
-			<target name="hive-setup" />
 			<target name="splunk-setup" />
 		</antcall>
-		<antcall>
-			<target name="do-functional-tests" />
-		</antcall>
+		<antcallback target="do-end-to-end-tests" return="testng.failed" />
 		<antcall>
 			<target name="splunk-teardown" />
 			<target name="hadoop-teardown" />
-			<target name="shep-teardown" />
 		</antcall>
 	</target>
 
-	<target name="do-functional-tests" depends="compile,set-splunk-home">
+	<target name="do-end-to-end-tests" depends="compile,set-splunk-home">
 		<!-- these use splunk and hadoop -->
-		<testng classpathref="build.classpath" groups="functional" outputdir="${builddir}/test-results/functional">
-			<propertyset refid="testng" />
-			<classfileset dir="${test-classdir}" includes="**/*.class" />
-		</testng>
-	</target>
-
-	<target name="known-failures-tests" depends="jar">
-		<antcall>
-			<target name="hadoop-setup" />
-			<target name="hive-setup" />
-			<target name="splunk-setup" />
-		</antcall>
-		<antcall>
-			<target name="do-known-failures-tests" />
-		</antcall>
-		<antcall>
-			<target name="splunk-stop" />
-			<target name="hadoop-teardown" />
-			<target name="shep-teardwon" />
-		</antcall>
-	</target>
-
-	<target name="do-known-failures-tests" depends="compile,set-splunk-home">
-		<testng classpathref="build.classpath" groups="known-failures" outputdir="${builddir}/test-results/known-failures">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="end-to-end" outputdir="${builddir}/test-results/end-to-end">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
@@ -381,94 +338,6 @@
 		<echo>Running tests with HADOOP_HOME: ${hadoop.home}</echo>
 	</target>
 
-	<!-- Hive -->
-
-	<target name="hive-download" depends="check-if-hive-is-downloaded" unless="hive.isDownloaded">
-		<echo>Downloading hive from ${hive.download.url}</echo>
-		<exec executable="curl" osfamily="unix">
-			<arg value="-s" />
-			<arg value="${hive.download.url}" />
-			<arg line="-o ${hive.download.name}" />
-		</exec>
-		<move file="${hive.download.name}" todir="${hive.download.dir}" />
-	</target>
-
-	<!-- extract to build cache-->
-	<target name="hive-extract" depends="hive-download">
-		<echo>Deleting ${hive.extracted.dir}/hive* ...</echo>
-		<delete dir="${hive.extracted.dir}/hive*" />
-		<echo>Extracting into ${hive.extracted.dir} ...</echo>
-		<exec executable="sh" osfamily="unix">
-			<arg value="-c" />
-			<arg line="'tar xf ${hive.download.path} -C ${hive.extracted.dir}'" />
-		</exec>
-	</target>
-
-	<target name="check-if-hive-is-downloaded">
-		<available file="${hive.download.path}" type="file" property="hive.isDownloaded" />
-		<echo>hive.isDownloaded is ${hive.isDownloaded}</echo>
-		<echo>hive.download.path is ${hive.download.path}</echo>
-	</target>
-
-	<!-- Hive -->
-	<target name="hive-setup" depends="set-hadoop-home">
-		<!-- create the dirs in hdfs; hive keys off of hadoop.home  -->
-		<echo>hadoop.home is ${hadoop.home} </echo>
-		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
-			<arg value="fs" />
-			<arg value="-mkdir" />
-			<arg value="/tmp" />
-		</exec>
-		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
-			<arg value="fs" />
-			<arg value="-mkdir" />
-			<arg value="/user/hive/warehouse" />
-		</exec>
-		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
-			<arg value="fs" />
-			<arg value="-chmod" />
-			<arg value="g+w" />
-			<arg value="/tmp" />
-		</exec>
-		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
-			<arg value="fs" />
-			<arg value="-chmod" />
-			<arg value="g+w" />
-			<arg value="/user/hive/warehouse" />
-		</exec>
-	</target>
-
-	<!-- Start hive server; use screen to run in background -->
-	<target name="hive-start" depends="set-hadoop-home">
-		<!-- we'll use screen, and hive-$USER will be the name of the session -->
-		<echo>hive.home=${hive.home} hive.server.port=${hive.server.port} screenvalue = ${hive.basename}-${user}
-		</echo>
-		<exec executable="screen" dir="${hive.home}" osfamily="unix">
-			<env key="HADOOP_HOME" value="${hadoop.home}" />
-			<arg value="-S" />
-			<arg value="${hive.basename}-${env.USER}" />
-			<arg value="-d" />
-			<arg value="-m" />
-			<arg value="./bin/hive" />
-			<arg value="--service" />
-			<arg value="hiveserver" />
-			<arg value="-p" />
-			<arg value="${hive.server.port}" />
-		</exec>
-	</target>
-
-	<!-- Stop hive server; quiting screen session may leave hive processes behind, kill those too -->
-	<target name="hive-stop" depends="set-hadoop-home">
-		<exec executable="screen" dir="${hive.home}" osfamily="unix">
-			<env key="HADOOP_HOME" value="${hadoop.home}" />
-			<arg value="-S" />
-			<arg value="${hive.basename}-${env.USER}" />
-			<arg value="-X" />
-			<arg value="quit" />
-		</exec>
-		<exec executable="bin/hiv3-kill.sh" osfamily="unix" />
-	</target>
-
 	<!-- Hadoop -->
 	<target name="hadoop-setup" depends="set-hadoop-home">
 		<antcall>
@@ -485,7 +354,6 @@
 		<antcall>
 			<target name="hadoop-download" />
 			<target name="hadoop-extract" />
-			<target name="hive-extract" />
 			<target name="hadoop-copy-confs" />
 			<target name="hadoop-format-namenode-unsafe" />
 		</antcall>
@@ -521,24 +389,7 @@
 	</target>
 
 	<target name="set-hadoop-download-url">
-		<if>
-			<equals arg1="${hadoop.version}" arg2="0.20.203.0" />
-			<then>
-				<property name="hadoop.version.url" value="hadoop-0.20.203.0/hadoop-0.20.203.0rc1.tar.gz" />
-			</then>
-		</if>
-		<if>
-			<equals arg1="${hadoop.version}" arg2="0.20.205.0" />
-			<then>
-				<property name="hadoop.version.url" value="hadoop-0.20.205.0/hadoop-0.20.205.0.tar.gz" />
-			</then>
-		</if>
-		<if>
-			<equals arg1="${hadoop.version}" arg2="1.0.0" />
-			<then>
-				<property name="hadoop.version.url" value="hadoop-1.0.0/hadoop-1.0.0.tar.gz" />
-			</then>
-		</if>
+		<property name="hadoop.version.url" value="hadoop-${hadoop.version}/hadoop-${hadoop.version}.tar.gz" />
 		<property name="hadoop.download.url" value="${hadoop.apache.org.hadoop.common.host}/${hadoop.version.url}" />
 	</target>
 
@@ -653,13 +504,6 @@
 		</antcall>
 	</target>
 
-	<target name="shep-teardown">
-		<exec executable="curl">
-			<arg value="-s" />
-			<arg line="http://localhost:9090/shep/rest/server/shutdown" />
-		</exec>
-	</target>
-
 	<target name="check-for-hadoop-binaries">
 		<available file="${hadoop.home}/bin" type="dir" property="existsHadoopBinaries" />
 	</target>
@@ -674,9 +518,9 @@
 
 	<target name="splunk-configure-and-start">
 		<antcall>
-			<target name="install-shep-splunk-app" />
+			<target name="install-shuttl-splunk-app" />
 			<target name="splunk-start" />
-			<target name="enable-shep-splunk-app" />
+			<target name="enable-shuttl-splunk-app" />
 		</antcall>
 	</target>
 
@@ -713,29 +557,29 @@
 		<fail unless="foundSplunkTgz" message="There has to be a splunk version packaged with .tgz in ${splunk.tgz.dir}" />
 	</target>
 
-	<target name="install-shep-splunk-app">
+	<target name="install-shuttl-splunk-app">
 		<antcall>
-			<target name="remove-shep-splunk-app" />
-			<target name="do-install-shep-splunk-app" />
+			<target name="remove-shuttl-splunk-app" />
+			<target name="do-install-shuttl-splunk-app" />
 		</antcall>
 	</target>
 
-	<target name="remove-shep-splunk-app" depends="set-shep-app-home,check-if-shep-app-exists" if="existsShepDir">
-		<delete dir="${shep.app.home}" />
+	<target name="remove-shuttl-splunk-app" depends="set-shuttl-app-home,check-if-shuttl-app-exists" if="existsShuttlDir">
+		<delete dir="${shuttl.app.home}" />
 	</target>
 
-	<target name="check-if-shep-app-exists" depends="set-shep-app-home">
-		<condition property="existsShepDir">
-			<available file="${shep.app.home}" type="dir" />
+	<target name="check-if-shuttl-app-exists" depends="set-shuttl-app-home">
+		<condition property="existsShuttlDir">
+			<available file="${shuttl.app.home}" type="dir" />
 		</condition>
 	</target>
 
-	<target name="set-shep-app-home" depends="set-splunk-home">
+	<target name="set-shuttl-app-home" depends="set-splunk-home">
 		<property name="splunk.apps.home" value="${splunk.home}/etc/apps" />
-		<property name="shep.app.home" value="${splunk.apps.home}/shep" />
+		<property name="shuttl.app.home" value="${splunk.apps.home}/shuttl" />
 	</target>
 
-	<target name="do-install-shep-splunk-app" depends="create-splunk-app">
+	<target name="do-install-shuttl-splunk-app" depends="create-splunk-app">
 		<antcall target="splunk-stop" />
 		<exec executable="tar" osfamily="unix">
 			<arg value="xf" />
@@ -744,10 +588,10 @@
 		</exec>
 	</target>
 
-	<target name="re-install-shep-splunk-app" depends="set-splunk-home">
+	<target name="re-install-shuttl-splunk-app" depends="set-splunk-home">
 		<antcall>
 			<target name="splunk-stop" />
-			<target name="remove-shep-splunk-app" />
+			<target name="remove-shuttl-splunk-app" />
 			<target name="splunk-configure-and-start" />
 		</antcall>
 	</target>
@@ -782,23 +626,23 @@
 		</exec>
 	</target>
 
-	<target name="enable-shep-splunk-app" depends="check-if-shep-is-enabled" unless="isShepAlreadyEnabled">
+	<target name="enable-shuttl-splunk-app" depends="check-if-shuttl-is-enabled" unless="isShuttlAlreadyEnabled">
 		<exec executable="curl" osfamily="unix">
 			<arg value="-s" />
 			<arg line="-u ${splunk.username}:${splunk.password}" />
-			<arg line="-k https://localhost:8089/services/apps/local/shep/enable" />
+			<arg line="-k https://localhost:8089/services/apps/local/shuttl/enable" />
 			<arg line="-X POST" />
 		</exec>
 	</target>
 
-	<target name="check-if-shep-is-enabled">
+	<target name="check-if-shuttl-is-enabled">
 		<shellscript shell="sh" outputproperty="isEnabled">
-			${splunk.home}/bin/splunk display app 2> /dev/null | grep shep | grep -o ENABLED
+			${splunk.home}/bin/splunk display app 2> /dev/null | grep shuttl | grep -o ENABLED
 		</shellscript>
 		<if>
 			<equals arg1="${isEnabled}" arg2="ENABLED" />
 			<then>
-				<property name="isShepAlreadyEnabled" value="true" />
+				<property name="isShuttlAlreadyEnabled" value="true" />
 			</then>
 		</if>
 	</target>
@@ -820,39 +664,25 @@
 		</exec>
 	</target>
 
-	<!-- Archiver-UI -->
+	<!-- Archiver-testing-helpers -->
 	<target name="helper-archiver-extended-debugging">
-		<copy todir="${splunk.extracted.dir}/lib/python2.7/site-packages/splunk/appserver/mrsparkle/controllers/" file="${basedir}/archiver-UI-Debug-files/__init__.py" />
-		<copy todir="${splunk.extracted.dir}/etc" file="${basedir}/archiver-UI-Debug-files/log.cfg" />
+		<!-- Display extended debug info -->
+		<copy todir="${splunk.extracted.dir}/lib/python2.7/site-packages/splunk/appserver/mrsparkle/controllers/" file="${test-debug-dir}/splunk/__init__.py" />
+		<!-- Change logging level from INFO to DEBUG -->
+		<copy todir="${splunk.extracted.dir}/etc" file="${test-debug-dir}/splunk/log.cfg" />
 	</target>
-	<target name="helper-archiver-activate-archiver-test-index" depends="set-shep-app-home">
-		<copy todir="${shep.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/indexes.conf" overwrite="true"/>
-		<copy todir="${shep.app.home}/local/" file="${basedir}/archiver-UI-Debug-files/hadoop/app.conf" overwrite="true"/>
+	<target name="helper-archiver-configure-archiver-test-index" depends="set-shuttl-app-home">
+		<copy todir="${shuttl.app.home}/local/" file="${test-debug-dir}/splunk/hadoop/conf/indexes.conf" overwrite="true" />
+		<copy todir="${shuttl.app.home}/local/" file="${test-debug-dir}/splunk/hadoop/conf/app.conf" overwrite="true" />
 	</target>
 	<target name="helper-archiver-test-hadoop">
 		<exec executable="${hadoop.home}/bin/hadoop">
 			<arg line="fs -ls /" />
 		</exec>
 	</target>
-	<target name="archiver-sync-package" depends="set-shep-app-home">
-		<exec executable="sh" osfamily="unix">
-			<arg value="-c" />
-			<arg line="'rsync -vr --delete ${package.dir}/* ${shep.app.home} | tail -n 3'" />
-		</exec>
-	</target>
-	<target name="archiver-sync-package-and-restart-splunk-web">
-		<antcall>
-			<target name="archiver-sync-package" />
-			<target name="splunk-restart-splunkweb" />
-		</antcall>
-	</target>
-	<target name="archiver-sync-package-and-setup-splunk">
-		<antcall>
-			<target name="archiver-sync-package" />
-			<target name="splunk-setup" />
-			<target name="splunk-start-splunkweb" />
-		</antcall>
-	</target>
+	<!-- END Archiver-testing-helpers -->
+	<!-- Archiver-testing-util -->
+	<target name="archiver-activate-debugging" depends="helper-archiver-extended-debugging" />
 	<target name="archiver-restart-and-test-hadoop">
 		<antcall>
 			<target name="hadoop-stop" />
@@ -860,40 +690,53 @@
 			<target name="helper-archiver-test-hadoop" />
 		</antcall>
 	</target>
-	<target name="archiver-activate-debugging">
-		<antcall>
-			<target name="helper-archiver-extended-debugging" />
-		</antcall>
-	</target>
-	<target name="archiver-clean-setup-generate-test-buckets">
-		<!-- Somethimes when you've thawed things the index will be disabled 
-		(you can't use oneshot, see splunkd.log after partial thaw) and hard to enable again. 
-		This is a simple solution -->
+	<target name="archiver-clean-setup-and-generate-test-buckets">
 		<antcall>
 			<target name="clean-build-cache" />
-			<target name="archiver-setup-generate-test-buckets" />
+			<target name="archiver-setup-and-generate-test-buckets" />
 		</antcall>
 	</target>
-	<target name="archiver-setup-generate-test-buckets">
+	<target name="archiver-setup-and-generate-test-buckets">
 		<antcall>
 			<target name="hadoop-setup" />
 			<target name="splunk-setup" />
-			<target name="helper-archiver-activate-archiver-test-index" />
+			<target name="helper-archiver-configure-archiver-test-index" />
 			<target name="splunk-restart" />
 		</antcall>
 	</target>
-	<!-- the index must exist "ant helper-archiver-activate-archiver-test-index" 
+	<!-- the index must exist "ant helper-archiver-configure-archiver-test-index" 
 	and "./splunk login" should have been run before this -->
 	<target name="archiver-generate-test-buckets" depends="set-splunk-home">
-		<exec executable="${basedir}/archiver-UI-Debug-files/hadoop/generateBuckets.sh" osfamily="unix">
-			<arg line="${splunk.home} ${basedir}/archiver-UI-Debug-files/hadoop archiver-test-index" />
+		<exec executable="${test-debug-dir}/splunk/hadoop/sh/generateBuckets.sh" osfamily="unix">
+			<arg line="${splunk.home} ${test-debug-dir}/splunk/hadoop/tmp archiver-test-index" />
 		</exec>
+	</target>
+	<!-- END Archiver-testing-util -->
+	<!-- Archiver-UI -->
+	<target name="archiver-UI-sync-package" depends="set-shuttl-app-home">
+		<exec executable="sh" osfamily="unix">
+			<arg value="-c" />
+			<arg line="'rsync -vr --delete ${package.dir}/* ${shuttl.app.home} | tail -n 3'" />
+		</exec>
+	</target>
+	<target name="archiver-UI-sync-package-and-restart-splunk-web">
+		<antcall>
+			<target name="archiver-UI-sync-package" />
+			<target name="splunk-restart-splunkweb" />
+		</antcall>
+	</target>
+	<target name="archiver-UI-setup-splunk-and-sync-package">
+		<antcall>
+			<target name="archiver-UI-sync-package" />
+			<target name="splunk-setup" />
+			<target name="splunk-start-splunkweb" />
+		</antcall>
 	</target>
 	<!-- END Archiver-UI -->
 
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties>
-			<file file="${classdir}/com/splunk/shep/server/version.properties" />
+			<file file="${classdir}/com/splunk/shuttl/server/version.properties" />
 		</loadproperties>
 		<property name="name.api.versioned" value="${appname}-api-${version}" />
 		<property name="name.api.versioned.path" value="${builddir}/jar/${name.api.versioned}.jar" />
@@ -910,40 +753,40 @@
 		<mkdir dir="${builddir}/jar" />
 		<jar destfile="${name.server.versioned.path}" basedir="${classdir}">
 			<manifest>
-				<section name="com/splunk/shep">
-					<attribute name="Implementation-Title" value="Shep" />
+				<section name="com/splunk/shuttl">
+					<attribute name="Implementation-Title" value="Shuttl" />
 					<attribute name="Implementation-Version" value="${version}" />
 					<attribute name="Implementation-Vendor" value="Splunk" />
 				</section>
-				<attribute name="Main-Class" value="com.splunk.shep.server.ShepJettyServer" />
+				<attribute name="Main-Class" value="com.splunk.shuttl.server.ShuttlJettyServer" />
 			</manifest>
-			<include name="com/splunk/shep/customsearch/**" />
-			<include name="com/splunk/shep/s2s/**" />
-			<include name="com/splunk/shep/server/**" />
-			<include name="com/splunk/shep/metrics/**" />
-			<include name="com/splunk/shep/exporter/**" />
-			<include name="com/splunk/shep/*" />
-			<include name="com/splunk/shep/archiver/**" />
+			<include name="com/splunk/shuttl/customsearch/**" />
+			<include name="com/splunk/shuttl/s2s/**" />
+			<include name="com/splunk/shuttl/server/**" />
+			<include name="com/splunk/shuttl/metrics/**" />
+			<include name="com/splunk/shuttl/exporter/**" />
+			<include name="com/splunk/shuttl/*" />
+			<include name="com/splunk/shuttl/archiver/**" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.api.versioned.path}" basedir="${classdir}">
 			<manifest>
-				<section name="com/splunk/shep">
-					<attribute name="Implementation-Title" value="Shep" />
+				<section name="com/splunk/shuttl">
+					<attribute name="Implementation-Title" value="Shuttl" />
 					<attribute name="Implementation-Version" value="${version}" />
 					<attribute name="Implementation-Vendor" value="Splunk" />
 				</section>
 			</manifest>
-			<include name="com/splunk/shep/mapred/**" />
-			<include name="com/splunk/shep/mapreduce/**" />
-			<include name="com/splunk/shep/exporter/**" />
-			<include name="com/splunk/shep/ShepConstants.class" />
+			<include name="com/splunk/shuttl/mapred/**" />
+			<include name="com/splunk/shuttl/mapreduce/**" />
+			<include name="com/splunk/shuttl/exporter/**" />
+			<include name="com/splunk/shuttl/ShuttlConstants.class" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.test.versioned.path}" basedir="${test-classdir}">
 			<manifest>
-				<section name="com/splunk/shep">
-					<attribute name="Implementation-Title" value="Shep" />
+				<section name="com/splunk/shuttl">
+					<attribute name="Implementation-Title" value="Shuttl" />
 					<attribute name="Implementation-Version" value="${version}" />
 					<attribute name="Implementation-Vendor" value="Splunk" />
 				</section>
@@ -952,14 +795,14 @@
 		</jar>
 		<jar destfile="${name.cli.versioned.path}" basedir="${classdir}">
 			<manifest>
-				<section name="com/splunk/shep">
-					<attribute name="Implementation-Title" value="Shep" />
+				<section name="com/splunk/shuttl">
+					<attribute name="Implementation-Title" value="Shuttl" />
 					<attribute name="Implementation-Version" value="${version}" />
 					<attribute name="Implementation-Vendor" value="Splunk" />
 				</section>
-				<attribute name="Main-Class" value="com.splunk.shep.cli.ShepCLI" />
+				<attribute name="Main-Class" value="com.splunk.shuttl.cli.ShuttlCLI" />
 			</manifest>
-			<include name="com/splunk/shep/cli/**" />
+			<include name="com/splunk/shuttl/cli/**" />
 		</jar>
 	</target>
 
@@ -1047,7 +890,7 @@
 	</target>
 
 	<target name="copy-lib-jars-to-test-dir" depends="jar, versionized-jar-name">
-		<copy todir="${build-cache}/shep/testlib">
+		<copy todir="${build-cache}/shuttl/testlib">
 			<fileset dir="${libdir}" includes="testng-*.jar,
                           mockito-*.jar,
                           jetty-6.1.26.jar,
@@ -1062,8 +905,8 @@
                           jackson-*.jar" />
 			<fileset dir="${splunk-sdk}" />
 		</copy>
-		<copy file="${name.test.versioned.path}" todir="${build-cache}/shep/testlib" />
-		<copy file="${name.cli.versioned.path}" todir="${build-cache}/shep/testlib" />
+		<copy file="${name.test.versioned.path}" todir="${build-cache}/shuttl/testlib" />
+		<copy file="${name.cli.versioned.path}" todir="${build-cache}/shuttl/testlib" />
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->
@@ -1072,15 +915,15 @@
 	</target>
 
 	<target name="splunk2flume2console">
-		<java classname="com.splunk.shep.connector.tests.Splunk2Flume2ConsoleTest">
-			<arg value="src/java/com/splunk/shep/connector/tests/splunk2flume.conf" />
+		<java classname="com.splunk.shuttl.connector.tests.Splunk2Flume2ConsoleTest">
+			<arg value="src/java/com/splunk/shuttl/connector/tests/splunk2flume.conf" />
 			<classpath refid="build.classpath" />
 		</java>
 	</target>
 
 	<target name="state-machine-test">
-		<java classname="com.splunk.shep.connector.tests.StateMachineTest">
-			<arg value="src/java/com/splunk/shep/connector/tests/s2s.data" />
+		<java classname="com.splunk.shuttl.connector.tests.StateMachineTest">
+			<arg value="src/java/com/splunk/shuttl/connector/tests/s2s.data" />
 			<classpath refid="build.classpath" />
 		</java>
 	</target>
@@ -1090,15 +933,8 @@
 		<fail if="testng.failed" message="Fast tests have failed." />
 	</target>
 
-	<!--hadoop unit test -->
-	<target name="in-memory-test" depends="compile">
-		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="embedded" outputdir="${builddir}/test-results">
-			<classfileset dir="${test-classdir}" includes="**/*.class" />
-		</testng>
-	</target>
-
 	<target name="doc">
-		<javadoc classpathref="build.classpath" destdir="build/docs/api" version="true" use="true" bottom="Copyright © 2012 Splunk, Inc. All rights reserved." windowtitle="Shep">
+		<javadoc classpathref="build.classpath" destdir="build/docs/api" version="true" use="true" bottom="Copyright © 2012 Splunk, Inc. All rights reserved." windowtitle="Shuttl">
 			<packageset dir="src/java" defaultexcludes="yes">
 				<exclude name="com/splunk/**/tests/**" />
 				<include name="com/splunk/**" />

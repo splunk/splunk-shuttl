@@ -1,1 +1,0 @@
-This test adds oneshot a file containing few events. It waits for a few seconds and then checks for the throughput of that source. This way it tests the connectivity of the forwarder with Hadoop. Also, the Shep/Forwarder dashboard functionality will work.

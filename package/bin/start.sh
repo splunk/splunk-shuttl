@@ -18,6 +18,6 @@
 # limitations under the License.
 #
 
-cd $SPLUNK_HOME/etc/apps/shep/bin
+cd $SPLUNK_HOME/etc/apps/shuttl/bin
 
-exec -a shep-jetty-server $JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shep.server.ShepJettyServer
+exec -a shuttl-jetty-server $JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.server.ShuttlJettyServer

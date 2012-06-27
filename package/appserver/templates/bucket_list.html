@@ -22,8 +22,8 @@
   noDataMsgReg = re.compile('^\w+(_NO_DATA_MSG){1}$')
   totalSizeReg = re.compile('^\w+(_TOTAL_SIZE){1}$')
 
-  # def isSpecial(tableNameStr):
-    # return isHeader(tableNameStr) || isTitle(tableNameStr) || isNoDataMsg(tableNameStr) || isTotalSize(tableNameStr)
+  def isSpecial(tableNameStr):
+    return isHeader(tableNameStr) or isTitle(tableNameStr) or isNoDataMsg(tableNameStr) or isTotalSize(tableNameStr)
   def isHeader(tableNameStr):
     return headerReg.match(tableNameStr)
   def isTitle(tableNameStr):
@@ -57,7 +57,7 @@
           logger.debug('\n  tableName: %s \n  (%s) \n  tableVal: %s \n  (%s)' % (tableK, type(tableK), tableV, type(tableV)))
 
           ## Should not generate tables for headers, titles and no-data-messages.
-          if isHeader(str(tableK)) or isTitle(str(tableK)) or isNoDataMsg(str(tableK)) or isTotalSize(str(tableK)):
+          if isSpecial(str(tableK)):
             continue
           
           ## Get table title

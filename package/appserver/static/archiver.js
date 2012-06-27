@@ -1,5 +1,5 @@
 // Debug
-var logger = Splunk.Logger.getLogger("Splunk.Shep.Archiver");
+var logger = Splunk.Logger.getLogger("Splunk.Shuttl.Archiver");
 
 $(document).ready(function() {
 

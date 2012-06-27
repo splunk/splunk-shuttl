@@ -3,46 +3,26 @@
 	dependency. Click on the right link for your dependency. Select the version
 	you want. Click on the Ivy tab. Copy the <dependency> tag and insert it below -->
 <ivy-module version="2.0">
-	<info organisation="com.splunk.shep" module="shep-ivy" />
+	<info organisation="com.splunk.shuttl" module="shuttl-ivy" />
 	<dependencies>
-		<dependency org="org.apache.commons" name="commons-exec" rev="1.1" />
 		<dependency org="commons-io" name="commons-io" rev="2.3" />
-		<dependency org="org.apache.httpcomponents" name="httpclient"
-			rev="4.1.2" />
-		<dependency org="org.apache.httpcomponents" name="httpcore"
-			rev="4.1.2" />
-    	<dependency org="commons-logging" name="commons-logging" rev="1.1.1" />
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.1.2" />
+		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.1.2" />
 		<dependency org="log4j" name="log4j" rev="1.2.16" />
 		<dependency org="org.testng" name="testng" rev="6.4" />
-		<dependency org="org.bluestemsoftware.open.maven.tparty"
-			name="xerces-impl" rev="2.9.0" />
-		<dependency org="ant-contrib" name="ant-contrib" rev="1.0b3" />
-		<dependency org="commons-codec" name="commons-codec" rev="1.4" />
 		<dependency org="org.apache.hadoop" name="hadoop-core" rev="@HADOOP.VERSION@"/>
-		<!--dependency org="org.apache.hive" name="hive-exec" rev="@HIVE.VERSION@"/ -->
-        <dependency org="commons-configuration" name="commons-configuration" rev="1.6"/>
-        <dependency org="commons-lang" name="commons-lang" rev="2.5"/>
-        <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.9.5"/>
-        <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.9.5"/>
-        <dependency org="org.codehaus.jackson" name="jackson-xc" rev="1.9.5"/>
-        <dependency org="org.eclipse.jetty.aggregate" name="jetty-all-server" transitive="false" rev="8.1.0.v20120127"/>
-        <dependency org="com.sun.jersey" name="jersey-bundle"  transitive="false" rev="1.11"/>
-        <dependency org="com.sun.jersey" name="jersey-servlet"  transitive="false" rev="1.11"/>
-        <dependency org="javax.ws.rs" name="jsr311-api" transitive="false" rev="1.1.1"/>
-        <dependency org="org.apache.tomcat" name="jsp-api" transitive="false" rev="6.0.35"/>
-        <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1"/>
-        <dependency org="asm" name="asm" transitive="false" rev="3.3.1"/>
-        <dependency org="org.mockito" name="mockito-all" rev="1.9.0" />
-        <!-- start of config for hadoop test -->
-        <dependency org="org.apache.hadoop" name="hadoop-test" rev="@HADOOP.VERSION@"/>
-        <dependency org="commons-cli" name="commons-cli" rev="1.2" />
-        <dependency org="junit" name="junit" rev="4.10" />
-        <!-- exclude org="org.mortbay.jetty" module="*" type="*" ext="*" conf="" matcher="exact"/-->
-        <exclude org="javax.servlet" module="servlet-api" type="*" ext="*" conf="" matcher="exact"/>
-		<!-- end of config for hadoop test -->
-		        
-        <exclude org="xerces" module="*" type="*" ext="*" conf="" matcher="exact"/>
-        <exclude type="source" ext="jar" />
-        <exclude type="javadoc" ext="jar" />
+		<dependency org="commons-lang" name="commons-lang" rev="2.5"/>
+		<dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.9.5"/>
+		<dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.9.5"/>
+		<dependency org="org.eclipse.jetty.aggregate" name="jetty-all-server" transitive="false" rev="8.1.0.v20120127"/>
+		<dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1"/>
+		<dependency org="com.sun.jersey" name="jersey-bundle"  transitive="false" rev="1.11"/>
+		<dependency org="com.sun.jersey" name="jersey-servlet"  transitive="false" rev="1.11"/>
+		<dependency org="asm" name="asm" transitive="false" rev="3.3.1"/>
+		<dependency org="org.apache.tomcat" name="jsp-api" transitive="false" rev="6.0.35"/>
+		<dependency org="javax.ws.rs" name="jsr311-api" transitive="false" rev="1.1.1"/>
+		<dependency org="org.mockito" name="mockito-all" rev="1.9.0" />
+		<exclude type="source" ext="jar" />
+		<exclude type="javadoc" ext="jar" />
 	</dependencies>
 </ivy-module>

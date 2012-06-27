@@ -1,0 +1,151 @@
+// Copyright (C) 2011 Splunk Inc.
+//
+// Splunk Inc. licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package com.splunk.shuttl.archiver.thaw;
+
+import static java.util.Arrays.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
+import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.thaw.BucketThawer.FailedBucket;
+
+@Test(groups = { "fast-unit" })
+public class BucketThawerTest {
+
+	private BucketThawer bucketThawer;
+	private ListsBucketsFiltered listsBucketsFiltered;
+	private GetsBucketsFromArchive getsBucketsFromArchive;
+	private String index;
+	private Date earliestTime;
+	private Date latestTime;
+	private Bucket bucket;
+
+	@BeforeMethod
+	public void setUp() {
+		listsBucketsFiltered = mock(ListsBucketsFiltered.class);
+		getsBucketsFromArchive = mock(GetsBucketsFromArchive.class);
+		bucketThawer = new BucketThawer(listsBucketsFiltered,
+				getsBucketsFromArchive);
+
+		index = "foo";
+		earliestTime = new Date();
+		latestTime = new Date(earliestTime.getTime() + 100);
+		bucket = mock(Bucket.class);
+	}
+
+	public void thawBuckets_givenZeroBucketsWithinTimeRange_getsNoBuckets() {
+		when(
+				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
+						latestTime)).thenReturn(new ArrayList<Bucket>());
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		verifyZeroInteractions(getsBucketsFromArchive);
+	}
+
+	public void thawBuckets_givenTwoBucketsWithinTimeRange_getsBuckets()
+			throws ThawTransferFailException, ImportThawedBucketFailException {
+		Bucket archivedBucketWithinTimeRange1 = mock(Bucket.class);
+		Bucket archivedBucketWithinTimeRange2 = mock(Bucket.class);
+		when(
+				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
+						latestTime)).thenReturn(
+				asList(archivedBucketWithinTimeRange1, archivedBucketWithinTimeRange2));
+
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		verify(getsBucketsFromArchive).getBucketFromArchive(
+				archivedBucketWithinTimeRange1);
+		verify(getsBucketsFromArchive).getBucketFromArchive(
+				archivedBucketWithinTimeRange2);
+	}
+
+	public void getThawedBuckets_gotBucketFromArchive_returnBucket()
+			throws ThawTransferFailException, ImportThawedBucketFailException {
+		Bucket bucket1 = mock(Bucket.class);
+		Bucket bucket2 = mock(Bucket.class);
+		when(
+				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
+						latestTime)).thenReturn(asList(bucket1, bucket2));
+		Bucket thawedBucket1 = mock(Bucket.class);
+		Bucket thawedBucket2 = mock(Bucket.class);
+		when(getsBucketsFromArchive.getBucketFromArchive(bucket1)).thenReturn(
+				thawedBucket1);
+		when(getsBucketsFromArchive.getBucketFromArchive(bucket2)).thenReturn(
+				thawedBucket2);
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		List<Bucket> thawedBuckets = bucketThawer.getThawedBuckets();
+		assertEquals(2, thawedBuckets.size());
+		assertTrue(thawedBuckets.contains(thawedBucket1));
+		assertTrue(thawedBuckets.contains(thawedBucket2));
+	}
+
+	public void getFailedBuckets_whenThawTransferFailExceptionIsThrownForABucket_returnBucket()
+			throws ThawTransferFailException, ImportThawedBucketFailException {
+		doThrow(ThawTransferFailException.class).when(getsBucketsFromArchive)
+				.getBucketFromArchive(bucket);
+
+		run_thawBuckets_bucketFieldPassedToGetsBucketFromArchive();
+		List<FailedBucket> failedBuckets = bucketThawer.getFailedBuckets();
+		assertEquals(1, failedBuckets.size());
+		FailedBucket failedBucket = failedBuckets.get(0);
+		assertEquals(bucket, failedBucket.bucket);
+		assertTrue(failedBucket.exception instanceof ThawTransferFailException);
+	}
+
+	private void run_thawBuckets_bucketFieldPassedToGetsBucketFromArchive() {
+		when(
+				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
+						latestTime)).thenReturn(asList(bucket));
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+	}
+
+	public void getFailedBuckets_whenImportThawedBucketFailExceptionIsThrownForBucket_returnBucket()
+			throws ThawTransferFailException, ImportThawedBucketFailException {
+		doThrow(ImportThawedBucketFailException.class).when(getsBucketsFromArchive)
+				.getBucketFromArchive(bucket);
+
+		run_thawBuckets_bucketFieldPassedToGetsBucketFromArchive();
+		List<FailedBucket> failedBuckets = bucketThawer.getFailedBuckets();
+		assertEquals(1, failedBuckets.size());
+		FailedBucket failedBucket = failedBuckets.get(0);
+		assertEquals(bucket, failedBucket.bucket);
+		assertTrue(failedBucket.exception instanceof ImportThawedBucketFailException);
+	}
+
+	// Sad path
+
+	public void getThawedBuckets_whenThawFails_doesntContainThatBucket()
+			throws ThawTransferFailException, ImportThawedBucketFailException {
+		doThrow(ThawTransferFailException.class).when(getsBucketsFromArchive)
+				.getBucketFromArchive(any(Bucket.class));
+		run_thawBuckets_bucketFieldPassedToGetsBucketFromArchive();
+		assertTrue(bucketThawer.getThawedBuckets().isEmpty());
+	}
+
+	public void getFailedBuckets_whenBucketSucceed_doesntContainThatBucket()
+			throws ThawTransferFailException, ImportThawedBucketFailException {
+		when(getsBucketsFromArchive.getBucketFromArchive(bucket)).thenReturn(
+				mock(Bucket.class));
+		run_thawBuckets_bucketFieldPassedToGetsBucketFromArchive();
+		assertTrue(bucketThawer.getFailedBuckets().isEmpty());
+	}
+}

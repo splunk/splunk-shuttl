@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and                                  
 # limitations under the License.
 
-. setjavaenv
-ant 
+shuttl_dir=$(cd $(/usr/bin/dirname $0) && pwd)
+
+set -e
+set -u
+
+source src/sh/set-ant-env.sh $shuttl_dir
+$ANT_HOME/bin/ant
 

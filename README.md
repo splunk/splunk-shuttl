@@ -1,118 +1,89 @@
 
-Shep - Integration of Splunk and Hadoop
+Shuttl - Archiving for Splunk 
 =======================================
 
-Shep is a collection of integration modules to enable
-seamless data flow and processing between Splunk, the
-NoSQL platform for machine data, and Hadoop.
+Splunk is the premier technology for gaining Operational Intelligence on Machine Data. Since it
+can handle large volume of data at a fast rate, often times users will only want to analyze
+recent data, and data that is beyond a certain range is archived.
 
-If you are not in the beta program, please register here:
+Splunk provides hooks for allowing the administrator to designate archiving policies and
+actions. However, the actions are entirely implemented by the administrator of the system.
 
-* http://www.splunk.com/goto/hadoop-beta
+Shuttl provides a full-lifecycle solution for data in Splunk.
 
-For documentation, see:
+It can:
+* manage the transfer of data from Splunk to an archive system
+* enable an administrator to inventory/search the archive
+* allow an administrator to selectively restore archived data into "thawed"
+* remove archived data from thawed
 
-* http://docs.splunk.com/Documentation/Hadoop
-
-Key features as of v0.5 are:
-
-* An archiver for archiving data
-
-Key features as of v0.4.3 are:
-
-* Streaming of data via Splunk Forwarding to HDFS
-* SplunkInputFormat and SplunkOutputFormat classes for use in Hadoop
-* Automatic batch rolling of indexed data to HDFS
-* Developer friendly building and testing shep
-
-Note: earlier versions of the forwarding mechanism relied on
-Flume. That dependency is now removed, and Shep will write
-direct to HDFS without a Flume intermediary.
+This works on the following systems
+* Attached storage
+* HDFS
+* S3 (in theory)
 
 Prerequisites
 -------------
 
 ### Hadoop
 
-Currently the Hadoop version used is 1.0 
+Currently the Hadoop version used is 1.0.3
 
-You can download it from one of the mirror sites listed [here][hadoop-download].
+You can download it from one of the [mirror sites][hadoop-download].
 And see the [Hadoop documentation][] for instructions on installing and more.
 
-[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.0.0
-[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.0.0/
+[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.0.3
+[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.0.3
 
 ### Splunk
 
-Currently the Splunk version used is 4.3.1
+Currently the Splunk version used is 4.3.3
 
-You can download it from [here][splunk-download]
-And see the [Splunk documentation][] for instructions on installing and more.
+You can download it [Splunk][splunk-download].  And see the [Splunk documentation][] for instructions on installing and more.
 
 [Splunk documentation]:http://docs.splunk.com/Documentation/Splunk/latest/User
 [splunk-download]:http://www.splunk.com/download
 
-
-Building from Source
---------------------
-
-### Requirements
-
-All you need is:
+### Java
 
 * Java JDK 6
 
-The build should work on both MacOSX and Linux.
-
-Environment setup:
-
-	% source setjavaenv
-
-Building Shep:
-
-	% ./buildit.sh
-
-or
-
-	% ant
-
-If everything goes well, you should see the message
-
-	BUILD SUCCESSFUL
+Development
+--------------
 
 ### Eclipse Users
 
 You'll need to build once, before you can use Eclipse
 This .eclipse.templates directory contains templates for generating Eclipse files to configure
-Eclipse for shep development.
+Eclipse for shuttl development.
 
 
 ### Coding Conventions
 
-The Shep code base is to follow the standard java conventions:
+The Shuttl code base is to follow the standard java conventions except for using braces for all for-loops, if-statements etc. We try to not use braces to avoid too much indentation. We rely on having tests to catch any mistake done by forgetting braces, when having more than one line after an if-statement or for-loop.
+
+The standard java conventions can be found here:
 http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html
 
 Getting Started
 ---------------
 
-Set the `JAVA_HOME` environment variable
+Ensure that:
+* `JAVA_HOME` environment variable is defined correctly
+* Make sure that you can run `ssh localhost` without having to enter a password
+* Make sure you have a tgz package of Splunk in the directory put-splunk-tgz-here (not needed if you are using your own Splunk instance, see below)
 
-Make sure that you can run `ssh localhost` without having to enter a password*
-
-Cd into to the splunk-shep directory and run the following:
-
-Put a .tgz packaged Splunk in the put-splunk-tgz-here directory**
-
-Build shep:
+Build shuttl:
 
 	$ ./buildit.sh
 
 Run the tests:
 
-	$ ant test
+	$ ant test-all
 
-* Here's how you setup passphraseless ssh: http://hadoop.apache.org/common/docs/current/single_node_setup.html#Setup+passphraseless
-** You don't need to do this if you want to run against your own Splunk instance.
+### How to Setup Passphraseless SSH
+
+Here's how you setup passphraseless ssh: http://hadoop.apache.org/common/docs/current/single_node_setup.html#Setup+passphraseless
 
 ### Test configuration
 
@@ -134,7 +105,7 @@ In your `build.properties`, set the properties `defined.means.running.on.self.de
 
 Now run:
 
-	$ `ant test`
+	$ `ant test-all`
 
 The script will now use your own environment variables to run the tests. You don't have to run with both properties defined. You can run with either one
 
@@ -145,8 +116,4 @@ In your `build.properties`, set the property `hadoop.version` to the version you
 Now run:
 
 	$ `ant clean-all`
-	$ `ant test`
-
-Currently supports version 1.0.0
-
-
+	$ `ant test-all`

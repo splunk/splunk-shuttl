@@ -1,6 +1,3 @@
-shep.log
-consolesink.log
-
 # Mac Noise
 .DS_Store
 
@@ -28,13 +25,16 @@ consolesink.log
 
 # Downloads
 /contrib/hadoop.tar.gz
-/contrib/hive-0.8.1.tar.gz
 
 # Property files
 build.properties
 
-# Ivy configuration at runtime. Ivy.xml in the root of shep is configured at runtime and should not be tracked.
+# Ivy configuration at runtime. Ivy.xml in the root of shuttl is configured at runtime and should not be tracked.
 ivy.xml
+
+# Eclipse's classpath is also configured at runtime, like ivy.xml above.
+/.classpath
+
 
 # Infinitest filters, for filtering out tests that developers don't want to be run for every save
 infinitest.filters

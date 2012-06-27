@@ -62,7 +62,7 @@ class Archiving(controllers.BaseController):
         
         logger.info('Show archiving page')
 
-        return self.render_template('/shep:/templates/archiving.html', dict(errors=errors))
+        return self.render_template('/shuttl:/templates/archiving.html', dict(errors=errors))
 
     # Gives all indexes that are thawable
     @expose_page(must_login=True, methods=['GET']) 
@@ -71,7 +71,7 @@ class Archiving(controllers.BaseController):
         errors = None
         indexes = []
         # may raise exception (ex. connection refused)
-        indexesResponse = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/index/list');
+        indexesResponse = splunk.rest.simpleRequest('http://localhost:9090/shuttl/rest/archiver/index/list');
 
         if DEBUG: 
             indexes = debugIndexes
@@ -89,7 +89,7 @@ class Archiving(controllers.BaseController):
         
         logger.debug('show - indexes: %s (%s)' % (indexes, type(indexes)))
 
-        return self.render_template('/shep:/templates/index_list.html', dict(indexes=indexes, errors=errors))
+        return self.render_template('/shuttl:/templates/index_list.html', dict(indexes=indexes, errors=errors))
 
     # Gives a list of buckets for a specific index as an html table
     @expose_page(must_login=True, methods=['POST'])
@@ -100,7 +100,7 @@ class Archiving(controllers.BaseController):
 
         logger.debug('list_buckets - postArgs: %s (%s)' % (params, type(params)))
 
-        bucketsResponse = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/list', getargs=params)
+        bucketsResponse = splunk.rest.simpleRequest('http://localhost:9090/shuttl/rest/archiver/bucket/list', getargs=params)
         logger.debug('list_buckets - response: %s (%s)' % (bucketsResponse, type(bucketsResponse)))
 
         if DEBUG: 
@@ -120,7 +120,7 @@ class Archiving(controllers.BaseController):
 
         logger.debug('list_buckets - buckets: %s (%s)' % (buckets, type(buckets)))
 
-        return self.render_template('/shep:/templates/bucket_list.html', dict(tables=buckets, errors=errors))
+        return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=buckets, errors=errors))
 
     # Attempts to thaw buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
@@ -131,7 +131,7 @@ class Archiving(controllers.BaseController):
 
         logger.debug('thaw - postArgs: %s (%s)' % (params, type(params)))
 
-        response = splunk.rest.simpleRequest('http://localhost:9090/shep/rest/archiver/bucket/thaw', postargs=params, method='POST')
+        response = splunk.rest.simpleRequest('http://localhost:9090/shuttl/rest/archiver/bucket/thaw', postargs=params, method='POST')
         
         if DEBUG:
             time.sleep(2)
@@ -162,5 +162,5 @@ class Archiving(controllers.BaseController):
 
         logger.debug('thaw_buckets - buckets: %s (%s)' % (responseData, type(responseData)))
 
-        return self.render_template('/shep:/templates/bucket_list.html', dict(tables=responseData, errors=errors))  
+        return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=responseData, errors=errors))  
 
