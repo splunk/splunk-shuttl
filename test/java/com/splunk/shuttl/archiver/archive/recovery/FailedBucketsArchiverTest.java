@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive.recovery;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -39,7 +40,7 @@ public class FailedBucketsArchiverTest {
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
 		bucketMover = mock(BucketMover.class);
-		bucketLocker = new BucketLocker();
+		bucketLocker = new BucketLockerInTestDir(createDirectory());
 		sharedLockBucketHandler = mock(SharedLockBucketHandler.class);
 		failedBucketsArchiver = new FailedBucketsArchiver(bucketMover, bucketLocker);
 	}

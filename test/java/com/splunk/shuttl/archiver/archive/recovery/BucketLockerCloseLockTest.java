@@ -37,7 +37,13 @@ public class BucketLockerCloseLockTest {
 	@BeforeMethod
 	public void setUp() {
 		bucketLock = mock(BucketLock.class);
-		bucketLocker = new BucketLocker();
+		bucketLocker = new BucketLocker() {
+
+			@Override
+			protected BucketLock getLockForBucket(Bucket bucket) {
+				return bucketLock;
+			}
+		};
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -50,8 +56,8 @@ public class BucketLockerCloseLockTest {
 	}
 
 	private void callBucketLocker() {
-		bucketLocker.callBucketHandlerWithBucketSharedLock(bucketLock,
-				mock(Bucket.class), new NoOpBucketHandler());
+		bucketLocker.callBucketHandlerUnderSharedLock(mock(Bucket.class),
+				new NoOpBucketHandler());
 	}
 
 	public void callBucketHandlerWithBucketSharedLock_givenSharedConvertFail_closesLock() {
@@ -71,8 +77,8 @@ public class BucketLockerCloseLockTest {
 	public void callBucketHandlerWithBucketSharedLock_givenRunnableThatThrowsException_closesLock() {
 		when(bucketLock.tryLockExclusive()).thenReturn(true);
 		try {
-			bucketLocker.callBucketHandlerWithBucketSharedLock(bucketLock,
-					mock(Bucket.class), new SharedLockBucketHandler() {
+			bucketLocker.callBucketHandlerUnderSharedLock(mock(Bucket.class),
+					new SharedLockBucketHandler() {
 						@Override
 						public void handleSharedLockedBucket(Bucket bucket) {
 							throw new FakeException();

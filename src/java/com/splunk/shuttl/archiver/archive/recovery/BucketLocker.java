@@ -20,7 +20,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
  * Class for locking buckets, synchronizing usages of buckets by locking a
  * bucket before using/modifying it.
  */
-public class BucketLocker {
+public abstract class BucketLocker {
 
 	/**
 	 * LockedBucketHandler is not executed if the bucket cannot be locked
@@ -28,15 +28,21 @@ public class BucketLocker {
 	 */
 	public void callBucketHandlerUnderSharedLock(Bucket bucket,
 			SharedLockBucketHandler bucketHandler) {
-		callBucketHandlerWithBucketSharedLock(new BucketLock(bucket), bucket,
+		callBucketHandlerWithBucketSharedLock(getLockForBucket(bucket), bucket,
 				bucketHandler);
 	}
+
+	/**
+	 * @return {@link BucketLock} instance for bucket, which knows where the
+	 *         buckets are stored.
+	 */
+	protected abstract BucketLock getLockForBucket(Bucket bucket);
 
 	/**
 	 * Method exists for verifying that {@link BucketLock} is closed, whether it
 	 * gets the lock or not.
 	 */
-	/* package-private */void callBucketHandlerWithBucketSharedLock(
+	private void callBucketHandlerWithBucketSharedLock(
 			BucketLock bucketLock, Bucket bucket,
 			SharedLockBucketHandler bucketHandler) {
 		try {

@@ -74,10 +74,10 @@ public class LocalFileSystemConstantsTest {
 		assertParentIsArchiverDirectory(failLocation);
 	}
 
-	public void getLocksDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
-		assertDoesNotExist(LocalFileSystemConstants.LOCKS_PATH);
+	public void getArchiveLocksDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
+		assertDoesNotExist(LocalFileSystemConstants.ARCHIVE_LOCKS_PATH);
 		assertExistsInsideArchiverDirectory(LocalFileSystemConstants
-				.getLocksDirectory());
+				.getArchiveLocksDirectory());
 	}
 
 	public void getCsvDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {

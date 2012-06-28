@@ -31,10 +31,10 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.archive.recovery.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
@@ -57,7 +57,8 @@ public class BucketFreezerSuccessfulArchivingTest {
 		archiveRestHandler = mock(ArchiveRestHandler.class);
 		failedBucketsArchiver = mock(FailedBucketsArchiver.class);
 		bucketFreezer = new BucketFreezer(new BucketMover(tempTestDirectory),
-				new BucketLocker(), archiveRestHandler, failedBucketsArchiver);
+				new BucketLockerInTestDir(tempTestDirectory), archiveRestHandler,
+				failedBucketsArchiver);
 	}
 
 	@AfterMethod(groups = { "fast-unit" })

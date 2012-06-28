@@ -33,8 +33,8 @@ public class LocalFileSystemConstants {
 	static final String FAIL_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
 			+ "failed-buckets";
 
-	static final String LOCKS_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
-			+ "locks-dir";
+	static final String ARCHIVE_LOCKS_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
+ + "archive-locks-dir";
 
 	static final String CSV_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
 			+ "csv-dir";
@@ -70,8 +70,8 @@ public class LocalFileSystemConstants {
 	/**
 	 * Contains locks for the buckets.
 	 */
-	public static File getLocksDirectory() {
-		return createDirectory(LOCKS_PATH);
+	public static File getArchiveLocksDirectory() {
+		return createDirectory(ARCHIVE_LOCKS_PATH);
 	}
 
 	/**

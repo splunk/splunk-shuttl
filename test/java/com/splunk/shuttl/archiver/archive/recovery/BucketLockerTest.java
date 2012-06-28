@@ -42,7 +42,13 @@ public class BucketLockerTest {
 	public void setUp() {
 		tempTestDirectory = createDirectory();
 		bucket = TUtilsBucket.createBucketInDirectory(tempTestDirectory);
-		bucketLocker = new BucketLocker();
+		bucketLocker = new BucketLocker() {
+
+			@Override
+			protected BucketLock getLockForBucket(Bucket bucket) {
+				return new BucketLock(bucket, tempTestDirectory);
+			}
+		};
 	}
 
 	@AfterMethod
@@ -59,7 +65,7 @@ public class BucketLockerTest {
 	}
 
 	public void callBucketHandlerUnderSharedLock_givenLockedBucket_doesNotExecuteRunnable() {
-		BucketLock bucketLock = new BucketLock(bucket);
+		BucketLock bucketLock = bucketLocker.getLockForBucket(bucket);
 		assertTrue(bucketLock.tryLockExclusive());
 		NoOpBucketHandler bucketHandler = new NoOpBucketHandler();
 		bucketLocker.callBucketHandlerUnderSharedLock(bucket, bucketHandler);

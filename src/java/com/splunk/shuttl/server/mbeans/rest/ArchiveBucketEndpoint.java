@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.archive.BucketArchiverRunner;
+import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
 import com.splunk.shuttl.archiver.archive.recovery.BucketLock;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
@@ -87,7 +88,7 @@ public class ArchiveBucketEndpoint {
 				.createConfiguredArchiver();
 		Bucket bucket = BucketFactory.createBucketWithIndexAndDirectory(index,
 				new File(path));
-		BucketLock bucketLock = new BucketLock(bucket);
+		BucketLock bucketLock = new ArchiveBucketLock(bucket);
 		throwExceptionIfSharedLockCannotBeAcquired(bucketLock);
 		return new BucketArchiverRunner(bucketArchiver, bucket, bucketLock);
 	}
