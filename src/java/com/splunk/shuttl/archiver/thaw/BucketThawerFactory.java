@@ -39,8 +39,8 @@ public class BucketThawerFactory {
 			SplunkSettings splunkSettings, ArchiveConfiguration configuration) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(configuration);
-		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
-				splunkSettings);
+		ThawLocationProvider thawLocationProvider = ThawLocationProvider
+				.create(splunkSettings);
 
 		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
 				archiveFileSystem, thawLocationProvider);

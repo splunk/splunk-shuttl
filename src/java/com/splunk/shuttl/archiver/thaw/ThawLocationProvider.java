@@ -14,9 +14,14 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -25,13 +30,18 @@ import com.splunk.shuttl.archiver.model.Bucket;
 public class ThawLocationProvider {
 
 	private final SplunkSettings splunkSettings;
+	private final File transferLocation;
 
 	/**
 	 * @param splunkSettings
 	 *          for looking up the thaw directory.
+	 * @param transferLocation
+	 *          thaw buckets live while they are transfered.
 	 */
-	public ThawLocationProvider(SplunkSettings splunkSettings) {
+	public ThawLocationProvider(SplunkSettings splunkSettings,
+			File transferLocation) {
 		this.splunkSettings = splunkSettings;
+		this.transferLocation = transferLocation;
 	}
 
 	/**
@@ -43,6 +53,35 @@ public class ThawLocationProvider {
 	public File getLocationInThawForBucket(Bucket bucket) throws IOException {
 		File thawLocation = splunkSettings.getThawLocation(bucket.getIndex());
 		return new File(thawLocation, bucket.getName());
+	}
+
+	/**
+	 * @param bucket
+	 *          to get transfer location for.
+	 * @return non existing local where the bucket can be transfered.
+	 */
+	public File getThawTransferLocation(Bucket bucket) {
+		File file = new File(transferLocation, bucket.getName());
+		if (file.exists())
+			deleteFile(file);
+		return file;
+	}
+
+	private void deleteFile(File file) {
+		boolean wasDeleted = file.delete();
+		if (!wasDeleted)
+			Logger.getLogger(getClass()).warn(
+					warn("Tried deleting a file", "Could not delete it",
+							"Will not do anything", "file", file));
+	}
+
+	/**
+	 * @return instance of {@link ThawLocationProvider} with specified splunk
+	 *         settings.
+	 */
+	public static ThawLocationProvider create(SplunkSettings splunkSettings) {
+		return new ThawLocationProvider(splunkSettings,
+				LocalFileSystemConstants.getThawTransfersDirectory());
 	}
 
 }

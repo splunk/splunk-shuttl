@@ -22,11 +22,9 @@ import static org.testng.Assert.*;
 import java.io.File;
 import java.io.IOException;
 
-import org.mockito.ArgumentCaptor;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
@@ -52,18 +50,16 @@ public class ThawBucketTransfererTest {
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void _givenBucket_transferBucketFromArchiveToTemporaryTransferLocation()
+	public void _givenBucket_transferBucketFromArchiveToLocationThatIsNotThawLocation()
 			throws IOException {
 		stub(thawLocationProvider.getLocationInThawForBucket(bucket)).toReturn(
 				createDirectory());
+		File transferDirectory = createDirectory();
+		when(thawLocationProvider.getThawTransferLocation(bucket)).thenReturn(
+				transferDirectory);
 		bucketTransferer.transferBucketToThaw(bucket);
 
-		ArgumentCaptor<File> fileCaptor = ArgumentCaptor.forClass(File.class);
-		verify(archiveFileSystem)
-				.getFile(fileCaptor.capture(), eq(bucket.getURI()));
-		File directoryBucketWasTransferedTo = fileCaptor.getValue().getParentFile();
-		assertEquals(LocalFileSystemConstants.getThawTransfersDirectory()
-				.getAbsolutePath(), directoryBucketWasTransferedTo.getAbsolutePath());
+		verify(archiveFileSystem).getFile(transferDirectory, bucket.getURI());
 	}
 
 	public void _whenArchiveFileSystemThrowsIOException_keepThrowing()
@@ -80,6 +76,8 @@ public class ThawBucketTransfererTest {
 
 	public void _givenSuccessfulTransfer_returnBucketTransferedBucketOnLocalDisk()
 			throws IOException {
+		stub(thawLocationProvider.getThawTransferLocation(any(Bucket.class)))
+				.toReturn(createDirectory());
 		Bucket bucketToTransfer = TUtilsBucket.createBucket();
 		File bucketLocationOnLocalDisk = createDirectory();
 		Bucket bucketOnLocalDisk = mock(Bucket.class);
@@ -95,4 +93,5 @@ public class ThawBucketTransfererTest {
 				.transferBucketToThaw(bucketToTransfer);
 		assertEquals(bucketOnLocalDisk, actualBucket);
 	}
+
 }
