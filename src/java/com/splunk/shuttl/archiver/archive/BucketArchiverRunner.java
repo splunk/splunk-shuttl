@@ -18,8 +18,8 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketLock;
-import com.splunk.shuttl.archiver.archive.recovery.SimpleFileLock.NotLockedException;
+import com.splunk.shuttl.archiver.bucketlock.BucketLock;
+import com.splunk.shuttl.archiver.bucketlock.SimpleFileLock.NotLockedException;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**

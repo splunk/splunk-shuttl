@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
-import com.splunk.shuttl.archiver.archive.recovery.BucketLockerInTestDir;
+import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
 /**

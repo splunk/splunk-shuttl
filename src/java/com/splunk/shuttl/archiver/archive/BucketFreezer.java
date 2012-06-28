@@ -24,9 +24,9 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LogFormatter;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
-import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 

@@ -14,6 +14,8 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive.recovery;
 
+import com.splunk.shuttl.archiver.bucketlock.BucketLock;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
