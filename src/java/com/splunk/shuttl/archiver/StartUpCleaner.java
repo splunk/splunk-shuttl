@@ -14,23 +14,31 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver;
 
+import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
+import static java.util.Arrays.*;
+
 import java.io.File;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
 /**
- * Cleans directories containing temporary data between archiver restarts.
+ * Cleans directories containing temporary data between archiver restarts. The
+ * class does not do any magic to find out when the archiver starts up. Instead
+ * the class is intended to be run when the archiver starts.
  */
 public class StartUpCleaner {
 
 	private final List<File> directoriesToClean;
 
 	/**
+	 * Constructor for giving a list of directories to clean. Use the factory
+	 * method {@link StartUpCleaner#create()} for integration.
+	 * 
 	 * @param list
 	 *          of directories to clean.
 	 */
-	public StartUpCleaner(List<File> directoriesToClean) {
+	protected StartUpCleaner(List<File> directoriesToClean) {
 		this.directoriesToClean = directoriesToClean;
 		for (File dir : directoriesToClean)
 			if (!dir.isDirectory())
@@ -44,5 +52,14 @@ public class StartUpCleaner {
 		for (File dir : directoriesToClean)
 			for (File child : dir.listFiles())
 				FileUtils.deleteQuietly(child);
+	}
+
+	/**
+	 * @return integrated instance containing all the directories that should be
+	 *         cleaned at start up.
+	 */
+	public static StartUpCleaner create() {
+		return new StartUpCleaner(asList(getThawLocksDirectory(),
+				getThawTransfersDirectory()));
 	}
 }
