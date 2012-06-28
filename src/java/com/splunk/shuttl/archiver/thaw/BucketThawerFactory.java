@@ -39,20 +39,22 @@ public class BucketThawerFactory {
 			SplunkSettings splunkSettings, ArchiveConfiguration configuration) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(configuration);
+		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
+				splunkSettings);
 
 		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
-				archiveFileSystem, splunkSettings);
+				archiveFileSystem, thawLocationProvider);
 		ListsBucketsFiltered listsBucketsFiltered = ListsBucketsFilteredFactory
 				.create(configuration);
 		GetsBucketsFromArchive getsBucketsFromArchive = new GetsBucketsFromArchive(
 				thawBucketTransferer, BucketImporter.create());
-		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive);
+		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive,
+				thawLocationProvider);
 	}
 
 	private static ThawBucketTransferer getThawBucketTransferer(
-			ArchiveFileSystem archiveFileSystem, SplunkSettings splunkSettings) {
-		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
-				splunkSettings);
+			ArchiveFileSystem archiveFileSystem,
+			ThawLocationProvider thawLocationProvider) {
 		ThawBucketTransferer thawBucketTransferer = new ThawBucketTransferer(
 				thawLocationProvider, archiveFileSystem, new BucketFactory());
 		return thawBucketTransferer;

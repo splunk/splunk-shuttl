@@ -14,9 +14,15 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -29,6 +35,7 @@ public class BucketThawer {
 
 	private final ListsBucketsFiltered listsBucketsFiltered;
 	private final GetsBucketsFromArchive getsBucketsFromArchive;
+	private final ThawLocationProvider thawLocationProvider;
 	private final List<Bucket> successfulThawedBuckets;
 	private final List<FailedBucket> failedBuckets;
 
@@ -45,13 +52,19 @@ public class BucketThawer {
 	}
 
 	/**
-	 * @param listsBucketsFiltered2
-	 * @param getsBucketsFromArchive2
+	 * @param listsBucketsFiltered
+	 *          for listing buckets in the archive.
+	 * @param getsBucketsFromArchive
+	 *          for getting buckets to thaw from the archive.
+	 * @param thawLocationProvider
+	 *          for getting the location on local disk for the thawed bucket.
 	 */
 	public BucketThawer(ListsBucketsFiltered listsBucketsFiltered,
-			GetsBucketsFromArchive getsBucketsFromArchive) {
+			GetsBucketsFromArchive getsBucketsFromArchive,
+			ThawLocationProvider thawLocationProvider) {
 		this.listsBucketsFiltered = listsBucketsFiltered;
 		this.getsBucketsFromArchive = getsBucketsFromArchive;
+		this.thawLocationProvider = thawLocationProvider;
 		this.successfulThawedBuckets = new ArrayList<Bucket>();
 		this.failedBuckets = new ArrayList<FailedBucket>();
 	}
@@ -63,7 +76,30 @@ public class BucketThawer {
 		List<Bucket> bucketsToThaw = listsBucketsFiltered
 				.listFilteredBucketsAtIndex(index, earliestTime, latestTime);
 		for (Bucket bucket : bucketsToThaw)
-			getThawedBucketFromArchive(bucket);
+			if (!isBucketAlreadyThawed(bucket))
+				getThawedBucketFromArchive(bucket);
+	}
+
+	/**
+	 * @return true if the bucket already exists on local disk.
+	 */
+	private boolean isBucketAlreadyThawed(Bucket bucket) {
+		try {
+			File thawLocation = thawLocationProvider
+					.getLocationInThawForBucket(bucket);
+			return thawLocation != null && thawLocation.exists();
+		} catch (IOException e) {
+			logWarningForAssumingBucketAlreadyExists(bucket, e);
+			return true;
+		}
+	}
+
+	private void logWarningForAssumingBucketAlreadyExists(Bucket bucket,
+			IOException e) {
+		Logger.getLogger(getClass()).warn(
+				warn("Got thaw location for a bucket", e,
+						"Assumes the bucket is already thawed", "bucket", bucket,
+						"exception", e));
 	}
 
 	private void getThawedBucketFromArchive(Bucket bucket) {

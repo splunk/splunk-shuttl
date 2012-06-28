@@ -19,6 +19,7 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer.FailedBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketThawerTest {
@@ -40,13 +42,15 @@ public class BucketThawerTest {
 	private Date earliestTime;
 	private Date latestTime;
 	private Bucket bucket;
+	private ThawLocationProvider thawLocationProvider;
 
 	@BeforeMethod
 	public void setUp() {
 		listsBucketsFiltered = mock(ListsBucketsFiltered.class);
 		getsBucketsFromArchive = mock(GetsBucketsFromArchive.class);
+		thawLocationProvider = mock(ThawLocationProvider.class);
 		bucketThawer = new BucketThawer(listsBucketsFiltered,
-				getsBucketsFromArchive);
+				getsBucketsFromArchive, thawLocationProvider);
 
 		index = "foo";
 		earliestTime = new Date();
@@ -76,6 +80,19 @@ public class BucketThawerTest {
 				archivedBucketWithinTimeRange1);
 		verify(getsBucketsFromArchive).getBucketFromArchive(
 				archivedBucketWithinTimeRange2);
+	}
+
+	public void thawBuckets_bucketAlreadyThawedToThawLocation_doesNotThawBucketAgain()
+			throws IOException {
+		Bucket thawedBucket = TUtilsBucket.createBucket();
+		when(thawLocationProvider.getLocationInThawForBucket(thawedBucket))
+				.thenReturn(thawedBucket.getDirectory());
+		when(
+				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
+						latestTime)).thenReturn(asList(thawedBucket));
+
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		verifyZeroInteractions(getsBucketsFromArchive);
 	}
 
 	public void getThawedBuckets_gotBucketFromArchive_returnBucket()
