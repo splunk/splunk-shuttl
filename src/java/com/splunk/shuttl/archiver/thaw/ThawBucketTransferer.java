@@ -17,6 +17,7 @@ package com.splunk.shuttl.archiver.thaw;
 import java.io.File;
 import java.io.IOException;
 
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
@@ -45,8 +46,15 @@ public class ThawBucketTransferer {
 	public Bucket transferBucketToThaw(Bucket bucket) throws IOException {
 		File bucketsThawLocation = thawLocationProvider
 				.getLocationInThawForBucket(bucket);
-		archiveFileSystem.getFile(bucketsThawLocation, bucket.getURI());
+		File bucketTemp = getBucketTempTransferPath(bucket);
+		archiveFileSystem.getFile(bucketTemp, bucket.getURI());
+		bucketTemp.renameTo(bucketsThawLocation);
 		return bucketFactory.createWithIndexDirectoryAndSize(bucket.getIndex(),
 				bucketsThawLocation, bucket.getSize());
+	}
+
+	private File getBucketTempTransferPath(Bucket bucket) {
+		File transferTemp = LocalFileSystemConstants.getThawTransfersDirectory();
+		return new File(transferTemp, bucket.getName());
 	}
 }

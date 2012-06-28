@@ -91,4 +91,10 @@ public class LocalFileSystemConstantsTest {
 		assertExistsInsideArchiverDirectory(LocalFileSystemConstants
 				.getThawLocksDirectory());
 	}
+
+	public void getThawTransferDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
+		assertDoesNotExist(LocalFileSystemConstants.THAW_TRANSFERS_PATH);
+		assertExistsInsideArchiverDirectory(LocalFileSystemConstants
+				.getThawTransfersDirectory());
+	}
 }

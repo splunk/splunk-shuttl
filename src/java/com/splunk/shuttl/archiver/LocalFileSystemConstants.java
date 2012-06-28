@@ -42,6 +42,9 @@ public class LocalFileSystemConstants {
 	static final String THAW_LOCKS_PATH = ARCHIVER_DIRECTORY_PATH
 			+ File.separator + "thaw-locks-dir";
 
+	public static final String THAW_TRANSFERS_PATH = ARCHIVER_DIRECTORY_PATH
+			+ File.separator + "thaw-transfers-dir";
+
 	/**
 	 * Directory which contains all files created by the archiver.
 	 */
@@ -89,6 +92,13 @@ public class LocalFileSystemConstants {
 	 */
 	public static File getThawLocksDirectory() {
 		return createDirectory(THAW_LOCKS_PATH);
+	}
+
+	/**
+	 * Temporary contains thaw transfers.
+	 */
+	public static File getThawTransfersDirectory() {
+		return createDirectory(THAW_TRANSFERS_PATH);
 	}
 
 }

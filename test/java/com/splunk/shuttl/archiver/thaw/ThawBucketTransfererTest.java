@@ -22,9 +22,11 @@ import static org.testng.Assert.*;
 import java.io.File;
 import java.io.IOException;
 
+import org.mockito.ArgumentCaptor;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
@@ -50,14 +52,18 @@ public class ThawBucketTransfererTest {
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void _givenBucket_transferBucketFromArchiveToPathWhereParentIsThawLocation()
+	public void _givenBucket_transferBucketFromArchiveToTemporaryTransferLocation()
 			throws IOException {
-		File bucketLocation = createDirectory();
-		when(thawLocationProvider.getLocationInThawForBucket(bucket)).thenReturn(
-				bucketLocation);
+		stub(thawLocationProvider.getLocationInThawForBucket(bucket)).toReturn(
+				createDirectory());
 		bucketTransferer.transferBucketToThaw(bucket);
 
-		verify(archiveFileSystem).getFile(bucketLocation, bucket.getURI());
+		ArgumentCaptor<File> fileCaptor = ArgumentCaptor.forClass(File.class);
+		verify(archiveFileSystem)
+				.getFile(fileCaptor.capture(), eq(bucket.getURI()));
+		File directoryBucketWasTransferedTo = fileCaptor.getValue().getParentFile();
+		assertEquals(LocalFileSystemConstants.getThawTransfersDirectory()
+				.getAbsolutePath(), directoryBucketWasTransferedTo.getAbsolutePath());
 	}
 
 	public void _whenArchiveFileSystemThrowsIOException_keepThrowing()
