@@ -90,6 +90,7 @@ public class BucketThawer {
 			return thawLocation != null && thawLocation.exists();
 		} catch (IOException e) {
 			logWarningForAssumingBucketAlreadyExists(bucket, e);
+			failedBuckets.add(new FailedBucket(bucket, e));
 			return true;
 		}
 	}

@@ -95,6 +95,19 @@ public class BucketThawerTest {
 		verifyZeroInteractions(getsBucketsFromArchive);
 	}
 
+	public void thawBuckets_thawLocationProviderThrowsException_failBucketAndDoNotTransfer()
+			throws IOException {
+		doThrow(new IOException()).when(thawLocationProvider)
+				.getLocationInThawForBucket(bucket);
+		when(
+				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
+						latestTime)).thenReturn(asList(bucket));
+
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
+		assertEquals(bucket, bucketThawer.getFailedBuckets().get(0).bucket);
+		verifyZeroInteractions(getsBucketsFromArchive);
+	}
+
 	public void getThawedBuckets_gotBucketFromArchive_returnBucket()
 			throws ThawTransferFailException, ImportThawedBucketFailException {
 		Bucket bucket1 = mock(Bucket.class);
