@@ -33,11 +33,14 @@ public class LocalFileSystemConstants {
 	static final String FAIL_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
 			+ "failed-buckets";
 
-	static final String ARCHIVE_LOCKS_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
- + "archive-locks-dir";
+	static final String ARCHIVE_LOCKS_PATH = ARCHIVER_DIRECTORY_PATH
+			+ File.separator + "archive-locks-dir";
 
 	static final String CSV_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
 			+ "csv-dir";
+
+	static final String THAW_LOCKS_PATH = ARCHIVER_DIRECTORY_PATH
+			+ File.separator + "thaw-locks-dir";
 
 	/**
 	 * Directory which contains all files created by the archiver.
@@ -53,22 +56,22 @@ public class LocalFileSystemConstants {
 	}
 
 	/**
-	 * Safe location for the buckets, away from where Splunk cannot delete the
-	 * buckets.
+	 * Safe location for the buckets to be archived. Stored away from Splunk,
+	 * where Splunk cannot delete the buckets.
 	 */
 	public static File getSafeDirectory() {
 		return createDirectory(SAFE_PATH);
 	}
 
 	/**
-	 * Contains the failed bucket transfers
+	 * Contains the failed bucket archiving transfers
 	 */
 	public static File getFailDirectory() {
 		return createDirectory(FAIL_PATH);
 	}
 
 	/**
-	 * Contains locks for the buckets.
+	 * Contains locks for archiving buckets.
 	 */
 	public static File getArchiveLocksDirectory() {
 		return createDirectory(ARCHIVE_LOCKS_PATH);
@@ -79,6 +82,13 @@ public class LocalFileSystemConstants {
 	 */
 	public static File getCsvDirectory() {
 		return createDirectory(CSV_PATH);
+	}
+
+	/**
+	 * Contains locks for thawing buckets.
+	 */
+	public static File getThawLocksDirectory() {
+		return createDirectory(THAW_LOCKS_PATH);
 	}
 
 }

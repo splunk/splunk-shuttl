@@ -49,7 +49,7 @@ public class BucketThawerFactory {
 		GetsBucketsFromArchive getsBucketsFromArchive = new GetsBucketsFromArchive(
 				thawBucketTransferer, BucketImporter.create());
 		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive,
-				thawLocationProvider);
+				thawLocationProvider, new ThawBucketLocker());
 	}
 
 	private static ThawBucketTransferer getThawBucketTransferer(

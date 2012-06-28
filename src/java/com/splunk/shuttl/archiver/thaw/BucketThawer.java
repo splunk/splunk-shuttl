@@ -24,6 +24,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -38,6 +40,7 @@ public class BucketThawer {
 	private final ThawLocationProvider thawLocationProvider;
 	private final List<Bucket> successfulThawedBuckets;
 	private final List<FailedBucket> failedBuckets;
+	private final BucketLocker thawBucketLocker;
 
 	public static class FailedBucket {
 
@@ -58,13 +61,17 @@ public class BucketThawer {
 	 *          for getting buckets to thaw from the archive.
 	 * @param thawLocationProvider
 	 *          for getting the location on local disk for the thawed bucket.
+	 * @param thawBucketLocker
+	 *          to handle parallel thawing synchronization.
 	 */
 	public BucketThawer(ListsBucketsFiltered listsBucketsFiltered,
 			GetsBucketsFromArchive getsBucketsFromArchive,
-			ThawLocationProvider thawLocationProvider) {
+			ThawLocationProvider thawLocationProvider, BucketLocker thawBucketLocker) {
 		this.listsBucketsFiltered = listsBucketsFiltered;
 		this.getsBucketsFromArchive = getsBucketsFromArchive;
 		this.thawLocationProvider = thawLocationProvider;
+		this.thawBucketLocker = thawBucketLocker;
+
 		this.successfulThawedBuckets = new ArrayList<Bucket>();
 		this.failedBuckets = new ArrayList<FailedBucket>();
 	}
@@ -77,7 +84,22 @@ public class BucketThawer {
 				.listFilteredBucketsAtIndex(index, earliestTime, latestTime);
 		for (Bucket bucket : bucketsToThaw)
 			if (!isBucketAlreadyThawed(bucket))
-				getThawedBucketFromArchive(bucket);
+				thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
+						new ThawBucketFromArchive());
+	}
+
+	/**
+	 * Class to call from the {@link BucketLocker}. Thaws bucket from archive
+	 * during bucket lock. It simply calls a method in this class. It is all
+	 * synchronous and not asynchronous as it might seem.
+	 */
+	private class ThawBucketFromArchive implements SharedLockBucketHandler {
+
+		@Override
+		public void handleSharedLockedBucket(Bucket bucket) {
+			BucketThawer.this.thawBucketFromArchive(bucket);
+		}
+
 	}
 
 	/**
@@ -103,7 +125,7 @@ public class BucketThawer {
 						"exception", e));
 	}
 
-	private void getThawedBucketFromArchive(Bucket bucket) {
+	private void thawBucketFromArchive(Bucket bucket) {
 		try {
 			Bucket thawedBucket = getsBucketsFromArchive.getBucketFromArchive(bucket);
 			successfulThawedBuckets.add(thawedBucket);

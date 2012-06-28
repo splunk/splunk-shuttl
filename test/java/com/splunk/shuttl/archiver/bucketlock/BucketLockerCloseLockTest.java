@@ -20,8 +20,6 @@ import org.mockito.InOrder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.bucketlock.BucketLock;
-import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerTest.NoOpBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -42,7 +40,7 @@ public class BucketLockerCloseLockTest {
 		bucketLocker = new BucketLocker() {
 
 			@Override
-			protected BucketLock getLockForBucket(Bucket bucket) {
+			public BucketLock getLockForBucket(Bucket bucket) {
 				return bucketLock;
 			}
 		};

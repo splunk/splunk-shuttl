@@ -12,27 +12,29 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.archive.recovery;
+package com.splunk.shuttl.archiver.thaw;
 
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
- * {@link BucketLocker} locking buckets during the archiving process.
+ * {@link BucketLocker} during the thaw process.
  */
-public class ArchiveBucketLocker extends BucketLocker {
+public class ThawBucketLocker extends BucketLocker {
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.splunk.shuttl.archiver.archive.recovery.BucketLocker#getLockForBucket
-	 * (com.splunk.shuttl.archiver.model.Bucket)
+	 * com.splunk.shuttl.archiver.bucketlock.BucketLocker#getLockForBucket(com
+	 * .splunk.shuttl.archiver.model.Bucket)
 	 */
 	@Override
 	public BucketLock getLockForBucket(Bucket bucket) {
-		return new ArchiveBucketLock(bucket);
+		return new BucketLock(bucket,
+				LocalFileSystemConstants.getThawLocksDirectory());
 	}
 
 }

@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static java.util.Arrays.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -27,6 +28,9 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.bucketlock.BucketLock;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
+import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer.FailedBucket;
@@ -43,14 +47,16 @@ public class BucketThawerTest {
 	private Date latestTime;
 	private Bucket bucket;
 	private ThawLocationProvider thawLocationProvider;
+	private BucketLocker thawBucketLocker;
 
 	@BeforeMethod
 	public void setUp() {
 		listsBucketsFiltered = mock(ListsBucketsFiltered.class);
 		getsBucketsFromArchive = mock(GetsBucketsFromArchive.class);
 		thawLocationProvider = mock(ThawLocationProvider.class);
+		thawBucketLocker = new BucketLockerInTestDir(createDirectory());
 		bucketThawer = new BucketThawer(listsBucketsFiltered,
-				getsBucketsFromArchive, thawLocationProvider);
+				getsBucketsFromArchive, thawLocationProvider, thawBucketLocker);
 
 		index = "foo";
 		earliestTime = new Date();
@@ -105,6 +111,17 @@ public class BucketThawerTest {
 
 		bucketThawer.thawBuckets(index, earliestTime, latestTime);
 		assertEquals(bucket, bucketThawer.getFailedBuckets().get(0).bucket);
+		verifyZeroInteractions(getsBucketsFromArchive);
+	}
+
+	public void thawBuckets_bucketIsAlreadyLocked_doesNotThaw() {
+		BucketLock bucketLock = thawBucketLocker.getLockForBucket(bucket);
+		assertTrue(bucketLock.tryLockExclusive());
+		when(
+				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
+						latestTime)).thenReturn(asList(bucket));
+
+		bucketThawer.thawBuckets(index, earliestTime, latestTime);
 		verifyZeroInteractions(getsBucketsFromArchive);
 	}
 

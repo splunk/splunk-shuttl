@@ -85,4 +85,10 @@ public class LocalFileSystemConstantsTest {
 		assertExistsInsideArchiverDirectory(LocalFileSystemConstants
 				.getCsvDirectory());
 	}
+
+	public void getThawLocksDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
+		assertDoesNotExist(LocalFileSystemConstants.THAW_LOCKS_PATH);
+		assertExistsInsideArchiverDirectory(LocalFileSystemConstants
+				.getThawLocksDirectory());
+	}
 }

@@ -16,8 +16,6 @@ package com.splunk.shuttl.archiver.bucketlock;
 
 import java.io.File;
 
-import com.splunk.shuttl.archiver.bucketlock.BucketLock;
-import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -44,7 +42,7 @@ public class BucketLockerInTestDir extends BucketLocker {
 	}
 
 	@Override
-	protected BucketLock getLockForBucket(Bucket bucket) {
+	public BucketLock getLockForBucket(Bucket bucket) {
 		return new BucketLock(bucket, directory);
 	}
 }

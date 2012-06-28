@@ -27,8 +27,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.bucketlock.BucketLock;
-import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -47,7 +45,7 @@ public class BucketLockerTest {
 		bucketLocker = new BucketLocker() {
 
 			@Override
-			protected BucketLock getLockForBucket(Bucket bucket) {
+			public BucketLock getLockForBucket(Bucket bucket) {
 				return new BucketLock(bucket, tempTestDirectory);
 			}
 		};

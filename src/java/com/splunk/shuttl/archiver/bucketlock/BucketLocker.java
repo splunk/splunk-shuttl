@@ -36,15 +36,14 @@ public abstract class BucketLocker {
 	 * @return {@link BucketLock} instance for bucket, which knows where the
 	 *         buckets are stored.
 	 */
-	protected abstract BucketLock getLockForBucket(Bucket bucket);
+	public abstract BucketLock getLockForBucket(Bucket bucket);
 
 	/**
 	 * Method exists for verifying that {@link BucketLock} is closed, whether it
 	 * gets the lock or not.
 	 */
-	private void callBucketHandlerWithBucketSharedLock(
-			BucketLock bucketLock, Bucket bucket,
-			SharedLockBucketHandler bucketHandler) {
+	private void callBucketHandlerWithBucketSharedLock(BucketLock bucketLock,
+			Bucket bucket, SharedLockBucketHandler bucketHandler) {
 		try {
 			executeBucketHandlerIfSharedLockIsAcquired(bucketLock, bucket,
 					bucketHandler);
