@@ -73,10 +73,9 @@ public class Bucket {
 	 * 
 	 * @see Bucket#Bucket(String, File)
 	 */
-	public Bucket(String index, File directory, Long size)
+	public Bucket(String index, File directory, BucketFormat format, Long size)
 			throws FileNotFoundException, FileNotDirectoryException {
-		this(directory.toURI(), directory, index, directory.getName(), BucketFormat
-				.getFormatFromDirectory(directory), size);
+		this(directory.toURI(), directory, index, directory.getName(), format, size);
 	}
 
 	/**

@@ -76,9 +76,10 @@ public class BucketFactory {
 	 * Creates a bucket with index, directory and size.
 	 */
 	public Bucket createWithIndexDirectoryAndSize(String index, File bucketFile,
+			BucketFormat format,
 			Long size) {
 		try {
-			return new Bucket(index, bucketFile, size);
+			return new Bucket(index, bucketFile, format, size);
 		} catch (FileNotFoundException e) {
 			logFileNotFoundException(bucketFile, e);
 			throw new RuntimeException(e);

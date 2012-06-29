@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.FileOverwriteException;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -50,7 +49,7 @@ public class ThawBucketTransferer {
 		File bucketsThawLocation = moveTransferedBucketToThawLocation(bucket,
 				thawTransferLocation);
 		return bucketFactory.createWithIndexDirectoryAndSize(bucket.getIndex(),
-				bucketsThawLocation, bucket.getSize());
+				bucketsThawLocation, bucket.getFormat(), bucket.getSize());
 	}
 
 	private File thawBucketToTransferLocation(Bucket bucket)
@@ -67,10 +66,5 @@ public class ThawBucketTransferer {
 				.getLocationInThawForBucket(bucket);
 		thawTransferLocation.renameTo(bucketsThawLocation);
 		return bucketsThawLocation;
-	}
-
-	private File getBucketTempTransferPath(Bucket bucket) {
-		File transferTemp = LocalFileSystemConstants.getThawTransfersDirectory();
-		return new File(transferTemp, bucket.getName());
 	}
 }
