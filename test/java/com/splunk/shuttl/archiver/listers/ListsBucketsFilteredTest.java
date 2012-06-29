@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
-import com.splunk.shuttl.archiver.thaw.BucketSizeResolver;
 
 @Test(groups = { "fast-unit" })
 public class ListsBucketsFilteredTest {
@@ -39,7 +38,6 @@ public class ListsBucketsFilteredTest {
 	private ListsBucketsFiltered listsBucketsFiltered;
 	private Date earliestTime;
 	private Date latestTime;
-	private BucketSizeResolver bucketSizeResolver;
 
 	@BeforeMethod
 	public void setUp() {
@@ -49,9 +47,8 @@ public class ListsBucketsFilteredTest {
 		archiveBucketsLister = mock(ArchiveBucketsLister.class);
 		bucketFilter = mock(BucketFilter.class);
 		bucketFormatResolver = mock(BucketFormatResolver.class);
-		bucketSizeResolver = mock(BucketSizeResolver.class);
 		listsBucketsFiltered = new ListsBucketsFiltered(archiveBucketsLister,
-				bucketFilter, bucketFormatResolver, bucketSizeResolver);
+				bucketFilter, bucketFormatResolver);
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -78,22 +75,13 @@ public class ListsBucketsFilteredTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void _givenBucketsWithFormats_giveBucketsSizes() {
+	public void _givenFilteredBuckets_returnThoseBuckets() {
 		List<Bucket> bucketsWithFormats = asList(mock(Bucket.class));
 		when(bucketFormatResolver.resolveBucketsFormats(anyList())).thenReturn(
 				bucketsWithFormats);
-		listsBucketsFiltered.listFilteredBucketsAtIndex("foo", earliestTime,
-				latestTime);
-		verify(bucketSizeResolver).resolveBucketsSizes(bucketsWithFormats);
-	}
 
-	@SuppressWarnings("unchecked")
-	public void _givenBucketsWithSizes_returnThoseBuckets() {
-		List<Bucket> bucketsWithSizes = asList(mock(Bucket.class));
-		when(bucketSizeResolver.resolveBucketsSizes(anyList())).thenReturn(
-				bucketsWithSizes);
 		List<Bucket> filteredBucketsAtIndex = listsBucketsFiltered
 				.listFilteredBucketsAtIndex("foo", earliestTime, latestTime);
-		assertEquals(bucketsWithSizes, filteredBucketsAtIndex);
+		assertEquals(bucketsWithFormats, filteredBucketsAtIndex);
 	}
 }

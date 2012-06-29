@@ -15,11 +15,9 @@
 package com.splunk.shuttl.archiver.listers;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolverFactory;
-import com.splunk.shuttl.archiver.thaw.BucketSizeResolver;
 
 /**
  * Factory for creating {@link ListsBucketsFiltered} instances.
@@ -37,8 +35,7 @@ public class ListsBucketsFilteredFactory {
 		BucketFormatResolver bucketFormatResolver = BucketFormatResolverFactory
 				.create(config);
 		return new ListsBucketsFiltered(bucketsLister, bucketFilter,
-				bucketFormatResolver, new BucketSizeResolver(
-						ArchiveBucketSize.create(config)));
+				bucketFormatResolver);
 	}
 
 }

@@ -17,8 +17,6 @@ package com.splunk.shuttl.archiver.thaw;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -26,7 +24,7 @@ import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
- * Resolves sizes for buckets.
+ * Resolves sizes for buckets that has been thawed.
  */
 public class BucketSizeResolver {
 
@@ -37,20 +35,18 @@ public class BucketSizeResolver {
 
 	/**
 	 * @param archiveBucketSize
+	 *          to get the size from the archive.
 	 */
 	public BucketSizeResolver(ArchiveBucketSize archiveBucketSize) {
 		this.archiveBucketSize = archiveBucketSize;
 	}
 
 	/**
-	 * Takes a list of buckets and gives the buckets the size which is persisted
-	 * in the archive file system.
+	 * @param bucket
+	 *          that needs size to be resolved from the archive.
 	 */
-	public List<Bucket> resolveBucketsSizes(List<Bucket> bucketsWithFormats) {
-		ArrayList<Bucket> bucketsWithSize = new ArrayList<Bucket>();
-		for (Bucket bucket : bucketsWithFormats)
-			bucketsWithSize.add(createBucketWithSize(bucket));
-		return bucketsWithSize;
+	public Bucket resolveBucketSize(Bucket bucket) {
+		return createBucketWithSize(bucket);
 	}
 
 	private Bucket createBucketWithSize(Bucket bucket) {
@@ -63,12 +59,14 @@ public class BucketSizeResolver {
 			return new Bucket(bucket.getURI(), bucket.getIndex(), bucket.getName(),
 					bucket.getFormat(), size);
 		} catch (IOException e) {
-			logger
-					.error(did("Tried creating " + "bucket with size", e,
-							"To create a bucket from " + "an existing bucket object"
-									+ " keeping everything but size.", "bucket", bucket, "size",
-							size));
+			logIOException(bucket, size, e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	private void logIOException(Bucket bucket, long size, IOException e) {
+		logger.error(did("Tried creating " + "bucket with size", e,
+				"To create a bucket from " + "an existing bucket object"
+						+ " keeping everything but size.", "bucket", bucket, "size", size));
 	}
 }

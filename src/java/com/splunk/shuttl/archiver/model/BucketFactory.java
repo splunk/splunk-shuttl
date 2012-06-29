@@ -34,8 +34,8 @@ public class BucketFactory {
 
 	/**
 	 * Instance method for
-	 * {@link BucketFactory#createWithIndexAndDirectory(String, File), which makes
-	 * it mockable and testable.
+	 * {@link BucketFactory#createWithIndexAndDirectory(String, File)}, which
+	 * makes it mockable and testable.
 	 */
 	public Bucket createWithIndexAndDirectory(String index, File bucketFile) {
 		return BucketFactory.createBucketWithIndexAndDirectory(index, bucketFile);
@@ -73,11 +73,21 @@ public class BucketFactory {
 	}
 
 	/**
-	 * Creates a bucket with index, directory and size.
+	 * Instance method for
+	 * {@link BucketFactory#createBucketWithIndexDirectoryAndSize}, which makes it
+	 * mockable and testable.
 	 */
 	public Bucket createWithIndexDirectoryAndSize(String index, File bucketFile,
-			BucketFormat format,
-			Long size) {
+			BucketFormat format, Long size) {
+		return createBucketWithIndexDirectoryAndSize(index, bucketFile, format,
+				size);
+	}
+
+	/**
+	 * Creates a bucket with index, directory and size.
+	 */
+	public static Bucket createBucketWithIndexDirectoryAndSize(String index,
+			File bucketFile, BucketFormat format, Long size) {
 		try {
 			return new Bucket(index, bucketFile, format, size);
 		} catch (FileNotFoundException e) {
