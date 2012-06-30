@@ -12,9 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.archive.recovery;
-
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
+package com.splunk.shuttl.archiver.bucketlock;
 
 import java.io.File;
 
@@ -28,14 +26,6 @@ import com.splunk.shuttl.archiver.util.UtilsFile;
 public class BucketLock extends SimpleFileLock {
 
 	private final File lockFile;
-
-	/**
-	 * @param bucket
-	 *          to create lock for.
-	 */
-	public BucketLock(Bucket bucket) {
-		this(bucket, getLocksDirectory());
-	}
 
 	public BucketLock(Bucket bucket, File locksDirectory) {
 		super(UtilsFile.getRandomAccessFileSilent(
@@ -62,6 +52,6 @@ public class BucketLock extends SimpleFileLock {
 	 * @return true if the file was deleted, false otherwise.
 	 */
 	public boolean deleteLockFile() {
-		return getLockFile().delete();
+		return lockFile.delete();
 	}
 }

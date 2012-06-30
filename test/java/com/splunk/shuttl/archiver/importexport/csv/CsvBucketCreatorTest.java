@@ -60,6 +60,13 @@ public class CsvBucketCreatorTest {
 		assertEquals(csvBucket.getName(), fileWithoutExtension);
 	}
 
+	public void _givenCsvFileAndBucket_newBucketObjectKeepsOldBucketSize() {
+		Bucket newBucket = csvBucketCreator
+				.createBucketWithCsvFile(csvFile, bucket);
+		assertEquals(bucket.getSize(), newBucket.getSize());
+
+	}
+
 	public void _givenCsvFile_createsBucketInParentFileToCsvFile() {
 		Bucket csvBucket = csvBucketCreator
 				.createBucketWithCsvFile(csvFile, bucket);

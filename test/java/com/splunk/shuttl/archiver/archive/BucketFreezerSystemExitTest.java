@@ -16,6 +16,7 @@
 package com.splunk.shuttl.archiver.archive;
 
 import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -27,9 +28,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
 /**
@@ -45,8 +46,8 @@ public class BucketFreezerSystemExitTest {
 	public void setUp() {
 		runtimeMock = mock(Runtime.class);
 		bucketFreezer = new BucketFreezer(new BucketMover(getSafeDirectory()),
-				new BucketLocker(), mock(ArchiveRestHandler.class),
-				mock(FailedBucketsArchiver.class));
+				new BucketLockerInTestDir(createDirectory()),
+				mock(ArchiveRestHandler.class), mock(FailedBucketsArchiver.class));
 	}
 
 	@AfterMethod(groups = { "fast-unit" })

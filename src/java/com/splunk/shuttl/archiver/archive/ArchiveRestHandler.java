@@ -35,7 +35,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.ShuttlConstants;
-import com.splunk.shuttl.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.server.mbeans.rest.ListBucketsEndpoint;
 

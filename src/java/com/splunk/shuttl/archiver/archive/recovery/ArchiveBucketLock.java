@@ -12,30 +12,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.server.services;
+package com.splunk.shuttl.archiver.archive.recovery;
+
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
+import com.splunk.shuttl.archiver.bucketlock.BucketLock;
+import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
- * @author kpakkirisamy
- * 
+ * Lock for a bucket during the archiving process. See {@link BucketLock}
  */
-public interface SplunkService {
-	public static String RUNNING = "running";
-	public static String STOPPED = "stopped";
+public class ArchiveBucketLock extends BucketLock {
 
-	/**
-	 * Starts the service
-	 */
-	public void start() throws Exception;
+	public ArchiveBucketLock(Bucket bucket) {
+		super(bucket, LocalFileSystemConstants.getArchiveLocksDirectory());
+	}
 
-	/**
-	 * Stops the service
-	 */
-	public void stop() throws Exception;
-
-	/**
-	 * returns a status message
-	 * 
-	 * @return
-	 */
-	public String getStatus();
 }

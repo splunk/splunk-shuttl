@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.BucketFactory;
 
 /**
  * Transfers and restores {@link Bucket}s from the archive to the local disk.
@@ -31,15 +32,18 @@ public class GetsBucketsFromArchive {
 
 	private final ThawBucketTransferer thawBucketTransferer;
 	private final BucketImporter bucketImporter;
+	private final BucketSizeResolver bucketSizeResolver;
 
 	/**
 	 * @param thawBucketTransferer
 	 * @param bucketImporter
+	 * @param bucketSizeResolver
 	 */
 	public GetsBucketsFromArchive(ThawBucketTransferer thawBucketTransferer,
-			BucketImporter bucketImporter) {
+			BucketImporter bucketImporter, BucketSizeResolver bucketSizeResolver) {
 		this.thawBucketTransferer = thawBucketTransferer;
 		this.bucketImporter = bucketImporter;
+		this.bucketSizeResolver = bucketSizeResolver;
 	}
 
 	/**
@@ -53,9 +57,12 @@ public class GetsBucketsFromArchive {
 			throws ThawTransferFailException, ImportThawedBucketFailException {
 		logger.info(will("Attempting to thaw bucket", "bucket", bucket));
 		Bucket thawedBucket = getTransferedBucket(bucket);
-		Bucket thawedImportedBucket = importThawedBucket(thawedBucket);
-		logger.info(done("Thawed bucket", "bucket", thawedImportedBucket));
-		return thawedImportedBucket;
+		Bucket importedBucket = importThawedBucket(thawedBucket);
+		Bucket bucketWithSize = bucketSizeResolver.resolveBucketSize(thawedBucket);
+		logger.info(done("Thawed bucket", "bucket", importedBucket));
+		return BucketFactory.createBucketWithIndexDirectoryAndSize(
+				importedBucket.getIndex(), importedBucket.getDirectory(),
+				importedBucket.getFormat(), bucketWithSize.getSize());
 	}
 
 	private Bucket getTransferedBucket(Bucket bucket)

@@ -22,6 +22,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.xml.XmlConfiguration;
 
+import com.splunk.shuttl.archiver.StartUpCleaner;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
 
 /**
@@ -54,6 +55,7 @@ public class ShuttlJettyServer {
 					c.setPort(servermbean.getHttpPort());
 				}
 			}
+			StartUpCleaner.create().clean();
 			server.start();
 		} catch (Exception e) {
 			logger.error("Error during startup", e);

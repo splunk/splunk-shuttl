@@ -50,14 +50,16 @@ public class ThawBucketTransfererTest {
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void _givenBucket_transferBucketFromArchiveToPathWhereParentIsThawLocation()
+	public void _givenBucket_transferBucketFromArchiveToLocationThatIsNotThawLocation()
 			throws IOException {
-		File bucketLocation = createDirectory();
-		when(thawLocationProvider.getLocationInThawForBucket(bucket)).thenReturn(
-				bucketLocation);
+		stub(thawLocationProvider.getLocationInThawForBucket(bucket)).toReturn(
+				createDirectory());
+		File transferDirectory = createDirectory();
+		when(thawLocationProvider.getThawTransferLocation(bucket)).thenReturn(
+				transferDirectory);
 		bucketTransferer.transferBucketToThaw(bucket);
 
-		verify(archiveFileSystem).getFile(bucketLocation, bucket.getURI());
+		verify(archiveFileSystem).getFile(transferDirectory, bucket.getURI());
 	}
 
 	public void _whenArchiveFileSystemThrowsIOException_keepThrowing()
@@ -74,6 +76,8 @@ public class ThawBucketTransfererTest {
 
 	public void _givenSuccessfulTransfer_returnBucketTransferedBucketOnLocalDisk()
 			throws IOException {
+		stub(thawLocationProvider.getThawTransferLocation(any(Bucket.class)))
+				.toReturn(createDirectory());
 		Bucket bucketToTransfer = TUtilsBucket.createBucket();
 		File bucketLocationOnLocalDisk = createDirectory();
 		Bucket bucketOnLocalDisk = mock(Bucket.class);
@@ -83,10 +87,12 @@ public class ThawBucketTransfererTest {
 		when(
 				bucketFactory.createWithIndexDirectoryAndSize(
 						bucketToTransfer.getIndex(), bucketLocationOnLocalDisk,
-						bucketToTransfer.getSize())).thenReturn(bucketOnLocalDisk);
+						bucketToTransfer.getFormat(), bucketToTransfer.getSize()))
+				.thenReturn(bucketOnLocalDisk);
 
 		Bucket actualBucket = bucketTransferer
 				.transferBucketToThaw(bucketToTransfer);
 		assertEquals(bucketOnLocalDisk, actualBucket);
 	}
+
 }

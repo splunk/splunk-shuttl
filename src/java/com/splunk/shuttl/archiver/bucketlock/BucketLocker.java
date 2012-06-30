@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.archive.recovery;
+package com.splunk.shuttl.archiver.bucketlock;
 
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -20,7 +20,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
  * Class for locking buckets, synchronizing usages of buckets by locking a
  * bucket before using/modifying it.
  */
-public class BucketLocker {
+public abstract class BucketLocker {
 
 	/**
 	 * LockedBucketHandler is not executed if the bucket cannot be locked
@@ -28,17 +28,22 @@ public class BucketLocker {
 	 */
 	public void callBucketHandlerUnderSharedLock(Bucket bucket,
 			SharedLockBucketHandler bucketHandler) {
-		callBucketHandlerWithBucketSharedLock(new BucketLock(bucket), bucket,
+		callBucketHandlerWithBucketSharedLock(getLockForBucket(bucket), bucket,
 				bucketHandler);
 	}
+
+	/**
+	 * @return {@link BucketLock} instance for bucket, which knows where the
+	 *         buckets are stored.
+	 */
+	public abstract BucketLock getLockForBucket(Bucket bucket);
 
 	/**
 	 * Method exists for verifying that {@link BucketLock} is closed, whether it
 	 * gets the lock or not.
 	 */
-	/* package-private */void callBucketHandlerWithBucketSharedLock(
-			BucketLock bucketLock, Bucket bucket,
-			SharedLockBucketHandler bucketHandler) {
+	private void callBucketHandlerWithBucketSharedLock(BucketLock bucketLock,
+			Bucket bucket, SharedLockBucketHandler bucketHandler) {
 		try {
 			executeBucketHandlerIfSharedLockIsAcquired(bucketLock, bucket,
 					bucketHandler);

@@ -39,10 +39,11 @@ import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
-@Test(enabled = false, groups = { "functional" })
+@Test(groups = { "end-to-end" })
 public class ImportCsvFunctionalTest {
 
 	private ArchiveConfiguration localCsvArchiveConfigration;
@@ -73,18 +74,31 @@ public class ImportCsvFunctionalTest {
 
 	@Parameters(value = { "splunk.home" })
 	public void _givenArchivedCsvBucket_thawedBucketEqualsArchivedRealBucket(
-			String splunkHome) throws FileNotFoundException,
+			final String splunkHome) throws FileNotFoundException,
 			FileNotDirectoryException {
+		final long sizeOfRealBucket = sizeOfBucket(realBucket);
 		archiveBucketAsCsvWithExportToolThatNeedsSplunkHome(splunkHome);
-		csvThawer.thawBuckets(realBucket.getIndex(), realBucket.getEarliest(),
-				realBucket.getLatest());
-		List<Bucket> thawedBuckets = csvThawer.getThawedBuckets();
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
-		assertEquals(1, thawedBuckets.size());
-		Bucket thawedBucket = thawedBuckets.get(0);
-		TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(realBucket,
-				thawedBucket);
-		assertEquals(sizeOfBucket(realBucket), sizeOfBucket(thawedBucket));
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				thawBucketAndComparePropertiesToRealBucket(sizeOfRealBucket);
+			}
+
+			private void thawBucketAndComparePropertiesToRealBucket(
+					final long sizeOfRealBucket) {
+				csvThawer.thawBuckets(realBucket.getIndex(), realBucket.getEarliest(),
+						realBucket.getLatest());
+				List<Bucket> thawedBuckets = csvThawer.getThawedBuckets();
+
+				assertEquals(1, thawedBuckets.size());
+				Bucket thawedBucket = thawedBuckets.get(0);
+				TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(realBucket,
+						thawedBucket);
+				assertEquals(sizeOfRealBucket, (long) thawedBucket.getSize());
+			}
+		});
 	}
 
 	private void archiveBucketAsCsvWithExportToolThatNeedsSplunkHome(

@@ -35,12 +35,15 @@ public class ThawLocationProviderTest {
 	SplunkSettings splunkSettings;
 	Bucket bucket;
 	File thawLocation;
+	File transferLocation;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
 		bucket = TUtilsBucket.createBucket();
 		splunkSettings = mock(SplunkSettings.class);
-		thawLocationProvider = new ThawLocationProvider(splunkSettings);
+		transferLocation = createDirectory();
+		thawLocationProvider = new ThawLocationProvider(splunkSettings,
+				transferLocation);
 
 		stubSplunkSettingsToReturnThawLocation();
 	}
@@ -61,10 +64,32 @@ public class ThawLocationProviderTest {
 				.getParentFile().getAbsolutePath());
 	}
 
-	public void getLocationInThawForBucket_givenThawLocation_directoryHasNameOfBucket()
+	public void getLocationInThawForBucket_givenThawLocation_directoryHasNameOfBucketForUniquness()
 			throws IOException {
 		File bucketsLocation = thawLocationProvider
 				.getLocationInThawForBucket(bucket);
 		assertEquals(bucket.getName(), bucketsLocation.getName());
+	}
+
+	public void getThawTransferLocation_givenTransferLocation_fileIsInTransferLocation() {
+		File transferLoc = thawLocationProvider.getThawTransferLocation(bucket);
+		assertEquals(transferLocation.getAbsolutePath(), transferLoc
+				.getParentFile().getAbsolutePath());
+	}
+
+	public void getThawTransferLocation_givenTransferLocation_fileHasNameOfBucketForUniquness() {
+		File transferLoc = thawLocationProvider.getThawTransferLocation(bucket);
+		assertEquals(bucket.getName(), transferLoc.getName());
+	}
+
+	public void getThawTransferLocation_locationExists_deletesLocationReturningANonExistingDirectory()
+			throws IOException {
+		File transferLoc = thawLocationProvider.getThawTransferLocation(bucket);
+		transferLoc.createNewFile();
+		assertTrue(transferLoc.exists());
+		File secondLocation = thawLocationProvider.getThawTransferLocation(bucket);
+		assertEquals(transferLoc.getAbsolutePath(),
+				secondLocation.getAbsolutePath());
+		assertFalse(secondLocation.exists());
 	}
 }
