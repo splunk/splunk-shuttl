@@ -63,40 +63,41 @@ public class BucketFreezerSystemExitTest {
 		verify(runtimeMock).exit(0);
 	}
 
-	public void main_noArguments_returnCodeMinus1() {
+	public void main_noArguments_exitWithIncorrectArgumentsConstant() {
 		runMainWithDepentencies_withArguments();
-		verify(runtimeMock).exit(-1);
+		verify(runtimeMock).exit(BucketFreezer.EXIT_INCORRECT_ARGUMENTS);
 	}
 
-	public void main_oneArgument_returnCodeMinus1() {
+	public void main_oneArgument_exitWithIncorrectArgumentsConstant() {
 		runMainWithDepentencies_withArguments("index-name");
-		verify(runtimeMock).exit(-1);
+		verify(runtimeMock).exit(BucketFreezer.EXIT_INCORRECT_ARGUMENTS);
 	}
 
-	public void main_threeArguments_returnCodeMinus1() {
+	public void main_threeArguments_exitWithIncorrectArgumentsConstant() {
 		runMainWithDepentencies_withArguments("index-name", "/path/to/file",
 				"too-many-arguments");
-		verify(runtimeMock).exit(-1);
+		verify(runtimeMock).exit(BucketFreezer.EXIT_INCORRECT_ARGUMENTS);
 	}
 
-	public void main_tooManyArguments_returnCodeMinus1() {
+	public void main_tooManyArguments_exitWithIncorrectArgumentsConstant() {
 		runMainWithDepentencies_withArguments("index-name", "/path/to/file",
 				"too-many-arguments", "too", "many", "arguments");
-		verify(runtimeMock).exit(-1);
+		verify(runtimeMock).exit(BucketFreezer.EXIT_INCORRECT_ARGUMENTS);
 	}
 
-	public void main_fileNotADirectory_returnCodeMinus2() throws IOException {
+	public void main_fileNotADirectory_exitWithFileNotADirectoryConstant()
+			throws IOException {
 		File file = File.createTempFile("ArchiveTest", ".tmp");
 		file.deleteOnExit();
 		assertTrue(!file.isDirectory());
 		runMainWithDepentencies_withArguments("index-name", file.getAbsolutePath());
-		verify(runtimeMock).exit(-2);
+		verify(runtimeMock).exit(BucketFreezer.EXIT_FILE_NOT_A_DIRECTORY);
 	}
 
-	public void main_nonExistingFile_returnMinus3() {
+	public void main_nonExistingFile_exitWithFileNotFoundConstant() {
 		File file = TUtilsFile.createFilePath();
 		runMainWithDepentencies_withArguments("index-name", file.getAbsolutePath());
-		verify(runtimeMock).exit(-3);
+		verify(runtimeMock).exit(BucketFreezer.EXIT_FILE_NOT_FOUND);
 	}
 
 	private void runMainWithDepentencies_withArguments(String... args) {
