@@ -23,12 +23,7 @@ set -u
 
 cd $SPLUNK_HOME/etc/apps/shuttl/
 
-# the path to the bucket dir is passed in
-bucket=$1
-
-# derive the index name from the path
-index=`dirname $1`
-index=`dirname $index`
-index=`basename $index`
+index=$1
+bucket=$2
 
 exec -a splunk-bucket-freezer $JAVA_HOME/bin/java -cp ./bin/*:./lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $index $bucket
