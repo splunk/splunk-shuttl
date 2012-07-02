@@ -11,6 +11,7 @@
 	<property name="flume.home" value="${contribdir}/flume-0.9.3-CDH3B4" />
 	<property name="builddir" value="${basedir}/build" />
 	<property name="build-cache" value="${basedir}/build-cache" />
+	<property name="build-cache.absolute" location="${build-cache}" />
 	<property name="classdir" value="${builddir}/classes" />
 	<property name="test-classdir" value="${builddir}/testclasses" />
 	<property name="testng.jar" value="testng-6.4.jar" />
@@ -50,6 +51,11 @@
 	<property name="eclipse.utils" value="${contribdir}/eclipse-utils" />
 	<property name="eclipse.classpath.original" value="${eclipse.utils}/.classpath" />
 	<property name="eclipse.classpath.configurable" value="${basedir}/.classpath" />
+
+	<!-- manual testing properties -->
+	<property name="manual.testing.dir" value="${basedir}/test/manual" />
+	<property name="manual.testing.confs.dir" value="${manual.testing.dir}/conf" />
+
 
 	<path id="build.classpath">
 		<pathelement location="${splunk-sdk}/splunk.jar" />
@@ -733,6 +739,34 @@
 		</antcall>
 	</target>
 	<!-- END Archiver-UI -->
+
+	<!-- Set Splunk up for manual testing with splunk bucket format archiving -->
+	<!-- See https://github.com/splunk/splunk-shuttl/issues/47 -->
+	<target name="manual-test-format-splunk-bucket">
+		<property name="manual.test.archiver.conf.name" value="archiver-splunk_bucket.xml" />
+		<antcall target="manual-test-setup" />
+	</target>
+
+	<!-- How to use target: Set the property 'manual.test.archiver.conf.name' to a -->
+	<!-- file in 'manual.testing.archiver.conf.dir' -->
+	<target name="manual-test-setup">
+		<fail unless="manual.test.archiver.conf.name" message="Property manual.test.archiver.conf.name must be set before calling manual-test-setup to know which config to configure shuttl with." />
+		<antcall>
+			<target name="splunk-unpack-if-not-extracted" />
+			<target name="install-shuttl-splunk-app" />
+			<target name="manual-test-configure-shuttl-archiver-conf">
+			</target>
+		</antcall>
+	</target>
+
+	<target name="manual-test-configure-shuttl-archiver-conf" depends="set-shuttl-app-home">
+		<property name="shuttl.archiver.conf" value="${shuttl.app.home}/conf/archiver.xml" />
+		<copy file="${manual.testing.confs.dir}/${manual.test.archiver.conf.name}" tofile="${shuttl.archiver.conf}" overwrite="true" />
+
+		<replace file="${shuttl.archiver.conf}">
+			<replacefilter token="@ABSOLUTE_PATH_TO_BUILD_CACHE@" value="${build-cache.absolute}" />
+		</replace>
+	</target>
 
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties>
