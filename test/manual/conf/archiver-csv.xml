@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:archiverConf xmlns:ns2="com.splunk.shuttl.server.model">
+    <archiverRootURI>file:/@ABSOLUTE_PATH_TO_BUILD_CACHE@/local_archiver/archiver_data</archiverRootURI>
+    <tmpDirectory>/tmp_directory</tmpDirectory>
+    <clusterName>cluster_name</clusterName>
+    <serverName>server_name</serverName>
+    <indexNames>
+        <indexName>main</indexName>
+        <indexName>shuttl</indexName>
+    </indexNames>
+    <archiveFormat>CSV</archiveFormat>
+</ns2:archiverConf>
