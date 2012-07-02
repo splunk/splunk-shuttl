@@ -74,7 +74,7 @@ public class ArchiveConfiguration {
 		String clusterName = mBean.getClusterName();
 		String serverName = mBean.getServerName();
 		List<BucketFormat> bucketFormatPriority = createFormatPriorityList(mBean);
-		URI tmpDirectory = extracted(mBean, archivingRoot);
+		URI tmpDirectory = getTmpDirectoryFromArchivingRoot(mBean, archivingRoot);
 		return new ArchiveConfiguration(bucketFormat, archivingRoot, clusterName,
 				serverName, bucketFormatPriority, tmpDirectory);
 	}
@@ -89,7 +89,7 @@ public class ArchiveConfiguration {
 		return archiveFormat != null ? BucketFormat.valueOf(archiveFormat) : null;
 	}
 
-	private static URI extracted(ShuttlArchiverMBean mBean, URI archivingRoot) {
+	private static URI getTmpDirectoryFromArchivingRoot(ShuttlArchiverMBean mBean, URI archivingRoot) {
 		String tmpDir = mBean.getTmpDirectory();
 		return tmpDir != null ? archivingRoot.resolve(tmpDir) : null;
 	}

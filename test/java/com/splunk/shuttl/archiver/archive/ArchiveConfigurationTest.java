@@ -113,11 +113,18 @@ public class ArchiveConfigurationTest {
 		assertNull(createConfiguration().getTmpDirectory());
 	}
 
-	public void getTmpDirectory_givenArchivingRootUriAndTmpDirectoryString_combineForTmpDirectoryUri() {
-		when(mBean.getArchiverRootURI()).thenReturn("valid:/uri");
+	public void getTmpDirectory_givenArchivingRootUriAndTmpDirectoryWithARoot_pathIsAbsolute() {
+		when(mBean.getArchiverRootURI()).thenReturn("valid:/uri/archiver/data");
 		when(mBean.getTmpDirectory()).thenReturn("/tmp");
 		URI tmpDirectory = createConfiguration().getTmpDirectory();
 		assertEquals(URI.create("valid:/tmp"), tmpDirectory);
+	}
+
+	public void getTmpDirectory_givenArchivingRootUriAndTmpDirectoryWithoutRoot_pathIsRelative() {
+		when(mBean.getArchiverRootURI()).thenReturn("valid:/uri/archiver/data");
+		when(mBean.getTmpDirectory()).thenReturn("tmp");
+		URI tmpDirectory = createConfiguration().getTmpDirectory();
+		assertEquals(URI.create("valid:/uri/archiver/tmp"), tmpDirectory);
 	}
 
 	public void getTmpDirectory_givenUriWithHostAndPort_keepingHostAndPortInUri() {
