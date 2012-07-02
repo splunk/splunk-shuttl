@@ -761,6 +761,7 @@
 			<target name="install-shuttl-splunk-app" />
 			<target name="manual-test-configure-shuttl-archiver-conf">
 			</target>
+			<target name="manual-test-create-fast-rolling-index" />
 		</antcall>
 	</target>
 
@@ -771,6 +772,14 @@
 		<replace file="${shuttl.archiver.conf}">
 			<replacefilter token="@ABSOLUTE_PATH_TO_BUILD_CACHE@" value="${build-cache.absolute}" />
 		</replace>
+	</target>
+
+	<target name="manual-test-create-fast-rolling-index">
+		<concat destfile="${shuttl.app.home}/default/indexes.conf" append="true">
+			<filelist dir="${manual.testing.confs.dir}" files="fast-rolling-indexes.conf">
+			</filelist>
+		</concat>
+		<echo>Created index that rolls fast for archiver testing: 'archiver-test-index'</echo>
 	</target>
 
 	<target name="versionized-jar-name" depends="version">
