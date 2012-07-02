@@ -747,6 +747,11 @@
 		<antcall target="manual-test-setup" />
 	</target>
 
+	<target name="manual-test-format-csv">
+		<property name="manual.test.archiver.conf.name" value="archiver-csv.xml" />
+		<antcall target="manual-test-setup" />
+	</target>
+
 	<!-- How to use target: Set the property 'manual.test.archiver.conf.name' to a -->
 	<!-- file in 'manual.testing.archiver.conf.dir' -->
 	<target name="manual-test-setup">
