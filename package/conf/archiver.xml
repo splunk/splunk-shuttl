@@ -8,4 +8,5 @@
         <indexName>main</indexName>
         <indexName>shuttl</indexName>
     </indexNames>
+    <archiveFormat>SPLUNK_BUCKET</archiveFormat>
 </ns2:archiverConf>
