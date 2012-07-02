@@ -759,8 +759,7 @@
 		<antcall>
 			<target name="splunk-unpack-if-not-extracted" />
 			<target name="install-shuttl-splunk-app" />
-			<target name="manual-test-configure-shuttl-archiver-conf">
-			</target>
+			<target name="manual-test-configure-shuttl-archiver-conf"/>
 			<target name="manual-test-create-fast-rolling-index" />
 		</antcall>
 	</target>
