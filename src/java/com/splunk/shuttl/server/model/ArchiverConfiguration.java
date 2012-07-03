@@ -21,9 +21,9 @@ import java.util.List;
  */
 public interface ArchiverConfiguration {
 
-	public String getArchiveFormat();
+	public List<String> getArchiveFormats();
 
-	public void setArchiveFormat(String format);
+	public void setArchiveFormats(List<String> archiveFormats);
 
 	public String getClusterName();
 

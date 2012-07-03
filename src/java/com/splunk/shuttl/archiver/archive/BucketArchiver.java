@@ -15,6 +15,8 @@
 
 package com.splunk.shuttl.archiver.archive;
 
+import java.util.List;
+
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -27,6 +29,7 @@ public class BucketArchiver {
 	private final BucketExporter bucketExporter;
 	private final ArchiveBucketTransferer archiveBucketTransferer;
 	private final BucketDeleter bucketDeleter;
+	private final List<BucketFormat> bucketFormats;
 
 	/**
 	 * Constructor following dependency injection pattern, makes it easier to
@@ -39,26 +42,39 @@ public class BucketArchiver {
 	 *          to transfer the bucket to an {@link ArchiveFileSystem}
 	 * @param bucketDeleter
 	 *          that deletesBuckets that has been archived.
+	 * @param bucketFormats
+	 *          the formats to archive the bucket in.
 	 */
 	public BucketArchiver(BucketExporter exporter,
 			ArchiveBucketTransferer archiveBucketTransferer,
-			BucketDeleter bucketDeleter) {
+			BucketDeleter bucketDeleter, List<BucketFormat> bucketFormats) {
 		this.bucketExporter = exporter;
 		this.archiveBucketTransferer = archiveBucketTransferer;
 		this.bucketDeleter = bucketDeleter;
+		this.bucketFormats = bucketFormats;
 	}
 
 	public void archiveBucket(Bucket bucket) {
-		Bucket exportedBucket = bucketExporter.exportBucket(bucket);
-		archiveThenDeleteExportedBucket(exportedBucket);
-		bucketDeleter.deleteBucket(bucket);
+		boolean successfullyArchivedAllFormats = true;
+		for (BucketFormat format : bucketFormats)
+			if (!archiveBucketTransferer.isArchived(bucket, format))
+				if (!isSuccessfulArchiving(bucket, format))
+					successfullyArchivedAllFormats = false;
+
+		if (successfullyArchivedAllFormats)
+			bucketDeleter.deleteBucket(bucket);
 	}
 
-	private void archiveThenDeleteExportedBucket(Bucket exportedBucket) {
+	private boolean isSuccessfulArchiving(Bucket bucket, BucketFormat format) {
+		Bucket exportedBucket = bucketExporter.exportBucket(bucket, format);
 		try {
 			archiveBucketTransferer.transferBucketToArchive(exportedBucket);
+			return true;
+		} catch (FailedToArchiveBucketException e) {
+			return false;
 		} finally {
-			bucketDeleter.deleteBucket(exportedBucket);
+			if (!bucket.equals(exportedBucket))
+				bucketDeleter.deleteBucket(exportedBucket);
 		}
 	}
 }

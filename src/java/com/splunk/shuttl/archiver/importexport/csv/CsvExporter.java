@@ -76,7 +76,8 @@ public class CsvExporter {
 					"Zero exit code from export tool.", "exit_code", exit, "csv_file",
 					csvFile, "command", command));
 			throw new CsvExportFailedException("Exporttool exited with"
-					+ " non zero exit status. Ran exporttool with command: " + command);
+					+ " non zero exit status: " + exit
+					+ ". Ran exporttool with command: " + command);
 		} else if (!csvFile.exists()) {
 			logger.debug(did("Exported a bucket to Csv",
 					"Csv file didn't exist after the export", "The csv file to exist",

@@ -74,15 +74,27 @@ public class LocalFileSystemConstantsTest {
 		assertParentIsArchiverDirectory(failLocation);
 	}
 
-	public void getLocksDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
-		assertDoesNotExist(LocalFileSystemConstants.LOCKS_PATH);
+	public void getArchiveLocksDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
+		assertDoesNotExist(LocalFileSystemConstants.ARCHIVE_LOCKS_PATH);
 		assertExistsInsideArchiverDirectory(LocalFileSystemConstants
-				.getLocksDirectory());
+				.getArchiveLocksDirectory());
 	}
 
 	public void getCsvDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
 		assertDoesNotExist(LocalFileSystemConstants.CSV_PATH);
 		assertExistsInsideArchiverDirectory(LocalFileSystemConstants
 				.getCsvDirectory());
+	}
+
+	public void getThawLocksDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
+		assertDoesNotExist(LocalFileSystemConstants.THAW_LOCKS_PATH);
+		assertExistsInsideArchiverDirectory(LocalFileSystemConstants
+				.getThawLocksDirectory());
+	}
+
+	public void getThawTransferDirectory_doesNotExist_dirExistsInsideArchiverDirectory() {
+		assertDoesNotExist(LocalFileSystemConstants.THAW_TRANSFERS_PATH);
+		assertExistsInsideArchiverDirectory(LocalFileSystemConstants
+				.getThawTransfersDirectory());
 	}
 }

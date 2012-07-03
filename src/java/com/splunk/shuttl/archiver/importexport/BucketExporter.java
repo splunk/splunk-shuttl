@@ -21,7 +21,6 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
 import com.splunk.shuttl.archiver.importexport.csv.CsvBucketCreator;
@@ -37,7 +36,6 @@ public class BucketExporter {
 	private final static Logger logger = Logger.getLogger(BucketExporter.class);
 	private final CsvExporter csvExporter;
 	private final CsvBucketCreator csvBucketCreator;
-	private final ArchiveConfiguration config;
 
 	/**
 	 * @param csvExporter
@@ -45,9 +43,8 @@ public class BucketExporter {
 	 * @param csvBucketCreator
 	 *          for creating a {@link Bucket} from the .csv file.
 	 */
-	public BucketExporter(ArchiveConfiguration config, CsvExporter csvExporter,
+	public BucketExporter(CsvExporter csvExporter,
 			CsvBucketCreator csvBucketCreator) {
-		this.config = config;
 		this.csvExporter = csvExporter;
 		this.csvBucketCreator = csvBucketCreator;
 	}
@@ -55,11 +52,7 @@ public class BucketExporter {
 	/**
 	 * @return a new {@link Bucket} in the new format.
 	 */
-	public Bucket exportBucket(Bucket bucket) {
-		return exportBucketToFormat(bucket, config.getArchiveFormat());
-	}
-
-	private Bucket exportBucketToFormat(Bucket bucket, BucketFormat newFormat) {
+	public Bucket exportBucket(Bucket bucket, BucketFormat newFormat) {
 		if (newFormat.equals(BucketFormat.UNKNOWN))
 			logAndThrowUnknownFormatException(bucket, newFormat);
 
@@ -97,8 +90,9 @@ public class BucketExporter {
 	/**
 	 * @return an instance of the {@link BucketExporter}
 	 */
-	public static BucketExporter create(ArchiveConfiguration config) {
-		return new BucketExporter(config, CsvExporter.create(), new CsvBucketCreator());
+	public static BucketExporter create() {
+		return new BucketExporter(CsvExporter.create(),
+				new CsvBucketCreator());
 	}
 
 }

@@ -22,6 +22,8 @@
 	<test name="end-to-end" preserve-order="true" enabled="true">
 		<classes>
 			<class name="com.splunk.shuttl.archiver.endtoend.ArchiverEndToEndTest" />
+			<class name="com.splunk.shuttl.archiver.usecases.ImportCsvFunctionalTest" />
+			<class name="com.splunk.shuttl.archiver.usecases.TwoFormatsFunctionalTest" />
 		</classes>
 	</test> <!-- Test -->
 </suite> <!-- Suite -->

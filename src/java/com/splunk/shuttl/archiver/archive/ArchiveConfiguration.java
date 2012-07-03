@@ -25,17 +25,17 @@ import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 
 public class ArchiveConfiguration {
 
-	private final BucketFormat bucketFormat;
+	private final List<BucketFormat> bucketFormats;
 	private final URI archivingRoot;
 	private final String clusterName;
 	private final String serverName;
 	private final List<BucketFormat> bucketFormatPriority;
 	private final URI tmpDirectory;
 
-	public ArchiveConfiguration(BucketFormat bucketFormat, URI archivingRoot,
-			String clusterName, String serverName,
+	public ArchiveConfiguration(List<BucketFormat> bucketFormats,
+			URI archivingRoot, String clusterName, String serverName,
 			List<BucketFormat> bucketFormatPriority, URI tmpDirectory) {
-		this.bucketFormat = bucketFormat;
+		this.bucketFormats = bucketFormats;
 		this.archivingRoot = archivingRoot;
 		this.clusterName = clusterName;
 		this.serverName = serverName;
@@ -69,13 +69,13 @@ public class ArchiveConfiguration {
 	 */
 	public static ArchiveConfiguration createConfigurationWithMBean(
 			ShuttlArchiverMBean mBean) {
-		BucketFormat bucketFormat = bucketFormatFromMBean(mBean);
+		List<BucketFormat> bucketFormats = bucketFormatsFromMBean(mBean);
 		URI archivingRoot = archivingRootFromMBean(mBean);
 		String clusterName = mBean.getClusterName();
 		String serverName = mBean.getServerName();
 		List<BucketFormat> bucketFormatPriority = createFormatPriorityList(mBean);
-		URI tmpDirectory = extracted(mBean, archivingRoot);
-		return new ArchiveConfiguration(bucketFormat, archivingRoot, clusterName,
+		URI tmpDirectory = getTmpDirectoryFromArchivingRoot(mBean, archivingRoot);
+		return new ArchiveConfiguration(bucketFormats, archivingRoot, clusterName,
 				serverName, bucketFormatPriority, tmpDirectory);
 	}
 
@@ -84,26 +84,33 @@ public class ArchiveConfiguration {
 		return archivingRoot != null ? URI.create(archivingRoot) : null;
 	}
 
-	private static BucketFormat bucketFormatFromMBean(ShuttlArchiverMBean mBean) {
-		String archiveFormat = mBean.getArchiveFormat();
-		return archiveFormat != null ? BucketFormat.valueOf(archiveFormat) : null;
+	private static List<BucketFormat> bucketFormatsFromMBean(
+			ShuttlArchiverMBean mBean) {
+		return getFormatsFromNames(mBean.getArchiveFormats());
 	}
 
-	private static URI extracted(ShuttlArchiverMBean mBean, URI archivingRoot) {
+	private static URI getTmpDirectoryFromArchivingRoot(
+			ShuttlArchiverMBean mBean, URI archivingRoot) {
 		String tmpDir = mBean.getTmpDirectory();
 		return tmpDir != null ? archivingRoot.resolve(tmpDir) : null;
 	}
 
 	private static List<BucketFormat> createFormatPriorityList(
 			ShuttlArchiverMBean mBean) {
+		List<String> formatNames = mBean.getBucketFormatPriority();
+		return getFormatsFromNames(formatNames);
+	}
+
+	private static List<BucketFormat> getFormatsFromNames(List<String> formatNames) {
 		List<BucketFormat> bucketFormats = new ArrayList<BucketFormat>();
-		for (String format : mBean.getBucketFormatPriority())
-			bucketFormats.add(BucketFormat.valueOf(format));
+		if (formatNames != null)
+			for (String format : formatNames)
+				bucketFormats.add(BucketFormat.valueOf(format));
 		return bucketFormats;
 	}
 
-	public BucketFormat getArchiveFormat() {
-		return bucketFormat;
+	public List<BucketFormat> getArchiveFormats() {
+		return bucketFormats;
 	}
 
 	public URI getArchivingRoot() {

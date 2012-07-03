@@ -14,15 +14,12 @@
 // limitations under the License.
 package com.splunk.shuttl.server.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
-import com.splunk.shuttl.archiver.archive.BucketFormat;
 
 /**
  * Persistence class for Archiver configuration xml
@@ -31,16 +28,16 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
  * 
  */
 @XmlRootElement(namespace = "com.splunk.shuttl.server.model")
-@XmlType(propOrder = { "archiveFormat", "clusterName", "serverName",
+@XmlType(propOrder = { "archiveFormats", "clusterName", "serverName",
 		"indexNames", "archiverRootURI", "bucketFormatPriority", "tmpDirectory" })
 public class ArchiverConf implements ArchiverConfiguration {
-	private BucketFormat archiveFormat = BucketFormat.SPLUNK_BUCKET;
+	private List<String> archiveFormats;
 	private String tmpDirectory;
 	private String clusterName;
 	private String serverName;
 	private String archiverRootURI;
 	private List<String> indexNames;
-	private List<BucketFormat> bucketFormatPriority = new ArrayList<BucketFormat>();
+	private List<String> bucketFormatPriority;
 
 	/*
 	 * (non-Javadoc)
@@ -50,8 +47,8 @@ public class ArchiverConf implements ArchiverConfiguration {
 	 * .splunk.shuttl.archiver.archive.BucketFormat)
 	 */
 	@Override
-	public String getArchiveFormat() {
-		return archiveFormat.toString();
+	public List<String> getArchiveFormats() {
+		return archiveFormats;
 	}
 
 	/*
@@ -61,8 +58,8 @@ public class ArchiverConf implements ArchiverConfiguration {
 	 * com.splunk.shuttl.server.model.ArchiverConfInterface#setArchiveFormat()
 	 */
 	@Override
-	public void setArchiveFormat(String format) {
-		archiveFormat = BucketFormat.valueOf(format);
+	public void setArchiveFormats(List<String> formats) {
+		this.archiveFormats = formats;
 	}
 
 	/*
@@ -125,10 +122,7 @@ public class ArchiverConf implements ArchiverConfiguration {
 	 */
 	@Override
 	public List<String> getBucketFormatPriority() {
-		List<String> tempList = new ArrayList<String>();
-		for (BucketFormat format : bucketFormatPriority)
-			tempList.add(format.toString());
-		return tempList;
+		return bucketFormatPriority;
 	}
 
 	/*
@@ -140,9 +134,7 @@ public class ArchiverConf implements ArchiverConfiguration {
 	 */
 	@Override
 	public void setBucketFormatPriority(List<String> priorityList) {
-		bucketFormatPriority = new ArrayList<BucketFormat>();
-		for (String format : priorityList)
-			bucketFormatPriority.add(BucketFormat.valueOf(format));
+		this.bucketFormatPriority = priorityList;
 	}
 
 	/*

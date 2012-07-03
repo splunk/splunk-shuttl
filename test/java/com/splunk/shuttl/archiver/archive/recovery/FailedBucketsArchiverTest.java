@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive.recovery;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -24,7 +25,9 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketLocker.SharedLockBucketHandler;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
+import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -39,7 +42,7 @@ public class FailedBucketsArchiverTest {
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
 		bucketMover = mock(BucketMover.class);
-		bucketLocker = new BucketLocker();
+		bucketLocker = new BucketLockerInTestDir(createDirectory());
 		sharedLockBucketHandler = mock(SharedLockBucketHandler.class);
 		failedBucketsArchiver = new FailedBucketsArchiver(bucketMover, bucketLocker);
 	}

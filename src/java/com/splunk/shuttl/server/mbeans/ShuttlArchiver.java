@@ -83,13 +83,13 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	}
 
 	@Override
-	public String getArchiveFormat() {
-		return conf.getArchiveFormat();
+	public List<String> getArchiveFormats() {
+		return conf.getArchiveFormats();
 	}
 
 	@Override
-	public void setArchiveFormat(String format) {
-		conf.setArchiveFormat(format);
+	public void setArchiveFormats(List<String> formats) {
+		conf.setArchiveFormats(formats);
 	}
 
 	@Override

@@ -20,7 +20,6 @@ import java.util.List;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
-import com.splunk.shuttl.archiver.thaw.BucketSizeResolver;
 
 /**
  * Lists buckets in the archive, filtered by time range.
@@ -30,15 +29,12 @@ public class ListsBucketsFiltered {
 	private final ArchiveBucketsLister bucketsLister;
 	private final BucketFilter bucketFilter;
 	private final BucketFormatResolver bucketFormatResolver;
-	private final BucketSizeResolver bucketSizeResolver;
 
 	public ListsBucketsFiltered(ArchiveBucketsLister bucketsLister,
-			BucketFilter bucketFilter, BucketFormatResolver bucketFormatResolver,
-			BucketSizeResolver bucketSizeResolver) {
+			BucketFilter bucketFilter, BucketFormatResolver bucketFormatResolver) {
 		this.bucketsLister = bucketsLister;
 		this.bucketFilter = bucketFilter;
 		this.bucketFormatResolver = bucketFormatResolver;
-		this.bucketSizeResolver = bucketSizeResolver;
 	}
 
 	/**
@@ -68,9 +64,7 @@ public class ListsBucketsFiltered {
 			List<Bucket> bucketsToFilter, Date earliestTime, Date latestTime) {
 		List<Bucket> filteredBuckets = bucketFilter.filterBucketsByTimeRange(
 				bucketsToFilter, earliestTime, latestTime);
-		List<Bucket> bucketsWithFormats = bucketFormatResolver
-				.resolveBucketsFormats(filteredBuckets);
-		return bucketSizeResolver.resolveBucketsSizes(bucketsWithFormats);
+		return bucketFormatResolver.resolveBucketsFormats(filteredBuckets);
 	}
 
 }

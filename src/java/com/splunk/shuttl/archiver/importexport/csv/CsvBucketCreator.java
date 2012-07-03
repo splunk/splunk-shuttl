@@ -75,7 +75,7 @@ public class CsvBucketCreator {
 		try {
 			String csvFileNameWithoutExtension = removeExtension(csvFile);
 			return new Bucket(bucketDir.toURI(), bucket.getIndex(),
-					csvFileNameWithoutExtension, BucketFormat.CSV);
+					csvFileNameWithoutExtension, BucketFormat.CSV, bucket.getSize());
 		} catch (Exception e) {
 			logBucketCreationException(bucket, bucketDir, e);
 			throw new RuntimeException(e);

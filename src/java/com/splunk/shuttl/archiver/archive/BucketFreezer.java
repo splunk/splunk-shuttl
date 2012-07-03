@@ -23,9 +23,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LogFormatter;
-import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
+import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 
@@ -39,9 +40,9 @@ public class BucketFreezer {
 	private static Logger logger = Logger.getLogger(BucketFreezer.class);
 
 	public static final int EXIT_OK = 0;
-	public static final int EXIT_INCORRECT_ARGUMENTS = -1;
-	public static final int EXIT_FILE_NOT_A_DIRECTORY = -2;
-	public static final int EXIT_FILE_NOT_FOUND = -3;
+	public static final int EXIT_INCORRECT_ARGUMENTS = 11;
+	public static final int EXIT_FILE_NOT_A_DIRECTORY = 12;
+	public static final int EXIT_FILE_NOT_FOUND = 13;
 
 	private final BucketMover bucketMover;
 	private final BucketLocker bucketLocker;
@@ -100,7 +101,7 @@ public class BucketFreezer {
 	 */
 	public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
 		BucketMover bucketMover = new BucketMover(getSafeDirectory());
-		BucketLocker bucketLocker = new BucketLocker();
+		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
 				bucketMover, bucketLocker);
 		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(

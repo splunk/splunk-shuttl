@@ -33,9 +33,10 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.archive.BucketFreezer;
-import com.splunk.shuttl.archiver.archive.recovery.BucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
+import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
@@ -52,6 +53,7 @@ public class ArchiveRecoveryEndToEndTest {
 	BucketFreezer successfulBucketFreezerWithRecovery;
 	FileSystem hadoopFileSystem;
 	private ArchiveConfiguration config;
+	private File lockDirectory;
 
 	@Parameters(value = { "hadoop.host", "hadoop.port" })
 	public void Archiver_givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets(
@@ -68,9 +70,10 @@ public class ArchiveRecoveryEndToEndTest {
 
 		safeLocation = createDirectory();
 		originalBucketLocation = createDirectory();
+		lockDirectory = createDirectory();
 
 		BucketMover bucketMover = new BucketMover(safeLocation);
-		BucketLocker bucketLocker = new BucketLocker();
+		BucketLocker bucketLocker = new BucketLockerInTestDir(lockDirectory);
 		ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(
 				TUtilsMockito.createInternalServerErrorHttpClientMock());
 		ArchiveRestHandler successfulRealRestHandler = new ArchiveRestHandler(

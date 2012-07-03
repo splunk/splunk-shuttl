@@ -24,7 +24,6 @@ import java.io.File;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
 import com.splunk.shuttl.archiver.importexport.csv.CsvBucketCreator;
@@ -38,34 +37,27 @@ public class BucketExporterTest {
 	BucketExporter bucketExporter;
 	CsvExporter csvExporter;
 	CsvBucketCreator csvBucketCreator;
-	ArchiveConfiguration config;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
-		config = mock(ArchiveConfiguration.class);
 		csvExporter = mock(CsvExporter.class);
 		csvBucketCreator = mock(CsvBucketCreator.class);
-		bucketExporter = new BucketExporter(config, csvExporter, csvBucketCreator);
+		bucketExporter = new BucketExporter(csvExporter, csvBucketCreator);
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void exportBucketToFormat_whenBucketIsAlreadyInThatFormat_returnTheSameBucket() {
 		Bucket bucket = mock(Bucket.class);
 		when(bucket.getFormat()).thenReturn(BucketFormat.SPLUNK_BUCKET);
-		stubArchiveFormat(BucketFormat.SPLUNK_BUCKET);
-		Bucket exportedToFormat = bucketExporter.exportBucket(bucket);
+		Bucket exportedToFormat = bucketExporter.exportBucket(bucket,
+				BucketFormat.SPLUNK_BUCKET);
 		assertSame(bucket, exportedToFormat);
-	}
-
-	private void stubArchiveFormat(BucketFormat archiveFormat) {
-		when(config.getArchiveFormat()).thenReturn(archiveFormat);
 	}
 
 	@Test(expectedExceptions = { UnknownBucketFormatException.class })
 	public void exportBucketToFormat_formatIsUnknown_throwUnknownBucketFormatException() {
 		Bucket bucket = mock(Bucket.class);
-		stubArchiveFormat(BucketFormat.UNKNOWN);
-		bucketExporter.exportBucket(bucket);
+		bucketExporter.exportBucket(bucket, BucketFormat.UNKNOWN);
 	}
 
 	public void exportBucketToFormat_exportsSplunkBucketWithCsvExporter_createsAndReturnsBucketFromCsvFile() {
@@ -75,17 +67,15 @@ public class BucketExporterTest {
 		Bucket csvBucket = mock(Bucket.class);
 		when(csvBucketCreator.createBucketWithCsvFile(csvFile, bucket)).thenReturn(
 				csvBucket);
-		stubArchiveFormat(BucketFormat.CSV);
-		Bucket newBucket = bucketExporter.exportBucket(bucket);
+		Bucket newBucket = bucketExporter.exportBucket(bucket, BucketFormat.CSV);
 		assertEquals(csvBucket, newBucket);
 	}
 
 	public void exportBucketToFormat_bucketIsUnknownAndExportingToCsv_throwsUnsupportedOperationException() {
 		Bucket unknownFormatedBucket = mock(Bucket.class);
 		when(unknownFormatedBucket.getFormat()).thenReturn(BucketFormat.UNKNOWN);
-		stubArchiveFormat(BucketFormat.CSV);
 		try {
-			bucketExporter.exportBucket(unknownFormatedBucket);
+			bucketExporter.exportBucket(unknownFormatedBucket, BucketFormat.CSV);
 			fail();
 		} catch (UnsupportedOperationException e) {
 		}

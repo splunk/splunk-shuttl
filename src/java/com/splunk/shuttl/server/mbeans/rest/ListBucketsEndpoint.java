@@ -37,12 +37,14 @@ import org.eclipse.jetty.util.ajax.JSON;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
+import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.thaw.BucketSizeResolver;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
 import com.splunk.shuttl.server.model.BucketBean;
 
@@ -91,7 +93,7 @@ public class ListBucketsEndpoint {
 		long totalBucketsSize = 0;
 
 		for (Bucket bucket : filteredBucketsAtIndex) {
-			beans.add(BucketBean.createBeanFromBucket(bucket));
+			beans.add(getBucketBean(bucket));
 			totalBucketsSize += bucket.getSize() == null ? 0 : bucket.getSize();
 		}
 
@@ -108,6 +110,17 @@ public class ListBucketsEndpoint {
 					e, null));
 			throw new RuntimeException(e);
 		}
+	}
+
+	private BucketBean getBucketBean(Bucket bucket) {
+		BucketSizeResolver bucketSizeResolver = getBucketSizeResolver();
+		Bucket bucketWithSize = bucketSizeResolver.resolveBucketSize(bucket);
+		return BucketBean.createBeanFromBucket(bucketWithSize);
+	}
+
+	private BucketSizeResolver getBucketSizeResolver() {
+		return new BucketSizeResolver(ArchiveBucketSize.create(ArchiveConfiguration
+				.getSharedInstance()));
 	}
 
 	private Date getValidFromDate(String from) {
@@ -137,10 +150,8 @@ public class ListBucketsEndpoint {
 	}
 
 	private ListsBucketsFiltered getListsBucketsFiltered() {
-		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-		ListsBucketsFiltered listsBucketsFiltered = ListsBucketsFilteredFactory
-				.create(config);
-		return listsBucketsFiltered;
+		return ListsBucketsFilteredFactory.create(ArchiveConfiguration
+				.getSharedInstance());
 	}
 
 }

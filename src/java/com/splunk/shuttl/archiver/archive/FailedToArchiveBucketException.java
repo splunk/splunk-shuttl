@@ -12,30 +12,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.server.services;
+package com.splunk.shuttl.archiver.archive;
+
+import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
- * @author kpakkirisamy
- * 
+ * Exception thrown when a {@link Bucket} was not successfully transfered to the
+ * archive.
  */
-public interface SplunkService {
-	public static String RUNNING = "running";
-	public static String STOPPED = "stopped";
+public class FailedToArchiveBucketException extends RuntimeException {
 
-	/**
-	 * Starts the service
-	 */
-	public void start() throws Exception;
+	private static final long serialVersionUID = 1L;
 
-	/**
-	 * Stops the service
-	 */
-	public void stop() throws Exception;
+	public FailedToArchiveBucketException() {
+	}
 
-	/**
-	 * returns a status message
-	 * 
-	 * @return
-	 */
-	public String getStatus();
+	public FailedToArchiveBucketException(Throwable e) {
+		super(e);
+	}
+
 }

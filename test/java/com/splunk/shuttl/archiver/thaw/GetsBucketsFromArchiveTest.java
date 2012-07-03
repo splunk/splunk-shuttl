@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class GetsBucketsFromArchiveTest {
@@ -32,39 +33,54 @@ public class GetsBucketsFromArchiveTest {
 	private ThawBucketTransferer thawBucketTransferer;
 	private BucketImporter bucketImporter;
 	private GetsBucketsFromArchive getsBucketsFromArchive;
+	private BucketSizeResolver bucketSizeResolver;
+	private Bucket bucket;
 
 	@BeforeMethod
 	public void setUp() {
 		thawBucketTransferer = mock(ThawBucketTransferer.class);
 		bucketImporter = mock(BucketImporter.class);
+		bucketSizeResolver = mock(BucketSizeResolver.class);
 		getsBucketsFromArchive = new GetsBucketsFromArchive(thawBucketTransferer,
-				bucketImporter);
+				bucketImporter, bucketSizeResolver);
+		bucket = mock(Bucket.class);
 	}
 
-	public void _givenOneFilteredBucketWithFormat_transferBucketsToThawDirectory()
+	public void _givenSuccessfulTransfer_importBucketAndGetSizeFromBucket()
 			throws Exception {
-		Bucket bucketToThaw = mock(Bucket.class);
-		getsBucketsFromArchive.getBucketFromArchive(bucketToThaw);
-		verify(thawBucketTransferer).transferBucketToThaw(bucketToThaw);
-	}
-
-	public void _givenSuccessfulTransfer_importBucket() throws Exception {
-		Bucket bucketToThaw = mock(Bucket.class);
+		Bucket dummy = TUtilsBucket.createBucket();
 		Bucket bucketThawed = mock(Bucket.class);
-		when(thawBucketTransferer.transferBucketToThaw(bucketToThaw)).thenReturn(
+		when(thawBucketTransferer.transferBucketToThaw(bucket)).thenReturn(
 				bucketThawed);
-		getsBucketsFromArchive.getBucketFromArchive(bucketToThaw);
-		verify(bucketImporter).restoreToSplunkBucketFormat(bucketThawed);
+		when(bucketImporter.restoreToSplunkBucketFormat(bucketThawed)).thenReturn(
+				dummy);
+		when(bucketSizeResolver.resolveBucketSize(bucketThawed)).thenReturn(dummy);
+
+		getsBucketsFromArchive.getBucketFromArchive(bucket);
 	}
 
-	public void _givenSuccessfulImport_returnImportedBucket() throws Exception {
-		Bucket importedBucket = mock(Bucket.class);
+	public void _givenSuccessfulImportAndSizeResolving_returnImportedBucketWithSize()
+			throws Exception {
+		Bucket importedBucket = TUtilsBucket.createBucket();
+		Bucket sizedBucket = mock(Bucket.class);
+		stub(sizedBucket.getSize()).toReturn(121L);
 		when(bucketImporter.restoreToSplunkBucketFormat(any(Bucket.class)))
 				.thenReturn(importedBucket);
-		Bucket actualBucket = getsBucketsFromArchive
-				.getBucketFromArchive(mock(Bucket.class));
-		assertEquals(importedBucket, actualBucket);
+		when(bucketSizeResolver.resolveBucketSize(any(Bucket.class))).thenReturn(
+				sizedBucket);
+		Bucket actualBucket = getsBucketsFromArchive.getBucketFromArchive(bucket);
+
+		assertEquals(importedBucket.getDirectory(), actualBucket.getDirectory());
+		assertEquals(importedBucket.getEarliest(), actualBucket.getEarliest());
+		assertEquals(importedBucket.getLatest(), actualBucket.getLatest());
+		assertEquals(importedBucket.getIndex(), actualBucket.getIndex());
+		assertEquals(importedBucket.getFormat(), actualBucket.getFormat());
+		assertEquals(importedBucket.getName(), actualBucket.getName());
+		assertEquals(importedBucket.getURI(), actualBucket.getURI());
+		assertEquals(sizedBucket.getSize(), actualBucket.getSize());
 	}
+
+	// Sad path
 
 	@Test(expectedExceptions = { ThawTransferFailException.class })
 	public void _whenTransferBucketsFailToThaw_throwsExceptionAndDoesNotRestoreFailedBucket()
