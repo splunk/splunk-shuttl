@@ -70,6 +70,7 @@ public class TwoFormatsFunctionalTest {
 		URI splunkBucketUri = pathResolver.resolveArchivedBucketURI(
 				realBucket.getIndex(), realBucket.getName(), format);
 		List<URI> listPath = archiveFileSystem.listPath(splunkBucketUri);
+		assertFalse(listPath.contains(splunkBucketUri));
 		assertFalse(listPath.isEmpty());
 	}
 }
