@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -98,11 +99,7 @@ public class TUtilsFunctional {
 
 	private static ArchiveConfiguration getLocalFileSystemConfigurationWithFormat(
 			BucketFormat bucketFormat) {
-		String archivePath = createDirectory().getAbsolutePath();
-		URI archivingRoot = URI.create("file:" + archivePath);
-		URI tmpDirectory = URI.create("file:/tmp");
-		return new ArchiveConfiguration(bucketFormat, archivingRoot, "clusterName",
-				"serverName", asList(bucketFormat), tmpDirectory);
+		return getLocalConfigurationThatArchivesFormats(asList(bucketFormat));
 	}
 
 	/**
@@ -147,6 +144,22 @@ public class TUtilsFunctional {
 	public static void tearDownLocalConfig(ArchiveConfiguration config) {
 		FileUtils.deleteQuietly(new File(config.getArchivingRoot()));
 		FileUtils.deleteQuietly(new File(config.getTmpDirectory()));
+	}
+
+	/**
+	 * @param bucketFormats
+	 *          to archive.
+	 * @return an archive configuration that archives locally (for speed) with all
+	 *         the formats specified. The format order in the list also specifies
+	 *         the priority when thawing.
+	 */
+	public static ArchiveConfiguration getLocalConfigurationThatArchivesFormats(
+			List<BucketFormat> bucketFormats) {
+		String archivePath = createDirectory().getAbsolutePath();
+		URI archivingRoot = URI.create("file:" + archivePath);
+		URI tmpDirectory = URI.create("file:/tmp");
+		return new ArchiveConfiguration(bucketFormats, archivingRoot,
+				"clusterName", "serverName", bucketFormats, tmpDirectory);
 	}
 
 }

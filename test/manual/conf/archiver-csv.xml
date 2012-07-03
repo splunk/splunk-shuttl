@@ -8,5 +8,5 @@
         <indexName>main</indexName>
         <indexName>shuttl</indexName>
     </indexNames>
-    <archiveFormat>CSV</archiveFormat>
+    <archiveFormats>CSV</archiveFormats>
 </ns2:archiverConf>

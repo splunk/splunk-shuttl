@@ -15,7 +15,11 @@
 
 package com.splunk.shuttl.archiver.archive;
 
+import static java.util.Arrays.*;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
+
+import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -33,37 +37,43 @@ public class BucketArchiverTest {
 	private BucketDeleter deletesBuckets;
 
 	private Bucket bucket;
+	private List<BucketFormat> bucketFormats;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
 		exporter = mock(BucketExporter.class);
 		archiveBucketTransferer = mock(ArchiveBucketTransferer.class);
 		deletesBuckets = mock(BucketDeleter.class);
+		bucketFormats = asList(BucketFormat.SPLUNK_BUCKET);
 		bucketArchiver = new BucketArchiver(exporter, archiveBucketTransferer,
-				deletesBuckets);
+				deletesBuckets, bucketFormats);
 
 		bucket = TUtilsBucket.createBucket();
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void archiveBucket_givenBucket_exportsBucketAndTransfersBucket() {
-		Bucket exportedBucket = mock(Bucket.class);
-		when(exporter.exportBucket(bucket)).thenReturn(exportedBucket);
+		Bucket exportedBucket = getMockedBucketReturnFromExporter();
 		bucketArchiver.archiveBucket(bucket);
 		verify(archiveBucketTransferer).transferBucketToArchive(exportedBucket);
 	}
 
+	private Bucket getMockedBucketReturnFromExporter() {
+		Bucket exportedBucket = TUtilsBucket.createBucket();
+		when(exporter.exportBucket(eq(bucket), any(BucketFormat.class)))
+				.thenReturn(exportedBucket);
+		return exportedBucket;
+	}
+
 	public void archiveBucket_givenBucketAndExportedBucket_deletesBothBucketsWithBucketDeleter() {
-		Bucket exportedBucket = mock(Bucket.class);
-		when(exporter.exportBucket(bucket)).thenReturn(exportedBucket);
+		Bucket exportedBucket = getMockedBucketReturnFromExporter();
 		bucketArchiver.archiveBucket(bucket);
 		verify(deletesBuckets).deleteBucket(bucket);
 		verify(deletesBuckets).deleteBucket(exportedBucket);
 	}
 
 	public void archiveBucket_whenExceptionIsThrown_deleteExportedBucketButNotOriginalBucket() {
-		Bucket exportedBucket = TUtilsBucket.createBucket();
-		when(exporter.exportBucket(bucket)).thenReturn(exportedBucket);
+		Bucket exportedBucket = getMockedBucketReturnFromExporter();
 		doThrow(new RuntimeException()).when(archiveBucketTransferer)
 				.transferBucketToArchive(exportedBucket);
 		try {
@@ -75,9 +85,18 @@ public class BucketArchiverTest {
 		verifyNoMoreInteractions(deletesBuckets);
 	}
 
-	public void archiveBucket_whenExportBucketIsSameAsOriginalBucket_deleteBucketTwice() {
-		when(exporter.exportBucket(bucket)).thenReturn(bucket);
+	public void archiveBucket_whenExportBucketIsSameAsOriginalBucket_deleteBucketOnce() {
+		when(exporter.exportBucket(eq(bucket), any(BucketFormat.class)))
+				.thenReturn(bucket);
 		bucketArchiver.archiveBucket(bucket);
-		verify(deletesBuckets, times(2)).deleteBucket(bucket);
+		verify(deletesBuckets, times(1)).deleteBucket(bucket);
 	}
+
+	public void archiveBucket_bucketIsAlreadyArchivedInFormat_doesNotExportBucket() {
+		BucketFormat format = bucketFormats.get(0);
+		when(archiveBucketTransferer.isArchived(bucket, format)).thenReturn(true);
+		bucketArchiver.archiveBucket(bucket);
+		verify(exporter, never()).exportBucket(bucket, format);
+	}
+
 }

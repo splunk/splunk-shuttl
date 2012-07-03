@@ -48,10 +48,9 @@ public class BucketArchiverFactory {
 	 */
 	public static BucketArchiver createWithConfigurationAndArchiveFileSystem(
 			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem) {
-		return new BucketArchiver(
-				BucketExporter.create(config),
+		return new BucketArchiver(BucketExporter.create(),
 				ArchiveBucketTransferer.create(archiveFileSystem, config),
-				BucketDeleter.create());
+				BucketDeleter.create(), config.getArchiveFormats());
 
 	}
 }

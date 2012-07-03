@@ -15,6 +15,7 @@
 
 package com.splunk.shuttl.archiver.archive;
 
+import static java.util.Arrays.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -23,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -60,20 +62,6 @@ public class ArchiveBucketTransfererTest {
 		verify(archive).putFileAtomically(bucket.getDirectory(), destination);
 	}
 
-	public void transferBucketToArchive_archiveFileSystemThrowsIOException_throwRuntimeException()
-			throws IOException {
-		doThrow(IOException.class).when(archive).putFileAtomically(any(File.class),
-				any(URI.class));
-		RuntimeException exception = null;
-		try {
-			archiveBucketTransferer.transferBucketToArchive(mock(Bucket.class));
-			fail();
-		} catch (RuntimeException e) {
-			exception = e;
-		}
-		assertNotNull(exception);
-	}
-
 	public void transferBucketToArchive_givenSuccessfulBucketTransfer_putBucketSizeInArchive() {
 		Bucket bucket = mock(Bucket.class);
 		archiveBucketTransferer.transferBucketToArchive(bucket);
@@ -86,10 +74,56 @@ public class ArchiveBucketTransfererTest {
 				any(URI.class));
 		try {
 			archiveBucketTransferer.transferBucketToArchive(mock(Bucket.class));
-			fail();
 		} catch (Exception e) {
-			// expected
 		}
 		verifyZeroInteractions(archiveBucketSize);
+	}
+
+	@Test(expectedExceptions = { FailedToArchiveBucketException.class })
+	public void _archiveFileSystemThrowsIOException_throwFailedToArchiveBucketException()
+			throws IOException {
+		doThrow(IOException.class).when(archive).putFileAtomically(any(File.class),
+				any(URI.class));
+		archiveBucketTransferer.transferBucketToArchive(mock(Bucket.class));
+	}
+
+	@Test(expectedExceptions = { FailedToArchiveBucketException.class })
+	public void _archiveFileSystemThrowsFileNotFoundException_throwFailedToArchiveBucketException()
+			throws IOException {
+		doThrow(FileNotFoundException.class).when(archive).putFileAtomically(
+				any(File.class), any(URI.class));
+		archiveBucketTransferer.transferBucketToArchive(mock(Bucket.class));
+	}
+
+	@Test(expectedExceptions = { FailedToArchiveBucketException.class })
+	public void _archiveFileSystemThrowsFileOverwriteException_throwFailedToArchiveBucketException()
+			throws IOException {
+		doThrow(FileOverwriteException.class).when(archive).putFileAtomically(
+				any(File.class), any(URI.class));
+		archiveBucketTransferer.transferBucketToArchive(mock(Bucket.class));
+	}
+
+	public void isArchived_bucketInFormatIsNotInArchiveFileSystem_false()
+			throws IOException {
+		Bucket bucket = TUtilsBucket.createBucket();
+		URI bucketUri = URI.create("valid:/bucket/uri");
+		when(
+				pathResolver.resolveArchivedBucketURI(bucket.getIndex(),
+						bucket.getName(), bucket.getFormat())).thenReturn(bucketUri);
+		when(archive.listPath(bucketUri)).thenReturn(new ArrayList<URI>());
+
+		assertFalse(archiveBucketTransferer.isArchived(bucket, bucket.getFormat()));
+	}
+
+	public void isArchived_bucketInFormatExistsInTheArchiveFileSystem_true()
+			throws IOException {
+		Bucket bucket = TUtilsBucket.createBucket();
+		URI bucketUri = URI.create("valid:/bucket/uri");
+		when(
+				pathResolver.resolveArchivedBucketURI(bucket.getIndex(),
+						bucket.getName(), bucket.getFormat())).thenReturn(bucketUri);
+		when(archive.listPath(bucketUri)).thenReturn(
+				asList(URI.create("valid:/uri")));
+		assertTrue(archiveBucketTransferer.isArchived(bucket, bucket.getFormat()));
 	}
 }

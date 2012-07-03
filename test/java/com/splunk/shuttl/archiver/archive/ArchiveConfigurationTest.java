@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
+import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -43,15 +44,17 @@ public class ArchiveConfigurationTest {
 
 	@Test(groups = { "fast-unit" })
 	public void getArchiveFormat_givenAnyFormatAsStringInMBean_returnsBucketFormat() {
-		when(mBean.getArchiveFormat())
-				.thenReturn(BucketFormat.SPLUNK_BUCKET.name());
-		BucketFormat archiveFormat = createConfiguration().getArchiveFormat();
+		when(mBean.getArchiveFormats()).thenReturn(
+				asList(BucketFormat.SPLUNK_BUCKET.name()));
+		List<BucketFormat> archiveFormat = createConfiguration()
+				.getArchiveFormats();
 		assertNotNull(archiveFormat);
 	}
 
-	public void getArchiveFormat_givenNullFormat_null() {
-		when(mBean.getArchiveFormat()).thenReturn(null);
-		assertNull(createConfiguration().getArchiveFormat());
+	public void getArchiveFormat_givenNull_emptyList() {
+		when(mBean.getArchiveFormats()).thenReturn(null);
+		assertEquals(new ArrayList<BucketFormat>(), createConfiguration()
+				.getArchiveFormats());
 	}
 
 	public void getArchivingRoot_givenNullUri_null() {
@@ -81,6 +84,13 @@ public class ArchiveConfigurationTest {
 		assertEquals(expected, actual);
 	}
 
+	public void getBucketFormatPriority_null_emptyList() {
+		when(mBean.getBucketFormatPriority()).thenReturn(null);
+		List<BucketFormat> priorityList = createConfiguration()
+				.getBucketFormatPriority();
+		assertEquals(new ArrayList<BucketFormat>(), priorityList);
+	}
+
 	public void getBucketFormatPriority_noFormats_emptyList() {
 		when(mBean.getBucketFormatPriority()).thenReturn(new ArrayList<String>());
 		List<BucketFormat> priorityList = createConfiguration()
@@ -89,8 +99,8 @@ public class ArchiveConfigurationTest {
 	}
 
 	public void getBucketFormatPriority_oneFormat_listWithThatOneFormat() {
-		List<String> format = Arrays.asList(BucketFormat.SPLUNK_BUCKET.name());
-		when(mBean.getBucketFormatPriority()).thenReturn(format);
+		List<String> formats = Arrays.asList(BucketFormat.SPLUNK_BUCKET.name());
+		when(mBean.getBucketFormatPriority()).thenReturn(formats);
 		List<BucketFormat> priorityList = createConfiguration()
 				.getBucketFormatPriority();
 		assertEquals(1, priorityList.size());
