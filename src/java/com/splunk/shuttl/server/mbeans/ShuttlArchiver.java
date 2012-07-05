@@ -15,7 +15,6 @@
 package com.splunk.shuttl.server.mbeans;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -73,16 +72,6 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	}
 
 	@Override
-	public List<String> getIndexNames() {
-		return conf.getIndexNames();
-	}
-
-	@Override
-	public void setIndexNames(List<String> indexNames) {
-		conf.setIndexNames(indexNames);
-	}
-
-	@Override
 	public List<String> getArchiveFormats() {
 		return conf.getArchiveFormats();
 	}
@@ -120,18 +109,6 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	@Override
 	public void setArchiverRootURI(String uri) {
 		conf.setArchiverRootURI(uri);
-	}
-
-	@Override
-	public void addIndex(String name) {
-		if (conf.getIndexNames() == null)
-			conf.setIndexNames(new ArrayList<String>());
-		conf.getIndexNames().add(name);
-	}
-
-	@Override
-	public void deleteIndex(String name) {
-		conf.getIndexNames().remove(name);
 	}
 
 	@Override

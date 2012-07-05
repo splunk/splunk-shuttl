@@ -37,10 +37,6 @@ public interface ArchiverConfiguration {
 
 	public void setServerName(String serverName);
 
-	public List<String> getIndexNames();
-
-	public void setIndexNames(List<String> indexNames);
-
 	public String getArchiverRootURI();
 
 	public void setArchiverRootURI(String URI);

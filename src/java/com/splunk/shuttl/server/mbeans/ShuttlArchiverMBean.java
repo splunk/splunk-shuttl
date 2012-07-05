@@ -44,17 +44,4 @@ public interface ShuttlArchiverMBean extends ArchiverConfiguration {
 	public void refresh() throws ShuttlMBeanException, IOException,
 			InstanceNotFoundException;;
 
-	/**
-	 * Adds an index to be archived
-	 * 
-	 * @param name
-	 */
-	public void addIndex(String name);
-
-	/**
-	 * deletes an index from being archived
-	 * 
-	 * @param name
-	 */
-	public void deleteIndex(String name);
 }

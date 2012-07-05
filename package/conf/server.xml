@@ -2,19 +2,4 @@
 <ns2:serverConf xmlns:ns2="com.splunk.shuttl.server.model">
 	<httpHost>localhost</httpHost>
 	<httpPort>9090</httpPort>
-	<splunkClusterName>myname</splunkClusterName>
-    <clusterlist>
-        <hadoopcluster>
-            <name>dev</name>
-            <defcluster>true</defcluster>
-            <host>localhost</host>
-            <port>9000</port>
-        </hadoopcluster>
-        <hadoopcluster>
-            <name>test</name>
-            <defcluster>false</defcluster>
-            <host>localhost</host>
-            <port>9000</port>
-        </hadoopcluster>
-    </clusterlist>
 </ns2:serverConf>

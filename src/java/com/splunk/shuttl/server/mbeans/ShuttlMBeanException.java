@@ -21,6 +21,9 @@ import com.splunk.shuttl.server.ShuttlException;
  * 
  */
 public class ShuttlMBeanException extends ShuttlException {
+
+	private static final long serialVersionUID = 1L;
+
 	public ShuttlMBeanException(String s) {
 		super(s);
 	}

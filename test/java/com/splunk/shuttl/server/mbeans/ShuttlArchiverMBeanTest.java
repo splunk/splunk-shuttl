@@ -69,27 +69,6 @@ public class ShuttlArchiverMBeanTest {
 		assertEquals(archiverMBean.getServerName(), serverName);
 	}
 
-	public void addIndex_indexIsSet_indexNamesContainsIndex() throws Exception {
-		String index = "index";
-		List<String> indexNames = archiverMBean.getIndexNames();
-		assertTrue(indexNames == null || !indexNames.contains(index));
-		archiverMBean.addIndex(index);
-		assertTrue(archiverMBean.getIndexNames().contains(index));
-	}
-
-	public void addIndex_indexesAreSet_indexNamesContainsIndexes()
-			throws Exception {
-		String index1 = "index1";
-		String index2 = "index2";
-		List<String> indexNames = archiverMBean.getIndexNames();
-		assertTrue(indexNames == null || !indexNames.contains(index1));
-		assertTrue(indexNames == null || !indexNames.contains(index2));
-		archiverMBean.addIndex(index1);
-		archiverMBean.addIndex(index2);
-		assertTrue(archiverMBean.getIndexNames().contains(index1));
-		assertTrue(archiverMBean.getIndexNames().contains(index2));
-	}
-
 	public void setBucketFormatPriority_priorityIsSet_gotPriority() {
 		List<String> bucketFormatPriority = Arrays.asList("SPLUNK_BUCKET",
 				"UNKNOWN");
@@ -97,30 +76,6 @@ public class ShuttlArchiverMBeanTest {
 				bucketFormatPriority);
 		archiverMBean.setBucketFormatPriority(bucketFormatPriority);
 		assertEquals(archiverMBean.getBucketFormatPriority(), bucketFormatPriority);
-	}
-
-	public void deleteIndex_indexIsDeleted_indexNotInIndexNames()
-			throws Exception {
-		String index = "index";
-		archiverMBean.addIndex(index);
-		archiverMBean.deleteIndex(index);
-		assertFalse(archiverMBean.getIndexNames().contains(index));
-		assertTrue(archiverMBean.getIndexNames().isEmpty());
-	}
-
-	public void deleteIndex_indexesAreDeleted_indexesNotInIndexNames()
-			throws Exception {
-		String index1 = "index1";
-		String index2 = "index2";
-		archiverMBean.addIndex(index1);
-		archiverMBean.addIndex(index2);
-		assertTrue(archiverMBean.getIndexNames().contains(index1));
-		assertTrue(archiverMBean.getIndexNames().contains(index2));
-		archiverMBean.deleteIndex(index1);
-		archiverMBean.deleteIndex(index2);
-		assertFalse(archiverMBean.getIndexNames().contains(index1));
-		assertFalse(archiverMBean.getIndexNames().contains(index2));
-		assertTrue(archiverMBean.getIndexNames().isEmpty());
 	}
 
 	public void save_configured_producesCorrectXML() throws Exception {

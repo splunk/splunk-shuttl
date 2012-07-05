@@ -3,10 +3,6 @@
     <archiverRootURI>hdfs://localhost:9000/archiver_root</archiverRootURI>
     <clusterName>cluster_name</clusterName>
     <serverName>server_name</serverName>
-    <indexNames>
-        <indexName>main</indexName>
-        <indexName>shuttl</indexName>
-    </indexNames>
     <archiveFormats>
         <archiveFormat>SPLUNK_BUCKET</archiveFormat>
     </archiveFormats>

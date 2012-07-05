@@ -29,13 +29,12 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlRootElement(namespace = "com.splunk.shuttl.server.model")
 @XmlType(propOrder = { "archiveFormats", "clusterName", "serverName",
-		"indexNames", "archiverRootURI", "bucketFormatPriority" })
+		"archiverRootURI", "bucketFormatPriority" })
 public class ArchiverConf implements ArchiverConfiguration {
 	private List<String> archiveFormats;
 	private String clusterName;
 	private String serverName;
 	private String archiverRootURI;
-	private List<String> indexNames;
 	private List<String> bucketFormatPriority;
 
 	/*
@@ -107,13 +106,6 @@ public class ArchiverConf implements ArchiverConfiguration {
 		this.serverName = serverName;
 	}
 
-	@Override
-	@XmlElementWrapper(name = "indexNames")
-	@XmlElement(name = "indexName")
-	public List<String> getIndexNames() {
-		return indexNames;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -162,15 +154,4 @@ public class ArchiverConf implements ArchiverConfiguration {
 		return archiverRootURI;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.server.model.ArchiverConfiguration#setIndexNames(java
-	 * .util.List)
-	 */
-	@Override
-	public void setIndexNames(List<String> indexNames) {
-		this.indexNames = indexNames;
-	}
 }
