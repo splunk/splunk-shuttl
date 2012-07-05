@@ -113,16 +113,6 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	}
 
 	@Override
-	public String getTmpDirectory() {
-		return conf.getTmpDirectory();
-	}
-
-	@Override
-	public void setTmpDirectory(String path) {
-		conf.setTmpDirectory(path);
-	}
-
-	@Override
 	public String getArchiverRootURI() {
 		return conf.getArchiverRootURI();
 	}

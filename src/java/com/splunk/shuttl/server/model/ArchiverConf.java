@@ -29,10 +29,9 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlRootElement(namespace = "com.splunk.shuttl.server.model")
 @XmlType(propOrder = { "archiveFormats", "clusterName", "serverName",
-		"indexNames", "archiverRootURI", "bucketFormatPriority", "tmpDirectory" })
+		"indexNames", "archiverRootURI", "bucketFormatPriority" })
 public class ArchiverConf implements ArchiverConfiguration {
 	private List<String> archiveFormats;
-	private String tmpDirectory;
 	private String clusterName;
 	private String serverName;
 	private String archiverRootURI;
@@ -137,26 +136,6 @@ public class ArchiverConf implements ArchiverConfiguration {
 	@Override
 	public void setBucketFormatPriority(List<String> priorityList) {
 		this.bucketFormatPriority = priorityList;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.splunk.shuttl.server.model.ArchiverConfiguration#getTmpDirectory()
-	 */
-	@Override
-	public String getTmpDirectory() {
-		return tmpDirectory;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.splunk.shuttl.server.model.ArchiverConfiguration#setTmpDirectory()
-	 */
-	@Override
-	public void setTmpDirectory(String path) {
-		tmpDirectory = path;
 	}
 
 	/*

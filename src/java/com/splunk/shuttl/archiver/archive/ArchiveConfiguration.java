@@ -20,10 +20,15 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 
 public class ArchiveConfiguration {
+
+	private static final String ARCHIVE_DATA_DIRECTORY_NAME = "archive_data";
+	private static final String TEMPORARY_DATA_DIRECTORY_NAME = "temporary_data";
 
 	private final List<BucketFormat> bucketFormats;
 	private final URI archivingRoot;
@@ -70,12 +75,16 @@ public class ArchiveConfiguration {
 	public static ArchiveConfiguration createConfigurationWithMBean(
 			ShuttlArchiverMBean mBean) {
 		List<BucketFormat> bucketFormats = bucketFormatsFromMBean(mBean);
-		URI archivingRoot = archivingRootFromMBean(mBean);
+		URI archivingRootURI = archivingRootFromMBean(mBean);
+		URI archivingData = getChildToArchivingRoot(archivingRootURI,
+				ARCHIVE_DATA_DIRECTORY_NAME);
+		URI tmpDirectory = getChildToArchivingRoot(archivingRootURI,
+				TEMPORARY_DATA_DIRECTORY_NAME);
+
 		String clusterName = mBean.getClusterName();
 		String serverName = mBean.getServerName();
 		List<BucketFormat> bucketFormatPriority = createFormatPriorityList(mBean);
-		URI tmpDirectory = getTmpDirectoryFromArchivingRoot(mBean, archivingRoot);
-		return new ArchiveConfiguration(bucketFormats, archivingRoot, clusterName,
+		return new ArchiveConfiguration(bucketFormats, archivingData, clusterName,
 				serverName, bucketFormatPriority, tmpDirectory);
 	}
 
@@ -89,10 +98,14 @@ public class ArchiveConfiguration {
 		return getFormatsFromNames(mBean.getArchiveFormats());
 	}
 
-	private static URI getTmpDirectoryFromArchivingRoot(
-			ShuttlArchiverMBean mBean, URI archivingRoot) {
-		String tmpDir = mBean.getTmpDirectory();
-		return tmpDir != null ? archivingRoot.resolve(tmpDir) : null;
+	private static URI getChildToArchivingRoot(URI archivingRoot,
+			String childNameToArchivingRoot) {
+		if (archivingRoot != null) {
+			String rootName = FilenameUtils.getName(archivingRoot.getPath());
+			return archivingRoot.resolve(rootName + "/" + childNameToArchivingRoot);
+		} else {
+			return null;
+		}
 	}
 
 	private static List<BucketFormat> createFormatPriorityList(

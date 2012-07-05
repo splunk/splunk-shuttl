@@ -62,13 +62,6 @@ public class ShuttlArchiverMBeanTest {
 		assertEquals(archiverMBean.getClusterName(), clusterName);
 	}
 
-	public void setTmpDirectory_directoryIsSet_gotDirectory() {
-		String directoryName = "test_directory";
-		assertNotEquals(archiverMBean.getTmpDirectory(), directoryName);
-		archiverMBean.setTmpDirectory(directoryName);
-		assertEquals(archiverMBean.getTmpDirectory(), directoryName);
-	}
-
 	public void setServerName_serverNameIsSet_gotCluserName() {
 		String serverName = "test_server_name";
 		assertNotEquals(archiverMBean.getServerName(), serverName);
@@ -135,7 +128,6 @@ public class ShuttlArchiverMBeanTest {
 		String clusterName = "some_cluster_name";
 		String serverName = "some_server_name";
 		String archiverRootURI = "hdfs://localhost:1234";
-		String tmpDirectory = "/some-tmp-dir";
 		String expectedConfigFile = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
 				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">\n"
 				+ "<archiveFormats>\n"
@@ -157,9 +149,6 @@ public class ShuttlArchiverMBeanTest {
 				+ "<bucketFormatPriority>"
 				+ "CSV"
 				+ "</bucketFormatPriority>\n"
-				+ "<tmpDirectory>"
-				+ tmpDirectory
-				+ "</tmpDirectory>\n"
 				+ "</ns2:archiverConf>\n";
 
 		File file = getTempFile();
@@ -168,7 +157,6 @@ public class ShuttlArchiverMBeanTest {
 		archiverMBean.setClusterName(clusterName);
 		archiverMBean.setServerName(serverName);
 		archiverMBean.setArchiverRootURI(archiverRootURI);
-		archiverMBean.setTmpDirectory(tmpDirectory);
 		archiverMBean.setBucketFormatPriority(archiveFormats);
 		archiverMBean.save();
 
@@ -185,7 +173,6 @@ public class ShuttlArchiverMBeanTest {
 		String clusterName = "some_cluster_name";
 		String serverName = "some_server_name";
 		String archiverRootURI = "hdfs://localhost:1234";
-		String tmpDirectory = "/some-tmp-dir";
 		String configFilePreset = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
 				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">\n"
 				+ "<archiveFormats>\n"
@@ -204,8 +191,7 @@ public class ShuttlArchiverMBeanTest {
 				+ "    <bucketFormatPriority>"
 				+ "SPLUNK_BUCKET"
 				+ "</bucketFormatPriority>\n"
-				+ "    <tmpDirectory>"
-				+ tmpDirectory + "</tmpDirectory>\n" + "</ns2:archiverConf>";
+ + "</ns2:archiverConf>";
 
 		File file = File.createTempFile("shuttlArchiverMBeanTest2", ".xml");
 		file.deleteOnExit();
@@ -215,7 +201,6 @@ public class ShuttlArchiverMBeanTest {
 		assertEquals(archiverMBean.getClusterName(), clusterName);
 		assertEquals(archiverMBean.getServerName(), serverName);
 		assertEquals(archiverMBean.getArchiverRootURI(), archiverRootURI);
-		assertEquals(archiverMBean.getTmpDirectory(), tmpDirectory);
 	}
 
 	private File getTempFile() throws Exception {

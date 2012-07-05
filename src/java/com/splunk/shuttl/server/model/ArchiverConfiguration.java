@@ -41,10 +41,6 @@ public interface ArchiverConfiguration {
 
 	public void setIndexNames(List<String> indexNames);
 
-	public String getTmpDirectory();
-
-	public void setTmpDirectory(String path);
-
 	public String getArchiverRootURI();
 
 	public void setArchiverRootURI(String URI);
