@@ -48,6 +48,7 @@ You can download it [Splunk][splunk-download].  And see the [Splunk documentatio
 
 * Java JDK 6
 
+
 Development
 --------------
 
@@ -117,3 +118,26 @@ Now run:
 
 	$ `ant clean-all`
 	$ `ant test-all`
+
+
+Installing the app
+------------------
+
+Here's how to install the Shuttl app in your Splunk instance. Shuttl comes with some pre-configured values that you might need to modify.
+
+### Install
+1. Build the app by running `ant dist`
+2. Extract the build/shuttl.tgz in your $SPLUNK_HOME/etc/apps/
+
+### Configuration
+There are two configuration files that you might care about. One for archiving and one for the Shuttl server. They both live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
+
+The archiver.xml:
+- archiverRootURI: An URI where to archive the data. Currently supports the "hdfs://" and "file:/" schemas.
+- clusterName: Unique name for your Splunk cluster. Use the default if you don't care to name your cluster for each Shuttl installation.
+- serverName: Unique name for your Splunk server. Must be unique per Shuttl installation.
+- archiveFormats: The formats to archive the data as. The current available formats are SPLUNK_BUCKET and CSV. You can configure Shuttl to archive your data as both formats.
+
+The server.xml:
+httpHost: The host name of the machine.
+httpPort: The port for the shuttl server.
