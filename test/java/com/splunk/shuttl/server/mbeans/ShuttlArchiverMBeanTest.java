@@ -138,30 +138,29 @@ public class ShuttlArchiverMBeanTest {
 		String tmpDirectory = "/some-tmp-dir";
 		String expectedConfigFile = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
 				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">\n"
-				+ "    <archiveFormats>"
-				+ "SPLUNK_BUCKET"
+				+ "<archiveFormats>\n"
+				+ "<archiveFormat>SPLUNK_BUCKET</archiveFormat>\n"
+				+ "<archiveFormat>CSV</archiveFormat>\n"
 				+ "</archiveFormats>\n"
-				+ "    <archiveFormats>"
-				+ "CSV"
-				+ "</archiveFormats>\n"
-				+ "    <clusterName>"
+				+ "<clusterName>"
 				+ clusterName
 				+ "</clusterName>\n"
-				+ "    <serverName>"
+				+ "<serverName>"
 				+ serverName
 				+ "</serverName>\n"
-				+ "    <archiverRootURI>"
+				+ "<archiverRootURI>"
 				+ archiverRootURI
 				+ "</archiverRootURI>\n"
-				+ "    <bucketFormatPriority>"
+				+ "<bucketFormatPriority>"
 				+ "SPLUNK_BUCKET"
 				+ "</bucketFormatPriority>\n"
-				+ "    <bucketFormatPriority>"
+				+ "<bucketFormatPriority>"
 				+ "CSV"
 				+ "</bucketFormatPriority>\n"
-				+ "    <tmpDirectory>"
+				+ "<tmpDirectory>"
 				+ tmpDirectory
-				+ "</tmpDirectory>\n" + "</ns2:archiverConf>\n";
+				+ "</tmpDirectory>\n"
+				+ "</ns2:archiverConf>\n";
 
 		File file = getTempFile();
 		archiverMBean = new ShuttlArchiver(file.getPath());
@@ -173,7 +172,12 @@ public class ShuttlArchiverMBeanTest {
 		archiverMBean.setBucketFormatPriority(archiveFormats);
 		archiverMBean.save();
 
-		assertEquals(FileUtils.readFileToString(file), expectedConfigFile);
+		assertEquals(noSpaces(FileUtils.readFileToString(file)),
+				noSpaces(expectedConfigFile));
+	}
+
+	private String noSpaces(String s) {
+		return s.replaceAll(" ", "");
 	}
 
 	public void load_preconfiguredFile_givesCorrectValues() throws Exception {
@@ -184,13 +188,11 @@ public class ShuttlArchiverMBeanTest {
 		String tmpDirectory = "/some-tmp-dir";
 		String configFilePreset = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
 				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">\n"
-				+ "    <archiveFormats>"
-				+ "SPLUNK_BUCKET"
+				+ "<archiveFormats>\n"
+				+ "<archiveFormat>SPLUNK_BUCKET</archiveFormat>\n"
+				+ "<archiveFormat>CSV</archiveFormat>\n"
 				+ "</archiveFormats>\n"
-				+ "    <archiveFormats>"
-				+ "CSV"
-				+ "</archiveFormats>\n"
-				+ "    <clusterName>"
+				+ "<clusterName>"
 				+ clusterName
 				+ "</clusterName>\n"
 				+ "    <serverName>"
@@ -203,8 +205,7 @@ public class ShuttlArchiverMBeanTest {
 				+ "SPLUNK_BUCKET"
 				+ "</bucketFormatPriority>\n"
 				+ "    <tmpDirectory>"
-				+ tmpDirectory
-				+ "</tmpDirectory>\n" + "</ns2:archiverConf>";
+				+ tmpDirectory + "</tmpDirectory>\n" + "</ns2:archiverConf>";
 
 		File file = File.createTempFile("shuttlArchiverMBeanTest2", ".xml");
 		file.deleteOnExit();

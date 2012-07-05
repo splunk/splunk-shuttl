@@ -47,6 +47,8 @@ public class ArchiverConf implements ArchiverConfiguration {
 	 * .splunk.shuttl.archiver.archive.BucketFormat)
 	 */
 	@Override
+	@XmlElementWrapper(name = "archiveFormats")
+	@XmlElement(name = "archiveFormat")
 	public List<String> getArchiveFormats() {
 		return archiveFormats;
 	}
