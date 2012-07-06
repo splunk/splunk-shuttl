@@ -1,4 +1,3 @@
-
 Shuttl - Archiving for Splunk 
 =======================================
 
@@ -146,7 +145,7 @@ The server.xml:
 - httpPort: The port for the shuttl server. (usually 9090)
 
 Note, the directory that the data will be archived to is
-	[archiverRootURI]/[clusterName]/[serverName]/[indexName]
+	[archiverRootURI]/archive_data/[clusterName]/[serverName]/[indexName]
 
 ### Splunk Index Configuration
 
