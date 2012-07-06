@@ -128,8 +128,11 @@ Here's how to install the Shuttl app in your Splunk instance. Shuttl comes with 
 ### Install
 1. Build the app by running `ant dist`
 2. Extract the build/shuttl.tgz in your $SPLUNK_HOME/etc/apps/
+3. While Splunk is not running, configure Shuttl and Splunk as mentioned below
+4. Start Splunk up, and enable the Shuttl App via the Manager
+5. If the index is getting data, and calling the archiver, then you should see the data in HDFS
 
-### Configuration
+### Shuttl Configuration
 There are two configuration files that you might care about. One for archiving and one for the Shuttl server. They both live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
 
 The archiver.xml:
@@ -139,5 +142,22 @@ The archiver.xml:
 - archiveFormats: The formats to archive the data as. The current available formats are SPLUNK_BUCKET and CSV. You can configure Shuttl to archive your data as both formats.
 
 The server.xml:
-httpHost: The host name of the machine.
-httpPort: The port for the shuttl server.
+- httpHost: The host name of the machine.
+- httpPort: The port for the shuttl server.
+
+### Splunk Index Configuration
+
+In addition, you need to configure Splunk to call the archiver script (set coldToFrozenScript) for each index that is being archived. You can do this by creating an indexes.conf file in $SPLUNK_HOME/etc/apps/shuttl/local with the appropriate config stanzas. An example is as follows:
+
+
+	[mytest]
+	homePath = $SPLUNK_DB/mytest/db
+	coldPath = $SPLUNK_DB/mytest/colddb
+	thawedPath = $SPLUNK_DB/mytest/thaweddb
+	rotatePeriodInSecs = 10
+	frozenTimePeriodInSecs = 120
+	maxWarmDBCount = 1
+	coldToFrozenScript = "$SPLUNK_HOME/etc/apps/shuttl/bin/archiveBucket.sh mytest"
+
+Note: Note the repeat of "mytest" as an argument to the coldToFrozenScript. This should always match the index name.
+WARNING: the settings rotatePeriodInSecs, frozenTimePeriodInSecs, maxWarmDBCount are there only for testing. See [Set a retirement and archiving policy](http://docs.splunk.com/Documentation/Splunk/latest/admin/Setaretirementandarchivingpolicy) and [Indexes.conf](http://docs.splunk.com/Documentation/Splunk/4.3.3/admin/Indexesconf) documentation to suit your test and deployment needs.
