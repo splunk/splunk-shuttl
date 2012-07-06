@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.importexport;
 
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -28,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
@@ -50,7 +50,8 @@ public class BucketExporterIntegrationTest {
 
 	@AfterMethod
 	public void tearDown() {
-		FileUtils.deleteQuietly(getArchiverDirectory());
+		FileUtils.deleteQuietly(new LocalFileSystemConstants()
+				.getArchiverDirectory());
 	}
 
 	@Test(groups = { "end-to-end" })

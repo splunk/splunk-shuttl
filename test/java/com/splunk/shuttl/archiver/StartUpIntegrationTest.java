@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver;
 
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
 
@@ -26,7 +25,8 @@ import org.testng.annotations.Test;
 public class StartUpIntegrationTest {
 
 	public void _givenFilesInThawLocksLocation_cleanThem() {
-		testIntegrationWithDirectory(getThawLocksDirectory());
+		testIntegrationWithDirectory(new LocalFileSystemConstants()
+				.getThawLocksDirectory());
 	}
 
 	private void testIntegrationWithDirectory(File directoryToIntegrate) {
@@ -36,6 +36,7 @@ public class StartUpIntegrationTest {
 	}
 
 	public void _givenFilesInThawTransfersLocation_cleansThem() {
-		testIntegrationWithDirectory(getThawTransfersDirectory());
+		testIntegrationWithDirectory(new LocalFileSystemConstants()
+				.getThawTransfersDirectory());
 	}
 }

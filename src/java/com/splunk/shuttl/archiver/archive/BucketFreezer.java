@@ -15,13 +15,12 @@
 
 package com.splunk.shuttl.archiver.archive;
 
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
-
 import java.io.FileNotFoundException;
 
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.LogFormatter;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
@@ -100,7 +99,8 @@ public class BucketFreezer {
 	 * The construction logic for creating a {@link BucketFreezer}
 	 */
 	public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
-		BucketMover bucketMover = new BucketMover(getSafeDirectory());
+		BucketMover bucketMover = new BucketMover(
+				new LocalFileSystemConstants().getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
 				bucketMover, bucketLocker);
