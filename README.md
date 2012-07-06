@@ -137,13 +137,16 @@ There are two configuration files that you might care about. One for archiving a
 
 The archiver.xml:
 - archiverRootURI: An URI where to archive the data. Currently supports the "hdfs://" and "file:/" schemas.
-- clusterName: Unique name for your Splunk cluster. Use the default if you don't care to name your cluster for each Shuttl installation.
-- serverName: Unique name for your Splunk server. Must be unique per Shuttl installation.
+- clusterName: Unique name for your Splunk cluster. Use the default if you don't care to name your cluster for each Shuttl installation. Note, this is only a Shuttl concept for a group of Splunk indexers that should be treated as a cluster. Splunk does not have this notion.
+- serverName: This is the Splunk Server Name. Check Splunk Manager for that server to populate this value. Must be unique per Shuttl installation.
 - archiveFormats: The formats to archive the data as. The current available formats are SPLUNK_BUCKET and CSV. You can configure Shuttl to archive your data as both formats.
 
 The server.xml:
-- httpHost: The host name of the machine.
-- httpPort: The port for the shuttl server.
+- httpHost: The host name of the machine. (usually localhost)
+- httpPort: The port for the shuttl server. (usually 9090)
+
+Note, the directory that the data will be archived to is
+	<archiverRootURI>/<clusterName>/<serverName>/<indexName>
 
 ### Splunk Index Configuration
 
@@ -160,4 +163,5 @@ In addition, you need to configure Splunk to call the archiver script (set coldT
 	coldToFrozenScript = "$SPLUNK_HOME/etc/apps/shuttl/bin/archiveBucket.sh mytest"
 
 Note: Note the repeat of "mytest" as an argument to the coldToFrozenScript. This should always match the index name.
+
 WARNING: the settings rotatePeriodInSecs, frozenTimePeriodInSecs, maxWarmDBCount are there only for testing. See [Set a retirement and archiving policy](http://docs.splunk.com/Documentation/Splunk/latest/admin/Setaretirementandarchivingpolicy) and [Indexes.conf](http://docs.splunk.com/Documentation/Splunk/4.3.3/admin/Indexesconf) documentation to suit your test and deployment needs.
