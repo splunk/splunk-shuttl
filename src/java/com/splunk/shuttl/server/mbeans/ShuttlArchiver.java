@@ -17,6 +17,8 @@ package com.splunk.shuttl.server.mbeans;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+import javax.management.InstanceNotFoundException;
+
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.server.mbeans.util.JAXBUtils;
@@ -59,6 +61,16 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 			logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
 			throw new ShuttlMBeanException(e);
 		}
+	}
+
+	@Override
+	public String getLocalArchiverDir() {
+		return conf.getLocalArchiverDir();
+	}
+
+	@Override
+	public void setLocalArchiverDir(String localArchiverDir) {
+		conf.setLocalArchiverDir(localArchiverDir);
 	}
 
 	@Override
@@ -136,15 +148,13 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	}
 
 	/**
-	 * @return
+	 * @return instance of {@link ShuttlArchiverMBean}
+	 * @throws InstanceNotFoundException
+	 * @see {@link MBeanUtils#getMBeanInstance(String, Class)}
 	 */
-	public static ShuttlArchiverMBean getMBeanProxy() {
-		try {
-			return MBeanUtils.getMBeanInstance(ShuttlArchiverMBean.OBJECT_NAME,
-					ShuttlArchiverMBean.class);
-		} catch (Exception e) {
-			logger.error(e);
-			throw new RuntimeException(e);
-		}
+	public static ShuttlArchiverMBean getMBeanProxy()
+			throws InstanceNotFoundException {
+		return MBeanUtils.getMBeanInstance(ShuttlArchiverMBean.OBJECT_NAME,
+				ShuttlArchiverMBean.class);
 	}
 }

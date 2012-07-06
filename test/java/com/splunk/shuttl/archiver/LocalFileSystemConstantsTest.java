@@ -15,7 +15,7 @@
 package com.splunk.shuttl.archiver;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.testng.AssertJUnit.*;
+import static org.testng.Assert.*;
 
 import java.io.File;
 
@@ -96,5 +96,36 @@ public class LocalFileSystemConstantsTest {
 	public void getThawTransferDirectory_setUp_dirExistsInsideArchiverDirectory() {
 		assertExistsInsideArchiverDirectory(localFileSystemConstants
 				.getThawTransfersDirectory());
+	}
+
+	public void getArchiverDirectory_givenTildeWithoutRoot_resolvesTildeAsUserHome() {
+		File archiverDirectory = new LocalFileSystemConstants(
+				"~/archiver_directory").getArchiverDirectory();
+		File expected = new File(FileUtils.getUserDirectoryPath(),
+				"archiver_directory");
+		assertEquals(expected.getAbsolutePath(), archiverDirectory.getParentFile()
+				.getAbsolutePath());
+	}
+
+	public void getArchiverDirectory_givenUriWithFileSchemeAndTilde_resolvesTildeAsUserHome() {
+		File archiverDirectory = new LocalFileSystemConstants(
+				"file:/~/archiver_dir").getArchiverDirectory();
+		File expected = new File(FileUtils.getUserDirectoryPath(), "archiver_dir");
+		assertEquals(expected.getAbsolutePath(), archiverDirectory.getParentFile()
+				.getAbsolutePath());
+	}
+
+	public void create_staticWithNoArgs_getArchiverDirectoryIsInATemporaryDirectory() {
+		File archiverDirectory = LocalFileSystemConstants.create()
+				.getArchiverDirectory();
+		assertTrue(archiverDirectory.getAbsolutePath().contains(
+				FileUtils.getTempDirectoryPath()));
+	}
+
+	public void create_staticWithNoArgs_dirNameContainsTheWordForTests() {
+		File archiverDirectory = LocalFileSystemConstants.create()
+				.getArchiverDirectory();
+		String absolutePath = archiverDirectory.getAbsolutePath();
+		assertTrue(absolutePath.toLowerCase().contains("fortests"));
 	}
 }

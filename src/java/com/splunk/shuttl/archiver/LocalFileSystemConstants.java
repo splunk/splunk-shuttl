@@ -14,9 +14,16 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.io.File;
 
+import javax.management.InstanceNotFoundException;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+
+import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 
 /**
  * Constants for creating directories where the Archiver can store its locks,
@@ -46,7 +53,16 @@ public class LocalFileSystemConstants {
 	 * Directory which contains all files created by the archiver.
 	 */
 	public File getArchiverDirectory() {
-		return new File(archiverDirectoryPath, "data");
+		String tildeAdjustedPath = archiverDirectoryPath.replace("~",
+				FileUtils.getUserDirectoryPath());
+		String pathWithoutTildeNorFileSchema = removeEventualFileSchema(tildeAdjustedPath);
+		return new File(pathWithoutTildeNorFileSchema, "data");
+	}
+
+	private String removeEventualFileSchema(String path) {
+		if (path.startsWith("file:/"))
+			return path.replaceFirst("file:/", "");
+		return path;
 	}
 
 	/**
@@ -97,10 +113,30 @@ public class LocalFileSystemConstants {
 	public File getThawTransfersDirectory() {
 		return createDirectoryUnderArchiverDir(THAW_TRANSFERS_NAME);
 	}
-	
+
 	public static LocalFileSystemConstants create() {
-		return new LocalFileSystemConstants(FileUtils.getUserDirectoryPath()
-				+ File.separator + "ArchiverData");
+		String archiverPath = getPathForArchiverData();
+		return new LocalFileSystemConstants(archiverPath);
 	}
 
+	private static String getPathForArchiverData() {
+		try {
+			return ShuttlArchiver.getMBeanProxy().getLocalArchiverDir();
+		} catch (InstanceNotFoundException e) {
+			String archiverDirectoryPath = FileUtils.getTempDirectoryPath()
+					+ File.separator + "ShuttlArchiverDataDirForTests";
+			logAssumptionThatTestsAreBeingRun(e, archiverDirectoryPath);
+			return archiverDirectoryPath;
+		}
+	}
+
+	private static void logAssumptionThatTestsAreBeingRun(
+			InstanceNotFoundException e, String archiverDirectoryPath) {
+		Logger.getLogger(LocalFileSystemConstants.class).debug(
+				warn("Tried getting local archiver directory from configuration.",
+						"Configuration instance was not registered for ShuttlArchiver.",
+						"Assuming tests are being run and returns path for archiver data: "
+								+ archiverDirectoryPath, "archiver_directory_path",
+						archiverDirectoryPath, "exception", e));
+	}
 }

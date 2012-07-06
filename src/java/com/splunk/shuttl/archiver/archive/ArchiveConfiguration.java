@@ -15,12 +15,17 @@
 
 package com.splunk.shuttl.archiver.archive;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.management.InstanceNotFoundException;
+
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
@@ -60,12 +65,26 @@ public class ArchiveConfiguration {
 			sharedInstance = sharedInstanceRef.get();
 
 		if (sharedInstance == null) {
-			sharedInstance = createConfigurationWithMBean(ShuttlArchiver
-					.getMBeanProxy());
+			sharedInstance = createConfigurationFromMBean();
 			sharedInstanceRef = new SoftReference<ArchiveConfiguration>(
 					sharedInstance);
 		}
 		return sharedInstance;
+	}
+
+	private static ArchiveConfiguration createConfigurationFromMBean() {
+		try {
+			return createConfigurationWithMBean(ShuttlArchiver.getMBeanProxy());
+		} catch (InstanceNotFoundException e) {
+			logInstanceNotFoundException(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void logInstanceNotFoundException(InstanceNotFoundException e) {
+		Logger.getLogger(ArchiveConfiguration.class).error(
+				did("Tried getting a ShuttlArchiverMBean", e,
+						"An instance to be registered to the MBean."));
 	}
 
 	/**

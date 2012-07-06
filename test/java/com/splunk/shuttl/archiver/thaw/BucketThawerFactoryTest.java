@@ -34,7 +34,12 @@ public class BucketThawerFactoryTest {
 	@Test(groups = { "end-to-end" })
 	public void createDefaultThawer_realConfigurationWithSplunk_notNull()
 			throws Exception {
-		TUtilsMBean.registerShuttlArchiverMBean();
-		assertNotNull(BucketThawerFactory.createDefaultThawer());
+		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+
+			@Override
+			public void run() {
+				assertNotNull(BucketThawerFactory.createDefaultThawer());
+			}
+		});
 	}
 }

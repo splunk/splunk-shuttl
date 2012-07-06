@@ -36,7 +36,7 @@ public class MBeanUtils {
 	/**
 	 * Registers an MBean
 	 * 
-	 * @param objectName
+	 * @param name
 	 *          the name of the MBean to register.
 	 * @param clazz
 	 *          the MBean class to use.
@@ -50,6 +50,19 @@ public class MBeanUtils {
 	}
 
 	/**
+	 * Unregisters an MBean
+	 * 
+	 * @param name
+	 *          to unregister
+	 * @throws Exception
+	 */
+	public static void unregisterMBean(String name) throws Exception {
+		ObjectName objectName = new ObjectName(name);
+		if (mbs.isRegistered(objectName))
+			mbs.unregisterMBean(objectName);
+	}
+
+	/**
 	 * Retrieves an instance of a specific MBean
 	 * 
 	 * @param objectName
@@ -59,6 +72,7 @@ public class MBeanUtils {
 	 * @return If the object name and class are correct, a reference to an
 	 *         instance of the class
 	 * @throws InstanceNotFoundException
+	 *           if class is not registered to the name.
 	 */
 	public static <T> T getMBeanInstance(String name, Class<T> clazz)
 			throws InstanceNotFoundException {
@@ -87,4 +101,5 @@ public class MBeanUtils {
 				did("Tried creating ObjectName for MBean name: " + name, e,
 						"To create ObjectName", "mbean_name", name, "class" + clazz));
 	}
+
 }

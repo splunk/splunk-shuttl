@@ -21,6 +21,10 @@ import java.util.List;
  */
 public interface ArchiverConfiguration {
 
+	public String getLocalArchiverDir();
+
+	public void setLocalArchiverDir(String localArchiverDir);
+
 	public List<String> getArchiveFormats();
 
 	public void setArchiveFormats(List<String> archiveFormats);

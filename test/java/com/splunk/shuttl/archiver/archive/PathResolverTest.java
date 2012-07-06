@@ -150,9 +150,13 @@ public class PathResolverTest {
 	}
 
 	public void getConfigured_registeredMBean_getsPathResolverInstance() {
-		TUtilsMBean.registerShuttlArchiverMBean();
-		PathResolver pr = PathResolver.getConfigured();
-		assertNotNull(pr);
+		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+			@Override
+			public void run() {
+				PathResolver pr = PathResolver.getConfigured();
+				assertNotNull(pr);
+			}
+		});
 	}
 
 	public void getBucketSizeFileUriForBucket_givenBucket_livesInAMetadataFolderInTheBucket() {
