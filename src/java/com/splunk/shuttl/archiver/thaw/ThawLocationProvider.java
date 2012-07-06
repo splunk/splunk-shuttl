@@ -81,7 +81,7 @@ public class ThawLocationProvider {
 	 */
 	public static ThawLocationProvider create(SplunkSettings splunkSettings) {
 		return new ThawLocationProvider(splunkSettings,
-				new LocalFileSystemConstants().getThawTransfersDirectory());
+				LocalFileSystemConstants.create().getThawTransfersDirectory());
 	}
 
 }

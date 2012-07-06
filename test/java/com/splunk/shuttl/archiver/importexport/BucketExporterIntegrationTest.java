@@ -50,7 +50,7 @@ public class BucketExporterIntegrationTest {
 
 	@AfterMethod
 	public void tearDown() {
-		FileUtils.deleteQuietly(new LocalFileSystemConstants()
+		FileUtils.deleteQuietly(LocalFileSystemConstants.create()
 				.getArchiverDirectory());
 	}
 

@@ -64,7 +64,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 	@AfterMethod(groups = { "fast-unit" })
 	public void tearDownFast() {
 		FileUtils.deleteQuietly(tempTestDirectory);
-		FileUtils.deleteQuietly(new LocalFileSystemConstants()
+		FileUtils.deleteQuietly(LocalFileSystemConstants.create()
 				.getArchiverDirectory());
 	}
 

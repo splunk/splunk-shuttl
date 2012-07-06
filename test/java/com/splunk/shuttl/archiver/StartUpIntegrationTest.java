@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 public class StartUpIntegrationTest {
 
 	public void _givenFilesInThawLocksLocation_cleanThem() {
-		testIntegrationWithDirectory(new LocalFileSystemConstants()
+		testIntegrationWithDirectory(LocalFileSystemConstants.create()
 				.getThawLocksDirectory());
 	}
 
@@ -36,7 +36,7 @@ public class StartUpIntegrationTest {
 	}
 
 	public void _givenFilesInThawTransfersLocation_cleansThem() {
-		testIntegrationWithDirectory(new LocalFileSystemConstants()
+		testIntegrationWithDirectory(LocalFileSystemConstants.create()
 				.getThawTransfersDirectory());
 	}
 }

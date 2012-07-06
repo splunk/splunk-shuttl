@@ -54,7 +54,7 @@ public class BucketLockerTest {
 	@AfterMethod
 	public void tearDown() throws IOException {
 		FileUtils.deleteDirectory(tempTestDirectory);
-		FileUtils.deleteDirectory(new LocalFileSystemConstants()
+		FileUtils.deleteDirectory(LocalFileSystemConstants.create()
 				.getArchiverDirectory());
 	}
 

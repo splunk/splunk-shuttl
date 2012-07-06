@@ -58,7 +58,7 @@ public class StartUpCleaner {
 	 *         cleaned at start up.
 	 */
 	public static StartUpCleaner create() {
-		LocalFileSystemConstants fileSystemConstants = new LocalFileSystemConstants();
+		LocalFileSystemConstants fileSystemConstants = LocalFileSystemConstants.create();
 		return new StartUpCleaner(asList(
 				fileSystemConstants.getThawLocksDirectory(),
 				fileSystemConstants.getThawTransfersDirectory()));

@@ -92,7 +92,7 @@ public class CsvExporter {
 	 */
 	public static CsvExporter create() {
 		return new CsvExporter(new SplunkExportTool(),
-				new GetsBucketsCsvExportFile(new LocalFileSystemConstants()
+				new GetsBucketsCsvExportFile(LocalFileSystemConstants.create()
 						.getCsvDirectory()),
 				ShellExecutor.getInstance());
 	}

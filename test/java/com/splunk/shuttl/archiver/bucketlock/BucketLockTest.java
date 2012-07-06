@@ -54,7 +54,7 @@ public class BucketLockTest {
 
 	@AfterTest
 	public void deleteDefaultBucketLockDirectory() throws IOException {
-		FileUtils.deleteDirectory(new LocalFileSystemConstants()
+		FileUtils.deleteDirectory(LocalFileSystemConstants.create()
 				.getArchiverDirectory());
 	}
 

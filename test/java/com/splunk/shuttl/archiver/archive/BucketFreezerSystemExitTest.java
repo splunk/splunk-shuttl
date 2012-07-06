@@ -46,14 +46,14 @@ public class BucketFreezerSystemExitTest {
 	public void setUp() {
 		runtimeMock = mock(Runtime.class);
 		bucketFreezer = new BucketFreezer(new BucketMover(
-				new LocalFileSystemConstants().getSafeDirectory()),
+				LocalFileSystemConstants.create().getSafeDirectory()),
 				new BucketLockerInTestDir(createDirectory()),
 				mock(ArchiveRestHandler.class), mock(FailedBucketsArchiver.class));
 	}
 
 	@AfterMethod(groups = { "fast-unit" })
 	public void tearDown() throws IOException {
-		FileUtils.deleteDirectory(new LocalFileSystemConstants()
+		FileUtils.deleteDirectory(LocalFileSystemConstants.create()
 				.getArchiverDirectory());
 	}
 

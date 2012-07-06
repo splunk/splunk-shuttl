@@ -100,7 +100,7 @@ public class BucketFreezer {
 	 */
 	public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
 		BucketMover bucketMover = new BucketMover(
-				new LocalFileSystemConstants().getSafeDirectory());
+				LocalFileSystemConstants.create().getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
 				bucketMover, bucketLocker);

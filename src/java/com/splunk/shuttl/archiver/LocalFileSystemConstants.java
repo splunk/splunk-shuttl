@@ -24,37 +24,29 @@ import org.apache.commons.io.FileUtils;
  */
 public class LocalFileSystemConstants {
 
-	final String ARCHIVER_DIRECTORY_PATH = FileUtils.getUserDirectoryPath()
-			+ File.separator + "SplunkArchiverFiles";
+	final String SAFE_BUCKETS_NAME = "safe-buckets";
 
-	final String SAFE_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
-			+ "safe-buckets";
+	final String FAILED_BUCKETS_NAME = "failed-buckets";
 
-	final String FAIL_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
-			+ "failed-buckets";
+	final String ARCHIVE_LOCKS_NAME = "archive-locks-dir";
 
-	final String ARCHIVE_LOCKS_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
-			+ "archive-locks-dir";
+	final String CSV_DIR_NAME = "csv-dir";
 
-	final String CSV_PATH = ARCHIVER_DIRECTORY_PATH + File.separator + "csv-dir";
+	final String THAW_LOCKS_NAME = "thaw-locks-dir";
 
-	final String THAW_LOCKS_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
-			+ "thaw-locks-dir";
+	final String THAW_TRANSFERS_NAME = "thaw-transfers-dir";
 
-	final String THAW_TRANSFERS_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
-			+ "thaw-transfers-dir";
+	private final String archiverDirectoryPath;
+
+	public LocalFileSystemConstants(String archiverDirectoryPath) {
+		this.archiverDirectoryPath = archiverDirectoryPath;
+	}
 
 	/**
 	 * Directory which contains all files created by the archiver.
 	 */
 	public File getArchiverDirectory() {
-		return createDirectory(ARCHIVER_DIRECTORY_PATH);
-	}
-
-	private File createDirectory(String path) {
-		File dir = new File(path);
-		dir.mkdirs();
-		return dir;
+		return new File(archiverDirectoryPath, "data");
 	}
 
 	/**
@@ -62,42 +54,53 @@ public class LocalFileSystemConstants {
 	 * where Splunk cannot delete the buckets.
 	 */
 	public File getSafeDirectory() {
-		return createDirectory(SAFE_PATH);
+		return createDirectoryUnderArchiverDir(SAFE_BUCKETS_NAME);
+	}
+
+	private File createDirectoryUnderArchiverDir(String name) {
+		File dir = new File(getArchiverDirectory(), name);
+		dir.mkdirs();
+		return dir;
 	}
 
 	/**
 	 * Contains the failed bucket archiving transfers
 	 */
 	public File getFailDirectory() {
-		return createDirectory(FAIL_PATH);
+		return createDirectoryUnderArchiverDir(FAILED_BUCKETS_NAME);
 	}
 
 	/**
 	 * Contains locks for archiving buckets.
 	 */
 	public File getArchiveLocksDirectory() {
-		return createDirectory(ARCHIVE_LOCKS_PATH);
+		return createDirectoryUnderArchiverDir(ARCHIVE_LOCKS_NAME);
 	}
 
 	/**
 	 * Contains CSV files when exporting buckets.
 	 */
 	public File getCsvDirectory() {
-		return createDirectory(CSV_PATH);
+		return createDirectoryUnderArchiverDir(CSV_DIR_NAME);
 	}
 
 	/**
 	 * Contains locks for thawing buckets.
 	 */
 	public File getThawLocksDirectory() {
-		return createDirectory(THAW_LOCKS_PATH);
+		return createDirectoryUnderArchiverDir(THAW_LOCKS_NAME);
 	}
 
 	/**
 	 * Temporary contains thaw transfers.
 	 */
 	public File getThawTransfersDirectory() {
-		return createDirectory(THAW_TRANSFERS_PATH);
+		return createDirectoryUnderArchiverDir(THAW_TRANSFERS_NAME);
+	}
+	
+	public static LocalFileSystemConstants create() {
+		return new LocalFileSystemConstants(FileUtils.getUserDirectoryPath()
+				+ File.separator + "ArchiverData");
 	}
 
 }
