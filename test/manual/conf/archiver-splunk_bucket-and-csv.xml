@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:archiverConf xmlns:ns2="com.splunk.shuttl.server.model">
-    <localArchiverDir>file/~/manual-shuttl-test-data</localArchiverDir>
+    <localArchiverDir>file:/~/manual-shuttl-test-data</localArchiverDir>
     <archiverRootURI>file:@ABSOLUTE_PATH_TO_BUILD_CACHE@/local_archiver/archiver_data</archiverRootURI>
     <clusterName>cluster_name</clusterName>
     <serverName>server_name</serverName>
