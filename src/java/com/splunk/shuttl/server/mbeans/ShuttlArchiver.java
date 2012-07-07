@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	}
 
 	protected String getArchiverConfXml() {
-		return System.getProperty("splunk.home") + ARCHIVERCONF_XML;
+		return System.getenv("SPLUNK_HOME") + File.separator + ARCHIVERCONF_XML;
 	}
 
 	// used by tests
@@ -140,7 +141,7 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 			this.conf = (ArchiverConf) JAXBUtils.refresh(ArchiverConf.class,
 					this.xmlFilePath);
 		} catch (FileNotFoundException fnfe) {
-			this.conf = new ArchiverConf();
+			throw new RuntimeException(fnfe);
 		} catch (Exception e) {
 			logger.error(e);
 			throw new ShuttlMBeanException(e);

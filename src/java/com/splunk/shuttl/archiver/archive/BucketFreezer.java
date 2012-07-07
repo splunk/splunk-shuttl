@@ -15,6 +15,8 @@
 
 package com.splunk.shuttl.archiver.archive;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.io.FileNotFoundException;
 
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -28,6 +30,9 @@ import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
+import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
+import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
+import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 
 /**
  * Takes a bucket that froze and archives it. <br/>
@@ -99,8 +104,8 @@ public class BucketFreezer {
 	 * The construction logic for creating a {@link BucketFreezer}
 	 */
 	public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
-		BucketMover bucketMover = new BucketMover(
-				LocalFileSystemConstants.create().getSafeDirectory());
+		BucketMover bucketMover = new BucketMover(LocalFileSystemConstants.create()
+				.getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
 				bucketMover, bucketLocker);
@@ -130,10 +135,21 @@ public class BucketFreezer {
 			runtime.exit(bucketFreezer.freezeBucket(args[0], args[1]));
 	}
 
-	public static void main(String... args) {
-		runMainWithDependencies(Runtime.getRuntime(),
-				BucketFreezer
-						.createWithDefaultHttpClientAndDefaultSafeAndFailLocations(), args);
+	public static void main(String... args) throws Exception {
+		try {
+			MBeanUtils.registerMBean(ShuttlArchiverMBean.OBJECT_NAME,
+					ShuttlArchiver.class);
+			runMainWithDependencies(Runtime.getRuntime(),
+					BucketFreezer
+							.createWithDefaultHttpClientAndDefaultSafeAndFailLocations(),
+					args);
+		} catch (Exception e) {
+			logger.error(did("Tried registering the ShuttlArchiverMBean", e,
+					"To register the ShuttlArchiverMBean" + " so that the BucketFreezer"
+							+ " can use the configuration"));
+		} finally {
+			MBeanUtils.unregisterMBean(ShuttlArchiverMBean.OBJECT_NAME);
+		}
 	}
 
 }

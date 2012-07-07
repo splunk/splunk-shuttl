@@ -28,7 +28,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
+import com.splunk.shuttl.server.mbeans.ShuttlArchiverForTests;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 
 @Test(groups = { "fast-unit" })
@@ -37,7 +37,7 @@ public class MBeanUtilsTest {
 	ObjectName objectName;
 	String objectNameString;
 	MBeanServer mbs;
-	Class<ShuttlArchiver> realClass;
+	Class<?> realClass;
 	Class<ShuttlArchiverMBean> interfaceClass;
 
 	@BeforeMethod
@@ -45,7 +45,7 @@ public class MBeanUtilsTest {
 		mbs = ManagementFactory.getPlatformMBeanServer();
 		objectNameString = ShuttlArchiverMBean.OBJECT_NAME;
 		objectName = new ObjectName(objectNameString);
-		realClass = ShuttlArchiver.class;
+		realClass = ShuttlArchiverForTests.class;
 		interfaceClass = ShuttlArchiverMBean.class;
 	}
 
