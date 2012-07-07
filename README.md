@@ -22,6 +22,20 @@ This works on the following systems
 * HDFS
 * S3 (in theory)
 
+License
+---------
+
+Shuttl is licensed under the Apache License 2.0. Details can be found in the LICENSE file.
+
+Shuttl is an unsupported community open source project and therefore is subject to being incomplete and containing bugs. 
+
+The Apache License only applies to Shuttl and no other Splunk software is implied.
+
+Splunk, in using the Apache License, does not provide any warranties or indemnification, and does not accept any liabilities with the use of Shuttl.
+
+We are now accepting contributions from individuals and companies to our Splunk open source projects.
+
+
 Prerequisites
 -------------
 
@@ -164,4 +178,4 @@ In addition, you need to configure Splunk to call the archiver script (set coldT
 
 Note: Note the repeat of "mytest" as an argument to the coldToFrozenScript. This should always match the index name.
 
-WARNING: the settings rotatePeriodInSecs, frozenTimePeriodInSecs, maxWarmDBCount are there only for testing. See [Set a retirement and archiving policy](http://docs.splunk.com/Documentation/Splunk/latest/admin/Setaretirementandarchivingpolicy) and [Indexes.conf](http://docs.splunk.com/Documentation/Splunk/4.3.3/admin/Indexesconf) documentation to suit your test and deployment needs.
+WARNING: the settings rotatePeriodInSecs, frozenTimePeriodInSecs, maxWarmDBCount are there only for testing to verify that data can be successfully transfered by inducing rapid bucket rolling. Don't use in production. See [Set a retirement and archiving policy](http://docs.splunk.com/Documentation/Splunk/latest/admin/Setaretirementandarchivingpolicy) and [Indexes.conf](http://docs.splunk.com/Documentation/Splunk/4.3.3/admin/Indexesconf) documentation to suit your test and deployment needs. Expected usage in production is that maxDataSize correspond to a HDFS block or larger (splunk default is 750mb), and maxHotIdleSecs should be set to 86400 for buckets approximately 24hrs worth of data.
