@@ -28,14 +28,38 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlRootElement(namespace = "com.splunk.shuttl.server.model")
-@XmlType(propOrder = { "archiveFormats", "clusterName", "serverName",
+@XmlType(propOrder = { "localArchiverDir", "archiveFormats", "clusterName",
+		"serverName",
 		"archiverRootURI", "bucketFormatPriority" })
 public class ArchiverConf implements ArchiverConfiguration {
+	private String localArchiverDir;
 	private List<String> archiveFormats;
 	private String clusterName;
 	private String serverName;
 	private String archiverRootURI;
 	private List<String> bucketFormatPriority;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.splunk.shuttl.server.model.ArchiverConfInterface#getLocalArchiverDir()
+	 */
+	@Override
+	public String getLocalArchiverDir() {
+		return localArchiverDir;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.splunk.shuttl.server.model.ArchiverConfInterface#setLocalArchiverDir()
+	 */
+	@Override
+	public void setLocalArchiverDir(String localArchiverDir) {
+		this.localArchiverDir = localArchiverDir;
+	}
 
 	/*
 	 * (non-Javadoc)

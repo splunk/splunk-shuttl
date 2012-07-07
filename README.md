@@ -1,4 +1,3 @@
-
 Shuttl - Archiving for Splunk 
 =======================================
 
@@ -150,6 +149,7 @@ Here's how to install the Shuttl app in your Splunk instance. Shuttl comes with 
 There are two configuration files that you might care about. One for archiving and one for the Shuttl server. They both live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
 
 The archiver.xml:
+- localArchiverDir: A local path (or an uri with file:/ schema) where shuttl's archiver's temporary transfer data, locks, metadata, etc. is stored.
 - archiverRootURI: An URI where to archive the data. Currently supports the "hdfs://" and "file:/" schemas.
 - clusterName: Unique name for your Splunk cluster. Use the default if you don't care to name your cluster for each Shuttl installation. Note, this is only a Shuttl concept for a group of Splunk indexers that should be treated as a cluster. Splunk does not have this notion.
 - serverName: This is the Splunk Server Name. Check Splunk Manager for that server to populate this value. Must be unique per Shuttl installation.
@@ -160,7 +160,7 @@ The server.xml:
 - httpPort: The port for the shuttl server. (usually 9090)
 
 Note, the directory that the data will be archived to is
-	[archiverRootURI]/[clusterName]/[serverName]/[indexName]
+	[archiverRootURI]/archive_data/[clusterName]/[serverName]/[indexName]
 
 ### Splunk Index Configuration
 

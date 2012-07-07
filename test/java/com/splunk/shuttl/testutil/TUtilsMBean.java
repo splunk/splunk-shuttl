@@ -23,7 +23,10 @@ import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 public class TUtilsMBean {
 
 	/**
-	 * Registers the ShuttlArchiverMBean
+	 * Registers the ShuttlArchiverMBean. Make sure to unregister after your test
+	 * is run. <br/>
+	 * Use {@link TUtilsMBean#runWithRegisteredShuttlArchiverMBean(Runnable)} if
+	 * possible.
 	 */
 	public static void registerShuttlArchiverMBean() {
 		try {
@@ -34,6 +37,26 @@ public class TUtilsMBean {
 		} catch (Exception e) {
 			TUtilsTestNG
 					.failForException("Could not register ShuttlArchiverMBean", e);
+		}
+	}
+
+	/**
+	 * Unregisters the ShuttlArchiverMBean
+	 */
+	public static void unregisterShuttlArchiverMBean() {
+		try {
+			MBeanUtils.unregisterMBean(ShuttlArchiverMBean.OBJECT_NAME);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void runWithRegisteredShuttlArchiverMBean(Runnable runnable) {
+		try {
+			registerShuttlArchiverMBean();
+			runnable.run();
+		} finally {
+			unregisterShuttlArchiverMBean();
 		}
 	}
 }

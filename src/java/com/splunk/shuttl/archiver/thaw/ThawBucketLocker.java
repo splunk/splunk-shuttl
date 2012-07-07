@@ -34,7 +34,7 @@ public class ThawBucketLocker extends BucketLocker {
 	@Override
 	public BucketLock getLockForBucket(Bucket bucket) {
 		return new BucketLock(bucket,
-				LocalFileSystemConstants.getThawLocksDirectory());
+				LocalFileSystemConstants.create().getThawLocksDirectory());
 	}
 
 }

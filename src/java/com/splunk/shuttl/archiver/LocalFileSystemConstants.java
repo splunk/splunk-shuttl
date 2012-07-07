@@ -14,9 +14,16 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.io.File;
 
+import javax.management.InstanceNotFoundException;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+
+import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 
 /**
  * Constants for creating directories where the Archiver can store its locks,
@@ -24,81 +31,112 @@ import org.apache.commons.io.FileUtils;
  */
 public class LocalFileSystemConstants {
 
-	static final String ARCHIVER_DIRECTORY_PATH = FileUtils
-			.getUserDirectoryPath() + File.separator + "SplunkArchiverFiles";
+	final String SAFE_BUCKETS_NAME = "safe-buckets";
 
-	static final String SAFE_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
-			+ "safe-buckets";
+	final String FAILED_BUCKETS_NAME = "failed-buckets";
 
-	static final String FAIL_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
-			+ "failed-buckets";
+	final String ARCHIVE_LOCKS_NAME = "archive-locks-dir";
 
-	static final String ARCHIVE_LOCKS_PATH = ARCHIVER_DIRECTORY_PATH
-			+ File.separator + "archive-locks-dir";
+	final String CSV_DIR_NAME = "csv-dir";
 
-	static final String CSV_PATH = ARCHIVER_DIRECTORY_PATH + File.separator
-			+ "csv-dir";
+	final String THAW_LOCKS_NAME = "thaw-locks-dir";
 
-	static final String THAW_LOCKS_PATH = ARCHIVER_DIRECTORY_PATH
-			+ File.separator + "thaw-locks-dir";
+	final String THAW_TRANSFERS_NAME = "thaw-transfers-dir";
 
-	public static final String THAW_TRANSFERS_PATH = ARCHIVER_DIRECTORY_PATH
-			+ File.separator + "thaw-transfers-dir";
+	private final String archiverDirectoryPath;
+
+	public LocalFileSystemConstants(String archiverDirectoryPath) {
+		this.archiverDirectoryPath = archiverDirectoryPath;
+	}
 
 	/**
 	 * Directory which contains all files created by the archiver.
 	 */
-	public static File getArchiverDirectory() {
-		return createDirectory(ARCHIVER_DIRECTORY_PATH);
+	public File getArchiverDirectory() {
+		String tildeAdjustedPath = archiverDirectoryPath.replace("~",
+				FileUtils.getUserDirectoryPath());
+		String pathWithoutTildeNorFileSchema = removeEventualFileSchema(tildeAdjustedPath);
+		return new File(pathWithoutTildeNorFileSchema, "data");
 	}
 
-	private static File createDirectory(String path) {
-		File dir = new File(path);
-		dir.mkdirs();
-		return dir;
+	private String removeEventualFileSchema(String path) {
+		if (path.startsWith("file:/"))
+			return path.replaceFirst("file:/", "");
+		return path;
 	}
 
 	/**
 	 * Safe location for the buckets to be archived. Stored away from Splunk,
 	 * where Splunk cannot delete the buckets.
 	 */
-	public static File getSafeDirectory() {
-		return createDirectory(SAFE_PATH);
+	public File getSafeDirectory() {
+		return createDirectoryUnderArchiverDir(SAFE_BUCKETS_NAME);
+	}
+
+	private File createDirectoryUnderArchiverDir(String name) {
+		File dir = new File(getArchiverDirectory(), name);
+		dir.mkdirs();
+		return dir;
 	}
 
 	/**
 	 * Contains the failed bucket archiving transfers
 	 */
-	public static File getFailDirectory() {
-		return createDirectory(FAIL_PATH);
+	public File getFailDirectory() {
+		return createDirectoryUnderArchiverDir(FAILED_BUCKETS_NAME);
 	}
 
 	/**
 	 * Contains locks for archiving buckets.
 	 */
-	public static File getArchiveLocksDirectory() {
-		return createDirectory(ARCHIVE_LOCKS_PATH);
+	public File getArchiveLocksDirectory() {
+		return createDirectoryUnderArchiverDir(ARCHIVE_LOCKS_NAME);
 	}
 
 	/**
 	 * Contains CSV files when exporting buckets.
 	 */
-	public static File getCsvDirectory() {
-		return createDirectory(CSV_PATH);
+	public File getCsvDirectory() {
+		return createDirectoryUnderArchiverDir(CSV_DIR_NAME);
 	}
 
 	/**
 	 * Contains locks for thawing buckets.
 	 */
-	public static File getThawLocksDirectory() {
-		return createDirectory(THAW_LOCKS_PATH);
+	public File getThawLocksDirectory() {
+		return createDirectoryUnderArchiverDir(THAW_LOCKS_NAME);
 	}
 
 	/**
 	 * Temporary contains thaw transfers.
 	 */
-	public static File getThawTransfersDirectory() {
-		return createDirectory(THAW_TRANSFERS_PATH);
+	public File getThawTransfersDirectory() {
+		return createDirectoryUnderArchiverDir(THAW_TRANSFERS_NAME);
 	}
 
+	public static LocalFileSystemConstants create() {
+		String archiverPath = getPathForArchiverData();
+		return new LocalFileSystemConstants(archiverPath);
+	}
+
+	private static String getPathForArchiverData() {
+		try {
+			return ShuttlArchiver.getMBeanProxy().getLocalArchiverDir();
+		} catch (InstanceNotFoundException e) {
+			String archiverDirectoryPath = FileUtils.getTempDirectoryPath()
+					+ File.separator + "ShuttlArchiverDataDirForTests";
+			logAssumptionThatTestsAreBeingRun(e, archiverDirectoryPath);
+			return archiverDirectoryPath;
+		}
+	}
+
+	private static void logAssumptionThatTestsAreBeingRun(
+			InstanceNotFoundException e, String archiverDirectoryPath) {
+		Logger.getLogger(LocalFileSystemConstants.class).debug(
+				warn("Tried getting local archiver directory from configuration.",
+						"Configuration instance was not registered for ShuttlArchiver.",
+						"Assuming tests are being run and returns path for archiver data: "
+								+ archiverDirectoryPath, "archiver_directory_path",
+						archiverDirectoryPath, "exception", e));
+	}
 }

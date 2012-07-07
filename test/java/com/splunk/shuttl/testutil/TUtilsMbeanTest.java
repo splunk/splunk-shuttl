@@ -14,10 +14,14 @@
 // limitations under the License.
 package com.splunk.shuttl.testutil;
 
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import javax.management.InstanceNotFoundException;
+import javax.management.OperationsException;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
@@ -26,17 +30,81 @@ import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 @Test(groups = { "fast-unit" })
 public class TUtilsMbeanTest {
 
+	@BeforeMethod
+	public void setUp() {
+		TUtilsMBean.unregisterShuttlArchiverMBean();
+	}
+
+	@AfterMethod
+	public void tearDown() {
+		TUtilsMBean.unregisterShuttlArchiverMBean();
+	}
+
 	@Test(groups = { "fast-unit" })
 	public void registerShuttlArchiverMBean_notRegistered_registersMbean()
 			throws InstanceNotFoundException {
+		assertFalse(isMBeanRegistered());
 		TUtilsMBean.registerShuttlArchiverMBean();
-		ShuttlArchiverMBean proxy = MBeanUtils.getMBeanInstance(
-				ShuttlArchiverMBean.OBJECT_NAME, ShuttlArchiverMBean.class);
-		assertNotNull(proxy);
+		assertTrue(isMBeanRegistered());
+		TUtilsMBean.unregisterShuttlArchiverMBean();
+		assertFalse(isMBeanRegistered());
+	}
+
+	private boolean isMBeanRegistered() throws InstanceNotFoundException {
+		try {
+			ShuttlArchiverMBean proxy = MBeanUtils.getMBeanInstance(
+					ShuttlArchiverMBean.OBJECT_NAME, ShuttlArchiverMBean.class);
+			return proxy != null;
+		} catch (InstanceNotFoundException e) {
+			return false;
+		}
 	}
 
 	public void registerShuttlArchiverMBean_twice_ok() {
 		TUtilsMBean.registerShuttlArchiverMBean();
 		TUtilsMBean.registerShuttlArchiverMBean();
+	}
+
+	public void unregisterShuttlArchiverMBean_twice_ok() {
+		TUtilsMBean.unregisterShuttlArchiverMBean();
+		TUtilsMBean.unregisterShuttlArchiverMBean();
+	}
+
+	public void runWithRegisteredShuttlArchiverMBean_withRunnable_runsRunnable() {
+		Runnable runnable = mock(Runnable.class);
+		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(runnable);
+		verify(runnable).run();
+	}
+
+	public void runWithRegisteredShuttlArchiverMBean_withRunnable_mBeanIsRegistered()
+			throws OperationsException {
+		assertFalse(isMBeanRegistered());
+		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					assertTrue(isMBeanRegistered());
+				} catch (InstanceNotFoundException e) {
+					TUtilsTestNG.failForException(null, e);
+				}
+			}
+		});
+	}
+
+	public void runWithRegisteredShuttlArchiverMBean_throwsExceptionInRunnable_stillUnregisteredAfterRun()
+			throws InstanceNotFoundException {
+		RuntimeException expectedException = null;
+		try {
+			TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+				@Override
+				public void run() {
+					throw new RuntimeException();
+				}
+			});
+		} catch (RuntimeException e) {
+			expectedException = e;
+		}
+		assertFalse(isMBeanRegistered());
+		assertNotNull(expectedException);
 	}
 }
