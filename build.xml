@@ -40,7 +40,8 @@
 
 	<!-- splunk properties -->
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
-	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
+	<property name="splunk.server.name" value="splunk" />
+	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
 
 	<!-- ivy properties -->
 	<property name="ivy.utils" value="${contribdir}/ivy-utils" />
@@ -384,7 +385,7 @@
 			<arg value="${hadoop.download.url}" />
 			<arg line="-o ${hadoop.download.name}" />
 		</exec>
-		<!-- this move will make hadoop.download.path make sence -->
+		<!-- this move will make hadoop.download.path make sense -->
 		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
 	</target>
 
@@ -551,6 +552,7 @@
 			<arg value="-c" />
 			<arg line="'tar xf ${splunk.tgz.dir}/*.tgz -C ${build-cache}'" />
 		</exec>
+		<move file="${build-cache}/splunk" tofile="${splunk.extracted.dir}"/>
 		<antcall target="copy-lib-jars-to-test-dir" />
 	</target>
 
@@ -751,7 +753,7 @@
 		<property name="manual.test.archiver.conf.name" value="archiver-csv.xml" />
 		<antcall target="manual-test-setup" />
 	</target>
-	
+
 	<target name="manual-test-formats-splunk-bucket-and-csv">
 		<property name="manual.test.archiver.conf.name" value="archiver-splunk_bucket-and-csv.xml" />
 		<antcall target="manual-test-setup" />
