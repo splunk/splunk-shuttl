@@ -31,6 +31,7 @@ import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
+import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
 /**
@@ -41,14 +42,16 @@ public class BucketFreezerSystemExitTest {
 
 	Runtime runtimeMock;
 	private BucketFreezer bucketFreezer;
+	private RegistersMBeans registersMBeans;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
 		runtimeMock = mock(Runtime.class);
-		bucketFreezer = new BucketFreezer(new BucketMover(
-				LocalFileSystemConstants.create().getSafeDirectory()),
-				new BucketLockerInTestDir(createDirectory()),
-				mock(ArchiveRestHandler.class), mock(FailedBucketsArchiver.class));
+		bucketFreezer = new BucketFreezer(new BucketMover(LocalFileSystemConstants
+				.create().getSafeDirectory()), new BucketLockerInTestDir(
+				createDirectory()), mock(ArchiveRestHandler.class),
+				mock(FailedBucketsArchiver.class));
+		registersMBeans = mock(RegistersMBeans.class);
 	}
 
 	@AfterMethod(groups = { "fast-unit" })
@@ -103,7 +106,8 @@ public class BucketFreezerSystemExitTest {
 	}
 
 	private void runMainWithDepentencies_withArguments(String... args) {
-		BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezer, args);
+		BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezer,
+				mock(RegistersMBeans.class), args);
 	}
 
 }

@@ -40,6 +40,8 @@ public class MBeanUtilsTest {
 	Class<?> realClass;
 	Class<ShuttlArchiverMBean> interfaceClass;
 
+	RegistersMBeans registersMBeans;
+
 	@BeforeMethod
 	public void setUp() throws MalformedObjectNameException, NullPointerException {
 		mbs = ManagementFactory.getPlatformMBeanServer();
@@ -47,6 +49,8 @@ public class MBeanUtilsTest {
 		objectName = new ObjectName(objectNameString);
 		realClass = ShuttlArchiverForTests.class;
 		interfaceClass = ShuttlArchiverMBean.class;
+
+		registersMBeans = new RegistersMBeans();
 	}
 
 	@AfterMethod
@@ -62,19 +66,19 @@ public class MBeanUtilsTest {
 			throws Exception {
 		assertFalse(mbs.isRegistered(objectName));
 
-		MBeanUtils.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, realClass);
 		assertTrue(mbs.isRegistered(objectName));
 	}
 
 	public void registerMBean_registeredMBean_doesNothing() throws Exception {
-		MBeanUtils.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, realClass);
 		assertTrue(mbs.isRegistered(objectName));
 
-		MBeanUtils.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, realClass);
 	}
 
 	public void getMBeanInstance_registeredMBean_getsInstance() throws Exception {
-		MBeanUtils.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, realClass);
 		ShuttlArchiverMBean instance = MBeanUtils.getMBeanInstance(
 				objectNameString, interfaceClass);
 		assertNotNull(instance);
