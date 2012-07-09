@@ -652,12 +652,13 @@
 		</exec>
 	</target>
 
-	<target name="check-if-shuttl-is-enabled">
-		<shellscript shell="sh" outputproperty="isEnabled">
-			${splunk.home}/bin/splunk display app 2> /dev/null | grep shuttl | grep -o ENABLED
-		</shellscript>
+	<target name="check-if-shuttl-is-enabled" depends="set-splunk-home">
+		<exec executable="sh" outputproperty="isShuttlEnabled">
+			<arg value="-c"/>
+			<arg value="${splunk.home}/bin/splunk display app -auth ${splunk.username}:${splunk.password} | grep shuttl | grep -o ENABLED"/>
+		</exec>
 		<if>
-			<equals arg1="${isEnabled}" arg2="ENABLED" />
+			<equals arg1="${isShuttlEnabled}" arg2="ENABLED" />
 			<then>
 				<property name="isShuttlAlreadyEnabled" value="true" />
 			</then>
