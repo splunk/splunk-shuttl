@@ -14,11 +14,9 @@
 // limitations under the License.
 package com.splunk.shuttl.testutil;
 
-import javax.management.InstanceAlreadyExistsException;
-
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverForTests;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
-import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
+import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
 public class TUtilsMBean {
 
@@ -30,10 +28,8 @@ public class TUtilsMBean {
 	 */
 	public static void registerShuttlArchiverMBean() {
 		try {
-			MBeanUtils.registerMBean(ShuttlArchiverMBean.OBJECT_NAME,
+			RegistersMBeans.create().registerMBean(ShuttlArchiverMBean.OBJECT_NAME,
 					ShuttlArchiverForTests.class);
-		} catch (InstanceAlreadyExistsException e1) {
-			// Ok.
 		} catch (Exception e) {
 			TUtilsTestNG
 					.failForException("Could not register ShuttlArchiverMBean", e);
@@ -44,11 +40,7 @@ public class TUtilsMBean {
 	 * Unregisters the ShuttlArchiverMBean
 	 */
 	public static void unregisterShuttlArchiverMBean() {
-		try {
-			MBeanUtils.unregisterMBean(ShuttlArchiverMBean.OBJECT_NAME);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		RegistersMBeans.create().unregisterMBean(ShuttlArchiverMBean.OBJECT_NAME);
 	}
 
 	public static void runWithRegisteredShuttlArchiverMBean(Runnable runnable) {

@@ -16,6 +16,11 @@ package com.splunk.shuttl.server.mbeans.util;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
+import java.lang.management.ManagementFactory;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.BucketFreezer;
@@ -32,6 +37,14 @@ import com.splunk.shuttl.server.mbeans.ShuttlMBeanException;
 public class RegistersMBeans {
 
 	private static Logger logger = Logger.getLogger(RegistersMBeans.class);
+	private MBeanServer mbs;
+
+	/**
+	 * @param mbs
+	 */
+	public RegistersMBeans(MBeanServer mbs) {
+		this.mbs = mbs;
+	}
 
 	/**
 	 * Registers an MBean
@@ -46,12 +59,19 @@ public class RegistersMBeans {
 	public void registerMBean(String name, Class<?> clazz)
 			throws ShuttlMBeanException {
 		try {
-			MBeanUtils.registerMBean(name, clazz);
+			actuallyRegisterMBean(name, clazz);
 		} catch (Exception e) {
 			logger.error(did("Tried registering MBean by name and class", e,
 					"To register the MBean", "name", name, "class", clazz));
 			throw new ShuttlMBeanException(e);
 		}
+	}
+
+	private void actuallyRegisterMBean(String name, Class<?> clazz)
+			throws Exception {
+		ObjectName objectName = new ObjectName(name);
+		if (!mbs.isRegistered(objectName))
+			mbs.registerMBean(clazz.newInstance(), objectName);
 	}
 
 	/**
@@ -63,11 +83,25 @@ public class RegistersMBeans {
 	 */
 	public void unregisterMBean(String name) {
 		try {
-			MBeanUtils.unregisterMBean(name);
+			actuallyUnregisterMBean(name);
 		} catch (Exception e) {
 			logger.debug(warn("Unregistered MBean by name", e,
 					"Will swallow exception and" + " assume everything is fine.", "name",
 					name));
 		}
+	}
+
+	private void actuallyUnregisterMBean(String name) throws Exception {
+		ObjectName objectName = new ObjectName(name);
+		if (mbs.isRegistered(objectName))
+			mbs.unregisterMBean(objectName);
+	}
+
+	/**
+	 * @return instance of {@link RegistersMBeans} with static
+	 *         {@link ManagementFactory#getPlatformMBeanServer()}
+	 */
+	public static RegistersMBeans create() {
+		return new RegistersMBeans(ManagementFactory.getPlatformMBeanServer());
 	}
 }

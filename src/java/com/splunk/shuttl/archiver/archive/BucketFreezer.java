@@ -34,7 +34,6 @@ import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 import com.splunk.shuttl.server.mbeans.ShuttlMBeanException;
-import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
 /**
@@ -170,21 +169,11 @@ public class BucketFreezer {
 				clazz, "index", index, "bucket_path", path));
 	}
 
-	public static void main(String... args) throws Exception {
-		try {
-			MBeanUtils.registerMBean(ShuttlArchiverMBean.OBJECT_NAME,
-					ShuttlArchiver.class);
-			runMainWithDependencies(Runtime.getRuntime(),
-					BucketFreezer
-							.createWithDefaultHttpClientAndDefaultSafeAndFailLocations(),
-					new RegistersMBeans(), args);
-		} catch (Exception e) {
-			logger.error(did("Tried registering the ShuttlArchiverMBean", e,
-					"To register the ShuttlArchiverMBean" + " so that the BucketFreezer"
-							+ " can use the configuration"));
-		} finally {
-			MBeanUtils.unregisterMBean(ShuttlArchiverMBean.OBJECT_NAME);
-		}
-	}
+	public static void main(String... args) {
+		BucketFreezer bucketFreezer = BucketFreezer
+				.createWithDefaultHttpClientAndDefaultSafeAndFailLocations();
 
+		runMainWithDependencies(Runtime.getRuntime(), bucketFreezer,
+				RegistersMBeans.create(), args);
+	}
 }

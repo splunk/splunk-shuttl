@@ -32,7 +32,7 @@ import com.splunk.shuttl.server.mbeans.ShuttlArchiverForTests;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 
 @Test(groups = { "fast-unit" })
-public class MBeanUtilsTest {
+public class RegistersMBeansTest {
 
 	ObjectName objectName;
 	String objectNameString;
@@ -50,7 +50,7 @@ public class MBeanUtilsTest {
 		realClass = ShuttlArchiverForTests.class;
 		interfaceClass = ShuttlArchiverMBean.class;
 
-		registersMBeans = new RegistersMBeans();
+		registersMBeans = new RegistersMBeans(mbs);
 	}
 
 	@AfterMethod

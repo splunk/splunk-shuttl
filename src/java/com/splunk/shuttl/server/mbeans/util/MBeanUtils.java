@@ -34,35 +34,6 @@ public class MBeanUtils {
 	}
 
 	/**
-	 * Registers an MBean
-	 * 
-	 * @param name
-	 *          the name of the MBean to register.
-	 * @param clazz
-	 *          the MBean class to use.
-	 * @throws Exception
-	 */
-	public static void registerMBean(String name, Class<?> clazz)
-			throws Exception {
-		ObjectName objectName = new ObjectName(name);
-		if (!mbs.isRegistered(objectName))
-			mbs.registerMBean(clazz.newInstance(), objectName);
-	}
-
-	/**
-	 * Unregisters an MBean
-	 * 
-	 * @param name
-	 *          to unregister
-	 * @throws Exception
-	 */
-	public static void unregisterMBean(String name) throws Exception {
-		ObjectName objectName = new ObjectName(name);
-		if (mbs.isRegistered(objectName))
-			mbs.unregisterMBean(objectName);
-	}
-
-	/**
 	 * Retrieves an instance of a specific MBean
 	 * 
 	 * @param objectName

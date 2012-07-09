@@ -42,7 +42,6 @@ public class BucketFreezerSystemExitTest {
 
 	Runtime runtimeMock;
 	private BucketFreezer bucketFreezer;
-	private RegistersMBeans registersMBeans;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
@@ -51,7 +50,6 @@ public class BucketFreezerSystemExitTest {
 				.create().getSafeDirectory()), new BucketLockerInTestDir(
 				createDirectory()), mock(ArchiveRestHandler.class),
 				mock(FailedBucketsArchiver.class));
-		registersMBeans = mock(RegistersMBeans.class);
 	}
 
 	@AfterMethod(groups = { "fast-unit" })
