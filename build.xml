@@ -526,6 +526,7 @@
 	<target name="splunk-configure-and-start">
 		<antcall>
 			<target name="install-shuttl-splunk-app" />
+			<target name="splunk-set-splunkd-port" />
 			<target name="splunk-start" />
 			<target name="enable-shuttl-splunk-app" />
 		</antcall>
@@ -552,7 +553,7 @@
 			<arg value="-c" />
 			<arg line="'tar xf ${splunk.tgz.dir}/*.tgz -C ${build-cache}'" />
 		</exec>
-		<move file="${build-cache}/splunk" tofile="${splunk.extracted.dir}"/>
+		<move file="${build-cache}/splunk" tofile="${splunk.extracted.dir}" />
 		<antcall target="copy-lib-jars-to-test-dir" />
 	</target>
 
@@ -604,9 +605,17 @@
 		</antcall>
 	</target>
 
+	<property name="splunk.accept.license.flags" value="--accept-license --no-prompt --answer-yes" />
+
+	<target name="splunk-set-splunkd-port">
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg line="set splunkd-port ${splunk.mgmtport} ${splunk.accept.license.flags} " />
+		</exec>
+	</target>
+
 	<target name="splunk-start" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="start --accept-license --no-prompt --answer-yes splunkd" />
+			<arg line="start ${splunk.accept.license.flags} splunkd" />
 		</exec>
 	</target>
 
@@ -638,7 +647,7 @@
 		<exec executable="curl" osfamily="unix">
 			<arg value="-s" />
 			<arg line="-u ${splunk.username}:${splunk.password}" />
-			<arg line="-k https://localhost:8089/services/apps/local/shuttl/enable" />
+			<arg line="-k https://${splunk.host}:${splunk.mgmtport}/services/apps/local/shuttl/enable" />
 			<arg line="-X POST" />
 		</exec>
 	</target>
