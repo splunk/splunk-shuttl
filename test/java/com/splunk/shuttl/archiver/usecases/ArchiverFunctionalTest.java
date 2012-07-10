@@ -14,17 +14,21 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.usecases;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static com.splunk.shuttl.testutil.TUtilsFunctional.*;
 import static org.testng.AssertJUnit.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
@@ -41,19 +45,23 @@ public class ArchiverFunctionalTest {
 	private BucketArchiver bucketArchiver;
 	private ArchiveFileSystem archiveFileSystem;
 	private PathResolver pathResolver;
+	private File archiverData;
 
 	@BeforeMethod(groups = { "functional" })
 	public void setUp() throws IOException {
+		archiverData = createDirectory();
 		config = getLocalFileSystemConfiguration();
 		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
 		bucketArchiver = BucketArchiverFactory
-				.createWithConfigurationAndArchiveFileSystem(config, archiveFileSystem);
+				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+						new LocalFileSystemConstants(archiverData.getAbsolutePath()));
 		pathResolver = new PathResolver(config);
 	}
 
 	@AfterMethod
 	public void tearDown() throws IOException {
 		tearDownLocalConfig(config);
+		FileUtils.deleteQuietly(archiverData);
 	}
 
 	public void Archiver_givenExistingBucket_archiveIt() throws IOException {

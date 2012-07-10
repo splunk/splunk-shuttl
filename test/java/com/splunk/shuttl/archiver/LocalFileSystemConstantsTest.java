@@ -24,6 +24,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.testutil.TUtilsMBean;
+
 @Test(groups = { "fast-unit" })
 public class LocalFileSystemConstantsTest {
 
@@ -115,17 +117,9 @@ public class LocalFileSystemConstantsTest {
 				.getAbsolutePath());
 	}
 
-	public void create_staticWithNoArgs_getArchiverDirectoryIsInATemporaryDirectory() {
-		File archiverDirectory = LocalFileSystemConstants.create()
-				.getArchiverDirectory();
-		assertTrue(archiverDirectory.getAbsolutePath().contains(
-				FileUtils.getTempDirectoryPath()));
-	}
-
-	public void create_staticWithNoArgs_dirNameContainsTheWordForTests() {
-		File archiverDirectory = LocalFileSystemConstants.create()
-				.getArchiverDirectory();
-		String absolutePath = archiverDirectory.getAbsolutePath();
-		assertTrue(absolutePath.toLowerCase().contains("fortests"));
+	@Test(expectedExceptions = { ArchiverMBeanNotRegisteredException.class })
+	public void create_withNoArchiverMBeanRegistration_throwsRuntimeException() {
+		TUtilsMBean.unregisterShuttlArchiverMBean();
+		LocalFileSystemConstants.create();
 	}
 }

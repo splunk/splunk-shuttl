@@ -18,7 +18,6 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
@@ -39,7 +38,7 @@ public class LocalFileSystemConstantsWithRealConfTest {
 			public void run() {
 				archiverDirWithMBeanConf = LocalFileSystemConstants.create()
 						.getArchiverDirectory();
-				deleteArchiverDirWithMBeanConf();
+				FileUtils.deleteQuietly(archiverDirWithMBeanConf);
 			}
 		});
 	}
@@ -47,20 +46,7 @@ public class LocalFileSystemConstantsWithRealConfTest {
 	@AfterMethod
 	public void tearDown() {
 		TUtilsMBean.unregisterShuttlArchiverMBean();
-		deleteArchiverDirWithMBeanConf();
-	}
-
-	private void deleteArchiverDirWithMBeanConf() {
-		File parent = archiverDirWithMBeanConf.getParentFile();
-		File[] files = parent.listFiles();
-		if (files != null)
-			if (files.length <= 1)
-				FileUtils.deleteQuietly(parent);
-			else
-				System.out.println("Warning: Cannot delete archiver"
-						+ " directory since there" + " were other directories in it: "
-						+ Arrays.toString(parent.listFiles()));
-		assertFalse(archiverDirWithMBeanConf.exists());
+		FileUtils.deleteQuietly(archiverDirWithMBeanConf);
 	}
 
 	@Test(groups = { "slow-unit" })
@@ -74,15 +60,8 @@ public class LocalFileSystemConstantsWithRealConfTest {
 		assertTrue(archiverDirWithMBeanConf.exists());
 	}
 
-	@Test(groups = { "slow-unit" })
-	public void create_withMBeanRegistered_notGettingTheSameArchiverDirectory() {
-		File noMBean = LocalFileSystemConstants.create().getArchiverDirectory();
-		TUtilsMBean.registerShuttlArchiverMBean();
-		archiverDirWithMBeanConf = LocalFileSystemConstants.create()
-				.getArchiverDirectory();
-
-		assertNotEquals(noMBean.getAbsolutePath(),
-				archiverDirWithMBeanConf.getAbsolutePath());
+	@Test(expectedExceptions = { RuntimeException.class })
+	public void create_withNoArchiverMBeanRegistration_throwsRuntimeException() {
+		LocalFileSystemConstants.create();
 	}
-
 }

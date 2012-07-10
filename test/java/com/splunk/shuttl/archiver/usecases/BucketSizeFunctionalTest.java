@@ -27,6 +27,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
@@ -52,16 +53,23 @@ public class BucketSizeFunctionalTest {
 	private ArchiveConfiguration config;
 	private File thawLocation;
 	private ArchiveBucketSize archiveBucketSize;
+	private File archiverData;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
 		config = TUtilsFunctional.getLocalFileSystemConfiguration();
-		bucketArchiver = BucketArchiverFactory.createWithConfiguration(config);
+		archiverData = createDirectory();
+		LocalFileSystemConstants localFileSystemConstants = new LocalFileSystemConstants(
+				archiverData.getAbsolutePath());
+		bucketArchiver = BucketArchiverFactory.createWithConfiguration(config,
+				localFileSystemConstants);
 		SplunkSettings splunkSettings = mock(SplunkSettings.class);
 		thawLocation = createDirectory();
 		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawLocation);
-		bucketThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
-				splunkSettings, config);
+
+		bucketThawer = BucketThawerFactory
+				.createWithConfigAndSplunkSettingsAndLocalFileSystemConstants(config,
+						splunkSettings, localFileSystemConstants);
 
 		PathResolver pathResolver = new PathResolver(config);
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
@@ -74,6 +82,7 @@ public class BucketSizeFunctionalTest {
 	public void tearDown() {
 		TUtilsFunctional.tearDownLocalConfig(config);
 		FileUtils.deleteQuietly(thawLocation);
+		FileUtils.deleteQuietly(archiverData);
 	}
 
 	public void BucketSize_archiveBucket_remoteBucketHasSameSizeAsBeforeArchiving() {

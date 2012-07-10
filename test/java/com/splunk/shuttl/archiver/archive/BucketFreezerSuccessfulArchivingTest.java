@@ -30,7 +30,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
@@ -51,8 +50,8 @@ public class BucketFreezerSuccessfulArchivingTest {
 	ArchiveRestHandler archiveRestHandler;
 	FailedBucketsArchiver failedBucketsArchiver;
 
-	@BeforeMethod(groups = { "fast-unit" })
-	public void beforeClass() throws ClientProtocolException, IOException {
+	@BeforeMethod
+	public void setUp() throws ClientProtocolException, IOException {
 		tempTestDirectory = createDirectory();
 		archiveRestHandler = mock(ArchiveRestHandler.class);
 		failedBucketsArchiver = mock(FailedBucketsArchiver.class);
@@ -61,11 +60,9 @@ public class BucketFreezerSuccessfulArchivingTest {
 				failedBucketsArchiver);
 	}
 
-	@AfterMethod(groups = { "fast-unit" })
-	public void tearDownFast() {
+	@AfterMethod
+	public void tearDown() {
 		FileUtils.deleteQuietly(tempTestDirectory);
-		FileUtils.deleteQuietly(LocalFileSystemConstants.create()
-				.getArchiverDirectory());
 	}
 
 	@Test(groups = { "fast-unit" })

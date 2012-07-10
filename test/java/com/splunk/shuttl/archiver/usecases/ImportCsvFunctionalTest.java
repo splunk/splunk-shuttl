@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
@@ -47,10 +48,11 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 public class ImportCsvFunctionalTest {
 
 	private ArchiveConfiguration localCsvArchiveConfigration;
-	private File thawDirectory;
 	private BucketThawer csvThawer;
 	private Bucket realBucket;
 	private BucketArchiver csvArchiver;
+	private File thawDirectory;
+	private File archiverData;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
@@ -59,17 +61,25 @@ public class ImportCsvFunctionalTest {
 		SplunkSettings splunkSettings = mock(SplunkSettings.class);
 		thawDirectory = createDirectory();
 		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawDirectory);
-		csvThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
-				splunkSettings, localCsvArchiveConfigration);
+
+		archiverData = createDirectory();
+		LocalFileSystemConstants localFileSystemConstants = new LocalFileSystemConstants(
+				archiverData.getAbsolutePath());
+
+		csvThawer = BucketThawerFactory
+				.createWithConfigAndSplunkSettingsAndLocalFileSystemConstants(
+						localCsvArchiveConfigration, splunkSettings,
+						localFileSystemConstants);
 
 		realBucket = TUtilsBucket.createRealBucket();
-		csvArchiver = BucketArchiverFactory
-				.createWithConfiguration(localCsvArchiveConfigration);
+		csvArchiver = BucketArchiverFactory.createWithConfiguration(
+				localCsvArchiveConfigration, localFileSystemConstants);
 	}
 
 	@AfterMethod
 	public void tearDown() {
 		FileUtils.deleteQuietly(thawDirectory);
+		FileUtils.deleteQuietly(archiverData);
 	}
 
 	@Parameters(value = { "splunk.home" })

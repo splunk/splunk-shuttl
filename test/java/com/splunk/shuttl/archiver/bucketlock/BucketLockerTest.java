@@ -26,7 +26,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -54,8 +53,6 @@ public class BucketLockerTest {
 	@AfterMethod
 	public void tearDown() throws IOException {
 		FileUtils.deleteDirectory(tempTestDirectory);
-		FileUtils.deleteDirectory(LocalFileSystemConstants.create()
-				.getArchiverDirectory());
 	}
 
 	@Test(groups = { "fast-unit" })

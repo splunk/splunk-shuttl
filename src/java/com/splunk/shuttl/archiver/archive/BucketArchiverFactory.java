@@ -14,9 +14,11 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
+import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
+import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 
 /**
  * Construction code for creating BucketArchivers that archives in different
@@ -29,26 +31,37 @@ public class BucketArchiverFactory {
 	 */
 	public static BucketArchiver createConfiguredArchiver() {
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-		return createWithConfiguration(config);
+		return createWithConfiguration(config, LocalFileSystemConstants.create());
 	}
 
 	/**
 	 * Testability with specified configuration.
 	 */
 	public static BucketArchiver createWithConfiguration(
-			ArchiveConfiguration config) {
+			ArchiveConfiguration config,
+			LocalFileSystemConstants localFileSystemConstants) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
-		return createWithConfigurationAndArchiveFileSystem(config,
-				archiveFileSystem);
+		return createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+				localFileSystemConstants);
 	}
 
 	/**
-	 * Testability with both configuration and archive file system.
+	 * @param config
+	 *          for configuring the archiver
+	 * @param archiveFileSystem
+	 *          for storing the files
+	 * @param csvDirectory
+	 *          for storing csv exports.
+	 * @return a {@link BucketArchiver} to archive with the specified
+	 *         configuration.
 	 */
-	public static BucketArchiver createWithConfigurationAndArchiveFileSystem(
-			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem) {
-		return new BucketArchiver(BucketExporter.create(),
+	public static BucketArchiver createWithConfFileSystemAndCsvDirectory(
+			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem,
+			LocalFileSystemConstants localFileSystemConstants) {
+		CsvExporter csvExporter = CsvExporter.create(localFileSystemConstants
+				.getCsvDirectory());
+		return new BucketArchiver(BucketExporter.create(csvExporter),
 				ArchiveBucketTransferer.create(archiveFileSystem, config),
 				BucketDeleter.create(), config.getArchiveFormats());
 

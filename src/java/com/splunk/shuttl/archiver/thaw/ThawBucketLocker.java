@@ -14,7 +14,8 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
+import java.io.File;
+
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -23,6 +24,15 @@ import com.splunk.shuttl.archiver.model.Bucket;
  * {@link BucketLocker} during the thaw process.
  */
 public class ThawBucketLocker extends BucketLocker {
+
+	private File thawLocksDirectory;
+
+	/**
+	 * @param thawLocksDirectory
+	 */
+	public ThawBucketLocker(File thawLocksDirectory) {
+		this.thawLocksDirectory = thawLocksDirectory;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -33,8 +43,7 @@ public class ThawBucketLocker extends BucketLocker {
 	 */
 	@Override
 	public BucketLock getLockForBucket(Bucket bucket) {
-		return new BucketLock(bucket,
-				LocalFileSystemConstants.create().getThawLocksDirectory());
+		return new BucketLock(bucket, thawLocksDirectory);
 	}
 
 }

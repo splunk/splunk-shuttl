@@ -123,20 +123,10 @@ public class LocalFileSystemConstants {
 		try {
 			return ShuttlArchiver.getMBeanProxy().getLocalArchiverDir();
 		} catch (InstanceNotFoundException e) {
-			String archiverDirectoryPath = FileUtils.getTempDirectoryPath()
-					+ File.separator + "ShuttlArchiverDataDirForTests";
-			logAssumptionThatTestsAreBeingRun(e, archiverDirectoryPath);
-			return archiverDirectoryPath;
+			Logger.getLogger(LocalFileSystemConstants.class).error(
+					did("Tried getting the MBean for ShuttlArchiver", e,
+							"To get the MBean", "exception", e));
+			throw new ArchiverMBeanNotRegisteredException(e);
 		}
-	}
-
-	private static void logAssumptionThatTestsAreBeingRun(
-			InstanceNotFoundException e, String archiverDirectoryPath) {
-		Logger.getLogger(LocalFileSystemConstants.class).debug(
-				warn("Tried getting local archiver directory from configuration.",
-						"Configuration instance was not registered for ShuttlArchiver.",
-						"Assuming tests are being run and returns path for archiver data: "
-								+ archiverDirectoryPath, "archiver_directory_path",
-						archiverDirectoryPath, "exception", e));
 	}
 }

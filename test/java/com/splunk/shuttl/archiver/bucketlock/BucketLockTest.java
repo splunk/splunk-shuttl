@@ -52,12 +52,6 @@ public class BucketLockTest {
 		FileUtils.deleteDirectory(locksDirectory);
 	}
 
-	@AfterTest
-	public void deleteDefaultBucketLockDirectory() throws IOException {
-		FileUtils.deleteDirectory(LocalFileSystemConstants.create()
-				.getArchiverDirectory());
-	}
-
 	@Test(groups = { "fast-unit" })
 	public void getLockFile_createdWithBucket_lockFilesNameIncludesBucketsNameForUniqueness() {
 		File lockFile = bucketLock.getLockFile();

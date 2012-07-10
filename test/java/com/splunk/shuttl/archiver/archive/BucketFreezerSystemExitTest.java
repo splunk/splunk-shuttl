@@ -27,7 +27,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
@@ -41,21 +40,21 @@ import com.splunk.shuttl.testutil.TUtilsFile;
 public class BucketFreezerSystemExitTest {
 
 	Runtime runtimeMock;
-	private BucketFreezer bucketFreezer;
+	BucketFreezer bucketFreezer;
+	File testDir;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
 		runtimeMock = mock(Runtime.class);
-		bucketFreezer = new BucketFreezer(new BucketMover(LocalFileSystemConstants
-				.create().getSafeDirectory()), new BucketLockerInTestDir(
-				createDirectory()), mock(ArchiveRestHandler.class),
+		testDir = createDirectory();
+		bucketFreezer = new BucketFreezer(new BucketMover(testDir),
+				new BucketLockerInTestDir(testDir), mock(ArchiveRestHandler.class),
 				mock(FailedBucketsArchiver.class));
 	}
 
 	@AfterMethod(groups = { "fast-unit" })
 	public void tearDown() throws IOException {
-		FileUtils.deleteDirectory(LocalFileSystemConstants.create()
-				.getArchiverDirectory());
+		FileUtils.deleteDirectory(testDir);
 	}
 
 	@Test(groups = { "fast-unit" })
