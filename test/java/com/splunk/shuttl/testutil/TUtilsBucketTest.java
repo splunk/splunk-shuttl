@@ -62,17 +62,14 @@ public class TUtilsBucketTest {
 
 		assertEquals(4, nameComponents.length);
 		assertEquals("db", nameComponents[0]);
-		long earliest = 0;
-		long latest = 0;
 		try {
-			earliest = Long.parseLong(nameComponents[1]);
-			latest = Long.parseLong(nameComponents[2]);
+			long earliest = Long.parseLong(nameComponents[1]);
+			long latest = Long.parseLong(nameComponents[2]);
 			Long.parseLong(nameComponents[3]);
-
+			assertTrue(earliest < latest);
 		} catch (NumberFormatException e) {
 			TUtilsTestNG.failForException("Couldn't parse the numbers", e);
 		}
-		assertTrue(earliest < latest);
 	}
 
 	public void createTestBucket_validArguments_createsWithSplunkFormat() {
