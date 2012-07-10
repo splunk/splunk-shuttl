@@ -29,7 +29,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
@@ -63,7 +63,7 @@ public class ImportCsvFunctionalTest {
 		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawDirectory);
 
 		archiverData = createDirectory();
-		LocalFileSystemConstants localFileSystemConstants = new LocalFileSystemConstants(
+		LocalFileSystemPaths localFileSystemConstants = new LocalFileSystemPaths(
 				archiverData.getAbsolutePath());
 
 		csvThawer = BucketThawerFactory

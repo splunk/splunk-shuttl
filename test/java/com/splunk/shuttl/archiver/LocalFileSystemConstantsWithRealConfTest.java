@@ -36,7 +36,7 @@ public class LocalFileSystemConstantsWithRealConfTest {
 		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
 			@Override
 			public void run() {
-				archiverDirWithMBeanConf = LocalFileSystemConstants.create()
+				archiverDirWithMBeanConf = LocalFileSystemPaths.create()
 						.getArchiverDirectory();
 				FileUtils.deleteQuietly(archiverDirWithMBeanConf);
 			}
@@ -53,7 +53,7 @@ public class LocalFileSystemConstantsWithRealConfTest {
 	public void create_withMBeanRegistered_archiverDirectoryIsCreatable()
 			throws IOException {
 		TUtilsMBean.registerShuttlArchiverMBean();
-		archiverDirWithMBeanConf = LocalFileSystemConstants.create()
+		archiverDirWithMBeanConf = LocalFileSystemPaths.create()
 				.getArchiverDirectory();
 		assertFalse(archiverDirWithMBeanConf.exists());
 		assertTrue(archiverDirWithMBeanConf.mkdirs());
@@ -62,6 +62,6 @@ public class LocalFileSystemConstantsWithRealConfTest {
 
 	@Test(expectedExceptions = { RuntimeException.class })
 	public void create_withNoArchiverMBeanRegistration_throwsRuntimeException() {
-		LocalFileSystemConstants.create();
+		LocalFileSystemPaths.create();
 	}
 }

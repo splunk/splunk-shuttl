@@ -29,7 +29,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
@@ -58,7 +58,7 @@ public class TwoFormatsFunctionalTest {
 		archiverData = createDirectory();
 		bucketArchiver = BucketArchiverFactory
 				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
-						new LocalFileSystemConstants(archiverData.getAbsolutePath()));
+						new LocalFileSystemPaths(archiverData.getAbsolutePath()));
 		pathResolver = new PathResolver(config);
 	}
 

@@ -15,7 +15,7 @@
 package com.splunk.shuttl.archiver.thaw;
 
 import com.splunk.Service;
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
@@ -38,7 +38,7 @@ public class BucketThawerFactory {
 		SplunkSettings splunkSettings = getSplunkSettings(splunkService);
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 		return createWithConfigAndSplunkSettingsAndLocalFileSystemConstants(config,
-				splunkSettings, LocalFileSystemConstants.create());
+				splunkSettings, LocalFileSystemPaths.create());
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class BucketThawerFactory {
 	 */
 	public static BucketThawer createWithConfigAndSplunkSettingsAndLocalFileSystemConstants(
 			ArchiveConfiguration configuration, SplunkSettings splunkSettings,
-			LocalFileSystemConstants localFileSystemConstants) {
+			LocalFileSystemPaths localFileSystemConstants) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(configuration);
 		ThawLocationProvider thawLocationProvider = ThawLocationProvider

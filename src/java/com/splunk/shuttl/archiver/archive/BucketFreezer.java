@@ -23,7 +23,7 @@ import java.util.Arrays;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.LogFormatter;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
@@ -107,7 +107,7 @@ public class BucketFreezer {
 	 * The construction logic for creating a {@link BucketFreezer}
 	 */
 	public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
-		BucketMover bucketMover = new BucketMover(LocalFileSystemConstants.create()
+		BucketMover bucketMover = new BucketMover(LocalFileSystemPaths.create()
 				.getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(

@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
@@ -31,7 +31,7 @@ public class BucketArchiverFactory {
 	 */
 	public static BucketArchiver createConfiguredArchiver() {
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-		return createWithConfiguration(config, LocalFileSystemConstants.create());
+		return createWithConfiguration(config, LocalFileSystemPaths.create());
 	}
 
 	/**
@@ -39,7 +39,7 @@ public class BucketArchiverFactory {
 	 */
 	public static BucketArchiver createWithConfiguration(
 			ArchiveConfiguration config,
-			LocalFileSystemConstants localFileSystemConstants) {
+			LocalFileSystemPaths localFileSystemConstants) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
 		return createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
@@ -58,7 +58,7 @@ public class BucketArchiverFactory {
 	 */
 	public static BucketArchiver createWithConfFileSystemAndCsvDirectory(
 			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem,
-			LocalFileSystemConstants localFileSystemConstants) {
+			LocalFileSystemPaths localFileSystemConstants) {
 		CsvExporter csvExporter = CsvExporter.create(localFileSystemConstants
 				.getCsvDirectory());
 		return new BucketArchiver(BucketExporter.create(csvExporter),

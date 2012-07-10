@@ -29,7 +29,7 @@ import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
  * Constants for creating directories where the Archiver can store its locks,
  * unfinished buckets and other files.
  */
-public class LocalFileSystemConstants {
+public class LocalFileSystemPaths {
 
 	final String SAFE_BUCKETS_NAME = "safe-buckets";
 
@@ -45,7 +45,7 @@ public class LocalFileSystemConstants {
 
 	private final String archiverDirectoryPath;
 
-	public LocalFileSystemConstants(String archiverDirectoryPath) {
+	public LocalFileSystemPaths(String archiverDirectoryPath) {
 		this.archiverDirectoryPath = archiverDirectoryPath;
 	}
 
@@ -114,16 +114,16 @@ public class LocalFileSystemConstants {
 		return createDirectoryUnderArchiverDir(THAW_TRANSFERS_NAME);
 	}
 
-	public static LocalFileSystemConstants create() {
+	public static LocalFileSystemPaths create() {
 		String archiverPath = getPathForArchiverData();
-		return new LocalFileSystemConstants(archiverPath);
+		return new LocalFileSystemPaths(archiverPath);
 	}
 
 	private static String getPathForArchiverData() {
 		try {
 			return ShuttlArchiver.getMBeanProxy().getLocalArchiverDir();
 		} catch (InstanceNotFoundException e) {
-			Logger.getLogger(LocalFileSystemConstants.class).error(
+			Logger.getLogger(LocalFileSystemPaths.class).error(
 					did("Tried getting the MBean for ShuttlArchiver", e,
 							"To get the MBean", "exception", e));
 			throw new ArchiverMBeanNotRegisteredException(e);

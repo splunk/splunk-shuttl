@@ -27,7 +27,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
@@ -58,7 +58,7 @@ public class ThawFunctionalTest {
 		config = getLocalFileSystemConfiguration();
 		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
 		archiverData = createDirectory();
-		LocalFileSystemConstants localFileSystemConstants = new LocalFileSystemConstants(
+		LocalFileSystemPaths localFileSystemConstants = new LocalFileSystemPaths(
 				archiverData.getAbsolutePath());
 		bucketArchiver = BucketArchiverFactory
 				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,

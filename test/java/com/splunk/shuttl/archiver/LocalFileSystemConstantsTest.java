@@ -29,13 +29,13 @@ import com.splunk.shuttl.testutil.TUtilsMBean;
 @Test(groups = { "fast-unit" })
 public class LocalFileSystemConstantsTest {
 
-	private LocalFileSystemConstants localFileSystemConstants;
+	private LocalFileSystemPaths localFileSystemConstants;
 	private String testDirectoryPath;
 
 	@BeforeMethod
 	public void setUp() {
 		testDirectoryPath = createFilePath().getAbsolutePath();
-		localFileSystemConstants = new LocalFileSystemConstants(testDirectoryPath);
+		localFileSystemConstants = new LocalFileSystemPaths(testDirectoryPath);
 		removeArchiverDirectory();
 	}
 
@@ -101,7 +101,7 @@ public class LocalFileSystemConstantsTest {
 	}
 
 	public void getArchiverDirectory_givenTildeWithoutRoot_resolvesTildeAsUserHome() {
-		File archiverDirectory = new LocalFileSystemConstants(
+		File archiverDirectory = new LocalFileSystemPaths(
 				"~/archiver_directory").getArchiverDirectory();
 		File expected = new File(FileUtils.getUserDirectoryPath(),
 				"archiver_directory");
@@ -110,7 +110,7 @@ public class LocalFileSystemConstantsTest {
 	}
 
 	public void getArchiverDirectory_givenUriWithFileSchemeAndTilde_resolvesTildeAsUserHome() {
-		File archiverDirectory = new LocalFileSystemConstants(
+		File archiverDirectory = new LocalFileSystemPaths(
 				"file:/~/archiver_dir").getArchiverDirectory();
 		File expected = new File(FileUtils.getUserDirectoryPath(), "archiver_dir");
 		assertEquals(expected.getAbsolutePath(), archiverDirectory.getParentFile()
@@ -120,6 +120,6 @@ public class LocalFileSystemConstantsTest {
 	@Test(expectedExceptions = { ArchiverMBeanNotRegisteredException.class })
 	public void create_withNoArchiverMBeanRegistration_throwsRuntimeException() {
 		TUtilsMBean.unregisterShuttlArchiverMBean();
-		LocalFileSystemConstants.create();
+		LocalFileSystemPaths.create();
 	}
 }
