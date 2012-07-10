@@ -38,16 +38,6 @@ We are now accepting contributions from individuals and companies to our Splunk 
 Prerequisites
 -------------
 
-### Hadoop
-
-Currently the Hadoop version used is 1.0.3
-
-You can download it from one of the [mirror sites][hadoop-download].
-And see the [Hadoop documentation][] for instructions on installing and more.
-
-[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.0.3
-[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.0.3
-
 ### Splunk
 
 Currently the Splunk version used is 4.3.3
@@ -60,6 +50,16 @@ You can download it [Splunk][splunk-download].  And see the [Splunk documentatio
 ### Java
 
 * Java JDK 6
+
+### Hadoop (optional)
+
+This is needed if you are using HDFS/S3. Currently the Hadoop version used is 1.0.3
+
+You can download it from one of the [mirror sites][hadoop-download].
+And see the [Hadoop documentation][] for instructions on installing and more.
+
+[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.0.3
+[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.0.3
 
 
 Development
