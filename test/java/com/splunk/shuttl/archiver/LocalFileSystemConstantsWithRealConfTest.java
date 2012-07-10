@@ -60,8 +60,8 @@ public class LocalFileSystemConstantsWithRealConfTest {
 		assertTrue(archiverDirWithMBeanConf.exists());
 	}
 
-	@Test(expectedExceptions = { RuntimeException.class })
-	public void create_withNoArchiverMBeanRegistration_throwsRuntimeException() {
+	@Test(expectedExceptions = { ArchiverMBeanNotRegisteredException.class })
+	public void create_withNoArchiverMBeanRegistration_throwsArchiverMBeanNotRegisteredException() {
 		LocalFileSystemPaths.create();
 	}
 }

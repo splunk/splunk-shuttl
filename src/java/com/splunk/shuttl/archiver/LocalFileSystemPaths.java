@@ -125,7 +125,7 @@ public class LocalFileSystemPaths {
 		} catch (InstanceNotFoundException e) {
 			Logger.getLogger(LocalFileSystemPaths.class).error(
 					did("Tried getting the MBean for ShuttlArchiver", e,
-							"To get the MBean", "exception", e));
+					"To get the MBean", "exception", e));
 			throw new ArchiverMBeanNotRegisteredException(e);
 		}
 	}
