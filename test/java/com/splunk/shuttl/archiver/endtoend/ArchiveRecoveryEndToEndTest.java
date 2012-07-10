@@ -44,7 +44,7 @@ import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsMockito;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
-@Test(groups = { "end-to-end" })
+@Test(groups = { "end-to-end" }, enabled=false)
 public class ArchiveRecoveryEndToEndTest {
 
 	File safeLocation;
