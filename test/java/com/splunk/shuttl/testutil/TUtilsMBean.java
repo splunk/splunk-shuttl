@@ -26,7 +26,7 @@ public class TUtilsMBean {
 	 * Use {@link TUtilsMBean#runWithRegisteredShuttlArchiverMBean(Runnable)} if
 	 * possible.
 	 */
-	public static void registerShuttlArchiverMBean() {
+	static void registerShuttlArchiverMBean() {
 		try {
 			RegistersMBeans.create().registerMBean(ShuttlArchiverMBean.OBJECT_NAME,
 					ShuttlArchiverForTests.class);
@@ -39,7 +39,7 @@ public class TUtilsMBean {
 	/**
 	 * Unregisters the ShuttlArchiverMBean
 	 */
-	public static void unregisterShuttlArchiverMBean() {
+	static void unregisterShuttlArchiverMBean() {
 		RegistersMBeans.create().unregisterMBean(ShuttlArchiverMBean.OBJECT_NAME);
 	}
 

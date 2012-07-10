@@ -18,8 +18,6 @@ import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URISyntaxException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -31,7 +29,6 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
@@ -45,8 +42,7 @@ public class BucketExporterIntegrationTest {
 	private File csvDirectory;
 
 	@BeforeMethod
-	public void setUp() throws FileNotFoundException, FileNotDirectoryException,
-			URISyntaxException {
+	public void setUp() {
 		csvDirectory = createDirectory();
 		bucketExporter = BucketExporter.create(CsvExporter.create(csvDirectory));
 	}

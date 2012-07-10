@@ -77,24 +77,40 @@ public class ArchiverEndToEndTest {
 	@Parameters(value = { "splunk.username", "splunk.password", "splunk.host",
 			"splunk.mgmtport", "hadoop.host", "hadoop.port", "shuttl.host",
 			"shuttl.port" })
-	public void archiveBucketAndThawItBack(String splunkUserName,
-			String splunkPw, String splunkHost, String splunkPort, String hadoopHost,
-			String hadoopPort, String shuttlHost, String shuttlPort) throws Exception {
-		setUp(splunkUserName, splunkPw, splunkHost, splunkPort, shuttlHost,
-				shuttlPort);
-		try {
-			archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket();
-		} finally {
-			tearDown(hadoopHost, hadoopPort);
-		}
+	public void archiveBucketAndThawItBack(final String splunkUserName,
+			final String splunkPw, final String splunkHost, final String splunkPort,
+			final String hadoopHost, final String hadoopPort,
+			final String shuttlHost, final String shuttlPort) throws Exception {
+		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+
+			@Override
+			public void run() {
+				setUp_runTest_tearDown(splunkUserName, splunkPw, splunkHost,
+						splunkPort, hadoopHost, hadoopPort, shuttlHost, shuttlPort);
+			}
+
+			private void setUp_runTest_tearDown(final String splunkUserName,
+					final String splunkPw, final String splunkHost,
+					final String splunkPort, final String hadoopHost,
+					final String hadoopPort, final String shuttlHost,
+					final String shuttlPort) {
+				setUp(splunkUserName, splunkPw, splunkHost, splunkPort, shuttlHost,
+						shuttlPort);
+				try {
+					archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket();
+				} catch (Exception e) {
+					TUtilsTestNG.failForException("Test got exception", e);
+				} finally {
+					tearDown(hadoopHost, hadoopPort);
+				}
+			}
+		});
 	}
 
 	private void setUp(String splunkUserName, String splunkPw, String splunkHost,
-			String splunkPort, String shuttlHost, String shuttlPort)
-			throws IllegalIndexException {
+			String splunkPort, String shuttlHost, String shuttlPort) {
 		this.shuttlHost = shuttlHost;
 		this.shuttlPort = Integer.parseInt(shuttlPort);
-		TUtilsMBean.registerShuttlArchiverMBean();
 		archiveConfiguration = ArchiveConfiguration.getSharedInstance();
 		thawIndex = "shuttl";
 		tempDirectory = createDirectory();
@@ -104,7 +120,12 @@ public class ArchiverEndToEndTest {
 		service.login(splunkUserName, splunkPw);
 		assertTrue(service.getIndexes().containsKey(thawIndex));
 		splunkSettings = BucketThawerFactory.getSplunkSettings(service);
-		thawDirectoryLocation = splunkSettings.getThawLocation(thawIndex);
+
+		try {
+			thawDirectoryLocation = splunkSettings.getThawLocation(thawIndex);
+		} catch (IllegalIndexException e) {
+			TUtilsTestNG.failForException("IllegalIndexException in test", e);
+		}
 	}
 
 	private BucketFreezer getSuccessfulBucketFreezer() {

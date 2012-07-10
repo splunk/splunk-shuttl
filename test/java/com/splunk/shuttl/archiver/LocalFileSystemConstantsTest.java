@@ -24,8 +24,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.testutil.TUtilsMBean;
-
 @Test(groups = { "fast-unit" })
 public class LocalFileSystemConstantsTest {
 
@@ -119,7 +117,6 @@ public class LocalFileSystemConstantsTest {
 
 	@Test(expectedExceptions = { ArchiverMBeanNotRegisteredException.class })
 	public void create_withNoArchiverMBeanRegistration_throwsRuntimeException() {
-		TUtilsMBean.unregisterShuttlArchiverMBean();
 		LocalFileSystemPaths.create();
 	}
 }

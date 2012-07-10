@@ -16,6 +16,8 @@ package com.splunk.shuttl.archiver.endtoend;
 
 import org.testng.annotations.BeforeSuite;
 
+import com.splunk.shuttl.testutil.TUtilsTestNG;
+
 public class EndToEndTestSetUp {
 
 	@BeforeSuite(groups = { "end-to-end" })
@@ -27,8 +29,10 @@ public class EndToEndTestSetUp {
 
 	private void waitForServerToStart() {
 		try {
-			Thread.sleep(3000);
+			Thread.sleep(4000);
 		} catch (InterruptedException e) {
+			TUtilsTestNG.failForException("Was interrupted while waiting"
+					+ " for server to start.", e);
 		}
 	}
 }

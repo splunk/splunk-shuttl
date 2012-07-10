@@ -42,6 +42,7 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsMockito;
+import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 @Test(groups = { "end-to-end" })
 public class ArchiveRecoveryEndToEndTest {
@@ -57,14 +58,28 @@ public class ArchiveRecoveryEndToEndTest {
 
 	@Parameters(value = { "hadoop.host", "hadoop.port" })
 	public void Archiver_givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets(
-			String hadoopHost, String hadoopPort) throws Exception {
-		setUp(hadoopHost, hadoopPort);
-		givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets();
-		tearDown();
+			final String hadoopHost, final String hadoopPort) throws Exception {
+		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+
+			@Override
+			public void run() {
+				setUp(hadoopHost, hadoopPort);
+				runTests();
+				tearDown();
+			}
+
+			private void runTests() {
+				try {
+					givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets();
+				} catch (IOException e) {
+					TUtilsTestNG.failForException(
+							"Got IOException from archive recovery end to end test.", e);
+				}
+			}
+		});
 	}
 
 	private void setUp(String hadoopHost, String hadoopPort) {
-		TUtilsMBean.registerShuttlArchiverMBean();
 		config = ArchiveConfiguration.getSharedInstance();
 		hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
 
@@ -106,7 +121,7 @@ public class ArchiveRecoveryEndToEndTest {
 	}
 
 	private void givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets()
-			throws IOException, InterruptedException {
+			throws IOException {
 		// Setup buckets
 		Bucket firstFailingBucket = TUtilsBucket
 				.createBucketInDirectory(originalBucketLocation);

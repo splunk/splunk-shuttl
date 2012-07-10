@@ -38,12 +38,17 @@ public class ArchiveLotsOfBucketsWithDifferentTimeRanges {
 
 	@BeforeMethod
 	public void setUp() {
-		TUtilsMBean.registerShuttlArchiverMBean();
 		bucketArchiver = BucketArchiverFactory.createConfiguredArchiver();
 	}
 
 	public void _archiveLotsOfBucketsWithDifferentTimeRanges_() {
-		archiveOneBucketPerDay();
+		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+
+			@Override
+			public void run() {
+				archiveOneBucketPerDay();
+			}
+		});
 	}
 
 	private void archiveOneBucketPerDay() {
