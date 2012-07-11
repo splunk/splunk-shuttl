@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:splunkConf xmlns:ns2="com.splunk.shuttl.server.model">
     <host>localhost</host>
-    <port>8088</port>
+    <port>8089</port>
     <username>admin</username>
     <password>changeme</password>
 </ns2:splunkConf>
