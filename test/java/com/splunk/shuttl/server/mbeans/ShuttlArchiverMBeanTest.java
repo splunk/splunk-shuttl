@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  */
 @Test(groups = { "fast-unit" })
 public class ShuttlArchiverMBeanTest {
-	ShuttlArchiverMBean archiverMBean;
+	ShuttlArchiver archiverMBean;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void createMBean() throws Exception {
@@ -145,8 +145,7 @@ public class ShuttlArchiverMBeanTest {
 				+ "</archiverRootURI>\n"
 				+ "    <bucketFormatPriority>"
 				+ "SPLUNK_BUCKET"
-				+ "</bucketFormatPriority>\n"
- + "</ns2:archiverConf>";
+				+ "</bucketFormatPriority>\n" + "</ns2:archiverConf>";
 
 		File file = File.createTempFile("shuttlArchiverMBeanTest2", ".xml");
 		file.deleteOnExit();

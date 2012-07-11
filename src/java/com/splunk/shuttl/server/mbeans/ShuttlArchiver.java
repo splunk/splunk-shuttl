@@ -15,22 +15,22 @@
 package com.splunk.shuttl.server.mbeans;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.List;
 
 import javax.management.InstanceNotFoundException;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.server.mbeans.util.JAXBUtils;
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 import com.splunk.shuttl.server.model.ArchiverConf;
 
 /**
  * @author kpakkirisamy
  */
-public class ShuttlArchiver implements ShuttlArchiverMBean {
+public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
+		ShuttlArchiverMBean {
 	// error messages
+
 	private static final String SHUTTL_ARCHIVER_INIT_FAILURE = "ShuttlArchiver init failure";
 	// end error messages
 
@@ -40,23 +40,25 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	private String xmlFilePath;
 
 	public ShuttlArchiver() throws ShuttlMBeanException {
-		try {
-			this.xmlFilePath = getArchiverConfXml();
-			refresh();
-		} catch (Exception e) {
-			logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
-			throw new ShuttlMBeanException(e);
-		}
+		this.xmlFilePath = getArchiverConfXml();
+		refreshWithConf();
 	}
 
+	/**
+	 * Needed by tests to override the path to the archiver conf.
+	 */
 	protected String getArchiverConfXml() {
 		return System.getenv("SPLUNK_HOME") + File.separator + ARCHIVERCONF_XML;
 	}
 
 	// used by tests
 	public ShuttlArchiver(String confFilePath) throws ShuttlMBeanException {
+		this.xmlFilePath = confFilePath;
+		refreshWithConf();
+	}
+
+	private void refreshWithConf() throws ShuttlMBeanException {
 		try {
-			this.xmlFilePath = confFilePath;
 			refresh();
 		} catch (Exception e) {
 			logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
@@ -125,27 +127,23 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	}
 
 	@Override
-	public void save() throws ShuttlMBeanException { // TODO move to util class
-		try {
-			JAXBUtils.save(ArchiverConf.class, this.conf, this.xmlFilePath);
-		} catch (Exception e) {
-			logger.error(e);
-			throw new ShuttlMBeanException(e);
-		}
+	protected String getPathToXmlFile() {
+		return this.xmlFilePath;
 	}
 
 	@Override
-	public void refresh() throws ShuttlMBeanException { // TODO move to util
-		// class
-		try {
-			this.conf = (ArchiverConf) JAXBUtils.refresh(ArchiverConf.class,
-					this.xmlFilePath);
-		} catch (FileNotFoundException fnfe) {
-			throw new RuntimeException(fnfe);
-		} catch (Exception e) {
-			logger.error(e);
-			throw new ShuttlMBeanException(e);
-		}
+	protected ArchiverConf getConfObject() {
+		return this.conf;
+	}
+
+	@Override
+	protected void setConfObject(ArchiverConf conf) {
+		this.conf = conf;
+	}
+
+	@Override
+	protected Class<ArchiverConf> getConfClass() {
+		return ArchiverConf.class;
 	}
 
 	/**
