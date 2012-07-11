@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.archive.BucketFreezer;
+import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
@@ -44,7 +45,6 @@ import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsMockito;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
-@Test(groups = { "end-to-end" }, enabled=false)
 public class ArchiveRecoveryEndToEndTest {
 
 	File safeLocation;
@@ -55,8 +55,10 @@ public class ArchiveRecoveryEndToEndTest {
 	FileSystem hadoopFileSystem;
 	private ArchiveConfiguration config;
 	private File lockDirectory;
+	private PathResolver pathResolver;
 
 	@Parameters(value = { "hadoop.host", "hadoop.port" })
+	@Test(groups = { "end-to-end" }, enabled = false)
 	public void Archiver_givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets(
 			final String hadoopHost, final String hadoopPort) throws Exception {
 		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
@@ -81,6 +83,7 @@ public class ArchiveRecoveryEndToEndTest {
 
 	private void setUp(String hadoopHost, String hadoopPort) {
 		config = ArchiveConfiguration.getSharedInstance();
+		pathResolver = new PathResolver(config);
 		hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
 
 		safeLocation = createDirectory();
@@ -105,7 +108,7 @@ public class ArchiveRecoveryEndToEndTest {
 				bucketLocker, successfulRealRestHandler, realFailedBucketsArchiver);
 	}
 
-	public void tearDown() {
+	private void tearDown() {
 		FileUtils.deleteQuietly(originalBucketLocation);
 		FileUtils.deleteQuietly(safeLocation);
 		cleanHadoopFileSystem();
@@ -137,10 +140,8 @@ public class ArchiveRecoveryEndToEndTest {
 				.getIndex(), secondFailingBucket.getDirectory().getAbsolutePath());
 
 		// Verify bucket archiving failed.
-		URI firstBucketURI = TUtilsFunctional.getHadoopArchivedBucketURI(config,
-				firstFailingBucket);
-		URI secondBucketURI = TUtilsFunctional.getHadoopArchivedBucketURI(config,
-				secondFailingBucket);
+		URI firstBucketURI = pathResolver.resolveArchivePath(firstFailingBucket);
+		URI secondBucketURI = pathResolver.resolveArchivePath(secondFailingBucket);
 		assertFalse(hadoopFileSystem.exists(new Path(firstBucketURI)));
 		assertFalse(hadoopFileSystem.exists(new Path(secondBucketURI)));
 
@@ -149,8 +150,7 @@ public class ArchiveRecoveryEndToEndTest {
 		TUtilsFunctional.waitForAsyncArchiving();
 
 		// Verification
-		URI thirdBucketURI = TUtilsFunctional.getHadoopArchivedBucketURI(config,
-				successfulBucket);
+		URI thirdBucketURI = pathResolver.resolveArchivePath(successfulBucket);
 		assertTrue(hadoopFileSystem.exists(new Path(firstBucketURI)));
 		assertTrue(hadoopFileSystem.exists(new Path(secondBucketURI)));
 		assertTrue(hadoopFileSystem.exists(new Path(thirdBucketURI)));

@@ -60,7 +60,6 @@ import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
-@Test(groups = { "end-to-end" })
 public class ArchiverEndToEndTest {
 
 	File tempDirectory;
@@ -77,6 +76,7 @@ public class ArchiverEndToEndTest {
 	@Parameters(value = { "splunk.username", "splunk.password", "splunk.host",
 			"splunk.mgmtport", "hadoop.host", "hadoop.port", "shuttl.host",
 			"shuttl.port" })
+	@Test(groups = { "end-to-end" })
 	public void archiveBucketAndThawItBack(final String splunkUserName,
 			final String splunkPw, final String splunkHost, final String splunkPort,
 			final String hadoopHost, final String hadoopPort,

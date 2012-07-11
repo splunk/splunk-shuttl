@@ -29,28 +29,13 @@ import org.apache.hadoop.fs.FileSystem;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
  * Util methods for functional archiver tests
  */
 public class TUtilsFunctional {
-	/**
-	 * Uses the {@link BucketArchiverFactory#createDefaultArchiver()} to get its
-	 * {@link PathResolver} and retrieve the URI for the bucket as param.
-	 * 
-	 * @param config
-	 * 
-	 * @return URI to archived bucket in hadoop.
-	 */
-	public static URI getHadoopArchivedBucketURI(ArchiveConfiguration config,
-			Bucket bucket) {
-		return new PathResolver(config).resolveArchivePath(bucket);
-	}
-
 	/**
 	 * @param hadoopPort2
 	 * @param hadoopHost2
