@@ -31,9 +31,9 @@ import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsString;
 
 @Test(groups = { "fast-unit" })
-public class SplunkMBeanImplTest {
+public class JMXSplunkTest {
 
-	private SplunkMBeanImpl splunkMBeanImpl;
+	private JMXSplunk jmxSplunk;
 	private String configurationWithTheTestFields;
 	private String password;
 	private String username;
@@ -58,35 +58,34 @@ public class SplunkMBeanImplTest {
 			throws IOException {
 		File confFile = createFile();
 		FileUtils.writeStringToFile(confFile, configurationWithTheTestFields);
-		splunkMBeanImpl = new SplunkMBeanImpl(confFile);
+		jmxSplunk = new JMXSplunk(confFile);
 
-		assertEquals(host, splunkMBeanImpl.getHost());
-		assertEquals(port, splunkMBeanImpl.getPort());
-		assertEquals(username, splunkMBeanImpl.getUsername());
-		assertEquals(password, splunkMBeanImpl.getPassword());
+		assertEquals(host, jmxSplunk.getHost());
+		assertEquals(port, jmxSplunk.getPort());
+		assertEquals(username, jmxSplunk.getUsername());
+		assertEquals(password, jmxSplunk.getPassword());
 	}
 
 	public void constructor_givenEmptyConfiguration_allValuesReturnNull()
 			throws IOException {
-		splunkMBeanImpl = new SplunkMBeanImpl(
-				TUtilsMBean.createEmptyInNamespace("splunkConf"));
-		assertNull(splunkMBeanImpl.getHost());
-		assertNull(splunkMBeanImpl.getPort());
-		assertNull(splunkMBeanImpl.getUsername());
-		assertNull(splunkMBeanImpl.getPassword());
+		jmxSplunk = new JMXSplunk(TUtilsMBean.createEmptyInNamespace("splunkConf"));
+		assertNull(jmxSplunk.getHost());
+		assertNull(jmxSplunk.getPort());
+		assertNull(jmxSplunk.getUsername());
+		assertNull(jmxSplunk.getPassword());
 	}
 
 	public void save_settingValuesOnEmptyConfig_savesValuesToTheConfFile()
 			throws ShuttlMBeanException, ParserConfigurationException, SAXException,
 			IOException {
 		File confFile = TUtilsMBean.createEmptyInNamespace("splunkConf");
-		splunkMBeanImpl = new SplunkMBeanImpl(confFile);
-		splunkMBeanImpl.setHost(host);
-		splunkMBeanImpl.setPort(port);
-		splunkMBeanImpl.setUsername(username);
-		splunkMBeanImpl.setPassword(password);
+		jmxSplunk = new JMXSplunk(confFile);
+		jmxSplunk.setHost(host);
+		jmxSplunk.setPort(port);
+		jmxSplunk.setUsername(username);
+		jmxSplunk.setPassword(password);
 
-		splunkMBeanImpl.save();
+		jmxSplunk.save();
 
 		String confAfterSave = FileUtils.readFileToString(confFile);
 		assertEquals(TUtilsString.noSpaces(configurationWithTheTestFields),

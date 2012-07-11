@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.apache.log4j.Logger;
@@ -28,7 +29,16 @@ import com.splunk.shuttl.server.mbeans.util.JAXBUtils;
  * base class can reduce duplication.
  */
 public abstract class MBeanBase<T> implements MBeanPersistance {
-	Logger logger = Logger.getLogger(MBeanBase.class);
+	private static final Logger logger = Logger.getLogger(MBeanBase.class);
+	private static final String CONFIGURATION_PATH = "etc/apps/shuttl/conf/";
+
+	/**
+	 * Needed by tests to override the default path to the configuration file.
+	 */
+	protected String getPathToDefaultConfFile() {
+		return System.getenv("SPLUNK_HOME") + File.separator + CONFIGURATION_PATH
+				+ getConfFileName();
+	}
 
 	@Override
 	public void save() throws ShuttlMBeanException {
@@ -55,6 +65,11 @@ public abstract class MBeanBase<T> implements MBeanPersistance {
 	}
 
 	/**
+	 * Implement this method by looking at {@link ShuttlArchiver}
+	 */
+	protected abstract String getConfFileName();
+
+	/**
 	 * Implement this method by looking at {@link ShuttlArchiver} and
 	 * {@link ShuttlServer}
 	 */
@@ -70,12 +85,12 @@ public abstract class MBeanBase<T> implements MBeanPersistance {
 	 * Implement this method by looking at {@link ShuttlArchiver} and
 	 * {@link ShuttlServer}
 	 */
-	protected abstract Class<T> getConfClass();
+	protected abstract void setConfObject(T conf);
 
 	/**
 	 * Implement this method by looking at {@link ShuttlArchiver} and
 	 * {@link ShuttlServer}
 	 */
-	protected abstract void setConfObject(T conf);
+	protected abstract Class<T> getConfClass();
 
 }

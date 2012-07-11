@@ -14,28 +14,15 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
-/**
- * Interface for the Splunk MBean, which is the Splunk configuration specified
- * in the splunk.xml.<br/>
- * <br/>
- * Contains setters and getters for: Host, Port, Username and Password.
- */
-public interface SplunkMBean {
+public class JMXSplunkForTests extends JMXSplunk {
 
-	String getHost();
+	public JMXSplunkForTests() {
+		super();
+	}
 
-	void setHost(String string);
-
-	String getPort();
-
-	void setPort(String string);
-
-	String getUsername();
-
-	void setUsername(String string);
-
-	String getPassword();
-
-	void setPassword(String string);
+	@Override
+	protected String getPathToDefaultConfFile() {
+		return "package/conf/splunk.xml";
+	}
 
 }

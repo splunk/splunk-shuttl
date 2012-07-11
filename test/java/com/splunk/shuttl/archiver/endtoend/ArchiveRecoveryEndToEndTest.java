@@ -61,7 +61,7 @@ public class ArchiveRecoveryEndToEndTest {
 	@Test(groups = { "end-to-end" }, enabled = false)
 	public void Archiver_givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets(
 			final String hadoopHost, final String hadoopPort) throws Exception {
-		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
 
 			@Override
 			public void run() {

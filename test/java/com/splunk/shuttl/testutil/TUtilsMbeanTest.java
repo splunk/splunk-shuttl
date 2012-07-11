@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
+import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 
 @Test(groups = { "fast-unit" })
@@ -32,58 +33,60 @@ public class TUtilsMbeanTest {
 
 	@BeforeMethod
 	public void setUp() {
-		TUtilsMBean.unregisterShuttlArchiverMBean();
+		TUtilsMBean.unregisterMBeans();
 	}
 
 	@AfterMethod
 	public void tearDown() {
-		TUtilsMBean.unregisterShuttlArchiverMBean();
+		TUtilsMBean.unregisterMBeans();
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void registerShuttlArchiverMBean_notRegistered_registersMbean()
+	public void registerMBeans_notRegistered_registersMBeans()
 			throws InstanceNotFoundException {
-		assertFalse(isMBeanRegistered());
-		TUtilsMBean.registerShuttlArchiverMBean();
-		assertTrue(isMBeanRegistered());
-		TUtilsMBean.unregisterShuttlArchiverMBean();
-		assertFalse(isMBeanRegistered());
+		assertFalse(areMBeansRegistered());
+		TUtilsMBean.registerMBeans();
+		assertTrue(areMBeansRegistered());
+		TUtilsMBean.unregisterMBeans();
+		assertFalse(areMBeansRegistered());
 	}
 
-	private boolean isMBeanRegistered() throws InstanceNotFoundException {
+	private boolean areMBeansRegistered() throws InstanceNotFoundException {
 		try {
-			ShuttlArchiverMBean proxy = MBeanUtils.getMBeanInstance(
+			ShuttlArchiverMBean archiverMBean = MBeanUtils.getMBeanInstance(
 					ShuttlArchiverMBean.OBJECT_NAME, ShuttlArchiverMBean.class);
-			return proxy != null;
+			JMXSplunkMBean splunkMBean = MBeanUtils.getMBeanInstance(
+					JMXSplunkMBean.OBJECT_NAME, JMXSplunkMBean.class);
+			return archiverMBean != null && splunkMBean != null;
 		} catch (InstanceNotFoundException e) {
 			return false;
 		}
 	}
 
-	public void registerShuttlArchiverMBean_twice_ok() {
-		TUtilsMBean.registerShuttlArchiverMBean();
-		TUtilsMBean.registerShuttlArchiverMBean();
+	public void registerMBeans_twice_ok() {
+		TUtilsMBean.registerMBeans();
+		TUtilsMBean.registerMBeans();
 	}
 
-	public void unregisterShuttlArchiverMBean_twice_ok() {
-		TUtilsMBean.unregisterShuttlArchiverMBean();
-		TUtilsMBean.unregisterShuttlArchiverMBean();
+	public void unregisterMBeans_twice_ok() {
+		TUtilsMBean.unregisterMBeans();
+		TUtilsMBean.unregisterMBeans();
 	}
 
-	public void runWithRegisteredShuttlArchiverMBean_withRunnable_runsRunnable() {
+	public void runWithRegisteredMBeans_withRunnable_runsRunnable() {
 		Runnable runnable = mock(Runnable.class);
-		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(runnable);
+		TUtilsMBean.runWithRegisteredMBeans(runnable);
 		verify(runnable).run();
 	}
 
-	public void runWithRegisteredShuttlArchiverMBean_withRunnable_mBeanIsRegistered()
+	public void runWithRegisteredMBean_withRunnable_mBeanIsRegistered()
 			throws OperationsException {
-		assertFalse(isMBeanRegistered());
-		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+		assertFalse(areMBeansRegistered());
+		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					assertTrue(isMBeanRegistered());
+					assertTrue(areMBeansRegistered());
 				} catch (InstanceNotFoundException e) {
 					TUtilsTestNG.failForException(null, e);
 				}
@@ -91,11 +94,11 @@ public class TUtilsMbeanTest {
 		});
 	}
 
-	public void runWithRegisteredShuttlArchiverMBean_throwsExceptionInRunnable_stillUnregisteredAfterRun()
+	public void runWithRegisteredMBean_throwsExceptionInRunnable_stillUnregisteredAfterRun()
 			throws InstanceNotFoundException {
 		RuntimeException expectedException = null;
 		try {
-			TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+			TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
 				@Override
 				public void run() {
 					throw new RuntimeException();
@@ -104,7 +107,7 @@ public class TUtilsMbeanTest {
 		} catch (RuntimeException e) {
 			expectedException = e;
 		}
-		assertFalse(isMBeanRegistered());
+		assertFalse(areMBeansRegistered());
 		assertNotNull(expectedException);
 	}
 }

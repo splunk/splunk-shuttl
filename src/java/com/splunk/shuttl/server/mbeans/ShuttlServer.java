@@ -28,19 +28,23 @@ public class ShuttlServer extends MBeanBase<ServerConf> implements
 	// error messages
 	private static final String SHUTTL_SERVER_INIT_FAILURE = "ShuttlServer init failure";
 	// end error messages
-	private static String SERVERCONF_XML = "etc/apps/shuttl/conf/server.xml";
 	private Logger logger = Logger.getLogger(getClass());
 	private String xmlFilePath;
 	private ServerConf conf;
 
 	public ShuttlServer() throws ShuttlMBeanException {
 		try {
-			this.xmlFilePath = System.getProperty("splunk.home") + SERVERCONF_XML;
+			this.xmlFilePath = getPathToDefaultConfFile();
 			refresh();
 		} catch (Exception e) {
 			logger.error(SHUTTL_SERVER_INIT_FAILURE, e);
 			throw new ShuttlMBeanException(e);
 		}
+	}
+
+	@Override
+	protected String getConfFileName() {
+		return "server.xml";
 	}
 
 	// this signature used by tests

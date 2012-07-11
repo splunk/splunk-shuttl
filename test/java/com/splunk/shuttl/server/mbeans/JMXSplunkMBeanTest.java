@@ -22,37 +22,36 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 
 @Test(groups = { "fast-unit" })
-public class SplunkMBeanTest {
+public class JMXSplunkMBeanTest {
 
-	private SplunkMBean splunkMBean;
+	private JMXSplunkMBean mBean;
 
 	@BeforeMethod
 	public void setUp() {
-		splunkMBean = new SplunkMBeanImpl(
-				TUtilsMBean.createEmptyInNamespace("splunkConf"));
+		mBean = new JMXSplunk(TUtilsMBean.createEmptyInNamespace("splunkConf"));
 	}
 
 	public void getHost_afterSettingHost_getsHost() {
-		assertNull(splunkMBean.getHost());
-		splunkMBean.setHost("host");
-		assertEquals("host", splunkMBean.getHost());
+		assertNull(mBean.getHost());
+		mBean.setHost("host");
+		assertEquals("host", mBean.getHost());
 	}
 
 	public void getPort_afterSettingPort_getsPort() {
-		assertNull(splunkMBean.getPort());
-		splunkMBean.setPort("1234");
-		assertEquals("1234", splunkMBean.getPort());
+		assertNull(mBean.getPort());
+		mBean.setPort("1234");
+		assertEquals("1234", mBean.getPort());
 	}
 
 	public void getUsername_afterSettingUsername_getsUsername() {
-		assertNull(splunkMBean.getUsername());
-		splunkMBean.setUsername("username");
-		assertEquals("username", splunkMBean.getUsername());
+		assertNull(mBean.getUsername());
+		mBean.setUsername("username");
+		assertEquals("username", mBean.getUsername());
 	}
 
 	public void getPassword_afterSettingPassword_getsPassword() {
-		assertNull(splunkMBean.getPassword());
-		splunkMBean.setPassword("password");
-		assertEquals("password", splunkMBean.getPassword());
+		assertNull(mBean.getPassword());
+		mBean.setPassword("password");
+		assertEquals("password", mBean.getPassword());
 	}
 }

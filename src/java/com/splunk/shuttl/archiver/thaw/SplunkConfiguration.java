@@ -14,7 +14,14 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import com.splunk.shuttl.server.mbeans.SplunkMBean;
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
+import javax.management.InstanceNotFoundException;
+
+import org.apache.log4j.Logger;
+
+import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
+import com.splunk.shuttl.server.mbeans.JMXSplunk;
 
 /**
  * Configuration for getting Splunk host, post, username, password to the
@@ -67,22 +74,33 @@ public class SplunkConfiguration {
 	 * @return instance with default configuration.
 	 */
 	public static SplunkConfiguration create() {
-		return new SplunkConfiguration("localhost", 8089, "admin", "changeme");
+		try {
+			return createWithMBean(JMXSplunk.getMBeanProxy());
+		} catch (InstanceNotFoundException e) {
+			logInstanceNotFoundException(e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
 	 * @param mBean
 	 *          to create the instance from.
 	 */
-	public static SplunkConfiguration createWithMBean(SplunkMBean mBean) {
+	public static SplunkConfiguration createWithMBean(JMXSplunkMBean mBean) {
 		return new SplunkConfiguration(mBean.getHost(), getPortFromMBean(mBean),
 				mBean.getUsername(), mBean.getPassword());
 	}
 
-	private static int getPortFromMBean(SplunkMBean mBean) {
+	private static int getPortFromMBean(JMXSplunkMBean mBean) {
 		if (mBean.getPort() != null)
 			return Integer.parseInt(mBean.getPort());
 		return -1;
 	}
 
+	private static void logInstanceNotFoundException(InstanceNotFoundException e) {
+		Logger.getLogger(SplunkConfiguration.class).error(
+				did("Tried getting SplunkMBeanImpl "
+						+ "for creating a SplunkConfiguration", e,
+						"To get the SplunkMBean from " + "its construction method"));
+	}
 }

@@ -15,27 +15,29 @@
 package com.splunk.shuttl.server.mbeans;
 
 /**
- * {@link ShuttlArchiver} with path to archiver.xml configuration file.</br>
- * Remove this when we have a better way of configure our MBeans. Meaning when
- * we don't hard code the path to the xml.
+ * Interface for the Splunk MBean, which is the Splunk configuration specified
+ * in the splunk.xml.<br/>
+ * <br/>
+ * Contains setters and getters for: Host, Port, Username and Password.
  */
-// TODO: Read the comment above and remove this class when things are better.
-public class ShuttlArchiverForTests extends ShuttlArchiver {
+public interface JMXSplunkMBean {
 
-	/**
-	 * @throws ShuttlMBeanException
-	 */
-	public ShuttlArchiverForTests() throws ShuttlMBeanException {
-		super();
-	}
+	public static final String OBJECT_NAME = "com.splunk.shuttl.mbeans:type=Splunk";
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.splunk.shuttl.server.mbeans.ShuttlArchiver#getArchiverConfXml()
-	 */
-	@Override
-	protected String getPathToDefaultConfFile() {
-		return "package/conf/archiver.xml";
-	}
+	public String getHost();
+
+	public void setHost(String host);
+
+	public String getPort();
+
+	public void setPort(String port);
+
+	public String getUsername();
+
+	public void setUsername(String username);
+
+	public String getPassword();
+
+	public void setPassword(String password);
+
 }

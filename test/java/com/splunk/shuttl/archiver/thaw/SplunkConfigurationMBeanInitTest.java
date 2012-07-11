@@ -20,17 +20,17 @@ import static org.testng.Assert.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.server.mbeans.SplunkMBean;
+import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
 
 @Test(groups = { "fast-unit" })
 public class SplunkConfigurationMBeanInitTest {
 
-	private SplunkMBean mBean;
+	private JMXSplunkMBean mBean;
 	private SplunkConfiguration splunkConfiguration;
 
 	@BeforeMethod
 	public void setUp() {
-		mBean = mock(SplunkMBean.class);
+		mBean = mock(JMXSplunkMBean.class);
 	}
 
 	public void getHost_mockedHost_returnsHost() {

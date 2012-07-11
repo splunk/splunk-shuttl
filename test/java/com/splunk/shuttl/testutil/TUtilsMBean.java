@@ -21,6 +21,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
+import com.splunk.shuttl.server.mbeans.JMXSplunkForTests;
+import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverForTests;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
@@ -30,15 +32,19 @@ public class TUtilsMBean {
 	public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
 
 	/**
-	 * Registers the ShuttlArchiverMBean. Make sure to unregister after your test
-	 * is run. <br/>
-	 * Use {@link TUtilsMBean#runWithRegisteredShuttlArchiverMBean(Runnable)} if
-	 * possible.
+	 * Registers the Archiver and Splunk MBeans. Make sure to unregister after
+	 * your test is run. <br/>
+	 * Use {@link TUtilsMBean#runWithRegisteredMBeans(Runnable)} if possible.
 	 */
-	static void registerShuttlArchiverMBean() {
+	static void registerMBeans() {
+		registerByNameAndClass(ShuttlArchiverMBean.OBJECT_NAME,
+				ShuttlArchiverForTests.class);
+		registerByNameAndClass(JMXSplunkMBean.OBJECT_NAME, JMXSplunkForTests.class);
+	}
+
+	private static void registerByNameAndClass(String objectName, Class<?> clazz) {
 		try {
-			RegistersMBeans.create().registerMBean(ShuttlArchiverMBean.OBJECT_NAME,
-					ShuttlArchiverForTests.class);
+			RegistersMBeans.create().registerMBean(objectName, clazz);
 		} catch (Exception e) {
 			TUtilsTestNG
 					.failForException("Could not register ShuttlArchiverMBean", e);
@@ -48,16 +54,21 @@ public class TUtilsMBean {
 	/**
 	 * Unregisters the ShuttlArchiverMBean
 	 */
-	static void unregisterShuttlArchiverMBean() {
+	static void unregisterMBeans() {
 		RegistersMBeans.create().unregisterMBean(ShuttlArchiverMBean.OBJECT_NAME);
 	}
 
-	public static void runWithRegisteredShuttlArchiverMBean(Runnable runnable) {
+	/**
+	 * Runs a runnable while MBeans in {@link TUtilsMBean#registerMBeans()} are
+	 * registered. The method makes sure that the MBeans are unregistered when the
+	 * runnable has finished running.
+	 */
+	public static void runWithRegisteredMBeans(Runnable runnable) {
 		try {
-			registerShuttlArchiverMBean();
+			registerMBeans();
 			runnable.run();
 		} finally {
-			unregisterShuttlArchiverMBean();
+			unregisterMBeans();
 		}
 	}
 

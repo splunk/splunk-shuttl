@@ -150,7 +150,7 @@ public class PathResolverTest {
 	}
 
 	public void getConfigured_registeredMBean_getsPathResolverInstance() {
-		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
 			@Override
 			public void run() {
 				PathResolver pr = PathResolver.getConfigured();

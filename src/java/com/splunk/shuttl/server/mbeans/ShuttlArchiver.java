@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
-import java.io.File;
 import java.util.List;
 
 import javax.management.InstanceNotFoundException;
@@ -34,21 +33,18 @@ public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
 	private static final String SHUTTL_ARCHIVER_INIT_FAILURE = "ShuttlArchiver init failure";
 	// end error messages
 
-	private static String ARCHIVERCONF_XML = "etc/apps/shuttl/conf/archiver.xml";
 	private static Logger logger = Logger.getLogger(ShuttlArchiver.class);
 	private ArchiverConf conf;
 	private String xmlFilePath;
 
 	public ShuttlArchiver() throws ShuttlMBeanException {
-		this.xmlFilePath = getArchiverConfXml();
+		this.xmlFilePath = getPathToDefaultConfFile();
 		refreshWithConf();
 	}
 
-	/**
-	 * Needed by tests to override the path to the archiver conf.
-	 */
-	protected String getArchiverConfXml() {
-		return System.getenv("SPLUNK_HOME") + File.separator + ARCHIVERCONF_XML;
+	@Override
+	protected String getConfFileName() {
+		return "archiver.xml";
 	}
 
 	// used by tests
@@ -156,4 +152,5 @@ public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
 		return MBeanUtils.getMBeanInstance(ShuttlArchiverMBean.OBJECT_NAME,
 				ShuttlArchiverMBean.class);
 	}
+
 }

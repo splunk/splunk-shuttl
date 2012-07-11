@@ -42,7 +42,7 @@ public class ArchiveLotsOfBucketsWithDifferentTimeRanges {
 	}
 
 	public void _archiveLotsOfBucketsWithDifferentTimeRanges_() {
-		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
 
 			@Override
 			public void run() {

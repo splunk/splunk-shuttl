@@ -81,7 +81,7 @@ public class ArchiverEndToEndTest {
 			final String splunkPw, final String splunkHost, final String splunkPort,
 			final String hadoopHost, final String hadoopPort,
 			final String shuttlHost, final String shuttlPort) throws Exception {
-		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
 
 			@Override
 			public void run() {

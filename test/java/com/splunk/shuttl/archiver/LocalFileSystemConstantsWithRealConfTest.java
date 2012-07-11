@@ -33,7 +33,7 @@ public class LocalFileSystemConstantsWithRealConfTest {
 
 	@BeforeMethod
 	public void setUp() {
-		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
 			@Override
 			public void run() {
 				archiverDirWithMBeanConf = LocalFileSystemPaths.create()
@@ -51,7 +51,7 @@ public class LocalFileSystemConstantsWithRealConfTest {
 	@Test(groups = { "slow-unit" })
 	public void create_withMBeanRegistered_archiverDirectoryIsCreatable()
 			throws IOException {
-		TUtilsMBean.runWithRegisteredShuttlArchiverMBean(new Runnable() {
+		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
 
 			@Override
 			public void run() {

@@ -95,11 +95,18 @@
   
   <New id="ShuttlArchiverMBeanContainer" class="com.splunk.shuttl.server.mbeans.ShuttlArchiver">
   </New>
-
+  
   <New id="ShuttlArchiverMBeanId" class="javax.management.ObjectName">
     <Arg>com.splunk.shuttl.mbeans:type=Archiver</Arg>
   </New>
+
+  <New id="SplunkMBeanContainer" class="com.splunk.shuttl.server.mbeans.JMXSplunk">
+  </New>
   
+  <New id="SplunkMBeanId" class="javax.management.ObjectName">
+    <Arg>com.splunk.shuttl.mbeans:type=Splunk</Arg>
+  </New>
+
   <!-- =========================================================== -->
   <!-- Initialize an mbean server                                  -->
   <!-- =========================================================== -->
@@ -133,6 +140,14 @@
     </Arg>
     <Arg>
       <Ref id="ShuttlArchiverMBeanId" />
+    </Arg>
+  </Call>
+  <Call name="registerMBean">
+    <Arg>
+      <Ref id="SplunkMBeanContainer" />
+    </Arg>
+    <Arg>
+      <Ref id="SplunkMBeanId" />
     </Arg>
   </Call>
   </Call>
