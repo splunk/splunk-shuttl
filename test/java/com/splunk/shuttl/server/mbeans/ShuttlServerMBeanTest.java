@@ -17,10 +17,11 @@ package com.splunk.shuttl.server.mbeans;
 import static org.testng.Assert.*;
 
 import java.io.File;
-import java.io.FileWriter;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.splunk.shuttl.testutil.TUtilsMBean;
 
 /**
  * White box testing of MBeans
@@ -30,16 +31,14 @@ import org.testng.annotations.Test;
  */
 @Test(groups = { "fast-unit" })
 public class ShuttlServerMBeanTest {
-	private static final String EMPTY_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-			+ "<ns2:serverConf xmlns:ns2=\"com.splunk.shuttl.server.model\"></ns2:serverConf>";
 	private static final int TESTPORT = 9090;
 	private static final String TESTHOST = "testhost";
-	private ShuttlServerMBean serverMBean = null;
+	private ShuttlServer serverMBean = null;
 
 	@BeforeMethod
 	public void createMBean() throws Exception {
 		try {
-			File confFile = getTempFile();
+			File confFile = TUtilsMBean.createEmptyInNamespace("serverConf");
 			System.out.println("ShuttlServerMBeanTest - running "
 					+ confFile.getPath());
 			this.serverMBean = new ShuttlServer(confFile.getPath());
@@ -51,15 +50,6 @@ public class ShuttlServerMBeanTest {
 			e.printStackTrace();
 			throw new Exception(e);
 		}
-	}
-
-	private File getTempFile() throws Exception {
-		File confFile = File.createTempFile("shuttlServerMBeanTest", ".xml");
-		confFile.deleteOnExit();
-		FileWriter writer = new FileWriter(confFile);
-		writer.write(EMPTY_XML);
-		writer.close();
-		return confFile;
 	}
 
 	@Test(groups = { "fast-unit" })

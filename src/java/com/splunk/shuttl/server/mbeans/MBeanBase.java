@@ -21,7 +21,11 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.server.mbeans.util.JAXBUtils;
 
 /**
- * Base class containing logic for saving and refreshing a physical .xml file.
+ * Base class containing logic for saving and refreshing a physical .xml file.<br/>
+ * <br/>
+ * This base class was extracted by looking at {@link ShuttlArchiver} and
+ * {@link ShuttlServer}. Look at those implementations to understand how this
+ * base class can reduce duplication.
  */
 public abstract class MBeanBase<T> implements MBeanPersistance {
 	Logger logger = Logger.getLogger(MBeanBase.class);
@@ -50,12 +54,28 @@ public abstract class MBeanBase<T> implements MBeanPersistance {
 		}
 	}
 
+	/**
+	 * Implement this method by looking at {@link ShuttlArchiver} and
+	 * {@link ShuttlServer}
+	 */
 	protected abstract String getPathToXmlFile();
 
+	/**
+	 * Implement this method by looking at {@link ShuttlArchiver} and
+	 * {@link ShuttlServer}
+	 */
 	protected abstract T getConfObject();
 
+	/**
+	 * Implement this method by looking at {@link ShuttlArchiver} and
+	 * {@link ShuttlServer}
+	 */
 	protected abstract Class<T> getConfClass();
 
+	/**
+	 * Implement this method by looking at {@link ShuttlArchiver} and
+	 * {@link ShuttlServer}
+	 */
 	protected abstract void setConfObject(T conf);
 
 }

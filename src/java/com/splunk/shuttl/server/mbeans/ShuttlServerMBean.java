@@ -51,15 +51,4 @@ public interface ShuttlServerMBean {
 	 */
 	public void setHttpPort(int port);
 
-	/**
-	 * Saves the MBean state into an xml file
-	 * 
-	 */
-	public void save() throws ShuttlMBeanException;
-
-	/**
-	 * Refreshes the MBeans with values from XML file
-	 */
-	public void refresh() throws ShuttlMBeanException;
-
 }

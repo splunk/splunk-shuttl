@@ -25,6 +25,9 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.testutil.TUtilsMBean;
+import com.splunk.shuttl.testutil.TUtilsString;
+
 /**
  * White box testing of MBeans
  */
@@ -83,27 +86,16 @@ public class ShuttlArchiverMBeanTest {
 		String clusterName = "some_cluster_name";
 		String serverName = "some_server_name";
 		String archiverRootURI = "hdfs://localhost:1234";
-		String expectedConfigFile = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+		String expectedConfigFile = TUtilsMBean.XML_HEADER
 				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">\n"
 				+ "<archiveFormats>\n"
 				+ "<archiveFormat>SPLUNK_BUCKET</archiveFormat>\n"
-				+ "<archiveFormat>CSV</archiveFormat>\n"
-				+ "</archiveFormats>\n"
-				+ "<clusterName>"
-				+ clusterName
-				+ "</clusterName>\n"
-				+ "<serverName>"
-				+ serverName
-				+ "</serverName>\n"
-				+ "<archiverRootURI>"
-				+ archiverRootURI
-				+ "</archiverRootURI>\n"
-				+ "<bucketFormatPriority>"
-				+ "SPLUNK_BUCKET"
-				+ "</bucketFormatPriority>\n"
-				+ "<bucketFormatPriority>"
-				+ "CSV"
-				+ "</bucketFormatPriority>\n"
+				+ "<archiveFormat>CSV</archiveFormat>\n" + "</archiveFormats>\n"
+				+ "<clusterName>" + clusterName + "</clusterName>\n" + "<serverName>"
+				+ serverName + "</serverName>\n" + "<archiverRootURI>"
+				+ archiverRootURI + "</archiverRootURI>\n" + "<bucketFormatPriority>"
+				+ "SPLUNK_BUCKET" + "</bucketFormatPriority>\n"
+				+ "<bucketFormatPriority>" + "CSV" + "</bucketFormatPriority>\n"
 				+ "</ns2:archiverConf>\n";
 
 		File file = getTempFile();
@@ -115,12 +107,8 @@ public class ShuttlArchiverMBeanTest {
 		archiverMBean.setBucketFormatPriority(archiveFormats);
 		archiverMBean.save();
 
-		assertEquals(noSpaces(FileUtils.readFileToString(file)),
-				noSpaces(expectedConfigFile));
-	}
-
-	private String noSpaces(String s) {
-		return s.replaceAll(" ", "");
+		assertEquals(TUtilsString.noSpaces(FileUtils.readFileToString(file)),
+				TUtilsString.noSpaces(expectedConfigFile));
 	}
 
 	public void load_preconfiguredFile_givesCorrectValues() throws Exception {
@@ -128,23 +116,15 @@ public class ShuttlArchiverMBeanTest {
 		String clusterName = "some_cluster_name";
 		String serverName = "some_server_name";
 		String archiverRootURI = "hdfs://localhost:1234";
-		String configFilePreset = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+		String configFilePreset = TUtilsMBean.XML_HEADER
 				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">\n"
 				+ "<archiveFormats>\n"
 				+ "<archiveFormat>SPLUNK_BUCKET</archiveFormat>\n"
-				+ "<archiveFormat>CSV</archiveFormat>\n"
-				+ "</archiveFormats>\n"
-				+ "<clusterName>"
-				+ clusterName
-				+ "</clusterName>\n"
-				+ "    <serverName>"
-				+ serverName
-				+ "</serverName>\n"
-				+ "    <archiverRootURI>"
-				+ archiverRootURI
-				+ "</archiverRootURI>\n"
-				+ "    <bucketFormatPriority>"
-				+ "SPLUNK_BUCKET"
+				+ "<archiveFormat>CSV</archiveFormat>\n" + "</archiveFormats>\n"
+				+ "<clusterName>" + clusterName + "</clusterName>\n"
+				+ "    <serverName>" + serverName + "</serverName>\n"
+				+ "    <archiverRootURI>" + archiverRootURI + "</archiverRootURI>\n"
+				+ "    <bucketFormatPriority>" + "SPLUNK_BUCKET"
 				+ "</bucketFormatPriority>\n" + "</ns2:archiverConf>";
 
 		File file = File.createTempFile("shuttlArchiverMBeanTest2", ".xml");
@@ -158,13 +138,7 @@ public class ShuttlArchiverMBeanTest {
 	}
 
 	private File getTempFile() throws Exception {
-		File confFile = File.createTempFile("shuttlArchiverMBeanTest", ".xml");
-		String emptyConfigFile = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">"
-				+ "</ns2:archiverConf>";
-		confFile.deleteOnExit();
-		FileUtils.writeStringToFile(confFile, emptyConfigFile);
-		return confFile;
+		return TUtilsMBean.createEmptyInNamespace("archiverConf");
 	}
 
 }

@@ -12,30 +12,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.server.mbeans;
+package com.splunk.shuttl.testutil;
 
-/**
- * Interface for the Splunk MBean, which is the Splunk configuration specified
- * in the splunk.xml.<br/>
- * <br/>
- * Contains setters and getters for: Host, Port, Username and Password.
- */
-public interface SplunkMBean {
+public class TUtilsString {
 
-	String getHost();
-
-	void setHost(String string);
-
-	String getPort();
-
-	void setPort(String string);
-
-	String getUsername();
-
-	void setUsername(String string);
-
-	String getPassword();
-
-	void setPassword(String string);
+	/**
+	 * @return string without any spaces.
+	 */
+	public static String noSpaces(String string) {
+		return string.replaceAll(" ", "");
+	}
 
 }

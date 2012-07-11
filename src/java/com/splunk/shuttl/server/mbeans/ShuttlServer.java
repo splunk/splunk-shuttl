@@ -14,11 +14,8 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
-import java.io.FileNotFoundException;
-
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.server.mbeans.util.JAXBUtils;
 import com.splunk.shuttl.server.model.ServerConf;
 
 /**
@@ -26,7 +23,8 @@ import com.splunk.shuttl.server.model.ServerConf;
  * @author kpakkirisamy
  * 
  */
-public class ShuttlServer implements ShuttlServerMBean {
+public class ShuttlServer extends MBeanBase<ServerConf> implements
+		ShuttlServerMBean {
 	// error messages
 	private static final String SHUTTL_SERVER_INIT_FAILURE = "ShuttlServer init failure";
 	// end error messages
@@ -77,25 +75,22 @@ public class ShuttlServer implements ShuttlServerMBean {
 	}
 
 	@Override
-	public void save() throws ShuttlMBeanException {
-		try {
-			JAXBUtils.save(ServerConf.class, this.conf, this.xmlFilePath);
-		} catch (Exception e) {
-			logger.error(e);
-			throw new ShuttlMBeanException(e);
-		}
+	protected String getPathToXmlFile() {
+		return xmlFilePath;
 	}
 
 	@Override
-	public void refresh() throws ShuttlMBeanException {
-		try {
-			this.conf = (ServerConf) JAXBUtils.refresh(ServerConf.class,
-					this.xmlFilePath);
-		} catch (FileNotFoundException fnfe) {
-			this.conf = new ServerConf();
-		} catch (Exception e) {
-			logger.error(e);
-			throw new ShuttlMBeanException(e);
-		}
+	protected ServerConf getConfObject() {
+		return conf;
+	}
+
+	@Override
+	protected Class<ServerConf> getConfClass() {
+		return ServerConf.class;
+	}
+
+	@Override
+	protected void setConfObject(ServerConf conf) {
+		this.conf = conf;
 	}
 }
