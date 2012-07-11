@@ -76,8 +76,10 @@ public class BucketThawerFactory {
 	// TODO: Communicating with splunk through splunk home is not nice.
 	// CONFIG
 	private static Service getLoggedInSplunkService() {
-		Service splunkService = new Service("localhost", 8089);
-		splunkService.login("admin", "changeme");
+		SplunkConfiguration splunkConf = SplunkConfiguration.create();
+		Service splunkService = new Service(splunkConf.getHost(),
+				splunkConf.getPort());
+		splunkService.login(splunkConf.getUsername(), splunkConf.getPassword());
 		return splunkService;
 	}
 

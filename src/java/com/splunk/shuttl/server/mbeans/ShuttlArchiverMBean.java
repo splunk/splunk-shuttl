@@ -14,34 +14,38 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
-import java.io.IOException;
-
-import javax.management.InstanceNotFoundException;
-
-import com.splunk.shuttl.server.model.ArchiverConfiguration;
+import java.util.List;
 
 /**
  * @author kpakkirisamy
  * 
  */
-public interface ShuttlArchiverMBean extends ArchiverConfiguration {
+public interface ShuttlArchiverMBean {
 
 	public static final String OBJECT_NAME = "com.splunk.shuttl.mbeans:type=Archiver";
 
-	/**
-	 * Saves MBean attributes to backing xml
-	 * 
-	 * @throws ShuttlMBeanException
-	 */
-	public void save() throws ShuttlMBeanException, IOException,
-			InstanceNotFoundException;
+	public String getLocalArchiverDir();
 
-	/**
-	 * Reloads MBean attributes from backing xml
-	 * 
-	 * @throws ShuttlMBeanException
-	 */
-	public void refresh() throws ShuttlMBeanException, IOException,
-			InstanceNotFoundException;;
+	public void setLocalArchiverDir(String localArchiverDir);
+
+	public List<String> getArchiveFormats();
+
+	public void setArchiveFormats(List<String> archiveFormats);
+
+	public String getClusterName();
+
+	public void setClusterName(String clusterName);
+
+	public List<String> getBucketFormatPriority();
+
+	public void setBucketFormatPriority(List<String> priorityList);
+
+	public String getServerName();
+
+	public void setServerName(String serverName);
+
+	public String getArchiverRootURI();
+
+	public void setArchiverRootURI(String URI);
 
 }
