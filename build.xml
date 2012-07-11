@@ -526,7 +526,7 @@
 	<target name="splunk-configure-and-start">
 		<antcall>
 			<target name="install-shuttl-splunk-app" />
-			<target name="splunk-set-splunkd-port" />
+			<!--Not needed yet: target name="splunk-set-splunkd-port" /-->
 			<target name="splunk-start" />
 			<target name="enable-shuttl-splunk-app" />
 		</antcall>
@@ -605,18 +605,35 @@
 		</antcall>
 	</target>
 
-	<property name="splunk.accept.license.flags" value="--accept-license --no-prompt --answer-yes" />
-
 	<target name="splunk-set-splunkd-port">
-		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="set splunkd-port ${splunk.mgmtport} ${splunk.accept.license.flags} " />
+		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
+		<antcall target="splunk-start" />
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport} -auth ${splunk.username}:${splunk.password}" />
 		</exec>
+		<!-- changing splunkd port needs a restart. -->
+		<antcall>
+			<target name="splunk-stop" />
+			<target name="splunk-start" />
+		</antcall>
 	</target>
 
+	<property name="splunk.accept.license.flags" value="--accept-license --no-prompt --answer-yes" />
+
 	<target name="splunk-start" depends="set-splunk-home">
-		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="start ${splunk.accept.license.flags} splunkd" />
-		</exec>
+		<!-- antcallback instead of depends, to make sure it's running the "check" target again,
+		and not taking a previous check when Splunk might have been in a different state -->
+		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
+		<if>
+			<isset property="isSplunkRunning" />
+			<then />
+			<else>
+				<exec executable="${splunk.home}/bin/splunk">
+					<arg line="start ${splunk.accept.license.flags} splunkd" />
+				</exec>
+			</else>
+		</if>
 	</target>
 
 	<target name="splunk-start-splunkweb" depends="set-splunk-home">
@@ -631,10 +648,45 @@
 		</exec>
 	</target>
 
+	<target name="splunk-stop-forced" depends="set-splunk-home">
+		<var name="splunk.stop.command" unset="true" />
+		<property name="splunk.stop.command" value="stop -f" />
+		<antcall target="do-splunk-stop" />
+	</target>
+
 	<target name="splunk-stop" depends="set-splunk-home">
-		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="stop -f" />
+		<var name="splunk.stop.command" unset="true" />
+		<property name="splunk.stop.command" value="stop" />
+		<antcall target="do-splunk-stop" />
+	</target>
+
+
+	<target name="do-splunk-stop" depends="set-splunk-home">
+		<fail unless="splunk.stop.command" message="property splunk.stop.command must be set before calling this target" />
+		<!-- antcallback instead of depends, to make sure it's running the "check" target again,
+		and not taking a previous check when Splunk might have been in a different state -->
+		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
+		<if>
+			<isset property="isSplunkRunning" />
+			<then>
+				<exec executable="${splunk.home}/bin/splunk">
+					<arg line="${splunk.stop.command}" />
+				</exec>
+			</then>
+		</if>
+	</target>
+
+	<target name="check-if-splunk-is-running">
+		<exec executable="sh" outputproperty="isRunning">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk status | grep 'splunkd is running' | grep -o running || true" />
 		</exec>
+		<if>
+			<equals arg1="${isRunning}" arg2="running" />
+			<then>
+				<property name="isSplunkRunning" value="true" />
+			</then>
+		</if>
 	</target>
 
 	<target name="splunk-restart" depends="set-splunk-home">
@@ -654,8 +706,8 @@
 
 	<target name="check-if-shuttl-is-enabled" depends="set-splunk-home">
 		<exec executable="sh" outputproperty="isShuttlEnabled">
-			<arg value="-c"/>
-			<arg value="${splunk.home}/bin/splunk display app -auth ${splunk.username}:${splunk.password} | grep shuttl | grep -o ENABLED"/>
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk display app -auth ${splunk.username}:${splunk.password} | grep shuttl | grep -o ENABLED || true" />
 		</exec>
 		<if>
 			<equals arg1="${isShuttlEnabled}" arg2="ENABLED" />
@@ -667,7 +719,7 @@
 
 	<target name="splunk-teardown" depends="set-splunk-home,check-for-splunk-binary" if="existsSplunkBinary">
 		<antcall>
-			<target name="splunk-stop" />
+			<target name="splunk-stop-forced" />
 			<target name="splunk-clean-all" />
 		</antcall>
 	</target>
