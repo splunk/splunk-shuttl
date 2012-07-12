@@ -42,7 +42,7 @@ public class ArchiveConfiguration {
 	private final List<BucketFormat> bucketFormatPriority;
 	private final URI tmpDirectory;
 
-	public ArchiveConfiguration(List<BucketFormat> bucketFormats,
+	private ArchiveConfiguration(List<BucketFormat> bucketFormats,
 			URI archivingRoot, String clusterName, String serverName,
 			List<BucketFormat> bucketFormatPriority, URI tmpDirectory) {
 		this.bucketFormats = bucketFormats;
@@ -95,14 +95,23 @@ public class ArchiveConfiguration {
 			ShuttlArchiverMBean mBean) {
 		List<BucketFormat> bucketFormats = bucketFormatsFromMBean(mBean);
 		URI archivingRootURI = archivingRootFromMBean(mBean);
-		URI archivingData = getChildToArchivingRoot(archivingRootURI,
-				ARCHIVE_DATA_DIRECTORY_NAME);
-		URI tmpDirectory = getChildToArchivingRoot(archivingRootURI,
-				TEMPORARY_DATA_DIRECTORY_NAME);
 
 		String clusterName = mBean.getClusterName();
 		String serverName = mBean.getServerName();
 		List<BucketFormat> bucketFormatPriority = createFormatPriorityList(mBean);
+		return createSafeConfiguration(archivingRootURI, bucketFormats,
+				clusterName,
+				serverName, bucketFormatPriority);
+	}
+
+	public static ArchiveConfiguration createSafeConfiguration(
+			URI archivingRootURI,
+			List<BucketFormat> bucketFormats, String clusterName, String serverName,
+			List<BucketFormat> bucketFormatPriority) {
+		URI archivingData = getChildToArchivingRoot(archivingRootURI,
+				ARCHIVE_DATA_DIRECTORY_NAME);
+		URI tmpDirectory = getChildToArchivingRoot(archivingRootURI,
+				TEMPORARY_DATA_DIRECTORY_NAME);
 		return new ArchiveConfiguration(bucketFormats, archivingData, clusterName,
 				serverName, bucketFormatPriority, tmpDirectory);
 	}
