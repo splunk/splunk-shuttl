@@ -136,7 +136,7 @@
 
 	<!-- create a version.properties file from a template which is read by Version.java -->
 	<target name="version">
-		<exec executable="hostname" osfamily="unix" failifexecutionfails="false" outputproperty="hostname">
+		<exec executable="hostname" failifexecutionfails="false" outputproperty="hostname">
 			<arg value="-s" />
 		</exec>
 
@@ -380,7 +380,7 @@
 
 	<target name="do-hadoop-download" depends="set-hadoop-download-url">
 		<echo>Downloading hadoop from ${hadoop.download.url}</echo>
-		<exec executable="curl" osfamily="unix">
+		<exec executable="curl">
 			<arg value="-s" />
 			<arg value="${hadoop.download.url}" />
 			<arg line="-o ${hadoop.download.name}" />
@@ -406,11 +406,11 @@
 		and fail, no? -->
 		<echo>Extracting...</echo>
 		<echo>download path: ${hadoop.download.path}</echo>
-		<exec executable="sh" osfamily="unix">
+		<exec executable="sh">
 			<arg value="-c" />
 			<arg line="'tar xf ${hadoop.download.path} -C ${hadoop.extracted.dir}'" />
 		</exec>
-		<exec executable="sh" osfamily="unix">
+		<exec executable="sh">
 			<arg value="-c" />
 			<arg line="'mv ${hadoop.extracted.dir}/hadoop-* ${hadoop.extracted.path}'" />
 		</exec>
@@ -485,22 +485,22 @@
 	</target>
 
 	<target name="hadoop-stop" depends="set-hadoop-home">
-		<exec executable="${hadoop.home}/bin/stop-all.sh" osfamily="unix" />
+		<exec executable="${hadoop.home}/bin/stop-all.sh" />
 	</target>
 
 	<target name="hadoop-format-namenode-unsafe">
-		<exec executable="sh" osfamily="unix">
+		<exec executable="sh">
 			<arg value="-c" />
 			<arg line="'${hadoop.home}/bin/hadoop namenode -format'" />
 		</exec>
 	</target>
 
 	<target name="hadoop-start" depends="set-hadoop-home">
-		<exec executable="${hadoop.home}/bin/start-all.sh" osfamily="unix" />
+		<exec executable="${hadoop.home}/bin/start-all.sh" />
 	</target>
 
 	<target name="hadoop-unsafe-mode">
-		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
+		<exec executable="${hadoop.home}/bin/hadoop">
 			<arg line="dfsadmin -safemode leave" />
 		</exec>
 	</target>
@@ -549,7 +549,7 @@
 	</target>
 
 	<target name="splunk-unpack" depends="is-splunk-tgz-available" if="foundSplunkTgz">
-		<exec executable="sh" osfamily="unix">
+		<exec executable="sh">
 			<arg value="-c" />
 			<arg line="'tar xf ${splunk.tgz.dir}/*.tgz -C ${build-cache}'" />
 		</exec>
@@ -590,7 +590,7 @@
 
 	<target name="do-install-shuttl-splunk-app" depends="create-splunk-app">
 		<antcall target="splunk-stop" />
-		<exec executable="tar" osfamily="unix">
+		<exec executable="tar">
 			<arg value="xf" />
 			<arg value="${splunk-app.tar}" />
 			<arg line="-C ${splunk.apps.home}" />
@@ -696,7 +696,7 @@
 	</target>
 
 	<target name="enable-shuttl-splunk-app" depends="check-if-shuttl-is-enabled" unless="isShuttlAlreadyEnabled">
-		<exec executable="curl" osfamily="unix">
+		<exec executable="curl">
 			<arg value="-s" />
 			<arg line="-u ${splunk.username}:${splunk.password}" />
 			<arg line="-k https://${splunk.host}:${splunk.mgmtport}/services/apps/local/shuttl/enable" />
@@ -777,14 +777,14 @@
 	<!-- the index must exist "ant helper-archiver-configure-archiver-test-index" 
 	and "./splunk login" should have been run before this -->
 	<target name="archiver-generate-test-buckets" depends="set-splunk-home">
-		<exec executable="${test-debug-dir}/splunk/hadoop/sh/generateBuckets.sh" osfamily="unix">
+		<exec executable="${test-debug-dir}/splunk/hadoop/sh/generateBuckets.sh">
 			<arg line="${splunk.home} ${test-debug-dir}/splunk/hadoop/tmp archiver-test-index" />
 		</exec>
 	</target>
 	<!-- END Archiver-testing-util -->
 	<!-- Archiver-UI -->
 	<target name="archiver-UI-sync-package" depends="set-shuttl-app-home">
-		<exec executable="sh" osfamily="unix">
+		<exec executable="sh">
 			<arg value="-c" />
 			<arg line="'rsync -vr --delete ${package.dir}/* ${shuttl.app.home} | tail -n 3'" />
 		</exec>
