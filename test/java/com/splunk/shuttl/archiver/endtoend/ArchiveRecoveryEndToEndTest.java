@@ -58,7 +58,7 @@ public class ArchiveRecoveryEndToEndTest {
 	private PathResolver pathResolver;
 
 	@Parameters(value = { "hadoop.host", "hadoop.port" })
-	@Test(groups = { "end-to-end" })
+	@Test(groups = { "end-to-end" }, enabled = false)
 	public void Archiver_givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets(
 			final String hadoopHost, final String hadoopPort) throws Exception {
 		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
