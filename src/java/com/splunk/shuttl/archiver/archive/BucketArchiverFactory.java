@@ -40,11 +40,11 @@ public class BucketArchiverFactory {
 	 * Testability with specified configuration.
 	 */
 	public static BucketArchiver createWithConfiguration(
-			ArchiveConfiguration config, LocalFileSystemPaths localFileSystemConstants) {
+			ArchiveConfiguration config, LocalFileSystemPaths localFileSystemPaths) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
 		return createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
-				localFileSystemConstants);
+				localFileSystemPaths);
 	}
 
 	/**
@@ -59,12 +59,12 @@ public class BucketArchiverFactory {
 	 */
 	public static BucketArchiver createWithConfFileSystemAndCsvDirectory(
 			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem,
-			LocalFileSystemPaths localFileSystemConstants) {
-		CsvExporter csvExporter = CsvExporter.create(localFileSystemConstants
+			LocalFileSystemPaths localFileSystemPaths) {
+		CsvExporter csvExporter = CsvExporter.create(localFileSystemPaths
 				.getCsvDirectory());
 		PathResolver pathResolver = new PathResolver(config);
 		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
-				localFileSystemConstants);
+				localFileSystemPaths);
 		ArchiveBucketSize archiveBucketSize = new ArchiveBucketSize(pathResolver,
 				bucketSizeIO, archiveFileSystem);
 		return new BucketArchiver(BucketExporter.create(csvExporter),

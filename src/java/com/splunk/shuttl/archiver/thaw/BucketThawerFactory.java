@@ -38,35 +38,35 @@ public class BucketThawerFactory {
 		Service splunkService = getLoggedInSplunkService();
 		SplunkSettings splunkSettings = getSplunkSettings(splunkService);
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-		return createWithConfigAndSplunkSettingsAndLocalFileSystemConstants(config,
+		return createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
 				splunkSettings, LocalFileSystemPaths.create());
 	}
 
 	/**
 	 * Factory method for testability.
 	 */
-	public static BucketThawer createWithConfigAndSplunkSettingsAndLocalFileSystemConstants(
+	public static BucketThawer createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(
 			ArchiveConfiguration configuration, SplunkSettings splunkSettings,
-			LocalFileSystemPaths localFileSystemConstants) {
+			LocalFileSystemPaths localFileSystemPaths) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(configuration);
 		ThawLocationProvider thawLocationProvider = ThawLocationProvider
 				.createWithSplunkSettingsAndThawTransferLocation(splunkSettings,
-						localFileSystemConstants.getThawTransfersDirectory());
+						localFileSystemPaths.getThawTransfersDirectory());
 
 		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
 				archiveFileSystem, thawLocationProvider);
 		ListsBucketsFiltered listsBucketsFiltered = ListsBucketsFilteredFactory
 				.create(configuration);
 		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
-				localFileSystemConstants);
+				localFileSystemPaths);
 		BucketSizeResolver bucketSizeResolver = new BucketSizeResolver(
 				ArchiveBucketSize.create(configuration, bucketSizeIO));
 		GetsBucketsFromArchive getsBucketsFromArchive = new GetsBucketsFromArchive(
 				thawBucketTransferer, BucketImporter.create(), bucketSizeResolver);
 		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive,
 				thawLocationProvider, new ThawBucketLocker(
-						localFileSystemConstants.getThawLocksDirectory()));
+						localFileSystemPaths.getThawLocksDirectory()));
 	}
 
 	private static ThawBucketTransferer getThawBucketTransferer(

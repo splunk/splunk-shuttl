@@ -58,19 +58,19 @@ public class ThawFunctionalTest {
 		config = getLocalFileSystemConfiguration();
 		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
 		archiverData = createDirectory();
-		LocalFileSystemPaths localFileSystemConstants = new LocalFileSystemPaths(
+		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
 				archiverData.getAbsolutePath());
 		bucketArchiver = BucketArchiverFactory
 				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
-						localFileSystemConstants);
+						localFileSystemPaths);
 		thawDirectory = TUtilsFile.createDirectory();
 
 		SplunkSettings splunkSettings = mock(SplunkSettings.class);
 		when(splunkSettings.getThawLocation(thawIndex)).thenReturn(thawDirectory);
 
 		bucketThawer = BucketThawerFactory
-				.createWithConfigAndSplunkSettingsAndLocalFileSystemConstants(config,
-						splunkSettings, localFileSystemConstants);
+				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
+						splunkSettings, localFileSystemPaths);
 	}
 
 	@AfterMethod

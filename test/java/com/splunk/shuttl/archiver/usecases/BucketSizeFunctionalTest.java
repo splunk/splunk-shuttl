@@ -69,7 +69,7 @@ public class BucketSizeFunctionalTest {
 		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawLocation);
 
 		bucketThawer = BucketThawerFactory
-				.createWithConfigAndSplunkSettingsAndLocalFileSystemConstants(config,
+				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
 						splunkSettings, localFileSystemPaths);
 
 		PathResolver pathResolver = new PathResolver(config);

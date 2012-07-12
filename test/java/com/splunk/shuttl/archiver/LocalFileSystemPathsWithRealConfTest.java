@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 
 @Test(groups = { "slow-unit" })
-public class LocalFileSystemConstantsWithRealConfTest {
+public class LocalFileSystemPathsWithRealConfTest {
 
 	private File archiverDirWithMBeanConf;
 

@@ -63,17 +63,17 @@ public class ImportCsvFunctionalTest {
 		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawDirectory);
 
 		archiverData = createDirectory();
-		LocalFileSystemPaths localFileSystemConstants = new LocalFileSystemPaths(
+		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
 				archiverData.getAbsolutePath());
 
 		csvThawer = BucketThawerFactory
-				.createWithConfigAndSplunkSettingsAndLocalFileSystemConstants(
+				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(
 						localCsvArchiveConfigration, splunkSettings,
-						localFileSystemConstants);
+						localFileSystemPaths);
 
 		realBucket = TUtilsBucket.createRealBucket();
 		csvArchiver = BucketArchiverFactory.createWithConfiguration(
-				localCsvArchiveConfigration, localFileSystemConstants);
+				localCsvArchiveConfigration, localFileSystemPaths);
 	}
 
 	@AfterMethod

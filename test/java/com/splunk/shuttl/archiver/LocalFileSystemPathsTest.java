@@ -25,20 +25,20 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test(groups = { "fast-unit" })
-public class LocalFileSystemConstantsTest {
+public class LocalFileSystemPathsTest {
 
-	private LocalFileSystemPaths localFileSystemConstants;
+	private LocalFileSystemPaths localFileSystemPaths;
 	private String testDirectoryPath;
 
 	@BeforeMethod
 	public void setUp() {
 		testDirectoryPath = createFilePath().getAbsolutePath();
-		localFileSystemConstants = new LocalFileSystemPaths(testDirectoryPath);
+		localFileSystemPaths = new LocalFileSystemPaths(testDirectoryPath);
 		removeArchiverDirectory();
 	}
 
 	private void removeArchiverDirectory() {
-		File directory = localFileSystemConstants.getArchiverDirectory();
+		File directory = localFileSystemPaths.getArchiverDirectory();
 		FileUtils.deleteQuietly(directory);
 	}
 
@@ -50,7 +50,7 @@ public class LocalFileSystemConstantsTest {
 	@Test(groups = { "fast-unit" })
 	public void getArchiverDirectory_givenTestDirectory_dirIsChildToTestDirectory() {
 		assertDoesNotExist(testDirectoryPath);
-		File dir = localFileSystemConstants.getArchiverDirectory();
+		File dir = localFileSystemPaths.getArchiverDirectory();
 		assertEquals(testDirectoryPath, dir.getParent());
 	}
 
@@ -59,7 +59,7 @@ public class LocalFileSystemConstantsTest {
 	}
 
 	public void getSafeLocation_setUp_dirExistsInsideArchiverDirectory() {
-		File safeDir = localFileSystemConstants.getSafeDirectory();
+		File safeDir = localFileSystemPaths.getSafeDirectory();
 		assertExistsInsideArchiverDirectory(safeDir);
 	}
 
@@ -69,32 +69,32 @@ public class LocalFileSystemConstantsTest {
 	}
 
 	private void assertParentIsArchiverDirectory(File safeDir) {
-		assertEquals(localFileSystemConstants.getArchiverDirectory(),
+		assertEquals(localFileSystemPaths.getArchiverDirectory(),
 				safeDir.getParentFile());
 	}
 
 	public void getFailLocation_setUp_dirExistsInsideArchiverDirectory() {
-		File failLocation = localFileSystemConstants.getFailDirectory();
+		File failLocation = localFileSystemPaths.getFailDirectory();
 		assertExistsInsideArchiverDirectory(failLocation);
 	}
 
 	public void getArchiveLocksDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemConstants
+		assertExistsInsideArchiverDirectory(localFileSystemPaths
 				.getArchiveLocksDirectory());
 	}
 
 	public void getCsvDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemConstants
+		assertExistsInsideArchiverDirectory(localFileSystemPaths
 				.getCsvDirectory());
 	}
 
 	public void getThawLocksDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemConstants
+		assertExistsInsideArchiverDirectory(localFileSystemPaths
 				.getThawLocksDirectory());
 	}
 
 	public void getThawTransferDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemConstants
+		assertExistsInsideArchiverDirectory(localFileSystemPaths
 				.getThawTransfersDirectory());
 	}
 
@@ -116,7 +116,7 @@ public class LocalFileSystemConstantsTest {
 	}
 
 	public void getMetadataDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemConstants
+		assertExistsInsideArchiverDirectory(localFileSystemPaths
 				.getMetadataDirectory());
 	}
 
