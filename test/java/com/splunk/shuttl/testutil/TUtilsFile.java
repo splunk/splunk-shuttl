@@ -194,9 +194,11 @@ public class TUtilsFile {
 	 */
 	public static File createDirectoryInParent(File parent, String string) {
 		File child = new File(parent, string);
-		AssertJUnit.assertTrue("Failed to create directory: " + child,
-				child.mkdir());
-		child.deleteOnExit();
+		if (!parent.getAbsolutePath().contains(
+				getShuttlTestDirectory().getAbsolutePath()))
+			throw new IllegalArgumentException(
+					"Parent must live in the ShuttlTestDirectory. Parent: " + parent);
+		createDirectory(child);
 		return child;
 	}
 

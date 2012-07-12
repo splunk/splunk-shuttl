@@ -89,8 +89,7 @@ public class BucketFreezerSystemExitTest {
 
 	public void main_fileNotADirectory_exitWithFileNotADirectoryConstant()
 			throws IOException {
-		File file = File.createTempFile("ArchiveTest", ".tmp");
-		file.deleteOnExit();
+		File file = createFile();
 		assertTrue(!file.isDirectory());
 		runMainWithDepentencies_withArguments("index-name", file.getAbsolutePath());
 		verify(runtimeMock).exit(BucketFreezer.EXIT_FILE_NOT_A_DIRECTORY);

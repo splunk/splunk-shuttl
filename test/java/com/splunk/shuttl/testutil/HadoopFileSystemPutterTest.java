@@ -15,6 +15,7 @@
 
 package com.splunk.shuttl.testutil;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
@@ -34,20 +35,6 @@ public class HadoopFileSystemPutterTest {
 	private HadoopFileSystemPutter putter;
 	private FileSystem fileSystem;
 
-	private File getTempFileThatIsAutomaticallyDeleted() {
-		File tempFile = getTempFile();
-		tempFile.deleteOnExit();
-		return tempFile;
-	}
-
-	private File getTempFile() {
-		try {
-			return File.createTempFile("fisk", ".tmp");
-		} catch (IOException e) {
-			throw new RuntimeException("Unable to create temp file.", e);
-		}
-	}
-
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
 		fileSystem = TUtilsFileSystem.getLocalFileSystem();
@@ -61,14 +48,14 @@ public class HadoopFileSystemPutterTest {
 
 	@Test(groups = { "fast-unit" })
 	public void createdTempFile_should_exist() {
-		File tempFile = getTempFileThatIsAutomaticallyDeleted();
+		File tempFile = createFile();
 		assertTrue(tempFile.exists());
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void copyingFileThatExists_should_existInFileSystemCopiedTo()
 			throws IOException {
-		File tempFile = getTempFileThatIsAutomaticallyDeleted();
+		File tempFile = createFile();
 		putter.putFile(tempFile);
 		assertTrue(putter.isFileCopiedToFileSystem(tempFile));
 	}
@@ -119,7 +106,7 @@ public class HadoopFileSystemPutterTest {
 	public void after_putFile_then_deleteMyFiles_should_removeTheDirectory_where_thisClassPutFilesOnTheFileSystem()
 			throws IOException {
 		Path myFiles = putter.getPathOfMyFiles();
-		putter.putFile(getTempFileThatIsAutomaticallyDeleted());
+		putter.putFile(createFile());
 		assertTrue(fileSystem.exists(myFiles));
 		putter.deleteMyFiles();
 		assertFalse(fileSystem.exists(myFiles));
@@ -127,14 +114,13 @@ public class HadoopFileSystemPutterTest {
 
 	@Test(groups = { "fast-unit" })
 	public void should_beAbleToGetPath_where_fileIsPut() {
-		assertNotNull(putter
-				.getPathForFile(getTempFileThatIsAutomaticallyDeleted()));
+		assertNotNull(putter.getPathForFile(createFile()));
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void path_where_localFileIsPut_should_differForDifferentFiles() {
-		File file1 = getTempFileThatIsAutomaticallyDeleted();
-		File file2 = getTempFileThatIsAutomaticallyDeleted();
+		File file1 = createFile();
+		File file2 = createFile();
 		assertTrue(!file1.getAbsolutePath().equals(file2.getAbsolutePath()));
 
 		Path path1 = putter.getPathForFile(file1);
@@ -144,7 +130,7 @@ public class HadoopFileSystemPutterTest {
 
 	@Test(groups = { "fast-unit" })
 	public void should_bePossibleToGetPathToFile_with_fileName() {
-		File file = getTempFileThatIsAutomaticallyDeleted();
+		File file = createFile();
 		Path expected = putter.getPathForFile(file);
 		Path actual = putter.getPathForFileName(file.getName());
 

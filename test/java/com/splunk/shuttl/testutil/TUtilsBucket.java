@@ -209,8 +209,7 @@ public class TUtilsBucket {
 
 	private static Bucket createTempCopyOfBucketFromDirectory(File realBucketDir)
 			throws FileNotFoundException, FileNotDirectoryException {
-		File tempDirectory = createDirectory();
-		File copyBucketDir = createDirectoryInParent(tempDirectory,
+		File copyBucketDir = createDirectoryInParent(createDirectory(),
 				realBucketDir.getName());
 		copyDirectory(realBucketDir, copyBucketDir);
 		return new Bucket("index", copyBucketDir);

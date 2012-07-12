@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static java.util.Arrays.*;
 import static org.testng.Assert.*;
 
@@ -127,7 +128,7 @@ public class ShuttlArchiverMBeanTest {
 				+ "    <bucketFormatPriority>" + "SPLUNK_BUCKET"
 				+ "</bucketFormatPriority>\n" + "</ns2:archiverConf>";
 
-		File file = File.createTempFile("shuttlArchiverMBeanTest2", ".xml");
+		File file = createFile();
 		file.deleteOnExit();
 		FileUtils.writeStringToFile(file, configFilePreset);
 		archiverMBean = new ShuttlArchiver(file.getPath());
