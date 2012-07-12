@@ -15,6 +15,8 @@
 package com.splunk.shuttl.archiver.archive;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
+import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
@@ -38,8 +40,7 @@ public class BucketArchiverFactory {
 	 * Testability with specified configuration.
 	 */
 	public static BucketArchiver createWithConfiguration(
-			ArchiveConfiguration config,
-			LocalFileSystemPaths localFileSystemConstants) {
+			ArchiveConfiguration config, LocalFileSystemPaths localFileSystemConstants) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
 		return createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
@@ -61,9 +62,15 @@ public class BucketArchiverFactory {
 			LocalFileSystemPaths localFileSystemConstants) {
 		CsvExporter csvExporter = CsvExporter.create(localFileSystemConstants
 				.getCsvDirectory());
+		PathResolver pathResolver = new PathResolver(config);
+		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
+				localFileSystemConstants);
+		ArchiveBucketSize archiveBucketSize = new ArchiveBucketSize(pathResolver,
+				bucketSizeIO, archiveFileSystem);
 		return new BucketArchiver(BucketExporter.create(csvExporter),
-				ArchiveBucketTransferer.create(archiveFileSystem, config),
-				BucketDeleter.create(), config.getArchiveFormats());
+				new ArchiveBucketTransferer(archiveFileSystem, pathResolver,
+						archiveBucketSize), BucketDeleter.create(),
+				config.getArchiveFormats());
 
 	}
 }

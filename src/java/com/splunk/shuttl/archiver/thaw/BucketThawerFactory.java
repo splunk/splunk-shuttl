@@ -18,6 +18,7 @@ import com.splunk.Service;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
+import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
@@ -57,9 +58,12 @@ public class BucketThawerFactory {
 				archiveFileSystem, thawLocationProvider);
 		ListsBucketsFiltered listsBucketsFiltered = ListsBucketsFilteredFactory
 				.create(configuration);
+		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
+				localFileSystemConstants);
+		BucketSizeResolver bucketSizeResolver = new BucketSizeResolver(
+				ArchiveBucketSize.create(configuration, bucketSizeIO));
 		GetsBucketsFromArchive getsBucketsFromArchive = new GetsBucketsFromArchive(
-				thawBucketTransferer, BucketImporter.create(), new BucketSizeResolver(
-						ArchiveBucketSize.create(configuration)));
+				thawBucketTransferer, BucketImporter.create(), bucketSizeResolver);
 		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive,
 				thawLocationProvider, new ThawBucketLocker(
 						localFileSystemConstants.getThawLocksDirectory()));

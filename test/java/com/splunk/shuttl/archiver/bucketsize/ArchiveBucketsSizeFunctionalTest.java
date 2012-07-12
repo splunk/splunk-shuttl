@@ -52,14 +52,17 @@ public class ArchiveBucketsSizeFunctionalTest {
 		config = TUtilsFunctional.getLocalFileSystemConfiguration();
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
+		archiverData = createDirectory();
+		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
+				archiverData.getAbsolutePath());
 		PathResolver pathResolver = new PathResolver(config);
 		archiveBucketSize = ArchiveBucketSize.create(pathResolver,
-				archiveFileSystem);
+				archiveFileSystem, new BucketSizeIO(archiveFileSystem,
+						localFileSystemPaths));
 		listsBucketsFiltered = ListsBucketsFilteredFactory.create(config);
-		archiverData = createDirectory();
 		bucketArchiver = BucketArchiverFactory
 				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
-						new LocalFileSystemPaths(archiverData.getAbsolutePath()));
+						localFileSystemPaths);
 	}
 
 	@AfterMethod

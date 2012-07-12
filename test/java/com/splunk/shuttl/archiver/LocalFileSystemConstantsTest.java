@@ -99,8 +99,8 @@ public class LocalFileSystemConstantsTest {
 	}
 
 	public void getArchiverDirectory_givenTildeWithoutRoot_resolvesTildeAsUserHome() {
-		File archiverDirectory = new LocalFileSystemPaths(
-				"~/archiver_directory").getArchiverDirectory();
+		File archiverDirectory = new LocalFileSystemPaths("~/archiver_directory")
+				.getArchiverDirectory();
 		File expected = new File(FileUtils.getUserDirectoryPath(),
 				"archiver_directory");
 		assertEquals(expected.getAbsolutePath(), archiverDirectory.getParentFile()
@@ -108,11 +108,16 @@ public class LocalFileSystemConstantsTest {
 	}
 
 	public void getArchiverDirectory_givenUriWithFileSchemeAndTilde_resolvesTildeAsUserHome() {
-		File archiverDirectory = new LocalFileSystemPaths(
-				"file:/~/archiver_dir").getArchiverDirectory();
+		File archiverDirectory = new LocalFileSystemPaths("file:/~/archiver_dir")
+				.getArchiverDirectory();
 		File expected = new File(FileUtils.getUserDirectoryPath(), "archiver_dir");
 		assertEquals(expected.getAbsolutePath(), archiverDirectory.getParentFile()
 				.getAbsolutePath());
+	}
+
+	public void getMetadataDirectory_setUp_dirExistsInsideArchiverDirectory() {
+		assertExistsInsideArchiverDirectory(localFileSystemConstants
+				.getMetadataDirectory());
 	}
 
 	@Test(expectedExceptions = { ArchiverMBeanNotRegisteredException.class })

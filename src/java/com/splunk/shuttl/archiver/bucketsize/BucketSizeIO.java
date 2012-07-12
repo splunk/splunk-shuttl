@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -36,13 +37,18 @@ public class BucketSizeIO {
 
 	private static final Logger logger = Logger.getLogger(BucketSizeIO.class);
 	private final ArchiveFileSystem archiveFileSystem;
+	private LocalFileSystemPaths localFileSystemPaths;
 
 	/**
 	 * @param archiveFileSystem
 	 *          to read the file size off of.
+	 * @param localFileSystemPaths
+	 *          for storing bucket size on local disk.
 	 */
-	public BucketSizeIO(ArchiveFileSystem archiveFileSystem) {
+	public BucketSizeIO(ArchiveFileSystem archiveFileSystem,
+			LocalFileSystemPaths localFileSystemPaths) {
 		this.archiveFileSystem = archiveFileSystem;
+		this.localFileSystemPaths = localFileSystemPaths;
 	}
 
 	/**
@@ -56,11 +62,18 @@ public class BucketSizeIO {
 
 	private File getTempFileForBucket(Bucket bucket) {
 		try {
-			return File.createTempFile(bucket.getName(), "size");
+			return createFile(bucket);
 		} catch (IOException e) {
 			logIOExceptionForCreatingFile(bucket, e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	private File createFile(Bucket bucket) throws IOException {
+		File file = new File(localFileSystemPaths.getMetadataDirectory(),
+				bucket.getName() + ".size");
+		file.createNewFile();
+		return file;
 	}
 
 	private void logIOExceptionForCreatingFile(Bucket bucket, IOException e) {

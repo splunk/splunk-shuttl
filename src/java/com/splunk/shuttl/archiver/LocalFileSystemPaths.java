@@ -43,6 +43,8 @@ public class LocalFileSystemPaths {
 
 	final String THAW_TRANSFERS_NAME = "thaw-transfers-dir";
 
+	final String METADATA_DIR_NAME = "metadata-dir";
+
 	private final String archiverDirectoryPath;
 
 	public LocalFileSystemPaths(String archiverDirectoryPath) {
@@ -114,6 +116,13 @@ public class LocalFileSystemPaths {
 		return createDirectoryUnderArchiverDir(THAW_TRANSFERS_NAME);
 	}
 
+	/**
+	 * Directory for bucket metadata that the archiver adds to a bucket.
+	 */
+	public File getMetadataDirectory() {
+		return createDirectoryUnderArchiverDir(METADATA_DIR_NAME);
+	}
+
 	public static LocalFileSystemPaths create() {
 		String archiverPath = getPathForArchiverData();
 		return new LocalFileSystemPaths(archiverPath);
@@ -125,8 +134,9 @@ public class LocalFileSystemPaths {
 		} catch (InstanceNotFoundException e) {
 			Logger.getLogger(LocalFileSystemPaths.class).error(
 					did("Tried getting the MBean for ShuttlArchiver", e,
-					"To get the MBean", "exception", e));
+							"To get the MBean", "exception", e));
 			throw new ArchiverMBeanNotRegisteredException(e);
 		}
 	}
+
 }
