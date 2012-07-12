@@ -259,8 +259,10 @@ public class ArchiverEndToEndTest {
 		FileUtils.deleteQuietly(tempDirectory);
 		FileSystem hadoopFileSystem = TUtilsFunctional.getHadoopFileSystem(
 				hadoopHost, hadoopPort);
-		for (File dir : thawDirectoryLocation.listFiles())
-			FileUtils.deleteQuietly(dir);
+		File[] files = thawDirectoryLocation.listFiles();
+		if (files != null)
+			for (File dir : files)
+				FileUtils.deleteQuietly(dir);
 		deleteArchivingTmpPath(hadoopFileSystem);
 		deleteArchivingRoot(hadoopFileSystem);
 	}
