@@ -26,8 +26,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.bucketlock.SimpleFileLock;
 import com.splunk.shuttl.testutil.ShellClassRunner;
+import com.splunk.shuttl.testutil.TUtilsFile;
 
 /**
  * Fixture: One {@link SimpleFileLock} running in this JVM and another
@@ -37,10 +37,9 @@ import com.splunk.shuttl.testutil.ShellClassRunner;
 @Test(groups = { "slow-unit" })
 public class SimpleFileLockSharedTest {
 
-	private static final File FILE_TO_LOCK = new File(FileUtils
-			.getUserDirectory().getAbsolutePath()
-			+ File.separator
-			+ SimpleFileLockSharedTest.class.getName() + "-fileToLock");
+	private static final File FILE_TO_LOCK = new File(
+			TUtilsFile.getShuttlTestDirectory(),
+			SimpleFileLockSharedTest.class.getName() + "-fileToLock");
 
 	private static final int GOT_SHARED_LOCK = 5;
 	private static final int NO_SHARED_LOCK = GOT_SHARED_LOCK - 1;

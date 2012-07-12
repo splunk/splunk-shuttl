@@ -137,4 +137,34 @@ public class TUtilsFileTest {
 		File namedFile = TUtilsFile.createTestFileWithName("name");
 		assertEquals("name", namedFile.getName());
 	}
+
+	public void getShuttlTestDirectory_nothing_isDefinedToLiveInVarTmp() {
+		File varTmp = new File(File.separator + "var" + File.separator + "tmp");
+		File shuttlTestDirectory = TUtilsFile.getShuttlTestDirectory();
+		assertEquals(varTmp.getAbsolutePath(), shuttlTestDirectory.getParentFile()
+				.getAbsolutePath());
+	}
+
+	public void getShuttlTestDirectory_nothing_exists() {
+		assertTrue(TUtilsFile.getShuttlTestDirectory().exists());
+	}
+
+	public void getShuttlTestDirectory_callTwice_existsWithNoErrors() {
+		assertTrue(TUtilsFile.getShuttlTestDirectory().exists());
+		assertTrue(TUtilsFile.getShuttlTestDirectory().exists());
+	}
+
+	public void createDirectory_nothing_livesInsideShuttlTestDirectory() {
+		File dir = TUtilsFile.createDirectory();
+		File shuttlTestDir = TUtilsFile.getShuttlTestDirectory();
+		assertEquals(shuttlTestDir.getAbsolutePath(), dir.getParentFile()
+				.getAbsolutePath());
+	}
+
+	public void createFile_nothing_livesInsideShuttlTestDirectory() {
+		File file = TUtilsFile.createFile();
+		File shuttlTestDir = TUtilsFile.getShuttlTestDirectory();
+		assertEquals(shuttlTestDir.getAbsolutePath(), file.getParentFile()
+				.getAbsolutePath());
+	}
 }
