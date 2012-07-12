@@ -19,7 +19,9 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterTest;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.testutil.TUtilsFile;
+import com.splunk.shuttl.testutil.TUtilsMBean;
 
 /**
  * Cleans the file system from created files.
@@ -27,6 +29,11 @@ import com.splunk.shuttl.testutil.TUtilsFile;
 public class FileSystemCleaner {
 
 	@AfterTest(alwaysRun = true)
+	public void cleanFileSystemFromCreatedFilesDuringTests() {
+		cleanShuttlTestDirectory();
+		cleanConfiguredLocalFileSystemPaths();
+	}
+
 	public void cleanShuttlTestDirectory() {
 		File shuttlTestDirectory = TUtilsFile.getShuttlTestDirectory();
 		File[] files = shuttlTestDirectory.listFiles();
@@ -34,4 +41,15 @@ public class FileSystemCleaner {
 			for (File file : files)
 				FileUtils.deleteQuietly(file);
 	}
+
+	public void cleanConfiguredLocalFileSystemPaths() {
+		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+			@Override
+			public void run() {
+				FileUtils.deleteQuietly(LocalFileSystemPaths.create()
+						.getArchiverDirectory());
+			}
+		});
+	}
+
 }
