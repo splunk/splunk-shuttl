@@ -14,12 +14,10 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.endtoend;
 
-import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static com.splunk.shuttl.testutil.TUtilsFunctional.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -30,14 +28,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.archive.BucketFreezer;
 import com.splunk.shuttl.archiver.archive.PathResolver;
+import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
-import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
@@ -47,15 +46,12 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 public class ArchiveRecoveryEndToEndTest {
 
-	File safeLocation;
-	File originalBucketLocation;
-
 	BucketFreezer failingBucketFreezerWithoutRecovery;
 	BucketFreezer successfulBucketFreezerWithRecovery;
 	FileSystem hadoopFileSystem;
-	private ArchiveConfiguration config;
-	private File lockDirectory;
-	private PathResolver pathResolver;
+	ArchiveConfiguration config;
+	PathResolver pathResolver;
+	private LocalFileSystemPaths localFileSystemPaths;
 
 	@Parameters(value = { "hadoop.host", "hadoop.port" })
 	@Test(groups = { "end-to-end" }, enabled = false)
@@ -83,15 +79,13 @@ public class ArchiveRecoveryEndToEndTest {
 
 	private void setUp(String hadoopHost, String hadoopPort) {
 		config = ArchiveConfiguration.getSharedInstance();
+		localFileSystemPaths = LocalFileSystemPaths.create();
 		pathResolver = new PathResolver(config);
 		hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
 
-		safeLocation = createDirectory();
-		originalBucketLocation = createDirectory();
-		lockDirectory = createDirectory();
-
-		BucketMover bucketMover = new BucketMover(safeLocation);
-		BucketLocker bucketLocker = new BucketLockerInTestDir(lockDirectory);
+		BucketMover bucketMover = new BucketMover(
+				localFileSystemPaths.getSafeDirectory());
+		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(
 				TUtilsMockito.createInternalServerErrorHttpClientMock());
 		ArchiveRestHandler successfulRealRestHandler = new ArchiveRestHandler(
@@ -109,9 +103,8 @@ public class ArchiveRecoveryEndToEndTest {
 	}
 
 	private void tearDown() {
-		FileUtils.deleteQuietly(originalBucketLocation);
-		FileUtils.deleteQuietly(safeLocation);
 		cleanHadoopFileSystem();
+		FileUtils.deleteQuietly(localFileSystemPaths.getArchiverDirectory());
 	}
 
 	private void cleanHadoopFileSystem() {
@@ -126,12 +119,9 @@ public class ArchiveRecoveryEndToEndTest {
 	private void givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets()
 			throws IOException {
 		// Setup buckets
-		Bucket firstFailingBucket = TUtilsBucket
-				.createBucketInDirectory(originalBucketLocation);
-		Bucket secondFailingBucket = TUtilsBucket
-				.createBucketInDirectory(originalBucketLocation);
-		Bucket successfulBucket = TUtilsBucket
-				.createBucketInDirectory(originalBucketLocation);
+		Bucket firstFailingBucket = TUtilsBucket.createBucket();
+		Bucket secondFailingBucket = TUtilsBucket.createBucket();
+		Bucket successfulBucket = TUtilsBucket.createBucket();
 
 		// Test
 		failingBucketFreezerWithoutRecovery.freezeBucket(firstFailingBucket
