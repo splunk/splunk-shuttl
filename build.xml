@@ -169,9 +169,7 @@
 			<replacefilter token="@BUILDMACHINE@" value="${hostname}" />
 		</replace>
 
-		<loadproperties>
-			<file file="${classdir}/com/splunk/shuttl/server/version.properties" />
-		</loadproperties>
+		<loadproperties srcfile="${classdir}/com/splunk/shuttl/server/version.properties" />
 
 		<!-- TODO add ${git.branch} into the suffix after properly fixing the retrival of branch name -->
 		<property name="buildVersionSuffix" value="${version}-${git.revision}-${hostname}-${noslashtime}" />
