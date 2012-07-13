@@ -41,6 +41,7 @@ public class BucketFreezerSystemExitTest {
 
 	Runtime runtimeMock;
 	BucketFreezer bucketFreezer;
+	BucketFreezerProvider bucketFreezerProvider;
 	File testDir;
 
 	@BeforeMethod(groups = { "fast-unit" })
@@ -50,6 +51,9 @@ public class BucketFreezerSystemExitTest {
 		bucketFreezer = new BucketFreezer(new BucketMover(testDir),
 				new BucketLockerInTestDir(testDir), mock(ArchiveRestHandler.class),
 				mock(FailedBucketsArchiver.class));
+		bucketFreezerProvider = mock(BucketFreezerProvider.class);
+		stub(bucketFreezerProvider.getConfiguredBucketFreezer()).toReturn(
+				bucketFreezer);
 	}
 
 	@AfterMethod(groups = { "fast-unit" })
@@ -102,7 +106,7 @@ public class BucketFreezerSystemExitTest {
 	}
 
 	private void runMainWithDepentencies_withArguments(String... args) {
-		BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezer,
+		BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezerProvider,
 				mock(RegistersMBeans.class), args);
 	}
 

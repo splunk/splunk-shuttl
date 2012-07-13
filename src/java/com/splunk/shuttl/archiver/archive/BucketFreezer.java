@@ -20,12 +20,9 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.LogFormatter;
-import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
@@ -104,19 +101,11 @@ public class BucketFreezer {
 	}
 
 	/**
-	 * The construction logic for creating a {@link BucketFreezer}
+	 * The main.
 	 */
-	public static BucketFreezer createWithDefaultHttpClientAndDefaultSafeAndFailLocations() {
-		BucketMover bucketMover = new BucketMover(LocalFileSystemPaths.create()
-				.getSafeDirectory());
-		BucketLocker bucketLocker = new ArchiveBucketLocker();
-		FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
-				bucketMover, bucketLocker);
-		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-				new DefaultHttpClient());
-
-		return new BucketFreezer(bucketMover, bucketLocker, archiveRestHandler,
-				failedBucketsArchiver);
+	public static void main(String... args) {
+		runMainWithDependencies(Runtime.getRuntime(), new BucketFreezerProvider(),
+				RegistersMBeans.create(), args);
 	}
 
 	/**
@@ -124,15 +113,13 @@ public class BucketFreezer {
 	 * tested using test doubles.
 	 */
 	/* package-private */static void runMainWithDependencies(Runtime runtime,
-			BucketFreezer bucketFreezer, RegistersMBeans registersMBeans,
-			String... args) {
+			BucketFreezerProvider bucketFreezerProvider,
+			RegistersMBeans registersMBeans, String... args) {
 		if (args.length != 2) {
 			logIncorrectArguments(args);
 			runtime.exit(EXIT_INCORRECT_ARGUMENTS);
 		} else {
-			logger.info(will("Attempting to archive bucket", "index", args[0],
-					"path", args[1]));
-			archiveBucketWhileRegisteringMBean(runtime, bucketFreezer,
+			archiveBucketWhileRegisteringMBean(runtime, bucketFreezerProvider,
 					registersMBeans, args);
 		}
 	}
@@ -144,16 +131,19 @@ public class BucketFreezer {
 	}
 
 	private static void archiveBucketWhileRegisteringMBean(Runtime runtime,
-			BucketFreezer bucketFreezer, RegistersMBeans registersMBeans,
-			String... args) {
+			BucketFreezerProvider bucketFreezerProvider,
+			RegistersMBeans registersMBeans, String... args) {
 		String name = ShuttlArchiverMBean.OBJECT_NAME;
 		String index = args[0];
 		String path = args[1];
 		Class<ShuttlArchiver> clazz = ShuttlArchiver.class;
 
+		logger.info(will("Attempting to archive bucket", "index", index, "path",
+				path));
 		try {
 			registersMBeans.registerMBean(name, clazz);
-			runtime.exit(bucketFreezer.freezeBucket(index, path));
+			runtime.exit(bucketFreezerProvider.getConfiguredBucketFreezer()
+					.freezeBucket(index, path));
 		} catch (ShuttlMBeanException e) {
 			logException(name, index, path, clazz, e);
 			runtime.exit(EXIT_COULD_NOT_CONFIGURE_BUCKET_FREEZER);
@@ -167,13 +157,5 @@ public class BucketFreezer {
 		logger.error(did("Registered MBean in BucketFreezer", e,
 				"To configure the BucketFreezer with MBeans", "name", name, "class",
 				clazz, "index", index, "bucket_path", path));
-	}
-
-	public static void main(String... args) {
-		BucketFreezer bucketFreezer = BucketFreezer
-				.createWithDefaultHttpClientAndDefaultSafeAndFailLocations();
-
-		runMainWithDependencies(Runtime.getRuntime(), bucketFreezer,
-				RegistersMBeans.create(), args);
 	}
 }

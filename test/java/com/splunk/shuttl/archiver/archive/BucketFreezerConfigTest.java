@@ -32,6 +32,7 @@ import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 public class BucketFreezerConfigTest {
 
 	private Runtime runtime;
+	private BucketFreezerProvider bucketFreezerProvider;
 	private BucketFreezer bucketFreezer;
 	private RegistersMBeans registersMBeans;
 	private String existingPath;
@@ -39,33 +40,38 @@ public class BucketFreezerConfigTest {
 	@BeforeMethod
 	public void setUp() {
 		runtime = mock(Runtime.class);
+		bucketFreezerProvider = mock(BucketFreezerProvider.class);
 		bucketFreezer = mock(BucketFreezer.class);
 		registersMBeans = mock(RegistersMBeans.class);
 		existingPath = createDirectory().getAbsolutePath();
 	}
 
-	public void main_correctArguments_registerAndUnregisterTheShuttlArchiverMBeanBetweenBucketFrezing()
+	public void main_correctArguments_registerAndUnregisterTheShuttlArchiverMBeanBetweenCreatingBucketFreezerAndFreezing()
 			throws Exception {
+		when(bucketFreezerProvider.getConfiguredBucketFreezer()).thenReturn(
+				bucketFreezer);
 		runMainWithCorrectArguments();
 
-		InOrder inOrder = inOrder(registersMBeans, bucketFreezer);
+		InOrder inOrder = inOrder(registersMBeans, bucketFreezerProvider,
+				bucketFreezer);
 		inOrder.verify(registersMBeans).registerMBean(
 				ShuttlArchiverMBean.OBJECT_NAME, ShuttlArchiver.class);
-		inOrder.verify(bucketFreezer).freezeBucket("index", existingPath);
+		inOrder.verify(bucketFreezerProvider).getConfiguredBucketFreezer();
+		inOrder.verify(bucketFreezer).freezeBucket(anyString(), anyString());
 		inOrder.verify(registersMBeans).unregisterMBean(
 				ShuttlArchiverMBean.OBJECT_NAME);
 		inOrder.verifyNoMoreInteractions();
 	}
 
 	private void runMainWithCorrectArguments() {
-		BucketFreezer.runMainWithDependencies(runtime, bucketFreezer,
+		BucketFreezer.runMainWithDependencies(runtime, bucketFreezerProvider,
 				registersMBeans, "index", existingPath);
 	}
 
 	public void main_bucketFreezerThrowsException_stillUnregistersTheMBean()
 			throws Exception {
-		doThrow(RuntimeException.class).when(bucketFreezer).freezeBucket(
-				anyString(), anyString());
+		doThrow(RuntimeException.class).when(bucketFreezerProvider)
+				.getConfiguredBucketFreezer();
 
 		try {
 			runMainWithCorrectArguments();
