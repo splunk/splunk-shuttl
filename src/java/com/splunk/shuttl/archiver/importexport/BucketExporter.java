@@ -90,8 +90,8 @@ public class BucketExporter {
 	/**
 	 * @return an instance of the {@link BucketExporter}
 	 */
-	public static BucketExporter create() {
-		return new BucketExporter(CsvExporter.create(),
+	public static BucketExporter create(CsvExporter csvExporter) {
+		return new BucketExporter(csvExporter,
 				new CsvBucketCreator());
 	}
 

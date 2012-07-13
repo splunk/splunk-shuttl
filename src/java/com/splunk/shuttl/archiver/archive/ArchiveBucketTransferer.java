@@ -97,17 +97,6 @@ public class ArchiveBucketTransferer {
 	}
 
 	/**
-	 * Instance of {@link ArchiveBucketTransferer} with file system and
-	 * configuration.
-	 */
-	public static ArchiveBucketTransferer create(
-			ArchiveFileSystem archiveFileSystem, ArchiveConfiguration config) {
-		PathResolver pathResolver = new PathResolver(config);
-		return new ArchiveBucketTransferer(archiveFileSystem, pathResolver,
-				ArchiveBucketSize.create(pathResolver, archiveFileSystem));
-	}
-
-	/**
 	 * This method exists since a {@link Bucket} can be archived with multiple
 	 * formats. A Bucket may have to be re-transmitted after a failed archiving
 	 * attempt. And since buckets can exist in different formats, one format may

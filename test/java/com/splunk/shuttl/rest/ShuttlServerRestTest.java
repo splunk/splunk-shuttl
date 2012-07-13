@@ -38,7 +38,7 @@ public class ShuttlServerRestTest {
 	public void getDefaultHost(String shuttlHost, String shuttlPort)
 			throws URISyntaxException, ClientProtocolException, IOException {
 		URI defaultHostUri = getUriForServerEndpoint(shuttlHost, shuttlPort,
-				ShuttlConstants.ENDPOINT_DEFAULT_HOST);
+				ShuttlConstants.ENDPOINT_SHUTTL_HOST);
 
 		HttpResponse response = getResponseFromShuttlServer(defaultHostUri);
 		List<String> lines = getLinesFromResponse(response);
@@ -66,18 +66,6 @@ public class ShuttlServerRestTest {
 	private List<String> getLinesFromResponse(HttpResponse response)
 			throws IOException {
 		return IOUtils.readLines(response.getEntity().getContent());
-	}
-
-	@Parameters(value = { "shuttl.host", "shuttl.port" })
-	public void getDefaultPort(String shuttlHost, String shuttlPort)
-			throws URISyntaxException, IOException {
-		URI defaultPortUri = getUriForServerEndpoint(shuttlHost, shuttlPort,
-				ShuttlConstants.ENDPOINT_DEFAULT_PORT);
-
-		HttpResponse response = getResponseFromShuttlServer(defaultPortUri);
-		List<String> lines = getLinesFromResponse(response);
-		assertEquals(1, lines.size());
-		assertEquals(9000, Integer.parseInt(lines.get(0)));
 	}
 
 }

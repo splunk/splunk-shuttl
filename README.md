@@ -1,4 +1,3 @@
-
 Shuttl - Archiving for Splunk 
 =======================================
 
@@ -22,18 +21,22 @@ This works on the following systems
 * HDFS
 * S3 (in theory)
 
+License
+---------
+
+Shuttl is licensed under the Apache License 2.0. Details can be found in the LICENSE file.
+
+Shuttl is an unsupported community open source project and therefore is subject to being incomplete and containing bugs. 
+
+The Apache License only applies to Shuttl and no other Splunk software is implied.
+
+Splunk, in using the Apache License, does not provide any warranties or indemnification, and does not accept any liabilities with the use of Shuttl.
+
+We are now accepting contributions from individuals and companies to our Splunk open source projects.
+
+
 Prerequisites
 -------------
-
-### Hadoop
-
-Currently the Hadoop version used is 1.0.3
-
-You can download it from one of the [mirror sites][hadoop-download].
-And see the [Hadoop documentation][] for instructions on installing and more.
-
-[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.0.3
-[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.0.3
 
 ### Splunk
 
@@ -47,6 +50,17 @@ You can download it [Splunk][splunk-download].  And see the [Splunk documentatio
 ### Java
 
 * Java JDK 6
+
+### Hadoop (optional)
+
+This is needed if you are using HDFS/S3. Currently the Hadoop version used is 1.0.3
+
+You can download it from one of the [mirror sites][hadoop-download].
+And see the [Hadoop documentation][] for instructions on installing and more.
+
+[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.0.3
+[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.0.3
+
 
 Development
 --------------
@@ -117,3 +131,51 @@ Now run:
 
 	$ `ant clean-all`
 	$ `ant test-all`
+
+
+Installing the app
+------------------
+
+Here's how to install the Shuttl app in your Splunk instance. Shuttl comes with some pre-configured values that you might need to modify.
+
+### Install
+1. Build the app by running `ant dist`
+2. Extract the build/shuttl.tgz in your $SPLUNK_HOME/etc/apps/
+3. While Splunk is not running, configure Shuttl and Splunk as mentioned below
+4. Start Splunk up, and enable the Shuttl App via the Manager
+5. If the index is getting data, and calling the archiver, then you should see the data in HDFS
+
+### Shuttl Configuration
+There are two configuration files that you might care about. One for archiving and one for the Shuttl server. They both live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
+
+The archiver.xml:
+- localArchiverDir: A local path (or an uri with file:/ schema) where shuttl's archiver's temporary transfer data, locks, metadata, etc. is stored.
+- archiverRootURI: An URI where to archive the data. Currently supports the "hdfs://" and "file:/" schemas.
+- clusterName: Unique name for your Splunk cluster. Use the default if you don't care to name your cluster for each Shuttl installation. Note, this is only a Shuttl concept for a group of Splunk indexers that should be treated as a cluster. Splunk does not have this notion.
+- serverName: This is the Splunk Server Name. Check Splunk Manager for that server to populate this value. Must be unique per Shuttl installation.
+- archiveFormats: The formats to archive the data as. The current available formats are SPLUNK_BUCKET and CSV. You can configure Shuttl to archive your data as both formats.
+
+The server.xml:
+- httpHost: The host name of the machine. (usually localhost)
+- httpPort: The port for the shuttl server. (usually 9090)
+
+Note, the directory that the data will be archived to is
+	[archiverRootURI]/archive_data/[clusterName]/[serverName]/[indexName]
+
+### Splunk Index Configuration
+
+In addition, you need to configure Splunk to call the archiver script (set coldToFrozenScript) for each index that is being archived. You can do this by creating an indexes.conf file in $SPLUNK_HOME/etc/apps/shuttl/local with the appropriate config stanzas. An example is as follows:
+
+
+	[mytest]
+	homePath = $SPLUNK_DB/mytest/db
+	coldPath = $SPLUNK_DB/mytest/colddb
+	thawedPath = $SPLUNK_DB/mytest/thaweddb
+	rotatePeriodInSecs = 10
+	frozenTimePeriodInSecs = 120
+	maxWarmDBCount = 1
+	coldToFrozenScript = "$SPLUNK_HOME/etc/apps/shuttl/bin/archiveBucket.sh mytest"
+
+Note: Note the repeat of "mytest" as an argument to the coldToFrozenScript. This should always match the index name.
+
+WARNING: the settings rotatePeriodInSecs, frozenTimePeriodInSecs, maxWarmDBCount are there only for testing to verify that data can be successfully transfered by inducing rapid bucket rolling. Don't use in production. See [Set a retirement and archiving policy](http://docs.splunk.com/Documentation/Splunk/latest/admin/Setaretirementandarchivingpolicy) and [Indexes.conf](http://docs.splunk.com/Documentation/Splunk/4.3.3/admin/Indexesconf) documentation to suit your test and deployment needs. Expected usage in production is that maxDataSize correspond to a HDFS block or larger (splunk default is 750mb), and maxHotIdleSecs should be set to 86400 for buckets approximately 24hrs worth of data.

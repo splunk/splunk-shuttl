@@ -21,9 +21,7 @@ import java.lang.management.ManagementFactory;
 import javax.management.JMX;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -31,7 +29,6 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
-import com.splunk.shuttl.server.model.ServerConf;
 
 /**
  * Exposes the Server MBean over REST
@@ -46,15 +43,15 @@ public class ShuttlServerRest {
 
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
-	@Path(ENDPOINT_DEFAULT_HOST)
+	@Path(ENDPOINT_SHUTTL_HOST)
 	public String getDefHadoopClusterHostText() {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-				ENDPOINT_SERVER, ENDPOINT_DEFAULT_HOST);
+				ENDPOINT_SERVER, ENDPOINT_SHUTTL_HOST);
 		logger.info(logMessage);
 
 		try {
-			return (getProxy().getDefHadoopClusterHost());
+			return (getProxy().getHttpHost());
 		} catch (Exception e) {
 			logger.error(e);
 			throw new ShuttlRestException(e.getMessage());
@@ -64,16 +61,16 @@ public class ShuttlServerRest {
 	// for debugging using browsers
 	@GET
 	@Produces(MediaType.TEXT_HTML)
-	@Path(ENDPOINT_DEFAULT_HOST)
+	@Path(ENDPOINT_SHUTTL_HOST)
 	public String getDefHadoopClusterHostHTML() {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-				ENDPOINT_SERVER, ENDPOINT_DEFAULT_HOST);
+				ENDPOINT_SERVER, ENDPOINT_SHUTTL_HOST);
 		logger.info(logMessage);
 
 		try {
 			return "<html> " + "<title>" + "Shuttl Rest Endpoint" + "</title>"
-					+ "<body><h1>" + getProxy().getDefHadoopClusterHost()
+					+ "<body><h1>" + getProxy().getHttpHost()
 					+ "</body></h1>" + "</html> ";
 		} catch (Exception e) {
 			logger.error(e);
@@ -83,15 +80,15 @@ public class ShuttlServerRest {
 
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
-	@Path(ENDPOINT_DEFAULT_PORT)
+	@Path(ENDPOINT_SHUTTL_PORT)
 	public String getDefHadoopClusterPortText() {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-				ENDPOINT_SERVER, ENDPOINT_DEFAULT_PORT);
+				ENDPOINT_SERVER, ENDPOINT_SHUTTL_PORT);
 		logger.info(logMessage);
 
 		try {
-			return (Integer.toString(getProxy().getDefHadoopClusterPort()));
+			return (Integer.toString(getProxy().getHttpPort()));
 		} catch (Exception e) {
 			logger.error(e);
 			throw new ShuttlRestException(e.getMessage());
@@ -101,63 +98,21 @@ public class ShuttlServerRest {
 	// for debugging using browsers
 	@GET
 	@Produces(MediaType.TEXT_HTML)
-	@Path(ENDPOINT_DEFAULT_PORT)
+	@Path(ENDPOINT_SHUTTL_PORT)
 	public String getDefHadoopClusterPortHTML() {
 		String logMessage = String.format(
 				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-				ENDPOINT_SERVER, ENDPOINT_DEFAULT_PORT);
+				ENDPOINT_SERVER, ENDPOINT_SHUTTL_PORT);
 		logger.info(logMessage);
 
 		try {
 			return "<html> " + "<title>" + "Shuttl Rest Endpoint" + "</title>"
-					+ "<body><h1>" + getProxy().getDefHadoopClusterPort()
+					+ "<body><h1>" + getProxy().getHttpPort()
 					+ "</body></h1>" + "</html> ";
 		} catch (Exception e) {
 			logger.error(e);
 			throw new ShuttlRestException(e.getMessage());
 		}
-	}
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/ServerConfiguration")
-	public ServerConf getServerConfiguration() {
-		try {
-			ShuttlServerMBean mbean = getProxy();
-			return mbean.getServerConf();
-		} catch (Exception e) {
-			logger.error(e);
-			throw new ShuttlRestException(e.getMessage());
-		}
-	}
-
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/setServerConfiguration")
-	public void setServerConfiguration(ServerConf conf) {
-		try {
-			ShuttlServerMBean mbean = getProxy();
-			mbean.setServerConf(conf);
-		} catch (Exception e) {
-			logger.error(e);
-			throw new ShuttlRestException(e.getMessage());
-		}
-	}
-
-	// hack for HADOOP-254. Remove before GA
-	// will generate a warning about a GET being void during runtime
-	// TODO
-	@GET
-	@Produces(MediaType.TEXT_HTML)
-	@Path(ENDPOINT_SHUTDOWN)
-	public void shutdownHTML() {
-		String logMessage = String.format(
-				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-				ENDPOINT_SERVER, ENDPOINT_SHUTDOWN);
-		logger.info(logMessage);
-
-		logger.info("Shuttl shutting down ..");
-		System.exit(0);
 	}
 
 	private ShuttlServerMBean getProxy() throws Exception {

@@ -28,25 +28,29 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
+import com.splunk.shuttl.server.mbeans.ShuttlArchiverForTests;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 
 @Test(groups = { "fast-unit" })
-public class MBeanUtilsTest {
+public class RegistersMBeansTest {
 
 	ObjectName objectName;
 	String objectNameString;
 	MBeanServer mbs;
-	Class<ShuttlArchiver> realClass;
+	Class<?> realClass;
 	Class<ShuttlArchiverMBean> interfaceClass;
+
+	RegistersMBeans registersMBeans;
 
 	@BeforeMethod
 	public void setUp() throws MalformedObjectNameException, NullPointerException {
 		mbs = ManagementFactory.getPlatformMBeanServer();
 		objectNameString = ShuttlArchiverMBean.OBJECT_NAME;
 		objectName = new ObjectName(objectNameString);
-		realClass = ShuttlArchiver.class;
+		realClass = ShuttlArchiverForTests.class;
 		interfaceClass = ShuttlArchiverMBean.class;
+
+		registersMBeans = new RegistersMBeans(mbs);
 	}
 
 	@AfterMethod
@@ -62,19 +66,19 @@ public class MBeanUtilsTest {
 			throws Exception {
 		assertFalse(mbs.isRegistered(objectName));
 
-		MBeanUtils.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, realClass);
 		assertTrue(mbs.isRegistered(objectName));
 	}
 
 	public void registerMBean_registeredMBean_doesNothing() throws Exception {
-		MBeanUtils.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, realClass);
 		assertTrue(mbs.isRegistered(objectName));
 
-		MBeanUtils.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, realClass);
 	}
 
 	public void getMBeanInstance_registeredMBean_getsInstance() throws Exception {
-		MBeanUtils.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, realClass);
 		ShuttlArchiverMBean instance = MBeanUtils.getMBeanInstance(
 				objectNameString, interfaceClass);
 		assertNotNull(instance);

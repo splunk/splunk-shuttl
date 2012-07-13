@@ -12,30 +12,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver;
+package com.splunk.shuttl.archiver.thaw;
 
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
-import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
-
-import java.io.File;
 
 import org.testng.annotations.Test;
 
 @Test(groups = { "fast-unit" })
-public class StartUpIntegrationTest {
+public class SplunkConfigurationTest {
 
-	public void _givenFilesInThawLocksLocation_cleanThem() {
-		testIntegrationWithDirectory(getThawLocksDirectory());
+	private SplunkConfiguration splunkConfiguration;
+
+	@Test(groups = { "fast-unit" })
+	public void constructor_nonNullValues_returnsValues() {
+		splunkConfiguration = new SplunkConfiguration("host", 1234, "username",
+				"password");
+		assertEquals("host", splunkConfiguration.getHost());
+		assertEquals(1234, splunkConfiguration.getPort());
+		assertEquals("username", splunkConfiguration.getUsername());
+		assertEquals("password", splunkConfiguration.getPassword());
 	}
 
-	private void testIntegrationWithDirectory(File directoryToIntegrate) {
-		createDirectoryInParent(directoryToIntegrate, "somefile");
-		StartUpCleaner.create().clean();
-		assertTrue(isDirectoryEmpty(directoryToIntegrate));
-	}
-
-	public void _givenFilesInThawTransfersLocation_cleansThem() {
-		testIntegrationWithDirectory(getThawTransfersDirectory());
-	}
 }

@@ -15,8 +15,10 @@
 package com.splunk.shuttl.archiver.thaw;
 
 import com.splunk.Service;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
+import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
@@ -29,29 +31,42 @@ import com.splunk.shuttl.archiver.model.BucketFactory;
  */
 public class BucketThawerFactory {
 
+	/**
+	 * Default {@link BucketThawer} as configured with .conf files.
+	 */
 	public static BucketThawer createDefaultThawer() {
 		Service splunkService = getLoggedInSplunkService();
 		SplunkSettings splunkSettings = getSplunkSettings(splunkService);
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-		return createWithSplunkSettingsAndConfig(splunkSettings, config);
+		return createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
+				splunkSettings, LocalFileSystemPaths.create());
 	}
 
-	public static BucketThawer createWithSplunkSettingsAndConfig(
-			SplunkSettings splunkSettings, ArchiveConfiguration configuration) {
+	/**
+	 * Factory method for testability.
+	 */
+	public static BucketThawer createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(
+			ArchiveConfiguration configuration, SplunkSettings splunkSettings,
+			LocalFileSystemPaths localFileSystemPaths) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(configuration);
 		ThawLocationProvider thawLocationProvider = ThawLocationProvider
-				.create(splunkSettings);
+				.createWithSplunkSettingsAndThawTransferLocation(splunkSettings,
+						localFileSystemPaths.getThawTransfersDirectory());
 
 		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
 				archiveFileSystem, thawLocationProvider);
 		ListsBucketsFiltered listsBucketsFiltered = ListsBucketsFilteredFactory
 				.create(configuration);
+		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
+				localFileSystemPaths);
+		BucketSizeResolver bucketSizeResolver = new BucketSizeResolver(
+				ArchiveBucketSize.create(configuration, bucketSizeIO));
 		GetsBucketsFromArchive getsBucketsFromArchive = new GetsBucketsFromArchive(
-				thawBucketTransferer, BucketImporter.create(), new BucketSizeResolver(
-						ArchiveBucketSize.create(configuration)));
+				thawBucketTransferer, BucketImporter.create(), bucketSizeResolver);
 		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive,
-				thawLocationProvider, new ThawBucketLocker());
+				thawLocationProvider, new ThawBucketLocker(
+						localFileSystemPaths.getThawLocksDirectory()));
 	}
 
 	private static ThawBucketTransferer getThawBucketTransferer(
@@ -65,8 +80,10 @@ public class BucketThawerFactory {
 	// TODO: Communicating with splunk through splunk home is not nice.
 	// CONFIG
 	private static Service getLoggedInSplunkService() {
-		Service splunkService = new Service("localhost", 8089);
-		splunkService.login("admin", "changeme");
+		SplunkConfiguration splunkConf = SplunkConfiguration.create();
+		Service splunkService = new Service(splunkConf.getHost(),
+				splunkConf.getPort());
+		splunkService.login(splunkConf.getUsername(), splunkConf.getPassword());
 		return splunkService;
 	}
 

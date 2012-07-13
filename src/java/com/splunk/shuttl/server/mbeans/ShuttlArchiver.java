@@ -14,52 +14,62 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
+
+import javax.management.InstanceNotFoundException;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.server.mbeans.util.JAXBUtils;
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 import com.splunk.shuttl.server.model.ArchiverConf;
 
 /**
  * @author kpakkirisamy
  */
-public class ShuttlArchiver implements ShuttlArchiverMBean {
+public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
+		ShuttlArchiverMBean {
 	// error messages
+
 	private static final String SHUTTL_ARCHIVER_INIT_FAILURE = "ShuttlArchiver init failure";
 	// end error messages
 
-	private static String ARCHIVERCONF_XML = "etc/apps/shuttl/conf/archiver.xml";
 	private static Logger logger = Logger.getLogger(ShuttlArchiver.class);
 	private ArchiverConf conf;
 	private String xmlFilePath;
 
 	public ShuttlArchiver() throws ShuttlMBeanException {
-		try {
-			this.xmlFilePath = getArchiverConfXml();
-			refresh();
-		} catch (Exception e) {
-			logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
-			throw new ShuttlMBeanException(e);
-		}
+		this.xmlFilePath = getPathToDefaultConfFile();
+		refreshWithConf();
 	}
 
-	protected String getArchiverConfXml() {
-		return System.getProperty("splunk.home") + ARCHIVERCONF_XML;
+	@Override
+	protected String getConfFileName() {
+		return "archiver.xml";
 	}
 
 	// used by tests
 	public ShuttlArchiver(String confFilePath) throws ShuttlMBeanException {
+		this.xmlFilePath = confFilePath;
+		refreshWithConf();
+	}
+
+	private void refreshWithConf() throws ShuttlMBeanException {
 		try {
-			this.xmlFilePath = confFilePath;
 			refresh();
 		} catch (Exception e) {
 			logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
 			throw new ShuttlMBeanException(e);
 		}
+	}
+
+	@Override
+	public String getLocalArchiverDir() {
+		return conf.getLocalArchiverDir();
+	}
+
+	@Override
+	public void setLocalArchiverDir(String localArchiverDir) {
+		conf.setLocalArchiverDir(localArchiverDir);
 	}
 
 	@Override
@@ -70,16 +80,6 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	@Override
 	public void setClusterName(String clusterName) {
 		conf.setClusterName(clusterName);
-	}
-
-	@Override
-	public List<String> getIndexNames() {
-		return conf.getIndexNames();
-	}
-
-	@Override
-	public void setIndexNames(List<String> indexNames) {
-		conf.setIndexNames(indexNames);
 	}
 
 	@Override
@@ -113,16 +113,6 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	}
 
 	@Override
-	public String getTmpDirectory() {
-		return conf.getTmpDirectory();
-	}
-
-	@Override
-	public void setTmpDirectory(String path) {
-		conf.setTmpDirectory(path);
-	}
-
-	@Override
 	public String getArchiverRootURI() {
 		return conf.getArchiverRootURI();
 	}
@@ -133,51 +123,34 @@ public class ShuttlArchiver implements ShuttlArchiverMBean {
 	}
 
 	@Override
-	public void addIndex(String name) {
-		if (conf.getIndexNames() == null)
-			conf.setIndexNames(new ArrayList<String>());
-		conf.getIndexNames().add(name);
+	protected String getPathToXmlFile() {
+		return this.xmlFilePath;
 	}
 
 	@Override
-	public void deleteIndex(String name) {
-		conf.getIndexNames().remove(name);
+	protected ArchiverConf getConfObject() {
+		return this.conf;
 	}
 
 	@Override
-	public void save() throws ShuttlMBeanException { // TODO move to util class
-		try {
-			JAXBUtils.save(ArchiverConf.class, this.conf, this.xmlFilePath);
-		} catch (Exception e) {
-			logger.error(e);
-			throw new ShuttlMBeanException(e);
-		}
+	protected void setConfObject(ArchiverConf conf) {
+		this.conf = conf;
 	}
 
 	@Override
-	public void refresh() throws ShuttlMBeanException { // TODO move to util
-		// class
-		try {
-			this.conf = (ArchiverConf) JAXBUtils.refresh(ArchiverConf.class,
-					this.xmlFilePath);
-		} catch (FileNotFoundException fnfe) {
-			this.conf = new ArchiverConf();
-		} catch (Exception e) {
-			logger.error(e);
-			throw new ShuttlMBeanException(e);
-		}
+	protected Class<ArchiverConf> getConfClass() {
+		return ArchiverConf.class;
 	}
 
 	/**
-	 * @return
+	 * @return instance of {@link ShuttlArchiverMBean}
+	 * @throws InstanceNotFoundException
+	 * @see {@link MBeanUtils#getMBeanInstance(String, Class)}
 	 */
-	public static ShuttlArchiverMBean getMBeanProxy() {
-		try {
-			return MBeanUtils.getMBeanInstance(ShuttlArchiverMBean.OBJECT_NAME,
-					ShuttlArchiverMBean.class);
-		} catch (Exception e) {
-			logger.error(e);
-			throw new RuntimeException(e);
-		}
+	public static ShuttlArchiverMBean getMBeanProxy()
+			throws InstanceNotFoundException {
+		return MBeanUtils.getMBeanInstance(ShuttlArchiverMBean.OBJECT_NAME,
+				ShuttlArchiverMBean.class);
 	}
+
 }

@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:archiverConf xmlns:ns2="com.splunk.shuttl.server.model">
+    <localArchiverDir>file:/~/shuttl_archiver</localArchiverDir>
     <archiverRootURI>hdfs://localhost:9000/archiver_root</archiverRootURI>
-    <tmpDirectory>/tmp</tmpDirectory>
     <clusterName>cluster_name</clusterName>
     <serverName>server_name</serverName>
-    <indexNames>
-        <indexName>main</indexName>
-        <indexName>shuttl</indexName>
-    </indexNames>
-    <archiveFormats>SPLUNK_BUCKET</archiveFormats>
+    <archiveFormats>
+        <archiveFormat>SPLUNK_BUCKET</archiveFormat>
+    </archiveFormats>
 </ns2:archiverConf>

@@ -40,7 +40,8 @@
 
 	<!-- splunk properties -->
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
-	<property name="splunk.extracted.dir" value="${build-cache}/splunk" />
+	<property name="splunk.server.name" value="splunk" />
+	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
 
 	<!-- ivy properties -->
 	<property name="ivy.utils" value="${contribdir}/ivy-utils" />
@@ -135,7 +136,7 @@
 
 	<!-- create a version.properties file from a template which is read by Version.java -->
 	<target name="version">
-		<exec executable="hostname" osfamily="unix" failifexecutionfails="false" outputproperty="hostname">
+		<exec executable="hostname" failifexecutionfails="false" outputproperty="hostname">
 			<arg value="-s" />
 		</exec>
 
@@ -168,9 +169,7 @@
 			<replacefilter token="@BUILDMACHINE@" value="${hostname}" />
 		</replace>
 
-		<loadproperties>
-			<file file="${classdir}/com/splunk/shuttl/server/version.properties" />
-		</loadproperties>
+		<loadproperties srcfile="${classdir}/com/splunk/shuttl/server/version.properties" />
 
 		<!-- TODO add ${git.branch} into the suffix after properly fixing the retrival of branch name -->
 		<property name="buildVersionSuffix" value="${version}-${git.revision}-${hostname}-${noslashtime}" />
@@ -379,12 +378,12 @@
 
 	<target name="do-hadoop-download" depends="set-hadoop-download-url">
 		<echo>Downloading hadoop from ${hadoop.download.url}</echo>
-		<exec executable="curl" osfamily="unix">
+		<exec executable="curl">
 			<arg value="-s" />
 			<arg value="${hadoop.download.url}" />
 			<arg line="-o ${hadoop.download.name}" />
 		</exec>
-		<!-- this move will make hadoop.download.path make sence -->
+		<!-- this move will make hadoop.download.path make sense -->
 		<move file="${hadoop.download.name}" todir="${hadoop.download.dir}" />
 	</target>
 
@@ -405,11 +404,11 @@
 		and fail, no? -->
 		<echo>Extracting...</echo>
 		<echo>download path: ${hadoop.download.path}</echo>
-		<exec executable="sh" osfamily="unix">
+		<exec executable="sh">
 			<arg value="-c" />
 			<arg line="'tar xf ${hadoop.download.path} -C ${hadoop.extracted.dir}'" />
 		</exec>
-		<exec executable="sh" osfamily="unix">
+		<exec executable="sh">
 			<arg value="-c" />
 			<arg line="'mv ${hadoop.extracted.dir}/hadoop-* ${hadoop.extracted.path}'" />
 		</exec>
@@ -484,22 +483,22 @@
 	</target>
 
 	<target name="hadoop-stop" depends="set-hadoop-home">
-		<exec executable="${hadoop.home}/bin/stop-all.sh" osfamily="unix" />
+		<exec executable="${hadoop.home}/bin/stop-all.sh" />
 	</target>
 
 	<target name="hadoop-format-namenode-unsafe">
-		<exec executable="sh" osfamily="unix">
+		<exec executable="sh">
 			<arg value="-c" />
 			<arg line="'${hadoop.home}/bin/hadoop namenode -format'" />
 		</exec>
 	</target>
 
 	<target name="hadoop-start" depends="set-hadoop-home">
-		<exec executable="${hadoop.home}/bin/start-all.sh" osfamily="unix" />
+		<exec executable="${hadoop.home}/bin/start-all.sh" />
 	</target>
 
 	<target name="hadoop-unsafe-mode">
-		<exec executable="${hadoop.home}/bin/hadoop" osfamily="unix">
+		<exec executable="${hadoop.home}/bin/hadoop">
 			<arg line="dfsadmin -safemode leave" />
 		</exec>
 	</target>
@@ -525,6 +524,7 @@
 	<target name="splunk-configure-and-start">
 		<antcall>
 			<target name="install-shuttl-splunk-app" />
+			<!--Not needed yet: target name="splunk-set-splunkd-port" /-->
 			<target name="splunk-start" />
 			<target name="enable-shuttl-splunk-app" />
 		</antcall>
@@ -547,10 +547,11 @@
 	</target>
 
 	<target name="splunk-unpack" depends="is-splunk-tgz-available" if="foundSplunkTgz">
-		<exec executable="sh" osfamily="unix">
+		<exec executable="sh">
 			<arg value="-c" />
 			<arg line="'tar xf ${splunk.tgz.dir}/*.tgz -C ${build-cache}'" />
 		</exec>
+		<move file="${build-cache}/splunk" tofile="${splunk.extracted.dir}" />
 		<antcall target="copy-lib-jars-to-test-dir" />
 	</target>
 
@@ -587,7 +588,7 @@
 
 	<target name="do-install-shuttl-splunk-app" depends="create-splunk-app">
 		<antcall target="splunk-stop" />
-		<exec executable="tar" osfamily="unix">
+		<exec executable="tar">
 			<arg value="xf" />
 			<arg value="${splunk-app.tar}" />
 			<arg line="-C ${splunk.apps.home}" />
@@ -602,10 +603,35 @@
 		</antcall>
 	</target>
 
-	<target name="splunk-start" depends="set-splunk-home">
-		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="start --accept-license --no-prompt --answer-yes splunkd" />
+	<target name="splunk-set-splunkd-port">
+		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
+		<antcall target="splunk-start" />
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport} -auth ${splunk.username}:${splunk.password}" />
 		</exec>
+		<!-- changing splunkd port needs a restart. -->
+		<antcall>
+			<target name="splunk-stop" />
+			<target name="splunk-start" />
+		</antcall>
+	</target>
+
+	<property name="splunk.accept.license.flags" value="--accept-license --no-prompt --answer-yes" />
+
+	<target name="splunk-start" depends="set-splunk-home">
+		<!-- antcallback instead of depends, to make sure it's running the "check" target again,
+		and not taking a previous check when Splunk might have been in a different state -->
+		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
+		<if>
+			<isset property="isSplunkRunning" />
+			<then />
+			<else>
+				<exec executable="${splunk.home}/bin/splunk">
+					<arg line="start ${splunk.accept.license.flags} splunkd" />
+				</exec>
+			</else>
+		</if>
 	</target>
 
 	<target name="splunk-start-splunkweb" depends="set-splunk-home">
@@ -620,10 +646,45 @@
 		</exec>
 	</target>
 
+	<target name="splunk-stop-forced" depends="set-splunk-home">
+		<var name="splunk.stop.command" unset="true" />
+		<property name="splunk.stop.command" value="stop -f" />
+		<antcall target="do-splunk-stop" />
+	</target>
+
 	<target name="splunk-stop" depends="set-splunk-home">
-		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="stop -f" />
+		<var name="splunk.stop.command" unset="true" />
+		<property name="splunk.stop.command" value="stop" />
+		<antcall target="do-splunk-stop" />
+	</target>
+
+
+	<target name="do-splunk-stop" depends="set-splunk-home">
+		<fail unless="splunk.stop.command" message="property splunk.stop.command must be set before calling this target" />
+		<!-- antcallback instead of depends, to make sure it's running the "check" target again,
+		and not taking a previous check when Splunk might have been in a different state -->
+		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
+		<if>
+			<isset property="isSplunkRunning" />
+			<then>
+				<exec executable="${splunk.home}/bin/splunk">
+					<arg line="${splunk.stop.command}" />
+				</exec>
+			</then>
+		</if>
+	</target>
+
+	<target name="check-if-splunk-is-running">
+		<exec executable="sh" outputproperty="isRunning">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk status | grep 'splunkd is running' | grep -o running || true" />
 		</exec>
+		<if>
+			<equals arg1="${isRunning}" arg2="running" />
+			<then>
+				<property name="isSplunkRunning" value="true" />
+			</then>
+		</if>
 	</target>
 
 	<target name="splunk-restart" depends="set-splunk-home">
@@ -633,20 +694,21 @@
 	</target>
 
 	<target name="enable-shuttl-splunk-app" depends="check-if-shuttl-is-enabled" unless="isShuttlAlreadyEnabled">
-		<exec executable="curl" osfamily="unix">
+		<exec executable="curl">
 			<arg value="-s" />
 			<arg line="-u ${splunk.username}:${splunk.password}" />
-			<arg line="-k https://localhost:8089/services/apps/local/shuttl/enable" />
+			<arg line="-k https://${splunk.host}:${splunk.mgmtport}/services/apps/local/shuttl/enable" />
 			<arg line="-X POST" />
 		</exec>
 	</target>
 
-	<target name="check-if-shuttl-is-enabled">
-		<shellscript shell="sh" outputproperty="isEnabled">
-			${splunk.home}/bin/splunk display app 2> /dev/null | grep shuttl | grep -o ENABLED
-		</shellscript>
+	<target name="check-if-shuttl-is-enabled" depends="set-splunk-home">
+		<exec executable="sh" outputproperty="isShuttlEnabled">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk display app -auth ${splunk.username}:${splunk.password} | grep shuttl | grep -o ENABLED || true" />
+		</exec>
 		<if>
-			<equals arg1="${isEnabled}" arg2="ENABLED" />
+			<equals arg1="${isShuttlEnabled}" arg2="ENABLED" />
 			<then>
 				<property name="isShuttlAlreadyEnabled" value="true" />
 			</then>
@@ -655,7 +717,7 @@
 
 	<target name="splunk-teardown" depends="set-splunk-home,check-for-splunk-binary" if="existsSplunkBinary">
 		<antcall>
-			<target name="splunk-stop" />
+			<target name="splunk-stop-forced" />
 			<target name="splunk-clean-all" />
 		</antcall>
 	</target>
@@ -713,14 +775,14 @@
 	<!-- the index must exist "ant helper-archiver-configure-archiver-test-index" 
 	and "./splunk login" should have been run before this -->
 	<target name="archiver-generate-test-buckets" depends="set-splunk-home">
-		<exec executable="${test-debug-dir}/splunk/hadoop/sh/generateBuckets.sh" osfamily="unix">
+		<exec executable="${test-debug-dir}/splunk/hadoop/sh/generateBuckets.sh">
 			<arg line="${splunk.home} ${test-debug-dir}/splunk/hadoop/tmp archiver-test-index" />
 		</exec>
 	</target>
 	<!-- END Archiver-testing-util -->
 	<!-- Archiver-UI -->
 	<target name="archiver-UI-sync-package" depends="set-shuttl-app-home">
-		<exec executable="sh" osfamily="unix">
+		<exec executable="sh">
 			<arg value="-c" />
 			<arg line="'rsync -vr --delete ${package.dir}/* ${shuttl.app.home} | tail -n 3'" />
 		</exec>
@@ -751,7 +813,7 @@
 		<property name="manual.test.archiver.conf.name" value="archiver-csv.xml" />
 		<antcall target="manual-test-setup" />
 	</target>
-	
+
 	<target name="manual-test-formats-splunk-bucket-and-csv">
 		<property name="manual.test.archiver.conf.name" value="archiver-splunk_bucket-and-csv.xml" />
 		<antcall target="manual-test-setup" />

@@ -14,29 +14,100 @@
 // limitations under the License.
 package com.splunk.shuttl.testutil;
 
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import javax.management.InstanceNotFoundException;
+import javax.management.OperationsException;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
+import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 
 @Test(groups = { "fast-unit" })
 public class TUtilsMbeanTest {
 
-	@Test(groups = { "fast-unit" })
-	public void registerShuttlArchiverMBean_notRegistered_registersMbean()
-			throws InstanceNotFoundException {
-		TUtilsMBean.registerShuttlArchiverMBean();
-		ShuttlArchiverMBean proxy = MBeanUtils.getMBeanInstance(
-				ShuttlArchiverMBean.OBJECT_NAME, ShuttlArchiverMBean.class);
-		assertNotNull(proxy);
+	@BeforeMethod
+	public void setUp() {
+		TUtilsMBean.unregisterMBeans();
 	}
 
-	public void registerShuttlArchiverMBean_twice_ok() {
-		TUtilsMBean.registerShuttlArchiverMBean();
-		TUtilsMBean.registerShuttlArchiverMBean();
+	@AfterMethod
+	public void tearDown() {
+		TUtilsMBean.unregisterMBeans();
+	}
+
+	@Test(groups = { "fast-unit" })
+	public void registerMBeans_notRegistered_registersMBeans()
+			throws InstanceNotFoundException {
+		assertFalse(areMBeansRegistered());
+		TUtilsMBean.registerMBeans();
+		assertTrue(areMBeansRegistered());
+		TUtilsMBean.unregisterMBeans();
+		assertFalse(areMBeansRegistered());
+	}
+
+	private boolean areMBeansRegistered() throws InstanceNotFoundException {
+		try {
+			ShuttlArchiverMBean archiverMBean = MBeanUtils.getMBeanInstance(
+					ShuttlArchiverMBean.OBJECT_NAME, ShuttlArchiverMBean.class);
+			JMXSplunkMBean splunkMBean = MBeanUtils.getMBeanInstance(
+					JMXSplunkMBean.OBJECT_NAME, JMXSplunkMBean.class);
+			return archiverMBean != null && splunkMBean != null;
+		} catch (InstanceNotFoundException e) {
+			return false;
+		}
+	}
+
+	public void registerMBeans_twice_ok() {
+		TUtilsMBean.registerMBeans();
+		TUtilsMBean.registerMBeans();
+	}
+
+	public void unregisterMBeans_twice_ok() {
+		TUtilsMBean.unregisterMBeans();
+		TUtilsMBean.unregisterMBeans();
+	}
+
+	public void runWithRegisteredMBeans_withRunnable_runsRunnable() {
+		Runnable runnable = mock(Runnable.class);
+		TUtilsMBean.runWithRegisteredMBeans(runnable);
+		verify(runnable).run();
+	}
+
+	public void runWithRegisteredMBean_withRunnable_mBeanIsRegistered()
+			throws OperationsException {
+		assertFalse(areMBeansRegistered());
+		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					assertTrue(areMBeansRegistered());
+				} catch (InstanceNotFoundException e) {
+					TUtilsTestNG.failForException(null, e);
+				}
+			}
+		});
+	}
+
+	public void runWithRegisteredMBean_throwsExceptionInRunnable_stillUnregisteredAfterRun()
+			throws InstanceNotFoundException {
+		RuntimeException expectedException = null;
+		try {
+			TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+				@Override
+				public void run() {
+					throw new RuntimeException();
+				}
+			});
+		} catch (RuntimeException e) {
+			expectedException = e;
+		}
+		assertFalse(areMBeansRegistered());
+		assertNotNull(expectedException);
 	}
 }

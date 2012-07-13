@@ -14,12 +14,10 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.importexport;
 
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URISyntaxException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -29,8 +27,8 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
@@ -41,16 +39,17 @@ import com.splunk.shuttl.testutil.TUtilsEnvironment;
 public class BucketExporterIntegrationTest {
 
 	private BucketExporter bucketExporter;
+	private File csvDirectory;
 
 	@BeforeMethod
-	public void setUp() throws FileNotFoundException, FileNotDirectoryException,
-			URISyntaxException {
-		bucketExporter = BucketExporter.create();
+	public void setUp() {
+		csvDirectory = createDirectory();
+		bucketExporter = BucketExporter.create(CsvExporter.create(csvDirectory));
 	}
 
 	@AfterMethod
 	public void tearDown() {
-		FileUtils.deleteQuietly(getArchiverDirectory());
+		FileUtils.deleteQuietly(csvDirectory);
 	}
 
 	@Test(groups = { "end-to-end" })

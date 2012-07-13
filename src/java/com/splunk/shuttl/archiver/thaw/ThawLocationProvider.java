@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -79,9 +78,9 @@ public class ThawLocationProvider {
 	 * @return instance of {@link ThawLocationProvider} with specified splunk
 	 *         settings.
 	 */
-	public static ThawLocationProvider create(SplunkSettings splunkSettings) {
-		return new ThawLocationProvider(splunkSettings,
-				LocalFileSystemConstants.getThawTransfersDirectory());
+	public static ThawLocationProvider createWithSplunkSettingsAndThawTransferLocation(SplunkSettings splunkSettings,
+			File thawTransfersDirectory) {
+		return new ThawLocationProvider(splunkSettings, thawTransfersDirectory);
 	}
 
 }

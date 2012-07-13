@@ -27,6 +27,12 @@ public class BucketLock extends SimpleFileLock {
 
 	private final File lockFile;
 
+	/**
+	 * @param bucket
+	 *          to lock
+	 * @param locksDirectory
+	 *          where the these types of buckets locks live.
+	 */
 	public BucketLock(Bucket bucket, File locksDirectory) {
 		super(UtilsFile.getRandomAccessFileSilent(
 				(getLockFile(bucket, locksDirectory))).getChannel());
@@ -36,7 +42,7 @@ public class BucketLock extends SimpleFileLock {
 	/**
 	 * @return File that controls the lock of this bucket.
 	 */
-	/* package-private */File getLockFile() {
+	public File getLockFile() {
 		return lockFile;
 	}
 

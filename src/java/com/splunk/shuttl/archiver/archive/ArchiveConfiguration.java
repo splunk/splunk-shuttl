@@ -15,15 +15,25 @@
 
 package com.splunk.shuttl.archiver.archive;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.management.InstanceNotFoundException;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
+
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 
 public class ArchiveConfiguration {
+
+	private static final String ARCHIVE_DATA_DIRECTORY_NAME = "archive_data";
+	private static final String TEMPORARY_DATA_DIRECTORY_NAME = "temporary_data";
 
 	private final List<BucketFormat> bucketFormats;
 	private final URI archivingRoot;
@@ -32,7 +42,7 @@ public class ArchiveConfiguration {
 	private final List<BucketFormat> bucketFormatPriority;
 	private final URI tmpDirectory;
 
-	public ArchiveConfiguration(List<BucketFormat> bucketFormats,
+	private ArchiveConfiguration(List<BucketFormat> bucketFormats,
 			URI archivingRoot, String clusterName, String serverName,
 			List<BucketFormat> bucketFormatPriority, URI tmpDirectory) {
 		this.bucketFormats = bucketFormats;
@@ -55,12 +65,26 @@ public class ArchiveConfiguration {
 			sharedInstance = sharedInstanceRef.get();
 
 		if (sharedInstance == null) {
-			sharedInstance = createConfigurationWithMBean(ShuttlArchiver
-					.getMBeanProxy());
+			sharedInstance = createConfigurationFromMBean();
 			sharedInstanceRef = new SoftReference<ArchiveConfiguration>(
 					sharedInstance);
 		}
 		return sharedInstance;
+	}
+
+	private static ArchiveConfiguration createConfigurationFromMBean() {
+		try {
+			return createConfigurationWithMBean(ShuttlArchiver.getMBeanProxy());
+		} catch (InstanceNotFoundException e) {
+			logInstanceNotFoundException(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void logInstanceNotFoundException(InstanceNotFoundException e) {
+		Logger.getLogger(ArchiveConfiguration.class).error(
+				did("Tried getting a ShuttlArchiverMBean", e,
+						"An instance to be registered to the MBean."));
 	}
 
 	/**
@@ -70,12 +94,25 @@ public class ArchiveConfiguration {
 	public static ArchiveConfiguration createConfigurationWithMBean(
 			ShuttlArchiverMBean mBean) {
 		List<BucketFormat> bucketFormats = bucketFormatsFromMBean(mBean);
-		URI archivingRoot = archivingRootFromMBean(mBean);
+		URI archivingRootURI = archivingRootFromMBean(mBean);
+
 		String clusterName = mBean.getClusterName();
 		String serverName = mBean.getServerName();
 		List<BucketFormat> bucketFormatPriority = createFormatPriorityList(mBean);
-		URI tmpDirectory = getTmpDirectoryFromArchivingRoot(mBean, archivingRoot);
-		return new ArchiveConfiguration(bucketFormats, archivingRoot, clusterName,
+		return createSafeConfiguration(archivingRootURI, bucketFormats,
+				clusterName,
+				serverName, bucketFormatPriority);
+	}
+
+	public static ArchiveConfiguration createSafeConfiguration(
+			URI archivingRootURI,
+			List<BucketFormat> bucketFormats, String clusterName, String serverName,
+			List<BucketFormat> bucketFormatPriority) {
+		URI archivingData = getChildToArchivingRoot(archivingRootURI,
+				ARCHIVE_DATA_DIRECTORY_NAME);
+		URI tmpDirectory = getChildToArchivingRoot(archivingRootURI,
+				TEMPORARY_DATA_DIRECTORY_NAME);
+		return new ArchiveConfiguration(bucketFormats, archivingData, clusterName,
 				serverName, bucketFormatPriority, tmpDirectory);
 	}
 
@@ -89,10 +126,14 @@ public class ArchiveConfiguration {
 		return getFormatsFromNames(mBean.getArchiveFormats());
 	}
 
-	private static URI getTmpDirectoryFromArchivingRoot(
-			ShuttlArchiverMBean mBean, URI archivingRoot) {
-		String tmpDir = mBean.getTmpDirectory();
-		return tmpDir != null ? archivingRoot.resolve(tmpDir) : null;
+	private static URI getChildToArchivingRoot(URI archivingRoot,
+			String childNameToArchivingRoot) {
+		if (archivingRoot != null) {
+			String rootName = FilenameUtils.getName(archivingRoot.getPath());
+			return archivingRoot.resolve(rootName + "/" + childNameToArchivingRoot);
+		} else {
+			return null;
+		}
 	}
 
 	private static List<BucketFormat> createFormatPriorityList(

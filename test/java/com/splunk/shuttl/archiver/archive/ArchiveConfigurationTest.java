@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -62,11 +63,12 @@ public class ArchiveConfigurationTest {
 		assertNull(createConfiguration().getArchivingRoot());
 	}
 
-	public void getArchivingRoot_givenUriInMBean_returnSameUriAsInMBean() {
+	public void getArchivingRoot_givenUriInMBean_childToTheUri() {
 		String uriString = "valid:/uri";
-		URI expectedUri = URI.create(uriString);
 		when(mBean.getArchiverRootURI()).thenReturn(uriString);
 		URI actualUri = createConfiguration().getArchivingRoot();
+		String childName = FilenameUtils.getName(actualUri.getPath());
+		URI expectedUri = URI.create(uriString + "/" + childName);
 		assertEquals(expectedUri, actualUri);
 	}
 
@@ -123,25 +125,23 @@ public class ArchiveConfigurationTest {
 		assertNull(createConfiguration().getTmpDirectory());
 	}
 
-	public void getTmpDirectory_givenArchivingRootUriAndTmpDirectoryWithARoot_pathIsAbsolute() {
-		when(mBean.getArchiverRootURI()).thenReturn("valid:/uri/archiver/data");
-		when(mBean.getTmpDirectory()).thenReturn("/tmp");
+	public void getTmpDirectory_givenArchiverRootUri_pathIsAChildOfTheArchivingRootURI() {
+		String archiverRoot = "valid:/uri/archiver/data";
+		when(mBean.getArchiverRootURI()).thenReturn(archiverRoot);
 		URI tmpDirectory = createConfiguration().getTmpDirectory();
-		assertEquals(URI.create("valid:/tmp"), tmpDirectory);
+
+		String tmpDirectoryName = FilenameUtils.getName(tmpDirectory.getPath());
+		URI expected = URI.create(archiverRoot + "/" + tmpDirectoryName);
+		assertEquals(expected, tmpDirectory);
 	}
 
-	public void getTmpDirectory_givenArchivingRootUriAndTmpDirectoryWithoutRoot_pathIsRelative() {
+	public void getTmpDirectory_givenArchiverRootUri_pathIsNotWithingetArchiverRoot() {
 		when(mBean.getArchiverRootURI()).thenReturn("valid:/uri/archiver/data");
-		when(mBean.getTmpDirectory()).thenReturn("tmp");
-		URI tmpDirectory = createConfiguration().getTmpDirectory();
-		assertEquals(URI.create("valid:/uri/archiver/tmp"), tmpDirectory);
-	}
+		ArchiveConfiguration configuration = createConfiguration();
+		URI archivingRoot = configuration.getArchivingRoot();
+		URI tmpDirectory = configuration.getTmpDirectory();
 
-	public void getTmpDirectory_givenUriWithHostAndPort_keepingHostAndPortInUri() {
-		when(mBean.getArchiverRootURI()).thenReturn("hdfz://localhost:8000/uri");
-		when(mBean.getTmpDirectory()).thenReturn("/tmp");
-		URI tmpDirectory = createConfiguration().getTmpDirectory();
-		assertEquals(URI.create("hdfz://localhost:8000/tmp"), tmpDirectory);
+		assertFalse(tmpDirectory.getPath().contains(archivingRoot.getPath()));
 	}
 
 }

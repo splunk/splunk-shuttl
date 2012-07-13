@@ -31,8 +31,8 @@ public final class ShuttlConstants {
 
 	// REST endpoints
 	public static final String ENDPOINT_CONTEXT = "shuttl/rest";
-	public static final String ENDPOINT_DEFAULT_HOST = "/defaulthost";
-	public static final String ENDPOINT_DEFAULT_PORT = "/defaultport";
+	public static final String ENDPOINT_SHUTTL_HOST = "/defaulthost";
+	public static final String ENDPOINT_SHUTTL_PORT = "/defaultport";
 	public static final String ENDPOINT_SERVER = "/server";
 	public static final String ENDPOINT_FORWARDER = "/forwarder";
 	public static final String ENDPOINT_SINK_PREFIX = "/sinkprefix";

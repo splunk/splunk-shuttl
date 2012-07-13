@@ -35,7 +35,7 @@ public class ShuttlArchiverForTests extends ShuttlArchiver {
 	 * @see com.splunk.shuttl.server.mbeans.ShuttlArchiver#getArchiverConfXml()
 	 */
 	@Override
-	protected String getArchiverConfXml() {
+	protected String getPathToDefaultConfFile() {
 		return "package/conf/archiver.xml";
 	}
 }

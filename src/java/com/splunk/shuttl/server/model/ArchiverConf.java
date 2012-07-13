@@ -28,168 +28,64 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlRootElement(namespace = "com.splunk.shuttl.server.model")
-@XmlType(propOrder = { "archiveFormats", "clusterName", "serverName",
-		"indexNames", "archiverRootURI", "bucketFormatPriority", "tmpDirectory" })
-public class ArchiverConf implements ArchiverConfiguration {
+@XmlType(propOrder = { "localArchiverDir", "archiveFormats", "clusterName",
+		"serverName", "archiverRootURI", "bucketFormatPriority" })
+public class ArchiverConf {
+	private String localArchiverDir;
 	private List<String> archiveFormats;
-	private String tmpDirectory;
 	private String clusterName;
 	private String serverName;
 	private String archiverRootURI;
-	private List<String> indexNames;
 	private List<String> bucketFormatPriority;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.server.model.ArchiverConfInterface#getArchiveFormat(com
-	 * .splunk.shuttl.archiver.archive.BucketFormat)
-	 */
-	@Override
+	public String getLocalArchiverDir() {
+		return localArchiverDir;
+	}
+
+	public void setLocalArchiverDir(String localArchiverDir) {
+		this.localArchiverDir = localArchiverDir;
+	}
+
+	@XmlElementWrapper(name = "archiveFormats")
+	@XmlElement(name = "archiveFormat")
 	public List<String> getArchiveFormats() {
 		return archiveFormats;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.server.model.ArchiverConfInterface#setArchiveFormat()
-	 */
-	@Override
 	public void setArchiveFormats(List<String> formats) {
 		this.archiveFormats = formats;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.splunk.shuttl.server.model.ArchiverConfInterface#getClusterName()
-	 */
-	@Override
 	public String getClusterName() {
 		return clusterName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.server.model.ArchiverConfInterface#setClusterName(java
-	 * .lang.String)
-	 */
-	@Override
 	public void setClusterName(String clusterName) {
 		this.clusterName = clusterName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.splunk.shuttl.server.model.ArchiverConfInterface#getServerName()
-	 */
-	@Override
 	public String getServerName() {
 		return serverName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.server.model.ArchiverConfInterface#setServerName(java
-	 * .lang.String)
-	 */
-	@Override
 	public void setServerName(String serverName) {
 		this.serverName = serverName;
 	}
 
-	@Override
-	@XmlElementWrapper(name = "indexNames")
-	@XmlElement(name = "indexName")
-	public List<String> getIndexNames() {
-		return indexNames;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.server.model.ArchiverConfiguration#getBucketFormatPriority
-	 * ()
-	 */
-	@Override
 	public List<String> getBucketFormatPriority() {
 		return bucketFormatPriority;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.server.model.ArchiverConfiguration#setBucketFormatPriority
-	 * (java.util.List)
-	 */
-	@Override
 	public void setBucketFormatPriority(List<String> priorityList) {
 		this.bucketFormatPriority = priorityList;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.splunk.shuttl.server.model.ArchiverConfiguration#getTmpDirectory()
-	 */
-	@Override
-	public String getTmpDirectory() {
-		return tmpDirectory;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.splunk.shuttl.server.model.ArchiverConfiguration#setTmpDirectory()
-	 */
-	@Override
-	public void setTmpDirectory(String path) {
-		tmpDirectory = path;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.server.model.ArchiverConfiguration#setArchiverHadoopURI
-	 * (java.net.URI)
-	 */
-	@Override
 	public void setArchiverRootURI(String URI) {
 		archiverRootURI = URI;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.server.model.ArchiverConfiguration#getArchiverHadoopURI
-	 * ()
-	 */
-	@Override
 	public String getArchiverRootURI() {
 		return archiverRootURI;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.server.model.ArchiverConfiguration#setIndexNames(java
-	 * .util.List)
-	 */
-	@Override
-	public void setIndexNames(List<String> indexNames) {
-		this.indexNames = indexNames;
-	}
 }

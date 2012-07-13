@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver;
 
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
 import static java.util.Arrays.*;
 
 import java.io.File;
@@ -59,7 +58,9 @@ public class StartUpCleaner {
 	 *         cleaned at start up.
 	 */
 	public static StartUpCleaner create() {
-		return new StartUpCleaner(asList(getThawLocksDirectory(),
-				getThawTransfersDirectory()));
+		LocalFileSystemPaths fileSystemConstants = LocalFileSystemPaths.create();
+		return new StartUpCleaner(asList(
+				fileSystemConstants.getThawLocksDirectory(),
+				fileSystemConstants.getThawTransfersDirectory()));
 	}
 }

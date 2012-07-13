@@ -14,8 +14,10 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.usecases;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -24,6 +26,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
@@ -46,15 +49,18 @@ public class ExportCsvFunctionalTest {
 	private ArchiveBucketsLister bucketsLister;
 	private BucketFormatResolver bucketFormatResolver;
 	private Bucket bucket;
+	private File archiverData;
 
 	@BeforeMethod
 	public void setUp() {
+		archiverData = createDirectory();
 		ArchiveConfiguration csvConfig = TUtilsFunctional
 				.getLocalCsvArchiveConfigration();
 		ArchiveFileSystem localFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(csvConfig);
 		csvBucketArchiver = BucketArchiverFactory
-				.createWithConfigurationAndArchiveFileSystem(csvConfig, localFileSystem);
+				.createWithConfFileSystemAndCsvDirectory(csvConfig, localFileSystem,
+						new LocalFileSystemPaths(archiverData.getAbsolutePath()));
 		PathResolver pathResolver = new PathResolver(csvConfig);
 		ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
 				pathResolver, localFileSystem);
@@ -70,6 +76,7 @@ public class ExportCsvFunctionalTest {
 	@AfterMethod
 	public void tearDown() {
 		FileUtils.deleteQuietly(bucket.getDirectory());
+		FileUtils.deleteQuietly(archiverData);
 	}
 
 	@Parameters(value = { "splunk.home" })

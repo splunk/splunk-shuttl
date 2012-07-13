@@ -14,17 +14,22 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.usecases;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static java.util.Arrays.*;
 import static org.testng.Assert.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
@@ -42,6 +47,7 @@ public class TwoFormatsFunctionalTest {
 	private BucketArchiver bucketArchiver;
 	private PathResolver pathResolver;
 	private ArchiveFileSystem archiveFileSystem;
+	private File archiverData;
 
 	@BeforeMethod
 	public void setUp() {
@@ -49,9 +55,16 @@ public class TwoFormatsFunctionalTest {
 				.getLocalConfigurationThatArchivesFormats(asList(
 						BucketFormat.SPLUNK_BUCKET, BucketFormat.CSV));
 		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
-		pathResolver = new PathResolver(config);
+		archiverData = createDirectory();
 		bucketArchiver = BucketArchiverFactory
-				.createWithConfigurationAndArchiveFileSystem(config, archiveFileSystem);
+				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+						new LocalFileSystemPaths(archiverData.getAbsolutePath()));
+		pathResolver = new PathResolver(config);
+	}
+
+	@AfterMethod
+	public void tearDown() {
+		FileUtils.deleteQuietly(archiverData);
 	}
 
 	@Parameters(value = { "splunk.home" })

@@ -15,7 +15,6 @@
 
 package com.splunk.shuttl.archiver.archive;
 
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -31,6 +30,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
+import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
 /**
@@ -40,19 +40,25 @@ import com.splunk.shuttl.testutil.TUtilsFile;
 public class BucketFreezerSystemExitTest {
 
 	Runtime runtimeMock;
-	private BucketFreezer bucketFreezer;
+	BucketFreezer bucketFreezer;
+	BucketFreezerProvider bucketFreezerProvider;
+	File testDir;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
 		runtimeMock = mock(Runtime.class);
-		bucketFreezer = new BucketFreezer(new BucketMover(getSafeDirectory()),
-				new BucketLockerInTestDir(createDirectory()),
-				mock(ArchiveRestHandler.class), mock(FailedBucketsArchiver.class));
+		testDir = createDirectory();
+		bucketFreezer = new BucketFreezer(new BucketMover(testDir),
+				new BucketLockerInTestDir(testDir), mock(ArchiveRestHandler.class),
+				mock(FailedBucketsArchiver.class));
+		bucketFreezerProvider = mock(BucketFreezerProvider.class);
+		stub(bucketFreezerProvider.getConfiguredBucketFreezer()).toReturn(
+				bucketFreezer);
 	}
 
 	@AfterMethod(groups = { "fast-unit" })
 	public void tearDown() throws IOException {
-		FileUtils.deleteDirectory(getArchiverDirectory());
+		FileUtils.deleteDirectory(testDir);
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -87,8 +93,7 @@ public class BucketFreezerSystemExitTest {
 
 	public void main_fileNotADirectory_exitWithFileNotADirectoryConstant()
 			throws IOException {
-		File file = File.createTempFile("ArchiveTest", ".tmp");
-		file.deleteOnExit();
+		File file = createFile();
 		assertTrue(!file.isDirectory());
 		runMainWithDepentencies_withArguments("index-name", file.getAbsolutePath());
 		verify(runtimeMock).exit(BucketFreezer.EXIT_FILE_NOT_A_DIRECTORY);
@@ -101,7 +106,8 @@ public class BucketFreezerSystemExitTest {
 	}
 
 	private void runMainWithDepentencies_withArguments(String... args) {
-		BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezer, args);
+		BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezerProvider,
+				mock(RegistersMBeans.class), args);
 	}
 
 }

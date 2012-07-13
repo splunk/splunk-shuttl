@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.bucketlock;
 
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
@@ -27,7 +26,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.bucketlock.BucketLock;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -51,11 +50,6 @@ public class BucketLockTest {
 	public void tearDown() throws IOException {
 		FileUtils.deleteDirectory(testRootDirectory);
 		FileUtils.deleteDirectory(locksDirectory);
-	}
-
-	@AfterTest
-	public void deleteDefaultBucketLockDirectory() throws IOException {
-		FileUtils.deleteDirectory(getArchiverDirectory());
 	}
 
 	@Test(groups = { "fast-unit" })

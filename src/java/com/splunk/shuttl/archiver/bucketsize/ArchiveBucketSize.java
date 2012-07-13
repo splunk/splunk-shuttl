@@ -86,16 +86,16 @@ public class ArchiveBucketSize {
 	 * Instance with path resolver and archive file system.
 	 */
 	public static ArchiveBucketSize create(PathResolver pathResolver,
-			ArchiveFileSystem archiveFileSystem) {
-		return new ArchiveBucketSize(pathResolver, new BucketSizeIO(
-				archiveFileSystem), archiveFileSystem);
+			ArchiveFileSystem archiveFileSystem, BucketSizeIO bucketSizeIO) {
+		return new ArchiveBucketSize(pathResolver, bucketSizeIO, archiveFileSystem);
 	}
 
 	/**
 	 * Instance from config.
 	 */
-	public static ArchiveBucketSize create(ArchiveConfiguration config) {
+	public static ArchiveBucketSize create(ArchiveConfiguration config,
+			BucketSizeIO bucketSizeIO) {
 		return create(new PathResolver(config),
-				ArchiveFileSystemFactory.getWithConfiguration(config));
+				ArchiveFileSystemFactory.getWithConfiguration(config), bucketSizeIO);
 	}
 }

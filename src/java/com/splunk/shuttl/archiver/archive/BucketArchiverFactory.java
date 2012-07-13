@@ -14,9 +14,13 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
+import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
+import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 
 /**
  * Construction code for creating BucketArchivers that archives in different
@@ -29,28 +33,44 @@ public class BucketArchiverFactory {
 	 */
 	public static BucketArchiver createConfiguredArchiver() {
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-		return createWithConfiguration(config);
+		return createWithConfiguration(config, LocalFileSystemPaths.create());
 	}
 
 	/**
 	 * Testability with specified configuration.
 	 */
 	public static BucketArchiver createWithConfiguration(
-			ArchiveConfiguration config) {
+			ArchiveConfiguration config, LocalFileSystemPaths localFileSystemPaths) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
-		return createWithConfigurationAndArchiveFileSystem(config,
-				archiveFileSystem);
+		return createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+				localFileSystemPaths);
 	}
 
 	/**
-	 * Testability with both configuration and archive file system.
+	 * @param config
+	 *          for configuring the archiver
+	 * @param archiveFileSystem
+	 *          for storing the files
+	 * @param csvDirectory
+	 *          for storing csv exports.
+	 * @return a {@link BucketArchiver} to archive with the specified
+	 *         configuration.
 	 */
-	public static BucketArchiver createWithConfigurationAndArchiveFileSystem(
-			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem) {
-		return new BucketArchiver(BucketExporter.create(),
-				ArchiveBucketTransferer.create(archiveFileSystem, config),
-				BucketDeleter.create(), config.getArchiveFormats());
+	public static BucketArchiver createWithConfFileSystemAndCsvDirectory(
+			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem,
+			LocalFileSystemPaths localFileSystemPaths) {
+		CsvExporter csvExporter = CsvExporter.create(localFileSystemPaths
+				.getCsvDirectory());
+		PathResolver pathResolver = new PathResolver(config);
+		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
+				localFileSystemPaths);
+		ArchiveBucketSize archiveBucketSize = new ArchiveBucketSize(pathResolver,
+				bucketSizeIO, archiveFileSystem);
+		return new BucketArchiver(BucketExporter.create(csvExporter),
+				new ArchiveBucketTransferer(archiveFileSystem, pathResolver,
+						archiveBucketSize), BucketDeleter.create(),
+				config.getArchiveFormats());
 
 	}
 }

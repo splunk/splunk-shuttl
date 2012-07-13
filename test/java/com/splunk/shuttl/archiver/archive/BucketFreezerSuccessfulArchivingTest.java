@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
-import static com.splunk.shuttl.archiver.LocalFileSystemConstants.*;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -33,8 +32,8 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
-import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
+import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
@@ -51,8 +50,8 @@ public class BucketFreezerSuccessfulArchivingTest {
 	ArchiveRestHandler archiveRestHandler;
 	FailedBucketsArchiver failedBucketsArchiver;
 
-	@BeforeMethod(groups = { "fast-unit" })
-	public void beforeClass() throws ClientProtocolException, IOException {
+	@BeforeMethod
+	public void setUp() throws ClientProtocolException, IOException {
 		tempTestDirectory = createDirectory();
 		archiveRestHandler = mock(ArchiveRestHandler.class);
 		failedBucketsArchiver = mock(FailedBucketsArchiver.class);
@@ -61,10 +60,9 @@ public class BucketFreezerSuccessfulArchivingTest {
 				failedBucketsArchiver);
 	}
 
-	@AfterMethod(groups = { "fast-unit" })
-	public void tearDownFast() {
+	@AfterMethod
+	public void tearDown() {
 		FileUtils.deleteQuietly(tempTestDirectory);
-		FileUtils.deleteQuietly(getArchiverDirectory());
 	}
 
 	@Test(groups = { "fast-unit" })

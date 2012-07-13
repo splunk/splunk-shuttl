@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive.recovery;
 
-import com.splunk.shuttl.archiver.LocalFileSystemConstants;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -24,7 +24,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 public class ArchiveBucketLock extends BucketLock {
 
 	public ArchiveBucketLock(Bucket bucket) {
-		super(bucket, LocalFileSystemConstants.getArchiveLocksDirectory());
+		super(bucket, LocalFileSystemPaths.create().getArchiveLocksDirectory());
 	}
 
 }

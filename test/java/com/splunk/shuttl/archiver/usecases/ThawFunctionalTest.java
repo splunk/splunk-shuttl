@@ -27,6 +27,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
@@ -49,25 +50,33 @@ public class ThawFunctionalTest {
 	private File thawDirectory;
 	private BucketThawer bucketThawer;
 	private ArchiveConfiguration config;
+	private File archiverData;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
 		thawIndex = "someIndex";
 		config = getLocalFileSystemConfiguration();
 		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
+		archiverData = createDirectory();
+		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
+				archiverData.getAbsolutePath());
 		bucketArchiver = BucketArchiverFactory
-				.createWithConfigurationAndArchiveFileSystem(config, archiveFileSystem);
+				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+						localFileSystemPaths);
 		thawDirectory = TUtilsFile.createDirectory();
 
 		SplunkSettings splunkSettings = mock(SplunkSettings.class);
 		when(splunkSettings.getThawLocation(thawIndex)).thenReturn(thawDirectory);
-		bucketThawer = BucketThawerFactory.createWithSplunkSettingsAndConfig(
-				splunkSettings, config);
+
+		bucketThawer = BucketThawerFactory
+				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
+						splunkSettings, localFileSystemPaths);
 	}
 
 	@AfterMethod
 	public void tearDown() {
 		FileUtils.deleteQuietly(thawDirectory);
+		FileUtils.deleteQuietly(archiverData);
 		tearDownLocalConfig(config);
 	}
 
