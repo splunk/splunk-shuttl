@@ -38,13 +38,13 @@ public class MovesBucketsTest {
 	private Bucket bucket;
 	private File directoryToMoveTo;
 
-	@BeforeMethod
+	@BeforeMethod(alwaysRun = true)
 	public void setUp() {
 		bucket = TUtilsBucket.createBucket();
 		directoryToMoveTo = TUtilsFile.createDirectory();
 	}
 
-	@AfterMethod
+	@AfterMethod(alwaysRun = true)
 	public void tearDown() {
 		FileUtils.deleteQuietly(directoryToMoveTo);
 	}
