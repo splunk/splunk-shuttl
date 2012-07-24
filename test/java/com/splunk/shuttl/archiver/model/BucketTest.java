@@ -20,14 +20,10 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -118,79 +114,6 @@ public class BucketTest {
 				.getAbsolutePath());
 	}
 
-	public void moveBucket_givenExistingDirectory_keepIndexFormatAndBucketName()
-			throws IOException {
-		Bucket bucket = TUtilsBucket.createBucket();
-		File directoryToMoveTo = TUtilsFile.createDirectory();
-
-		Bucket movedBucket = bucket.moveBucketToDir(directoryToMoveTo);
-
-		boolean isMovedBucketAChildOfDirectoryMovedTo = movedBucket.getDirectory()
-				.getAbsolutePath().contains(directoryToMoveTo.getAbsolutePath());
-		assertTrue(isMovedBucketAChildOfDirectoryMovedTo);
-
-		// Sanity checks.
-		Assert.assertEquals(movedBucket.getName(), bucket.getName());
-		Assert.assertEquals(movedBucket.getIndex(), bucket.getIndex());
-		Assert.assertTrue(!bucket.getDirectory().getAbsolutePath()
-				.equals(movedBucket.getDirectory().getAbsolutePath()));
-
-		// Teardown
-		FileUtils.deleteDirectory(directoryToMoveTo);
-	}
-
-	public void moveBucket_givenExistingDirectory_removeOldBucket()
-			throws IOException {
-		Bucket bucket = TUtilsBucket.createBucket();
-		File directoryToMoveTo = TUtilsFile.createDirectory();
-		File oldPath = new File(bucket.getDirectory().getAbsolutePath());
-		bucket.moveBucketToDir(directoryToMoveTo);
-
-		Assert.assertFalse(oldPath.exists());
-
-		// Teardown
-		FileUtils.deleteDirectory(directoryToMoveTo);
-	}
-
-	@Test(expectedExceptions = { FileNotDirectoryException.class })
-	public void moveBucket_givenNonDirectory_throwFileNotDirectoryException() {
-		File file = TUtilsFile.createFile();
-		TUtilsBucket.createBucket().moveBucketToDir(file);
-	}
-
-	@Test(expectedExceptions = { DirectoryDidNotExistException.class })
-	public void moveBucket_givenNonExistingDirectory_throwFileNotFoundException() {
-		File nonExistingDir = new File("non-existing-dir");
-		nonExistingDir.mkdirs();
-		FileUtils.deleteQuietly(nonExistingDir);
-		TUtilsBucket.createBucket().moveBucketToDir(nonExistingDir);
-	}
-
-	public void moveBucket_givenDirectoryWithContents_contentShouldBeMoved()
-			throws IOException {
-		// Setup
-		Bucket bucket = TUtilsBucket.createBucket();
-		String contentsFileName = "contents";
-		// Creation
-		File contents = TUtilsFile.createFileInParent(bucket.getDirectory(),
-				contentsFileName);
-		TUtilsFile.populateFileWithRandomContent(contents);
-		File directoryToMoveTo = TUtilsFile.createDirectory();
-		List<String> contentLines = IOUtils.readLines(new FileReader(contents));
-
-		// Test
-		Bucket movedBucket = bucket.moveBucketToDir(directoryToMoveTo);
-		File movedContents = new File(movedBucket.getDirectory().getAbsolutePath(),
-				contentsFileName);
-		assertTrue(movedContents.exists());
-		assertTrue(!contents.exists());
-		List<String> movedContentLines = IOUtils.readLines(new FileReader(
-				movedContents));
-		assertEquals(contentLines, movedContentLines);
-
-		// Teardown
-		FileUtils.deleteDirectory(directoryToMoveTo);
-	}
 
 	public void deleteBucket_createdValidBucket_bucketRemovedFromFileSystem()
 			throws IOException {
@@ -217,15 +140,6 @@ public class BucketTest {
 		Bucket bucket1 = new Bucket(index, absolutePath);
 		Bucket bucket2 = new Bucket(index, absolutePath);
 		assertEquals(bucket1, bucket2);
-	}
-
-	public void getFormat_afterHaveBeingMoved_returnTheSameValueAsBeforeTheMove()
-			throws IOException {
-		rootTestDirectory = createDirectory();
-		Bucket bucket = TUtilsBucket.createBucket();
-		BucketFormat format = bucket.getFormat();
-		bucket.moveBucketToDir(rootTestDirectory);
-		assertEquals(format, bucket.getFormat());
 	}
 
 	public void getURI_validBucket_notNullURI() {

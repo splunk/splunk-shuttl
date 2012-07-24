@@ -197,17 +197,6 @@ public class Bucket {
 	}
 
 	/**
-	 * Moves the bucket.
-	 * 
-	 * @param destinationDirectory
-	 *          destination directory
-	 * @return a handle to the "new" bucket
-	 */
-	public Bucket moveBucketToDir(File destinationDirectory) {
-		return MovesBuckets.moveBucket(this, destinationDirectory);
-	}
-
-	/**
 	 * Deletes the bucket from the file system.
 	 * 
 	 * @throws IOException

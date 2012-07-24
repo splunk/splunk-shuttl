@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
+import com.splunk.shuttl.archiver.model.MovesBuckets;
 
 /**
  * Preserves a bucket's index while moving it, by moving the bucket to a
@@ -65,7 +66,7 @@ public class IndexPreservingBucketMover {
 			Bucket bucket) {
 		File indexDirectory = new File(movedBucketsLocation, bucket.getIndex());
 		indexDirectory.mkdirs();
-		return bucket.moveBucketToDir(indexDirectory);
+		return MovesBuckets.moveBucket(bucket, indexDirectory);
 	}
 
 	/**
