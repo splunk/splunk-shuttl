@@ -113,8 +113,8 @@ public class CsvImporter {
 	}
 
 	private Bucket createNewBucket(Bucket bucket) {
-		return bucketFactory.createWithIndexAndDirectory(bucket.getIndex(),
-				bucket.getDirectory());
+		return bucketFactory.createWithIndexDirectoryAndFormat(bucket.getIndex(),
+				bucket.getDirectory(), BucketFormat.SPLUNK_BUCKET);
 	}
 
 	/**

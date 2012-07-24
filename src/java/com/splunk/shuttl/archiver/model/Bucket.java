@@ -53,19 +53,10 @@ public class Bucket {
 	 * @throws FileNotDirectoryException
 	 *           if the file is not a directory
 	 */
-	public Bucket(String indexName, File directory) throws FileNotFoundException,
-			FileNotDirectoryException {
-		this(directory.toURI(), directory, indexName, directory.getName(),
-				BucketFormat.getFormatFromDirectory(directory), null);
-	}
-
-	/**
-	 * Invokes {@link #Bucket(String, File)}, by creating a file from specified
-	 * bucketPath
-	 */
-	public Bucket(String indexName, String bucketPath)
+	public Bucket(String indexName, File directory, BucketFormat format)
 			throws FileNotFoundException, FileNotDirectoryException {
-		this(indexName, new File(bucketPath));
+		this(directory.toURI(), directory, indexName, directory.getName(), format,
+				null);
 	}
 
 	/**

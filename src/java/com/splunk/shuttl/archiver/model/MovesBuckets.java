@@ -21,7 +21,6 @@ import java.io.FileNotFoundException;
 
 import org.apache.log4j.Logger;
 
-
 /**
  * Moves a Bucket to a destination
  */
@@ -47,8 +46,8 @@ public class MovesBuckets {
 				originDirectory.getName());
 		if (!originDirectory.renameTo(newDirectory))
 			logMoveFailureAndThrowException(bucket, destinationDirectory);
-		return BucketFactory.createBucketWithIndexAndDirectory(bucket.getIndex(),
-				newDirectory);
+		return BucketFactory.createBucketWithIndexDirectoryAndFormat(
+				bucket.getIndex(), newDirectory, bucket.getFormat());
 	}
 
 	private static void verifyValidityOfDestination(File destinationDirectory) {

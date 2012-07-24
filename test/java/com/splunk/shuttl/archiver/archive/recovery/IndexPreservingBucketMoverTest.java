@@ -34,7 +34,7 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
 @Test(groups = { "fast-unit" })
-public class BucketMoverTest {
+public class IndexPreservingBucketMoverTest {
 
 	IndexPreservingBucketMover bucketMover;
 	File moveBucketLocation;

@@ -17,14 +17,15 @@ package com.splunk.shuttl.archiver.archive;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LogFormatter;
-import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
@@ -53,8 +54,8 @@ public class BucketFreezer {
 	private final FailedBucketsArchiver failedBucketsArchiver;
 	private final ArchiveRestHandler archiveRestHandler;
 
-	public BucketFreezer(IndexPreservingBucketMover bucketMover, BucketLocker bucketLocker,
-			ArchiveRestHandler archiveRestHandler,
+	public BucketFreezer(IndexPreservingBucketMover bucketMover,
+			BucketLocker bucketLocker, ArchiveRestHandler archiveRestHandler,
 			FailedBucketsArchiver failedBucketsArchiver) {
 		this.bucketMover = bucketMover;
 		this.bucketLocker = bucketLocker;
@@ -92,7 +93,8 @@ public class BucketFreezer {
 
 	private void moveAndArchiveBucket(String indexName, String path)
 			throws FileNotFoundException, FileNotDirectoryException {
-		Bucket bucket = new Bucket(indexName, path);
+		Bucket bucket = new Bucket(indexName, new File(path),
+				BucketFormat.SPLUNK_BUCKET);
 
 		bucketLocker.callBucketHandlerUnderSharedLock(bucket,
 				new MoveAndArchiveBucketUnderLock(bucketMover, archiveRestHandler));

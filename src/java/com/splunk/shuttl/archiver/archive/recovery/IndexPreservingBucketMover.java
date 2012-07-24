@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
@@ -29,12 +30,26 @@ import com.splunk.shuttl.archiver.model.MovesBuckets;
 
 /**
  * Preserves a bucket's index while moving it, by moving the bucket to a
- * directory that has the bucket's index name.
+ * directory that has the bucket's index name. <br/>
+ * <br/>
+ * Note: This class is used right when the buckets are being archived, before
+ * any format changes are being made to the buckets. This means that the class
+ * will only handle {@link BucketFormat#SPLUNK_BUCKET}. If the class want's to
+ * be re-used with other formats, then the formats would need to be preserved
+ * with a directory structure, like the indexes are preserved.
  */
 public class IndexPreservingBucketMover {
 
 	private final static Logger logger = Logger
 			.getLogger(IndexPreservingBucketMover.class);
+
+	/**
+	 * Read the class comment to understand what this means.
+	 * 
+	 * @see IndexPreservingBucketMover
+	 */
+	private static final BucketFormat ONLY_VALID_BUCKET_FORMAT = BucketFormat.SPLUNK_BUCKET;
+
 	private final File movedBucketsLocation;
 
 	/**
@@ -92,8 +107,8 @@ public class IndexPreservingBucketMover {
 		File[] bucketsInIndex = file.listFiles();
 		if (bucketsInIndex != null)
 			for (File bucket : bucketsInIndex)
-				movedBuckets.add(BucketFactory.createBucketWithIndexAndDirectory(index,
-						bucket));
+				movedBuckets.add(BucketFactory.createBucketWithIndexDirectoryAndFormat(
+						index, bucket, ONLY_VALID_BUCKET_FORMAT));
 	}
 
 	/**

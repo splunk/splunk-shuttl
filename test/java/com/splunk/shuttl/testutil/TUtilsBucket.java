@@ -78,7 +78,7 @@ public class TUtilsBucket {
 			File bucketDir) {
 		Bucket testBucket = null;
 		try {
-			testBucket = new Bucket(index, bucketDir);
+			testBucket = new Bucket(index, bucketDir, BucketFormat.SPLUNK_BUCKET);
 		} catch (Exception e) {
 			TUtilsTestNG.failForException("Couldn't create a test bucket", e);
 			throw new RuntimeException(
@@ -212,7 +212,7 @@ public class TUtilsBucket {
 		File copyBucketDir = createDirectoryInParent(createDirectory(),
 				realBucketDir.getName());
 		copyDirectory(realBucketDir, copyBucketDir);
-		return new Bucket("index", copyBucketDir);
+		return new Bucket("index", copyBucketDir, BucketFormat.SPLUNK_BUCKET);
 	}
 
 	private static void copyDirectory(File from, File to) {

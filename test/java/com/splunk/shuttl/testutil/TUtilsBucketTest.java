@@ -89,7 +89,7 @@ public class TUtilsBucketTest {
 		File bucketDir = TUtilsBucket
 				.createFileFormatedAsBucket("db_12351290_12351235_1");
 		try {
-			new Bucket("index-name", bucketDir);
+			new Bucket("index-name", bucketDir, BucketFormat.SPLUNK_BUCKET);
 		} catch (Exception e) {
 			TUtilsTestNG.failForException("Coudn't create a valid bucket dir", e);
 		}

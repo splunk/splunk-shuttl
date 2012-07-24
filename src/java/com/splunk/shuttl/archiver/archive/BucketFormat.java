@@ -15,41 +15,7 @@
 
 package com.splunk.shuttl.archiver.archive;
 
-import java.io.File;
-
-import com.splunk.shuttl.archiver.util.UtilsFile;
-
 public enum BucketFormat {
 	SPLUNK_BUCKET, UNKNOWN, CSV;
-
-	/**
-	 * @param directory
-	 *          to a bucket
-	 * @return format depending on what is in the bucket directory.
-	 */
-	public static BucketFormat getFormatFromDirectory(File directory) {
-		if (isSplunkBucketFormat(directory))
-			return BucketFormat.SPLUNK_BUCKET;
-		else if (isCsvBucketFormat(directory))
-			return BucketFormat.CSV;
-		else
-			return BucketFormat.UNKNOWN;
-	}
-
-	private static boolean isSplunkBucketFormat(File directory) {
-		File rawdataInDirectory = new File(directory, "rawdata");
-		return rawdataInDirectory.exists();
-	}
-
-	private static boolean isCsvBucketFormat(File directory) {
-		File[] filesInDirectory = directory.listFiles();
-		if (filesInDirectory != null && filesInDirectory.length == 1)
-			return isCsvFile(filesInDirectory[0]);
-		return false;
-	}
-
-	private static boolean isCsvFile(File file) {
-		return UtilsFile.isCsvFile(file);
-	}
 
 }
