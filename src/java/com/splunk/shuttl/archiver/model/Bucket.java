@@ -202,33 +202,9 @@ public class Bucket {
 	 * @param destinationDirectory
 	 *          destination directory
 	 * @return a handle to the "new" bucket
-	 * @throws FileNotFoundException
-	 *           if the destination directory does not exist
-	 * @throws FileNotDirectoryException
 	 */
 	public Bucket moveBucketToDir(File destinationDirectory) {
-		if (!destinationDirectory.exists())
-			throw new DirectoryDidNotExistException("Cannot move bucket to: "
-					+ destinationDirectory.getAbsolutePath()
-					+ ", because directory did not exist.");
-		if (!destinationDirectory.isDirectory())
-			throw new FileNotDirectoryException("Cannot move bucket to: "
-					+ destinationDirectory.getAbsolutePath()
-					+ ", because it's not a directory");
-		logger.debug(will("Attempting to move bucket", "bucket", this,
-				"destination", destinationDirectory));
-		File originDirectory = getDirectory();
-		File newName = new File(destinationDirectory, originDirectory.getName());
-		if (!originDirectory.renameTo(newName))
-			logMoveFailureAndThrowException(destinationDirectory);
-		return BucketFactory.createBucketWithIndexAndDirectory(getIndex(), newName);
-	}
-
-	private void logMoveFailureAndThrowException(File destinationDirectory) {
-		logger.error(did("Attempted to move bucket", "move failed", null, "bucket",
-				this, "destination", destinationDirectory));
-		throw new RuntimeException("Couldn't move bucket to destination: "
-				+ destinationDirectory);
+		return MovesBuckets.moveBucket(this, destinationDirectory);
 	}
 
 	/**
