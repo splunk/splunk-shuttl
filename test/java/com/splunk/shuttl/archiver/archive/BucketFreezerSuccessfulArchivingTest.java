@@ -55,7 +55,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 		tempTestDirectory = createDirectory();
 		archiveRestHandler = mock(ArchiveRestHandler.class);
 		failedBucketsArchiver = mock(FailedBucketsArchiver.class);
-		bucketFreezer = new BucketFreezer(new BucketMover(tempTestDirectory),
+		bucketFreezer = new BucketFreezer(BucketMover.create(tempTestDirectory),
 				new BucketLockerInTestDir(tempTestDirectory), archiveRestHandler,
 				failedBucketsArchiver);
 	}

@@ -131,7 +131,7 @@ public class ArchiverEndToEndTest {
 	private BucketFreezer getSuccessfulBucketFreezer() {
 		File movedBucketsLocation = createDirectoryInParent(tempDirectory,
 				ArchiverEndToEndTest.class.getName() + "-safeBuckets");
-		BucketMover bucketMover = new BucketMover(movedBucketsLocation);
+		BucketMover bucketMover = BucketMover.create(movedBucketsLocation);
 		BucketLocker bucketLocker = new BucketLockerInTestDir(
 				createDirectoryInParent(tempDirectory, "bucketlocks"));
 		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(

@@ -48,7 +48,7 @@ public class BucketFreezerSystemExitTest {
 	public void setUp() {
 		runtimeMock = mock(Runtime.class);
 		testDir = createDirectory();
-		bucketFreezer = new BucketFreezer(new BucketMover(testDir),
+		bucketFreezer = new BucketFreezer(BucketMover.create(testDir),
 				new BucketLockerInTestDir(testDir), mock(ArchiveRestHandler.class),
 				mock(FailedBucketsArchiver.class));
 		bucketFreezerProvider = mock(BucketFreezerProvider.class);

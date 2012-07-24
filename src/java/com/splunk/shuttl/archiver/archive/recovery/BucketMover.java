@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 
 /**
  * Class for moving buckets to the location passed to
@@ -38,7 +39,7 @@ public class BucketMover {
 	 * @param movedBucketsLocationPath
 	 *          path to the failed buckets location
 	 */
-	public BucketMover(File movedBucketsLocation) {
+	private BucketMover(File movedBucketsLocation) {
 		this.movedBucketsLocation = movedBucketsLocation;
 	}
 
@@ -91,6 +92,41 @@ public class BucketMover {
 			for (File bucket : bucketsInIndex)
 				movedBuckets.add(BucketFactory.createBucketWithIndexAndDirectory(index,
 						bucket));
+	}
+
+	/**
+	 * @param moveLocationDirectory
+	 *          where the buckets will be moved to.
+	 * @return instance of a BucketMover.
+	 * @throws FileNotDirectoryException
+	 *           when the file is not a directory.
+	 * @throws DirectoryNotCreatableException
+	 *           if the file doesn't exist and the file cannot be created as a
+	 *           directory.
+	 */
+	public static BucketMover create(File moveLocationDirectory) {
+		verifyMoveLocationRequirements(moveLocationDirectory);
+		return new BucketMover(moveLocationDirectory);
+	}
+
+	private static void verifyMoveLocationRequirements(File file) {
+		if (file.exists())
+			verifyThatFileIsADirectory(file);
+		else
+			verifyThatFileCanBeCreatedAsADirectory(file);
+	}
+
+	private static void verifyThatFileIsADirectory(File file) {
+		if (!file.isDirectory())
+			throw new FileNotDirectoryException(
+					"BucketMover's move location needs to be a directory. Was file: "
+							+ file);
+	}
+
+	private static void verifyThatFileCanBeCreatedAsADirectory(File file) {
+		if (!file.mkdirs())
+			throw new DirectoryNotCreatableException(
+					"Could not create BucketMover's move location: " + file);
 	}
 
 }

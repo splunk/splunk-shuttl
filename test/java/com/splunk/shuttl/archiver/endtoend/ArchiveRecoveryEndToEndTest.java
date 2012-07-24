@@ -83,8 +83,8 @@ public class ArchiveRecoveryEndToEndTest {
 		pathResolver = new PathResolver(config);
 		hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
 
-		BucketMover bucketMover = new BucketMover(
-				localFileSystemPaths.getSafeDirectory());
+		BucketMover bucketMover = BucketMover.create(localFileSystemPaths
+				.getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(
 				TUtilsMockito.createInternalServerErrorHttpClientMock());

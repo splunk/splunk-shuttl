@@ -39,7 +39,7 @@ public class BucketFreezerProvider {
 	 *           if archiver MBean is not registered.
 	 */
 	public BucketFreezer getConfiguredBucketFreezer() {
-		BucketMover bucketMover = new BucketMover(LocalFileSystemPaths.create()
+		BucketMover bucketMover = BucketMover.create(LocalFileSystemPaths.create()
 				.getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
