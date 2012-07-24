@@ -14,12 +14,12 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
- * Moves the bucket with the {@link BucketMover} and archives it with the
+ * Moves the bucket with the {@link IndexPreservingBucketMover} and archives it with the
  * {@link ArchiveRestHandler}. <br/>
  * <br/>
  * Implements {@link SharedLockBucketHandler} so it can do this safely with the
@@ -27,14 +27,14 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class MoveAndArchiveBucketUnderLock implements SharedLockBucketHandler {
 
-	private final BucketMover bucketMover;
+	private final IndexPreservingBucketMover bucketMover;
 	private final ArchiveRestHandler archiveRestHandler;
 
 	/**
 	 * @param bucketMover
 	 * @param archiveRestHandler
 	 */
-	public MoveAndArchiveBucketUnderLock(BucketMover bucketMover,
+	public MoveAndArchiveBucketUnderLock(IndexPreservingBucketMover bucketMover,
 			ArchiveRestHandler archiveRestHandler) {
 		this.bucketMover = bucketMover;
 		this.archiveRestHandler = archiveRestHandler;

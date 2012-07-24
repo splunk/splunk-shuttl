@@ -36,13 +36,13 @@ import com.splunk.shuttl.testutil.TUtilsFile;
 @Test(groups = { "fast-unit" })
 public class BucketMoverTest {
 
-	BucketMover bucketMover;
+	IndexPreservingBucketMover bucketMover;
 	File moveBucketLocation;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
 		moveBucketLocation = TUtilsFile.createDirectory();
-		bucketMover = BucketMover.create(moveBucketLocation);
+		bucketMover = IndexPreservingBucketMover.create(moveBucketLocation);
 	}
 
 	@AfterMethod(groups = { "fast-unit" })
@@ -52,7 +52,7 @@ public class BucketMoverTest {
 
 	@Test(expectedExceptions = { FileNotDirectoryException.class })
 	public void create_givenNonDirectory_throwFileNotDirectoryException() {
-		BucketMover.create(createFile());
+		IndexPreservingBucketMover.create(createFile());
 	}
 
 	@Test(expectedExceptions = { DirectoryNotCreatableException.class })
@@ -61,7 +61,7 @@ public class BucketMoverTest {
 		when(nonCreatableFile.exists()).thenReturn(false);
 		when(nonCreatableFile.mkdirs()).thenReturn(false);
 
-		BucketMover.create(nonCreatableFile);
+		IndexPreservingBucketMover.create(nonCreatableFile);
 	}
 
 	@Test(groups = { "fast-unit" })

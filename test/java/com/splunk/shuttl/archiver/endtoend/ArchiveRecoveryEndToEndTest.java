@@ -34,7 +34,7 @@ import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.archive.BucketFreezer;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -83,7 +83,7 @@ public class ArchiveRecoveryEndToEndTest {
 		pathResolver = new PathResolver(config);
 		hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
 
-		BucketMover bucketMover = BucketMover.create(localFileSystemPaths
+		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover.create(localFileSystemPaths
 				.getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(

@@ -23,7 +23,7 @@ import java.util.Arrays;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LogFormatter;
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -48,12 +48,12 @@ public class BucketFreezer {
 	public static final int EXIT_FILE_NOT_FOUND = 13;
 	public static final int EXIT_COULD_NOT_CONFIGURE_BUCKET_FREEZER = 14;
 
-	private final BucketMover bucketMover;
+	private final IndexPreservingBucketMover bucketMover;
 	private final BucketLocker bucketLocker;
 	private final FailedBucketsArchiver failedBucketsArchiver;
 	private final ArchiveRestHandler archiveRestHandler;
 
-	public BucketFreezer(BucketMover bucketMover, BucketLocker bucketLocker,
+	public BucketFreezer(IndexPreservingBucketMover bucketMover, BucketLocker bucketLocker,
 			ArchiveRestHandler archiveRestHandler,
 			FailedBucketsArchiver failedBucketsArchiver) {
 		this.bucketMover = bucketMover;

@@ -27,19 +27,20 @@ import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 
 /**
- * Class for moving buckets to the location passed to
- * {@link #BucketMover(String)}
+ * Preserves a bucket's index while moving it, by moving the bucket to a
+ * directory that has the bucket's index name.
  */
-public class BucketMover {
+public class IndexPreservingBucketMover {
 
-	private final static Logger logger = Logger.getLogger(BucketMover.class);
+	private final static Logger logger = Logger
+			.getLogger(IndexPreservingBucketMover.class);
 	private final File movedBucketsLocation;
 
 	/**
 	 * @param movedBucketsLocationPath
 	 *          path to the failed buckets location
 	 */
-	private BucketMover(File movedBucketsLocation) {
+	private IndexPreservingBucketMover(File movedBucketsLocation) {
 		this.movedBucketsLocation = movedBucketsLocation;
 	}
 
@@ -104,9 +105,9 @@ public class BucketMover {
 	 *           if the file doesn't exist and the file cannot be created as a
 	 *           directory.
 	 */
-	public static BucketMover create(File moveLocationDirectory) {
+	public static IndexPreservingBucketMover create(File moveLocationDirectory) {
 		verifyMoveLocationRequirements(moveLocationDirectory);
-		return new BucketMover(moveLocationDirectory);
+		return new IndexPreservingBucketMover(moveLocationDirectory);
 	}
 
 	private static void verifyMoveLocationRequirements(File file) {

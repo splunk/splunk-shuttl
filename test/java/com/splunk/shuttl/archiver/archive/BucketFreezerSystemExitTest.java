@@ -27,7 +27,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
@@ -48,7 +48,7 @@ public class BucketFreezerSystemExitTest {
 	public void setUp() {
 		runtimeMock = mock(Runtime.class);
 		testDir = createDirectory();
-		bucketFreezer = new BucketFreezer(BucketMover.create(testDir),
+		bucketFreezer = new BucketFreezer(IndexPreservingBucketMover.create(testDir),
 				new BucketLockerInTestDir(testDir), mock(ArchiveRestHandler.class),
 				mock(FailedBucketsArchiver.class));
 		bucketFreezerProvider = mock(BucketFreezerProvider.class);

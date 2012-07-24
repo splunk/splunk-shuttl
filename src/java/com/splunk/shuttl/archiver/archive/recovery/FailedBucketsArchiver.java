@@ -29,7 +29,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class FailedBucketsArchiver {
 
-	private final BucketMover bucketMover;
+	private final IndexPreservingBucketMover bucketMover;
 	private final BucketLocker bucketLocker;
 	private static Logger logger = Logger.getLogger(FailedBucketsArchiver.class);
 
@@ -37,7 +37,7 @@ public class FailedBucketsArchiver {
 	 * @param bucketMover
 	 *          for getting the failed buckets
 	 */
-	public FailedBucketsArchiver(BucketMover bucketMover,
+	public FailedBucketsArchiver(IndexPreservingBucketMover bucketMover,
 			BucketLocker bucketLocker) {
 		this.bucketMover = bucketMover;
 		this.bucketLocker = bucketLocker;

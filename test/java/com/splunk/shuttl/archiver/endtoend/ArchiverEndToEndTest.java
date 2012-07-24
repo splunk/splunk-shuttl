@@ -45,7 +45,7 @@ import com.splunk.Service;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.archive.BucketFreezer;
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
@@ -131,7 +131,7 @@ public class ArchiverEndToEndTest {
 	private BucketFreezer getSuccessfulBucketFreezer() {
 		File movedBucketsLocation = createDirectoryInParent(tempDirectory,
 				ArchiverEndToEndTest.class.getName() + "-safeBuckets");
-		BucketMover bucketMover = BucketMover.create(movedBucketsLocation);
+		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover.create(movedBucketsLocation);
 		BucketLocker bucketLocker = new BucketLockerInTestDir(
 				createDirectoryInParent(tempDirectory, "bucketlocks"));
 		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(

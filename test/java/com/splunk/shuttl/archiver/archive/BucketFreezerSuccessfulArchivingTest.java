@@ -30,7 +30,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
@@ -55,7 +55,7 @@ public class BucketFreezerSuccessfulArchivingTest {
 		tempTestDirectory = createDirectory();
 		archiveRestHandler = mock(ArchiveRestHandler.class);
 		failedBucketsArchiver = mock(FailedBucketsArchiver.class);
-		bucketFreezer = new BucketFreezer(BucketMover.create(tempTestDirectory),
+		bucketFreezer = new BucketFreezer(IndexPreservingBucketMover.create(tempTestDirectory),
 				new BucketLockerInTestDir(tempTestDirectory), archiveRestHandler,
 				failedBucketsArchiver);
 	}
