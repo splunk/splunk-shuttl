@@ -112,6 +112,13 @@ public class MovesBucketsTest {
 		assertEquals(bucket.getFormat(), movedBucket.getFormat());
 	}
 
+	@Test(groups = { "slow-unit" })
+	public void moveBucket_givenRealCsvBucket_keepsTheCsvFormat() {
+		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
+		Bucket movedBucket = MovesBuckets.moveBucket(csvBucket, directoryToMoveTo);
+		assertEquals(csvBucket.getFormat(), movedBucket.getFormat());
+	}
+
 	@Test(expectedExceptions = { RemoteBucketException.class })
 	public void moveBucketToDir_initWithNonFileUri_throwsRemoteBucketException()
 			throws FileNotFoundException, FileNotDirectoryException {

@@ -81,4 +81,11 @@ public class UtilsFile {
 			throw new RuntimeException(e);
 		}
 	}
+
+	/**
+	 * @return true if the file extension is csv
+	 */
+	public static boolean isCsvFile(File file) {
+		return file.getName().endsWith(".csv");
+	}
 }
