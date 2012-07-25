@@ -108,7 +108,7 @@ public class HadoopFileLocationPrototypeTest {
 
 	// Taken from org.apache.hadoop.hdfs.DFSClient
 	/** Create {@link ClientDatanodeProtocol} proxy using kerberos ticket */
-	static ClientDatanodeProtocol createClientDatanodeProtocolProxy(
+	public static ClientDatanodeProtocol createClientDatanodeProtocolProxy(
 			DatanodeID datanodeid, Configuration conf, int socketTimeout)
 			throws IOException {
 		InetSocketAddress addr = NetUtils.createSocketAddr(datanodeid.getHost()

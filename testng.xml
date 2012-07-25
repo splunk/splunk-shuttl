@@ -12,7 +12,7 @@
 	<parameter name="splunk.home" value="./build-cache/splunk" />
 	<parameter name="shuttl.conf.dir" value="./build/shuttl/conf" />
 
-	<test name="functional" preserve-order="true">
+	<test name="functional" preserve-order="true" enabled="true">
 		<classes>
 			<class name="com.splunk.shuttl.archiver.importexport.csv.CsvImporterFunctionalTest" />
 			<class name="com.splunk.shuttl.archiver.importexport.BucketExporterIntegrationTest" />
@@ -27,4 +27,11 @@
 			<class name="com.splunk.shuttl.archiver.usecases.TwoFormatsFunctionalTest" />
 		</classes>
 	</test> <!-- Test -->
+
+	<test name="prototype" preserve-order="true" enabled="false">
+		<classes>
+			<class name="com.splunk.shuttl.prototype.BucketBlockSymlinkPrototypeTest" />
+		</classes>
+	</test> <!-- Test -->
+
 </suite> <!-- Suite -->
