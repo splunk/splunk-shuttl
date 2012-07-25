@@ -440,6 +440,7 @@
 			<target name="hadoop-conf-hadoop-env-sh" />
 			<target name="hadoop-conf-core-site-xml" />
 			<target name="hadoop-conf-mapred-site-xml" />
+			<target name="hadoop-conf-hdfs-site-xml" />
 		</antcall>
 	</target>
 
@@ -447,6 +448,7 @@
 		<property name="hadoop.env.sh" value="${hadoop.extracted.conf.dir}/hadoop-env.sh" />
 		<property name="core-site.xml" value="${hadoop.extracted.conf.dir}/core-site.xml" />
 		<property name="mapred-site.xml" value="${hadoop.extracted.conf.dir}/mapred-site.xml" />
+		<property name="hdfs-site.xml" value="${hadoop.extracted.conf.dir}/hdfs-site.xml" />
 	</target>
 
 	<target name="hadoop-conf-hadoop-env-sh" depends="set-environment-property,set-hadoop-classpath">
@@ -474,6 +476,16 @@
 		<replace file="${mapred-site.xml}">
 			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
 			<replacefilter token="@HADOOP.JOBTRACKER.PORT@" value="${hadoop.jobtracker.port}" />
+		</replace>
+	</target>
+
+	<target name="hadoop-conf-hdfs-site-xml">
+		<exec executable="sh" outputproperty="user.running.tests">
+			<arg value="-c" />
+			<arg line="'echo $LOGNAME'" />
+		</exec>
+		<replace file="${hdfs-site.xml}">
+			<replacefilter token="@USER.RUNNING.THE.TESTS@" value="${user.running.tests}" />
 		</replace>
 	</target>
 

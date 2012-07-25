@@ -12,4 +12,13 @@
     <name>dfs.support.append</name>
     <value>true</value>
   </property>
+  <property>
+    <name>dfs.client.read.shortcircuit</name>
+    <value>true</value>
+    <description>set this to true to enable DFSClient short circuit read</description>
+  </property>
+  <property>
+      <name>dfs.block.local-path-access.user</name>
+      <value>@USER.RUNNING.THE.TESTS@</value>
+  </property>
 </configuration>
