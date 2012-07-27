@@ -14,9 +14,14 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
@@ -84,8 +89,13 @@ public class BucketThawer {
 		List<Bucket> bucketsToThaw = getFilteredBuckets(index, earliestTime,
 				latestTime);
 		for (Bucket bucket : bucketsToThaw)
-			thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
-					new ThawBucketFromArchive());
+			if (!isBucketAlreadyThawed(bucket)) {
+				thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
+						new ThawBucketFromArchive());
+			} else {
+				failedBuckets.add(new FailedBucket(bucket,
+						new BucketAlreadyThawedException(bucket)));
+			}
 	}
 
 	private List<Bucket> getFilteredBuckets(String index, Date earliestTime,
@@ -96,6 +106,19 @@ public class BucketThawer {
 		} else {
 			return listsBucketsFiltered.listFilteredBucketsAtIndex(index,
 					earliestTime, latestTime);
+		}
+	}
+
+	private boolean isBucketAlreadyThawed(Bucket bucket) {
+		try {
+			File thawLocation = thawLocationProvider
+					.getLocationInThawForBucket(bucket);
+			return thawLocation != null && thawLocation.exists();
+		} catch (Exception e) {
+			failedBuckets.add(new FailedBucket(bucket, e));
+			Logger.getLogger(getClass()).error(
+					happened("Couldn't get bucket's thaw location", "Exception", e));
+			return false;
 		}
 	}
 
