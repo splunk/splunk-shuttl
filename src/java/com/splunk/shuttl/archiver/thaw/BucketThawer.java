@@ -17,6 +17,7 @@ package com.splunk.shuttl.archiver.thaw;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +34,8 @@ import com.splunk.shuttl.archiver.model.Bucket;
  * currently only a time range.
  */
 public class BucketThawer {
+
+	private static final Logger logger = Logger.getLogger(BucketThawer.class);
 
 	private final ListsBucketsFiltered listsBucketsFiltered;
 	private final GetsBucketsFromArchive getsBucketsFromArchive;
@@ -89,37 +92,39 @@ public class BucketThawer {
 		List<Bucket> bucketsToThaw = getFilteredBuckets(index, earliestTime,
 				latestTime);
 		for (Bucket bucket : bucketsToThaw)
-			if (!isBucketAlreadyThawed(bucket)) {
-				thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
-						new ThawBucketFromArchive());
-			} else {
-				failedBuckets.add(new FailedBucket(bucket,
-						new BucketAlreadyThawedException(bucket)));
+			try {
+				if (!isBucketAlreadyThawed(bucket)) {
+					thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
+							new ThawBucketFromArchive());
+				} else {
+					failedBuckets.add(new FailedBucket(bucket,
+							new BucketAlreadyThawedException(bucket)));
+				}
+			} catch (IOException e) {
+				logIOExceptionFromCheckingIfBucketWasThawed(bucket, e);
+				failedBuckets.add(new FailedBucket(bucket, e));
 			}
 	}
 
 	private List<Bucket> getFilteredBuckets(String index, Date earliestTime,
 			Date latestTime) {
 		if (index == null) {
-			return listsBucketsFiltered.listFilteredBuckets(earliestTime,
-					latestTime);
+			return listsBucketsFiltered.listFilteredBuckets(earliestTime, latestTime);
 		} else {
 			return listsBucketsFiltered.listFilteredBucketsAtIndex(index,
 					earliestTime, latestTime);
 		}
 	}
 
-	private boolean isBucketAlreadyThawed(Bucket bucket) {
-		try {
-			File thawLocation = thawLocationProvider
-					.getLocationInThawForBucket(bucket);
-			return thawLocation != null && thawLocation.exists();
-		} catch (Exception e) {
-			failedBuckets.add(new FailedBucket(bucket, e));
-			Logger.getLogger(getClass()).error(
-					happened("Couldn't get bucket's thaw location", "Exception", e));
-			return false;
-		}
+	private boolean isBucketAlreadyThawed(Bucket bucket) throws IOException {
+		File thawLocation = thawLocationProvider.getLocationInThawForBucket(bucket);
+		return thawLocation != null && thawLocation.exists();
+	}
+
+	private void logIOExceptionFromCheckingIfBucketWasThawed(Bucket bucket,
+			IOException e) {
+		logger.error(did("Tried thawing bucket", e, "To thaw bucket unless it "
+				+ "was already thawed.", "bucket", bucket, "exception", e));
 	}
 
 	/**
