@@ -129,11 +129,11 @@ public class TUtilsBucketTest {
 		try {
 			parent = createDirectory();
 			Date earliest = new Date();
-			Date latest = new Date();
+			Date latest = new Date(earliest.getTime() + 100);
 			Bucket bucketWithTimes = TUtilsBucket.createBucketInDirectoryWithTimes(
 					parent, earliest, latest);
-			String expectedBucketNameStart = "db_" + earliest.getTime() + "_"
-					+ latest.getTime();
+			String expectedBucketNameStart = "db_" + latest.getTime() + "_"
+					+ earliest.getTime();
 			assertTrue(bucketWithTimes.getName().startsWith(expectedBucketNameStart));
 		} finally {
 			FileUtils.deleteQuietly(parent);
