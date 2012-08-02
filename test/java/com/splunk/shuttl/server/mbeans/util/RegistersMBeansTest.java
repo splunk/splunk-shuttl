@@ -21,7 +21,6 @@ import java.lang.management.ManagementFactory;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.testng.annotations.AfterMethod;
@@ -37,18 +36,18 @@ public class RegistersMBeansTest {
 	ObjectName objectName;
 	String objectNameString;
 	MBeanServer mbs;
-	Class<?> realClass;
 	Class<ShuttlArchiverMBean> interfaceClass;
+	ShuttlArchiverMBean instance;
 
 	RegistersMBeans registersMBeans;
 
 	@BeforeMethod
-	public void setUp() throws MalformedObjectNameException, NullPointerException {
+	public void setUp() throws Exception {
 		mbs = ManagementFactory.getPlatformMBeanServer();
 		objectNameString = ShuttlArchiverMBean.OBJECT_NAME;
 		objectName = new ObjectName(objectNameString);
-		realClass = ShuttlArchiverForTests.class;
 		interfaceClass = ShuttlArchiverMBean.class;
+		instance = new ShuttlArchiverForTests();
 
 		registersMBeans = new RegistersMBeans(mbs);
 	}
@@ -66,19 +65,19 @@ public class RegistersMBeansTest {
 			throws Exception {
 		assertFalse(mbs.isRegistered(objectName));
 
-		registersMBeans.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, instance);
 		assertTrue(mbs.isRegistered(objectName));
 	}
 
 	public void registerMBean_registeredMBean_doesNothing() throws Exception {
-		registersMBeans.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, instance);
 		assertTrue(mbs.isRegistered(objectName));
 
-		registersMBeans.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, instance);
 	}
 
 	public void getMBeanInstance_registeredMBean_getsInstance() throws Exception {
-		registersMBeans.registerMBean(objectNameString, realClass);
+		registersMBeans.registerMBean(objectNameString, instance);
 		ShuttlArchiverMBean instance = MBeanUtils.getMBeanInstance(
 				objectNameString, interfaceClass);
 		assertNotNull(instance);

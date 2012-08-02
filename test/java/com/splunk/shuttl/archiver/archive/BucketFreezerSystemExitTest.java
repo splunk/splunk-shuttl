@@ -27,10 +27,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
-import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
 /**
@@ -48,8 +47,9 @@ public class BucketFreezerSystemExitTest {
 	public void setUp() {
 		runtimeMock = mock(Runtime.class);
 		testDir = createDirectory();
-		bucketFreezer = new BucketFreezer(IndexPreservingBucketMover.create(testDir),
-				new BucketLockerInTestDir(testDir), mock(ArchiveRestHandler.class),
+		bucketFreezer = new BucketFreezer(
+				IndexPreservingBucketMover.create(testDir), new BucketLockerInTestDir(
+						testDir), mock(ArchiveRestHandler.class),
 				mock(FailedBucketsArchiver.class));
 		bucketFreezerProvider = mock(BucketFreezerProvider.class);
 		stub(bucketFreezerProvider.getConfiguredBucketFreezer()).toReturn(
@@ -59,6 +59,11 @@ public class BucketFreezerSystemExitTest {
 	@AfterMethod(groups = { "fast-unit" })
 	public void tearDown() throws IOException {
 		FileUtils.deleteDirectory(testDir);
+	}
+
+	private void runMainWithDepentencies_withArguments(String... args) {
+		BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezerProvider,
+				mock(RegistersArchiverMBean.class), args);
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -103,11 +108,6 @@ public class BucketFreezerSystemExitTest {
 		File file = TUtilsFile.createFilePath();
 		runMainWithDepentencies_withArguments("index-name", file.getAbsolutePath());
 		verify(runtimeMock).exit(BucketFreezer.EXIT_FILE_NOT_FOUND);
-	}
-
-	private void runMainWithDepentencies_withArguments(String... args) {
-		BucketFreezer.runMainWithDependencies(runtimeMock, bucketFreezerProvider,
-				mock(RegistersMBeans.class), args);
 	}
 
 }

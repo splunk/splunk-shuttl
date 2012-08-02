@@ -38,13 +38,13 @@ public class TUtilsMBean {
 	 */
 	static void registerMBeans() {
 		registerByNameAndClass(ShuttlArchiverMBean.OBJECT_NAME,
-				ShuttlArchiverForTests.class);
-		registerByNameAndClass(JMXSplunkMBean.OBJECT_NAME, JMXSplunkForTests.class);
+				new ShuttlArchiverForTests());
+		registerByNameAndClass(JMXSplunkMBean.OBJECT_NAME, new JMXSplunkForTests());
 	}
 
-	private static void registerByNameAndClass(String objectName, Class<?> clazz) {
+	private static void registerByNameAndClass(String objectName, Object mBean) {
 		try {
-			RegistersMBeans.create().registerMBean(objectName, clazz);
+			RegistersMBeans.create().registerMBean(objectName, mBean);
 		} catch (Exception e) {
 			TUtilsTestNG
 					.failForException("Could not register ShuttlArchiverMBean", e);

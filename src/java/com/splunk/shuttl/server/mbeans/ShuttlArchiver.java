@@ -14,6 +14,8 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.util.List;
 
 import javax.management.InstanceNotFoundException;
@@ -28,16 +30,12 @@ import com.splunk.shuttl.server.model.ArchiverConf;
  */
 public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
 		ShuttlArchiverMBean {
-	// error messages
-
-	private static final String SHUTTL_ARCHIVER_INIT_FAILURE = "ShuttlArchiver init failure";
-	// end error messages
 
 	private static Logger logger = Logger.getLogger(ShuttlArchiver.class);
 	private ArchiverConf conf;
 	private String xmlFilePath;
 
-	public ShuttlArchiver() throws ShuttlMBeanException {
+	public ShuttlArchiver() {
 		this.xmlFilePath = getPathToDefaultConfFile();
 		refreshWithConf();
 	}
@@ -53,12 +51,14 @@ public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
 		refreshWithConf();
 	}
 
-	private void refreshWithConf() throws ShuttlMBeanException {
+	private void refreshWithConf() {
 		try {
 			refresh();
 		} catch (Exception e) {
-			logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
-			throw new ShuttlMBeanException(e);
+			logger.error(did("Tried refreshing " + getClass().getSimpleName()
+					+ " with conf file.", e, "To get new values from the conf file.",
+					"mBean", this, "exception", e));
+			throw new RuntimeException(e);
 		}
 	}
 

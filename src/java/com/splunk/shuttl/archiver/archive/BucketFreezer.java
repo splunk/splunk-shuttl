@@ -29,10 +29,7 @@ import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
-import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
-import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 import com.splunk.shuttl.server.mbeans.ShuttlMBeanException;
-import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
 /**
  * Takes a bucket that froze and archives it. <br/>
@@ -107,7 +104,7 @@ public class BucketFreezer {
 	 */
 	public static void main(String... args) {
 		runMainWithDependencies(Runtime.getRuntime(), new BucketFreezerProvider(),
-				RegistersMBeans.create(), args);
+				RegistersArchiverMBean.create(), args);
 	}
 
 	/**
@@ -116,13 +113,13 @@ public class BucketFreezer {
 	 */
 	/* package-private */static void runMainWithDependencies(Runtime runtime,
 			BucketFreezerProvider bucketFreezerProvider,
-			RegistersMBeans registersMBeans, String... args) {
+			RegistersArchiverMBean registersArchiverMBean, String... args) {
 		if (args.length != 2) {
 			logIncorrectArguments(args);
 			runtime.exit(EXIT_INCORRECT_ARGUMENTS);
 		} else {
 			archiveBucketWhileRegisteringMBean(runtime, bucketFreezerProvider,
-					registersMBeans, args);
+					registersArchiverMBean, args);
 		}
 	}
 
@@ -134,30 +131,29 @@ public class BucketFreezer {
 
 	private static void archiveBucketWhileRegisteringMBean(Runtime runtime,
 			BucketFreezerProvider bucketFreezerProvider,
-			RegistersMBeans registersMBeans, String... args) {
-		String name = ShuttlArchiverMBean.OBJECT_NAME;
+			RegistersArchiverMBean registersArchiverMBean, String... args) {
 		String index = args[0];
 		String path = args[1];
-		Class<ShuttlArchiver> clazz = ShuttlArchiver.class;
 
 		logger.info(will("Attempting to archive bucket", "index", index, "path",
 				path));
 		try {
-			registersMBeans.registerMBean(name, clazz);
+			registersArchiverMBean.register();
 			runtime.exit(bucketFreezerProvider.getConfiguredBucketFreezer()
 					.freezeBucket(index, path));
 		} catch (ShuttlMBeanException e) {
-			logException(name, index, path, clazz, e);
+			logException(registersArchiverMBean.getName(), index, path, e);
 			runtime.exit(EXIT_COULD_NOT_CONFIGURE_BUCKET_FREEZER);
 		} finally {
-			registersMBeans.unregisterMBean(name);
+			registersArchiverMBean.unregister();
 		}
 	}
 
 	private static void logException(String name, String index, String path,
-			Class<ShuttlArchiver> clazz, ShuttlMBeanException e) {
+			ShuttlMBeanException e) {
 		logger.error(did("Registered MBean in BucketFreezer", e,
-				"To configure the BucketFreezer with MBeans", "name", name, "class",
-				clazz, "index", index, "bucket_path", path));
+				"To configure the BucketFreezer with MBeans", "name", name, "index",
+				index, "bucket_path", path));
 	}
+
 }

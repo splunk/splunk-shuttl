@@ -22,10 +22,7 @@ package com.splunk.shuttl.server.mbeans;
 // TODO: Read the comment above and remove this class when things are better.
 public class ShuttlArchiverForTests extends ShuttlArchiver {
 
-	/**
-	 * @throws ShuttlMBeanException
-	 */
-	public ShuttlArchiverForTests() throws ShuttlMBeanException {
+	public ShuttlArchiverForTests() {
 		super();
 	}
 
