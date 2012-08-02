@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:serverConf xmlns:ns2="com.splunk.shuttl.server.model">
+	<httpHost>null</httpHost>
+	<httpPort>null</httpPort>
+</ns2:serverConf>

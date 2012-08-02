@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:archiverConf xmlns:ns2="com.splunk.shuttl.server.model">
+    <localArchiverDir>null</localArchiverDir>
+    <archiverRootURI>null</archiverRootURI>
+    <clusterName>null</clusterName>
+    <serverName>null</serverName>
+    <archiveFormats>
+        <archiveFormat>SPLUNK_BUCKET</archiveFormat>
+    </archiveFormats>
+</ns2:archiverConf>
