@@ -17,6 +17,8 @@ package com.splunk.shuttl.testutil;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+import java.io.File;
+
 import javax.management.InstanceNotFoundException;
 import javax.management.OperationsException;
 
@@ -24,15 +26,18 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
+import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 
 @Test(groups = { "fast-unit" })
 public class TUtilsMbeanTest {
 
+	private File nullConfsDir;
+
 	@BeforeMethod
 	public void setUp() {
+		nullConfsDir = TUtilsConf.getNullConfsDir();
 		TUtilsMBean.unregisterMBeans();
 	}
 
@@ -45,7 +50,7 @@ public class TUtilsMbeanTest {
 	public void registerMBeans_notRegistered_registersMBeans()
 			throws InstanceNotFoundException {
 		assertFalse(areMBeansRegistered());
-		TUtilsMBean.registerMBeans();
+		TUtilsMBean.registerMBeans(nullConfsDir);
 		assertTrue(areMBeansRegistered());
 		TUtilsMBean.unregisterMBeans();
 		assertFalse(areMBeansRegistered());
@@ -64,8 +69,8 @@ public class TUtilsMbeanTest {
 	}
 
 	public void registerMBeans_twice_ok() {
-		TUtilsMBean.registerMBeans();
-		TUtilsMBean.registerMBeans();
+		TUtilsMBean.registerMBeans(nullConfsDir);
+		TUtilsMBean.registerMBeans(nullConfsDir);
 	}
 
 	public void unregisterMBeans_twice_ok() {
@@ -75,14 +80,14 @@ public class TUtilsMbeanTest {
 
 	public void runWithRegisteredMBeans_withRunnable_runsRunnable() {
 		Runnable runnable = mock(Runnable.class);
-		TUtilsMBean.runWithRegisteredMBeans(runnable);
+		TUtilsMBean.runWithRegisteredMBeans(nullConfsDir, runnable);
 		verify(runnable).run();
 	}
 
 	public void runWithRegisteredMBean_withRunnable_mBeanIsRegistered()
 			throws OperationsException {
 		assertFalse(areMBeansRegistered());
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+		TUtilsMBean.runWithRegisteredMBeans(nullConfsDir, new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -98,7 +103,7 @@ public class TUtilsMbeanTest {
 			throws InstanceNotFoundException {
 		RuntimeException expectedException = null;
 		try {
-			TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+			TUtilsMBean.runWithRegisteredMBeans(nullConfsDir, new Runnable() {
 				@Override
 				public void run() {
 					throw new RuntimeException();

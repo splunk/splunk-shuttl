@@ -45,8 +45,8 @@ import com.splunk.Service;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.archive.BucketFreezer;
-import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -75,13 +75,15 @@ public class ArchiverEndToEndTest {
 
 	@Parameters(value = { "splunk.username", "splunk.password", "splunk.host",
 			"splunk.mgmtport", "hadoop.host", "hadoop.port", "shuttl.host",
-			"shuttl.port" })
+			"shuttl.port", "shuttl.conf.dir" })
 	@Test(groups = { "end-to-end" })
 	public void archiveBucketAndThawItBack(final String splunkUserName,
 			final String splunkPw, final String splunkHost, final String splunkPort,
 			final String hadoopHost, final String hadoopPort,
-			final String shuttlHost, final String shuttlPort) throws Exception {
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+			final String shuttlHost, final String shuttlPort, String shuttlConfDirPath)
+			throws Exception {
+		File confsDir = new File(shuttlConfDirPath);
+		TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
 
 			@Override
 			public void run() {
@@ -131,7 +133,8 @@ public class ArchiverEndToEndTest {
 	private BucketFreezer getSuccessfulBucketFreezer() {
 		File movedBucketsLocation = createDirectoryInParent(tempDirectory,
 				ArchiverEndToEndTest.class.getName() + "-safeBuckets");
-		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover.create(movedBucketsLocation);
+		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
+				.create(movedBucketsLocation);
 		BucketLocker bucketLocker = new BucketLockerInTestDir(
 				createDirectoryInParent(tempDirectory, "bucketlocks"));
 		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(

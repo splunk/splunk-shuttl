@@ -16,16 +16,19 @@ package com.splunk.shuttl.archiver.archive;
 
 import static org.testng.Assert.*;
 
+import java.io.File;
+
 import javax.management.InstanceNotFoundException;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.server.mbeans.ShuttlArchiverForTests;
+import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
+import com.splunk.shuttl.testutil.TUtilsConf;
 
 @Test(groups = { "fast-test" })
 public class RegistersArchiverMBeanTest {
@@ -36,7 +39,8 @@ public class RegistersArchiverMBeanTest {
 
 	@BeforeMethod
 	public void setUp() {
-		mBean = new ShuttlArchiverForTests();
+		File confsDir = TUtilsConf.getNullConfsDir();
+		mBean = ShuttlArchiver.createWithConfDirectory(confsDir);
 		registersMBeans = RegistersMBeans.create();
 		registersArchiverMBean = new RegistersArchiverMBean(registersMBeans, mBean);
 	}

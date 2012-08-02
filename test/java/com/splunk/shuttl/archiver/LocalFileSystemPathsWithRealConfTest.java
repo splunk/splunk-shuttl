@@ -22,18 +22,21 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.testutil.TUtilsMBean;
 
-@Test(groups = { "slow-unit" })
+@Test(groups = { "end-to-end" })
 public class LocalFileSystemPathsWithRealConfTest {
 
 	private File archiverDirWithMBeanConf;
 
 	@BeforeMethod
-	public void setUp() {
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+	@Parameters(value = { "shuttl.conf.dir" })
+	public void setUp(String shuttlConfsDirPath) {
+		File confsDir = new File(shuttlConfsDirPath);
+		TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
 			@Override
 			public void run() {
 				archiverDirWithMBeanConf = LocalFileSystemPaths.create()
@@ -48,10 +51,12 @@ public class LocalFileSystemPathsWithRealConfTest {
 		FileUtils.deleteQuietly(archiverDirWithMBeanConf);
 	}
 
-	@Test(groups = { "slow-unit" })
-	public void create_withMBeanRegistered_archiverDirectoryIsCreatable()
-			throws IOException {
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+	@Test(groups = { "end-to-end" })
+	@Parameters(value = { "shuttl.conf.dir" })
+	public void create_withMBeanRegistered_archiverDirectoryIsCreatable(
+			String shuttlConfsDirPath) throws IOException {
+		File confsDir = new File(shuttlConfsDirPath);
+		TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
 
 			@Override
 			public void run() {

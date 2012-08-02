@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
-import org.apache.log4j.Logger;
+import java.io.File;
 
 import com.splunk.shuttl.server.model.ServerConf;
 
@@ -25,37 +25,28 @@ import com.splunk.shuttl.server.model.ServerConf;
  */
 public class ShuttlServer extends MBeanBase<ServerConf> implements
 		ShuttlServerMBean {
-	// error messages
-	private static final String SHUTTL_SERVER_INIT_FAILURE = "ShuttlServer init failure";
-	// end error messages
-	private Logger logger = Logger.getLogger(getClass());
-	private String xmlFilePath;
+
 	private ServerConf conf;
 
-	public ShuttlServer() throws ShuttlMBeanException {
-		try {
-			this.xmlFilePath = getPathToDefaultConfFile();
-			refresh();
-		} catch (Exception e) {
-			logger.error(SHUTTL_SERVER_INIT_FAILURE, e);
-			throw new ShuttlMBeanException(e);
-		}
+	public ShuttlServer() {
+		super();
+	}
+
+	public ShuttlServer(File confDirectory) {
+		super(confDirectory);
+	}
+
+	/**
+	 * Used for different kinds of test, and the String cannot be of type File,
+	 * because the File constructor is already taken.
+	 */
+	public ShuttlServer(String confFilePath) {
+		super(confFilePath);
 	}
 
 	@Override
-	protected String getConfFileName() {
+	protected String getDefaultConfFileName() {
 		return "server.xml";
-	}
-
-	// this signature used by tests
-	public ShuttlServer(String confFilePath) throws ShuttlMBeanException {
-		try {
-			this.xmlFilePath = confFilePath;
-			refresh();
-		} catch (Exception e) {
-			logger.error(SHUTTL_SERVER_INIT_FAILURE, e);
-			throw new ShuttlMBeanException(e);
-		}
 	}
 
 	@Override
@@ -76,11 +67,6 @@ public class ShuttlServer extends MBeanBase<ServerConf> implements
 	@Override
 	public void setHttpPort(int port) {
 		this.conf.setHttpPort(port);
-	}
-
-	@Override
-	protected String getPathToXmlFile() {
-		return xmlFilePath;
 	}
 
 	@Override

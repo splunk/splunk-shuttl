@@ -54,11 +54,11 @@ public class JMXSplunkTest {
 				+ "</password>\n" + "</ns2:splunkConf>\n";
 	}
 
-	public void constructor_givenXmlConfFileWithValues_gettersReturnTheValuesConfigured()
+	public void _givenXmlConfFileWithValues_gettersReturnTheValuesConfigured()
 			throws IOException {
 		File confFile = createFile();
 		FileUtils.writeStringToFile(confFile, configurationWithTheTestFields);
-		jmxSplunk = new JMXSplunk(confFile);
+		jmxSplunk = JMXSplunk.createWithConfFile(confFile);
 
 		assertEquals(host, jmxSplunk.getHost());
 		assertEquals(port, jmxSplunk.getPort());
@@ -66,9 +66,9 @@ public class JMXSplunkTest {
 		assertEquals(password, jmxSplunk.getPassword());
 	}
 
-	public void constructor_givenEmptyConfiguration_allValuesReturnNull()
-			throws IOException {
-		jmxSplunk = new JMXSplunk(TUtilsMBean.createEmptyInNamespace("splunkConf"));
+	public void _givenEmptyConfiguration_allValuesReturnNull() throws IOException {
+		jmxSplunk = JMXSplunk.createWithConfFile(TUtilsMBean
+				.createEmptyConfInNamespace("splunkConf"));
 		assertNull(jmxSplunk.getHost());
 		assertNull(jmxSplunk.getPort());
 		assertNull(jmxSplunk.getUsername());
@@ -78,8 +78,8 @@ public class JMXSplunkTest {
 	public void save_settingValuesOnEmptyConfig_savesValuesToTheConfFile()
 			throws ShuttlMBeanException, ParserConfigurationException, SAXException,
 			IOException {
-		File confFile = TUtilsMBean.createEmptyInNamespace("splunkConf");
-		jmxSplunk = new JMXSplunk(confFile);
+		File confFile = TUtilsMBean.createEmptyConfInNamespace("splunkConf");
+		jmxSplunk = JMXSplunk.createWithConfFile(confFile);
 		jmxSplunk.setHost(host);
 		jmxSplunk.setPort(port);
 		jmxSplunk.setUsername(username);

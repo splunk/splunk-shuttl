@@ -32,18 +32,33 @@ public abstract class MBeanBase<T> implements MBeanPersistance {
 	private static final Logger logger = Logger.getLogger(MBeanBase.class);
 	private static final String CONFIGURATION_PATH = "etc/apps/shuttl/conf/";
 
+	private final File confFile;
+
+	public MBeanBase() {
+		this(getDefaultConfDirectory());
+	}
+
+	public MBeanBase(File confDirectory) {
+		this.confFile = new File(confDirectory, getDefaultConfFileName());
+		refresh();
+	}
+
+	public MBeanBase(String confFilePath) {
+		this.confFile = new File(confFilePath);
+		refresh();
+	}
+
 	/**
-	 * Needed by tests to override the default path to the configuration file.
+	 * @return directory where shuttl has it's MBean configuration files.
 	 */
-	protected String getPathToDefaultConfFile() {
-		return System.getenv("SPLUNK_HOME") + File.separator + CONFIGURATION_PATH
-				+ getConfFileName();
+	private static File getDefaultConfDirectory() {
+		return new File(System.getenv("SPLUNK_HOME"), CONFIGURATION_PATH);
 	}
 
 	@Override
-	public void save() throws ShuttlMBeanException {
+	public void save() {
 		try {
-			JAXBUtils.save(getConfClass(), getConfObject(), getPathToXmlFile());
+			JAXBUtils.save(getConfClass(), getConfObject(), confFile);
 		} catch (Exception e) {
 			logger.error(e);
 			throw new ShuttlMBeanException(e);
@@ -52,9 +67,9 @@ public abstract class MBeanBase<T> implements MBeanPersistance {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void refresh() throws ShuttlMBeanException {
+	public void refresh() {
 		try {
-			T conf = (T) JAXBUtils.refresh(getConfClass(), getPathToXmlFile());
+			T conf = (T) JAXBUtils.refresh(getConfClass(), confFile);
 			setConfObject(conf);
 		} catch (FileNotFoundException fnfe) {
 			throw new RuntimeException(fnfe);
@@ -67,13 +82,7 @@ public abstract class MBeanBase<T> implements MBeanPersistance {
 	/**
 	 * Implement this method by looking at {@link ShuttlArchiver}
 	 */
-	protected abstract String getConfFileName();
-
-	/**
-	 * Implement this method by looking at {@link ShuttlArchiver} and
-	 * {@link ShuttlServer}
-	 */
-	protected abstract String getPathToXmlFile();
+	protected abstract String getDefaultConfFileName();
 
 	/**
 	 * Implement this method by looking at {@link ShuttlArchiver} and

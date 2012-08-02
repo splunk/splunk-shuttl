@@ -16,16 +16,20 @@ package com.splunk.shuttl.archiver.archive;
 
 import static org.testng.Assert.*;
 
+import java.io.File;
+
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.ArchiverMBeanNotRegisteredException;
+import com.splunk.shuttl.testutil.TUtilsConf;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 
 @Test(groups = { "fast-unit" })
 public class BucketFreezerProviderTest {
 
 	public void getConfiguredBucketFreezer_givenRegisteredMBeans_notNull() {
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+		File shuttlConfs = TUtilsConf.getNullConfsDir();
+		TUtilsMBean.runWithRegisteredMBeans(shuttlConfs, new Runnable() {
 
 			@Override
 			public void run() {

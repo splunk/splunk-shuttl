@@ -16,8 +16,10 @@ package com.splunk.shuttl.archiver.thaw;
 
 import static org.testng.AssertJUnit.*;
 
+import java.io.File;
 import java.lang.reflect.Method;
 
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -32,9 +34,11 @@ public class BucketThawerFactoryTest {
 	}
 
 	@Test(groups = { "end-to-end" })
-	public void createDefaultThawer_realConfigurationWithSplunk_notNull()
-			throws Exception {
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+	@Parameters(value = { "shuttl.conf.dir" })
+	public void createDefaultThawer_realConfigurationWithSplunk_notNull(
+			String shuttlConfsDirPath) throws Exception {
+		File confsDir = new File(shuttlConfsDirPath);
+		TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
 
 			@Override
 			public void run() {

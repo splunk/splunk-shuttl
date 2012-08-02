@@ -14,10 +14,12 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.demo;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
@@ -41,8 +43,11 @@ public class ArchiveLotsOfBucketsWithDifferentTimeRanges {
 		bucketArchiver = BucketArchiverFactory.createConfiguredArchiver();
 	}
 
-	public void _archiveLotsOfBucketsWithDifferentTimeRanges_() {
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+	@Parameters(value = { "shuttl.conf.dir" })
+	public void _archiveLotsOfBucketsWithDifferentTimeRanges_(
+			String shuttlConfDirPath) {
+		File confsDir = new File(shuttlConfDirPath);
+		TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
 
 			@Override
 			public void run() {

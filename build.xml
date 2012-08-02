@@ -18,6 +18,8 @@
 	<property name="appname" value="shuttl" />
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
+	<property name="stage.conf.dir" value="${stage.dir}/conf" />
+	<property name="shuttl.conf.dir" location="${stage.conf.dir}" />
 	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
 	<property name="srcdir" value="${basedir}/src/java/" />
 	<property name="testdir" value="${basedir}/test/java/" />
@@ -267,6 +269,7 @@
 		<propertyref name="hadoop.port" />
 		<propertyref name="shuttl.host" />
 		<propertyref name="shuttl.port" />
+		<propertyref name="shuttl.conf.dir" />
 	</propertyset>
 
 	<target name="fast-unit-tests" depends="compile, do-fast-unit-tests" />
