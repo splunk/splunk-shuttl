@@ -527,7 +527,7 @@
 	<target name="splunk-configure-and-start">
 		<antcall>
 			<target name="install-shuttl-splunk-app" />
-			<!--Not needed yet: target name="splunk-set-splunkd-port" /-->
+			<target name="splunk-set-splunkd-port" />
 			<target name="splunk-start" />
 			<target name="enable-shuttl-splunk-app" />
 		</antcall>
