@@ -1,3 +1,7 @@
 <nav>
-    <view name="archivings" default='true' />
+    <collection label="Activity">
+        <view name="activity" default='true' />
+        <view name="buckets_per_index" />
+    </collection>
+    <view name="archivings" />
 </nav>

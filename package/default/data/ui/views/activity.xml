@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<dashboard>
+  <label>Activity</label>
+
+  <row>
+    <chart>
+      <searchName>Shuttl Archived Buckets Last Hour</searchName>
+      <title>Shuttl Archived Buckets Last Hour</title>
+      <option name="charting.chart">radialGauge</option>
+      <option name="charting.chart.nullValueMode">zero</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.chart.style">minimal</option>
+      <option name="charting.layout.splitSeries">false</option>
+      <option name="charting.legend.placement">right</option>
+    </chart>
+    <chart>
+      <searchName>Shuttl Archived Buckets Last 24h</searchName>
+      <title>Shuttl Archived Buckets Last 24h</title>
+      <option name="charting.chart">radialGauge</option>
+      <option name="charting.chart.nullValueMode">zero</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.chart.style">minimal</option>
+      <option name="charting.layout.splitSeries">false</option>
+      <option name="charting.legend.placement">right</option>
+    </chart>
+  </row>
+
+  <row>
+    <single>
+      <searchName>Shuttl Number of Archived Buckets</searchName>
+      <title>Number of Archived Buckets</title>
+    </single>
+    <single>
+      <searchName>Shuttl Number of Thawed Buckets</searchName>
+      <title>Number of Thawed Buckets</title>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.layout.splitSeries">false</option>
+      <option name="charting.legend.placement">right</option>
+    </single>
+  </row>
+
+  <row>
+    <table>
+      <searchName>Shuttl All Indexes Table</searchName>
+      <title>Indexes</title>
+      <option name="count">10</option>
+      <option name="displayRowNumbers">false</option>
+      <option name="drilldown">row</option>
+      <option name="showPager">true</option>
+    </table>
+  </row>
+
+  <row>
+    <table>
+      <searchName>Shuttl All Archived Buckets</searchName>
+      <title>All Archived Buckets</title>
+      <option name="count">20</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="showPager">true</option>
+    </table>
+    <table>
+      <searchName>Shuttl All Thawed Buckets</searchName>
+      <title>All Thawed Buckets</title>
+      <option name="count">20</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="showPager">true</option>
+    </table>
+  </row>
+
+</dashboard>
