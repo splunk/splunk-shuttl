@@ -10,11 +10,10 @@
       <option name="field">range</option>
       <option name="classField">range</option>
       <option name="beforeLabel">Status:</option>
-      <option name="afterLabel">!</option>
     </single>
     <single>
       <searchName>Shuttl Failed Archived Buckets</searchName>
-      <title>Number of Failed Archived Buckets</title>
+      <title>Tried and Failed to Archive</title>
       <option name="classField">range</option>
       <option name="afterLabel">buckets</option>
     </single>
@@ -53,15 +52,24 @@
 
   <row>
     <table>
+      <searchName>Shuttl All Indexes Table</searchName>
+      <title>All Indexes</title>
+      <option name="displayRowNumbers">false</option>
+    </table>
+  </row>
+
+  <row>
+    <table>
       <searchName>Shuttl Archived Buckets per Index</searchName>
       <title>Archived Buckets per Index</title>
       <option name="displayRowNumbers">false</option>
       <option name="showPager">true</option>
     </table>
     <table>
-      <searchName>Shuttl All Indexes Table</searchName>
-      <title>All Indexes</title>
+      <searchName>Shuttl Thawed Buckets per Index</searchName>
+      <title>Thawed Buckets per Index</title>
       <option name="displayRowNumbers">false</option>
+      <option name="showPager">true</option>
     </table>
   </row>
 
