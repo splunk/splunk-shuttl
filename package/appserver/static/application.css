@@ -26,3 +26,39 @@ body.splTemplate-dashboard {
 .splTemplate-dashboard .splSearchControls-inline {
     background: #FFF none;
 }
+
+/* Single values styles */
+.SingleValue .Blue {
+       background-color: #4da6df;
+       color: #fff;
+}
+
+.SingleValue .Ok {
+    background-color: #72c72d;
+    color: #fff;
+}
+
+.SingleValue .Down {
+    background-color: #bb2121;
+    color: #fff;
+}
+
+.SingleValue .Green {
+    background-color: #72c72d;
+    color: #fff;
+}
+
+.SingleValue .Yellow {
+       background-color: #e9da34;
+       color: #000;
+}
+
+.SingleValue .Orange {
+       background-color: #e67918;
+       color: #fff;
+}
+
+.SingleValue .Red {
+    background-color: #bb2121;
+    color: #fff;
+}

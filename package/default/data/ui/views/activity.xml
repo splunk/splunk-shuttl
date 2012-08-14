@@ -2,27 +2,41 @@
 
 <dashboard>
   <label>Activity</label>
-
+  <!-- Needs to be evaluated --> 
+  <row>
+    <single>
+      <searchName>Shuttl Is JettyServer Running</searchName>
+      <title>Jetty server</title>
+      <option name="field">range</option>
+      <option name="classField">range</option>
+      <option name="beforeLabel">Status:</option>
+      <option name="afterLabel">!</option>
+    </single>
+    <single>
+      <searchName>Shuttl Failed Archived Buckets</searchName>
+      <title>Number of Failed Archived Buckets</title>
+      <option name="classField">range</option>
+      <option name="afterLabel">buckets</option>
+    </single>
+  </row>
   <row>
     <chart>
       <searchName>Shuttl Archived Buckets Last Hour</searchName>
-      <title>Shuttl Archived Buckets Last Hour</title>
+      <title>Archived Buckets Last Hour</title>
       <option name="charting.chart">radialGauge</option>
       <option name="charting.chart.nullValueMode">zero</option>
-      <option name="charting.chart.stackMode">default</option>
-      <option name="charting.chart.style">minimal</option>
-      <option name="charting.layout.splitSeries">false</option>
-      <option name="charting.legend.placement">right</option>
     </chart>
     <chart>
-      <searchName>Shuttl Archived Buckets Last 24h</searchName>
-      <title>Shuttl Archived Buckets Last 24h</title>
+      <searchName>Shuttl Archived Buckets Last Day</searchName>
+      <title>Archived Buckets Last Day</title>
       <option name="charting.chart">radialGauge</option>
       <option name="charting.chart.nullValueMode">zero</option>
-      <option name="charting.chart.stackMode">default</option>
-      <option name="charting.chart.style">minimal</option>
-      <option name="charting.layout.splitSeries">false</option>
-      <option name="charting.legend.placement">right</option>
+    </chart>
+    <chart>
+      <searchName>Shuttl Archived Buckets Last Week</searchName>
+      <title>Archived Buckets Last Week</title>
+      <option name="charting.chart">radialGauge</option>
+      <option name="charting.chart.nullValueMode">zero</option>
     </chart>
   </row>
 
@@ -34,21 +48,20 @@
     <single>
       <searchName>Shuttl Number of Thawed Buckets</searchName>
       <title>Number of Thawed Buckets</title>
-      <option name="charting.chart.nullValueMode">gaps</option>
-      <option name="charting.chart.stackMode">default</option>
-      <option name="charting.layout.splitSeries">false</option>
-      <option name="charting.legend.placement">right</option>
     </single>
   </row>
 
   <row>
     <table>
-      <searchName>Shuttl All Indexes Table</searchName>
-      <title>Indexes</title>
-      <option name="count">10</option>
+      <searchName>Shuttl Archived Buckets per Index</searchName>
+      <title>Archived Buckets per Index</title>
       <option name="displayRowNumbers">false</option>
-      <option name="drilldown">row</option>
       <option name="showPager">true</option>
+    </table>
+    <table>
+      <searchName>Shuttl All Indexes Table</searchName>
+      <title>All Indexes</title>
+      <option name="displayRowNumbers">false</option>
     </table>
   </row>
 
