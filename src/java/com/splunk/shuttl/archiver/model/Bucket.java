@@ -228,8 +228,8 @@ public class Bucket {
 	@Override
 	public String toString() {
 		return "Bucket [format=" + format + ", directory=" + directory
-				+ ", indexName=" + indexName + ", bucketName=" + bucketName + ", uri="
-				+ uri + "]";
+				+ ", indexName=" + indexName + ", bucketName=" + bucketName
+				+ " bucketSize=" + size + ", uri=" + uri + "]";
 	}
 
 	/**
