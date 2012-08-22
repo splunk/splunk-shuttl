@@ -778,7 +778,7 @@
 	and "./splunk login" should have been run before this -->
 	<target name="archiver-generate-test-buckets" depends="set-splunk-home">
 		<exec executable="${test-debug-dir}/splunk/hadoop/sh/generateBuckets.sh">
-			<arg line="${splunk.home} ${test-debug-dir}/splunk/hadoop/tmp archiver-test-index" />
+			<arg line="${splunk.home} ${test-debug-dir}/splunk/hadoop/tmp archiver-test-index ${splunk.username}:${splunk.password}" />
 		</exec>
 	</target>
 	<!-- END Archiver-testing-util -->
