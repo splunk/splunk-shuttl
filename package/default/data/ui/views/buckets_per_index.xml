@@ -4,17 +4,19 @@
   
   <fieldset autoRun="true">
     <input type="dropdown" token="index_name">
-     <label>Select Index</label>
-     <default>*</default>
-     <choice value="*">*</choice>
-     <populatingSavedSearch fieldForValue="indexName" fieldForLabel="indexName">Shuttl All Indexes</populatingSavedSearch>
+      <label>Select Index</label>
+      <default>*</default>
+      <choice value="*">*</choice>
+      <populatingSearch fieldForValue="indexName" fieldForLabel="indexName">
+        `shuttl_indexes`
+      </populatingSearch>
     </input>
     
     <input type="dropdown" token="bucket_status">
-     <label>Select Status</label>
-     <default>Archived buckets</default>
-     <choice value="Archived bucket">Archived buckets</choice>
-     <choice value="Thawed bucket">Thawed buckets</choice>
+      <label>Select Status</label>
+      <default>Archived buckets</default>
+      <choice value="Archived bucket">Archived buckets</choice>
+      <choice value="Thawed bucket">Thawed buckets</choice>
     </input>
 
     <input type="time">
@@ -25,8 +27,12 @@
   <row>
     <table>
       <title>Buckets Count</title>
-      <searchTemplate>index=_internal source=shuttl indexName="$index_name$" done="$bucket_status$" | stats count</searchTemplate>
-      <option name="showPager">true</option>
+      <searchTemplate>
+        `shuttl` indexName="$index_name$" done="$bucket_status$"
+        | stats count
+      </searchTemplate>
+      <option name="displayRowNumbers">false</option>
+      <option name="showPager">false</option>
     </table>
   </row>
 
