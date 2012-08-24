@@ -23,22 +23,49 @@
   <row>
     <chart>
       <title>Archived Buckets Last Hour</title>
-      <searchName>Shuttl Archived Buckets Last Hour</searchName>
-      <option name="charting.chart">radialGauge</option>
-      <option name="charting.chart.nullValueMode">zero</option>
+      <searchName>Shuttl Archived Buckets Chart Last Hour</searchName>
+      <option name="charting.chart">area</option>
+      <option name="charting.stackMode">stacked</option>
+      <option name="charting.primaryAxisTitle.text">Time</option>
+      <option name="charting.secondaryAxisTitle.text">Count</option>
+      <option name="charting.legend.placement">bottom</option>
+      <option name="charting.chart.height">140px</option>
     </chart>
     <chart>
       <title>Archived Buckets Last Day</title>
-      <searchName>Shuttl Archived Buckets Last Day</searchName>
-      <option name="charting.chart">radialGauge</option>
-      <option name="charting.chart.nullValueMode">zero</option>
+      <searchName>Shuttl Archived Buckets Chart Last Day</searchName>
+      <option name="charting.chart">area</option>
+      <option name="charting.stackMode">stacked</option>
+      <option name="charting.primaryAxisTitle.text">Time</option>
+      <option name="charting.secondaryAxisTitle.text">Count</option>
+      <option name="charting.legend.placement">bottom</option>
+      <option name="charting.chart.height">140px</option>
     </chart>
     <chart>
       <title>Archived Buckets Last Week</title>
-      <searchName>Shuttl Archived Buckets Last Week</searchName>
-      <option name="charting.chart">radialGauge</option>
-      <option name="charting.chart.nullValueMode">zero</option>
+      <searchName>Shuttl Archived Buckets Chart Last Week</searchName>
+      <option name="charting.stackMode">stacked</option>
+      <option name="charting.chart">area</option>
+      <option name="charting.primaryAxisTitle.text">Time</option>
+      <option name="charting.secondaryAxisTitle.text">Count</option>
+      <option name="charting.legend.placement">bottom</option>
+      <option name="charting.chart.height">140px</option>
     </chart>
+  </row>
+
+  <row>
+    <single>
+      <title>Archived Buckets Last Hour</title>
+      <searchName>Shuttl Archived Buckets Last Hour</searchName>
+    </single>
+    <single>
+      <title>Archived Buckets Last Day</title>
+      <searchName>Shuttl Archived Buckets Last Day</searchName>
+    </single>
+    <single>
+      <title>Archived Buckets Last Week</title>
+      <searchName>Shuttl Archived Buckets Last Week</searchName>
+    </single>
   </row>
 
   <row>
