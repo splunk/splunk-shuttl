@@ -786,7 +786,7 @@
 	<target name="archiver-UI-sync-package" depends="set-shuttl-app-home">
 		<exec executable="sh">
 			<arg value="-c" />
-			<arg line="'rsync -vr --delete ${package.dir}/* ${shuttl.app.home} | tail -n 3'" />
+			<arg line="'rsync -vrc --delete --exclude '*default/app.conf' ${package.dir}/appserver ${package.dir}/default ${shuttl.app.home}'" />
 		</exec>
 	</target>
 	<target name="archiver-UI-sync-package-and-restart-splunk-web">
