@@ -18,6 +18,6 @@
   </module>
 
   <module name="IFrameInclude" layoutPanel="viewHeader">
-    <param name="src">/custom/shuttl/Archiving/show</param>
+    <param name="src">/custom/shuttl/thaw/show</param>
   </module>
 </view>

@@ -4,6 +4,7 @@
         <view name="failed" />
         <view name="buckets_per_index" />
     </collection>
-    <view name="archivings" />
+
+    <view name="thaw" />
     <view name="flushings" />
 </nav>

@@ -1,9 +1,9 @@
 // Debug
-var logger = Splunk.Logger.getLogger("Splunk.Shuttl.Archiver");
+var logger = Splunk.Logger.getLogger("Splunk.shuttl.thaw");
 
 $(document).ready(function() {
 
-  logger.debug("Loaded Archiver");
+  logger.debug("Loaded thaw");
   // Handler for events
   bindHandlers();
 
@@ -22,7 +22,7 @@ $(document).ready(function() {
     }
   });
   jQuery.validator.addMethod(
-    "archiverInput", 
+    "thawDateInput", 
     function(value, element) {
       var check = false;
       var re = /^\d{4}-\d{1,2}-\d{1,2}$/;
@@ -44,7 +44,7 @@ $(document).ready(function() {
   );
   jQuery.validator.addClassRules({
     'datetime-input': {
-      "archiverInput": true
+      "thawDateInput": true
       // dateISO: true
     }
   });

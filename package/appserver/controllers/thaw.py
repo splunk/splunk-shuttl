@@ -31,7 +31,16 @@ debugFailedThawedBuckets = {
     ]}
 
 
-logger = logging.getLogger('splunk.appserver.mrsparkle.controllers.Archiving')
+logger = logging.getLogger('splunk.appserver.mrsparkle.controllers.shuttl.Thaw')
+
+PROTOCOL = 'http'
+DOMAIN = 'localhost'
+PORT = '9090'
+ENDPOINT_DOMAIN = '%s://%s:%s/shuttl/rest/archiver/' % (PROTOCOL, DOMAIN, PORT)
+ENDPOINT_LIST_INDEXES = ENDPOINT_DOMAIN + 'index/list'
+ENDPOINT_LIST_BUCKETS = ENDPOINT_DOMAIN + 'bucket/list'
+ENDPOINT_THAW_BUCKETS = ENDPOINT_DOMAIN + 'bucket/thaw'
+
 SUPER_HEADER = collections.OrderedDict([ 
                     ('bucketName','Name'), ('indexName','Index'), ('format','Format'), 
                     ('fromDate','From'), ('toDate','To'), ('size','Size'), ('uri','URI') ])
@@ -40,8 +49,8 @@ FAILED_HEADER = collections.OrderedDict([
                     ('bucket_fromDate','From'), ('bucket_toDate','To'), ('bucket_size','Size'), ('bucket_uri','URI') ])
 
 
-class Archiving(controllers.BaseController):
-    '''Archiving Controller'''
+class Thaw(controllers.BaseController):
+    '''Thaw Controller'''
 
     # Flattens a dictionary of dictionarys
     def flatten(self, d, parent_key=''):
@@ -54,15 +63,15 @@ class Archiving(controllers.BaseController):
                 flattenedItems.append((new_key, v))
         return collections.OrderedDict(flattenedItems)
 
-    # Gives the entire archiver page
+    # Show the thaw buckets page
     @expose_page(must_login=True, methods=['GET']) 
     def show(self, **kwargs):
         
         errors = None
         
-        logger.info('Show archiving page')
+        logger.info('Show thaw page')
 
-        return self.render_template('/shuttl:/templates/archiving.html', dict(errors=errors))
+        return self.render_template('/shuttl:/templates/thaw.html', dict(errors=errors))
 
     @expose_page(must_login=True, methods=['GET'])
     def show_flush(self, **kwargs):
@@ -77,7 +86,7 @@ class Archiving(controllers.BaseController):
         errors = None
         indexes = []
         # may raise exception (ex. connection refused)
-        indexesResponse = splunk.rest.simpleRequest('http://localhost:9090/shuttl/rest/archiver/index/list');
+        indexesResponse = splunk.rest.simpleRequest(ENDPOINT_LIST_INDEXES);
 
         if DEBUG: 
             indexes = debugIndexes
@@ -112,8 +121,8 @@ class Archiving(controllers.BaseController):
         buckets = {}
 
         logger.debug('list_buckets - postArgs: %s (%s)' % (params, type(params)))
-
-        bucketsResponse = splunk.rest.simpleRequest(url, getargs=params)
+        
+        bucketsResponse = splunk.rest.simpleRequest(ENDPOINT_LIST_BUCKETS, getargs=params)
         logger.debug('list_buckets - response: %s (%s)' % (bucketsResponse, type(bucketsResponse)))
 
         if DEBUG: 
@@ -151,7 +160,7 @@ class Archiving(controllers.BaseController):
 
         logger.debug('bucket action - postArgs: %s (%s)' % (params, type(params)))
 
-        response = splunk.rest.simpleRequest(url, postargs=params, method='POST')
+        response = splunk.rest.simpleRequest(ENDPOINT_THAW_BUCKETS, postargs=params, method='POST')
         
         if DEBUG:
             time.sleep(2)
