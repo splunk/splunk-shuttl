@@ -22,6 +22,7 @@ switch (Splunk.util.getCurrentView()) {
                     this.resize();
                     //this.iframe.contents().find("body").click(this.resize.bind(this));
                     $("body").bind( "resizeBody", this.resize.bind(this) );
+                    $(window).bind( "resizeIFrame", this.resize.bind(this) );
                 },
                 
                 resize: function() {

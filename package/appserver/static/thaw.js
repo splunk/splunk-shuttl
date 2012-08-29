@@ -176,6 +176,7 @@ function isFormValid() {
 }
 
 function resizePage() {
+  //$(window).trigger("resizeIFrame");
   top.$(".IFrameInclude").trigger("resizeBody");
 }
 
