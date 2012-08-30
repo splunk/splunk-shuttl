@@ -95,8 +95,10 @@ public class ListBucketsEndpoint {
 		long totalBucketsSize = 0;
 
 		for (Bucket bucket : filteredBucketsAtIndex) {
-			beans.add(getBucketBean(bucket));
-			totalBucketsSize += bucket.getSize() == null ? 0 : bucket.getSize();
+			Bucket bucketWithSize = getBucketWithSize(bucket);
+			beans.add(getBucketBean(bucketWithSize));
+			totalBucketsSize += bucketWithSize.getSize() == null ? 0 : bucketWithSize
+					.getSize();
 		}
 
 		Map<String, Object> response = new HashMap<String, Object>();
@@ -115,9 +117,12 @@ public class ListBucketsEndpoint {
 	}
 
 	private BucketBean getBucketBean(Bucket bucket) {
+		return BucketBean.createBeanFromBucket(bucket);
+	}
+
+	private Bucket getBucketWithSize(Bucket bucket) {
 		BucketSizeResolver bucketSizeResolver = getBucketSizeResolver();
-		Bucket bucketWithSize = bucketSizeResolver.resolveBucketSize(bucket);
-		return BucketBean.createBeanFromBucket(bucketWithSize);
+		return bucketSizeResolver.resolveBucketSize(bucket);
 	}
 
 	private BucketSizeResolver getBucketSizeResolver() {
