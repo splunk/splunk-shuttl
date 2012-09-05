@@ -15,6 +15,7 @@
 package com.splunk.shuttl.archiver.usecases;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -47,25 +48,29 @@ public class FlushFunctionalTest {
 		flusher = new Flusher(splunkSettings);
 	}
 
-	public void _emptyThawDirectory_doesNothing() {
+	public void _emptyThawDirectory_flushesNothing() {
 		assertTrue(isDirectoryEmpty(thawDir));
 		flusher.flush(index, new Date(), new Date());
+		assertTrue(flusher.getFlushedBuckets().isEmpty());
 	}
 
-	public void _thawDirectoryDoesNotExist_doesNothing()
+	public void _thawDirectoryDoesNotExist_flushesNothing()
 			throws IllegalIndexException {
 		File dir = createDirectory();
 		assertTrue(dir.delete());
 		when(splunkSettings.getThawLocation("foo")).thenReturn(dir);
 		flusher.flush("foo", new Date(), new Date());
+		assertTrue(flusher.getFlushedBuckets().isEmpty());
 	}
 
 	public void _givenThawedBucket_flushingTheTimeRangeOfThawedBucketDeletesBucket()
 			throws IllegalIndexException {
-		Bucket thawedBucket = TUtilsBucket.createBucketInDirectory(thawDir);
+		Bucket thawedBucket = TUtilsBucket.createBucketInDirectoryWithIndex(
+				thawDir, index);
 		assertTrue(thawedBucket.getDirectory().exists());
 		flusher.flush(index, thawedBucket.getEarliest(), thawedBucket.getLatest());
 		assertFalse(thawedBucket.getDirectory().exists());
+		assertEquals(asList(thawedBucket), flusher.getFlushedBuckets());
 	}
 
 	public void _givenThawedBucket_flushOutsideTheTimeRangeOfBucketDoesNotDeleteBucket() {
@@ -76,26 +81,30 @@ public class FlushFunctionalTest {
 		assertTrue(bucket.getDirectory().exists());
 		flusher.flush(index, laterDate, laterDate);
 		assertTrue(bucket.getDirectory().exists());
+		assertTrue(flusher.getFlushedBuckets().isEmpty());
 	}
 
 	public void _givenTwoThawedBuckets_withinTimeRangeDeletesBuckets() {
-		Bucket b1 = TUtilsBucket.createBucketInDirectory(thawDir);
-		Bucket b2 = TUtilsBucket.createBucketInDirectoryWithTimes(thawDir,
-				b1.getEarliest(), b1.getLatest());
+		Bucket b1 = TUtilsBucket.createBucketInDirectoryWithIndex(thawDir, index);
+		Bucket b2 = TUtilsBucket.createBucketInDirectoryWithTimesAndIndex(thawDir,
+				b1.getEarliest(), b1.getLatest(), index);
 		flusher.flush(index, b1.getEarliest(), b1.getLatest());
 		assertFalse(b1.getDirectory().exists());
 		assertFalse(b2.getDirectory().exists());
+		assertEquals(asList(b1, b2), flusher.getFlushedBuckets());
 	}
 
 	public void _givenFileThatIsNotABucket_doesNotDeleteFile() {
 		File file = createFileInParent(thawDir, "not.a.bucket");
 		flusher.flush(index, new Date(), new Date());
 		assertTrue(file.exists());
+		assertTrue(flusher.getFlushedBuckets().isEmpty());
 	}
 
 	public void _givenDirectoryThatIsNotABucket_doesNotDeleteDir() {
 		File dir = createDirectoryInParent(thawDir, "dir.is.not.a.bucket");
 		flusher.flush(index, new Date(), new Date());
 		assertTrue(dir.exists());
+		assertTrue(flusher.getFlushedBuckets().isEmpty());
 	}
 }
