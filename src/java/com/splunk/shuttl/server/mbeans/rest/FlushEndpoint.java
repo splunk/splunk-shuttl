@@ -47,7 +47,6 @@ public class FlushEndpoint {
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path(ENDPOINT_LIST_BUCKETS)
 	public String flushBuckets(@FormParam("index") String index,
 			@FormParam("from") String from, @FormParam("to") String to) {
 		logger.info(happened("Received REST request to list buckets", "endpoint",
