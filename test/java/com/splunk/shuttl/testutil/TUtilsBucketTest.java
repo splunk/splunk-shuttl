@@ -63,8 +63,8 @@ public class TUtilsBucketTest {
 		assertEquals(4, nameComponents.length);
 		assertEquals("db", nameComponents[0]);
 		try {
-			long earliest = Long.parseLong(nameComponents[1]);
-			long latest = Long.parseLong(nameComponents[2]);
+			long latest = Long.parseLong(nameComponents[1]);
+			long earliest = Long.parseLong(nameComponents[2]);
 			Long.parseLong(nameComponents[3]);
 			assertTrue(earliest < latest);
 		} catch (NumberFormatException e) {
@@ -214,5 +214,11 @@ public class TUtilsBucketTest {
 	public void createRemoteBucket_noArguments_hasSplunkBucketFormat() {
 		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
 		assertEquals(BucketFormat.SPLUNK_BUCKET, remoteBucket.getFormat());
+	}
+
+	public void createInDirectory_someDir_earliestAndLatestAreEarlierAndLaterThanEachother() {
+		Bucket bucket = TUtilsBucket.createBucketInDirectory(createDirectory());
+		assertFalse(bucket.getEarliest().after(bucket.getLatest()));
+		assertFalse(bucket.getLatest().before(bucket.getEarliest()));
 	}
 }
