@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.usecases;
+package com.splunk.shuttl.archiver.flush;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static java.util.Arrays.*;
@@ -25,15 +25,14 @@ import java.util.Date;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.flush.Flusher;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
-@Test(groups = { "functional" })
-public class FlushFunctionalTest {
+@Test(groups = { "fast-unit" })
+public class FlusherTest {
 
 	private Flusher flusher;
 	private String index;
