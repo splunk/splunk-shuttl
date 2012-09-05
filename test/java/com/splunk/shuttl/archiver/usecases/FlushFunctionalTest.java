@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.flush.Flusher;
+import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
@@ -38,17 +39,20 @@ public class FlushFunctionalTest {
 	private String index;
 	private File thawDir;
 	private SplunkSettings splunkSettings;
+	private ArchivedIndexesLister indexesLister;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
 		splunkSettings = mock(SplunkSettings.class);
+		indexesLister = mock(ArchivedIndexesLister.class);
 		thawDir = createDirectory();
 		index = "index";
 		when(splunkSettings.getThawLocation(index)).thenReturn(thawDir);
-		flusher = new Flusher(splunkSettings);
+		when(indexesLister.listIndexes()).thenReturn(asList(index));
+		flusher = new Flusher(splunkSettings, indexesLister);
 	}
 
-	public void _emptyThawDirectory_flushesNothing() {
+	public void _emptyThawDirectory_flushesNothing() throws IllegalIndexException {
 		assertTrue(isDirectoryEmpty(thawDir));
 		flusher.flush(index, new Date(), new Date());
 		assertTrue(flusher.getFlushedBuckets().isEmpty());
@@ -58,8 +62,8 @@ public class FlushFunctionalTest {
 			throws IllegalIndexException {
 		File dir = createDirectory();
 		assertTrue(dir.delete());
-		when(splunkSettings.getThawLocation("foo")).thenReturn(dir);
-		flusher.flush("foo", new Date(), new Date());
+		when(splunkSettings.getThawLocation(index)).thenReturn(dir);
+		flusher.flush(index, new Date(), new Date());
 		assertTrue(flusher.getFlushedBuckets().isEmpty());
 	}
 
@@ -73,7 +77,8 @@ public class FlushFunctionalTest {
 		assertEquals(asList(thawedBucket), flusher.getFlushedBuckets());
 	}
 
-	public void _givenThawedBucket_flushOutsideTheTimeRangeOfBucketDoesNotDeleteBucket() {
+	public void _givenThawedBucket_flushOutsideTheTimeRangeOfBucketDoesNotDeleteBucket()
+			throws IllegalIndexException {
 		Date date = new Date(0);
 		Date laterDate = new Date(9);
 		Bucket bucket = TUtilsBucket.createBucketInDirectoryWithTimes(thawDir,
@@ -84,7 +89,8 @@ public class FlushFunctionalTest {
 		assertTrue(flusher.getFlushedBuckets().isEmpty());
 	}
 
-	public void _givenTwoThawedBuckets_withinTimeRangeDeletesBuckets() {
+	public void _givenTwoThawedBuckets_withinTimeRangeDeletesBuckets()
+			throws IllegalIndexException {
 		Bucket b1 = TUtilsBucket.createBucketInDirectoryWithIndex(thawDir, index);
 		Bucket b2 = TUtilsBucket.createBucketInDirectoryWithTimesAndIndex(thawDir,
 				b1.getEarliest(), b1.getLatest(), index);
@@ -94,17 +100,26 @@ public class FlushFunctionalTest {
 		assertEquals(asList(b1, b2), flusher.getFlushedBuckets());
 	}
 
-	public void _givenFileThatIsNotABucket_doesNotDeleteFile() {
+	public void _givenFileThatIsNotABucket_doesNotDeleteFile()
+			throws IllegalIndexException {
 		File file = createFileInParent(thawDir, "not.a.bucket");
 		flusher.flush(index, new Date(), new Date());
 		assertTrue(file.exists());
 		assertTrue(flusher.getFlushedBuckets().isEmpty());
 	}
 
-	public void _givenDirectoryThatIsNotABucket_doesNotDeleteDir() {
+	public void _givenDirectoryThatIsNotABucket_doesNotDeleteDir()
+			throws IllegalIndexException {
 		File dir = createDirectoryInParent(thawDir, "dir.is.not.a.bucket");
 		flusher.flush(index, new Date(), new Date());
 		assertTrue(dir.exists());
 		assertTrue(flusher.getFlushedBuckets().isEmpty());
+	}
+
+	@Test(expectedExceptions = { IllegalIndexException.class })
+	public void _givenIndexThatDoesNotExist_throwIllegalIndexException()
+			throws IllegalIndexException {
+		Bucket b = TUtilsBucket.createBucketInDirectory(thawDir);
+		flusher.flush("index-does-not-exist", b.getEarliest(), b.getLatest());
 	}
 }
