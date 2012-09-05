@@ -32,7 +32,9 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.flush.Flusher;
+import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
 import com.splunk.shuttl.server.model.BucketBean;
 
@@ -47,7 +49,7 @@ public class FlushEndpoint {
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	public String flushBuckets(@FormParam("index") String index,
+	public String flushBuckets(@FormParam("index") final String index,
 			@FormParam("from") String from, @FormParam("to") String to) {
 		logger.info(happened("Received REST request to list buckets", "endpoint",
 				ENDPOINT_LIST_BUCKETS, "index", index, "from", from, "to", to));
@@ -55,15 +57,31 @@ public class FlushEndpoint {
 		Date fromDate = RestUtil.getValidFromDate(from);
 		Date toDate = RestUtil.getValidToDate(to);
 
-		Flusher flusher = new Flusher(SplunkSettingsFactory.create());
-		flusher.flush(index, fromDate, toDate);
+		Flusher flusher = new Flusher(SplunkSettingsFactory.create(),
+				ArchivedIndexesListerFactory.create());
+		try {
+			flusher.flush(index, fromDate, toDate);
+			return respondWithFlushedBuckets(flusher.getFlushedBuckets());
+		} catch (IllegalIndexException e) {
+			return respondWithIndexError(index);
+		}
+	}
+
+	private String respondWithFlushedBuckets(List<Bucket> flushedBuckets) {
 		List<BucketBean> responseBeans = new ArrayList<BucketBean>();
-		for (Bucket b : flusher.getFlushedBuckets())
+		for (Bucket b : flushedBuckets)
 			responseBeans.add(BucketBean.createBeanFromBucket(b));
 
 		Map<String, Object> responseMap = new HashMap<String, Object>();
 		responseMap.put("flushed", responseBeans);
 
+		return RestUtil.writeMapAsJson(responseMap);
+	}
+
+	private String respondWithIndexError(String index) {
+		Map<String, Object> responseMap = new HashMap<String, Object>();
+		responseMap.put("error", "Could not flush index: " + index
+				+ ", because it's not been shuttled.");
 		return RestUtil.writeMapAsJson(responseMap);
 	}
 }

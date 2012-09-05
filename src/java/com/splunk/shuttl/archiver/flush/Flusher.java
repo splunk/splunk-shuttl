@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
@@ -36,21 +37,34 @@ public class Flusher {
 
 	private final SplunkSettings splunkSettings;
 	private ArrayList<Bucket> flushedBuckets;
+	private ArchivedIndexesLister indexesLister;
 
 	/**
 	 * @param splunkSettings
+	 * @param indexesLister
 	 */
-	public Flusher(SplunkSettings splunkSettings) {
+	public Flusher(SplunkSettings splunkSettings,
+			ArchivedIndexesLister indexesLister) {
 		this.splunkSettings = splunkSettings;
+		this.indexesLister = indexesLister;
 		this.flushedBuckets = new ArrayList<Bucket>();
 	}
 
 	/**
 	 * @param index
+	 *          to flush
 	 * @param earliest
 	 * @param latest
+	 * @throws IllegalIndexException
+	 *           if the index is not in the archive. Protecting indexes that
+	 *           aren't using Shuttl to lose their thaw data.
 	 */
-	public void flush(String index, Date earliest, Date latest) {
+	public void flush(String index, Date earliest, Date latest)
+			throws IllegalIndexException {
+		if (!indexesLister.listIndexes().contains(index))
+			throw new IllegalIndexException("Index does not exist in the archive, "
+					+ "which means it cannot have been thawed.");
+
 		try {
 			doFlush(index, earliest, latest);
 		} catch (IllegalIndexException e) {
