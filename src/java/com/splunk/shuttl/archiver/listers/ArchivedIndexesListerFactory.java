@@ -16,7 +16,6 @@ package com.splunk.shuttl.archiver.listers;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 
 public class ArchivedIndexesListerFactory {
@@ -25,11 +24,16 @@ public class ArchivedIndexesListerFactory {
 	 * @return configured {@link ArchivedIndexesLister} instance.
 	 */
 	public static ArchivedIndexesLister create() {
-		ArchiveConfiguration conf = ArchiveConfiguration.getSharedInstance();
-		ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
-				.getWithConfiguration(conf);
+		return create(ArchiveConfiguration.getSharedInstance());
+	}
 
-		return new ArchivedIndexesLister(new PathResolver(conf), fileSystem);
+	/**
+	 * @param config
+	 * @return
+	 */
+	public static ArchivedIndexesLister create(ArchiveConfiguration config) {
+		return new ArchivedIndexesLister(new PathResolver(config),
+				ArchiveFileSystemFactory.getWithConfiguration(config));
 	}
 
 }
