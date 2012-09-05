@@ -42,6 +42,7 @@ public class ArchiveFileSystemFactory {
 		supportedUriSchemas.add("file");
 		supportedUriSchemas.add("hdfs");
 		supportedUriSchemas.add("s3");
+		supportedUriSchemas.add("s3n");
 	}
 
 	/**
@@ -89,7 +90,7 @@ public class ArchiveFileSystemFactory {
 
 	private static ArchiveFileSystem supportedArchiveFileSystem(URI uri) {
 		if (uri.getScheme().equals("file") || uri.getScheme().equals("hdfs")
-				|| uri.getScheme().equals("s3"))
+				|| uri.getScheme().equals("s3") || uri.getScheme().equals("s3n"))
 			return createHadoopFileSystem(uri);
 
 		throw new IllegalStateException(
