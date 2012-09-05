@@ -30,7 +30,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
@@ -116,7 +115,6 @@ public class ThawBucketsEndpoint {
 	private String convertThawInfoToJSON(BucketThawer bucketThawer) {
 		List<BucketBean> thawedBucketBeans = new ArrayList<BucketBean>();
 		List<Map<String, Object>> failedBucketBeans = new ArrayList<Map<String, Object>>();
-		ObjectMapper mapper = new ObjectMapper();
 
 		for (Bucket bucket : bucketThawer.getThawedBuckets())
 			thawedBucketBeans.add(BucketBean.createBeanFromBucket(bucket));
@@ -128,18 +126,11 @@ public class ThawBucketsEndpoint {
 			failedBucketBeans.add(temp);
 		}
 
-		HashMap<String, Object> ret = new HashMap<String, Object>();
-		ret.put("thawed", thawedBucketBeans);
-		ret.put("failed", failedBucketBeans);
+		HashMap<String, Object> response = new HashMap<String, Object>();
+		response.put("thawed", thawedBucketBeans);
+		response.put("failed", failedBucketBeans);
 
-		try {
-			return mapper.writeValueAsString(ret);
-		} catch (Exception e) {
-			logger
-					.error(did(
-							"attempted to convert thawed/failed buckets to JSON string", e,
-							null));
-			throw new RuntimeException(e);
-		}
+		return RestUtil.writeMapAsJson(response);
 	}
+
 }

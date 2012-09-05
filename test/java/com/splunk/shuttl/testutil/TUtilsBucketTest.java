@@ -221,4 +221,10 @@ public class TUtilsBucketTest {
 		assertFalse(bucket.getEarliest().after(bucket.getLatest()));
 		assertFalse(bucket.getLatest().before(bucket.getEarliest()));
 	}
+
+	public void createInDirectoryWithTimesAndIndex_givenIndex_hasSpecifiedIndex() {
+		Bucket b = TUtilsBucket.createBucketInDirectoryWithTimesAndIndex(
+				getShuttlTestDirectory(), new Date(), new Date(), "foo");
+		assertEquals("foo", b.getIndex());
+	}
 }

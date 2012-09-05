@@ -34,13 +34,15 @@ import com.splunk.shuttl.archiver.thaw.SplunkSettings;
  */
 public class Flusher {
 
-	private SplunkSettings splunkSettings;
+	private final SplunkSettings splunkSettings;
+	private ArrayList<Bucket> flushedBuckets;
 
 	/**
 	 * @param splunkSettings
 	 */
 	public Flusher(SplunkSettings splunkSettings) {
 		this.splunkSettings = splunkSettings;
+		this.flushedBuckets = new ArrayList<Bucket>();
 	}
 
 	/**
@@ -63,8 +65,10 @@ public class Flusher {
 		File thawLocation = splunkSettings.getThawLocation(index);
 		List<Bucket> buckets = getBucketsFromThawLocation(index, thawLocation);
 		List<Bucket> bucketsToFlush = filterByTimeRange(earliest, latest, buckets);
-		for (Bucket b : bucketsToFlush)
+		for (Bucket b : bucketsToFlush) {
 			b.deleteBucket();
+			flushedBuckets.add(b);
+		}
 	}
 
 	private List<Bucket> getBucketsFromThawLocation(String index,
@@ -92,5 +96,12 @@ public class Flusher {
 			}
 		}
 		return filtered;
+	}
+
+	/**
+	 * @return the buckets flushed.
+	 */
+	public List<Bucket> getFlushedBuckets() {
+		return flushedBuckets;
 	}
 }

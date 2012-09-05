@@ -168,10 +168,16 @@ public class TUtilsBucket {
 	 */
 	public static Bucket createBucketInDirectoryWithTimes(File parent,
 			Date earliest, Date latest) {
+		return createBucketInDirectoryWithTimesAndIndex(parent, earliest, latest,
+				randomIndexName());
+	}
+
+	public static Bucket createBucketInDirectoryWithTimesAndIndex(File parent,
+			Date earliest, Date latest, String index) {
 		String bucketName = getNameWithEarliestAndLatestTime(earliest, latest);
 		File bucketDir = createFileFormatedAsBucketInDirectoryWithName(parent,
 				bucketName);
-		return createBucketWithIndexInDirectory(randomIndexName(), bucketDir);
+		return createBucketWithIndexInDirectory(index, bucketDir);
 	}
 
 	/**

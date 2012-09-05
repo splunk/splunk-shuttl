@@ -52,7 +52,6 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
-import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFile;
@@ -121,7 +120,7 @@ public class ArchiverEndToEndTest {
 		Service service = new Service(splunkHost, Integer.parseInt(splunkPort));
 		service.login(splunkUserName, splunkPw);
 		assertTrue(service.getIndexes().containsKey(thawIndex));
-		splunkSettings = BucketThawerFactory.getSplunkSettings(service);
+		splunkSettings = new SplunkSettings(service);
 
 		try {
 			thawDirectoryLocation = splunkSettings.getThawLocation(thawIndex);

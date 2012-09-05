@@ -47,7 +47,6 @@ import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketSizeResolver;
-import com.splunk.shuttl.archiver.thaw.StringDateConverter;
 import com.splunk.shuttl.server.model.BucketBean;
 
 /**
@@ -85,8 +84,8 @@ public class ListBucketsEndpoint {
 		logger.info(happened("Received REST request to list buckets", "endpoint",
 				ENDPOINT_LIST_BUCKETS, "index", index, "from", from, "to", to));
 
-		Date fromDate = getValidFromDate(from);
-		Date toDate = getValidToDate(to);
+		Date fromDate = RestUtil.getValidFromDate(from);
+		Date toDate = RestUtil.getValidToDate(to);
 
 		List<Bucket> filteredBucketsAtIndex = getFilteredBucketsAtIndex(index,
 				fromDate, toDate);
@@ -133,22 +132,6 @@ public class ListBucketsEndpoint {
 				LocalFileSystemPaths.create());
 		return new BucketSizeResolver(
 				ArchiveBucketSize.create(config, bucketSizeIO));
-	}
-
-	private Date getValidFromDate(String from) {
-		if (from == null) {
-			logger.info("No from time provided - defaulting to 0001-01-01");
-			from = "0001-01-01";
-		}
-		return StringDateConverter.convert(from);
-	}
-
-	private Date getValidToDate(String to) {
-		if (to == null) {
-			logger.info("No to time provided - defaulting to 9999-12-31");
-			to = "9999-12-31";
-		}
-		return StringDateConverter.convert(to);
 	}
 
 	private List<Bucket> getFilteredBucketsAtIndex(String index, Date fromDate,
