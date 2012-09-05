@@ -243,14 +243,18 @@ public class Bucket {
 	 * @return {@link Date} with earliest time of indexed data in the bucket.
 	 */
 	public Date getEarliest() {
-		return new Date(bucketName.getEarliest());
+		return new Date(toMillis(bucketName.getEarliest()));
+	}
+
+	private long toMillis(long l) {
+		return l * 1000;
 	}
 
 	/**
 	 * @return {@link Date} with latest time of indexed data in the bucket.
 	 */
 	public Date getLatest() {
-		return new Date(bucketName.getLatest());
+		return new Date(toMillis(bucketName.getLatest()));
 	}
 
 	public Long getSize() {

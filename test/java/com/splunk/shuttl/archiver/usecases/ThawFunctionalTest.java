@@ -39,6 +39,7 @@ import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsDate;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
 @Test(groups = { "functional" })
@@ -81,7 +82,7 @@ public class ThawFunctionalTest {
 	}
 
 	public void Thawer_givenOneArchivedBucket_thawArchivedBucket() {
-		Date earliest = new Date();
+		Date earliest = TUtilsDate.getNowWithoutMillis();
 		Date latest = earliest;
 		Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(thawIndex,
 				earliest, latest);
@@ -94,13 +95,16 @@ public class ThawFunctionalTest {
 		assertEquals(bucket.getName(), thawedName);
 	}
 
+	private static final int HUNDRED_SECONDS = 100000;
+	private static final int SECOND = 1000;
+
 	public void Thawer_archivingBucketsInThreeDifferentTimeRanges_filterByOnlyOneOfTheTimeRanges()
 			throws Exception {
-		Date earliest = new Date(1332295013);
-		Date latest = new Date(earliest.getTime() + 26);
+		Date earliest = TUtilsDate.getNowWithoutMillis();
+		Date latest = TUtilsDate.getLaterDate(earliest);
 		for (int i = 0; i < 3; i++) {
-			Date early = new Date(earliest.getTime() + i * 100);
-			Date later = new Date(early.getTime() + 30);
+			Date early = new Date(earliest.getTime() + i * HUNDRED_SECONDS);
+			Date later = new Date(early.getTime() + SECOND);
 			Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(thawIndex,
 					early, later);
 			archiveBucket(bucket, bucketArchiver);

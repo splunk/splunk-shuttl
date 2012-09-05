@@ -30,6 +30,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsDate;
 
 @Test(groups = { "fast-unit" })
 public class FlusherTest {
@@ -78,8 +79,8 @@ public class FlusherTest {
 
 	public void _givenThawedBucket_flushOutsideTheTimeRangeOfBucketDoesNotDeleteBucket()
 			throws IllegalIndexException {
-		Date date = new Date(0);
-		Date laterDate = new Date(9);
+		Date date = TUtilsDate.getNowWithoutMillis();
+		Date laterDate = TUtilsDate.getLaterDate(date);
 		Bucket bucket = TUtilsBucket.createBucketInDirectoryWithTimes(thawDir,
 				date, date);
 		assertTrue(bucket.getDirectory().exists());

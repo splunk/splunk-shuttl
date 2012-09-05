@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsDate;
 
 @Test(groups = { "fast-unit" })
 public class BucketFilterTest {
@@ -94,7 +95,7 @@ public class BucketFilterTest {
 	}
 
 	public void filterBucketsByTimeRange_givenOneBucketWhereEarliestIsAfterFiltersLatest_filterBucketAndReturnEmptyList() {
-		Date bucketEarliest = new Date(latest.getTime() + 100);
+		Date bucketEarliest = new Date(latest.getTime() + 1000);
 		assertTrue(bucketEarliest.after(latest));
 
 		Bucket bucket = createBucketWithEarliestAndLatestSetToDate(bucketEarliest);
@@ -115,7 +116,7 @@ public class BucketFilterTest {
 	}
 
 	public void filterBucketsByTimeRange_givenEarliestEqualsLatest_returnTheBucketAtThatTimeRange() {
-		Date earliestAndLatest = new Date();
+		Date earliestAndLatest = TUtilsDate.getNowWithoutMillis();
 		Bucket bucket = TUtilsBucket.createBucketWithTimes(earliestAndLatest,
 				earliestAndLatest);
 		List<Bucket> filteredBuckets = bucketFilter.filterBucketsByTimeRange(

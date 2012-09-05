@@ -101,16 +101,6 @@ public class TUtilsBucketTest {
 		assertEquals(parent, bucketCreated.getDirectory().getParentFile());
 	}
 
-	public void createBucketWithTimes_givenEarliestLatest_bucketNameStartsWith_db_earliest_latest() {
-		Date earliest = new Date(12351235);
-		Date latest = new Date(earliest.getTime() + 100);
-		Bucket bucketWithTimes = TUtilsBucket.createBucketWithTimes(earliest,
-				latest);
-		String expectedBucketNameStart = "db_" + latest.getTime() + "_"
-				+ earliest.getTime();
-		assertTrue(bucketWithTimes.getName().startsWith(expectedBucketNameStart));
-	}
-
 	public void createBucketInDirectoryWithTimes_givenDirectory_createsBucketInTheDirectory() {
 		File parent = null;
 		try {
@@ -124,16 +114,19 @@ public class TUtilsBucketTest {
 		}
 	}
 
-	public void createBucketInDirectoryWithTimes_givenTimes_bucketNameStartsWith_db_earliest_latest() {
+	public void createBucketInDirectoryWithTimes_givenTimesInMilliseconds_bucketNameStartsWith_db_earliest_latest_InSeconds() {
 		File parent = null;
 		try {
 			parent = createDirectory();
-			Date earliest = new Date();
-			Date latest = new Date(earliest.getTime() + 100);
+			Date earliest = TUtilsDate.getNowWithoutMillis();
+			Date latest = TUtilsDate.getLaterDate(earliest);
 			Bucket bucketWithTimes = TUtilsBucket.createBucketInDirectoryWithTimes(
 					parent, earliest, latest);
-			String expectedBucketNameStart = "db_" + latest.getTime() + "_"
-					+ earliest.getTime();
+
+			long latestInSeconds = latest.getTime() / 1000;
+			long earliestInSeconds = earliest.getTime() / 1000;
+			String expectedBucketNameStart = "db_" + latestInSeconds + "_"
+					+ earliestInSeconds;
 			assertTrue(bucketWithTimes.getName().startsWith(expectedBucketNameStart));
 		} finally {
 			FileUtils.deleteQuietly(parent);
@@ -148,8 +141,8 @@ public class TUtilsBucketTest {
 
 	public void createBucketWithIndexAndTimeRange_givenParameters_bucketWithParameters() {
 		String index = "index";
-		Date earliest = new Date(12345678);
-		Date latest = new Date(earliest.getTime() + 100);
+		Date earliest = TUtilsDate.getNowWithoutMillis();
+		Date latest = TUtilsDate.getLaterDate(earliest);
 		Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(index,
 				earliest, latest);
 		assertEquals(index, bucket.getIndex());
