@@ -54,6 +54,7 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsDate;
 import com.splunk.shuttl.testutil.TUtilsFile;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -145,8 +146,8 @@ public class ArchiverEndToEndTest {
 
 	private void archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket()
 			throws Exception {
-		Date earliest = new Date(1332295013);
-		Date latest = new Date(earliest.getTime() + 26);
+		Date earliest = TUtilsDate.getNowWithoutMillis();
+		Date latest = TUtilsDate.getLaterDate(earliest);
 
 		Bucket bucketToFreeze = TUtilsBucket.createBucketWithIndexAndTimeRange(
 				thawIndex, earliest, latest);

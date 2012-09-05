@@ -151,7 +151,7 @@ public class BucketBean {
 				stringFromDate(bucket.getLatest()), size);
 	}
 
-	private static String stringFromDate(Date date) {
+	public static String stringFromDate(Date date) {
 		return new SimpleDateFormat("yyyy-MM-dd").format(date).toString();
 	}
 }

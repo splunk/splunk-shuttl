@@ -159,8 +159,12 @@ public class TUtilsBucket {
 
 	private static String getNameWithEarliestAndLatestTime(Date earliest,
 			Date latest) {
-		return "db_" + latest.getTime() + "_" + earliest.getTime() + "_"
-				+ randomIndexName();
+		return "db_" + toSec(latest.getTime()) + "_" + toSec(earliest.getTime())
+				+ "_" + randomIndexName();
+	}
+
+	private static long toSec(long time) {
+		return time / 1000;
 	}
 
 	/**

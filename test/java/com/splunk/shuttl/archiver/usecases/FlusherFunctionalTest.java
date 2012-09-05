@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -40,6 +40,7 @@ import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsDate;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
 @Test(groups = { "functional" })
@@ -73,8 +74,8 @@ public class FlusherFunctionalTest {
 
 	public void _archiveTwoBuckets_thawThem_flushOneOfThem()
 			throws IllegalIndexException {
-		Date early = new Date(0);
-		Date later = new Date(early.getTime() + 100);
+		Date early = TUtilsDate.getNowWithoutMillis();
+		Date later = TUtilsDate.getLaterDate(early);
 
 		Bucket b1 = TUtilsBucket.createBucketWithIndexAndTimeRange(index, early,
 				early);
