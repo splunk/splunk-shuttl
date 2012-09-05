@@ -184,8 +184,8 @@ public class ArchiverEndToEndTest {
 		}
 		List<String> lines = getLinesFromResponse(response);
 		assertEquals(1, lines.size());
-		assertTrue(lines.get(0).contains(
-				"\"bucketName\":\"" + bucket.getName() + "\""));
+		assertTrue("response: " + lines.get(0),
+				lines.get(0).contains("\"bucketName\":\"" + bucket.getName() + "\""));
 	}
 
 	private HttpGet getListGetRequest(String index, Date earliest, Date latest) {
