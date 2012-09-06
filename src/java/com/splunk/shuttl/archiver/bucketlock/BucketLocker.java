@@ -55,9 +55,11 @@ public abstract class BucketLocker {
 	private void executeBucketHandlerIfSharedLockIsAcquired(
 			BucketLock bucketLock, Bucket bucket,
 			SharedLockBucketHandler bucketHandler) {
-		if (bucketLock.tryLockExclusive())
-			if (bucketLock.tryConvertExclusiveToSharedLock())
-				bucketHandler.handleSharedLockedBucket(bucket);
+		if (bucketLock.tryLockExclusive()
+				&& bucketLock.tryConvertExclusiveToSharedLock())
+			bucketHandler.handleSharedLockedBucket(bucket);
+		else
+			bucketHandler.bucketWasLocked(bucket);
 	}
 
 	/**
@@ -71,6 +73,11 @@ public abstract class BucketLocker {
 		 * {@link BucketLock}.
 		 */
 		void handleSharedLockedBucket(Bucket bucket);
+
+		/**
+		 * Bucket was locked. Do not do anything on it.
+		 */
+		void bucketWasLocked(Bucket bucket);
 	}
 
 }
