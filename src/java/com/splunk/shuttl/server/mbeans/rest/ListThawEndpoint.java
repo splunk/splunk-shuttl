@@ -15,6 +15,7 @@
 package com.splunk.shuttl.server.mbeans.rest;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
+import static java.util.Arrays.*;
 
 import java.util.Date;
 import java.util.List;
@@ -26,6 +27,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.splunk.shuttl.archiver.flush.ThawedBuckets;
+import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
@@ -42,21 +44,31 @@ public class ListThawEndpoint {
 
 		Date earliest = RestUtil.getValidFromDate(from);
 		Date latest = RestUtil.getValidToDate(to);
+		List<String> indexes;
+		if (index == null)
+			indexes = ArchivedIndexesListerFactory.create().listIndexes();
+		else
+			indexes = asList(index);
 
 		try {
-			return filteredBucketsInThaw(index, earliest, latest);
+			List<Bucket> filteredBuckets = filteredBucketsInThaw(indexes, earliest,
+					latest);
+			return RestUtil.respondWithBuckets(filteredBuckets);
 		} catch (IllegalIndexException e) {
 			return RestUtil.respondWithIndexError(index);
 		}
 	}
 
-	private String filteredBucketsInThaw(String index, Date earliest, Date latest)
-			throws IllegalIndexException {
+	private List<Bucket> filteredBucketsInThaw(List<String> indexes,
+			Date earliest, Date latest) throws IllegalIndexException {
 		SplunkSettings splunkSettings = SplunkSettingsFactory.create();
-		List<Bucket> buckets = ThawedBuckets.getBucketsFromThawLocation(index,
-				splunkSettings.getThawLocation(index));
-		List<Bucket> filteredBuckets = BucketFilter.filterBuckets(buckets,
-				earliest, latest);
-		return RestUtil.respondWithBuckets(filteredBuckets);
+		List<Bucket> filteredBuckets = new java.util.ArrayList<Bucket>();
+		for (String index : indexes) {
+			List<Bucket> buckets = ThawedBuckets.getBucketsFromThawLocation(index,
+					splunkSettings.getThawLocation(index));
+			filteredBuckets.addAll(BucketFilter.filterBuckets(buckets, earliest,
+					latest));
+		}
+		return filteredBuckets;
 	}
 }

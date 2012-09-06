@@ -5,4 +5,5 @@
         <view name="buckets_per_index" />
     </collection>
     <view name="archivings" />
+    <view name="flushings" />
 </nav>

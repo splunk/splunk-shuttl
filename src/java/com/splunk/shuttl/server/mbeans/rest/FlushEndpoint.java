@@ -16,6 +16,7 @@ package com.splunk.shuttl.server.mbeans.rest;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
+import static java.util.Arrays.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,17 +58,29 @@ public class FlushEndpoint {
 		Date fromDate = RestUtil.getValidFromDate(from);
 		Date toDate = RestUtil.getValidToDate(to);
 
+		List<Exception> errors = new ArrayList<Exception>();
 		Flusher flusher = new Flusher(SplunkSettingsFactory.create(),
 				ArchivedIndexesListerFactory.create());
-		try {
-			flusher.flush(index, fromDate, toDate);
-			return respondWithFlushedBuckets(flusher.getFlushedBuckets());
-		} catch (IllegalIndexException e) {
-			return RestUtil.respondWithIndexError(index);
+
+		List<String> indexes;
+		if (index == null)
+			indexes = ArchivedIndexesListerFactory.create().listIndexes();
+		else
+			indexes = asList(index);
+
+		for (String i : indexes) {
+			try {
+				flusher.flush(i, fromDate, toDate);
+			} catch (IllegalIndexException e) {
+				errors.add(e);
+			}
 		}
+
+		return respondWithFlushedBuckets(flusher.getFlushedBuckets(), errors);
 	}
 
-	private String respondWithFlushedBuckets(List<Bucket> flushedBuckets) {
+	private String respondWithFlushedBuckets(List<Bucket> flushedBuckets,
+			List<Exception> errors) {
 		List<BucketBean> responseBeans = new ArrayList<BucketBean>();
 		for (Bucket b : flushedBuckets)
 			responseBeans.add(BucketBean.createBeanFromBucket(b));
