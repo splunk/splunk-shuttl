@@ -83,6 +83,10 @@ public class BucketLockerCloseLockTest {
 						public void handleSharedLockedBucket(Bucket bucket) {
 							throw new FakeException();
 						}
+
+						@Override
+						public void bucketWasLocked(Bucket bucket) {
+						}
 					});
 		} catch (FakeException fake) {
 			// Catch runnables exception to see if it still closes lock in case

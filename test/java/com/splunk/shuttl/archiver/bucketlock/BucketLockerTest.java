@@ -60,6 +60,7 @@ public class BucketLockerTest {
 		NoOpBucketHandler bucketHandler = new NoOpBucketHandler();
 		bucketLocker.callBucketHandlerUnderSharedLock(bucket, bucketHandler);
 		assertTrue(bucketHandler.wasRun);
+		assertFalse(bucketHandler.wasLocked);
 	}
 
 	public void callBucketHandlerUnderSharedLock_givenLockedBucket_doesNotExecuteRunnable() {
@@ -68,6 +69,7 @@ public class BucketLockerTest {
 		NoOpBucketHandler bucketHandler = new NoOpBucketHandler();
 		bucketLocker.callBucketHandlerUnderSharedLock(bucket, bucketHandler);
 		assertFalse(bucketHandler.wasRun);
+		assertTrue(bucketHandler.wasLocked);
 	}
 
 	public void callBucketHandlerUnderSharedLock_runOnceAlreadyAndReleasedTheLock_executesRunnableAgain() {
@@ -88,10 +90,16 @@ public class BucketLockerTest {
 	public static class NoOpBucketHandler implements SharedLockBucketHandler {
 
 		public boolean wasRun = false;
+		public boolean wasLocked = false;
 
 		@Override
 		public void handleSharedLockedBucket(Bucket bucket) {
 			wasRun = true;
+		}
+
+		@Override
+		public void bucketWasLocked(Bucket bucket) {
+			wasLocked = true;
 		}
 	}
 }

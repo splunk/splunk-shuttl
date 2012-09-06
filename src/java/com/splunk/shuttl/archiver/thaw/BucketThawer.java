@@ -41,6 +41,7 @@ public class BucketThawer {
 	private final GetsBucketsFromArchive getsBucketsFromArchive;
 	private final ThawLocationProvider thawLocationProvider;
 	private final List<Bucket> successfulThawedBuckets;
+	private final List<Bucket> skippedBuckets;
 	private final List<FailedBucket> failedBuckets;
 	private final BucketLocker thawBucketLocker;
 
@@ -75,6 +76,7 @@ public class BucketThawer {
 		this.thawBucketLocker = thawBucketLocker;
 
 		this.successfulThawedBuckets = new ArrayList<Bucket>();
+		this.skippedBuckets = new ArrayList<Bucket>();
 		this.failedBuckets = new ArrayList<FailedBucket>();
 	}
 
@@ -97,7 +99,7 @@ public class BucketThawer {
 					thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
 							new ThawBucketFromArchive());
 				} else {
-					// Do nothing.
+					skippedBuckets.add(bucket);
 				}
 			} catch (IOException e) {
 				logIOExceptionFromCheckingIfBucketWasThawed(bucket, e);
@@ -138,6 +140,11 @@ public class BucketThawer {
 			BucketThawer.this.thawBucketFromArchive(bucket);
 		}
 
+		@Override
+		public void bucketWasLocked(Bucket bucket) {
+			BucketThawer.this.skippedBuckets.add(bucket);
+		}
+
 	}
 
 	private void thawBucketFromArchive(Bucket bucket) {
@@ -163,6 +170,13 @@ public class BucketThawer {
 	 */
 	public List<FailedBucket> getFailedBuckets() {
 		return failedBuckets;
+	}
+
+	/**
+	 * @return buckets that are skipped because they are already thawed.
+	 */
+	public List<Bucket> getSkippedBuckets() {
+		return skippedBuckets;
 	}
 
 }

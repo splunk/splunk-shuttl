@@ -19,8 +19,8 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandle
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
- * Moves the bucket with the {@link IndexPreservingBucketMover} and archives it with the
- * {@link ArchiveRestHandler}. <br/>
+ * Moves the bucket with the {@link IndexPreservingBucketMover} and archives it
+ * with the {@link ArchiveRestHandler}. <br/>
  * <br/>
  * Implements {@link SharedLockBucketHandler} so it can do this safely with the
  * {@link Bucket} locked.
@@ -59,6 +59,18 @@ public class MoveAndArchiveBucketUnderLock implements SharedLockBucketHandler {
 	public void moveThenArchiveBucket(Bucket bucket) {
 		Bucket movedBucket = bucketMover.moveBucket(bucket);
 		archiveRestHandler.callRestToArchiveBucket(movedBucket);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler
+	 * #bucketWasLocked(com.splunk.shuttl.archiver.model.Bucket)
+	 */
+	@Override
+	public void bucketWasLocked(Bucket bucket) {
+		// Do nothing.
 	}
 
 }

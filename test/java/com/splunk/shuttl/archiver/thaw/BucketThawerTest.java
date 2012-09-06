@@ -99,6 +99,7 @@ public class BucketThawerTest {
 
 		bucketThawer.thawBuckets(index, earliestTime, latestTime);
 		verifyZeroInteractions(getsBucketsFromArchive);
+		assertEquals(thawedBucket, bucketThawer.getSkippedBuckets().get(0));
 	}
 
 	public void thawBuckets_thawLocationProviderThrowsException_failBucketAndDoNotTransfer()
@@ -123,6 +124,7 @@ public class BucketThawerTest {
 
 		bucketThawer.thawBuckets(index, earliestTime, latestTime);
 		verifyZeroInteractions(getsBucketsFromArchive);
+		assertEquals(bucket, bucketThawer.getSkippedBuckets().get(0));
 	}
 
 	public void getThawedBuckets_gotBucketFromArchive_returnBucket()
