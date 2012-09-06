@@ -1,0 +1,171 @@
+<%page expression_filter="h"/>
+<%inherit file="//layout/base.html" />
+<%namespace name="lib" file="//lib.html" import="*"/>
+<%namespace name="helpers" file="//view/_helpers.html" import="*"/>
+##<%! This tag is a fixes better syntax highlighting in SublimeText2; Currently no Mako syntax highlighting %>
+<%!
+    import logging
+    import string
+    import random
+    import time
+
+    logger = logging.getLogger('splunk.module.shuttl.setup')
+
+    class IndexTemplate(object):
+        def __init__(self):
+            self.name = '<index-name>'
+            self.owner = 'nobody'
+            self.namespace = 'shuttl'
+            self.errors = None
+            self.is_disabled = False
+            self.description = ''
+            self.coldToFrozenScript = '$SPLUNK_HOME/etc/apps/shuttl/bin/archiveBucket.sh ' + self.name
+            self.homePath = '$SPLUNK_HOME/var/lib/splunk/%s/db' % self.name
+            self.coldPath = '$SPLUNK_HOME/var/lib/splunk/%s/colddb' % self.name
+            self.thawedPath = '$SPLUNK_HOME/var/lib/splunk/%s/thaweddb' % self.name
+
+    JS_CHR      = '.'  # Join / split char.
+    INDEXES_ID  = 'conf-indexes'
+    INDEXES_RESOURCE_ID  = 'configs/conf-indexes'
+
+    def _gen_index_id(index_name=None, attr=None):
+        is_empty = lambda x: x in [None, '']
+        is_not_empty = lambda x: not is_empty(x)
+        if is_empty(index_name):
+            attr = None
+        return JS_CHR.join( filter(is_not_empty, [INDEXES_ID, index_name, attr]) )
+
+    def _gen_rnd_id():
+        return _generate_id(size=4)+'-'+str(time.time())
+    
+    def _generate_id(size=16, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))
+%>
+
+<%def name="css()">
+    <%lib:stylesheet_tags files="${[
+        '/static/css/view.css',
+        '/static/css/skins/default/default.css',
+    ]}" />
+</%def>
+<%def name="custom_css()">
+    <%lib:stylesheet_tags files="${['/static/app/shuttl/setup.css']}" />
+    <%lib:script_tags files="${['/static/app/shuttl/setup.js']}" />
+</%def>
+
+<%def name="gen_form(method='POST', action=None)">
+    <form  method="${method}"  action="${action if action else ''}">
+</%def>
+
+<%def name="gen_index(key, index, hidden=False, extra_attrs=None)">
+    <div class="index stanza" id="${_gen_index_id(key)}" user="${index.owner}" app="${index.namespace}" style="${'display:none;' if hidden else ''}" \
+        %if extra_attrs:
+            ${extra_attrs|h}\
+        % endif 
+        >
+        % if index.errors:
+            <p class="error-text">${index.errors[0]}</p>
+        % endif
+        
+        ## Checkbox values are only sent when box is checked. The hidden value is alvays sent. It's up to the submit endpoint to parse the input data.
+        <% checkbox_id = _gen_index_id(key, 'is_disabled') %>
+        <input type="hidden" name="${checkbox_id}" value="0" \>
+        <input type="checkbox"\
+               class="field is_enabled"\
+               name="${checkbox_id}"\
+               % if index.is_disabled:
+                   checked="checked"\
+               % endif
+               value="1"\
+        />
+        
+        <span class="field name">${index.name}</span>
+        <input type="text" class="round rename-field name" id="${_gen_index_id(key, 'name')}" name="${_gen_index_id(key, 'name')}" value=${index.name or ''} style="display:none;"/>
+        
+        <div class="field description">${index.description or ''}</div>
+        
+        <%self:gen_inputfield index_name="${key}" field_name="coldToFrozenScript" value="${index.coldToFrozenScript}" />
+        
+        ## Show this field in case this element gets cloned.
+        <% foldout_id = _gen_rnd_id() %>
+        <div id="${foldout_id}" style="${'' if hidden else 'display:none;'}">
+            <%self:gen_inputfield index_name="${key}" field_name="homePath" value="${index.homePath}" />
+            <%self:gen_inputfield index_name="${key}" field_name="coldPath" value="${index.coldPath}" />
+            <%self:gen_inputfield index_name="${key}" field_name="thawedPath" value="${index.thawedPath}" />
+        </div>
+        <div><a><span class="foldout" foldout_target="${foldout_id}"\
+            expand_text="${_('Expand >>')}" fold_text="${_('Fold <<')}">${_('Expand >>')}</span></a></div>
+    </div>
+</%def>
+
+## id is a tuple, (index_name, field), ex. ('conf-index', 'archiver-test-index')
+<%def name="gen_inputfield(index_name, field_name, value=None, fancy_field_name=None, has_clear=True, extra_classes=None)">
+    <%
+    label_id = _gen_rnd_id()
+    name = _gen_index_id(index_name, field_name)
+    value = value or ''
+    fancy_field_name = fancy_field_name or field_name
+    extra_classes_str = ''
+    if isinstance(extra_classes, list):
+       extra_classes_str = _(' '.join(extra_classes))
+    elif extra_classes:
+       extra_classes_str = _(str(extra_classes))
+    %>
+    <div class="input-field ${extra_classes_str}">
+        <label class="label ${field_name}" for="${label_id}">${_(fancy_field_name)}</label>
+        <input type="text" class="round field ${field_name}" id="${label_id}" name="${name}" value="${value}" old_value="${value}" />
+        % if has_clear:
+        <button type="button" class="splButton-secondary remove-text ${field_name}">Clear</button>
+        % endif
+    </div>
+</%def>
+
+## Check out Index.py for more info on fields.
+<%def name="gen_indexes(indexes_id, indexes)">
+    <div class="index stanzas" id="${indexes_id}">
+    % for key, index in indexes.iteritems():
+        <%
+        if not index or not index.resource==INDEXES_RESOURCE_ID:
+            continue
+        %>
+        <%self:gen_index key="${key}" index="${index}" />
+    % endfor
+    </div>
+    <div class="last">
+        <button type="button" class="splButton-tertiary add-index">New Index</button>
+    </div>
+</%def>
+
+<div id="setup">
+    <p class="pageDesc"></p>
+    
+    <% index = IndexTemplate() %>
+    <%self:gen_index key="${index.name}" index="${index}" hidden="${True}" extra_attrs="template" />
+    
+    ${gen_form(method="post", action=make_url(['custom', 'shuttl', 'setup', 'save']))}
+        ${csrf_hidden_input()}
+        <ul class="layout-list">
+            <li class="splClearfix">
+                <div class="header">Indexes</div>
+                <div class="description">
+                    ${_('Add or edit index settings.')}
+                    ${_('Cold to frozen script example: ')}
+                    <span class="code">${_('$SPLUNK_HOME/etc/apps/shuttl/bin/archiveBucket.sh <index-name>')}</span>
+                </div>
+                <div class="options">
+                    <label for="option-show-internal-indexes">Show internal indexes</label>
+                    <input class="option" type="checkbox" id="option-show-internal-indexes" />
+                </div>
+                <div class="content">
+                    ${gen_indexes(INDEXES_ID, form_content.get(INDEXES_ID))}
+                </div>
+            </li>
+            <li class="last splClearfix">
+                <div class="header"></div>
+                <div class="content">
+                    <input class="submit splButton-primary" type="submit" value="Save"></input>
+                </div>
+            </li>
+        </ul>
+    </form>
+</div>

@@ -1,0 +1,71 @@
+body {
+    padding: 10px;
+}
+
+.stanzas {
+}
+.stanza {
+    margin-bottom: 15px;
+}
+
+ul.layout-list {
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+}
+li.last {
+    border-top: 1px solid #333333;
+    padding-top: 10px
+}
+li > .header {
+    font-size: 48px;
+    font-weight: bold;
+    line-height: 100%;
+    margin-right: 20px;
+}
+li > .description {
+    padding-bottom: 5px
+}
+li > .content {
+    padding-left: 10px
+}
+
+.field.name {
+    font-weight: bold;
+}
+.field.description {
+    font-size: 11px;
+    margin-left: 10px;
+    margin-bottom: 5px;
+}
+input.field[type~="text"], 
+input.rename-field[type~="text"] {
+    padding: 4px 5px;
+    width: 400px;
+}
+
+label, .label {
+    margin-right: 5px;
+}
+
+.options {
+    padding: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.last {
+    margin-top: 10px;
+}
+
+.round {
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+}
+
+.code {
+    background: none repeat scroll 0 0 #EAF1F6;
+    border: 1px solid #BAD1E2;
+    padding: 0 5px;
+}

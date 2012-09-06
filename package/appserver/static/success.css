@@ -1,0 +1,13 @@
+.button {
+    margin: 4px 0 4px 0;
+}
+p, .paragraf {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+#failure h2,
+#success h2 {
+    border-bottom: 1px solid #333333;
+    margin: 0 0 10px;
+    padding-bottom: 2px;
+}

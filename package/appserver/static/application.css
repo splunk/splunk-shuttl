@@ -29,8 +29,8 @@ body.splTemplate-dashboard {
 
 /* Single values styles */
 .SingleValue .Blue {
-       background-color: #4da6df;
-       color: #fff;
+   background-color: #4da6df;
+   color: #fff;
 }
 
 .SingleValue .Ok {
@@ -49,13 +49,13 @@ body.splTemplate-dashboard {
 }
 
 .SingleValue .Yellow {
-       background-color: #e9da34;
-       color: #000;
+   background-color: #e9da34;
+   color: #000;
 }
 
 .SingleValue .Orange {
-       background-color: #e67918;
-       color: #fff;
+   background-color: #e67918;
+   color: #fff;
 }
 
 .SingleValue .Red {

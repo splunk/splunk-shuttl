@@ -1,0 +1,30 @@
+<%inherit file="//layout/base.html" />
+<%namespace name="lib" file="//lib.html" import="*"/>
+
+<% extended_debug = True %>
+
+<%def name="css()">
+    <%lib:stylesheet_tags files="${[
+        '/static/css/view.css',
+        '/static/css/skins/default/default.css',
+    ]}" />
+</%def>
+<%def name="custom_css()">
+    <%lib:stylesheet_tags files="${[
+        '/static/app/shuttl/setup.css',
+        '/static/app/shuttl/success.css',
+    ]}" />
+</%def>
+
+<div id="failure">
+    <h2>Failure</h2>
+
+    <p>Failed to load stanza: <span class="stanza-name">${stanza_name}</span> from conf-file: <span class="conf-name">${conf_name}</span></p>
+    <p class="stanza-model">${stanza}</p>
+    
+    % if extended_debug and exception:
+    <p class="exception"><%lib:render_exception e="${exception}" /></p>
+    % endif
+
+    <div class="button"><a target="_parent" href="${make_url('/custom/shuttl/setup/show')}" class="splButton-primary"><span class="cancel">OK</span></a></div>
+</div>

@@ -1,0 +1,31 @@
+<%inherit file="//layout/base.html" />
+<%namespace name="lib" file="//lib.html" import="*"/>
+
+<%def name="css()">
+    <%lib:stylesheet_tags files="${[
+        '/static/css/view.css',
+        '/static/css/skins/default/default.css',
+    ]}" />
+</%def>
+<%def name="custom_css()">
+    <%lib:stylesheet_tags files="${[
+        '/static/app/shuttl/setup.css',
+        '/static/app/shuttl/success.css',
+    ]}" />
+</%def>
+
+<div id="success">
+    <h2>Success</h2>
+    <p>Shuttl settings have been saved.</p>
+
+    <div class="paragraf">
+        <div class="text">You probably need to restart splunk for the settings to take effect.</div>
+        ## TODO: 405 Method Not Allowed: Specified method is invalid for this resource.
+        ##<div class="button"><a target="_parent" class="splButton-primary" onclick="restart_server('${make_url('/app/shuttl')}')"><span class="restart">Restart</span></a></div>
+    </div>
+
+    <div class="paragraf">
+        <div class="text">Click "OK" to go to the Shuttl home page.</div>
+        <div class="button"><a target="_parent" href="${make_url('/app/shuttl')}" class="splButton-tertiary"><span class="cancel">OK</span></a></div>
+    </div>
+</div>

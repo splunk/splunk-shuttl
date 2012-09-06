@@ -1,10 +1,11 @@
 <nav>
     <collection label="Activity">
-        <view name="activity" default='true' />
+        <view name="activity" default="true" />
         <view name="failed" />
         <view name="buckets_per_index" />
     </collection>
 
     <view name="thaw" />
     <view name="flushings" />
+    <view name="setup" />
 </nav>
