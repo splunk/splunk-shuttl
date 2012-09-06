@@ -720,7 +720,7 @@
 	<target name="splunk-teardown" depends="set-splunk-home,check-for-splunk-binary" if="existsSplunkBinary">
 		<antcall>
 			<target name="splunk-stop-forced" />
-			<target name="splunk-clean-all" />
+			<target name="splunk-clean-eventdata" />
 		</antcall>
 	</target>
 
@@ -728,9 +728,9 @@
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
 	</target>
 
-	<target name="splunk-clean-all" depends="set-splunk-home">
+	<target name="splunk-clean-eventdata" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="clean all -f" />
+			<arg line="clean eventdata -f" />
 		</exec>
 	</target>
 
