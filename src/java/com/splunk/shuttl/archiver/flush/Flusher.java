@@ -20,10 +20,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.IllegalBucketNameException;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
@@ -77,24 +75,13 @@ public class Flusher {
 	private void doFlush(String index, Date earliest, Date latest)
 			throws FileNotDirectoryException, IOException {
 		File thawLocation = splunkSettings.getThawLocation(index);
-		List<Bucket> buckets = getBucketsFromThawLocation(index, thawLocation);
+		List<Bucket> buckets = ThawedBuckets.getBucketsFromThawLocation(index,
+				thawLocation);
 		List<Bucket> bucketsToFlush = filterByTimeRange(earliest, latest, buckets);
 		for (Bucket b : bucketsToFlush) {
 			b.deleteBucket();
 			flushedBuckets.add(b);
 		}
-	}
-
-	private List<Bucket> getBucketsFromThawLocation(String index,
-			File thawLocation) {
-		List<Bucket> buckets = new ArrayList<Bucket>();
-		File[] files = thawLocation.listFiles();
-		if (files != null)
-			for (File f : files)
-				if (f.isDirectory())
-					buckets.add(BucketFactory.createBucketWithIndexDirectoryAndFormat(
-							index, f, BucketFormat.UNKNOWN));
-		return buckets;
 	}
 
 	private List<Bucket> filterByTimeRange(Date earliest, Date latest,

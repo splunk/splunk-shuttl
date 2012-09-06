@@ -16,13 +16,19 @@ package com.splunk.shuttl.server.mbeans.rest;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
+import com.splunk.shuttl.server.model.BucketBean;
 
 public class RestUtil {
 
@@ -52,6 +58,38 @@ public class RestUtil {
 					+ "buckets to JSON string", e, null));
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * @return JSON response with buckets and their total size.
+	 */
+	public static String respondWithBuckets(List<Bucket> buckets) {
+		List<BucketBean> beans = new ArrayList<BucketBean>();
+		long totalBucketsSize = 0;
+
+		for (Bucket bucket : buckets) {
+			beans.add(getBucketBean(bucket));
+			totalBucketsSize += bucket.getSize() == null ? 0 : bucket
+					.getSize();
+		}
+
+		Map<String, Object> response = new HashMap<String, Object>();
+		response.put("buckets_TOTAL_SIZE",
+				FileUtils.byteCountToDisplaySize(totalBucketsSize));
+		response.put("buckets", beans);
+
+		return RestUtil.writeMapAsJson(response);
+	}
+
+	private static BucketBean getBucketBean(Bucket bucket) {
+		return BucketBean.createBeanFromBucket(bucket);
+	}
+
+	public static String respondWithIndexError(String index) {
+		Map<String, Object> responseMap = new HashMap<String, Object>();
+		responseMap.put("error", "Could not flush index: " + index
+				+ ", because it's not been shuttled.");
+		return RestUtil.writeMapAsJson(responseMap);
 	}
 
 }
