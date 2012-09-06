@@ -853,9 +853,8 @@
 	</target>
 
 	<target name="versionized-jar-name" depends="version">
-		<loadproperties>
-			<file file="${classdir}/com/splunk/shuttl/server/version.properties" />
-		</loadproperties>
+		<loadproperties srcfile="${classdir}/com/splunk/shuttl/server/version.properties"/>
+		
 		<property name="name.api.versioned" value="${appname}-api-${version}" />
 		<property name="name.api.versioned.path" value="${builddir}/jar/${name.api.versioned}.jar" />
 		<property name="name.test.versioned" value="${appname}-test-${version}" />

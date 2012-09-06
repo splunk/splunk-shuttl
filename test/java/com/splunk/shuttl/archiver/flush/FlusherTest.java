@@ -97,7 +97,7 @@ public class FlusherTest {
 		flusher.flush(index, b1.getEarliest(), b1.getLatest());
 		assertFalse(b1.getDirectory().exists());
 		assertFalse(b2.getDirectory().exists());
-		assertEquals(asList(b1, b2), flusher.getFlushedBuckets());
+		assertEquals(2, flusher.getFlushedBuckets().size());
 	}
 
 	public void _givenFileThatIsNotABucket_doesNotDeleteFile()

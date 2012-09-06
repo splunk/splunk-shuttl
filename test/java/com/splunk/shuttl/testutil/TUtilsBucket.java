@@ -60,7 +60,7 @@ public class TUtilsBucket {
 
 	private static String randomBucketName() {
 		long latest = System.currentTimeMillis() / 1000;
-		long earliest = latest - RandomUtils.nextInt(10);
+		long earliest = latest - (RandomUtils.nextInt(10) + 1);
 		return String.format("db_%d_%d_%d", latest, earliest,
 				RandomUtils.nextInt(1000));
 	}
