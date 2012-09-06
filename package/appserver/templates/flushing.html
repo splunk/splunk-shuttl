@@ -5,12 +5,12 @@
 <%namespace name="buckets" file="bucket_list.html" import="*"/>
 <%!
     import logging
-    logger = logging.getLogger('splunk.module.archiving')
+    logger = logging.getLogger('splunk.module.flushing')
 %>
 
 <%lib:script_tags files="${['/static/app/shuttl/jquery-ui/js/jquery-ui-1.8.19.custom.min.js', 
                             '/static/app/shuttl/jquery-validation/jquery.validate.js',
-                            '/static/app/shuttl/flusher.js', 
+                            '/static/app/shuttl/thaw.js', 
                             '/static/app/shuttl/jquery.tablesorter.js',
                             '/static/app/shuttl/jquery.tablesorter.pager.js'
                             ]}" />
@@ -18,7 +18,7 @@
   <% parent.css() %>
   <%lib:stylesheet_tags files="${['/static/app/shuttl/jquery-ui/css/redmond/jquery-ui-1.8.19.custom.css', 
                                   '/static/app/shuttl/tablesorter-theme/blue/style.css',
-                                  '/static/app/shuttl/archiver.css']}" />
+                                  '/static/app/shuttl/thaw.css']}" />
 </%def>
 
 <%def name="gen_table_option_row(id=None, data=None, row=None)">
