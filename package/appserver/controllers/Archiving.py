@@ -64,6 +64,12 @@ class Archiving(controllers.BaseController):
 
         return self.render_template('/shuttl:/templates/archiving.html', dict(errors=errors))
 
+    @expose_page(must_login=True, methods=['GET'])
+    def show_flush(self, **kwargs):
+        errors = None
+        logger.info('Show flushing page')
+        return self.render_template('/shuttl:/templates/flushing.html', dict(errors=errors))
+
     # Gives all indexes that are thawable
     @expose_page(must_login=True, methods=['GET']) 
     def list_indexes(self, **kwargs):
@@ -96,6 +102,10 @@ class Archiving(controllers.BaseController):
     def list_buckets(self, **params):
         return self.list_buckets_at('http://localhost:9090/shuttl/rest/archiver/bucket/list', params)
 
+    @expose_page(must_login=True, methods=['POST'])
+    def list_thawed(self, **params):
+        return self.list_buckets_at('http://localhost:9090/shuttl/rest/archiver/thaw/list', params)
+
     def list_buckets_at(self, url, params):
 
         errors = None
@@ -125,16 +135,23 @@ class Archiving(controllers.BaseController):
 
         return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=buckets, errors=errors))
 
+    # Attempts to flush buckets in a specific index and time range
+    @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
+    def flush(self, **params):
+        return self.bucket_action_at('http://localhost:9090/shuttl/rest/archiver/bucket/flush', params)
+
     # Attempts to thaw buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
     def thaw(self, **params):
+        return self.bucket_action_at('http://localhost:9090/shuttl/rest/archiver/bucket/thaw', params)
         
+    def bucket_action_at(self, url, params):
         errors = None
         responseData = {}
 
-        logger.debug('thaw - postArgs: %s (%s)' % (params, type(params)))
+        logger.debug('bucket action - postArgs: %s (%s)' % (params, type(params)))
 
-        response = splunk.rest.simpleRequest('http://localhost:9090/shuttl/rest/archiver/bucket/thaw', postargs=params, method='POST')
+        response = splunk.rest.simpleRequest(url, postargs=params, method='POST')
         
         if DEBUG:
             time.sleep(2)
@@ -167,9 +184,3 @@ class Archiving(controllers.BaseController):
 
         return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=responseData, errors=errors))  
 
-    # Attempts to flush buckets in a specific index and time range
-    @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
-    def flush(self, **params):
-
-        errors = None
-        responseData = {}
