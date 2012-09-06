@@ -182,5 +182,8 @@ class Archiving(controllers.BaseController):
 
         logger.debug('thaw_buckets - buckets: %s (%s)' % (responseData, type(responseData)))
 
-        return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=responseData, errors=errors))  
+        if errors == None:
+            return "Success!"
+        else:
+            return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=responseData, errors=errors))  
 

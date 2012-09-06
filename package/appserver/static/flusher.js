@@ -94,7 +94,6 @@ function listThawedPOST() {
         },
         complete: function() {
             loadingDone();
-            $('#thaw-list').show();
             $('#data-size').html( $('#buckets-table-total-size').html() );
             resizePage();
         }
@@ -127,12 +126,10 @@ function flushBucketsPOST() {
     type: 'POST',
     data: data,
     success: function(html) {
-        listThawedPOST();
     },
     complete: function() {
       loadingDone();
-      $('#thawed-list').show();
-      resizePage(); // Resize body
+      listThawedPOST();
     }
   });
 }
@@ -167,6 +164,7 @@ function loading() {
   var button = $('#flush-button');
   
   button.disable();
+  $('#thaw-list').hide();
   $('.loadingBig').show(); 
   resizePage();
 }
@@ -175,5 +173,7 @@ function loadingDone() {
   
   button.enable();
   $('.loadingBig').hide();
+  $('#thaw-list').show();
+  resizePage();
 }
 
