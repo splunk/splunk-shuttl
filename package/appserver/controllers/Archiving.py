@@ -94,13 +94,16 @@ class Archiving(controllers.BaseController):
     # Gives a list of buckets for a specific index as an html table
     @expose_page(must_login=True, methods=['POST'])
     def list_buckets(self, **params):
-        
+        return self.list_buckets_at('http://localhost:9090/shuttl/rest/archiver/bucket/list', params)
+
+    def list_buckets_at(self, url, params):
+
         errors = None
         buckets = {}
 
         logger.debug('list_buckets - postArgs: %s (%s)' % (params, type(params)))
 
-        bucketsResponse = splunk.rest.simpleRequest('http://localhost:9090/shuttl/rest/archiver/bucket/list', getargs=params)
+        bucketsResponse = splunk.rest.simpleRequest(url, getargs=params)
         logger.debug('list_buckets - response: %s (%s)' % (bucketsResponse, type(bucketsResponse)))
 
         if DEBUG: 
@@ -164,3 +167,9 @@ class Archiving(controllers.BaseController):
 
         return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=responseData, errors=errors))  
 
+    # Attempts to flush buckets in a specific index and time range
+    @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
+    def flush(self, **params):
+
+        errors = None
+        responseData = {}
