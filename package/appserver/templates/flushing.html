@@ -91,15 +91,27 @@
       </%self:gen_table_option_row>
       <%self:gen_table_option_row>
         <%def name="data()">
-          <p><input id="flush-button" class="flush-button" type="button" value="Flush buckets!"></p>
+          <p><input id="search-flush-button" class="search button" type="button" value=""></p>
         </%def>
       </%self:gen_table_option_row>
     </div>
   </div>
   </form>
 
+  <div id="flushPage">
   <hr />
-  
+    <div class="table">
+      <%self:gen_table_option_row id="Flushing">
+        <%def name="data()">
+          <div class="loadingBig" style="background-position:left center;"></div>
+          <div id="flush-list"></div>
+        </%def>
+      </%self:gen_table_option_row>
+    </div>
+  </div>
+
+  <hr />
+
   <div id="thawedPage">
     <div class="table">
       <%self:gen_table_option_row id="Thawed data">

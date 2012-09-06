@@ -20,9 +20,7 @@ import static java.util.Arrays.*;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -85,9 +83,6 @@ public class FlushEndpoint {
 		for (Bucket b : flushedBuckets)
 			responseBeans.add(BucketBean.createBeanFromBucket(b));
 
-		Map<String, Object> responseMap = new HashMap<String, Object>();
-		responseMap.put("flushed", responseBeans);
-
-		return RestUtil.writeMapAsJson(responseMap);
+		return RestUtil.writeBucketAction(responseBeans, new ArrayList<Object>());
 	}
 }

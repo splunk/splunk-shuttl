@@ -50,6 +50,7 @@ $(document).ready(function() {
   });
 
   // Load UI
+  setSearchOrFlushButtonToSearch();
   $('.loadingBig').hide();
   $('#thaw-list').hide();
   $('form input:visible:enabled:first').focus();
@@ -58,10 +59,21 @@ $(document).ready(function() {
   listIndexesGET();
   listThawedPOST();
 
+  resizePage();
 });
 
 function bindHandlers() {
-  $('#flush-button').bind('click', function(event){ flushBucketsPOST(); } );
+  $('#search-flush-button').bind('click', function(event){ searchOrFlushBuckets(event); } );
+  $('input').bind('keyup', function(event) { 
+    if (event.keyCode == 13) {
+      setSearchOrFlushButtonToSearch();
+      listThawedPOST();
+    }
+  });
+  $('#flush-buckets-form').bind('change', function(event) { 
+    $('#search-flush-button').enable();
+    setSearchOrFlushButtonToSearch();
+   });
 }
 
 function getPostArguments(form) {
@@ -91,6 +103,7 @@ function listThawedPOST() {
         data: data,
         success: function(html) {
             $('#thaw-list').html(html);
+            setSearchOrFlushButtonToFlush();
         },
         complete: function() {
             loadingDone();
@@ -118,7 +131,7 @@ function flushBucketsPOST() {
   if (!isFormValid()) return;
 
   var data = getPostArguments($('form'));
-  logger.debug('thaw buckets with post data: ' + data)
+  logger.debug('flush buckets with post data: ' + data)
   
   loading();
   $.ajax({
@@ -126,6 +139,7 @@ function flushBucketsPOST() {
     type: 'POST',
     data: data,
     success: function(html) {
+      $('#flush-list').html(html);
     },
     complete: function() {
       loadingDone();
@@ -162,10 +176,12 @@ $.fn.isEnabled = function() {
 
 function loading() {
   var button = $('#flush-button');
-  
+
   button.disable();
-  $('#thaw-list').hide();
-  $('.loadingBig').show(); 
+  if(button.hasClass('search')) { 
+    $('#thaw-list').hide();
+    $('.loadingBig').show();
+  } 
   resizePage();
 }
 function loadingDone() {
@@ -177,3 +193,25 @@ function loadingDone() {
   resizePage();
 }
 
+function setSearchOrFlushButtonToFlush() {
+  var button = $('#search-flush-button');
+  button.addClass('flush');
+  button.removeClass('search');
+  button.val("Flush buckets!");
+}
+function setSearchOrFlushButtonToSearch() {
+  var button = $('#search-flush-button');
+  button.addClass('search');
+  button.removeClass('flush');
+  button.val("Search for thawed buckets in range");
+}
+function searchOrFlushBuckets(event) {
+  var target = $(event.target);
+  if (target.isEnabled()) {
+    if (target.hasClass('search')) {
+      listThawedPOST();
+    } else if (target.hasClass('flush')) {
+      flushBucketsPOST();
+    }
+  }
+}

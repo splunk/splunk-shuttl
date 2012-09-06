@@ -15,7 +15,7 @@ import collections
 DEBUG = False
 debugIndexes = ['test index 1', 'test index 2']
 debugBuckets = { 
-    'bucket': [
+    'buckets': [
     { 'bucketName': "test1", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "1337"}, 
     { 'bucketName': "test2", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "13"}
     ]}
@@ -25,7 +25,7 @@ debugFailedThawedBuckets = {
     'failed': [
     { 'bucketName': "test1", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "1337"}, 
     { 'bucketName': "test2", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "13"} 
-    ], 'thawed': [
+    ], 'buckets': [
     { 'bucketName': "test1", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "1337"}, 
     { 'bucketName': "test2", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "13"}
     ]}

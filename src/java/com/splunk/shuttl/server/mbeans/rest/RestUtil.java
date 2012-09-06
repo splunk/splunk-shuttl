@@ -50,16 +50,6 @@ public class RestUtil {
 		return StringDateConverter.convert(to);
 	}
 
-	public static String writeMapAsJson(Map<String, Object> ret) {
-		try {
-			return new ObjectMapper().writeValueAsString(ret);
-		} catch (Exception e) {
-			logger.error(did("attempted to convert thawed/failed "
-					+ "buckets to JSON string", e, null));
-			throw new RuntimeException(e);
-		}
-	}
-
 	/**
 	 * @return JSON response with buckets and their total size.
 	 */
@@ -69,8 +59,7 @@ public class RestUtil {
 
 		for (Bucket bucket : buckets) {
 			beans.add(getBucketBean(bucket));
-			totalBucketsSize += bucket.getSize() == null ? 0 : bucket
-					.getSize();
+			totalBucketsSize += bucket.getSize() == null ? 0 : bucket.getSize();
 		}
 
 		Map<String, Object> response = new HashMap<String, Object>();
@@ -90,6 +79,30 @@ public class RestUtil {
 		responseMap.put("error", "Could not flush index: " + index
 				+ ", because it's not been shuttled.");
 		return RestUtil.writeMapAsJson(responseMap);
+	}
+
+	/**
+	 * @param thawedBucketBeans
+	 * @param failedBucketBeans
+	 * @return
+	 */
+	public static String writeBucketAction(List<BucketBean> successfulBuckets,
+			Object failedObjects) {
+		HashMap<String, Object> response = new HashMap<String, Object>();
+		response.put("buckets", successfulBuckets);
+		response.put("failed", failedObjects);
+
+		return RestUtil.writeMapAsJson(response);
+	}
+
+	private static String writeMapAsJson(Map<String, Object> ret) {
+		try {
+			return new ObjectMapper().writeValueAsString(ret);
+		} catch (Exception e) {
+			logger.error(did("attempted to convert thawed/failed "
+					+ "buckets to JSON string", e, null));
+			throw new RuntimeException(e);
+		}
 	}
 
 }

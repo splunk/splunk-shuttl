@@ -126,11 +126,7 @@ public class ThawBucketsEndpoint {
 			failedBucketBeans.add(temp);
 		}
 
-		HashMap<String, Object> response = new HashMap<String, Object>();
-		response.put("thawed", thawedBucketBeans);
-		response.put("failed", failedBucketBeans);
-
-		return RestUtil.writeMapAsJson(response);
+		return RestUtil.writeBucketAction(thawedBucketBeans, failedBucketBeans);
 	}
 
 }

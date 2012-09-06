@@ -128,13 +128,13 @@ input.disabled:active, input.button:hover[disabled="disabled"] {
 }
 
 /* Thaw-button */
-.thaw.button {
+.thaw.button, .flush.button {
     background-color: #FFC830;
 }
-.thaw.button:hover {
+.thaw.button:hover, .flush.button:hover {
     background-color: #FFD45E;
 }
-.thaw.button:active {
+.thaw.button:active, .flush.button:active {
     background-color: #DBAD30;
 }
 
