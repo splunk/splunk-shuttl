@@ -74,13 +74,4 @@ public class ThawLocationProvider {
 							"Will not do anything", "file", file));
 	}
 
-	/**
-	 * @return instance of {@link ThawLocationProvider} with specified splunk
-	 *         settings.
-	 */
-	public static ThawLocationProvider createWithSplunkSettingsAndThawTransferLocation(SplunkSettings splunkSettings,
-			File thawTransfersDirectory) {
-		return new ThawLocationProvider(splunkSettings, thawTransfersDirectory);
-	}
-
 }

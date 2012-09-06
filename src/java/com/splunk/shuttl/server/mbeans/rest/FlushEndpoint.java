@@ -63,7 +63,7 @@ public class FlushEndpoint {
 			flusher.flush(index, fromDate, toDate);
 			return respondWithFlushedBuckets(flusher.getFlushedBuckets());
 		} catch (IllegalIndexException e) {
-			return respondWithIndexError(index);
+			return RestUtil.respondWithIndexError(index);
 		}
 	}
 
@@ -75,13 +75,6 @@ public class FlushEndpoint {
 		Map<String, Object> responseMap = new HashMap<String, Object>();
 		responseMap.put("flushed", responseBeans);
 
-		return RestUtil.writeMapAsJson(responseMap);
-	}
-
-	private String respondWithIndexError(String index) {
-		Map<String, Object> responseMap = new HashMap<String, Object>();
-		responseMap.put("error", "Could not flush index: " + index
-				+ ", because it's not been shuttled.");
 		return RestUtil.writeMapAsJson(responseMap);
 	}
 }

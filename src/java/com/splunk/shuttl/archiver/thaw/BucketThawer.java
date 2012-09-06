@@ -97,8 +97,7 @@ public class BucketThawer {
 					thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
 							new ThawBucketFromArchive());
 				} else {
-					failedBuckets.add(new FailedBucket(bucket,
-							new BucketAlreadyThawedException(bucket)));
+					// Do nothing.
 				}
 			} catch (IOException e) {
 				logIOExceptionFromCheckingIfBucketWasThawed(bucket, e);
