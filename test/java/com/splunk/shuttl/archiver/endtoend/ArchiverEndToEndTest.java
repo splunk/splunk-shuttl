@@ -151,11 +151,13 @@ public class ArchiverEndToEndTest {
 
 		Bucket bucketToFreeze = TUtilsBucket.createBucketWithIndexAndTimeRange(
 				thawIndex, earliest, latest);
+		assertEquals(earliest, bucketToFreeze.getEarliest());
+		assertEquals(latest, bucketToFreeze.getLatest());
+
 		successfulBucketFreezer.freezeBucket(bucketToFreeze.getIndex(),
 				bucketToFreeze.getDirectory().getAbsolutePath());
 
-		verifyFreezeByListingBucketInArchive(bucketToFreeze, thawIndex, earliest,
-				latest);
+		verifyFreezeByListingBucketInArchive(bucketToFreeze);
 
 		boolean bucketToFreezeExists = bucketToFreeze.getDirectory().exists();
 		assertFalse(bucketToFreezeExists);
@@ -171,9 +173,9 @@ public class ArchiverEndToEndTest {
 		assertEquals(bucketToFreeze.getName(), thawedBucket.getName());
 	}
 
-	private void verifyFreezeByListingBucketInArchive(Bucket bucket,
-			String index, Date earliest, Date latest) {
-		HttpGet listRequest = getListGetRequest(index, earliest, latest);
+	private void verifyFreezeByListingBucketInArchive(Bucket bucket) {
+		HttpGet listRequest = getListGetRequest(bucket.getIndex(),
+				bucket.getEarliest(), bucket.getLatest());
 		HttpResponse response = executeUriRequest(listRequest);
 		int statusCode = response.getStatusLine().getStatusCode();
 		if (statusCode != 200) {
