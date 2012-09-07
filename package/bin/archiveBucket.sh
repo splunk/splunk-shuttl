@@ -37,7 +37,7 @@ set -u
 
 : ${SPLUNK_HOME:?"Need to set SPLUNK_HOME to non-empty"}
 
-cd $SPLUNK_HOME/etc/apps/shuttl/
+cd $SPLUNK_HOME/etc/apps/shuttl/bin
 
 if [ $# -lt 2 ]; then
     echo 1>&2 "usage: $0 <index> <bucket>"
@@ -47,4 +47,4 @@ fi
 index=$1
 bucket=$2
 
-exec -a splunk-bucket-freezer $JAVA_HOME/bin/java -cp ./bin/*:./lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $index $bucket
+exec -a splunk-bucket-freezer $JAVA_HOME/bin/java -cp ./*:../lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $index $bucket
