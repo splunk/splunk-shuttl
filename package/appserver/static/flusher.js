@@ -59,7 +59,7 @@ $(document).ready(function() {
   listIndexesGET();
   listThawedPOST();
 
-  resizePage();
+
 });
 
 function bindHandlers() {
@@ -133,6 +133,8 @@ function flushBucketsPOST() {
   var data = getPostArguments($('form'));
   logger.debug('flush buckets with post data: ' + data)
   
+  $('#flushPage').show();
+  resizePage();
   loading();
   $.ajax({
     url: 'flush',
@@ -140,9 +142,12 @@ function flushBucketsPOST() {
     data: data,
     success: function(html) {
       $('#flush-list').html(html);
+      resizePage();
     },
     complete: function() {
       loadingDone();
+      $('#flush-list').show();
+      resizePage();
       listThawedPOST();
     }
   });
@@ -180,7 +185,10 @@ function loading() {
   button.disable();
   if(button.hasClass('search')) { 
     $('#thaw-list').hide();
-    $('.loadingBig').show();
+    $('#thaw-list').prev('.loadingBig').show();
+  } else if (button.hasClass('flush')) {
+    $('#flush-list').hide();
+    $('#flush-list').prev('.loadingBig').show();
   } 
   resizePage();
 }
@@ -190,7 +198,6 @@ function loadingDone() {
   button.enable();
   $('.loadingBig').hide();
   $('#thaw-list').show();
-  resizePage();
 }
 
 function setSearchOrFlushButtonToFlush() {
@@ -204,6 +211,8 @@ function setSearchOrFlushButtonToSearch() {
   button.addClass('search');
   button.removeClass('flush');
   button.val("Search for thawed buckets in range");
+  $('#flushPage').hide();
+  resizePage();
 }
 function searchOrFlushBuckets(event) {
   var target = $(event.target);

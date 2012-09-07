@@ -15,11 +15,12 @@ p {
     color: #666666;
     margin-bottom: 30px;
 }
-#archiver {
+#archiver, #flusher {
     margin: 20px;
     line-height: 150%;
+    height: 500px;
 }
-#archiverPage, #bucketsPage, #thawedPage {
+#archiverPage, #bucketsPage, #thawedPage, #flushPage {
     width: 100%;
 }
 h1 {
@@ -153,7 +154,7 @@ input.disabled:active, input.button:hover[disabled="disabled"] {
 }
 .search.loading {
 }
-.thaw.loading {
+.thaw.loading, .flush.loading {
     background-image: url(images/loading/loader_blue_on_grey.gif);
 }
 
