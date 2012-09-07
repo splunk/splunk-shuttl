@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.util.UtilsFile;
 
 /**
  * Creates a {@link Bucket} in {@link BucketFormat#CSV} from a .csv file and the
@@ -35,14 +36,10 @@ public class CsvBucketCreator {
 	 *         original {@link Bucket}.
 	 */
 	public Bucket createBucketWithCsvFile(File file, Bucket bucket) {
-		if (isCsvFile(file))
+		if (UtilsFile.isCsvFile(file))
 			return doCreateBucketWithCsvFile(file, bucket);
 		else
 			throw new IllegalArgumentException("File was not csvFile: " + file);
-	}
-
-	private boolean isCsvFile(File file) {
-		return file.getName().endsWith(".csv");
 	}
 
 	private Bucket doCreateBucketWithCsvFile(File csvFile, Bucket bucket) {

@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import com.splunk.Service;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
@@ -35,8 +34,7 @@ public class BucketThawerFactory {
 	 * Default {@link BucketThawer} as configured with .conf files.
 	 */
 	public static BucketThawer createDefaultThawer() {
-		Service splunkService = getLoggedInSplunkService();
-		SplunkSettings splunkSettings = getSplunkSettings(splunkService);
+		SplunkSettings splunkSettings = SplunkSettingsFactory.create();
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 		return createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
 				splunkSettings, LocalFileSystemPaths.create());
@@ -50,9 +48,7 @@ public class BucketThawerFactory {
 			LocalFileSystemPaths localFileSystemPaths) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(configuration);
-		ThawLocationProvider thawLocationProvider = ThawLocationProvider
-				.createWithSplunkSettingsAndThawTransferLocation(splunkSettings,
-						localFileSystemPaths.getThawTransfersDirectory());
+		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(splunkSettings, localFileSystemPaths.getThawTransfersDirectory());
 
 		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
 				archiveFileSystem, thawLocationProvider);
@@ -75,22 +71,5 @@ public class BucketThawerFactory {
 		ThawBucketTransferer thawBucketTransferer = new ThawBucketTransferer(
 				thawLocationProvider, archiveFileSystem, new BucketFactory());
 		return thawBucketTransferer;
-	}
-
-	// TODO: Communicating with splunk through splunk home is not nice.
-	// CONFIG
-	private static Service getLoggedInSplunkService() {
-		SplunkConfiguration splunkConf = SplunkConfiguration.create();
-		Service splunkService = new Service(splunkConf.getHost(),
-				splunkConf.getPort());
-		splunkService.login(splunkConf.getUsername(), splunkConf.getPassword());
-		return splunkService;
-	}
-
-	/**
-	 * @return
-	 */
-	public static SplunkSettings getSplunkSettings(Service splunkService) {
-		return new SplunkSettings(splunkService);
 	}
 }

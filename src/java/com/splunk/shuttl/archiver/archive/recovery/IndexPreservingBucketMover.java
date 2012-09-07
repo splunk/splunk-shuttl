@@ -22,23 +22,41 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
+import com.splunk.shuttl.archiver.model.MovesBuckets;
 
 /**
- * Class for moving buckets to the location passed to
- * {@link #BucketMover(String)}
+ * Preserves a bucket's index while moving it, by moving the bucket to a
+ * directory that has the bucket's index name. <br/>
+ * <br/>
+ * Note: This class is used right when the buckets are being archived, before
+ * any format changes are being made to the buckets. This means that the class
+ * will only handle {@link BucketFormat#SPLUNK_BUCKET}. If the class want's to
+ * be re-used with other formats, then the formats would need to be preserved
+ * with a directory structure, like the indexes are preserved.
  */
-public class BucketMover {
+public class IndexPreservingBucketMover {
 
-	private final static Logger logger = Logger.getLogger(BucketMover.class);
+	private final static Logger logger = Logger
+			.getLogger(IndexPreservingBucketMover.class);
+
+	/**
+	 * Read the class comment to understand what this means.
+	 * 
+	 * @see IndexPreservingBucketMover
+	 */
+	private static final BucketFormat ONLY_VALID_BUCKET_FORMAT = BucketFormat.SPLUNK_BUCKET;
+
 	private final File movedBucketsLocation;
 
 	/**
 	 * @param movedBucketsLocationPath
 	 *          path to the failed buckets location
 	 */
-	public BucketMover(File movedBucketsLocation) {
+	private IndexPreservingBucketMover(File movedBucketsLocation) {
 		this.movedBucketsLocation = movedBucketsLocation;
 	}
 
@@ -63,7 +81,7 @@ public class BucketMover {
 			Bucket bucket) {
 		File indexDirectory = new File(movedBucketsLocation, bucket.getIndex());
 		indexDirectory.mkdirs();
-		return bucket.moveBucketToDir(indexDirectory);
+		return MovesBuckets.moveBucket(bucket, indexDirectory);
 	}
 
 	/**
@@ -89,8 +107,43 @@ public class BucketMover {
 		File[] bucketsInIndex = file.listFiles();
 		if (bucketsInIndex != null)
 			for (File bucket : bucketsInIndex)
-				movedBuckets.add(BucketFactory.createBucketWithIndexAndDirectory(index,
-						bucket));
+				movedBuckets.add(BucketFactory.createBucketWithIndexDirectoryAndFormat(
+						index, bucket, ONLY_VALID_BUCKET_FORMAT));
+	}
+
+	/**
+	 * @param moveLocationDirectory
+	 *          where the buckets will be moved to.
+	 * @return instance of a BucketMover.
+	 * @throws FileNotDirectoryException
+	 *           when the file is not a directory.
+	 * @throws DirectoryNotCreatableException
+	 *           if the file doesn't exist and the file cannot be created as a
+	 *           directory.
+	 */
+	public static IndexPreservingBucketMover create(File moveLocationDirectory) {
+		verifyMoveLocationRequirements(moveLocationDirectory);
+		return new IndexPreservingBucketMover(moveLocationDirectory);
+	}
+
+	private static void verifyMoveLocationRequirements(File file) {
+		if (file.exists())
+			verifyThatFileIsADirectory(file);
+		else
+			verifyThatFileCanBeCreatedAsADirectory(file);
+	}
+
+	private static void verifyThatFileIsADirectory(File file) {
+		if (!file.isDirectory())
+			throw new FileNotDirectoryException(
+					"BucketMover's move location needs to be a directory. Was file: "
+							+ file);
+	}
+
+	private static void verifyThatFileCanBeCreatedAsADirectory(File file) {
+		if (!file.mkdirs())
+			throw new DirectoryNotCreatableException(
+					"Could not create BucketMover's move location: " + file);
 	}
 
 }

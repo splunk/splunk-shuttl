@@ -63,8 +63,8 @@ public class TUtilsBucketTest {
 		assertEquals(4, nameComponents.length);
 		assertEquals("db", nameComponents[0]);
 		try {
-			long earliest = Long.parseLong(nameComponents[1]);
-			long latest = Long.parseLong(nameComponents[2]);
+			long latest = Long.parseLong(nameComponents[1]);
+			long earliest = Long.parseLong(nameComponents[2]);
 			Long.parseLong(nameComponents[3]);
 			assertTrue(earliest < latest);
 		} catch (NumberFormatException e) {
@@ -89,7 +89,7 @@ public class TUtilsBucketTest {
 		File bucketDir = TUtilsBucket
 				.createFileFormatedAsBucket("db_12351290_12351235_1");
 		try {
-			new Bucket("index-name", bucketDir);
+			new Bucket("index-name", bucketDir, BucketFormat.SPLUNK_BUCKET);
 		} catch (Exception e) {
 			TUtilsTestNG.failForException("Coudn't create a valid bucket dir", e);
 		}
@@ -99,16 +99,6 @@ public class TUtilsBucketTest {
 		File parent = TUtilsFile.createDirectory();
 		Bucket bucketCreated = TUtilsBucket.createBucketInDirectory(parent);
 		assertEquals(parent, bucketCreated.getDirectory().getParentFile());
-	}
-
-	public void createBucketWithTimes_givenEarliestLatest_bucketNameStartsWith_db_earliest_latest() {
-		Date earliest = new Date(12351235);
-		Date latest = new Date(earliest.getTime() + 100);
-		Bucket bucketWithTimes = TUtilsBucket.createBucketWithTimes(earliest,
-				latest);
-		String expectedBucketNameStart = "db_" + latest.getTime() + "_"
-				+ earliest.getTime();
-		assertTrue(bucketWithTimes.getName().startsWith(expectedBucketNameStart));
 	}
 
 	public void createBucketInDirectoryWithTimes_givenDirectory_createsBucketInTheDirectory() {
@@ -124,16 +114,19 @@ public class TUtilsBucketTest {
 		}
 	}
 
-	public void createBucketInDirectoryWithTimes_givenTimes_bucketNameStartsWith_db_earliest_latest() {
+	public void createBucketInDirectoryWithTimes_givenTimesInMilliseconds_bucketNameStartsWith_db_earliest_latest_InSeconds() {
 		File parent = null;
 		try {
 			parent = createDirectory();
-			Date earliest = new Date();
-			Date latest = new Date();
+			Date earliest = TUtilsDate.getNowWithoutMillis();
+			Date latest = TUtilsDate.getLaterDate(earliest);
 			Bucket bucketWithTimes = TUtilsBucket.createBucketInDirectoryWithTimes(
 					parent, earliest, latest);
-			String expectedBucketNameStart = "db_" + earliest.getTime() + "_"
-					+ latest.getTime();
+
+			long latestInSeconds = latest.getTime() / 1000;
+			long earliestInSeconds = earliest.getTime() / 1000;
+			String expectedBucketNameStart = "db_" + latestInSeconds + "_"
+					+ earliestInSeconds;
 			assertTrue(bucketWithTimes.getName().startsWith(expectedBucketNameStart));
 		} finally {
 			FileUtils.deleteQuietly(parent);
@@ -148,8 +141,8 @@ public class TUtilsBucketTest {
 
 	public void createBucketWithIndexAndTimeRange_givenParameters_bucketWithParameters() {
 		String index = "index";
-		Date earliest = new Date(12345678);
-		Date latest = new Date(earliest.getTime() + 100);
+		Date earliest = TUtilsDate.getNowWithoutMillis();
+		Date latest = TUtilsDate.getLaterDate(earliest);
 		Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(index,
 				earliest, latest);
 		assertEquals(index, bucket.getIndex());
@@ -214,5 +207,17 @@ public class TUtilsBucketTest {
 	public void createRemoteBucket_noArguments_hasSplunkBucketFormat() {
 		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
 		assertEquals(BucketFormat.SPLUNK_BUCKET, remoteBucket.getFormat());
+	}
+
+	public void createInDirectory_someDir_earliestAndLatestAreEarlierAndLaterThanEachother() {
+		Bucket bucket = TUtilsBucket.createBucketInDirectory(createDirectory());
+		assertFalse(bucket.getEarliest().after(bucket.getLatest()));
+		assertFalse(bucket.getLatest().before(bucket.getEarliest()));
+	}
+
+	public void createInDirectoryWithTimesAndIndex_givenIndex_hasSpecifiedIndex() {
+		Bucket b = TUtilsBucket.createBucketInDirectoryWithTimesAndIndex(
+				getShuttlTestDirectory(), new Date(), new Date(), "foo");
+		assertEquals("foo", b.getIndex());
 	}
 }

@@ -18,6 +18,8 @@
 	<property name="appname" value="shuttl" />
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
+	<property name="stage.conf.dir" value="${stage.dir}/conf" />
+	<property name="shuttl.conf.dir" location="${stage.conf.dir}" />
 	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
 	<property name="srcdir" value="${basedir}/src/java/" />
 	<property name="testdir" value="${basedir}/test/java/" />
@@ -40,7 +42,7 @@
 
 	<!-- splunk properties -->
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
-	<property name="splunk.server.name" value="splunk" />
+	<property name="splunk.server.name" value="splunk-1" />
 	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
 
 	<!-- ivy properties -->
@@ -267,6 +269,7 @@
 		<propertyref name="hadoop.port" />
 		<propertyref name="shuttl.host" />
 		<propertyref name="shuttl.port" />
+		<propertyref name="shuttl.conf.dir" />
 	</propertyset>
 
 	<target name="fast-unit-tests" depends="compile, do-fast-unit-tests" />
@@ -552,7 +555,6 @@
 			<arg line="'tar xf ${splunk.tgz.dir}/*.tgz -C ${build-cache}'" />
 		</exec>
 		<move file="${build-cache}/splunk" tofile="${splunk.extracted.dir}" />
-		<antcall target="copy-lib-jars-to-test-dir" />
 	</target>
 
 	<target name="is-splunk-tgz-available">
@@ -718,7 +720,7 @@
 	<target name="splunk-teardown" depends="set-splunk-home,check-for-splunk-binary" if="existsSplunkBinary">
 		<antcall>
 			<target name="splunk-stop-forced" />
-			<target name="splunk-clean-all" />
+			<target name="splunk-clean-eventdata" />
 		</antcall>
 	</target>
 
@@ -726,9 +728,9 @@
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
 	</target>
 
-	<target name="splunk-clean-all" depends="set-splunk-home">
+	<target name="splunk-clean-eventdata" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
-			<arg line="clean all -f" />
+			<arg line="clean eventdata -f" />
 		</exec>
 	</target>
 
@@ -776,7 +778,7 @@
 	and "./splunk login" should have been run before this -->
 	<target name="archiver-generate-test-buckets" depends="set-splunk-home">
 		<exec executable="${test-debug-dir}/splunk/hadoop/sh/generateBuckets.sh">
-			<arg line="${splunk.home} ${test-debug-dir}/splunk/hadoop/tmp archiver-test-index" />
+			<arg line="${splunk.home} ${test-debug-dir}/splunk/hadoop/tmp archiver-test-index ${splunk.username}:${splunk.password}" />
 		</exec>
 	</target>
 	<!-- END Archiver-testing-util -->
@@ -851,9 +853,8 @@
 	</target>
 
 	<target name="versionized-jar-name" depends="version">
-		<loadproperties>
-			<file file="${classdir}/com/splunk/shuttl/server/version.properties" />
-		</loadproperties>
+		<loadproperties srcfile="${classdir}/com/splunk/shuttl/server/version.properties"/>
+		
 		<property name="name.api.versioned" value="${appname}-api-${version}" />
 		<property name="name.api.versioned.path" value="${builddir}/jar/${name.api.versioned}.jar" />
 		<property name="name.test.versioned" value="${appname}-test-${version}" />
@@ -939,10 +940,15 @@
 
 	<target name="create-splunk-app" depends="jar">
 		<antcall>
+			<target name="remove-old-stage-dir" />
 			<target name="stage-splunk-app" />
 			<target name="tar-splunk-app" />
 		</antcall>
 		<copy tofile="${stage.dir}-${buildVersionSuffix}.tgz" file="${splunk-app.tar}" />
+	</target>
+
+	<target name="remove-old-stage-dir">
+		<delete dir="${stage.dir}" />
 	</target>
 
 	<target name="stage-splunk-app">
@@ -952,7 +958,10 @@
 		<copy todir="${stage.dir}">
 			<fileset dir="${package.dir}" excludes="lib/*" />
 		</copy>
-		<antcall target="copy-libs-to-stage-dir" />
+		<antcall>
+			<target name="copy-libs-to-stage-dir" />
+			<target name="configure-conf-files-in-stage-dir" />
+		</antcall>
 
 		<!-- update the version in the app.conf file -->
 		<replace file="${stage.dir}/default/app.conf">
@@ -963,27 +972,8 @@
 		<copy file="${name.server.versioned.path}" todir="${stage.dir}/bin" />
 	</target>
 
-	<target name="tar-splunk-app">
-		<tar destfile="${splunk-app.tar}" compression="gzip">
-			<tarfileset dir="${stage.dir}/bin" prefix="${appname}/bin" filemode="755">
-				<exclude name="README" />
-			</tarfileset>
-			<tarfileset dir="${stage.dir}/bin" prefix="${appname}/bin">
-				<include name="README" />
-			</tarfileset>
-			<tarfileset dir="${stage.dir}" prefix="${appname}">
-				<exclude name="bin/**" />
-			</tarfileset>
-		</tar>
-	</target>
 
 	<target name="copy-libs-to-stage-dir">
-		<antcall>
-			<target name="copy-lib-jars-to-stage-dir" />
-		</antcall>
-	</target>
-
-	<target name="copy-lib-jars-to-stage-dir">
 		<copy todir="${stage.dir}/lib">
 			<fileset dir="${libdir}" includes="*.jar" excludes="*-sources.jar,
                           *-javadoc.jar,
@@ -999,30 +989,54 @@
                           servlet-api-2.5-6.1.14.jar" />
 			<fileset dir="${splunk-sdk}" />
 		</copy>
-		<!--
-		<copy file="${name.api.versioned.path}" todir="${stage.dir}/lib" />
-		<copy file="${name.server.versioned.path}" todir="${stage.dir}/lib" />
--->
 	</target>
 
-	<target name="copy-lib-jars-to-test-dir" depends="jar, versionized-jar-name">
-		<copy todir="${build-cache}/shuttl/testlib">
-			<fileset dir="${libdir}" includes="testng-*.jar,
-                          mockito-*.jar,
-                          jetty-6.1.26.jar,
-                          hadoop-test-*.jar,
-                          commons-lang-2.5.jar,
-                          commons-cli-1.2.jar,
-                          jetty-util-6.1.26.jar,
-                          jsp-2.1-6.1.14.jar,
-                          jsp-api-2.1-6.1.14.jar,
-                          servlet-api-2.5-20081211.jar,
-                          servlet-api-2.5-6.1.14.jar,
-                          jackson-*.jar" />
-			<fileset dir="${splunk-sdk}" />
-		</copy>
-		<copy file="${name.test.versioned.path}" todir="${build-cache}/shuttl/testlib" />
-		<copy file="${name.cli.versioned.path}" todir="${build-cache}/shuttl/testlib" />
+	<target name="configure-conf-files-in-stage-dir">
+		<antcall>
+			<target name="configure-staged-archiver-conf" />
+			<target name="configure-staged-server-conf" />
+			<target name="configure-staged-splunk-conf" />
+		</antcall>
+	</target>
+
+	<target name="configure-staged-archiver-conf">
+		<property name="stage.conf.archiver.xml" value="${stage.conf.dir}/archiver.xml" />
+		<replace file="${stage.conf.archiver.xml}">
+			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
+			<replacefilter token="@HADOOP.PORT@" value="${hadoop.port}" />
+		</replace>
+	</target>
+
+	<target name="configure-staged-server-conf">
+		<property name="stage.conf.server.xml" value="${stage.conf.dir}/server.xml" />
+		<replace file="${stage.conf.server.xml}">
+			<replacefilter token="@SHUTTL.HOST@" value="${shuttl.host}" />
+			<replacefilter token="@SHUTTL.PORT@" value="${shuttl.port}" />
+		</replace>
+	</target>
+
+	<target name="configure-staged-splunk-conf">
+		<property name="stage.conf.splunk.xml" value="${stage.conf.dir}/splunk.xml" />
+		<replace file="${stage.conf.splunk.xml}">
+			<replacefilter token="@SPLUNK.HOST@" value="${splunk.host}" />
+			<replacefilter token="@SPLUNK.PORT@" value="${splunk.mgmtport}" />
+			<replacefilter token="@SPLUNK.USERNAME@" value="${splunk.username}" />
+			<replacefilter token="@SPLUNK.PASSWORD@" value="${splunk.password}" />
+		</replace>
+	</target>
+
+	<target name="tar-splunk-app">
+		<tar destfile="${splunk-app.tar}" compression="gzip">
+			<tarfileset dir="${stage.dir}/bin" prefix="${appname}/bin" filemode="755">
+				<exclude name="README" />
+			</tarfileset>
+			<tarfileset dir="${stage.dir}/bin" prefix="${appname}/bin">
+				<include name="README" />
+			</tarfileset>
+			<tarfileset dir="${stage.dir}" prefix="${appname}">
+				<exclude name="bin/**" />
+			</tarfileset>
+		</tar>
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->

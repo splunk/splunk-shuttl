@@ -45,16 +45,16 @@ import com.splunk.Service;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.archive.BucketFreezer;
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
-import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsDate;
 import com.splunk.shuttl.testutil.TUtilsFile;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -75,13 +75,15 @@ public class ArchiverEndToEndTest {
 
 	@Parameters(value = { "splunk.username", "splunk.password", "splunk.host",
 			"splunk.mgmtport", "hadoop.host", "hadoop.port", "shuttl.host",
-			"shuttl.port" })
+			"shuttl.port", "shuttl.conf.dir" })
 	@Test(groups = { "end-to-end" })
 	public void archiveBucketAndThawItBack(final String splunkUserName,
 			final String splunkPw, final String splunkHost, final String splunkPort,
 			final String hadoopHost, final String hadoopPort,
-			final String shuttlHost, final String shuttlPort) throws Exception {
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+			final String shuttlHost, final String shuttlPort, String shuttlConfDirPath)
+			throws Exception {
+		File confsDir = new File(shuttlConfDirPath);
+		TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
 
 			@Override
 			public void run() {
@@ -119,7 +121,7 @@ public class ArchiverEndToEndTest {
 		Service service = new Service(splunkHost, Integer.parseInt(splunkPort));
 		service.login(splunkUserName, splunkPw);
 		assertTrue(service.getIndexes().containsKey(thawIndex));
-		splunkSettings = BucketThawerFactory.getSplunkSettings(service);
+		splunkSettings = new SplunkSettings(service);
 
 		try {
 			thawDirectoryLocation = splunkSettings.getThawLocation(thawIndex);
@@ -131,7 +133,8 @@ public class ArchiverEndToEndTest {
 	private BucketFreezer getSuccessfulBucketFreezer() {
 		File movedBucketsLocation = createDirectoryInParent(tempDirectory,
 				ArchiverEndToEndTest.class.getName() + "-safeBuckets");
-		BucketMover bucketMover = new BucketMover(movedBucketsLocation);
+		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
+				.create(movedBucketsLocation);
 		BucketLocker bucketLocker = new BucketLockerInTestDir(
 				createDirectoryInParent(tempDirectory, "bucketlocks"));
 		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
@@ -143,16 +146,18 @@ public class ArchiverEndToEndTest {
 
 	private void archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket()
 			throws Exception {
-		Date earliest = new Date(1332295013);
-		Date latest = new Date(earliest.getTime() + 26);
+		Date earliest = TUtilsDate.getNowWithoutMillis();
+		Date latest = TUtilsDate.getLaterDate(earliest);
 
 		Bucket bucketToFreeze = TUtilsBucket.createBucketWithIndexAndTimeRange(
 				thawIndex, earliest, latest);
+		assertEquals(earliest, bucketToFreeze.getEarliest());
+		assertEquals(latest, bucketToFreeze.getLatest());
+
 		successfulBucketFreezer.freezeBucket(bucketToFreeze.getIndex(),
 				bucketToFreeze.getDirectory().getAbsolutePath());
 
-		verifyFreezeByListingBucketInArchive(bucketToFreeze, thawIndex, earliest,
-				latest);
+		verifyFreezeByListingBucketInArchive(bucketToFreeze);
 
 		boolean bucketToFreezeExists = bucketToFreeze.getDirectory().exists();
 		assertFalse(bucketToFreezeExists);
@@ -168,9 +173,9 @@ public class ArchiverEndToEndTest {
 		assertEquals(bucketToFreeze.getName(), thawedBucket.getName());
 	}
 
-	private void verifyFreezeByListingBucketInArchive(Bucket bucket,
-			String index, Date earliest, Date latest) {
-		HttpGet listRequest = getListGetRequest(index, earliest, latest);
+	private void verifyFreezeByListingBucketInArchive(Bucket bucket) {
+		HttpGet listRequest = getListGetRequest(bucket.getIndex(),
+				bucket.getEarliest(), bucket.getLatest());
 		HttpResponse response = executeUriRequest(listRequest);
 		int statusCode = response.getStatusLine().getStatusCode();
 		if (statusCode != 200) {
@@ -181,8 +186,8 @@ public class ArchiverEndToEndTest {
 		}
 		List<String> lines = getLinesFromResponse(response);
 		assertEquals(1, lines.size());
-		assertTrue(lines.get(0).contains(
-				"\"bucketName\":\"" + bucket.getName() + "\""));
+		assertTrue("response: " + lines.get(0),
+				lines.get(0).contains("\"bucketName\":\"" + bucket.getName() + "\""));
 	}
 
 	private HttpGet getListGetRequest(String index, Date earliest, Date latest) {

@@ -36,12 +36,12 @@ public class FailedBucketsArchiverTest {
 
 	FailedBucketsArchiver failedBucketsArchiver;
 	SharedLockBucketHandler sharedLockBucketHandler;
-	BucketMover bucketMover;
+	IndexPreservingBucketMover bucketMover;
 	BucketLocker bucketLocker;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
-		bucketMover = mock(BucketMover.class);
+		bucketMover = mock(IndexPreservingBucketMover.class);
 		bucketLocker = new BucketLockerInTestDir(createDirectory());
 		sharedLockBucketHandler = mock(SharedLockBucketHandler.class);
 		failedBucketsArchiver = new FailedBucketsArchiver(bucketMover, bucketLocker);

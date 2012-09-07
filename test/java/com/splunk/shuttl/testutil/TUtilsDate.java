@@ -12,17 +12,27 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.server.mbeans;
+package com.splunk.shuttl.testutil;
 
-public class JMXSplunkForTests extends JMXSplunk {
+import java.util.Date;
 
-	public JMXSplunkForTests() {
-		super();
+public class TUtilsDate {
+
+	/**
+	 * @return current date in seconds which is useful for creating buckets, since
+	 *         the bucket names keep the times in seconds.
+	 */
+	public static Date getNowWithoutMillis() {
+		long timeInSeconds = System.currentTimeMillis() / 1000;
+		return new Date(timeInSeconds * 1000);
 	}
 
-	@Override
-	protected String getPathToDefaultConfFile() {
-		return "package/conf/splunk.xml";
+	/**
+	 * @return later date than date. Knows that seconds will be removed if
+	 *         involved with creating buckets.
+	 */
+	public static Date getLaterDate(Date date) {
+		return new Date(date.getTime() + 10000);
 	}
 
 }

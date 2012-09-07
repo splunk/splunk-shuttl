@@ -96,6 +96,19 @@
       </%self:gen_table_option_row>
     </div>
   </div>
+  </form>
+
+  <div id="thawedPage">
+  <hr />
+    <div class="table">
+      <%self:gen_table_option_row id="Thawing">
+        <%def name="data()">
+          <div class="loadingBig" style="background-position:left center;"></div>
+          <div id="thawed-list"></div>
+        </%def>
+      </%self:gen_table_option_row>
+    </div>
+  </div>
 
   <hr />
 
@@ -112,16 +125,4 @@
 
   <hr />
 
-  <div id="thawedPage">
-    <div class="table">
-      <%self:gen_table_option_row id="Thawed data">
-        <%def name="data()">
-          <div class="loadingBig" style="background-position:left center;"></div>
-          <div id="thawed-list"></div>
-        </%def>
-      </%self:gen_table_option_row>
-    </div>
-  </div>
-
-  </form>
 </div>

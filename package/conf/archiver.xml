@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:archiverConf xmlns:ns2="com.splunk.shuttl.server.model">
     <localArchiverDir>file:/~/shuttl_archiver</localArchiverDir>
-    <archiverRootURI>hdfs://localhost:9000/archiver_root</archiverRootURI>
+    <archiverRootURI>hdfs://@HADOOP.HOST@:@HADOOP.PORT@/archiver_root</archiverRootURI>
     <clusterName>cluster_name</clusterName>
     <serverName>server_name</serverName>
     <archiveFormats>

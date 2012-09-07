@@ -18,6 +18,7 @@ import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.Parameters;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.testutil.TUtilsFile;
@@ -29,9 +30,11 @@ import com.splunk.shuttl.testutil.TUtilsMBean;
 public class FileSystemCleaner {
 
 	@AfterTest(alwaysRun = true)
-	public void cleanFileSystemFromCreatedFilesDuringTests() {
+	@Parameters(value = { "shuttl.conf.dir" })
+	public void cleanFileSystemFromCreatedFilesDuringTests(
+			String shuttlConfDirPath) {
 		cleanShuttlTestDirectory();
-		cleanConfiguredLocalFileSystemPaths();
+		cleanConfiguredLocalFileSystemPaths(new File(shuttlConfDirPath));
 	}
 
 	public void cleanShuttlTestDirectory() {
@@ -42,14 +45,16 @@ public class FileSystemCleaner {
 				FileUtils.deleteQuietly(file);
 	}
 
-	public void cleanConfiguredLocalFileSystemPaths() {
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
-			@Override
-			public void run() {
-				FileUtils.deleteQuietly(LocalFileSystemPaths.create()
-						.getArchiverDirectory());
-			}
-		});
+	public void cleanConfiguredLocalFileSystemPaths(File confsDir) {
+		if (confsDir.exists()) {
+			TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
+				@Override
+				public void run() {
+					FileUtils.deleteQuietly(LocalFileSystemPaths.create()
+							.getArchiverDirectory());
+				}
+			});
+		}
 	}
 
 }

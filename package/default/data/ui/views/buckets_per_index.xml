@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<form>
+  <label>Buckets per Index</label>
+  
+  <fieldset autoRun="true">
+    <input type="dropdown" token="index_name">
+      <label>Select Index</label>
+      <default>*</default>
+      <choice value="*">*</choice>
+      <populatingSearch fieldForValue="indexName" fieldForLabel="indexName">
+        `shuttl_indexes`
+      </populatingSearch>
+    </input>
+    
+    <input type="dropdown" token="bucket_status">
+      <label>Select Status</label>
+      <default>Archived buckets</default>
+      <choice value="Archived bucket">Archived buckets</choice>
+      <choice value="Thawed bucket">Thawed buckets</choice>
+    </input>
+
+    <input type="time">
+      <default>Last 30 days</default>
+    </input>
+  </fieldset>
+  
+  <row>
+    <table>
+      <title>Buckets Count</title>
+      <searchTemplate>
+        `shuttl` indexName="$index_name$" done="$bucket_status$"
+        | stats count
+      </searchTemplate>
+      <option name="displayRowNumbers">false</option>
+      <option name="showPager">false</option>
+    </table>
+  </row>
+
+  <row>
+    <table>
+      <title>Buckets</title>
+      <searchTemplate>
+        `shuttl` indexName="$index_name$" done="$bucket_status$"
+        | `shuttl_bucket_table`
+      </searchTemplate>
+      <option name="count">50</option>
+      <option name="showPager">true</option>
+    </table>
+  </row>
+
+</form>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:splunkConf xmlns:ns2="com.splunk.shuttl.server.model">
+    <host>null</host>
+    <port>0</port>
+    <username>null</username>
+    <password>null</password>
+</ns2:splunkConf>
+

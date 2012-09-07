@@ -15,7 +15,7 @@ import collections
 DEBUG = False
 debugIndexes = ['test index 1', 'test index 2']
 debugBuckets = { 
-    'bucket': [
+    'buckets': [
     { 'bucketName': "test1", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "1337"}, 
     { 'bucketName': "test2", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "13"}
     ]}
@@ -25,7 +25,7 @@ debugFailedThawedBuckets = {
     'failed': [
     { 'bucketName': "test1", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "1337"}, 
     { 'bucketName': "test2", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "13"} 
-    ], 'thawed': [
+    ], 'buckets': [
     { 'bucketName': "test1", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "1337"}, 
     { 'bucketName': "test2", 'indexName': "index1", 'format': "test format", 'uri': "http'://", 'fromDate': "2012-05-05", 'toDate': "2012-05-06", 'size': "13"}
     ]}
@@ -64,6 +64,12 @@ class Archiving(controllers.BaseController):
 
         return self.render_template('/shuttl:/templates/archiving.html', dict(errors=errors))
 
+    @expose_page(must_login=True, methods=['GET'])
+    def show_flush(self, **kwargs):
+        errors = None
+        logger.info('Show flushing page')
+        return self.render_template('/shuttl:/templates/flushing.html', dict(errors=errors))
+
     # Gives all indexes that are thawable
     @expose_page(must_login=True, methods=['GET']) 
     def list_indexes(self, **kwargs):
@@ -94,13 +100,20 @@ class Archiving(controllers.BaseController):
     # Gives a list of buckets for a specific index as an html table
     @expose_page(must_login=True, methods=['POST'])
     def list_buckets(self, **params):
-        
+        return self.list_buckets_at('http://localhost:9090/shuttl/rest/archiver/bucket/list', params)
+
+    @expose_page(must_login=True, methods=['POST'])
+    def list_thawed(self, **params):
+        return self.list_buckets_at('http://localhost:9090/shuttl/rest/archiver/thaw/list', params)
+
+    def list_buckets_at(self, url, params):
+
         errors = None
         buckets = {}
 
         logger.debug('list_buckets - postArgs: %s (%s)' % (params, type(params)))
 
-        bucketsResponse = splunk.rest.simpleRequest('http://localhost:9090/shuttl/rest/archiver/bucket/list', getargs=params)
+        bucketsResponse = splunk.rest.simpleRequest(url, getargs=params)
         logger.debug('list_buckets - response: %s (%s)' % (bucketsResponse, type(bucketsResponse)))
 
         if DEBUG: 
@@ -122,16 +135,23 @@ class Archiving(controllers.BaseController):
 
         return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=buckets, errors=errors))
 
+    # Attempts to flush buckets in a specific index and time range
+    @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
+    def flush(self, **params):
+        return self.bucket_action_at('http://localhost:9090/shuttl/rest/archiver/bucket/flush', params)
+
     # Attempts to thaw buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
     def thaw(self, **params):
+        return self.bucket_action_at('http://localhost:9090/shuttl/rest/archiver/bucket/thaw', params)
         
+    def bucket_action_at(self, url, params):
         errors = None
         responseData = {}
 
-        logger.debug('thaw - postArgs: %s (%s)' % (params, type(params)))
+        logger.debug('bucket action - postArgs: %s (%s)' % (params, type(params)))
 
-        response = splunk.rest.simpleRequest('http://localhost:9090/shuttl/rest/archiver/bucket/thaw', postargs=params, method='POST')
+        response = splunk.rest.simpleRequest(url, postargs=params, method='POST')
         
         if DEBUG:
             time.sleep(2)
@@ -162,5 +182,8 @@ class Archiving(controllers.BaseController):
 
         logger.debug('thaw_buckets - buckets: %s (%s)' % (responseData, type(responseData)))
 
-        return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=responseData, errors=errors))  
+        if errors == None:
+            return "Success!"
+        else:
+            return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=responseData, errors=errors))  
 

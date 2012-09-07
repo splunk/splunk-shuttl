@@ -15,6 +15,7 @@
 package com.splunk.shuttl.archiver.archive.recovery;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -28,24 +29,39 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
 @Test(groups = { "fast-unit" })
-public class BucketMoverTest {
+public class IndexPreservingBucketMoverTest {
 
-	BucketMover bucketMover;
+	IndexPreservingBucketMover bucketMover;
 	File moveBucketLocation;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
 		moveBucketLocation = TUtilsFile.createDirectory();
-		bucketMover = new BucketMover(moveBucketLocation);
+		bucketMover = IndexPreservingBucketMover.create(moveBucketLocation);
 	}
 
 	@AfterMethod(groups = { "fast-unit" })
 	public void tearDown() throws IOException {
 		FileUtils.deleteDirectory(moveBucketLocation);
+	}
+
+	@Test(expectedExceptions = { FileNotDirectoryException.class })
+	public void create_givenNonDirectory_throwFileNotDirectoryException() {
+		IndexPreservingBucketMover.create(createFile());
+	}
+
+	@Test(expectedExceptions = { DirectoryNotCreatableException.class })
+	public void create_givenNonExistingAndNonCreatableFile_throwDirectoryNotCreatableException() {
+		File nonCreatableFile = mock(File.class);
+		when(nonCreatableFile.exists()).thenReturn(false);
+		when(nonCreatableFile.mkdirs()).thenReturn(false);
+
+		IndexPreservingBucketMover.create(nonCreatableFile);
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -96,16 +112,31 @@ public class BucketMoverTest {
 		assertTrue(movedBuckets.contains(movedBucketSameIndex));
 	}
 
-	public void moveBucket_givenBucket_movedBucketTo_moveLocation_Index_BucketName() {
+	public void moveBucket_givenBucket_movedBucketExistsAfterMove() {
+		Bucket bucketToMove = TUtilsBucket.createBucket();
+
+		Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
+		assertTrue(movedBucket.getDirectory().exists());
+	}
+
+	public void moveBucket_givenBucket_movedBucketsParentHasTheIndexName() {
 		assertTrue(isDirectoryEmpty(moveBucketLocation));
 		Bucket bucketToMove = TUtilsBucket.createBucket();
 
 		Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
-		assertTrue(!isDirectoryEmpty(moveBucketLocation));
-		assertTrue(movedBucket.getDirectory().exists());
+		assertEquals(movedBucket.getIndex(), movedBucket.getDirectory()
+				.getParentFile().getName());
 	}
 
-	public void getMovedBuckets_afterSuccessfullyMovedABucketUsingMoveBucketToMove_getBucketThatMoved() {
+	public void moveBucket_givenBucket_movesBucketsGrandParentIsTheMoveBucketLocation() {
+		Bucket bucketToMove = TUtilsBucket.createBucket();
+
+		Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
+		assertEquals(moveBucketLocation.getAbsolutePath(), movedBucket
+				.getDirectory().getParentFile().getParentFile().getAbsolutePath());
+	}
+
+	public void getMovedBuckets_afterSuccessfullyMovedABucketUsingMoveBucket_getBucketThatMoved() {
 		Bucket bucketToMove = TUtilsBucket.createBucket();
 		bucketMover.moveBucket(bucketToMove);
 

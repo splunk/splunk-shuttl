@@ -46,14 +46,19 @@ public class BucketFilter {
 	 */
 	public List<Bucket> filterBucketsByTimeRange(List<Bucket> buckets,
 			Date earliest, Date latest) {
+		return BucketFilter.filterBuckets(buckets, earliest, latest);
+	}
+
+	public static List<Bucket> filterBuckets(List<Bucket> buckets, Date earliest,
+			Date latest) {
 		if (earliest.after(latest))
 			return emptyListWithLogWarning(earliest, latest);
 		else
 			return filterBucketsWithinTimeRange(buckets, earliest, latest);
 	}
 
-	private List<Bucket> filterBucketsWithinTimeRange(List<Bucket> buckets,
-			Date earliest, Date latest) {
+	private static List<Bucket> filterBucketsWithinTimeRange(
+			List<Bucket> buckets, Date earliest, Date latest) {
 		ArrayList<Bucket> filteredBuckets = new ArrayList<Bucket>();
 		for (Bucket bucket : buckets)
 			if (isBucketWithinTimeRange(bucket, earliest, latest))
@@ -61,7 +66,7 @@ public class BucketFilter {
 		return filteredBuckets;
 	}
 
-	private boolean isBucketWithinTimeRange(Bucket bucket, Date earliest,
+	public static boolean isBucketWithinTimeRange(Bucket bucket, Date earliest,
 			Date latest) {
 		if (bucket.getLatest().before(earliest))
 			return false;
@@ -70,7 +75,7 @@ public class BucketFilter {
 		return true;
 	}
 
-	private List<Bucket> emptyListWithLogWarning(Date earliest, Date latest) {
+	private static List<Bucket> emptyListWithLogWarning(Date earliest, Date latest) {
 		logger.warn(warn("Filtered buckets by time range",
 				"Earliest time was later than latest time", "Filtered all buckets",
 				"earliest_time", earliest, "latest_time", latest));

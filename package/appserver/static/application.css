@@ -1,14 +1,64 @@
+/* Change the app logo here.  set the height/width for your image, as well as the path to the image */
+.appLogo {
+    height: 53px; 
+    width: 156px;
+    margin-top: 10px;
+    background: url(images/shuttl-logo-64.png) no-repeat 0 0;
+}
+
+/*
+use this to display the name of the app. 
+use line-height to adjust alignment with logo. if
+if the name of the app is in the logo,  set this to display: none;  
+*/
+.appHeaderWrapper h1 {
+    display: none;
+    /*color: #0C4BCA;*/ /* Shuttl blue */
+    /*line-height: 43px;*/
+}
 
 body.splTemplate-dashboard {
     background: #FFF;
-}
-
-.appHeaderWrapper h1 {
-    color: #FFF;
 }
 
 .splTemplate-dashboard .TitleBar .splHeader,
 .splTemplate-dashboard .viewHeader,
 .splTemplate-dashboard .splSearchControls-inline {
     background: #FFF none;
+}
+
+/* Single values styles */
+.SingleValue .Blue {
+       background-color: #4da6df;
+       color: #fff;
+}
+
+.SingleValue .Ok {
+    background-color: #72c72d;
+    color: #fff;
+}
+
+.SingleValue .Down {
+    background-color: #bb2121;
+    color: #fff;
+}
+
+.SingleValue .Green {
+    background-color: #72c72d;
+    color: #fff;
+}
+
+.SingleValue .Yellow {
+       background-color: #e9da34;
+       color: #000;
+}
+
+.SingleValue .Orange {
+       background-color: #e67918;
+       color: #fff;
+}
+
+.SingleValue .Red {
+    background-color: #bb2121;
+    color: #fff;
 }

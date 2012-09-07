@@ -23,10 +23,7 @@ import org.mockito.InOrder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
-import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 import com.splunk.shuttl.server.mbeans.ShuttlMBeanException;
-import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
 @Test(groups = { "fast-unit" })
 public class BucketFreezerConfigTest {
@@ -34,7 +31,7 @@ public class BucketFreezerConfigTest {
 	private Runtime runtime;
 	private BucketFreezerProvider bucketFreezerProvider;
 	private BucketFreezer bucketFreezer;
-	private RegistersMBeans registersMBeans;
+	private RegistersArchiverMBean registersArchiverMBeans;
 	private String existingPath;
 
 	@BeforeMethod
@@ -42,7 +39,7 @@ public class BucketFreezerConfigTest {
 		runtime = mock(Runtime.class);
 		bucketFreezerProvider = mock(BucketFreezerProvider.class);
 		bucketFreezer = mock(BucketFreezer.class);
-		registersMBeans = mock(RegistersMBeans.class);
+		registersArchiverMBeans = mock(RegistersArchiverMBean.class);
 		existingPath = createDirectory().getAbsolutePath();
 	}
 
@@ -52,20 +49,18 @@ public class BucketFreezerConfigTest {
 				bucketFreezer);
 		runMainWithCorrectArguments();
 
-		InOrder inOrder = inOrder(registersMBeans, bucketFreezerProvider,
+		InOrder inOrder = inOrder(registersArchiverMBeans, bucketFreezerProvider,
 				bucketFreezer);
-		inOrder.verify(registersMBeans).registerMBean(
-				ShuttlArchiverMBean.OBJECT_NAME, ShuttlArchiver.class);
+		inOrder.verify(registersArchiverMBeans).register();
 		inOrder.verify(bucketFreezerProvider).getConfiguredBucketFreezer();
 		inOrder.verify(bucketFreezer).freezeBucket(anyString(), anyString());
-		inOrder.verify(registersMBeans).unregisterMBean(
-				ShuttlArchiverMBean.OBJECT_NAME);
+		inOrder.verify(registersArchiverMBeans).unregister();
 		inOrder.verifyNoMoreInteractions();
 	}
 
 	private void runMainWithCorrectArguments() {
 		BucketFreezer.runMainWithDependencies(runtime, bucketFreezerProvider,
-				registersMBeans, "index", existingPath);
+				registersArchiverMBeans, "index", existingPath);
 	}
 
 	public void main_bucketFreezerThrowsException_stillUnregistersTheMBean()
@@ -78,13 +73,13 @@ public class BucketFreezerConfigTest {
 			fail("Exception is expected");
 		} catch (RuntimeException e) {
 		}
-		verify(registersMBeans).unregisterMBean(anyString());
+		verify(registersArchiverMBeans).unregister();
 	}
 
 	public void main_registerMBeansThrowsShuttlMBeanException_exitWithCouldNotConfigureBucketFreezer()
 			throws Exception {
-		doThrow(ShuttlMBeanException.class).when(registersMBeans).registerMBean(
-				anyString(), any(Class.class));
+		doThrow(ShuttlMBeanException.class).when(registersArchiverMBeans)
+				.register();
 
 		runMainWithCorrectArguments();
 

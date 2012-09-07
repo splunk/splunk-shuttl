@@ -38,7 +38,7 @@ public class ShuttlServerMBeanTest {
 	@BeforeMethod
 	public void createMBean() throws Exception {
 		try {
-			File confFile = TUtilsMBean.createEmptyInNamespace("serverConf");
+			File confFile = TUtilsMBean.createEmptyConfInNamespace("serverConf");
 			System.out.println("ShuttlServerMBeanTest - running "
 					+ confFile.getPath());
 			this.serverMBean = new ShuttlServer(confFile.getPath());

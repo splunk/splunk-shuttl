@@ -51,27 +51,27 @@ public class RegistersMBeans {
 	 * 
 	 * @param name
 	 *          the name of the MBean to register.
-	 * @param clazz
+	 * @param mbean
 	 *          the MBean class to use.
 	 * @throws ShuttlMBeanException
 	 *           when it was not possible to register the name to that class.
 	 */
-	public void registerMBean(String name, Class<?> clazz)
+	public void registerMBean(String name, Object mBean)
 			throws ShuttlMBeanException {
 		try {
-			actuallyRegisterMBean(name, clazz);
+			actuallyRegisterMBean(name, mBean);
 		} catch (Exception e) {
 			logger.error(did("Tried registering MBean by name and class", e,
-					"To register the MBean", "name", name, "class", clazz));
+					"To register the MBean", "name", name, "mBean", mBean));
 			throw new ShuttlMBeanException(e);
 		}
 	}
 
-	private void actuallyRegisterMBean(String name, Class<?> clazz)
+	private void actuallyRegisterMBean(String name, Object mBean)
 			throws Exception {
 		ObjectName objectName = new ObjectName(name);
 		if (!mbs.isRegistered(objectName))
-			mbs.registerMBean(clazz.newInstance(), objectName);
+			mbs.registerMBean(mBean, objectName);
 	}
 
 	/**

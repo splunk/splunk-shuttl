@@ -14,11 +14,10 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
+import java.io.File;
 import java.util.List;
 
 import javax.management.InstanceNotFoundException;
-
-import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 import com.splunk.shuttl.server.model.ArchiverConf;
@@ -28,38 +27,28 @@ import com.splunk.shuttl.server.model.ArchiverConf;
  */
 public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
 		ShuttlArchiverMBean {
-	// error messages
 
-	private static final String SHUTTL_ARCHIVER_INIT_FAILURE = "ShuttlArchiver init failure";
-	// end error messages
-
-	private static Logger logger = Logger.getLogger(ShuttlArchiver.class);
 	private ArchiverConf conf;
-	private String xmlFilePath;
 
-	public ShuttlArchiver() throws ShuttlMBeanException {
-		this.xmlFilePath = getPathToDefaultConfFile();
-		refreshWithConf();
+	public ShuttlArchiver() {
+		super();
+	}
+
+	private ShuttlArchiver(File confDirectory) {
+		super(confDirectory);
+	}
+
+	/**
+	 * Used for testing and needs to be a String instead of a File, because the
+	 * File constructor is already taken.
+	 */
+	private ShuttlArchiver(String confFilePath) {
+		super(confFilePath);
 	}
 
 	@Override
-	protected String getConfFileName() {
+	protected String getDefaultConfFileName() {
 		return "archiver.xml";
-	}
-
-	// used by tests
-	public ShuttlArchiver(String confFilePath) throws ShuttlMBeanException {
-		this.xmlFilePath = confFilePath;
-		refreshWithConf();
-	}
-
-	private void refreshWithConf() throws ShuttlMBeanException {
-		try {
-			refresh();
-		} catch (Exception e) {
-			logger.error(SHUTTL_ARCHIVER_INIT_FAILURE, e);
-			throw new ShuttlMBeanException(e);
-		}
 	}
 
 	@Override
@@ -123,11 +112,6 @@ public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
 	}
 
 	@Override
-	protected String getPathToXmlFile() {
-		return this.xmlFilePath;
-	}
-
-	@Override
 	protected ArchiverConf getConfObject() {
 		return this.conf;
 	}
@@ -151,6 +135,14 @@ public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
 			throws InstanceNotFoundException {
 		return MBeanUtils.getMBeanInstance(ShuttlArchiverMBean.OBJECT_NAME,
 				ShuttlArchiverMBean.class);
+	}
+
+	public static ShuttlArchiver createWithConfDirectory(File confDirectory) {
+		return new ShuttlArchiver(confDirectory);
+	}
+
+	public static ShuttlArchiver createWithConfFile(File confFile) {
+		return new ShuttlArchiver(confFile.getAbsolutePath());
 	}
 
 }

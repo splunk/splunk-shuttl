@@ -14,10 +14,8 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.model;
 
-import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 
@@ -68,12 +66,6 @@ public class RemoteBucketTest {
 	@Test(expectedExceptions = { RemoteBucketException.class })
 	public void getDirectory_initWithNonFileUri_throwsRemoteBucketException() {
 		bucket.getDirectory();
-	}
-
-	@Test(expectedExceptions = { RemoteBucketException.class })
-	public void moveBucketToDir_initWithNonFileUri_throwsRemoteBucketException()
-			throws FileNotFoundException, FileNotDirectoryException {
-		bucket.moveBucketToDir(createDirectory());
 	}
 
 	@Test(expectedExceptions = { RemoteBucketException.class })

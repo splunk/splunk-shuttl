@@ -84,8 +84,9 @@ public class CsvImporterTest {
 		assertTrue(csvFile.exists());
 		when(shellExecutor.executeCommand(anyMap(), anyList())).thenReturn(0);
 		when(
-				bucketFactory.createWithIndexAndDirectory(anyString(), any(File.class)))
-				.thenReturn(TUtilsBucket.createBucket());
+				bucketFactory.createWithIndexDirectoryAndFormat(anyString(),
+						any(File.class), any(BucketFormat.class))).thenReturn(
+				TUtilsBucket.createBucket());
 
 		Bucket importedBucket = csvImporter.importBucketFromCsv(csvBucket);
 		assertNotNull(importedBucket);
@@ -109,8 +110,9 @@ public class CsvImporterTest {
 		File csvFile = UtilsBucket.getCsvFile(csvBucket);
 
 		when(
-				bucketFactory.createWithIndexAndDirectory(anyString(), any(File.class)))
-				.thenThrow(RuntimeException.class);
+				bucketFactory.createWithIndexDirectoryAndFormat(anyString(),
+						any(File.class), any(BucketFormat.class))).thenThrow(
+				RuntimeException.class);
 		try {
 			csvImporter.importBucketFromCsv(csvBucket);
 			fail();

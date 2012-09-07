@@ -35,10 +35,13 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketThawer {
 
+	private static final Logger logger = Logger.getLogger(BucketThawer.class);
+
 	private final ListsBucketsFiltered listsBucketsFiltered;
 	private final GetsBucketsFromArchive getsBucketsFromArchive;
 	private final ThawLocationProvider thawLocationProvider;
 	private final List<Bucket> successfulThawedBuckets;
+	private final List<Bucket> skippedBuckets;
 	private final List<FailedBucket> failedBuckets;
 	private final BucketLocker thawBucketLocker;
 
@@ -73,19 +76,56 @@ public class BucketThawer {
 		this.thawBucketLocker = thawBucketLocker;
 
 		this.successfulThawedBuckets = new ArrayList<Bucket>();
+		this.skippedBuckets = new ArrayList<Bucket>();
 		this.failedBuckets = new ArrayList<FailedBucket>();
 	}
 
 	/**
-	 * Thaws bucket for a specific index within a time range.
+	 * Thaws buckets within a time range from one or all indexes.
+	 * 
+	 * @param index
+	 *          to thaw buckets from. if {@code null}, thaw from all indexes.
+	 * @param earliestTime
+	 *          to filter buckets.
+	 * @param latestTime
+	 *          to filter buckets.
 	 */
 	public void thawBuckets(String index, Date earliestTime, Date latestTime) {
-		List<Bucket> bucketsToThaw = listsBucketsFiltered
-				.listFilteredBucketsAtIndex(index, earliestTime, latestTime);
+		List<Bucket> bucketsToThaw = getFilteredBuckets(index, earliestTime,
+				latestTime);
 		for (Bucket bucket : bucketsToThaw)
-			if (!isBucketAlreadyThawed(bucket))
-				thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
-						new ThawBucketFromArchive());
+			try {
+				if (!isBucketAlreadyThawed(bucket)) {
+					thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
+							new ThawBucketFromArchive());
+				} else {
+					skippedBuckets.add(bucket);
+				}
+			} catch (IOException e) {
+				logIOExceptionFromCheckingIfBucketWasThawed(bucket, e);
+				failedBuckets.add(new FailedBucket(bucket, e));
+			}
+	}
+
+	private List<Bucket> getFilteredBuckets(String index, Date earliestTime,
+			Date latestTime) {
+		if (index == null) {
+			return listsBucketsFiltered.listFilteredBuckets(earliestTime, latestTime);
+		} else {
+			return listsBucketsFiltered.listFilteredBucketsAtIndex(index,
+					earliestTime, latestTime);
+		}
+	}
+
+	private boolean isBucketAlreadyThawed(Bucket bucket) throws IOException {
+		File thawLocation = thawLocationProvider.getLocationInThawForBucket(bucket);
+		return thawLocation != null && thawLocation.exists();
+	}
+
+	private void logIOExceptionFromCheckingIfBucketWasThawed(Bucket bucket,
+			IOException e) {
+		logger.error(did("Tried thawing bucket", e, "To thaw bucket unless it "
+				+ "was already thawed.", "bucket", bucket, "exception", e));
 	}
 
 	/**
@@ -100,29 +140,11 @@ public class BucketThawer {
 			BucketThawer.this.thawBucketFromArchive(bucket);
 		}
 
-	}
-
-	/**
-	 * @return true if the bucket already exists on local disk.
-	 */
-	private boolean isBucketAlreadyThawed(Bucket bucket) {
-		try {
-			File thawLocation = thawLocationProvider
-					.getLocationInThawForBucket(bucket);
-			return thawLocation != null && thawLocation.exists();
-		} catch (IOException e) {
-			logWarningForAssumingBucketAlreadyExists(bucket, e);
-			failedBuckets.add(new FailedBucket(bucket, e));
-			return true;
+		@Override
+		public void bucketWasLocked(Bucket bucket) {
+			BucketThawer.this.skippedBuckets.add(bucket);
 		}
-	}
 
-	private void logWarningForAssumingBucketAlreadyExists(Bucket bucket,
-			IOException e) {
-		Logger.getLogger(getClass()).warn(
-				warn("Got thaw location for a bucket", e,
-						"Assumes the bucket is already thawed", "bucket", bucket,
-						"exception", e));
 	}
 
 	private void thawBucketFromArchive(Bucket bucket) {
@@ -148,6 +170,13 @@ public class BucketThawer {
 	 */
 	public List<FailedBucket> getFailedBuckets() {
 		return failedBuckets;
+	}
+
+	/**
+	 * @return buckets that are skipped because they are already thawed.
+	 */
+	public List<Bucket> getSkippedBuckets() {
+		return skippedBuckets;
 	}
 
 }

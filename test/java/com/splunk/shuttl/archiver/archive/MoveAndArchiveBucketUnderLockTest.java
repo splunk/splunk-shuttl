@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -28,14 +28,14 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 public class MoveAndArchiveBucketUnderLockTest {
 
 	MoveAndArchiveBucketUnderLock moveAndArchiveBucketUnderLock;
-	BucketMover bucketMover;
+	IndexPreservingBucketMover bucketMover;
 	Bucket bucket;
 	ArchiveRestHandler archiveRestHandler;
 
 	@BeforeMethod
 	public void setUp() {
 		bucket = TUtilsBucket.createBucket();
-		bucketMover = mock(BucketMover.class);
+		bucketMover = mock(IndexPreservingBucketMover.class);
 		archiveRestHandler = mock(ArchiveRestHandler.class);
 		moveAndArchiveBucketUnderLock = new MoveAndArchiveBucketUnderLock(
 				bucketMover, archiveRestHandler);

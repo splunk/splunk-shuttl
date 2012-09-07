@@ -53,19 +53,10 @@ public class Bucket {
 	 * @throws FileNotDirectoryException
 	 *           if the file is not a directory
 	 */
-	public Bucket(String indexName, File directory) throws FileNotFoundException,
-			FileNotDirectoryException {
-		this(directory.toURI(), directory, indexName, directory.getName(),
-				BucketFormat.getFormatFromDirectory(directory), null);
-	}
-
-	/**
-	 * Invokes {@link #Bucket(String, File)}, by creating a file from specified
-	 * bucketPath
-	 */
-	public Bucket(String indexName, String bucketPath)
+	public Bucket(String indexName, File directory, BucketFormat format)
 			throws FileNotFoundException, FileNotDirectoryException {
-		this(indexName, new File(bucketPath));
+		this(directory.toURI(), directory, indexName, directory.getName(), format,
+				null);
 	}
 
 	/**
@@ -197,41 +188,6 @@ public class Bucket {
 	}
 
 	/**
-	 * Moves the bucket.
-	 * 
-	 * @param destinationDirectory
-	 *          destination directory
-	 * @return a handle to the "new" bucket
-	 * @throws FileNotFoundException
-	 *           if the destination directory does not exist
-	 * @throws FileNotDirectoryException
-	 */
-	public Bucket moveBucketToDir(File destinationDirectory) {
-		if (!destinationDirectory.exists())
-			throw new DirectoryDidNotExistException("Cannot move bucket to: "
-					+ destinationDirectory.getAbsolutePath()
-					+ ", because directory did not exist.");
-		if (!destinationDirectory.isDirectory())
-			throw new FileNotDirectoryException("Cannot move bucket to: "
-					+ destinationDirectory.getAbsolutePath()
-					+ ", because it's not a directory");
-		logger.debug(will("Attempting to move bucket", "bucket", this,
-				"destination", destinationDirectory));
-		File originDirectory = getDirectory();
-		File newName = new File(destinationDirectory, originDirectory.getName());
-		if (!originDirectory.renameTo(newName))
-			logMoveFailureAndThrowException(destinationDirectory);
-		return BucketFactory.createBucketWithIndexAndDirectory(getIndex(), newName);
-	}
-
-	private void logMoveFailureAndThrowException(File destinationDirectory) {
-		logger.error(did("Attempted to move bucket", "move failed", null, "bucket",
-				this, "destination", destinationDirectory));
-		throw new RuntimeException("Couldn't move bucket to destination: "
-				+ destinationDirectory);
-	}
-
-	/**
 	 * Deletes the bucket from the file system.
 	 * 
 	 * @throws IOException
@@ -272,8 +228,8 @@ public class Bucket {
 	@Override
 	public String toString() {
 		return "Bucket [format=" + format + ", directory=" + directory
-				+ ", indexName=" + indexName + ", bucketName=" + bucketName + ", uri="
-				+ uri + "]";
+				+ ", indexName=" + indexName + ", bucketName=" + bucketName
+				+ " bucketSize=" + size + ", uri=" + uri + "]";
 	}
 
 	/**
@@ -287,14 +243,18 @@ public class Bucket {
 	 * @return {@link Date} with earliest time of indexed data in the bucket.
 	 */
 	public Date getEarliest() {
-		return new Date(bucketName.getEarliest());
+		return new Date(toMillis(bucketName.getEarliest()));
+	}
+
+	private long toMillis(long l) {
+		return l * 1000;
 	}
 
 	/**
 	 * @return {@link Date} with latest time of indexed data in the bucket.
 	 */
 	public Date getLatest() {
-		return new Date(bucketName.getLatest());
+		return new Date(toMillis(bucketName.getLatest()));
 	}
 
 	public Long getSize() {

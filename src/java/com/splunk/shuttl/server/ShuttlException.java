@@ -19,7 +19,12 @@ package com.splunk.shuttl.server;
  * @author kpakkirisamy
  * 
  */
-public class ShuttlException extends Exception {
+public class ShuttlException extends RuntimeException {
+
+	/**
+	 * Default generated version uid.
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
      * 

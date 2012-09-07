@@ -37,8 +37,10 @@ public class BucketFactory {
 	 * {@link BucketFactory#createWithIndexAndDirectory(String, File)}, which
 	 * makes it mockable and testable.
 	 */
-	public Bucket createWithIndexAndDirectory(String index, File bucketFile) {
-		return BucketFactory.createBucketWithIndexAndDirectory(index, bucketFile);
+	public Bucket createWithIndexDirectoryAndFormat(String index, File bucketFile,
+			BucketFormat format) {
+		return BucketFactory.createBucketWithIndexDirectoryAndFormat(index,
+				bucketFile, format);
 	}
 
 	/**
@@ -46,10 +48,10 @@ public class BucketFactory {
 	 *         creating bucket with {@link BucketFormat#SPLUNK_BUCKET}, since the
 	 *         format can be decided from the directory.
 	 */
-	public static Bucket createBucketWithIndexAndDirectory(String index,
-			File bucketFile) {
+	public static Bucket createBucketWithIndexDirectoryAndFormat(String index,
+			File bucketFile, BucketFormat format) {
 		try {
-			return new Bucket(index, bucketFile);
+			return new Bucket(index, bucketFile, format);
 		} catch (FileNotFoundException e) {
 			logFileNotFoundException(bucketFile, e);
 			throw new RuntimeException(e);

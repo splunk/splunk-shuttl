@@ -10,6 +10,7 @@
 	<parameter name="shuttl.host" value="localhost" />
 	<parameter name="shuttl.port" value="9090" />
 	<parameter name="splunk.home" value="./build-cache/splunk" />
+	<parameter name="shuttl.conf.dir" value="./build/shuttl/conf" />
 
 	<test name="functional" preserve-order="true">
 		<classes>

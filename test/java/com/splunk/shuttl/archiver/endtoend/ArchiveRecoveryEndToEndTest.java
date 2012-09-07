@@ -18,6 +18,7 @@ import static com.splunk.shuttl.testutil.TUtilsFunctional.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -34,8 +35,8 @@ import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.archive.BucketFreezer;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
-import com.splunk.shuttl.archiver.archive.recovery.BucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -53,11 +54,13 @@ public class ArchiveRecoveryEndToEndTest {
 	PathResolver pathResolver;
 	private LocalFileSystemPaths localFileSystemPaths;
 
-	@Parameters(value = { "hadoop.host", "hadoop.port" })
+	@Parameters(value = { "hadoop.host", "hadoop.port", "shuttl.conf.dir" })
 	@Test(groups = { "end-to-end" })
 	public void Archiver_givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets(
-			final String hadoopHost, final String hadoopPort) throws Exception {
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+			final String hadoopHost, final String hadoopPort, String shuttlConfDirPath)
+			throws Exception {
+		File confsDir = new File(shuttlConfDirPath);
+		TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
 
 			@Override
 			public void run() {
@@ -83,8 +86,8 @@ public class ArchiveRecoveryEndToEndTest {
 		pathResolver = new PathResolver(config);
 		hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
 
-		BucketMover bucketMover = new BucketMover(
-				localFileSystemPaths.getSafeDirectory());
+		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
+				.create(localFileSystemPaths.getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(
 				TUtilsMockito.createInternalServerErrorHttpClientMock());

@@ -18,11 +18,8 @@ package com.splunk.shuttl.server.mbeans.rest;
 import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -30,9 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.util.ajax.JSON;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
@@ -47,8 +42,6 @@ import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketSizeResolver;
-import com.splunk.shuttl.archiver.thaw.StringDateConverter;
-import com.splunk.shuttl.server.model.BucketBean;
 
 /**
  * Endpoint for listing buckets in the archive.
@@ -85,65 +78,18 @@ public class ListBucketsEndpoint {
 		logger.info(happened("Received REST request to list buckets", "endpoint",
 				ENDPOINT_LIST_BUCKETS, "index", index, "from", from, "to", to));
 
-		Date fromDate = getValidFromDate(from);
-		Date toDate = getValidToDate(to);
+		Date fromDate = RestUtil.getValidFromDate(from);
+		Date toDate = RestUtil.getValidToDate(to);
 
 		List<Bucket> filteredBucketsAtIndex = getFilteredBucketsAtIndex(index,
 				fromDate, toDate);
 
-		List<BucketBean> beans = new ArrayList<BucketBean>();
-		long totalBucketsSize = 0;
+		List<Bucket> buckets = filteredBucketsAtIndex;
+		List<Bucket> bucketsWithSize = new java.util.ArrayList<Bucket>();
+		for (Bucket b : buckets)
+			bucketsWithSize.add(getBucketWithSize(b));
 
-		for (Bucket bucket : filteredBucketsAtIndex) {
-			beans.add(getBucketBean(bucket));
-			totalBucketsSize += bucket.getSize() == null ? 0 : bucket.getSize();
-		}
-
-		Map<String, Object> response = new HashMap<String, Object>();
-		response.put("buckets_TOTAL_SIZE",
-				FileUtils.byteCountToDisplaySize(totalBucketsSize));
-		response.put("buckets", beans);
-
-		try {
-			return new ObjectMapper().writeValueAsString(response);
-		} catch (Exception e) {
-			logger.error(did(
-					"attempted to convert buckets and their total size to JSON string",
-					e, null));
-			throw new RuntimeException(e);
-		}
-	}
-
-	private BucketBean getBucketBean(Bucket bucket) {
-		BucketSizeResolver bucketSizeResolver = getBucketSizeResolver();
-		Bucket bucketWithSize = bucketSizeResolver.resolveBucketSize(bucket);
-		return BucketBean.createBeanFromBucket(bucketWithSize);
-	}
-
-	private BucketSizeResolver getBucketSizeResolver() {
-		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
-				.getWithConfiguration(config);
-		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
-				LocalFileSystemPaths.create());
-		return new BucketSizeResolver(
-				ArchiveBucketSize.create(config, bucketSizeIO));
-	}
-
-	private Date getValidFromDate(String from) {
-		if (from == null) {
-			logger.info("No from time provided - defaulting to 0001-01-01");
-			from = "0001-01-01";
-		}
-		return StringDateConverter.convert(from);
-	}
-
-	private Date getValidToDate(String to) {
-		if (to == null) {
-			logger.info("No to time provided - defaulting to 9999-12-31");
-			to = "9999-12-31";
-		}
-		return StringDateConverter.convert(to);
+		return RestUtil.respondWithBuckets(bucketsWithSize);
 	}
 
 	private List<Bucket> getFilteredBucketsAtIndex(String index, Date fromDate,
@@ -159,6 +105,21 @@ public class ListBucketsEndpoint {
 	private ListsBucketsFiltered getListsBucketsFiltered() {
 		return ListsBucketsFilteredFactory.create(ArchiveConfiguration
 				.getSharedInstance());
+	}
+
+	private static Bucket getBucketWithSize(Bucket bucket) {
+		BucketSizeResolver bucketSizeResolver = getBucketSizeResolver();
+		return bucketSizeResolver.resolveBucketSize(bucket);
+	}
+
+	private static BucketSizeResolver getBucketSizeResolver() {
+		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
+		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
+				.getWithConfiguration(config);
+		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
+				LocalFileSystemPaths.create());
+		return new BucketSizeResolver(
+				ArchiveBucketSize.create(config, bucketSizeIO));
 	}
 
 }

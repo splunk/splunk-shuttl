@@ -59,9 +59,9 @@ public class TUtilsBucket {
 	}
 
 	private static String randomBucketName() {
-		long latest = System.currentTimeMillis();
-		long earliest = latest - RandomUtils.nextInt(10000);
-		return String.format("db_%d_%d_%d", earliest, latest,
+		long latest = System.currentTimeMillis() / 1000;
+		long earliest = latest - (RandomUtils.nextInt(10) + 1);
+		return String.format("db_%d_%d_%d", latest, earliest,
 				RandomUtils.nextInt(1000));
 	}
 
@@ -78,7 +78,7 @@ public class TUtilsBucket {
 			File bucketDir) {
 		Bucket testBucket = null;
 		try {
-			testBucket = new Bucket(index, bucketDir);
+			testBucket = new Bucket(index, bucketDir, BucketFormat.SPLUNK_BUCKET);
 		} catch (Exception e) {
 			TUtilsTestNG.failForException("Couldn't create a test bucket", e);
 			throw new RuntimeException(
@@ -159,8 +159,12 @@ public class TUtilsBucket {
 
 	private static String getNameWithEarliestAndLatestTime(Date earliest,
 			Date latest) {
-		return "db_" + latest.getTime() + "_" + earliest.getTime() + "_"
-				+ randomIndexName();
+		return "db_" + toSec(latest.getTime()) + "_" + toSec(earliest.getTime())
+				+ "_" + randomIndexName();
+	}
+
+	private static long toSec(long time) {
+		return time / 1000;
 	}
 
 	/**
@@ -168,10 +172,16 @@ public class TUtilsBucket {
 	 */
 	public static Bucket createBucketInDirectoryWithTimes(File parent,
 			Date earliest, Date latest) {
+		return createBucketInDirectoryWithTimesAndIndex(parent, earliest, latest,
+				randomIndexName());
+	}
+
+	public static Bucket createBucketInDirectoryWithTimesAndIndex(File parent,
+			Date earliest, Date latest, String index) {
 		String bucketName = getNameWithEarliestAndLatestTime(earliest, latest);
 		File bucketDir = createFileFormatedAsBucketInDirectoryWithName(parent,
 				bucketName);
-		return createBucketWithIndexInDirectory(randomIndexName(), bucketDir);
+		return createBucketWithIndexInDirectory(index, bucketDir);
 	}
 
 	/**
@@ -212,7 +222,7 @@ public class TUtilsBucket {
 		File copyBucketDir = createDirectoryInParent(createDirectory(),
 				realBucketDir.getName());
 		copyDirectory(realBucketDir, copyBucketDir);
-		return new Bucket("index", copyBucketDir);
+		return new Bucket("index", copyBucketDir, BucketFormat.SPLUNK_BUCKET);
 	}
 
 	private static void copyDirectory(File from, File to) {

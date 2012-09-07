@@ -18,6 +18,7 @@ package com.splunk.shuttl.archiver.archive;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
+import java.io.File;
 import java.net.URI;
 
 import org.testng.annotations.BeforeMethod;
@@ -25,6 +26,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsConf;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 
 @Test(groups = { "fast-unit" })
@@ -150,7 +152,8 @@ public class PathResolverTest {
 	}
 
 	public void getConfigured_registeredMBean_getsPathResolverInstance() {
-		TUtilsMBean.runWithRegisteredMBeans(new Runnable() {
+		File shuttlConfsDir = TUtilsConf.getNullConfsDir();
+		TUtilsMBean.runWithRegisteredMBeans(shuttlConfsDir, new Runnable() {
 			@Override
 			public void run() {
 				PathResolver pr = PathResolver.getConfigured();

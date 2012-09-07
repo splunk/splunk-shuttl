@@ -41,7 +41,7 @@ public class ShuttlArchiverMBeanTest {
 		File confFile = getTempFile();
 		System.out.println("ShuttlArchiverMBeanTest - running "
 				+ confFile.getPath());
-		archiverMBean = new ShuttlArchiver(confFile.getPath());
+		archiverMBean = ShuttlArchiver.createWithConfFile(confFile);
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -100,7 +100,7 @@ public class ShuttlArchiverMBeanTest {
 				+ "</ns2:archiverConf>\n";
 
 		File file = getTempFile();
-		archiverMBean = new ShuttlArchiver(file.getPath());
+		archiverMBean = ShuttlArchiver.createWithConfFile(file);
 		archiverMBean.setArchiveFormats(archiveFormats);
 		archiverMBean.setClusterName(clusterName);
 		archiverMBean.setServerName(serverName);
@@ -131,7 +131,7 @@ public class ShuttlArchiverMBeanTest {
 		File file = createFile();
 		file.deleteOnExit();
 		FileUtils.writeStringToFile(file, configFilePreset);
-		archiverMBean = new ShuttlArchiver(file.getPath());
+		archiverMBean = ShuttlArchiver.createWithConfFile(file);
 		assertEquals(archiverMBean.getArchiveFormats(), archiveFormats);
 		assertEquals(archiverMBean.getClusterName(), clusterName);
 		assertEquals(archiverMBean.getServerName(), serverName);
@@ -139,7 +139,7 @@ public class ShuttlArchiverMBeanTest {
 	}
 
 	private File getTempFile() throws Exception {
-		return TUtilsMBean.createEmptyInNamespace("archiverConf");
+		return TUtilsMBean.createEmptyConfInNamespace("archiverConf");
 	}
 
 }

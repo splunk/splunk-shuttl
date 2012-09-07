@@ -1,0 +1,127 @@
+<%page expression_filter="h"/>
+<%inherit file="//layout/base.html" />
+<%namespace name="lib" file="//lib.html" import="*"/>
+<%namespace name="helpers" file="//view/_helpers.html" import="*"/>
+<%namespace name="buckets" file="bucket_list.html" import="*"/>
+<%!
+    import logging
+    logger = logging.getLogger('splunk.module.archiving')
+%>
+
+<%lib:script_tags files="${['/static/app/shuttl/jquery-ui/js/jquery-ui-1.8.19.custom.min.js', 
+                            '/static/app/shuttl/jquery-validation/jquery.validate.js',
+                            '/static/app/shuttl/flusher.js', 
+                            '/static/app/shuttl/jquery.tablesorter.js',
+                            '/static/app/shuttl/jquery.tablesorter.pager.js'
+                            ]}" />
+<%def name="custom_css()">
+  <% parent.css() %>
+  <%lib:stylesheet_tags files="${['/static/app/shuttl/jquery-ui/css/redmond/jquery-ui-1.8.19.custom.css', 
+                                  '/static/app/shuttl/tablesorter-theme/blue/style.css',
+                                  '/static/app/shuttl/archiver.css']}" />
+</%def>
+
+<%def name="gen_table_option_row(id=None, data=None, row=None)">
+  <div class="row">
+    % if row is not None:
+      ${row}
+      </div>
+      <% return "" %>
+    % elif callable(getattr(caller, "row", None)):
+      ${caller.row()}
+      </div>
+      <% return "" %>
+    % endif
+
+    % if id is not None:
+      <div class="id">${id}</div>
+    % elif callable(getattr(caller, "id", None)):
+      <div class="id">
+        ${caller.id()}
+        ##<br/ >DEBUG: ${dir(caller)}
+        ##<br/ >${vars(caller)} ---- ${callable(getattr(caller, "id", None))}  ----  ${caller.id()}
+      </div>
+    % else:
+      <div class="id noAfter"></div>
+    % endif
+
+    % if data is not None:
+      <div class="data">${data}</div>
+    % elif callable(getattr(caller, "data", None)):
+      <div class="data">${caller.data()}</div>
+    % else:
+      <div class="data"></div>
+    % endif
+
+  </div>
+</%def>
+
+<div id="flusher">
+  <form name="flush-buckets" id="flush-buckets-form">
+
+  <div id="flusherPage">
+    <div class="table">
+      <%self:gen_table_option_row id="Index">
+        <%def name="data()">
+          <div class="styled-select">
+            <select class="indexes" name="index">
+              <option value="*">Loading...</option>
+            </select>
+          </div>
+        </%def>
+      </%self:gen_table_option_row>
+      <%self:gen_table_option_row id="Time Range">
+        <%def name="data()">
+          <table>
+            <tr>
+              <td>From:</td>
+              <td> <input id="from-datetime-input" class="datetime-input" type="datetime" name="from" value="" placeholder="YYYY-MM-DD"> </td>
+            </tr>
+            <tr>
+              <td>To:</td>
+              <td> <input id="to-datetime-input" class="datetime-input" type="datetime" name="to" value="" placeholder="YYYY-MM-DD"> </td>
+            </tr>
+          </table>
+        </%def>
+      </%self:gen_table_option_row>
+      <%self:gen_table_option_row id="Data size">
+        <%def name="data()">
+          <div id="data-size"></div>
+        </%def>
+      </%self:gen_table_option_row>
+      <%self:gen_table_option_row>
+        <%def name="data()">
+          <p><input id="search-flush-button" class="search button" type="button" value=""></p>
+        </%def>
+      </%self:gen_table_option_row>
+    </div>
+  </div>
+  </form>
+
+  <div id="flushPage">
+  <hr />
+    <div class="table">
+      <%self:gen_table_option_row id="Flushing">
+        <%def name="data()">
+          <div class="loadingBig" style="background-position:left center;"></div>
+          <div id="flush-list"></div>
+        </%def>
+      </%self:gen_table_option_row>
+    </div>
+  </div>
+
+  <hr />
+
+  <div id="thawedPage">
+    <div class="table">
+      <%self:gen_table_option_row id="Thawed data">
+        <%def name="data()">
+          <div class="loadingBig" style="background-position:left center;"></div>
+          <div id="thaw-list"></div>
+        </%def>
+      </%self:gen_table_option_row>
+    </div>
+  </div>
+
+  <hr />
+</div>

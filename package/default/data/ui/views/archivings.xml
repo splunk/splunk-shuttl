@@ -1,5 +1,5 @@
 <view autoCancelInterval="90" onunloadCancelJobs="true" template="dashboard.html">
-  <label>Archiving</label>
+  <label>Thaw</label>
 
   <module name="AccountBar" layoutPanel="appHeader"/>
   <module name="AppBar" layoutPanel="navigationHeader"/>

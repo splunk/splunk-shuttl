@@ -21,9 +21,9 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
-import com.splunk.shuttl.server.mbeans.JMXSplunkForTests;
+import com.splunk.shuttl.server.mbeans.JMXSplunk;
 import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
-import com.splunk.shuttl.server.mbeans.ShuttlArchiverForTests;
+import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
 import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
@@ -36,15 +36,16 @@ public class TUtilsMBean {
 	 * your test is run. <br/>
 	 * Use {@link TUtilsMBean#runWithRegisteredMBeans(Runnable)} if possible.
 	 */
-	static void registerMBeans() {
+	static void registerMBeans(File confDir) {
 		registerByNameAndClass(ShuttlArchiverMBean.OBJECT_NAME,
-				ShuttlArchiverForTests.class);
-		registerByNameAndClass(JMXSplunkMBean.OBJECT_NAME, JMXSplunkForTests.class);
+				ShuttlArchiver.createWithConfDirectory(confDir));
+		registerByNameAndClass(JMXSplunkMBean.OBJECT_NAME,
+				JMXSplunk.createWithConfDirectory(confDir));
 	}
 
-	private static void registerByNameAndClass(String objectName, Class<?> clazz) {
+	private static void registerByNameAndClass(String objectName, Object mBean) {
 		try {
-			RegistersMBeans.create().registerMBean(objectName, clazz);
+			RegistersMBeans.create().registerMBean(objectName, mBean);
 		} catch (Exception e) {
 			TUtilsTestNG
 					.failForException("Could not register ShuttlArchiverMBean", e);
@@ -62,10 +63,13 @@ public class TUtilsMBean {
 	 * Runs a runnable while MBeans in {@link TUtilsMBean#registerMBeans()} are
 	 * registered. The method makes sure that the MBeans are unregistered when the
 	 * runnable has finished running.
+	 * 
+	 * @param path
+	 *          to the directory where configured Shuttl confs live.
 	 */
-	public static void runWithRegisteredMBeans(Runnable runnable) {
+	public static void runWithRegisteredMBeans(File confDir, Runnable runnable) {
 		try {
-			registerMBeans();
+			registerMBeans(confDir);
 			runnable.run();
 		} finally {
 			unregisterMBeans();
@@ -76,7 +80,7 @@ public class TUtilsMBean {
 	 * Creates an empty conf file with a specified namespace. It's used for
 	 * testing mbeans.
 	 */
-	public static File createEmptyInNamespace(String namespace) {
+	public static File createEmptyConfInNamespace(String namespace) {
 		File confFile = createFile();
 		writeXmlBoilerPlateWithNamespaceToFile(namespace, confFile);
 		return confFile;

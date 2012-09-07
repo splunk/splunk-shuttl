@@ -167,4 +167,16 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		callRestToArchiveBucket(bucket);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler
+	 * #bucketWasLocked(com.splunk.shuttl.archiver.model.Bucket)
+	 */
+	@Override
+	public void bucketWasLocked(Bucket bucket) {
+		// Do nothing.
+	}
+
 }

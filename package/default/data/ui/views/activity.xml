@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<dashboard>
+  <label>Activity</label>
+
+  <!-- Review --> 
+  <row>
+    <single>
+      <title>Jetty server</title>
+      <searchName>Shuttl Is Jetty Server Running</searchName>
+      <option name="field">range</option>
+      <option name="classField">range</option>
+      <option name="beforeLabel">Status:</option>
+    </single>
+    <single>
+      <title>Tried and Failed to Archive</title>
+      <searchName>Shuttl Failed Archived Buckets</searchName>
+      <option name="classField">range</option>
+      <option name="afterLabel">buckets</option>
+    </single>
+  </row>
+
+  <row>
+    <chart>
+      <title>Archived Buckets Last Hour</title>
+      <searchName>Shuttl Archived Buckets Last Hour</searchName>
+      <option name="charting.chart">radialGauge</option>
+      <option name="charting.chart.nullValueMode">zero</option>
+    </chart>
+    <chart>
+      <title>Archived Buckets Last Day</title>
+      <searchName>Shuttl Archived Buckets Last Day</searchName>
+      <option name="charting.chart">radialGauge</option>
+      <option name="charting.chart.nullValueMode">zero</option>
+    </chart>
+    <chart>
+      <title>Archived Buckets Last Week</title>
+      <searchName>Shuttl Archived Buckets Last Week</searchName>
+      <option name="charting.chart">radialGauge</option>
+      <option name="charting.chart.nullValueMode">zero</option>
+    </chart>
+  </row>
+
+  <row>
+    <single>
+      <title>Number of Archived Buckets</title>
+      <searchName>Shuttl Number of Archived Buckets</searchName>
+    </single>
+    <single>
+      <title>Number of Thawed Buckets</title>
+      <searchName>Shuttl Number of Thawed Buckets</searchName>
+    </single>
+  </row>
+  
+  <!-- Review, maybe a module which get all indexes from the .conf-file -->
+  <row>
+    <table>
+      <searchName>Shuttl All Indexes Table</searchName>
+      <title>All Indexes</title>
+      <option name="displayRowNumbers">false</option>
+    </table>
+  </row>
+
+  <row>
+    <table>
+      <title>Archived Buckets per Index</title>
+      <searchName>Shuttl Archived Buckets per Index Stats</searchName>
+      <option name="displayRowNumbers">false</option>
+      <option name="showPager">true</option>
+    </table>
+    <table>
+      <title>Thawed Buckets per Index</title>
+      <searchName>Shuttl Thawed Buckets per Index Stats</searchName>
+      <option name="displayRowNumbers">false</option>
+      <option name="showPager">true</option>
+    </table>
+  </row>
+
+  <row>
+    <table>
+      <title>All Archived Buckets</title>
+      <searchName>Shuttl All Archived Buckets</searchName>
+      <option name="count">20</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="showPager">true</option>
+    </table>
+    <table>
+      <title>All Thawed Buckets</title>
+      <searchName>Shuttl All Thawed Buckets</searchName>
+      <option name="count">20</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="showPager">true</option>
+    </table>
+  </row>
+
+</dashboard>

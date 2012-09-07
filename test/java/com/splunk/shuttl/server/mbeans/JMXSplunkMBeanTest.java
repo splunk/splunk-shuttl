@@ -28,7 +28,8 @@ public class JMXSplunkMBeanTest {
 
 	@BeforeMethod
 	public void setUp() {
-		mBean = new JMXSplunk(TUtilsMBean.createEmptyInNamespace("splunkConf"));
+		mBean = JMXSplunk.createWithConfFile(TUtilsMBean
+				.createEmptyConfInNamespace("splunkConf"));
 	}
 
 	public void getHost_afterSettingHost_getsHost() {

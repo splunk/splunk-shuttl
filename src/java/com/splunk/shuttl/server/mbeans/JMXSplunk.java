@@ -14,13 +14,9 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
-import static com.splunk.shuttl.archiver.LogFormatter.*;
-
 import java.io.File;
 
 import javax.management.InstanceNotFoundException;
-
-import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 import com.splunk.shuttl.server.model.SplunkConf;
@@ -30,37 +26,23 @@ import com.splunk.shuttl.server.model.SplunkConf;
  */
 public class JMXSplunk extends MBeanBase<SplunkConf> implements JMXSplunkMBean {
 
-	private String confFile;
 	private SplunkConf conf;
 
 	public JMXSplunk() {
-		this.confFile = getPathToDefaultConfFile();
-		callRefreshWithErrorHandling();
+		super();
+	}
+
+	private JMXSplunk(File confDirectory) {
+		super(confDirectory);
+	}
+
+	private JMXSplunk(String confFilePath) {
+		super(confFilePath);
 	}
 
 	@Override
-	protected String getConfFileName() {
+	protected String getDefaultConfFileName() {
 		return "splunk.xml";
-	}
-
-	/**
-	 * @param confFile
-	 */
-	public JMXSplunk(File confFile) {
-		this.confFile = confFile.getAbsolutePath();
-		callRefreshWithErrorHandling();
-	}
-
-	private void callRefreshWithErrorHandling() {
-		try {
-			refresh();
-		} catch (ShuttlMBeanException e) {
-			Logger logger = Logger.getLogger(getClass());
-			logger.error(did("Tried to instanciate a SplunkMBeanImpl", e,
-					"To create the MBeanImpl" + " with a conf file", "path_to_conf",
-					this.confFile));
-			throw new RuntimeException(e);
-		}
 	}
 
 	/**
@@ -124,11 +106,6 @@ public class JMXSplunk extends MBeanBase<SplunkConf> implements JMXSplunkMBean {
 	}
 
 	@Override
-	protected String getPathToXmlFile() {
-		return confFile;
-	}
-
-	@Override
 	protected SplunkConf getConfObject() {
 		return conf;
 	}
@@ -151,5 +128,13 @@ public class JMXSplunk extends MBeanBase<SplunkConf> implements JMXSplunkMBean {
 	public static JMXSplunkMBean getMBeanProxy() throws InstanceNotFoundException {
 		return MBeanUtils.getMBeanInstance(JMXSplunkMBean.OBJECT_NAME,
 				JMXSplunkMBean.class);
+	}
+
+	public static JMXSplunk createWithConfDirectory(File confDirectory) {
+		return new JMXSplunk(confDirectory);
+	}
+
+	public static JMXSplunk createWithConfFile(File confFile) {
+		return new JMXSplunk(confFile.getAbsolutePath());
 	}
 }

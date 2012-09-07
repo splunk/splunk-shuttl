@@ -8,7 +8,7 @@ set -u
 
 script_dir=$(dirname $0)
 shuttl_home=`$script_dir/../print-shuttl-home.sh`
-splunk_home=$shuttl_home/build-cache/splunk
+splunk_home=$shuttl_home/build-cache/splunk-1
 
 curl http://loripsum.net/api/1000/verylong > $splunk_home/loremIpsum.txt
 

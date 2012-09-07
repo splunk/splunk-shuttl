@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans.util;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -28,20 +29,20 @@ import javax.xml.bind.Unmarshaller;
  * 
  */
 public class JAXBUtils {
-	public static void save(Class confClass, Object confObj, String xmlFilePath)
+	public static void save(Class confClass, Object confObj, File xmlFile)
 			throws Exception {
 		JAXBContext context = JAXBContext.newInstance(confClass);
 		Marshaller m = context.createMarshaller();
 		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		m.marshal(confObj, new FileWriter(xmlFilePath));
+		m.marshal(confObj, new FileWriter(xmlFile));
 
 	}
 
-	public static Object refresh(Class confClass, String xmlFilePath)
+	public static Object refresh(Class confClass, File xmlFile)
 			throws JAXBException, FileNotFoundException {
 		JAXBContext context = JAXBContext.newInstance(confClass);
 		Unmarshaller um = context.createUnmarshaller();
-		return um.unmarshal(new FileReader(xmlFilePath));
+		return um.unmarshal(new FileReader(xmlFile));
 	}
 
 }
