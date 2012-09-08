@@ -3,51 +3,6 @@
   <label>Failed Buckets</label>
   
   <fieldset autoRun="true">
-    <input type="dropdown" token="protocol">
-      <label>Select Protocol</label>
-      <default>*</default>
-      <choice value="*">*</choice>
-      <populatingSearch fieldForValue="protocol" fieldForLabel="protocol">
-        `shuttl_error_dedup_field(protocol)`
-      </populatingSearch>
-    </input>
-
-    <input type="dropdown" token="port">
-      <label>Select Port</label>
-      <default>*</default>
-      <choice value="*">*</choice>
-      <populatingSearch fieldForValue="port" fieldForLabel="port">
-        `shuttl_error_dedup_field(port)`
-      </populatingSearch>
-    </input>
-    
-    <input type="dropdown" token="host">
-      <label>Select Host</label>
-      <default>*</default>
-      <choice value="*">*</choice>
-      <populatingSearch fieldForValue="host" fieldForLabel="host">
-        `shuttl_error_dedup_field(host)`
-      </populatingSearch>
-    </input>
-
-    <input type="dropdown" token="indexName">
-      <label>Select Index</label>
-      <default>*</default>
-      <choice value="*">*</choice>
-      <populatingSearch fieldForValue="indexName" fieldForLabel="indexName">
-        `shuttl_error_dedup_field(indexName)`
-      </populatingSearch>
-    </input>
-
-    <input type="dropdown" token="bucketType">
-      <label>Select Bucket Type</label>
-      <default>*</default>
-      <choice value="*">*</choice>
-      <populatingSearch fieldForValue="bucketType" fieldForLabel="bucketType">
-        `shuttl_error_dedup_field(bucketType)`
-      </populatingSearch>
-    </input>
-
     <input type="time">
       <default>Last 30 days</default>
     </input>
@@ -58,7 +13,6 @@
       <title>Errors &amp; Failures</title>
       <searchTemplate>
         `shuttl_error`
-        | search protocol=$protocol$ host=$host$ port=$port$ indexName=$indexName$ bucketType=$bucketType$
         | table `shuttl_failed_buckets_table_format`
       </searchTemplate>
       <option name="showPager">true</option>
