@@ -159,6 +159,13 @@ function thawBucketsPOST() {
       loadingDone();
       $('#thawed-list').show();
       resizePage(); // Resize body
+    },
+    error: function(x, t, m) {
+      if(t == "timeout") {
+        $('#thawed-list').html("Request submitted!");
+      } else {
+        $('#thawed-list').html("Got unexpected error");
+      }
     }
   });
 }
