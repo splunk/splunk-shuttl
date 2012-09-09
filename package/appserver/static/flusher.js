@@ -149,6 +149,13 @@ function flushBucketsPOST() {
       $('#flush-list').show();
       resizePage();
       listThawedPOST();
+    },
+    error: function(x, t, m) {
+      if(t == "timeout") {
+        $('#flush-list').html("Request submitted!");
+      } else {
+        $('#flush-list').html("Got unexpected error");
+      }
     }
   });
 }
@@ -210,7 +217,7 @@ function setSearchOrFlushButtonToSearch() {
   var button = $('#search-flush-button');
   button.addClass('search');
   button.removeClass('flush');
-  button.val("Search for thawed buckets in range");
+  button.val("Search for buckets in the range");
   $('#flushPage').hide();
   resizePage();
 }
