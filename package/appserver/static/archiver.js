@@ -161,10 +161,10 @@ function thawBucketsPOST() {
       resizePage(); // Resize body
     },
     error: function(x, t, m) {
-      if(t == "timeout") {
+      if(m === 'timeout' || t === 'timeout') {
         $('#thawed-list').html("Request submitted!");
       } else {
-        $('#thawed-list').html("Got unexpected error");
+        $('#thawed-list').html("Got unexpected error: " + m);
       }
     }
   });
