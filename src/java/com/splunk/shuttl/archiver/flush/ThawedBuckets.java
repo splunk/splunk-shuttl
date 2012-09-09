@@ -32,7 +32,7 @@ public class ThawedBuckets {
 			for (File f : files)
 				if (f.isDirectory())
 					buckets.add(BucketFactory.createBucketWithIndexDirectoryAndFormat(
-							index, f, BucketFormat.UNKNOWN));
+							index, f, BucketFormat.SPLUNK_BUCKET));
 		return buckets;
 	}
 
