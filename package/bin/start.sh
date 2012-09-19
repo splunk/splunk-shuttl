@@ -20,12 +20,4 @@
 
 cd $SPLUNK_HOME/etc/apps/shuttl/bin
 
-exec -a shuttl-jetty-server $JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.server.ShuttlJettyServer &
-pid=$!
-
-echo "Kill Shuttl [$pid] on interrupt";
-trap '{ echo "Killing $pid"; kill $pid; }' INT QUIT TERM EXIT
-
-echo "Waiting for $pid to finish..."
-wait $pid
-echo "Script ended!"
+exec -a shuttl-jetty-server $JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.server.ShuttlJettyServer
