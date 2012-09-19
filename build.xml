@@ -733,9 +733,14 @@
 		<antcall>
 			<target name="splunk-stop-forced" />
 			<target name="splunk-clean-eventdata" />
+			<target name="shuttl-kill-server" />
 		</antcall>
 	</target>
 
+	<target name="shuttl-kill-server">
+		<exec executable="${basedir}/src/sh/kill-shuttl-server.sh" />
+	</target>
+	
 	<target name="check-for-splunk-binary">
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
 	</target>
@@ -865,8 +870,8 @@
 	</target>
 
 	<target name="versionized-jar-name" depends="version">
-		<loadproperties srcfile="${classdir}/com/splunk/shuttl/server/version.properties"/>
-		
+		<loadproperties srcfile="${classdir}/com/splunk/shuttl/server/version.properties" />
+
 		<property name="name.api.versioned" value="${appname}-api-${version}" />
 		<property name="name.api.versioned.path" value="${builddir}/jar/${name.api.versioned}.jar" />
 		<property name="name.test.versioned" value="${appname}-test-${version}" />
