@@ -731,7 +731,7 @@
 
 	<target name="splunk-teardown" depends="set-splunk-home,check-for-splunk-binary" if="existsSplunkBinary">
 		<antcall>
-			<target name="splunk-stop" />
+			<target name="splunk-stop-forced" />
 			<target name="splunk-clean-eventdata" />
 		</antcall>
 	</target>
