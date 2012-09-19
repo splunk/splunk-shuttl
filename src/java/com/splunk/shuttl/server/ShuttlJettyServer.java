@@ -57,32 +57,9 @@ public class ShuttlJettyServer {
 			}
 			StartUpCleaner.create().clean();
 			server.start();
-			new Thread(new Heartbeat()).run();
 		} catch (Exception e) {
 			logger.error("Error during startup", e);
 			System.exit(1);
 		}
-	}
-
-	/**
-	 * Since we're using Splunk's scripted input, we're expected to write some
-	 * output. If Splunk dies, our server won't die until the OS realizes that the
-	 * pipe we're writing to is broken. This class exists for this reason.
-	 */
-	private static class Heartbeat implements Runnable {
-
-		@Override
-		public void run() {
-			while (true) {
-				System.out.println(""); // will be ignored by Splunk, but enough to kill
-																// us.
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					System.err.println("Got exception e: " + e);
-				}
-			}
-		}
-
 	}
 }
