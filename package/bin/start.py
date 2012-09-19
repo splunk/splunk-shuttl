@@ -7,7 +7,7 @@ import os
 splunk_home = os.environ['SPLUNK_HOME']
 os.chdir(splunk_home + "/etc/apps/shuttl/bin")
 
-start_shuttl_server = "exec -a shuttl-jetty-server $JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.server.ShuttlJettyServer"
+start_shuttl_server = "$JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.server.ShuttlJettyServer"
 
 process = subprocess.Popen(start_shuttl_server, shell=True, stdout=subprocess.PIPE)
 print("Started Shuttl pid: " + str(process.pid))
