@@ -847,6 +847,7 @@
 			<target name="install-shuttl-splunk-app" />
 			<target name="manual-test-configure-shuttl-archiver-conf" />
 			<target name="manual-test-create-fast-rolling-index" />
+			<target name="splunk-set-splunkd-port" />
 			<target name="splunk-start" />
 			<target name="enable-shuttl-splunk-app" />
 		</antcall>
