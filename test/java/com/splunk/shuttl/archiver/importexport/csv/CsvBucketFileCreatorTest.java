@@ -17,6 +17,7 @@ package com.splunk.shuttl.archiver.importexport.csv;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.importexport.BucketFileCreatorTest;
 
 @Test(groups = { "fast-unit" })
@@ -32,4 +33,8 @@ public class CsvBucketFileCreatorTest extends BucketFileCreatorTest {
 		return "csv";
 	}
 
+	@Override
+	protected BucketFileCreator getInstance() {
+		return BucketFileCreator.createForCsv();
+	}
 }

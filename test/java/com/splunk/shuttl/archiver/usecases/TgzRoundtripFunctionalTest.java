@@ -44,60 +44,60 @@ import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "functional" }, enabled = false)
-public class GzipRoundtripFunctionalTest {
+public class TgzRoundtripFunctionalTest {
 
-	private ArchiveConfiguration gzipConf;
+	private ArchiveConfiguration tgzConf;
 	private BucketArchiver bucketArchiver;
 	private File testDirectory;
 	private LocalFileSystemPaths localFileSystemPaths;
 
 	@BeforeMethod
 	public void setUp() {
-		gzipConf = getLocalConfigurationThatArchivesFormats(asList(BucketFormat.GZIP));
+		tgzConf = getLocalConfigurationThatArchivesFormats(asList(BucketFormat.SPLUNK_BUCKET_TGZ));
 		testDirectory = createDirectory();
 		localFileSystemPaths = new LocalFileSystemPaths(
 				testDirectory.getAbsolutePath());
 		ArchiveFileSystem localFileSystem = ArchiveFileSystemFactory
-				.getWithConfiguration(gzipConf);
+				.getWithConfiguration(tgzConf);
 
 		bucketArchiver = BucketArchiverFactory
-				.createWithConfFileSystemAndCsvDirectory(gzipConf, localFileSystem,
+				.createWithConfFileSystemAndCsvDirectory(tgzConf, localFileSystem,
 						localFileSystemPaths);
 	}
 
 	@AfterMethod
 	public void tearDown() {
 		FileUtils.deleteQuietly(testDirectory);
-		tearDownLocalConfig(gzipConf);
+		tearDownLocalConfig(tgzConf);
 	}
 
-	public void _givenGzipConfig_archivesBucketAsGzip() {
-		Bucket bucket = getGzipBucketArchived();
+	public void _givenTgzConfig_archivesBucketAsTgz() {
+		Bucket bucket = getTgzBucketArchived();
 
-		List<Bucket> buckets = ListsBucketsFilteredFactory.create(gzipConf)
+		List<Bucket> buckets = ListsBucketsFilteredFactory.create(tgzConf)
 				.listFilteredBucketsAtIndex(bucket.getIndex(), bucket.getEarliest(),
 						bucket.getLatest());
 
 		assertEquals(1, buckets.size());
-		assertEquals(BucketFormat.GZIP, buckets.get(0).getFormat());
+		assertEquals(BucketFormat.SPLUNK_BUCKET_TGZ, buckets.get(0).getFormat());
 	}
 
-	private Bucket getGzipBucketArchived() {
+	private Bucket getTgzBucketArchived() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		archiveBucket(bucket, bucketArchiver);
 		return bucket;
 	}
 
-	public void _givenGzipConfig_thawsGzipBucketToSplunkBucket()
+	public void _givenTgzConfig_thawsTgzBucketToSplunkBucket()
 			throws IllegalIndexException {
 		File thawDir = createDirectory();
 
-		Bucket bucket = getGzipBucketArchived();
+		Bucket bucket = getTgzBucketArchived();
 		SplunkSettings splunkSettings = mock(SplunkSettings.class);
 		when(splunkSettings.getThawLocation(bucket.getIndex())).thenReturn(thawDir);
 
 		BucketThawer bucketThawer = BucketThawerFactory
-				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(gzipConf,
+				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(tgzConf,
 						splunkSettings, localFileSystemPaths);
 
 		bucketThawer.thawBuckets(bucket.getIndex(), bucket.getEarliest(),

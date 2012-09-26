@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.util.UtilsFile;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -42,12 +43,14 @@ public abstract class BucketFileCreatorTest {
 		dir = createDirectory();
 		file = createFileInParent(dir, "testFile." + getExtension());
 		bucket = TUtilsBucket.createBucket();
-		bucketFileCreator = new BucketFileCreator(getFormat(), getExtension());
+		bucketFileCreator = getInstance();
 	}
 
 	protected abstract BucketFormat getFormat();
 
 	protected abstract String getExtension();
+
+	protected abstract BucketFileCreator getInstance();
 
 	@AfterMethod
 	public void tearDown() {
@@ -55,66 +58,68 @@ public abstract class BucketFileCreatorTest {
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void _givenCsvFileAndBucket_bucketNamedAsCsvFileWithoutTheCsvExtension() {
-		Bucket csvBucket = bucketFileCreator.createBucketWithCsvFile(file, bucket);
-		String fileWithoutExtension = FilenameUtils.removeExtension(file.getName());
-		assertEquals(csvBucket.getName(), fileWithoutExtension);
+	public void _givenFileAndBucket_bucketNamedAsFileWithoutTheExtension() {
+		Bucket createdBucket = bucketFileCreator.createBucketWithFile(file, bucket);
+		String fileWithoutExtension = UtilsFile.getFileNameSansExt(file,
+				getExtension());
+		assertEquals(createdBucket.getName(), fileWithoutExtension);
 	}
 
-	public void _givenCsvFileAndBucket_newBucketObjectKeepsOldBucketSize() {
-		Bucket newBucket = bucketFileCreator.createBucketWithCsvFile(file, bucket);
+	public void _givenFileAndBucket_newBucketObjectKeepsOldBucketSize() {
+		Bucket newBucket = bucketFileCreator.createBucketWithFile(file, bucket);
 		assertEquals(bucket.getSize(), newBucket.getSize());
 
 	}
 
-	public void _givenCsvFile_createsBucketInParentFileToCsvFile() {
-		Bucket csvBucket = bucketFileCreator.createBucketWithCsvFile(file, bucket);
-		assertEquals(dir, csvBucket.getDirectory().getParentFile());
+	public void _givenFile_createsBucketInParentFileToFile() {
+		Bucket createdBucket = bucketFileCreator.createBucketWithFile(file, bucket);
+		assertEquals(dir, createdBucket.getDirectory().getParentFile());
 	}
 
 	public void _givenBucket_bucketWithSameIndexAsGivenBucket() {
-		Bucket csvBucket = bucketFileCreator.createBucketWithCsvFile(file, bucket);
-		assertEquals(bucket.getIndex(), csvBucket.getIndex());
+		Bucket createdBucket = bucketFileCreator.createBucketWithFile(file, bucket);
+		assertEquals(bucket.getIndex(), createdBucket.getIndex());
 	}
 
-	public void _givenCsvFile_bucketWithCsvFormat() {
-		Bucket csvBucket = bucketFileCreator.createBucketWithCsvFile(file, bucket);
-		assertEquals(BucketFormat.CSV, csvBucket.getFormat());
+	public void _givenFile_bucketWithFormat() {
+		Bucket createdBucket = bucketFileCreator.createBucketWithFile(file, bucket);
+		assertEquals(getFormat(), createdBucket.getFormat());
 	}
 
-	public void _givenCsvFile_csvFileMovedToCsvBucketDirectory() {
-		long csvFileSize = file.length();
-		Bucket csvBucket = bucketFileCreator.createBucketWithCsvFile(file, bucket);
-		File bucketDir = csvBucket.getDirectory();
+	public void _givenFile_fileMovedToBucketDirectory() {
+		long fileSize = file.length();
+		Bucket createdBucket = bucketFileCreator.createBucketWithFile(file, bucket);
+		File bucketDir = createdBucket.getDirectory();
 		assertEquals(1, bucketDir.listFiles().length);
-		File movedCsvFile = bucketDir.listFiles()[0];
-		assertEquals(file.getName(), movedCsvFile.getName());
-		assertEquals(csvFileSize, movedCsvFile.length());
+		File movedFile = bucketDir.listFiles()[0];
+		assertEquals(file.getName(), movedFile.getName());
+		assertEquals(fileSize, movedFile.length());
 		assertFalse(file.exists());
 	}
 
-	public void _givenCsvFile_bucketDirectoryHasSameNameAsCsvFileWithoutExtension() {
-		Bucket csvBucket = bucketFileCreator.createBucketWithCsvFile(file, bucket);
-		File bucketDir = csvBucket.getDirectory();
-		String fileWithoutExtension = FilenameUtils.removeExtension(file.getName());
+	public void _givenFile_bucketDirectoryHasSameNameAsFileWithoutExtension() {
+		Bucket createdBucket = bucketFileCreator.createBucketWithFile(file, bucket);
+		File bucketDir = createdBucket.getDirectory();
+		String fileWithoutExtension = UtilsFile.getFileNameSansExt(file,
+				getExtension());
 		assertEquals(fileWithoutExtension, bucketDir.getName());
 	}
 
 	// Sad path
 
 	@Test(expectedExceptions = { IllegalArgumentException.class })
-	public void _givenNonCsvFile_throwIllegalArgumentException() {
-		File notCsvFile = createTestFileWithName("not-csv-file.xkcd");
-		assertNotEquals("csv", FilenameUtils.getExtension(notCsvFile.getName()));
-		bucketFileCreator.createBucketWithCsvFile(notCsvFile, null);
+	public void _givenFileWithOtherExtension_throwIllegalArgumentException() {
+		String otherExtension = getExtension() + "x";
+		File otherExtensionedFile = createTestFileWithName("file." + otherExtension);
+		assertNotEquals(getExtension(),
+				FilenameUtils.getExtension(otherExtensionedFile.getName()));
+		bucketFileCreator.createBucketWithFile(otherExtensionedFile, null);
 	}
 
 	@Test(expectedExceptions = { BucketFileNotFoundException.class })
-	public void _givenNonExistantCsvFile_throwFileNotFoundException() {
-		File nonExistantCsvFile = new File("non-existant-file.csv");
-		assertFalse(nonExistantCsvFile.exists());
-		assertEquals("csv",
-				FilenameUtils.getExtension(nonExistantCsvFile.getName()));
-		bucketFileCreator.createBucketWithCsvFile(nonExistantCsvFile, bucket);
+	public void _givenNonExistantFile_throwBucketFileNotFoundException() {
+		assertTrue(file.delete());
+		assertFalse(file.exists());
+		bucketFileCreator.createBucketWithFile(file, bucket);
 	}
 }

@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.util.UtilsFile;
 
 /**
  * Creates a {@link Bucket} in {@link BucketFormat#CSV} from a .csv file and the
@@ -36,20 +37,16 @@ public class BucketFileCreator {
 	 * @param Format
 	 *          which the bucket created should be.
 	 */
-	protected BucketFileCreator(BucketFormat format, String extension) {
+	private BucketFileCreator(BucketFormat format, String extension) {
 		this.format = format;
 		this.extension = extension;
-	}
-
-	public static BucketFileCreator createForCsv() {
-		return new BucketFileCreator(BucketFormat.CSV, "csv");
 	}
 
 	/**
 	 * @return {@link Bucket} created from the specified .csv file and it's
 	 *         original {@link Bucket}.
 	 */
-	public Bucket createBucketWithCsvFile(File file, Bucket bucket) {
+	public Bucket createBucketWithFile(File file, Bucket bucket) {
 		if (file.getName().endsWith(extension))
 			return doCreateBucketWithCsvFile(file, bucket);
 		else
@@ -92,9 +89,7 @@ public class BucketFileCreator {
 	}
 
 	private String removeExtension(File file) {
-		String fileName = file.getName();
-		int extensionIndex = fileName.lastIndexOf("." + extension);
-		return fileName.substring(0, extensionIndex);
+		return UtilsFile.getFileNameSansExt(file, extension);
 	}
 
 	private void logBucketCreationException(Bucket bucket, File bucketDir,
@@ -104,4 +99,13 @@ public class BucketFileCreator {
 						"Bucket to be created", "bucket", bucket, "bucket_directory",
 						bucketDir));
 	}
+
+	public static BucketFileCreator createForCsv() {
+		return new BucketFileCreator(BucketFormat.CSV, "csv");
+	}
+
+	public static BucketFileCreator createForTgz() {
+		return new BucketFileCreator(BucketFormat.SPLUNK_BUCKET_TGZ, "tar.gz");
+	}
+
 }

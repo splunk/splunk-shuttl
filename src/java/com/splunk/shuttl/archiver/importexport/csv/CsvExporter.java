@@ -41,7 +41,7 @@ public class CsvExporter implements BucketFormatChanger {
 	@Override
 	public Bucket changeFormat(Bucket bucket) {
 		File csvFile = bucketToCsvFileExporter.exportBucketToCsv(bucket);
-		return bucketFileCreator.createBucketWithCsvFile(csvFile, bucket);
+		return bucketFileCreator.createBucketWithFile(csvFile, bucket);
 	}
 
 	public static CsvExporter create(

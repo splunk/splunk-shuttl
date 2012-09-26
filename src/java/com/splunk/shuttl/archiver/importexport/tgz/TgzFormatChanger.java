@@ -12,9 +12,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.importexport.gzip;
+package com.splunk.shuttl.archiver.importexport.tgz;
 
-public class GzipFormatChangerTest {
+import com.splunk.shuttl.archiver.importexport.BucketFormatChanger;
+import com.splunk.shuttl.archiver.model.Bucket;
 
+/**
+ * Changes the format of a bucket to gzip.
+ */
+public class TgzFormatChanger implements BucketFormatChanger {
+
+	@Override
+	public Bucket changeFormat(Bucket b) {
+		return null;
+	}
 
 }

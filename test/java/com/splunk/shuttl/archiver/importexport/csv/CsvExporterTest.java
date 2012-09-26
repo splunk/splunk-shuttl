@@ -44,7 +44,7 @@ public class CsvExporterTest {
 		Bucket csvBucket = mock(Bucket.class);
 		File csvFile = mock(File.class);
 		when(bucketToCsvFileExporter.exportBucketToCsv(bucket)).thenReturn(csvFile);
-		when(bucketFileCreator.createBucketWithCsvFile(csvFile, bucket)).thenReturn(
+		when(bucketFileCreator.createBucketWithFile(csvFile, bucket)).thenReturn(
 				csvBucket);
 
 		Bucket actualBucket = csvExporter.changeFormat(bucket);

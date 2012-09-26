@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -82,10 +83,16 @@ public class UtilsFile {
 		}
 	}
 
-	/**
-	 * @return true if the file extension is csv
+
+		/**
+	 * Gets the file name with the given extension. <br/>
+	 * <br/>
+	 * Note: Doesn't use {@link FilenameUtils#removeExtension(String)} because it
+	 * doesn't account for multiple extensions, i.e. tar.gz
 	 */
-	public static boolean isCsvFile(File file) {
-		return file.getName().endsWith(".csv");
+	public static String getFileNameSansExt(File file, String extension) {
+		String fileName = file.getName();
+		int extensionIndex = fileName.lastIndexOf("." + extension);
+		return fileName.substring(0, extensionIndex);
 	}
 }

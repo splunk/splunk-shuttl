@@ -205,7 +205,7 @@ public class TUtilsBucket {
 		Bucket realCsvBucketCopy = copyBucketWithUrl(REAL_CSV_BUCKET_URL);
 		File csvFile = UtilsBucket.getCsvFile(realCsvBucketCopy);
 		BucketFileCreator bucketFileCreator = BucketFileCreator.createForCsv();
-		return bucketFileCreator.createBucketWithCsvFile(csvFile, realCsvBucketCopy);
+		return bucketFileCreator.createBucketWithFile(csvFile, realCsvBucketCopy);
 	}
 
 	private static Bucket copyBucketWithUrl(URL bucketUrl) {
