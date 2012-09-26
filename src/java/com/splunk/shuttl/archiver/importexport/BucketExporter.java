@@ -33,6 +33,12 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketExporter {
 
+	public class UnknownFormatChangerToFormatException extends RuntimeException {
+
+		private static final long serialVersionUID = 1L;
+
+	}
+
 	private final static Logger logger = Logger.getLogger(BucketExporter.class);
 	private Map<BucketFormat, BucketFormatChanger> formatChangers;
 
@@ -72,11 +78,18 @@ public class BucketExporter {
 	}
 
 	private Bucket getBucketInNewFormat(Bucket bucket, BucketFormat newFormat) {
-		if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)) {
-			return formatChangers.get(newFormat).changeFormat(bucket);
-		} else {
+		if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET))
+			return changeFormatFromSplunkBucketToFormat(bucket, newFormat);
+		else
 			throw new UnsupportedOperationException("Can only ");
-		}
+	}
+
+	private Bucket changeFormatFromSplunkBucketToFormat(Bucket bucket,
+			BucketFormat newFormat) {
+		if (formatChangers.containsKey(newFormat))
+			return formatChangers.get(newFormat).changeFormat(bucket);
+		else
+			throw new UnknownFormatChangerToFormatException();
 	}
 
 	/**

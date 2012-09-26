@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
+import com.splunk.shuttl.archiver.importexport.BucketExporter.UnknownFormatChangerToFormatException;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -78,4 +79,10 @@ public class BucketExporterTest {
 		assertEquals(csvBucket, newBucket);
 	}
 
+	@Test(expectedExceptions = { UnknownFormatChangerToFormatException.class })
+	public void _givenNonExistingBucketFormatChanger_throws() {
+		BucketExporter exporter = new BucketExporter(
+				new HashMap<BucketFormat, BucketFormatChanger>());
+		exporter.exportBucket(TUtilsBucket.createBucket(), BucketFormat.CSV);
+	}
 }
