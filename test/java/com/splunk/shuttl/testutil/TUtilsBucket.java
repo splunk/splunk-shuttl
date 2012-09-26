@@ -30,7 +30,7 @@ import org.testng.AssertJUnit;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.BucketExporterIntegrationTest;
-import com.splunk.shuttl.archiver.importexport.csv.CsvBucketCreator;
+import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.util.UtilsBucket;
@@ -204,8 +204,8 @@ public class TUtilsBucket {
 	public static Bucket createRealCsvBucket() {
 		Bucket realCsvBucketCopy = copyBucketWithUrl(REAL_CSV_BUCKET_URL);
 		File csvFile = UtilsBucket.getCsvFile(realCsvBucketCopy);
-		CsvBucketCreator csvBucketCreator = new CsvBucketCreator();
-		return csvBucketCreator.createBucketWithCsvFile(csvFile, realCsvBucketCopy);
+		BucketFileCreator bucketFileCreator = BucketFileCreator.createForCsv();
+		return bucketFileCreator.createBucketWithCsvFile(csvFile, realCsvBucketCopy);
 	}
 
 	private static Bucket copyBucketWithUrl(URL bucketUrl) {

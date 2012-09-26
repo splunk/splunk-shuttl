@@ -17,6 +17,7 @@ package com.splunk.shuttl.archiver.importexport.csv;
 import java.io.File;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.importexport.BucketFormatChanger;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -26,12 +27,12 @@ import com.splunk.shuttl.archiver.model.Bucket;
 public class CsvExporter implements BucketFormatChanger {
 
 	private BucketToCsvFileExporter bucketToCsvFileExporter;
-	private CsvBucketCreator csvBucketCreator;
+	private BucketFileCreator bucketFileCreator;
 
 	public CsvExporter(BucketToCsvFileExporter bucketToCsvFileExporter,
-			CsvBucketCreator csvBucketCreator) {
+			BucketFileCreator bucketFileCreator) {
 		this.bucketToCsvFileExporter = bucketToCsvFileExporter;
-		this.csvBucketCreator = csvBucketCreator;
+		this.bucketFileCreator = bucketFileCreator;
 	}
 
 	/**
@@ -40,12 +41,12 @@ public class CsvExporter implements BucketFormatChanger {
 	@Override
 	public Bucket changeFormat(Bucket bucket) {
 		File csvFile = bucketToCsvFileExporter.exportBucketToCsv(bucket);
-		return csvBucketCreator.createBucketWithCsvFile(csvFile, bucket);
+		return bucketFileCreator.createBucketWithCsvFile(csvFile, bucket);
 	}
 
 	public static CsvExporter create(
 			BucketToCsvFileExporter bucketToCsvFileExporter) {
-		return new CsvExporter(bucketToCsvFileExporter, new CsvBucketCreator());
+		return new CsvExporter(bucketToCsvFileExporter,
+				BucketFileCreator.createForCsv());
 	}
-
 }

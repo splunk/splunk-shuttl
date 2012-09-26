@@ -22,20 +22,21 @@ import java.io.File;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 @Test(groups = { "fast-unit" })
 public class CsvExporterTest {
 
 	private CsvExporter csvExporter;
-	private CsvBucketCreator csvBucketCreator;
+	private BucketFileCreator bucketFileCreator;
 	private BucketToCsvFileExporter bucketToCsvFileExporter;
 
 	@BeforeMethod
 	public void setUp() {
 		bucketToCsvFileExporter = mock(BucketToCsvFileExporter.class);
-		csvBucketCreator = mock(CsvBucketCreator.class);
-		csvExporter = new CsvExporter(bucketToCsvFileExporter, csvBucketCreator);
+		bucketFileCreator = mock(BucketFileCreator.class);
+		csvExporter = new CsvExporter(bucketToCsvFileExporter, bucketFileCreator);
 	}
 
 	public void _givenBucket_exportsToACsvFileAndCreatesTheBucketObject() {
@@ -43,7 +44,7 @@ public class CsvExporterTest {
 		Bucket csvBucket = mock(Bucket.class);
 		File csvFile = mock(File.class);
 		when(bucketToCsvFileExporter.exportBucketToCsv(bucket)).thenReturn(csvFile);
-		when(csvBucketCreator.createBucketWithCsvFile(csvFile, bucket)).thenReturn(
+		when(bucketFileCreator.createBucketWithCsvFile(csvFile, bucket)).thenReturn(
 				csvBucket);
 
 		Bucket actualBucket = csvExporter.changeFormat(bucket);

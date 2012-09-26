@@ -12,17 +12,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.importexport.csv;
+package com.splunk.shuttl.archiver.importexport.gzip;
 
-/**
- * Csv file did not exist.
- */
-public class CsvFileNotFoundException extends RuntimeException {
+public class GzipFormatChangerTest {
 
-	private static final long serialVersionUID = 1L;
-
-	public CsvFileNotFoundException(String string) {
-		super(string);
-	}
 
 }
