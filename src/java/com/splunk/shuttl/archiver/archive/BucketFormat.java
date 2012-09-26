@@ -16,6 +16,6 @@
 package com.splunk.shuttl.archiver.archive;
 
 public enum BucketFormat {
-	SPLUNK_BUCKET, UNKNOWN, CSV;
+	SPLUNK_BUCKET, UNKNOWN, CSV, GZIP;
 
 }

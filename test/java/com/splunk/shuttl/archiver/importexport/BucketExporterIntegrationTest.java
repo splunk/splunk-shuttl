@@ -27,6 +27,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -44,7 +45,8 @@ public class BucketExporterIntegrationTest {
 	@BeforeMethod
 	public void setUp() {
 		csvDirectory = createDirectory();
-		bucketExporter = BucketExporter.create(CsvExporter.create(csvDirectory));
+		bucketExporter = BucketExporter.create(CsvExporter
+				.create(BucketToCsvFileExporter.create(csvDirectory)));
 	}
 
 	@AfterMethod

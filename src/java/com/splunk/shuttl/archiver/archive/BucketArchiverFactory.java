@@ -20,6 +20,7 @@ import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
+import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 
 /**
@@ -60,17 +61,17 @@ public class BucketArchiverFactory {
 	public static BucketArchiver createWithConfFileSystemAndCsvDirectory(
 			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem,
 			LocalFileSystemPaths localFileSystemPaths) {
-		CsvExporter csvExporter = CsvExporter.create(localFileSystemPaths
-				.getCsvDirectory());
+		BucketToCsvFileExporter bucketToCsvFileExporter = BucketToCsvFileExporter
+				.create(localFileSystemPaths.getCsvDirectory());
 		PathResolver pathResolver = new PathResolver(config);
 		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
 				localFileSystemPaths);
 		ArchiveBucketSize archiveBucketSize = new ArchiveBucketSize(pathResolver,
 				bucketSizeIO, archiveFileSystem);
-		return new BucketArchiver(BucketExporter.create(csvExporter),
-				new ArchiveBucketTransferer(archiveFileSystem, pathResolver,
-						archiveBucketSize), BucketDeleter.create(),
-				config.getArchiveFormats());
+		return new BucketArchiver(BucketExporter.create(CsvExporter
+				.create(bucketToCsvFileExporter)), new ArchiveBucketTransferer(
+				archiveFileSystem, pathResolver, archiveBucketSize),
+				BucketDeleter.create(), config.getArchiveFormats());
 
 	}
 }

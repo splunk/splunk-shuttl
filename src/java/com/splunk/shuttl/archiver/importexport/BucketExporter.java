@@ -17,13 +17,13 @@ package com.splunk.shuttl.archiver.importexport;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
-import com.splunk.shuttl.archiver.importexport.csv.CsvBucketCreator;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -34,19 +34,16 @@ import com.splunk.shuttl.archiver.model.Bucket;
 public class BucketExporter {
 
 	private final static Logger logger = Logger.getLogger(BucketExporter.class);
-	private final CsvExporter csvExporter;
-	private final CsvBucketCreator csvBucketCreator;
+	private Map<BucketFormat, BucketFormatChanger> formatChangers;
 
 	/**
-	 * @param csvExporter
+	 * @param bucketToCsvFileExporter
 	 *          for exporting the bucket to a .csv file.
 	 * @param csvBucketCreator
 	 *          for creating a {@link Bucket} from the .csv file.
 	 */
-	public BucketExporter(CsvExporter csvExporter,
-			CsvBucketCreator csvBucketCreator) {
-		this.csvExporter = csvExporter;
-		this.csvBucketCreator = csvBucketCreator;
+	public BucketExporter(Map<BucketFormat, BucketFormatChanger> formatChangers) {
+		this.formatChangers = formatChangers;
 	}
 
 	/**
@@ -75,24 +72,21 @@ public class BucketExporter {
 	}
 
 	private Bucket getBucketInNewFormat(Bucket bucket, BucketFormat newFormat) {
-		if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)
-				&& newFormat.equals(BucketFormat.CSV))
-			return getBucketInCsvFormat(bucket);
-		else
-			throw new UnsupportedOperationException();
-	}
-
-	private Bucket getBucketInCsvFormat(Bucket bucket) {
-		File csvFile = csvExporter.exportBucketToCsv(bucket);
-		return csvBucketCreator.createBucketWithCsvFile(csvFile, bucket);
+		if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)) {
+			return formatChangers.get(newFormat).changeFormat(bucket);
+		} else {
+			throw new UnsupportedOperationException("Can only ");
+		}
 	}
 
 	/**
 	 * @return an instance of the {@link BucketExporter}
 	 */
 	public static BucketExporter create(CsvExporter csvExporter) {
-		return new BucketExporter(csvExporter,
-				new CsvBucketCreator());
+		Map<BucketFormat, BucketFormatChanger> formatChangers = new HashMap<BucketFormat, BucketFormatChanger>();
+		formatChangers.put(BucketFormat.CSV, csvExporter);
+
+		return new BucketExporter(formatChangers);
 	}
 
 }
