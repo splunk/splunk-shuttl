@@ -79,4 +79,8 @@ public class TgzImporter implements BucketImporter {
 		}
 
 	}
+
+	public static TgzImporter create() {
+		return new TgzImporter(ShellExecutor.getInstance());
+	}
 }

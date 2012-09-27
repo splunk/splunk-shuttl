@@ -59,16 +59,19 @@ public class CreatesBucketTgzTest {
 	}
 
 	public void _givenBucket_createsTarWithBucketNameAndTarExtension() {
-		String tarBucketCmd = "tar -c " + bucket.getDirectory().getAbsolutePath()
-				+ " > " + tar.getAbsolutePath();
+		String tarBucketCmd = "tar -C "
+				+ bucket.getDirectory().getParentFile().getAbsolutePath() + " -c "
+				+ bucket.getDirectory().getName() + " > " + tar.getAbsolutePath();
 		String gzipCmd = "gzip -c " + tar.getAbsolutePath() + " > "
 				+ tgz.getAbsolutePath();
 		String[] cmd = { "/bin/sh", "-c", tarBucketCmd + " && " + gzipCmd };
 
 		when(shellExecutor.executeCommand(emptyMap, asList(cmd))).thenReturn(0);
 
-		assertNotNull(createsBucketTgz.createTgz(bucket));
+		createsBucketTgz.createTgz(bucket);
+
 		assertFalse(tar.exists());
+		verify(shellExecutor).executeCommand(emptyMap, asList(cmd));
 	}
 
 	@SuppressWarnings("unchecked")

@@ -84,12 +84,12 @@ public class TgzRoundtripFunctionalTest {
 	}
 
 	private Bucket getTgzBucketArchived() {
-		Bucket bucket = TUtilsBucket.createBucket();
+		Bucket bucket = TUtilsBucket.createRealBucket();
 		archiveBucket(bucket, bucketArchiver);
 		return bucket;
 	}
 
-	@Test(groups = { "functional" }, enabled = false)
+	@Test(groups = { "functional" })
 	public void _givenTgzConfig_thawsTgzBucketToSplunkBucket()
 			throws IllegalIndexException {
 		File thawDir = createDirectory();
@@ -112,5 +112,7 @@ public class TgzRoundtripFunctionalTest {
 		assertEquals(BucketFormat.SPLUNK_BUCKET, thawedBucket.getFormat());
 		assertEquals(thawDir.getAbsolutePath(), thawedBucket.getDirectory()
 				.getParentFile().getAbsolutePath());
+		int length = thawedBucket.getDirectory().listFiles().length;
+		assertTrue(2 < length);
 	}
 }

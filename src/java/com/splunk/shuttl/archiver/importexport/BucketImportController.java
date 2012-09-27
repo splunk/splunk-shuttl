@@ -19,6 +19,7 @@ import java.util.Map;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.csv.CsvImporter;
+import com.splunk.shuttl.archiver.importexport.tgz.TgzImporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -58,6 +59,7 @@ public class BucketImportController {
 	public static BucketImportController create() {
 		Map<BucketFormat, BucketImporter> importers = new HashMap<BucketFormat, BucketImporter>();
 		importers.put(BucketFormat.CSV, CsvImporter.create());
+		importers.put(BucketFormat.SPLUNK_BUCKET_TGZ, TgzImporter.create());
 
 		return new BucketImportController(importers);
 	}
