@@ -67,9 +67,9 @@ public class CreatesBucketTgz {
 	}
 
 	private String[] buildTgzCommand(Bucket bucket, File tar, File tgz) {
-		String tarCmd = "tar -c " + bucket.getDirectory().getAbsolutePath() + " > "
-				+ tar.getAbsolutePath();
-		String gzipCmd = "gzip -c " + tar + " > " + tgz;
+		String bucketPath = bucket.getDirectory().getAbsolutePath();
+		String tarCmd = "tar -c " + bucketPath + " > " + tar.getAbsolutePath();
+		String gzipCmd = "gzip -c " + tar + " > " + tgz.getAbsolutePath();
 		String[] command = { "/bin/sh", "-c", tarCmd + " && " + gzipCmd };
 		return command;
 	}
