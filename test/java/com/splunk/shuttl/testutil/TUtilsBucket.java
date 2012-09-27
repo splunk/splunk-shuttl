@@ -29,7 +29,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.testng.AssertJUnit;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.importexport.BucketExporterIntegrationTest;
+import com.splunk.shuttl.archiver.importexport.BucketExportControllerIntegrationTest;
 import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
@@ -40,9 +40,9 @@ import com.splunk.shuttl.archiver.util.UtilsBucket;
  */
 public class TUtilsBucket {
 
-	/* package-private */static final URL REAL_BUCKET_URL = BucketExporterIntegrationTest.class
+	/* package-private */static final URL REAL_BUCKET_URL = BucketExportControllerIntegrationTest.class
 			.getResource("/splunk-buckets/SPLUNK_BUCKET/db_1336330530_1336330530_0");
-	/* package-private */static final URL REAL_CSV_BUCKET_URL = BucketExporterIntegrationTest.class
+	/* package-private */static final URL REAL_CSV_BUCKET_URL = BucketExportControllerIntegrationTest.class
 			.getResource("/splunk-buckets/CSV/db_1336330530_1336330530_0");
 
 	/**

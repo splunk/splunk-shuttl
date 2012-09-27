@@ -47,7 +47,7 @@ public class CsvExporterTest {
 		when(bucketFileCreator.createBucketWithFile(csvFile, bucket)).thenReturn(
 				csvBucket);
 
-		Bucket actualBucket = csvExporter.changeFormat(bucket);
+		Bucket actualBucket = csvExporter.exportBucket(bucket);
 		assertEquals(csvBucket, actualBucket);
 	}
 }

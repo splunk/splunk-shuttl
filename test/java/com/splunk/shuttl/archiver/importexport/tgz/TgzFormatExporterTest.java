@@ -27,18 +27,18 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "slow-unit" })
-public class TgzFormatChangerTest {
+public class TgzFormatExporterTest {
 
 	public void __createsATgzThenCreatesTheBucketObject() {
 		CreatesBucketTgz createsBucketTgz = CreatesBucketTgz
 				.create(createDirectory());
 		BucketFileCreator bucketFileCreator = BucketFileCreator.createForTgz();
 
-		TgzFormatChanger toTgz = new TgzFormatChanger(createsBucketTgz,
+		TgzFormatExporter toTgz = new TgzFormatExporter(createsBucketTgz,
 				bucketFileCreator);
 
 		Bucket bucket = TUtilsBucket.createBucket();
-		Bucket tgzBucket = toTgz.changeFormat(bucket);
+		Bucket tgzBucket = toTgz.exportBucket(bucket);
 
 		assertEquals(BucketFormat.SPLUNK_BUCKET_TGZ, tgzBucket.getFormat());
 		File bucketDir = tgzBucket.getDirectory();

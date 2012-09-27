@@ -26,30 +26,30 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
-import com.splunk.shuttl.archiver.importexport.BucketExporter.UnknownFormatChangerToFormatException;
+import com.splunk.shuttl.archiver.importexport.BucketExportController.UnknownFormatChangerToFormatException;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
-public class BucketExporterTest {
+public class BucketExportControllerTest {
 
-	BucketExporter bucketExporter;
+	BucketExportController bucketExportController;
 	CsvExporter csvChanger;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
 		csvChanger = mock(CsvExporter.class);
-		Map<BucketFormat, BucketFormatChanger> formatChangers = new HashMap<BucketFormat, BucketFormatChanger>();
+		Map<BucketFormat, BucketExporter> formatChangers = new HashMap<BucketFormat, BucketExporter>();
 		formatChangers.put(BucketFormat.CSV, csvChanger);
-		bucketExporter = new BucketExporter(formatChangers);
+		bucketExportController = new BucketExportController(formatChangers);
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void _whenBucketIsAlreadyInThatFormat_returnTheSameBucket() {
 		Bucket bucket = mock(Bucket.class);
 		when(bucket.getFormat()).thenReturn(BucketFormat.SPLUNK_BUCKET);
-		Bucket exportedToFormat = bucketExporter.exportBucket(bucket,
+		Bucket exportedToFormat = bucketExportController.exportBucket(bucket,
 				BucketFormat.SPLUNK_BUCKET);
 		assertSame(bucket, exportedToFormat);
 	}
@@ -57,14 +57,14 @@ public class BucketExporterTest {
 	@Test(expectedExceptions = { UnknownBucketFormatException.class })
 	public void _formatIsUnknown_throwUnknownBucketFormatException() {
 		Bucket bucket = mock(Bucket.class);
-		bucketExporter.exportBucket(bucket, BucketFormat.UNKNOWN);
+		bucketExportController.exportBucket(bucket, BucketFormat.UNKNOWN);
 	}
 
 	public void _bucketIsUnknown_throwsUnsupportedOperationException() {
 		Bucket unknownFormatedBucket = mock(Bucket.class);
 		when(unknownFormatedBucket.getFormat()).thenReturn(BucketFormat.UNKNOWN);
 		try {
-			bucketExporter.exportBucket(unknownFormatedBucket, BucketFormat.CSV);
+			bucketExportController.exportBucket(unknownFormatedBucket, BucketFormat.CSV);
 			fail();
 		} catch (UnsupportedOperationException e) {
 		}
@@ -74,15 +74,15 @@ public class BucketExporterTest {
 	public void _givenCsvBucket_exportsSplunkBucketWithCsvExporter() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		Bucket csvBucket = mock(Bucket.class);
-		when(csvChanger.changeFormat(bucket)).thenReturn(csvBucket);
-		Bucket newBucket = bucketExporter.exportBucket(bucket, BucketFormat.CSV);
+		when(csvChanger.exportBucket(bucket)).thenReturn(csvBucket);
+		Bucket newBucket = bucketExportController.exportBucket(bucket, BucketFormat.CSV);
 		assertEquals(csvBucket, newBucket);
 	}
 
 	@Test(expectedExceptions = { UnknownFormatChangerToFormatException.class })
 	public void _givenNonExistingBucketFormatChanger_throws() {
-		BucketExporter exporter = new BucketExporter(
-				new HashMap<BucketFormat, BucketFormatChanger>());
+		BucketExportController exporter = new BucketExportController(
+				new HashMap<BucketFormat, BucketExporter>());
 		exporter.exportBucket(TUtilsBucket.createBucket(), BucketFormat.CSV);
 	}
 }

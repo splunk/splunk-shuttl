@@ -17,13 +17,13 @@ package com.splunk.shuttl.archiver.importexport.tgz;
 import java.io.File;
 
 import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
-import com.splunk.shuttl.archiver.importexport.BucketFormatChanger;
+import com.splunk.shuttl.archiver.importexport.BucketExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
  * Changes the format of a bucket to gzip.
  */
-public class TgzFormatChanger implements BucketFormatChanger {
+public class TgzFormatExporter implements BucketExporter {
 
 	private CreatesBucketTgz createsBucketTgz;
 	private BucketFileCreator bucketFileCreator;
@@ -32,20 +32,20 @@ public class TgzFormatChanger implements BucketFormatChanger {
 	 * @param createsBucketTgz
 	 * @param bucketFileCreator
 	 */
-	public TgzFormatChanger(CreatesBucketTgz createsBucketTgz,
+	public TgzFormatExporter(CreatesBucketTgz createsBucketTgz,
 			BucketFileCreator bucketFileCreator) {
 		this.createsBucketTgz = createsBucketTgz;
 		this.bucketFileCreator = bucketFileCreator;
 	}
 
 	@Override
-	public Bucket changeFormat(Bucket b) {
+	public Bucket exportBucket(Bucket b) {
 		File tgz = createsBucketTgz.createTgz(b);
 		return bucketFileCreator.createBucketWithFile(tgz, b);
 	}
 
-	public static TgzFormatChanger create(CreatesBucketTgz createsBucketTgz) {
-		return new TgzFormatChanger(createsBucketTgz,
+	public static TgzFormatExporter create(CreatesBucketTgz createsBucketTgz) {
+		return new TgzFormatExporter(createsBucketTgz,
 				BucketFileCreator.createForTgz());
 	}
 }

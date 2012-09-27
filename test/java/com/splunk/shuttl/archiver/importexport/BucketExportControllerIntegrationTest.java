@@ -30,7 +30,7 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
-import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatChanger;
+import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
@@ -39,9 +39,9 @@ import com.splunk.shuttl.testutil.TUtilsEnvironment;
  * Test real classes and splunk's export tool.
  */
 @Test(groups = { "end-to-end" })
-public class BucketExporterIntegrationTest {
+public class BucketExportControllerIntegrationTest {
 
-	private BucketExporter bucketExporter;
+	private BucketExportController bucketExportController;
 	private File csvDirectory;
 	private File tgzDirectory;
 
@@ -49,9 +49,9 @@ public class BucketExporterIntegrationTest {
 	public void setUp() {
 		csvDirectory = createDirectory();
 		tgzDirectory = createDirectory();
-		bucketExporter = BucketExporter.create(
+		bucketExportController = BucketExportController.create(
 				CsvExporter.create(BucketToCsvFileExporter.create(csvDirectory)),
-				TgzFormatChanger.create(CreatesBucketTgz.create(tgzDirectory)));
+				TgzFormatExporter.create(CreatesBucketTgz.create(tgzDirectory)));
 	}
 
 	@AfterMethod
@@ -76,7 +76,7 @@ public class BucketExporterIntegrationTest {
 
 	private void exportingBucketWithRealDataToCsvCreatesCsvBucket() {
 		Bucket realBucket = TUtilsBucket.createRealBucket();
-		Bucket csvBucket = bucketExporter
+		Bucket csvBucket = bucketExportController
 				.exportBucket(realBucket, BucketFormat.CSV);
 
 		assertEquals(realBucket.getName(), csvBucket.getName());
