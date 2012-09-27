@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.importexport.csv.NoCsvFileFoundException;
+import com.splunk.shuttl.archiver.importexport.csv.NoFileFoundException;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -55,7 +55,7 @@ public class UtilsBucketTest {
 		UtilsBucket.getCsvFile(emptyBucket);
 	}
 
-	@Test(expectedExceptions = { NoCsvFileFoundException.class })
+	@Test(expectedExceptions = { NoFileFoundException.class })
 	public void getCsvFile_noCsvFile_throwsRuntimeException() {
 		Bucket bucketWithoutCsvFile = TUtilsBucket.createBucket();
 		UtilsBucket.getCsvFile(bucketWithoutCsvFile);

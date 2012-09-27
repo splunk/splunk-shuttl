@@ -44,6 +44,8 @@ public class TUtilsBucket {
 			.getResource("/splunk-buckets/SPLUNK_BUCKET/db_1336330530_1336330530_0");
 	/* package-private */static final URL REAL_CSV_BUCKET_URL = BucketExportControllerIntegrationTest.class
 			.getResource("/splunk-buckets/CSV/db_1336330530_1336330530_0");
+	/* package-private */static final URL REAL_SPLUNK_BUCKET_TGZ_URL = BucketExportControllerIntegrationTest.class
+			.getResource("/splunk-buckets/SPLUNK_BUCKET_TGZ/db_1336330530_1336330530_0");
 
 	/**
 	 * @return A bucket with random bucket and index names.
@@ -206,6 +208,13 @@ public class TUtilsBucket {
 		File csvFile = UtilsBucket.getCsvFile(realCsvBucketCopy);
 		BucketFileCreator bucketFileCreator = BucketFileCreator.createForCsv();
 		return bucketFileCreator.createBucketWithFile(csvFile, realCsvBucketCopy);
+	}
+
+	public static Bucket createRealSplunkBucketTgz() {
+		Bucket realTgzBucketCopy = copyBucketWithUrl(REAL_SPLUNK_BUCKET_TGZ_URL);
+		File tgzFile = UtilsBucket.getTgzFile(realTgzBucketCopy);
+		return BucketFileCreator.createForTgz().createBucketWithFile(tgzFile,
+				realTgzBucketCopy);
 	}
 
 	private static Bucket copyBucketWithUrl(URL bucketUrl) {

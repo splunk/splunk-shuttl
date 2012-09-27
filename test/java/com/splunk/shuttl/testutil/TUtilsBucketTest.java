@@ -220,4 +220,10 @@ public class TUtilsBucketTest {
 				getShuttlTestDirectory(), new Date(), new Date(), "foo");
 		assertEquals("foo", b.getIndex());
 	}
+
+	@Test(groups = { "slow-unit" })
+	public void createRealSplunkBucketTgz_createSuccess_bucketHasSplunkBucketTgzFormat() {
+		assertEquals(BucketFormat.SPLUNK_BUCKET_TGZ, TUtilsBucket
+				.createRealSplunkBucketTgz().getFormat());
+	}
 }

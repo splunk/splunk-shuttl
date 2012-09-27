@@ -19,7 +19,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 /**
  * Expected csv file was not found in a {@link Bucket}.
  */
-public class NoCsvFileFoundException extends RuntimeException {
+public class NoFileFoundException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
