@@ -29,6 +29,8 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
+import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
+import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatChanger;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
@@ -41,17 +43,21 @@ public class BucketExporterIntegrationTest {
 
 	private BucketExporter bucketExporter;
 	private File csvDirectory;
+	private File tgzDirectory;
 
 	@BeforeMethod
 	public void setUp() {
 		csvDirectory = createDirectory();
-		bucketExporter = BucketExporter.create(CsvExporter
-				.create(BucketToCsvFileExporter.create(csvDirectory)));
+		tgzDirectory = createDirectory();
+		bucketExporter = BucketExporter.create(
+				CsvExporter.create(BucketToCsvFileExporter.create(csvDirectory)),
+				TgzFormatChanger.create(CreatesBucketTgz.create(tgzDirectory)));
 	}
 
 	@AfterMethod
 	public void tearDown() {
 		FileUtils.deleteQuietly(csvDirectory);
+		FileUtils.deleteQuietly(tgzDirectory);
 	}
 
 	@Test(groups = { "end-to-end" })

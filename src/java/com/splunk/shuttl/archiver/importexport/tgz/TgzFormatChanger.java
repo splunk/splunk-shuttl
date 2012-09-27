@@ -14,6 +14,9 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.importexport.tgz;
 
+import java.io.File;
+
+import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.importexport.BucketFormatChanger;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -22,9 +25,27 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class TgzFormatChanger implements BucketFormatChanger {
 
-	@Override
-	public Bucket changeFormat(Bucket b) {
-		return null;
+	private CreatesBucketTgz createsBucketTgz;
+	private BucketFileCreator bucketFileCreator;
+
+	/**
+	 * @param createsBucketTgz
+	 * @param bucketFileCreator
+	 */
+	public TgzFormatChanger(CreatesBucketTgz createsBucketTgz,
+			BucketFileCreator bucketFileCreator) {
+		this.createsBucketTgz = createsBucketTgz;
+		this.bucketFileCreator = bucketFileCreator;
 	}
 
+	@Override
+	public Bucket changeFormat(Bucket b) {
+		File tgz = createsBucketTgz.createTgz(b);
+		return bucketFileCreator.createBucketWithFile(tgz, b);
+	}
+
+	public static TgzFormatChanger create(CreatesBucketTgz createsBucketTgz) {
+		return new TgzFormatChanger(createsBucketTgz,
+				BucketFileCreator.createForTgz());
+	}
 }

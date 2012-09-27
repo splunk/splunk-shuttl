@@ -22,6 +22,8 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
 import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
+import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
+import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatChanger;
 
 /**
  * Construction code for creating BucketArchivers that archives in different
@@ -68,10 +70,15 @@ public class BucketArchiverFactory {
 				localFileSystemPaths);
 		ArchiveBucketSize archiveBucketSize = new ArchiveBucketSize(pathResolver,
 				bucketSizeIO, archiveFileSystem);
-		return new BucketArchiver(BucketExporter.create(CsvExporter
-				.create(bucketToCsvFileExporter)), new ArchiveBucketTransferer(
-				archiveFileSystem, pathResolver, archiveBucketSize),
-				BucketDeleter.create(), config.getArchiveFormats());
+
+		TgzFormatChanger tgzFormatChanger = TgzFormatChanger
+				.create(CreatesBucketTgz.create(localFileSystemPaths.getTgzDirectory()));
+
+		return new BucketArchiver(BucketExporter.create(
+				CsvExporter.create(bucketToCsvFileExporter), tgzFormatChanger),
+				new ArchiveBucketTransferer(archiveFileSystem, pathResolver,
+						archiveBucketSize), BucketDeleter.create(),
+				config.getArchiveFormats());
 
 	}
 }

@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
+import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatChanger;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -95,9 +96,11 @@ public class BucketExporter {
 	/**
 	 * @return an instance of the {@link BucketExporter}
 	 */
-	public static BucketExporter create(CsvExporter csvExporter) {
+	public static BucketExporter create(CsvExporter csvExporter,
+			TgzFormatChanger tgzFormatChanger) {
 		Map<BucketFormat, BucketFormatChanger> formatChangers = new HashMap<BucketFormat, BucketFormatChanger>();
 		formatChangers.put(BucketFormat.CSV, csvExporter);
+		formatChangers.put(BucketFormat.SPLUNK_BUCKET_TGZ, tgzFormatChanger);
 
 		return new BucketExporter(formatChangers);
 	}

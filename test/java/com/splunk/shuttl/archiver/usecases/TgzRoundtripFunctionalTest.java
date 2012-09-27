@@ -43,7 +43,7 @@ import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
-@Test(groups = { "functional" }, enabled = false)
+@Test(groups = { "functional" })
 public class TgzRoundtripFunctionalTest {
 
 	private ArchiveConfiguration tgzConf;
@@ -71,6 +71,7 @@ public class TgzRoundtripFunctionalTest {
 		tearDownLocalConfig(tgzConf);
 	}
 
+	@Test(groups = { "functional" })
 	public void _givenTgzConfig_archivesBucketAsTgz() {
 		Bucket bucket = getTgzBucketArchived();
 
@@ -88,6 +89,7 @@ public class TgzRoundtripFunctionalTest {
 		return bucket;
 	}
 
+	@Test(groups = { "functional" }, enabled = false)
 	public void _givenTgzConfig_thawsTgzBucketToSplunkBucket()
 			throws IllegalIndexException {
 		File thawDir = createDirectory();

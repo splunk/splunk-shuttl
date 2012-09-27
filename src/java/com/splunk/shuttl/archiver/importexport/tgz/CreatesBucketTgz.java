@@ -81,4 +81,8 @@ public class CreatesBucketTgz {
 			throw new TgzBucketCreationFailedException();
 	}
 
+	public static CreatesBucketTgz create(File tgzDir) {
+		return new CreatesBucketTgz(ShellExecutor.getInstance(),
+				new GetsBucketsExportFile(tgzDir));
+	}
 }
