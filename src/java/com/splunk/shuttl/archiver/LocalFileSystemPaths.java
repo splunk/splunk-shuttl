@@ -39,6 +39,8 @@ public class LocalFileSystemPaths {
 
 	final String CSV_DIR_NAME = "csv-dir";
 
+	final String TGZ_DIR_NAME = "tgz-dir";
+
 	final String THAW_LOCKS_NAME = "thaw-locks-dir";
 
 	final String THAW_TRANSFERS_NAME = "thaw-transfers-dir";
@@ -100,6 +102,13 @@ public class LocalFileSystemPaths {
 	 */
 	public File getCsvDirectory() {
 		return createDirectoryUnderArchiverDir(CSV_DIR_NAME);
+	}
+
+	/**
+	 * Contains the TGZ files when exporting buckets to tgz format.
+	 */
+	public File getTgzDirectory() {
+		return createDirectoryUnderArchiverDir(TGZ_DIR_NAME);
 	}
 
 	/**

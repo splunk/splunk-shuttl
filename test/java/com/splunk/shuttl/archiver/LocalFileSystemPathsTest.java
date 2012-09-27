@@ -84,8 +84,11 @@ public class LocalFileSystemPathsTest {
 	}
 
 	public void getCsvDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemPaths
-				.getCsvDirectory());
+		assertExistsInsideArchiverDirectory(localFileSystemPaths.getCsvDirectory());
+	}
+
+	public void getTgzDirectory_setUp_dirExistsInsideArchiverDirectory() {
+		assertExistsInsideArchiverDirectory(localFileSystemPaths.getTgzDirectory());
 	}
 
 	public void getThawLocksDirectory_setUp_dirExistsInsideArchiverDirectory() {
