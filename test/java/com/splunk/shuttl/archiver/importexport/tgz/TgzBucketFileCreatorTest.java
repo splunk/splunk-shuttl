@@ -30,7 +30,7 @@ public class TgzBucketFileCreatorTest extends BucketFileCreatorTest {
 
 	@Override
 	protected String getExtension() {
-		return "tar.gz";
+		return "tgz";
 	}
 
 	@Override

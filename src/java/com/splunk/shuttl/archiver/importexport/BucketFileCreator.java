@@ -105,7 +105,7 @@ public class BucketFileCreator {
 	}
 
 	public static BucketFileCreator createForTgz() {
-		return new BucketFileCreator(BucketFormat.SPLUNK_BUCKET_TGZ, "tar.gz");
+		return new BucketFileCreator(BucketFormat.SPLUNK_BUCKET_TGZ, "tgz");
 	}
 
 }
