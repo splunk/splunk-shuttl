@@ -33,9 +33,16 @@ public class GetsBucketsCsvExportFile {
 	 * @return not yet existing .csv file unique for the {@link Bucket}
 	 */
 	public File getCsvFile(Bucket bucket) {
-		File file = new File(csvDirectory, bucket.getName() + ".csv");
+		return getExportFile(bucket, "csv");
+	}
+
+	public File getExportFile(Bucket bucket, String extension) {
+		File indexDir = new File(csvDirectory, bucket.getIndex());
+		indexDir.mkdirs();
+		File file = new File(indexDir, bucket.getName() + "." + extension);
 		if (file.exists())
 			file.delete();
 		return file;
+
 	}
 }

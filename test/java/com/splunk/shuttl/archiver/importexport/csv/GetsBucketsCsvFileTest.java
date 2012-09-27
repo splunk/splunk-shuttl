@@ -18,7 +18,6 @@ import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
@@ -47,32 +46,9 @@ public class GetsBucketsCsvFileTest {
 		FileUtils.deleteQuietly(csvDirectory);
 	}
 
-	@Test(groups = { "fast-unit" })
-	public void getCsvOuputFileFromBucket_givenCsvDirectory_createsFileInTheDirectory() {
-		File csvFile = getsBucketsCsvExportFile.getCsvFile(bucket);
-		assertEquals(csvDirectory, csvFile.getParentFile());
-	}
-
-	public void getCsvOutputFileFromBucket_givenBucket_containsBucketNameForUniquness() {
-		File csvFile = getsBucketsCsvExportFile.getCsvFile(bucket);
-		assertTrue(csvFile.getName().contains(bucket.getName()));
-	}
-
 	public void getCsvOuputFileFromBucket_givenBucket_hasCsvExtension() {
 		File csvFile = getsBucketsCsvExportFile.getCsvFile(bucket);
 		assertTrue(csvFile.getName().endsWith(".csv"));
-	}
-
-	public void getCsvOuputFileFromBucket_givenBucket_doesNotExist() {
-		assertFalse(getsBucketsCsvExportFile.getCsvFile(bucket).exists());
-	}
-
-	public void getCsvOutputFileFromBucket_givenFileAlreadyExists_doesNotExist()
-			throws IOException {
-		File csvFile = getsBucketsCsvExportFile.getCsvFile(bucket);
-		assertTrue(csvFile.createNewFile());
-		File csvFile2 = getsBucketsCsvExportFile.getCsvFile(bucket);
-		assertFalse(csvFile2.exists());
 	}
 
 }
