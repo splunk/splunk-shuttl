@@ -12,44 +12,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.importexport.csv;
+package com.splunk.shuttl.archiver.importexport.tgz;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.testng.AssertJUnit.*;
+import static org.testng.Assert.*;
 
 import java.io.File;
 
-import org.apache.commons.io.FileUtils;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
+import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
-@Test(groups = { "fast-unit" })
-public class GetsBucketsCsvFileTest {
+@Test(groups = { "slow-unit" })
+public class CreatesBucketTgzIntegrationTest {
 
-	private File csvDirectory;
-	private GetsBucketsExportFile getsBucketsExportFile;
-	private Bucket bucket;
+	public void _usingRealClasses_tgzBucketFileExists() {
+		CreatesBucketTgz createsBucketTgz = new CreatesBucketTgz(
+				ShellExecutor.getInstance(), new GetsBucketsExportFile(
+						createDirectory()));
 
-	@BeforeMethod
-	public void setUp() {
-		csvDirectory = createDirectory();
-		getsBucketsExportFile = new GetsBucketsExportFile(csvDirectory);
-		bucket = TUtilsBucket.createBucket();
+		Bucket bucket = TUtilsBucket.createBucket();
+		File tgz = createsBucketTgz.createTgz(bucket);
+		assertTrue(tgz.exists());
+		assertNotEquals(0, tgz.length());
 	}
-
-	@AfterMethod
-	public void tearDown() {
-		FileUtils.deleteQuietly(csvDirectory);
-	}
-
-	public void getCsvOuputFileFromBucket_givenBucket_hasCsvExtension() {
-		File csvFile = getsBucketsExportFile.getCsvFile(bucket);
-		assertTrue(csvFile.getName().endsWith(".csv"));
-	}
-
 }

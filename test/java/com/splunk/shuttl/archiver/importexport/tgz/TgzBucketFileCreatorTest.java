@@ -12,17 +12,30 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.importexport;
+package com.splunk.shuttl.archiver.importexport.tgz;
+
+import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
+import com.splunk.shuttl.archiver.importexport.BucketFileCreatorTest;
 
-public interface BucketExporter {
+@Test(groups = { "fast-unit" })
+public class TgzBucketFileCreatorTest extends BucketFileCreatorTest {
 
-	/**
-	 * Exports a {@link Bucket} from {@link BucketFormat.SPLUNK_BUCKET} to some
-	 * other format decided by the implementation. All other properties besides
-	 * format and maybe size should be left unchanged.
-	 */
-	Bucket exportBucket(Bucket b);
+	@Override
+	protected BucketFormat getFormat() {
+		return BucketFormat.SPLUNK_BUCKET_TGZ;
+	}
+
+	@Override
+	protected String getExtension() {
+		return "tgz";
+	}
+
+	@Override
+	protected BucketFileCreator getInstance() {
+		return BucketFileCreator.createForTgz();
+	}
+
 }

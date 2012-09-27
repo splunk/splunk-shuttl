@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.importexport.BucketImporter;
+import com.splunk.shuttl.archiver.importexport.BucketImportController;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -31,7 +31,7 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 public class GetsBucketsFromArchiveTest {
 
 	private ThawBucketTransferer thawBucketTransferer;
-	private BucketImporter bucketImporter;
+	private BucketImportController bucketImportController;
 	private GetsBucketsFromArchive getsBucketsFromArchive;
 	private BucketSizeResolver bucketSizeResolver;
 	private Bucket bucket;
@@ -39,10 +39,10 @@ public class GetsBucketsFromArchiveTest {
 	@BeforeMethod
 	public void setUp() {
 		thawBucketTransferer = mock(ThawBucketTransferer.class);
-		bucketImporter = mock(BucketImporter.class);
+		bucketImportController = mock(BucketImportController.class);
 		bucketSizeResolver = mock(BucketSizeResolver.class);
 		getsBucketsFromArchive = new GetsBucketsFromArchive(thawBucketTransferer,
-				bucketImporter, bucketSizeResolver);
+				bucketImportController, bucketSizeResolver);
 		bucket = mock(Bucket.class);
 	}
 
@@ -52,7 +52,7 @@ public class GetsBucketsFromArchiveTest {
 		Bucket bucketThawed = mock(Bucket.class);
 		when(thawBucketTransferer.transferBucketToThaw(bucket)).thenReturn(
 				bucketThawed);
-		when(bucketImporter.restoreToSplunkBucketFormat(bucketThawed)).thenReturn(
+		when(bucketImportController.restoreToSplunkBucketFormat(bucketThawed)).thenReturn(
 				dummy);
 		when(bucketSizeResolver.resolveBucketSize(bucketThawed)).thenReturn(dummy);
 
@@ -64,7 +64,7 @@ public class GetsBucketsFromArchiveTest {
 		Bucket importedBucket = TUtilsBucket.createBucket();
 		Bucket sizedBucket = mock(Bucket.class);
 		stub(sizedBucket.getSize()).toReturn(121L);
-		when(bucketImporter.restoreToSplunkBucketFormat(any(Bucket.class)))
+		when(bucketImportController.restoreToSplunkBucketFormat(any(Bucket.class)))
 				.thenReturn(importedBucket);
 		when(bucketSizeResolver.resolveBucketSize(any(Bucket.class))).thenReturn(
 				sizedBucket);
@@ -89,7 +89,7 @@ public class GetsBucketsFromArchiveTest {
 		doThrow(new IOException()).when(thawBucketTransferer).transferBucketToThaw(
 				any(Bucket.class));
 		getsBucketsFromArchive.getBucketFromArchive(bucket);
-		verifyZeroInteractions(bucketImporter);
+		verifyZeroInteractions(bucketImportController);
 	}
 
 }

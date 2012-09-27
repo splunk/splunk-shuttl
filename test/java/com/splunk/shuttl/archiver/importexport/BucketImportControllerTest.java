@@ -17,6 +17,9 @@ package com.splunk.shuttl.archiver.importexport;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -26,31 +29,33 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
-public class BucketImporterTest {
+public class BucketImportControllerTest {
 
-	private BucketImporter bucketImporter;
+	private BucketImportController bucketImportController;
 	private CsvImporter csvImporter;
 
 	@BeforeMethod
 	public void setUp() {
 		csvImporter = mock(CsvImporter.class);
-		bucketImporter = new BucketImporter(csvImporter);
+		Map<BucketFormat, BucketImporter> importers = new HashMap<BucketFormat, BucketImporter>();
+		importers.put(BucketFormat.CSV, csvImporter);
+		bucketImportController = new BucketImportController(importers);
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void _bucketInSplunkBucketFormat_sameBucket() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
-		Bucket restoredBucket = bucketImporter.restoreToSplunkBucketFormat(bucket);
+		Bucket restoredBucket = bucketImportController
+				.restoreToSplunkBucketFormat(bucket);
 		assertTrue(restoredBucket == bucket);
 	}
 
 	public void _bucketInCsvFormat_returnBucketFromCsvImporter() {
 		Bucket realCsvBucket = TUtilsBucket.createRealCsvBucket();
 		Bucket importedBucket = mock(Bucket.class);
-		when(csvImporter.importBucketFromCsv(realCsvBucket)).thenReturn(
-				importedBucket);
-		Bucket restoredBucket = bucketImporter
+		when(csvImporter.importBucket(realCsvBucket)).thenReturn(importedBucket);
+		Bucket restoredBucket = bucketImportController
 				.restoreToSplunkBucketFormat(realCsvBucket);
 		assertEquals(importedBucket, restoredBucket);
 	}
@@ -59,7 +64,7 @@ public class BucketImporterTest {
 	public void _bucketInUnknownFormat_throwsUnsupportedOperationException() {
 		Bucket unknownBucket = mock(Bucket.class);
 		when(unknownBucket.getFormat()).thenReturn(BucketFormat.UNKNOWN);
-		bucketImporter.restoreToSplunkBucketFormat(unknownBucket);
+		bucketImportController.restoreToSplunkBucketFormat(unknownBucket);
 	}
 
 }

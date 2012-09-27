@@ -18,7 +18,7 @@ import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.splunk.shuttl.archiver.importexport.csv.NoCsvFileFoundException;
+import com.splunk.shuttl.archiver.importexport.csv.NoFileFoundException;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -28,24 +28,34 @@ public class UtilsBucket {
 
 	/**
 	 * @return the csv {@link File} representing the bucket
-	 * @throws {@link NoCsvFileFoundException} when no csv file was found.
+	 * @throws {@link NoFileFoundException} when no csv file was found.
 	 */
 	public static File getCsvFile(Bucket csvBucket) {
-		if (isBucketEmpty(csvBucket))
-			throw new IllegalArgumentException("Bucket was empty!");
-		else
-			return getTheCsvFileFromBucket(csvBucket);
+		return getFileFromBucket(csvBucket, "csv");
 	}
 
 	private static boolean isBucketEmpty(Bucket csvBucket) {
 		return csvBucket.getDirectory().listFiles().length == 0;
 	}
 
-	private static File getTheCsvFileFromBucket(Bucket csvBucket) {
-		for (File file : csvBucket.getDirectory().listFiles())
-			if (FilenameUtils.getExtension(file.getName()).equals("csv"))
-				return file;
-		throw new NoCsvFileFoundException();
+	private static File getFileFromBucket(Bucket bucket, String extension) {
+		if (isBucketEmpty(bucket))
+			throw new IllegalArgumentException("Bucket was empty!");
+		else
+			return doGetFileFromBucket(bucket, extension);
 	}
 
+	private static File doGetFileFromBucket(Bucket csvBucket, String extension) {
+		for (File file : csvBucket.getDirectory().listFiles())
+			if (FilenameUtils.getExtension(file.getName()).equals(extension))
+				return file;
+		throw new NoFileFoundException();
+	}
+
+	/**
+	 * @return the .tgz file in a bucket, which has a TGZ bucket format.
+	 */
+	public static File getTgzFile(Bucket realTgzBucket) {
+		return getFileFromBucket(realTgzBucket, "tgz");
+	}
 }

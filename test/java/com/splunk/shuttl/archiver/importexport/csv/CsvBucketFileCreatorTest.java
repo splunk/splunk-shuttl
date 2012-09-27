@@ -14,13 +14,27 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.importexport.csv;
 
-import com.splunk.shuttl.archiver.model.Bucket;
+import org.testng.annotations.Test;
 
-/**
- * Expected csv file was not found in a {@link Bucket}.
- */
-public class NoCsvFileFoundException extends RuntimeException {
+import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
+import com.splunk.shuttl.archiver.importexport.BucketFileCreatorTest;
 
-	private static final long serialVersionUID = 1L;
+@Test(groups = { "fast-unit" })
+public class CsvBucketFileCreatorTest extends BucketFileCreatorTest {
 
+	@Override
+	protected BucketFormat getFormat() {
+		return BucketFormat.CSV;
+	}
+
+	@Override
+	protected String getExtension() {
+		return "csv";
+	}
+
+	@Override
+	protected BucketFileCreator getInstance() {
+		return BucketFileCreator.createForCsv();
+	}
 }

@@ -24,7 +24,7 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.importexport.BucketExporter;
+import com.splunk.shuttl.archiver.importexport.BucketExportController;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -32,7 +32,7 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 public class BucketArchiverTest {
 
 	private BucketArchiver bucketArchiver;
-	private BucketExporter exporter;
+	private BucketExportController exporter;
 	private ArchiveBucketTransferer archiveBucketTransferer;
 	private BucketDeleter deletesBuckets;
 
@@ -41,7 +41,7 @@ public class BucketArchiverTest {
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
-		exporter = mock(BucketExporter.class);
+		exporter = mock(BucketExportController.class);
 		archiveBucketTransferer = mock(ArchiveBucketTransferer.class);
 		deletesBuckets = mock(BucketDeleter.class);
 		bucketFormats = asList(BucketFormat.SPLUNK_BUCKET);

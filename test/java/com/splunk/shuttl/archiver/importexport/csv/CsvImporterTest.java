@@ -72,7 +72,7 @@ public class CsvImporterTest {
 		List<String> command = UtilsList.join(importTooExecutable,
 				asList(arguments));
 
-		csvImporter.importBucketFromCsv(csvBucket);
+		csvImporter.importBucket(csvBucket);
 
 		verify(shellExecutor).executeCommand(emptyMap, command);
 	}
@@ -88,7 +88,7 @@ public class CsvImporterTest {
 						any(File.class), any(BucketFormat.class))).thenReturn(
 				TUtilsBucket.createBucket());
 
-		Bucket importedBucket = csvImporter.importBucketFromCsv(csvBucket);
+		Bucket importedBucket = csvImporter.importBucket(csvBucket);
 		assertNotNull(importedBucket);
 		assertFalse(csvFile.exists());
 	}
@@ -100,7 +100,7 @@ public class CsvImporterTest {
 		when(shellExecutor.executeCommand(anyMap(), anyList())).thenReturn(1);
 
 		assertTrue(csvFile.exists());
-		csvImporter.importBucketFromCsv(csvBucket);
+		csvImporter.importBucket(csvBucket);
 		assertTrue(csvFile.exists());
 	}
 
@@ -114,7 +114,7 @@ public class CsvImporterTest {
 						any(File.class), any(BucketFormat.class))).thenThrow(
 				RuntimeException.class);
 		try {
-			csvImporter.importBucketFromCsv(csvBucket);
+			csvImporter.importBucket(csvBucket);
 			fail();
 		} catch (Exception e) {
 			// Expected
@@ -126,6 +126,6 @@ public class CsvImporterTest {
 	public void _bucketNotInCsvFormat_throwsIllegalArgumentException() {
 		Bucket nonCsvBucket = TUtilsBucket.createBucket();
 		assertNotEquals(BucketFormat.CSV, nonCsvBucket.getFormat());
-		csvImporter.importBucketFromCsv(nonCsvBucket);
+		csvImporter.importBucket(nonCsvBucket);
 	}
 }

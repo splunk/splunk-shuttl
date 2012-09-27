@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkImportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -33,7 +34,7 @@ import com.splunk.shuttl.archiver.util.UtilsList;
 /**
  * Imports Csv buckets and creates a Splunk Bucket.
  */
-public class CsvImporter {
+public class CsvImporter implements BucketImporter {
 
 	private final SplunkImportTool splunkImportTool;
 	private final ShellExecutor shellExecutor;
@@ -57,7 +58,8 @@ public class CsvImporter {
 	 * @throws {@link IllegalArgumentException} if bucket is not in
 	 *         {@link BucketFormat#CSV} format.
 	 */
-	public Bucket importBucketFromCsv(Bucket bucket) {
+	@Override
+	public Bucket importBucket(Bucket bucket) {
 		if (!isBucketInCsvFormat(bucket))
 			throw new IllegalArgumentException("Bucket not in csv format");
 		else

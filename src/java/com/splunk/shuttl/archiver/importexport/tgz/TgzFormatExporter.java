@@ -12,41 +12,40 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.importexport.csv;
+package com.splunk.shuttl.archiver.importexport.tgz;
 
 import java.io.File;
 
-import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
- * Exports a bucket with SPLUNK_BUCKET format to a bucket with CSV format.
+ * Changes the format of a bucket to gzip.
  */
-public class CsvExporter implements BucketExporter {
+public class TgzFormatExporter implements BucketExporter {
 
-	private BucketToCsvFileExporter bucketToCsvFileExporter;
+	private CreatesBucketTgz createsBucketTgz;
 	private BucketFileCreator bucketFileCreator;
 
-	public CsvExporter(BucketToCsvFileExporter bucketToCsvFileExporter,
+	/**
+	 * @param createsBucketTgz
+	 * @param bucketFileCreator
+	 */
+	public TgzFormatExporter(CreatesBucketTgz createsBucketTgz,
 			BucketFileCreator bucketFileCreator) {
-		this.bucketToCsvFileExporter = bucketToCsvFileExporter;
+		this.createsBucketTgz = createsBucketTgz;
 		this.bucketFileCreator = bucketFileCreator;
 	}
 
-	/**
-	 * @return the specified bucket in {@link BucketFormat.CSV} format.
-	 */
 	@Override
-	public Bucket exportBucket(Bucket bucket) {
-		File csvFile = bucketToCsvFileExporter.exportBucketToCsv(bucket);
-		return bucketFileCreator.createBucketWithFile(csvFile, bucket);
+	public Bucket exportBucket(Bucket b) {
+		File tgz = createsBucketTgz.createTgz(b);
+		return bucketFileCreator.createBucketWithFile(tgz, b);
 	}
 
-	public static CsvExporter create(
-			BucketToCsvFileExporter bucketToCsvFileExporter) {
-		return new CsvExporter(bucketToCsvFileExporter,
-				BucketFileCreator.createForCsv());
+	public static TgzFormatExporter create(CreatesBucketTgz createsBucketTgz) {
+		return new TgzFormatExporter(createsBucketTgz,
+				BucketFileCreator.createForTgz());
 	}
 }

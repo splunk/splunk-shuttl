@@ -18,7 +18,7 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.importexport.BucketImporter;
+import com.splunk.shuttl.archiver.importexport.BucketImportController;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 
@@ -31,18 +31,18 @@ public class GetsBucketsFromArchive {
 			.getLogger(GetsBucketsFromArchive.class);
 
 	private final ThawBucketTransferer thawBucketTransferer;
-	private final BucketImporter bucketImporter;
+	private final BucketImportController bucketImportController;
 	private final BucketSizeResolver bucketSizeResolver;
 
 	/**
 	 * @param thawBucketTransferer
-	 * @param bucketImporter
+	 * @param bucketImportController
 	 * @param bucketSizeResolver
 	 */
 	public GetsBucketsFromArchive(ThawBucketTransferer thawBucketTransferer,
-			BucketImporter bucketImporter, BucketSizeResolver bucketSizeResolver) {
+			BucketImportController bucketImportController, BucketSizeResolver bucketSizeResolver) {
 		this.thawBucketTransferer = thawBucketTransferer;
-		this.bucketImporter = bucketImporter;
+		this.bucketImportController = bucketImportController;
 		this.bucketSizeResolver = bucketSizeResolver;
 	}
 
@@ -79,7 +79,7 @@ public class GetsBucketsFromArchive {
 	private Bucket importThawedBucket(Bucket thawedBucket)
 			throws ImportThawedBucketFailException {
 		try {
-			return bucketImporter.restoreToSplunkBucketFormat(thawedBucket);
+			return bucketImportController.restoreToSplunkBucketFormat(thawedBucket);
 		} catch (Exception e) {
 			throw new ImportThawedBucketFailException(thawedBucket);
 		}

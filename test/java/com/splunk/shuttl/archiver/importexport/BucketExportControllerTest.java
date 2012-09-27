@@ -15,70 +15,74 @@
 
 package com.splunk.shuttl.archiver.importexport;
 
-import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
-import com.splunk.shuttl.archiver.importexport.csv.CsvBucketCreator;
+import com.splunk.shuttl.archiver.importexport.BucketExportController.UnknownFormatChangerToFormatException;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
-public class BucketExporterTest {
+public class BucketExportControllerTest {
 
-	BucketExporter bucketExporter;
-	CsvExporter csvExporter;
-	CsvBucketCreator csvBucketCreator;
+	BucketExportController bucketExportController;
+	CsvExporter csvChanger;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
-		csvExporter = mock(CsvExporter.class);
-		csvBucketCreator = mock(CsvBucketCreator.class);
-		bucketExporter = new BucketExporter(csvExporter, csvBucketCreator);
+		csvChanger = mock(CsvExporter.class);
+		Map<BucketFormat, BucketExporter> formatChangers = new HashMap<BucketFormat, BucketExporter>();
+		formatChangers.put(BucketFormat.CSV, csvChanger);
+		bucketExportController = new BucketExportController(formatChangers);
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void exportBucketToFormat_whenBucketIsAlreadyInThatFormat_returnTheSameBucket() {
+	public void _whenBucketIsAlreadyInThatFormat_returnTheSameBucket() {
 		Bucket bucket = mock(Bucket.class);
 		when(bucket.getFormat()).thenReturn(BucketFormat.SPLUNK_BUCKET);
-		Bucket exportedToFormat = bucketExporter.exportBucket(bucket,
+		Bucket exportedToFormat = bucketExportController.exportBucket(bucket,
 				BucketFormat.SPLUNK_BUCKET);
 		assertSame(bucket, exportedToFormat);
 	}
 
 	@Test(expectedExceptions = { UnknownBucketFormatException.class })
-	public void exportBucketToFormat_formatIsUnknown_throwUnknownBucketFormatException() {
+	public void _formatIsUnknown_throwUnknownBucketFormatException() {
 		Bucket bucket = mock(Bucket.class);
-		bucketExporter.exportBucket(bucket, BucketFormat.UNKNOWN);
+		bucketExportController.exportBucket(bucket, BucketFormat.UNKNOWN);
 	}
 
-	public void exportBucketToFormat_exportsSplunkBucketWithCsvExporter_createsAndReturnsBucketFromCsvFile() {
-		Bucket bucket = TUtilsBucket.createBucket();
-		File csvFile = createFile();
-		when(csvExporter.exportBucketToCsv(bucket)).thenReturn(csvFile);
-		Bucket csvBucket = mock(Bucket.class);
-		when(csvBucketCreator.createBucketWithCsvFile(csvFile, bucket)).thenReturn(
-				csvBucket);
-		Bucket newBucket = bucketExporter.exportBucket(bucket, BucketFormat.CSV);
-		assertEquals(csvBucket, newBucket);
-	}
-
-	public void exportBucketToFormat_bucketIsUnknownAndExportingToCsv_throwsUnsupportedOperationException() {
+	public void _bucketIsUnknown_throwsUnsupportedOperationException() {
 		Bucket unknownFormatedBucket = mock(Bucket.class);
 		when(unknownFormatedBucket.getFormat()).thenReturn(BucketFormat.UNKNOWN);
 		try {
-			bucketExporter.exportBucket(unknownFormatedBucket, BucketFormat.CSV);
+			bucketExportController.exportBucket(unknownFormatedBucket, BucketFormat.CSV);
 			fail();
 		} catch (UnsupportedOperationException e) {
 		}
-		verifyZeroInteractions(csvExporter);
+		verifyZeroInteractions(csvChanger);
+	}
+
+	public void _givenCsvBucket_exportsSplunkBucketWithCsvExporter() {
+		Bucket bucket = TUtilsBucket.createBucket();
+		Bucket csvBucket = mock(Bucket.class);
+		when(csvChanger.exportBucket(bucket)).thenReturn(csvBucket);
+		Bucket newBucket = bucketExportController.exportBucket(bucket, BucketFormat.CSV);
+		assertEquals(csvBucket, newBucket);
+	}
+
+	@Test(expectedExceptions = { UnknownFormatChangerToFormatException.class })
+	public void _givenNonExistingBucketFormatChanger_throws() {
+		BucketExportController exporter = new BucketExportController(
+				new HashMap<BucketFormat, BucketExporter>());
+		exporter.exportBucket(TUtilsBucket.createBucket(), BucketFormat.CSV);
 	}
 }

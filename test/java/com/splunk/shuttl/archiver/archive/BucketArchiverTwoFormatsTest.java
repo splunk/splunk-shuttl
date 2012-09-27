@@ -22,14 +22,14 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.importexport.BucketExporter;
+import com.splunk.shuttl.archiver.importexport.BucketExportController;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketArchiverTwoFormatsTest {
 
 	private BucketArchiver bucketArchiver;
-	private BucketExporter exporter;
+	private BucketExportController exporter;
 	private ArchiveBucketTransferer archiveBucketTransferer;
 	private BucketDeleter bucketDeleter;
 
@@ -40,7 +40,7 @@ public class BucketArchiverTwoFormatsTest {
 
 	@BeforeMethod
 	public void setUp() {
-		exporter = mock(BucketExporter.class);
+		exporter = mock(BucketExportController.class);
 		archiveBucketTransferer = mock(ArchiveBucketTransferer.class);
 		bucketDeleter = mock(BucketDeleter.class);
 		formats = asList(BucketFormat.SPLUNK_BUCKET, BucketFormat.CSV);
