@@ -48,31 +48,27 @@ public class CreatesBucketTgz {
 	 * Creates a .tgz file from a bucket.
 	 */
 	public File createTgz(Bucket bucket) {
-		File tar = getsBucketsExportFile.getExportFile(bucket, "tar");
 		File tgz = getsBucketsExportFile.getExportFile(bucket, "tgz");
 		try {
-			createTgzFileFromBucket(bucket, tar, tgz);
+			createTgzFileFromBucket(bucket, tgz);
 		} catch (TgzBucketCreationFailedException e) {
 			tgz.delete();
 			throw e;
-		} finally {
-			tar.delete();
 		}
 		return tgz;
 	}
 
-	private void createTgzFileFromBucket(Bucket bucket, File tar, File tgz) {
-		String[] command = buildTgzCommand(bucket, tar, tgz);
+	private void createTgzFileFromBucket(Bucket bucket, File tgz) {
+		String[] command = buildTgzCommand(bucket, tgz);
 		executeCommand(command);
 	}
 
-	private String[] buildTgzCommand(Bucket bucket, File tar, File tgz) {
+	private String[] buildTgzCommand(Bucket bucket, File tgz) {
 		File bucketDir = bucket.getDirectory();
-		String tarCmd = "tar -C " + bucketDir.getParentFile().getAbsolutePath()
-				+ " -c " + bucketDir.getName() + " > " + tar.getAbsolutePath();
-		String gzipCmd = "gzip -c " + tar + " > " + tgz.getAbsolutePath();
-		String[] command = { "/bin/sh", "-c", tarCmd + " && " + gzipCmd };
-		return command;
+		String parentPath = bucketDir.getParentFile().getAbsolutePath();
+		String tgzCmd = "tar -C " + parentPath + " -c " + bucketDir.getName()
+				+ " | gzip -c > " + tgz.getAbsolutePath();
+		return new String[] { "/bin/sh", "-c", tgzCmd };
 	}
 
 	private void executeCommand(String[] cmd) {

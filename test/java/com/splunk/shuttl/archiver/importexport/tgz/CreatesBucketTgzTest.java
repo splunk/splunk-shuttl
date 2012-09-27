@@ -40,7 +40,6 @@ public class CreatesBucketTgzTest {
 
 	private HashMap<String, String> emptyMap;
 	private Bucket bucket;
-	private File tar;
 	private File tgz;
 
 	@BeforeMethod
@@ -52,25 +51,21 @@ public class CreatesBucketTgzTest {
 
 		emptyMap = new HashMap<String, String>();
 		bucket = TUtilsBucket.createBucket();
-		tar = createFile();
 		tgz = createFile();
-		when(getsBucketsExportFile.getExportFile(bucket, "tar")).thenReturn(tar);
 		when(getsBucketsExportFile.getExportFile(bucket, "tgz")).thenReturn(tgz);
 	}
 
 	public void _givenBucket_createsTarWithBucketNameAndTarExtension() {
-		String tarBucketCmd = "tar -C "
+		String tgzBucketCmd = "tar -C "
 				+ bucket.getDirectory().getParentFile().getAbsolutePath() + " -c "
-				+ bucket.getDirectory().getName() + " > " + tar.getAbsolutePath();
-		String gzipCmd = "gzip -c " + tar.getAbsolutePath() + " > "
+				+ bucket.getDirectory().getName() + " | gzip -c > "
 				+ tgz.getAbsolutePath();
-		String[] cmd = { "/bin/sh", "-c", tarBucketCmd + " && " + gzipCmd };
+		String[] cmd = { "/bin/sh", "-c", tgzBucketCmd };
 
 		when(shellExecutor.executeCommand(emptyMap, asList(cmd))).thenReturn(0);
 
 		createsBucketTgz.createTgz(bucket);
 
-		assertFalse(tar.exists());
 		verify(shellExecutor).executeCommand(emptyMap, asList(cmd));
 	}
 
@@ -81,7 +76,6 @@ public class CreatesBucketTgzTest {
 		try {
 			createsBucketTgz.createTgz(bucket);
 		} catch (RuntimeException e) {
-			assertFalse(tar.exists());
 			assertFalse(tgz.exists());
 		}
 	}
