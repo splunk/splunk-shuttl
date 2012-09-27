@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.importexport.csv;
+package com.splunk.shuttl.archiver.importexport;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
@@ -23,14 +23,15 @@ import java.io.IOException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
-public class GetsBucketsCsvExportFileTest {
+public class GetsBucketsExportFileTest {
 
 	private File dir;
-	private GetsBucketsCsvExportFile getsBucketsExportFile;
+	private GetsBucketsExportFile getsBucketsExportFile;
 	private Bucket bucket;
 	private String extension;
 
@@ -39,7 +40,7 @@ public class GetsBucketsCsvExportFileTest {
 		bucket = TUtilsBucket.createBucket();
 		dir = createDirectory();
 		extension = "ext";
-		getsBucketsExportFile = new GetsBucketsCsvExportFile(dir);
+		getsBucketsExportFile = new GetsBucketsExportFile(dir);
 	}
 
 	public void __fileInDirWithIndexName() {

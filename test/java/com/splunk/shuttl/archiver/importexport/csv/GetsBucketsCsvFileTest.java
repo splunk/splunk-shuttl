@@ -24,6 +24,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -31,13 +32,13 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 public class GetsBucketsCsvFileTest {
 
 	private File csvDirectory;
-	private GetsBucketsCsvExportFile getsBucketsCsvExportFile;
+	private GetsBucketsExportFile getsBucketsExportFile;
 	private Bucket bucket;
 
 	@BeforeMethod
 	public void setUp() {
 		csvDirectory = createDirectory();
-		getsBucketsCsvExportFile = new GetsBucketsCsvExportFile(csvDirectory);
+		getsBucketsExportFile = new GetsBucketsExportFile(csvDirectory);
 		bucket = TUtilsBucket.createBucket();
 	}
 
@@ -47,7 +48,7 @@ public class GetsBucketsCsvFileTest {
 	}
 
 	public void getCsvOuputFileFromBucket_givenBucket_hasCsvExtension() {
-		File csvFile = getsBucketsCsvExportFile.getCsvFile(bucket);
+		File csvFile = getsBucketsExportFile.getCsvFile(bucket);
 		assertTrue(csvFile.getName().endsWith(".csv"));
 	}
 

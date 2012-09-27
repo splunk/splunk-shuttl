@@ -12,21 +12,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.importexport.csv;
+package com.splunk.shuttl.archiver.importexport;
 
 import java.io.File;
 
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
- * Class for getting a .csv file that's unique for a bucket.
+ * Class for getting export files that are unique for a specific bucket.
+ * Exporting files can be csv or tgz for example.
  */
-public class GetsBucketsCsvExportFile {
+public class GetsBucketsExportFile {
 
-	private final File csvDirectory;
+	private final File dirForStoringExportFiles;
 
-	public GetsBucketsCsvExportFile(File csvDirectory) {
-		this.csvDirectory = csvDirectory;
+	public GetsBucketsExportFile(File dirForStoringExportFiles) {
+		this.dirForStoringExportFiles = dirForStoringExportFiles;
 	}
 
 	/**
@@ -37,12 +38,11 @@ public class GetsBucketsCsvExportFile {
 	}
 
 	public File getExportFile(Bucket bucket, String extension) {
-		File indexDir = new File(csvDirectory, bucket.getIndex());
+		File indexDir = new File(dirForStoringExportFiles, bucket.getIndex());
 		indexDir.mkdirs();
 		File file = new File(indexDir, bucket.getName() + "." + extension);
 		if (file.exists())
 			file.delete();
 		return file;
-
 	}
 }

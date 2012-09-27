@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkExportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -36,14 +37,14 @@ public class BucketToCsvFileExporter {
 	private static final Logger logger = Logger.getLogger(BucketToCsvFileExporter.class);
 
 	private final SplunkExportTool exportTool;
-	private final GetsBucketsCsvExportFile getsBucketsCsvExportFile;
+	private final GetsBucketsExportFile getsBucketsExportFile;
 	private final ShellExecutor shellExecutor;
 
 	public BucketToCsvFileExporter(SplunkExportTool exportTool,
-			GetsBucketsCsvExportFile getsBucketsCsvExportFile,
+			GetsBucketsExportFile getsBucketsExportFile,
 			ShellExecutor shellExecutor) {
 		this.exportTool = exportTool;
-		this.getsBucketsCsvExportFile = getsBucketsCsvExportFile;
+		this.getsBucketsExportFile = getsBucketsExportFile;
 		this.shellExecutor = shellExecutor;
 	}
 
@@ -51,7 +52,7 @@ public class BucketToCsvFileExporter {
 	 * @return Csv file of the {@link Bucket}
 	 */
 	public File exportBucketToCsv(Bucket bucket) {
-		File csvFile = getsBucketsCsvExportFile.getCsvFile(bucket);
+		File csvFile = getsBucketsExportFile.getCsvFile(bucket);
 		List<String> command = constructCommand(bucket, csvFile);
 		Map<String, String> env = exportTool.getEnvironment();
 		int exit = shellExecutor.executeCommand(env, command);
@@ -91,7 +92,7 @@ public class BucketToCsvFileExporter {
 	 */
 	public static BucketToCsvFileExporter create(File csvDirectory) {
 		return new BucketToCsvFileExporter(new SplunkExportTool(),
-				new GetsBucketsCsvExportFile(csvDirectory),
+				new GetsBucketsExportFile(csvDirectory),
 				ShellExecutor.getInstance());
 	}
 
