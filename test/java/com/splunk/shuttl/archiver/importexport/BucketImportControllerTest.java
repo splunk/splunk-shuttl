@@ -17,6 +17,9 @@ package com.splunk.shuttl.archiver.importexport;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -34,22 +37,24 @@ public class BucketImportControllerTest {
 	@BeforeMethod
 	public void setUp() {
 		csvImporter = mock(CsvImporter.class);
-		bucketImportController = new BucketImportController(csvImporter);
+		Map<BucketFormat, BucketImporter> importers = new HashMap<BucketFormat, BucketImporter>();
+		importers.put(BucketFormat.CSV, csvImporter);
+		bucketImportController = new BucketImportController(importers);
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void _bucketInSplunkBucketFormat_sameBucket() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
-		Bucket restoredBucket = bucketImportController.restoreToSplunkBucketFormat(bucket);
+		Bucket restoredBucket = bucketImportController
+				.restoreToSplunkBucketFormat(bucket);
 		assertTrue(restoredBucket == bucket);
 	}
 
 	public void _bucketInCsvFormat_returnBucketFromCsvImporter() {
 		Bucket realCsvBucket = TUtilsBucket.createRealCsvBucket();
 		Bucket importedBucket = mock(Bucket.class);
-		when(csvImporter.importBucket(realCsvBucket)).thenReturn(
-				importedBucket);
+		when(csvImporter.importBucket(realCsvBucket)).thenReturn(importedBucket);
 		Bucket restoredBucket = bucketImportController
 				.restoreToSplunkBucketFormat(realCsvBucket);
 		assertEquals(importedBucket, restoredBucket);

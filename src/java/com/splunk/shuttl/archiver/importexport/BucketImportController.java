@@ -14,6 +14,9 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.importexport;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.csv.CsvImporter;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -24,14 +27,14 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketImportController {
 
-	private final CsvImporter csvImporter;
+	private final Map<BucketFormat, BucketImporter> importers;
 
 	/**
-	 * @param csvImporter
+	 * @param importers
 	 *          to import buckets from CSV to SPLUNK_BUCKET.
 	 */
-	public BucketImportController(CsvImporter csvImporter) {
-		this.csvImporter = csvImporter;
+	public BucketImportController(Map<BucketFormat, BucketImporter> importers) {
+		this.importers = importers;
 	}
 
 	/**
@@ -40,10 +43,11 @@ public class BucketImportController {
 	 * @return bucket in {@link BucketFormat#SPLUNK_BUCKET}
 	 */
 	public Bucket restoreToSplunkBucketFormat(Bucket bucket) {
-		if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET))
+		BucketFormat format = bucket.getFormat();
+		if (format.equals(BucketFormat.SPLUNK_BUCKET))
 			return bucket;
-		else if (bucket.getFormat().equals(BucketFormat.CSV))
-			return csvImporter.importBucket(bucket);
+		else if (importers.containsKey(format))
+			return importers.get(format).importBucket(bucket);
 		else
 			throw new UnsupportedOperationException();
 	}
@@ -52,7 +56,10 @@ public class BucketImportController {
 	 * Convenience method for creating an instance.
 	 */
 	public static BucketImportController create() {
-		return new BucketImportController(CsvImporter.create());
+		Map<BucketFormat, BucketImporter> importers = new HashMap<BucketFormat, BucketImporter>();
+		importers.put(BucketFormat.CSV, CsvImporter.create());
+
+		return new BucketImportController(importers);
 	}
 
 }
