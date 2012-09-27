@@ -53,7 +53,7 @@ public class CsvImporterFunctionalTest {
 			public void run() {
 				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
 				Bucket importedBucket = integratedCsvImporter
-						.importBucketFromCsv(csvBucket);
+						.importBucket(csvBucket);
 				assertFormatIsChangedOnImportedBucket(csvBucket, importedBucket);
 			}
 		});

@@ -26,31 +26,31 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
-public class BucketImporterTest {
+public class BucketImportControllerTest {
 
-	private BucketImporter bucketImporter;
+	private BucketImportController bucketImportController;
 	private CsvImporter csvImporter;
 
 	@BeforeMethod
 	public void setUp() {
 		csvImporter = mock(CsvImporter.class);
-		bucketImporter = new BucketImporter(csvImporter);
+		bucketImportController = new BucketImportController(csvImporter);
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void _bucketInSplunkBucketFormat_sameBucket() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
-		Bucket restoredBucket = bucketImporter.restoreToSplunkBucketFormat(bucket);
+		Bucket restoredBucket = bucketImportController.restoreToSplunkBucketFormat(bucket);
 		assertTrue(restoredBucket == bucket);
 	}
 
 	public void _bucketInCsvFormat_returnBucketFromCsvImporter() {
 		Bucket realCsvBucket = TUtilsBucket.createRealCsvBucket();
 		Bucket importedBucket = mock(Bucket.class);
-		when(csvImporter.importBucketFromCsv(realCsvBucket)).thenReturn(
+		when(csvImporter.importBucket(realCsvBucket)).thenReturn(
 				importedBucket);
-		Bucket restoredBucket = bucketImporter
+		Bucket restoredBucket = bucketImportController
 				.restoreToSplunkBucketFormat(realCsvBucket);
 		assertEquals(importedBucket, restoredBucket);
 	}
@@ -59,7 +59,7 @@ public class BucketImporterTest {
 	public void _bucketInUnknownFormat_throwsUnsupportedOperationException() {
 		Bucket unknownBucket = mock(Bucket.class);
 		when(unknownBucket.getFormat()).thenReturn(BucketFormat.UNKNOWN);
-		bucketImporter.restoreToSplunkBucketFormat(unknownBucket);
+		bucketImportController.restoreToSplunkBucketFormat(unknownBucket);
 	}
 
 }
