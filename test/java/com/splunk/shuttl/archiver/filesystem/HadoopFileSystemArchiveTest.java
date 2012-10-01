@@ -451,8 +451,7 @@ public class HadoopFileSystemArchiveTest {
 
 		// Test
 		Path pathWhereTestFilePut = hadoopFileSystemArchive
-				.putFileToTmpDirectoryOverwirtingOldFilesAppendingPath(testFile,
-						testFilePath.toUri());
+				.putFileToTmpOverwritingOldFiles(testFile, testFilePath.toUri());
 
 		// Verify
 		assertEquals(whereTestFileShouldGo, pathWhereTestFilePut);

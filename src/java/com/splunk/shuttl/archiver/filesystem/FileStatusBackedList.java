@@ -21,13 +21,13 @@ import java.util.AbstractList;
 import org.apache.hadoop.fs.FileStatus;
 
 /**
- * Wrapes around {@link FileStatus} and provides a list of URI objects.
+ * Wraps around {@link FileStatus} and provides a list of URI objects.
  * 
  */
 public class FileStatusBackedList extends AbstractList<URI> {
 
-	private FileStatus[] fileStatus;
-	private URI[] uriCache;
+	private final FileStatus[] fileStatus;
+	private final URI[] uriCache;
 
 	/**
 	 * Creates a list backed by the specified FileStatus array.
@@ -35,7 +35,7 @@ public class FileStatusBackedList extends AbstractList<URI> {
 	public FileStatusBackedList(FileStatus... fileStatus) {
 		super();
 		this.fileStatus = fileStatus;
-		uriCache = new URI[fileStatus.length];
+		this.uriCache = new URI[fileStatus.length];
 	}
 
 	@Override

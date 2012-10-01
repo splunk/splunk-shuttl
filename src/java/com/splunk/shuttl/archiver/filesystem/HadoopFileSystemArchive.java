@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.util.UtilsPath;
 
@@ -35,32 +34,27 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 	private final Path atomicPutTmpPath;
 	private final FileSystem hadoopFileSystem;
 
-	private static Logger logger = Logger
-			.getLogger(HadoopFileSystemArchive.class);
-
 	public HadoopFileSystemArchive(FileSystem hadoopFileSystem, Path path) {
-		atomicPutTmpPath = path;
 		this.hadoopFileSystem = hadoopFileSystem;
+		this.atomicPutTmpPath = path;
 	}
 
 	@Override
-	public void putFile(File fileOnLocalFileSystem, URI fileOnArchiveFileSystem)
-			throws FileNotFoundException, FileOverwriteException, IOException {
-		throwExceptionIfFileDoNotExist(fileOnLocalFileSystem);
-		Path hadoopPath = createPathFromURI(fileOnArchiveFileSystem);
-		throwExceptionIfRemotePathAlreadyExist(hadoopPath);
-		Path localPath = createPathFromFile(fileOnLocalFileSystem);
-		hadoopFileSystem.copyFromLocalFile(localPath, hadoopPath);
-	}
-
-	@Override
-	public void putFileAtomically(File fileOnLocalFileSystem,
-			URI fileOnArchiveFileSystem) throws FileNotFoundException,
+	public void putFile(File file, URI remoteUri) throws FileNotFoundException,
 			FileOverwriteException, IOException {
-		Path hadoopPath = createPathFromURI(fileOnArchiveFileSystem);
-		throwExceptionIfRemotePathAlreadyExist(hadoopPath);
-		Path tmpLocation = putFileToTmpDirectoryOverwirtingOldFilesAppendingPath(
-				fileOnLocalFileSystem, fileOnArchiveFileSystem);
+		throwIfFileDoNotExist(file);
+		Path hadoopPath = createPath(remoteUri);
+		throwIfRemotePathAlreadyExist(hadoopPath);
+
+		hadoopFileSystem.copyFromLocalFile(createPath(file), hadoopPath);
+	}
+
+	@Override
+	public void putFileAtomically(File file, URI remoteUri)
+			throws FileNotFoundException, FileOverwriteException, IOException {
+		Path hadoopPath = createPath(remoteUri);
+		throwIfRemotePathAlreadyExist(hadoopPath);
+		Path tmpLocation = putFileToTmpOverwritingOldFiles(file, remoteUri);
 		move(tmpLocation, hadoopPath);
 	}
 
@@ -94,19 +88,16 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 	 * directory on hadoop. The tmp directory will be the base and the full path
 	 * of the file on hadoop will contains the specified URI.
 	 */
-	/* package private */Path putFileToTmpDirectoryOverwirtingOldFilesAppendingPath(
-			File fileOnLocalFileSystem, URI appendPathToTmpDirectory)
-			throws FileNotFoundException, IOException {
-
+	/* package private */Path putFileToTmpOverwritingOldFiles(File file,
+			URI remoteUri) throws FileNotFoundException, IOException {
 		Path hadoopPath = UtilsPath.createPathByAppending(atomicPutTmpPath,
-				createPathFromURI(appendPathToTmpDirectory));
+				createPath(remoteUri));
 		deletePathRecursivly(hadoopPath);
 		try {
-			putFile(fileOnLocalFileSystem, hadoopPath.toUri());
-
+			putFile(file, hadoopPath.toUri());
 		} catch (FileOverwriteException e) {
-			throw new IOException(
-					"The old tmp path was not deleted this shouldn't happen!", e);
+			throw new IOException("The old tmp path was not "
+					+ "deleted. This should not happen!", e);
 		}
 		return hadoopPath;
 	}
@@ -115,15 +106,15 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 	public void getFile(File fileOnLocalFileSystem, URI fileOnArchiveFileSystem)
 			throws FileNotFoundException, FileOverwriteException, IOException {
 		throwExceptionIfFileAlreadyExist(fileOnLocalFileSystem);
-		Path localPath = createPathFromFile(fileOnLocalFileSystem);
-		Path hadoopPath = createPathFromURI(fileOnArchiveFileSystem);
+		Path localPath = createPath(fileOnLocalFileSystem);
+		Path hadoopPath = createPath(fileOnArchiveFileSystem);
 		// FileNotFoundException is already thrown by copyToLocalFile.
 		hadoopFileSystem.copyToLocalFile(hadoopPath, localPath);
 	}
 
 	@Override
 	public List<URI> listPath(URI pathToBeListed) throws IOException {
-		Path hadoopPath = createPathFromURI(pathToBeListed);
+		Path hadoopPath = createPath(pathToBeListed);
 		FileStatus[] fileStatusOfPath = hadoopFileSystem.listStatus(hadoopPath);
 		if (fileStatusOfPath != null)
 			return new FileStatusBackedList(fileStatusOfPath);
@@ -131,16 +122,15 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 			return Collections.emptyList();
 	}
 
-	private Path createPathFromURI(URI uri) {
+	private Path createPath(URI uri) {
 		return new Path(uri);
 	}
 
-	private Path createPathFromFile(File file) {
-		return createPathFromURI(file.toURI());
+	private Path createPath(File file) {
+		return createPath(file.toURI());
 	}
 
-	private void throwExceptionIfFileDoNotExist(File file)
-			throws FileNotFoundException {
+	private void throwIfFileDoNotExist(File file) throws FileNotFoundException {
 		if (!file.exists())
 			throw new FileNotFoundException(file.toString() + " doesn't exist.");
 	}
@@ -151,8 +141,7 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 			throw new FileOverwriteException(file.toString() + " already exist.");
 	}
 
-	private void throwExceptionIfRemotePathAlreadyExist(Path path)
-			throws IOException {
+	private void throwIfRemotePathAlreadyExist(Path path) throws IOException {
 		if (hadoopFileSystem.exists(path))
 			throw new FileOverwriteException(path.toString() + " already exist.");
 	}
