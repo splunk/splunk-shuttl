@@ -147,4 +147,14 @@ public class PathResolver {
 				+ "archive_meta" + SEPARATOR + "bucket.size");
 	}
 
+	/**
+	 * @return {@link URI} to a temporary location on the
+	 *         {@link ArchiveFileSystem} where it can be transferred to, and yet
+	 *         be "invisible" from the system.
+	 */
+	public URI resolveTempPathForBucket(Bucket bucket) {
+		return URI.create(configuration.getTmpDirectory().toString()
+				+ resolveArchivePath(bucket).getPath());
+	}
+
 }

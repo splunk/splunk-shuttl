@@ -17,7 +17,6 @@ package com.splunk.shuttl.archiver.archive;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -26,7 +25,10 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.filesystem.FileOverwriteException;
+import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionException;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -34,17 +36,21 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class ArchiveBucketTransferer {
 
-	private final ArchiveFileSystem archiveFileSystem;
 	private final static Logger logger = Logger
 			.getLogger(ArchiveBucketTransferer.class);
+
+	private final TransactionalFileSystem archiveFileSystem;
 	private final PathResolver pathResolver;
 	private final ArchiveBucketSize archiveBucketSize;
+	private final TransactionExecuter transactionExecuter;
 
-	public ArchiveBucketTransferer(ArchiveFileSystem archive,
-			PathResolver pathResolver, ArchiveBucketSize archiveBucketSize) {
+	public ArchiveBucketTransferer(TransactionalFileSystem archive,
+			PathResolver pathResolver, ArchiveBucketSize archiveBucketSize,
+			TransactionExecuter transactionExecuter) {
 		this.archiveFileSystem = archive;
 		this.pathResolver = pathResolver;
 		this.archiveBucketSize = archiveBucketSize;
+		this.transactionExecuter = transactionExecuter;
 	}
 
 	/**
@@ -57,43 +63,19 @@ public class ArchiveBucketTransferer {
 	 */
 	public void transferBucketToArchive(Bucket bucket) {
 		URI destination = pathResolver.resolveArchivePath(bucket);
+		URI tempPath = pathResolver.resolveTempPathForBucket(bucket);
 		logger.info(will("attempting to transfer bucket to archive", "bucket",
 				bucket, "destination", destination));
+		Transaction bucketTransaction = archiveFileSystem
+				.provideBucketPutTransaction(bucket.getURI(), tempPath, destination);
 		try {
-			archiveFileSystem.putFileAtomically(bucket.getDirectory(), destination);
-			archiveBucketSize.putSize(bucket);
-		} catch (FileNotFoundException e) {
-			logFileNotFoundException(bucket, destination, e);
-			throw new FailedToArchiveBucketException(e);
-		} catch (FileOverwriteException e) {
-			logFileOverwriteException(bucket, destination, e);
-			throw new FailedToArchiveBucketException(e);
-		} catch (IOException e) {
-			logIOException(bucket, destination, e);
+			transactionExecuter.execute(bucketTransaction);
+		} catch (TransactionException e) {
+			logger.error(did("Executed a bucket transaction.", e,
+					"To transfer the bucket to the archive.", "bucket", bucket));
 			throw new FailedToArchiveBucketException(e);
 		}
-	}
-
-	private void logFileNotFoundException(Bucket bucket, URI destination,
-			FileNotFoundException e) {
-		logger.error(did("attempted to transfer bucket to archive",
-				"bucket path does not exist", "success", "bucket", bucket,
-				"destination", destination, "exception", e));
-	}
-
-	private void logFileOverwriteException(Bucket bucket, URI destination,
-			FileOverwriteException e) {
-		logger
-				.error(did("attempted to transfer bucket to archive",
-						"a bucket with the same path already exists on the filesystem",
-						"success", "bucket", bucket, "destination", destination,
-						"exception", e));
-	}
-
-	private void logIOException(Bucket bucket, URI destination, IOException e) {
-		logger.error(did("attempted to transfer bucket to archive",
-				"IOException raised", "success", "bucket", bucket, "destination",
-				destination, "exception", e));
+		archiveBucketSize.putSize(bucket);
 	}
 
 	/**
@@ -114,7 +96,7 @@ public class ArchiveBucketTransferer {
 
 	private List<URI> listPathsForBucketUri(URI bucketUriWithFormat) {
 		try {
-			return archiveFileSystem.listPath(bucketUriWithFormat);
+			return archiveFileSystem.listUri(bucketUriWithFormat);
 		} catch (IOException e) {
 			logIOException(bucketUriWithFormat, e);
 			throw new RuntimeException(e);

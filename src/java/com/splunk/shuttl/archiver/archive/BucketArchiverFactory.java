@@ -19,6 +19,7 @@ import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.importexport.BucketExportController;
 import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
@@ -77,8 +78,8 @@ public class BucketArchiverFactory {
 		return new BucketArchiver(BucketExportController.create(
 				CsvExporter.create(bucketToCsvFileExporter), tgzFormatExporter),
 				new ArchiveBucketTransferer(archiveFileSystem, pathResolver,
-						archiveBucketSize), BucketDeleter.create(),
-				config.getArchiveFormats());
+						archiveBucketSize, new TransactionExecuter()),
+				BucketDeleter.create(), config.getArchiveFormats());
 
 	}
 }

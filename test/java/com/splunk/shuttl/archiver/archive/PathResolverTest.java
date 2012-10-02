@@ -41,6 +41,7 @@ public class PathResolverTest {
 	private String bucketIndex;
 	private BucketFormat bucketFormat;
 	private String bucketName;
+	private String tmpDirectory;
 
 	private final String ROOT_URI = "hdfs://somehost:12345";
 
@@ -62,6 +63,9 @@ public class PathResolverTest {
 		when(configuration.getClusterName()).thenReturn(clusterName);
 		serverName = "server_name";
 		when(configuration.getServerName()).thenReturn(serverName);
+		tmpDirectory = "tmp_dir";
+		when(configuration.getTmpDirectory()).thenReturn(
+				URI.create(ROOT_URI + "/" + tmpDirectory));
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -151,6 +155,14 @@ public class PathResolverTest {
 		return archiveRoot.toString() + "/" + clusterName + "/" + serverName;
 	}
 
+	public void resolveTempPathForBucket_givenBucket_tmpDirConcatWithBucketPath() {
+		Bucket bucket = TUtilsBucket.createBucket();
+		URI uri = pathResolver.resolveTempPathForBucket(bucket);
+		URI expected = URI.create(configuration.getTmpDirectory().toString()
+				+ pathResolver.resolveArchivePath(bucket).getPath());
+		assertEquals(expected, uri);
+	}
+
 	public void getConfigured_registeredMBean_getsPathResolverInstance() {
 		File shuttlConfsDir = TUtilsConf.getNullConfsDir();
 		TUtilsMBean.runWithRegisteredMBeans(shuttlConfsDir, new Runnable() {
@@ -169,5 +181,4 @@ public class PathResolverTest {
 				URI.create(getArchivePathUpToFormat() + "/archive_meta/bucket.size"),
 				uritoFileWithBucketSize);
 	}
-
 }

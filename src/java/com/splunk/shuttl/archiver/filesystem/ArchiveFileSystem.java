@@ -22,12 +22,14 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
+
 /**
  * With this interface code can put, retrieve and list files in any system that
  * is used for to archiving.
  * 
  */
-public interface ArchiveFileSystem {
+public interface ArchiveFileSystem extends TransactionalFileSystem {
 
 	/**
 	 * Puts the specified file on local file system to the archiving file system.

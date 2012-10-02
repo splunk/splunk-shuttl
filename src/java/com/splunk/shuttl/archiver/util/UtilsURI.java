@@ -57,4 +57,11 @@ public class UtilsURI {
 		return FilenameUtils.getName(path);
 	}
 
+	/**
+	 * @return if the scheme of the uri is file://
+	 */
+	public static boolean isLocal(URI uri) {
+		return uri.getScheme().equals("file");
+	}
+
 }

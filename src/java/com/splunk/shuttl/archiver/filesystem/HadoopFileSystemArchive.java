@@ -27,9 +27,17 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopFileStructure;
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopGetTransferer;
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopPutTransferer;
+import com.splunk.shuttl.archiver.filesystem.transaction.DirtyGetTransaction;
+import com.splunk.shuttl.archiver.filesystem.transaction.DirtyTransaction;
+import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
 import com.splunk.shuttl.archiver.util.UtilsPath;
 
-public class HadoopFileSystemArchive implements ArchiveFileSystem {
+public class HadoopFileSystemArchive implements ArchiveFileSystem,
+		TransactionalFileSystem {
 
 	private final Path atomicPutTmpPath;
 	private final FileSystem hadoopFileSystem;
@@ -146,15 +154,48 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem {
 			throw new FileOverwriteException(path.toString() + " already exist.");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem#openFile(java.net
-	 * .URI)
-	 */
 	@Override
 	public InputStream openFile(URI fileOnArchiveFileSystem) throws IOException {
 		return hadoopFileSystem.open(new Path(fileOnArchiveFileSystem));
+	}
+
+	@Override
+	public List<URI> listUri(URI uri) throws IOException {
+		return listPath(uri);
+	}
+
+	@Override
+	public Transaction provideBucketPutTransaction(URI from, URI temp, URI to) {
+		return new HadoopPutTransaction(from, temp, to);
+	}
+
+	@Override
+	public Transaction provideBucketGetTransaction(URI from, URI temp, URI to) {
+		return new HadoopGetTransaction(from, temp, to);
+	}
+
+	@Override
+	public Transaction provideMetaPutTransaction(URI from, URI temp, URI to) {
+		return new HadoopPutTransaction(from, temp, to);
+	}
+
+	@Override
+	public Transaction provideMetaGetTransaction(URI from, URI temp, URI to) {
+		return new HadoopGetTransaction(from, temp, to);
+	}
+
+	private class HadoopPutTransaction extends DirtyTransaction {
+
+		public HadoopPutTransaction(URI from, URI remoteTemp, URI to) {
+			super(new HadoopFileStructure(hadoopFileSystem), new HadoopPutTransferer(
+					hadoopFileSystem), from, remoteTemp, to);
+		}
+	}
+
+	private class HadoopGetTransaction extends DirtyGetTransaction {
+
+		public HadoopGetTransaction(URI from, URI remoteTemp, URI to) {
+			super(new HadoopGetTransferer(hadoopFileSystem), from, remoteTemp, to);
+		}
 	}
 }
