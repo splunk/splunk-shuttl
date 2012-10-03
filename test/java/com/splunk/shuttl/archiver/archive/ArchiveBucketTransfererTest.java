@@ -63,12 +63,9 @@ public class ArchiveBucketTransfererTest {
 		URI temp = URI.create("file:/temp/path");
 		when(pathResolver.resolveArchivePath(bucket)).thenReturn(destination);
 		when(pathResolver.resolveTempPathForBucket(bucket)).thenReturn(temp);
-		Transaction transaction = mock(Transaction.class);
-		when(
-				archive.provideBucketPutTransaction(bucket.getURI(), temp, destination))
-				.thenReturn(transaction);
 		archiveBucketTransferer.transferBucketToArchive(bucket);
-		verify(transactionExecuter).execute(transaction);
+		verify(transactionExecuter).execute(
+				eq(Transaction.create(archive, bucket, temp, destination)));
 	}
 
 	public void transferBucketToArchive_givenSuccessfulBucketTransfer_putBucketSizeInArchive() {
@@ -116,7 +113,7 @@ public class ArchiveBucketTransfererTest {
 		when(
 				pathResolver.resolveArchivedBucketURI(bucket.getIndex(),
 						bucket.getName(), bucket.getFormat())).thenReturn(bucketUri);
-		when(archive.listUri(bucketUri)).thenReturn(
+		when(archive.listPath(bucketUri)).thenReturn(
 				asList(URI.create("valid:/uri")));
 		assertTrue(archiveBucketTransferer.isArchived(bucket, bucket.getFormat()));
 	}

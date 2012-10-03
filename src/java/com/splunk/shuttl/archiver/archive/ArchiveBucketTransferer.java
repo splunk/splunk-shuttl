@@ -28,7 +28,6 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
-import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -39,12 +38,12 @@ public class ArchiveBucketTransferer {
 	private final static Logger logger = Logger
 			.getLogger(ArchiveBucketTransferer.class);
 
-	private final TransactionalFileSystem archiveFileSystem;
+	private final ArchiveFileSystem archiveFileSystem;
 	private final PathResolver pathResolver;
 	private final ArchiveBucketSize archiveBucketSize;
 	private final TransactionExecuter transactionExecuter;
 
-	public ArchiveBucketTransferer(TransactionalFileSystem archive,
+	public ArchiveBucketTransferer(ArchiveFileSystem archive,
 			PathResolver pathResolver, ArchiveBucketSize archiveBucketSize,
 			TransactionExecuter transactionExecuter) {
 		this.archiveFileSystem = archive;
@@ -66,8 +65,8 @@ public class ArchiveBucketTransferer {
 		URI tempPath = pathResolver.resolveTempPathForBucket(bucket);
 		logger.info(will("attempting to transfer bucket to archive", "bucket",
 				bucket, "destination", destination));
-		Transaction bucketTransaction = archiveFileSystem
-				.provideBucketPutTransaction(bucket.getURI(), tempPath, destination);
+		Transaction bucketTransaction = Transaction.create(archiveFileSystem,
+				bucket, tempPath, destination);
 		try {
 			transactionExecuter.execute(bucketTransaction);
 		} catch (TransactionException e) {
@@ -96,7 +95,7 @@ public class ArchiveBucketTransferer {
 
 	private List<URI> listPathsForBucketUri(URI bucketUriWithFormat) {
 		try {
-			return archiveFileSystem.listUri(bucketUriWithFormat);
+			return archiveFileSystem.listPath(bucketUriWithFormat);
 		} catch (IOException e) {
 			logIOException(bucketUriWithFormat, e);
 			throw new RuntimeException(e);

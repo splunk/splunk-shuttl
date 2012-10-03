@@ -14,14 +14,21 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.transaction;
 
-import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.model.Bucket;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 
 /**
- * Transactions for putting and getting {@link Bucket}s and their metadata. <br/>
- * TODO: Merge with {@link ArchiveFileSystem}.
+ * 
  */
-public interface TransactionalFileSystem extends TransfersBuckets,
-		TransfersFiles, HasFileStructure, TransactionCleaner {
+public interface TransfersFiles extends PutsFiles, GetsFiles {
 
+}
+
+interface PutsFiles {
+	void putFile(File src, URI temp, URI dst) throws IOException;
+}
+
+interface GetsFiles {
+	void getFile(URI src, File temp, File dst) throws IOException;
 }

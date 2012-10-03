@@ -41,7 +41,8 @@ public class TUtilsFile {
 	 * @see TUtilsFile#createFileWithRandomContent()
 	 */
 	public static File createFileWithRandomContent() {
-		File testFile = createFile();
+		File testFile = createFileInParent(createDirectory(),
+				getUniquelyNamedFileWithPrefix("file-with-content").getName());
 		populateFileWithRandomContent(testFile);
 		return testFile;
 	}

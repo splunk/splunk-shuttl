@@ -27,13 +27,8 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopFileStructure;
-import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopGetTransferer;
-import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopPutTransferer;
-import com.splunk.shuttl.archiver.filesystem.transaction.DirtyGetTransaction;
-import com.splunk.shuttl.archiver.filesystem.transaction.DirtyTransaction;
-import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
+import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.util.UtilsPath;
 
 public class HadoopFileSystemArchive implements ArchiveFileSystem,
@@ -120,16 +115,6 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem,
 		hadoopFileSystem.copyToLocalFile(hadoopPath, localPath);
 	}
 
-	@Override
-	public List<URI> listPath(URI pathToBeListed) throws IOException {
-		Path hadoopPath = createPath(pathToBeListed);
-		FileStatus[] fileStatusOfPath = hadoopFileSystem.listStatus(hadoopPath);
-		if (fileStatusOfPath != null)
-			return new FileStatusBackedList(fileStatusOfPath);
-		else
-			return Collections.emptyList();
-	}
-
 	private Path createPath(URI uri) {
 		return new Path(uri);
 	}
@@ -155,47 +140,65 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem,
 	}
 
 	@Override
+	public List<URI> listPath(URI pathToBeListed) throws IOException {
+		Path hadoopPath = new Path(pathToBeListed);
+		FileStatus[] fileStatusOfPath = hadoopFileSystem.listStatus(hadoopPath);
+		if (fileStatusOfPath != null)
+			return new FileStatusBackedList(fileStatusOfPath);
+		else
+			return Collections.emptyList();
+	}
+
+	@Override
 	public InputStream openFile(URI fileOnArchiveFileSystem) throws IOException {
 		return hadoopFileSystem.open(new Path(fileOnArchiveFileSystem));
 	}
 
 	@Override
-	public List<URI> listUri(URI uri) throws IOException {
-		return listPath(uri);
+	public void putBucket(Bucket bucket, URI temp, URI dst) throws IOException {
+		putFile(bucket.getDirectory(), temp, dst);
 	}
 
 	@Override
-	public Transaction provideBucketPutTransaction(URI from, URI temp, URI to) {
-		return new HadoopPutTransaction(from, temp, to);
+	public void getBucket(Bucket bucket, File temp, File dst) throws IOException {
+		getFile(bucket.getURI(), temp, dst);
 	}
 
 	@Override
-	public Transaction provideBucketGetTransaction(URI from, URI temp, URI to) {
-		return new HadoopGetTransaction(from, temp, to);
+	public void putFile(File src, URI temp, URI dst) throws IOException {
+		Path tempPath = new Path(temp);
+		hadoopFileSystem.delete(tempPath, true);
+		hadoopFileSystem.copyFromLocalFile(new Path(src.toURI()), tempPath);
 	}
 
 	@Override
-	public Transaction provideMetaPutTransaction(URI from, URI temp, URI to) {
-		return new HadoopPutTransaction(from, temp, to);
+	public void getFile(URI src, File temp, File dst) throws IOException {
+		hadoopFileSystem.copyToLocalFile(new Path(src), new Path(temp.toURI()));
 	}
 
 	@Override
-	public Transaction provideMetaGetTransaction(URI from, URI temp, URI to) {
-		return new HadoopGetTransaction(from, temp, to);
+	public void mkdirs(URI uri) throws IOException {
+		mkdirsWithPath(new Path(uri));
 	}
 
-	private class HadoopPutTransaction extends DirtyTransaction {
-
-		public HadoopPutTransaction(URI from, URI remoteTemp, URI to) {
-			super(new HadoopFileStructure(hadoopFileSystem), new HadoopPutTransferer(
-					hadoopFileSystem), from, remoteTemp, to);
-		}
+	private void mkdirsWithPath(Path path) throws IOException {
+		hadoopFileSystem.mkdirs(path);
 	}
 
-	private class HadoopGetTransaction extends DirtyGetTransaction {
-
-		public HadoopGetTransaction(URI from, URI remoteTemp, URI to) {
-			super(new HadoopGetTransferer(hadoopFileSystem), from, remoteTemp, to);
-		}
+	@Override
+	public void rename(URI from, URI to) throws IOException {
+		mkdirsWithPath(new Path(to).getParent());
+		hadoopFileSystem.rename(new Path(from), new Path(to));
 	}
+
+	@Override
+	public void cleanFileTransaction(URI src, URI temp) {
+		// do nothing.
+	}
+
+	@Override
+	public void cleanBucketTransaction(Bucket bucket, URI temp) {
+		// do nothing.
+	}
+
 }

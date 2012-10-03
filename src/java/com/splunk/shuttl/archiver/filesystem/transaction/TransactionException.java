@@ -27,4 +27,8 @@ public class TransactionException extends RuntimeException {
 		super(e);
 	}
 
+	public TransactionException(String message) {
+		super(message);
+	}
+
 }

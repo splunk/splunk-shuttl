@@ -14,30 +14,18 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.transaction;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 
+import com.splunk.shuttl.archiver.model.Bucket;
+
 /**
- * The get transactions can use the uri's as {@link File}.
+ * Transfers buckets from and to somewhere.
  */
-public class DirtyGetTransaction extends DirtyTransaction {
+public interface TransfersBuckets {
 
-	public DirtyGetTransaction(DataTransfer dataTransfer, URI from,
-			URI remoteTemp, URI to) {
-		super(new LocalDirectoryManager(), dataTransfer, from, remoteTemp, to);
-	}
+	void putBucket(Bucket localBucket, URI temp, URI dst) throws IOException;
 
-	private static class LocalDirectoryManager implements HasFileStructure {
-
-		@Override
-		public void mkdirs(URI uri) {
-			// TODO: Make uri's to files. Throw if necessary.
-		}
-
-		@Override
-		public void rename(URI from, URI to) {
-			// TODO: Make uri's to files. Throw if necessary.
-		}
-
-	}
-
+	void getBucket(Bucket remoteBucket, File temp, File dst) throws IOException;
 }

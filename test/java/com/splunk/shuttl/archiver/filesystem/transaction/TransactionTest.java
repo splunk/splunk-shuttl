@@ -24,70 +24,88 @@ import org.mockito.InOrder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.filesystem.transaction.AbstractTransaction.DataTransfer;
+import com.splunk.shuttl.archiver.model.Bucket;
 
 @Test(groups = { "fast-unit" })
-public class AbstractTransactionTest {
+public class TransactionTest {
 
-	private AbstractTransaction transferer;
+	private Transaction transaction;
 	private HasFileStructure hasFileStructure;
 	private URI temp;
-	private DataTransfer dataTransfer;
-	private URI to;
-	private URI local;
+	private DataTransferer dataTransferer;
+	private URI dst;
+	private URI src;
+	private Transaction bucketTransaction;
+	private Bucket bucket;
+	private TransactionCleaner transactionCleaner;
 
 	@BeforeMethod
 	public void setUp() {
 		hasFileStructure = mock(HasFileStructure.class);
-		dataTransfer = mock(DataTransfer.class);
-		local = URI.create("local://file");
+		dataTransferer = mock(DataTransferer.class);
+		transactionCleaner = mock(TransactionCleaner.class);
+		src = URI.create("local://file");
 		temp = URI.create("remote://temp");
-		to = URI.create("remote://to");
-		transferer = new AbstractTransaction(hasFileStructure, dataTransfer, local,
-				temp, to) {
-
-			@Override
-			public void clean() {
-				// do nothing
-			}
-		};
-
+		dst = URI.create("remote://to");
+		bucket = mock(Bucket.class);
+		transaction = new Transaction(hasFileStructure, dataTransferer,
+				transactionCleaner, src, temp, dst);
+		bucketTransaction = new Transaction(hasFileStructure, dataTransferer,
+				transactionCleaner, bucket, temp, dst);
 	}
 
 	public void prepare__createsDirsThenTransfersData() throws IOException {
-		transferer.prepare();
-		InOrder inOrder = inOrder(hasFileStructure, dataTransfer);
+		transaction.prepare();
+		InOrder inOrder = inOrder(hasFileStructure, dataTransferer);
 		inOrder.verify(hasFileStructure).mkdirs(temp);
-		inOrder.verify(dataTransfer).transferData(local, temp, to);
+		inOrder.verify(dataTransferer).transferData(src, temp, dst);
 		inOrder.verifyNoMoreInteractions();
 	}
 
 	public void commit__renamesTempToTheRealDataPath() throws IOException {
-		transferer.commit();
-		verify(hasFileStructure).rename(temp, to);
+		transaction.commit();
+		verify(hasFileStructure).rename(temp, dst);
 	}
 
 	@Test(expectedExceptions = { TransactionException.class })
 	public void prepare_mkdirsThrowsException_throwsAndDoesNotTransferData()
 			throws IOException {
 		doThrow(IOException.class).when(hasFileStructure).mkdirs(any(URI.class));
-		transferer.prepare();
-		verifyZeroInteractions(dataTransfer);
+		transaction.prepare();
+		verifyZeroInteractions(dataTransferer);
 	}
 
 	@Test(expectedExceptions = { TransactionException.class })
 	public void prepare_dataTransferThrowsException_throwsTransactionException()
 			throws IOException {
-		doThrow(IOException.class).when(dataTransfer).transferData(any(URI.class),
+		doThrow(IOException.class).when(dataTransferer).transferData(any(URI.class),
 				any(URI.class), any(URI.class));
-		transferer.prepare();
+		transaction.prepare();
 	}
 
 	@Test(expectedExceptions = { TransactionException.class })
 	public void commit_gotException_throws() throws IOException {
 		doThrow(IOException.class).when(hasFileStructure).rename(any(URI.class),
 				any(URI.class));
-		transferer.commit();
+		transaction.commit();
+	}
+
+	public void prepare_constructedWithBucket_callsTransferBucket()
+			throws IOException {
+		bucketTransaction.prepare();
+		verify(dataTransferer).transferBucket(bucket, temp, dst);
+		verify(dataTransferer, never()).transferData(any(URI.class), any(URI.class),
+				any(URI.class));
+	}
+
+	public void clean_constructedWithBucket_callsCleanBucketTransfer() {
+		bucketTransaction.clean();
+		verify(transactionCleaner).cleanBucketTransaction(bucket, temp);
+	}
+
+	public void clean_constructedWithURI_callsCleanBucketTransfer() {
+		transaction.clean();
+		verify(transactionCleaner).cleanFileTransaction(src, temp);
 	}
 
 }

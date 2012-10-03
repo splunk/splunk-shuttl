@@ -16,20 +16,23 @@ package com.splunk.shuttl.archiver.filesystem.transaction;
 
 import java.net.URI;
 
+import com.splunk.shuttl.archiver.model.Bucket;
+
 /**
- * A {@link Transaction} that does nothing in the clean stage after
- * the transaction.
+ * Cleans transactions.
  */
-public class DirtyTransaction extends AbstractTransaction {
+public interface TransactionCleaner {
 
-	public DirtyTransaction(HasFileStructure hasFileStructure,
-			DataTransfer dataTransfer, URI from, URI remoteTemp, URI to) {
-		super(hasFileStructure, dataTransfer, from, remoteTemp, to);
-	}
+	/**
+	 * Transaction either finished or got aborted. Clean up can be done here. <br/>
+	 * For example: Removing all the files that got transfered or that are left in
+	 * temp.
+	 */
+	void cleanFileTransaction(URI src, URI temp);
 
-	@Override
-	public void clean() {
-		// do nothing.
-	}
-
+	/**
+	 * Pretty much the same as
+	 * {@link TransactionCleaner#cleanFileTransaction(URI, URI)}.
+	 */
+	void cleanBucketTransaction(Bucket bucket, URI temp);
 }
