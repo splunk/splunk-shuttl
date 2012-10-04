@@ -71,10 +71,11 @@ public class ThawLocationProviderTest {
 		assertEquals(bucket.getName(), bucketsLocation.getName());
 	}
 
-	public void getThawTransferLocation_givenTransferLocation_fileIsInTransferLocation() {
+	public void getThawTransferLocation_givenTransferLocation_fileIsInDirWithIndexName() {
 		File transferLoc = thawLocationProvider.getThawTransferLocation(bucket);
-		assertEquals(transferLocation.getAbsolutePath(), transferLoc
-				.getParentFile().getAbsolutePath());
+		File indexDir = new File(transferLocation, bucket.getIndex());
+		assertEquals(indexDir.getAbsolutePath(), transferLoc.getParentFile()
+				.getAbsolutePath());
 	}
 
 	public void getThawTransferLocation_givenTransferLocation_fileHasNameOfBucketForUniquness() {
@@ -85,7 +86,7 @@ public class ThawLocationProviderTest {
 	public void getThawTransferLocation_locationExists_deletesLocationReturningANonExistingDirectory()
 			throws IOException {
 		File transferLoc = thawLocationProvider.getThawTransferLocation(bucket);
-		transferLoc.createNewFile();
+		assertTrue(transferLoc.mkdirs());
 		assertTrue(transferLoc.exists());
 		File secondLocation = thawLocationProvider.getThawTransferLocation(bucket);
 		assertEquals(transferLoc.getAbsolutePath(),

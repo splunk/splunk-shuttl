@@ -60,7 +60,8 @@ public class ThawLocationProvider {
 	 * @return non existing local where the bucket can be transfered.
 	 */
 	public File getThawTransferLocation(Bucket bucket) {
-		File file = new File(transferLocation, bucket.getName());
+		File indexDir = new File(transferLocation, bucket.getIndex());
+		File file = new File(indexDir, bucket.getName());
 		if (file.exists())
 			deleteFile(file);
 		return file;
