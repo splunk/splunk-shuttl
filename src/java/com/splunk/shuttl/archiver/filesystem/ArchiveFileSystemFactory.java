@@ -26,7 +26,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopFileSystemArchive;
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
 
 /**
  * Factory for getting an {@link ArchiveFileSystem}
@@ -99,7 +99,7 @@ public class ArchiveFileSystemFactory {
 
 	private static ArchiveFileSystem createHadoopFileSystem(URI uri) {
 		FileSystem hadoopFs = getHadoopFileSystemSafe(uri);
-		return new HadoopFileSystemArchive(hadoopFs);
+		return new HadoopArchiveFileSystem(hadoopFs);
 	}
 
 	private static FileSystem getHadoopFileSystemSafe(URI uri) {

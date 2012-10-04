@@ -31,12 +31,12 @@ import com.splunk.shuttl.archiver.filesystem.FileOverwriteException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 
-public class HadoopFileSystemArchive implements ArchiveFileSystem,
+public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 		TransactionalFileSystem {
 
 	private final FileSystem hadoopFileSystem;
 
-	public HadoopFileSystemArchive(FileSystem hadoopFileSystem) {
+	public HadoopArchiveFileSystem(FileSystem hadoopFileSystem) {
 		this.hadoopFileSystem = hadoopFileSystem;
 	}
 

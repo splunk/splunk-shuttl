@@ -23,10 +23,10 @@ import org.apache.hadoop.fs.Path;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopFileSystemArchive;
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
-public class HadoopFileSystemArchiveSlowTest {
+public class HadoopArchiveFileSystemSlowTest {
 
 	@Test(groups = { "end-to-end" })
 	@Parameters(value = { "hadoop.host", "hadoop.port" })
@@ -40,7 +40,7 @@ public class HadoopFileSystemArchiveSlowTest {
 		Path otherRoot = new Path(simpleClassName + "/2/foo/dir")
 				.makeQualified(hadoopFileSystem);
 
-		HadoopFileSystemArchive realFileStructure = new HadoopFileSystemArchive(
+		HadoopArchiveFileSystem realFileStructure = new HadoopArchiveFileSystem(
 				hadoopFileSystem);
 		try {
 			hadoopFileSystem.mkdirs(path);
