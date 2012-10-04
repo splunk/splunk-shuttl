@@ -20,7 +20,7 @@ import java.net.URI;
 
 import org.testng.annotations.Test;
 
-@Test(groups = { "fast-unit" }, enabled = false)
+@Test(groups = { "fast-unit" })
 public class GlacierArchiveFileSystemFactoryTest {
 
 	private static final String ID = "id";

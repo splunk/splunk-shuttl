@@ -16,6 +16,8 @@ package com.splunk.shuttl.archiver.filesystem.glacier;
 
 import java.net.URI;
 
+import com.splunk.shuttl.archiver.util.GroupRegex;
+
 /**
  * Construction logic for creating {@link GlacierArchiveFileSystem}
  */
@@ -49,6 +51,11 @@ public class GlacierArchiveFileSystemFactory {
 		}
 
 		public CredentialsParser parse() {
+			GroupRegex regex = new GroupRegex(LEGAL_URI_REGEX, uri.toString());
+			id = regex.getValue(1);
+			secret = regex.getValue(2);
+			endpoint = regex.getValue(3);
+			vault = regex.getValue(4);
 			return this;
 		}
 
