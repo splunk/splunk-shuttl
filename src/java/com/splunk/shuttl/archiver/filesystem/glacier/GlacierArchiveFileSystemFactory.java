@@ -33,7 +33,7 @@ public class GlacierArchiveFileSystemFactory {
 	 */
 	public static GlacierArchiveFileSystem create(URI uri) {
 		CredentialsParser parser = new CredentialsParser(uri).parse();
-		return new GlacierArchiveFileSystem(parser.id, parser.secret,
+		return new GlacierArchiveFileSystem(null, parser.id, parser.secret,
 				parser.endpoint, parser.vault);
 	}
 
