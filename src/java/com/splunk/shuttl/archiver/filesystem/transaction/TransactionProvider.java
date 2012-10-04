@@ -48,7 +48,7 @@ public class TransactionProvider {
 	}
 
 	private static TransactionalFileSystem getLocalTransactionalFileSystem() {
-		return ArchiveFileSystemFactory.getForUriToTmpDir(URI.create("file:/"));
+		return ArchiveFileSystemFactory.getWithUri(URI.create("file:/"));
 	}
 
 	public static Transaction createPut(TransactionalFileSystem tfs,

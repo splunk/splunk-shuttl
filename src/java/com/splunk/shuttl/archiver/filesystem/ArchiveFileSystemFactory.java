@@ -26,6 +26,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
+import com.splunk.shuttl.archiver.filesystem.glacier.GlacierArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
 
 /**
@@ -43,6 +44,7 @@ public class ArchiveFileSystemFactory {
 		supportedUriSchemas.add("hdfs");
 		supportedUriSchemas.add("s3");
 		supportedUriSchemas.add("s3n");
+		supportedUriSchemas.add("glacier");
 	}
 
 	/**
@@ -69,7 +71,7 @@ public class ArchiveFileSystemFactory {
 	 */
 	public static ArchiveFileSystem getWithConfiguration(
 			ArchiveConfiguration config) {
-		return getForUriToTmpDir(config.getArchivingRoot());
+		return getWithUri(config.getArchivingRoot());
 	}
 
 	/**
@@ -80,7 +82,7 @@ public class ArchiveFileSystemFactory {
 	 * 
 	 * @return
 	 */
-	public static ArchiveFileSystem getForUriToTmpDir(URI uri) {
+	public static ArchiveFileSystem getWithUri(URI uri) {
 		if (!supportedUriSchemas.contains(uri.getScheme()))
 			throw new UnsupportedUriException("Supported Uri schemas are: "
 					+ supportedUriSchemas);
@@ -92,6 +94,8 @@ public class ArchiveFileSystemFactory {
 		if (uri.getScheme().equals("file") || uri.getScheme().equals("hdfs")
 				|| uri.getScheme().equals("s3") || uri.getScheme().equals("s3n"))
 			return createHadoopFileSystem(uri);
+		else if (uri.getScheme().equals("glacier"))
+			return GlacierArchiveFileSystemFactory.create(uri);
 
 		throw new IllegalStateException(
 				"Supported URI schemas should return a ArchiveFileSystem.");

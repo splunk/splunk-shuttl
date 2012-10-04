@@ -21,6 +21,9 @@ import java.net.URI;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.filesystem.glacier.GlacierArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.glacier.GlacierArchiveFileSystemFactoryTest;
+
 public class ArchiveFileSystemFactoryTest {
 
 	@Test(groups = { "fast-unit" })
@@ -35,25 +38,31 @@ public class ArchiveFileSystemFactoryTest {
 	}
 
 	@Test(groups = { "slow-unit" })
-	public void getForUriToTmpDir_givenLocalFileURI_nonNullFileSystem() {
+	public void getWithUri_givenLocalFileURI_nonNullFileSystem() {
 		URI localUri = URI.create("file:/tmp");
 		ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
-				.getForUriToTmpDir(localUri);
+				.getWithUri(localUri);
 		assertNotNull(fileSystem);
 	}
 
 	@Test(groups = { "end-to-end" })
 	@Parameters({ "hadoop.host", "hadoop.port" })
-	public void getForUriToTmpDir_givenHdfsUri_nonNullFileSystem(String host,
-			String port) {
+	public void getWithUri_givenHdfsUri_nonNullFileSystem(String host, String port) {
 		URI localUri = URI.create("hdfs://" + host + ":" + port + "/tmp");
 		ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
-				.getForUriToTmpDir(localUri);
+				.getWithUri(localUri);
 		assertNotNull(fileSystem);
 	}
 
 	@Test(groups = { "fast-unit" }, expectedExceptions = { UnsupportedUriException.class })
-	public void getForUriToTmpDir_givenUnsupportedUri_throwUnsupportedUriException() {
-		ArchiveFileSystemFactory.getForUriToTmpDir(URI.create("unsupported:/uri"));
+	public void getWithUri_givenUnsupportedUri_throwUnsupportedUriException() {
+		ArchiveFileSystemFactory.getWithUri(URI.create("unsupported:/uri"));
+	}
+
+	@Test(groups = { "fast-unit" })
+	public void getWithUri_givenGlacierUri_getsGlacierFS() {
+		ArchiveFileSystem fs = ArchiveFileSystemFactory
+				.getWithUri(GlacierArchiveFileSystemFactoryTest.getValidUri());
+		assertTrue(fs instanceof GlacierArchiveFileSystem);
 	}
 }

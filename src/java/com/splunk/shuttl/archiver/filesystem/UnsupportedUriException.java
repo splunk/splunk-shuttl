@@ -18,7 +18,7 @@ import java.net.URI;
 
 /**
  * Thrown when method does not support the uri.</br> See
- * {@link ArchiveFileSystemFactory#getForUriToTmpDir(URI)}
+ * {@link ArchiveFileSystemFactory#getWithUri(URI)}
  */
 public class UnsupportedUriException extends RuntimeException {
 
