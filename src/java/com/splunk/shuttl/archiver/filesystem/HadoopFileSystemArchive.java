@@ -16,7 +16,6 @@
 package com.splunk.shuttl.archiver.filesystem;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -29,114 +28,14 @@ import org.apache.hadoop.fs.Path;
 
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.util.UtilsPath;
 
 public class HadoopFileSystemArchive implements ArchiveFileSystem,
 		TransactionalFileSystem {
 
-	private final Path atomicPutTmpPath;
 	private final FileSystem hadoopFileSystem;
 
-	public HadoopFileSystemArchive(FileSystem hadoopFileSystem, Path path) {
+	public HadoopFileSystemArchive(FileSystem hadoopFileSystem) {
 		this.hadoopFileSystem = hadoopFileSystem;
-		this.atomicPutTmpPath = path;
-	}
-
-	@Override
-	public void putFile(File file, URI remoteUri) throws FileNotFoundException,
-			FileOverwriteException, IOException {
-		throwIfFileDoNotExist(file);
-		Path hadoopPath = createPath(remoteUri);
-		throwIfRemotePathAlreadyExist(hadoopPath);
-
-		hadoopFileSystem.copyFromLocalFile(createPath(file), hadoopPath);
-	}
-
-	@Override
-	public void putFileAtomically(File file, URI remoteUri)
-			throws FileNotFoundException, FileOverwriteException, IOException {
-		Path hadoopPath = createPath(remoteUri);
-		throwIfRemotePathAlreadyExist(hadoopPath);
-		Path tmpLocation = putFileToTmpOverwritingOldFiles(file, remoteUri);
-		move(tmpLocation, hadoopPath);
-	}
-
-	/**
-	 * Do NOT call nor override this method outside this class.It's meant to be
-	 * private but is package private for testing purposes. If you want to expose
-	 * this method make it public or protected!
-	 */
-	/* package private */void deletePathRecursivly(Path fileOnArchiveFileSystem)
-			throws IOException {
-		hadoopFileSystem.delete(fileOnArchiveFileSystem, true);
-	}
-
-	/**
-	 * Do NOT call nor override this method outside this class.It's meant to be
-	 * private but is package private for testing purposes. If you want to expose
-	 * this method make it public or protected!
-	 */
-	/* package private */void move(Path src, Path dst) throws IOException {
-		hadoopFileSystem.mkdirs(dst.getParent());
-		hadoopFileSystem.rename(src, dst);
-
-	}
-
-	/**
-	 * Do NOT call nor override this method outside this class.It's meant to be
-	 * private but is package private for testing purposes. If you want to expose
-	 * this method make it public or protected!
-	 * 
-	 * The specified file will be copied from local file system in to the tmp
-	 * directory on hadoop. The tmp directory will be the base and the full path
-	 * of the file on hadoop will contains the specified URI.
-	 */
-	/* package private */Path putFileToTmpOverwritingOldFiles(File file,
-			URI remoteUri) throws FileNotFoundException, IOException {
-		Path hadoopPath = UtilsPath.createPathByAppending(atomicPutTmpPath,
-				createPath(remoteUri));
-		deletePathRecursivly(hadoopPath);
-		try {
-			putFile(file, hadoopPath.toUri());
-		} catch (FileOverwriteException e) {
-			throw new IOException("The old tmp path was not "
-					+ "deleted. This should not happen!", e);
-		}
-		return hadoopPath;
-	}
-
-	@Override
-	public void getFile(File fileOnLocalFileSystem, URI fileOnArchiveFileSystem)
-			throws FileNotFoundException, FileOverwriteException, IOException {
-		throwExceptionIfFileAlreadyExist(fileOnLocalFileSystem);
-		Path localPath = createPath(fileOnLocalFileSystem);
-		Path hadoopPath = createPath(fileOnArchiveFileSystem);
-		// FileNotFoundException is already thrown by copyToLocalFile.
-		hadoopFileSystem.copyToLocalFile(hadoopPath, localPath);
-	}
-
-	private Path createPath(URI uri) {
-		return new Path(uri);
-	}
-
-	private Path createPath(File file) {
-		return createPath(file.toURI());
-	}
-
-	private void throwIfFileDoNotExist(File file) throws FileNotFoundException {
-		if (!file.exists())
-			throw new FileNotFoundException(file.toString() + " doesn't exist.");
-	}
-
-	private void throwExceptionIfFileAlreadyExist(File file)
-			throws FileOverwriteException {
-		if (file.exists())
-			throw new FileOverwriteException(file.toString() + " already exist.");
-	}
-
-	private void throwIfRemotePathAlreadyExist(Path path) throws IOException {
-		if (hadoopFileSystem.exists(path))
-			throw new FileOverwriteException(path.toString() + " already exist.");
 	}
 
 	@Override
@@ -166,6 +65,8 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem,
 
 	@Override
 	public void putFile(File src, URI temp, URI dst) throws IOException {
+		if (hadoopFileSystem.exists(new Path(dst)))
+			throw new FileOverwriteException();
 		Path tempPath = new Path(temp);
 		hadoopFileSystem.delete(tempPath, true);
 		hadoopFileSystem.copyFromLocalFile(new Path(src.toURI()), tempPath);
@@ -173,6 +74,8 @@ public class HadoopFileSystemArchive implements ArchiveFileSystem,
 
 	@Override
 	public void getFile(URI src, File temp, File dst) throws IOException {
+		if (dst.exists())
+			throw new FileOverwriteException();
 		hadoopFileSystem.copyToLocalFile(new Path(src), new Path(temp.toURI()));
 	}
 

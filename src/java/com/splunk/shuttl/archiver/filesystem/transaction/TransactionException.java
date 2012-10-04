@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.transaction;
 
-import java.io.IOException;
 
 /**
  * Thrown when a {@link Transaction} gets an exception.
@@ -23,7 +22,7 @@ public class TransactionException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	public TransactionException(IOException e) {
+	public TransactionException(Exception e) {
 		super(e);
 	}
 

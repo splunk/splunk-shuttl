@@ -181,4 +181,11 @@ public class PathResolverTest {
 				URI.create(getArchivePathUpToFormat() + "/archive_meta/bucket.size"),
 				uritoFileWithBucketSize);
 	}
+
+	public void resolveTempPathForBucketSize_bucket_livesInTempMetadataFolderOfTempBucketPath() {
+		URI temp = pathResolver.resolveTempPathForBucketSize(bucket);
+		assertEquals(
+				URI.create(pathResolver.resolveTempPathForBucket(bucket).toString()
+						+ "/archive_meta/bucket.size"), temp);
+	}
 }

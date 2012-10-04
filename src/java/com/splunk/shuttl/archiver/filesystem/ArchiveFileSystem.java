@@ -15,8 +15,6 @@
 
 package com.splunk.shuttl.archiver.filesystem;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -30,63 +28,6 @@ import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem
  * 
  */
 public interface ArchiveFileSystem extends TransactionalFileSystem {
-
-	/**
-	 * Puts the specified file on local file system to the archiving file system.
-	 * 
-	 * @param fileOnLocalFileSystem
-	 *          An existing file on the local file system.
-	 * @param fileOnArchiveFileSystem
-	 *          Path pointing for an non exiting file on the archive file system.
-	 * 
-	 * @throws FileNotFoundException
-	 *           If specified file on the local file system doesn't exist.
-	 * @throws FileOverwriteException
-	 *           If there is already a file on the specified path.
-	 * @throws IOException
-	 *           If there was any other problem with the operation.
-	 */
-	void putFile(File fileOnLocalFileSystem, URI fileOnArchiveFileSystem)
-			throws FileNotFoundException, FileOverwriteException, IOException;
-
-	/**
-	 * Puts the specified file on local file system to the archiving file system
-	 * atomically. This method will first copy the specified files to a temporary
-	 * place and then rename it to correct path.
-	 * 
-	 * @param fileOnLocalFileSystem
-	 *          An existing file on the local file system.
-	 * @param fileOnArchiveFileSystem
-	 *          Path pointing for an non exiting file on the archive file system.
-	 * 
-	 * @throws FileNotFoundException
-	 *           If specified file on the local file system doesn't exist.
-	 * @throws FileOverwriteException
-	 *           If there is already a file on the specified path.
-	 * @throws IOException
-	 *           If there was any other problem with the operation.
-	 */
-	void putFileAtomically(File fileOnLocalFileSystem, URI fileOnArchiveFileSystem)
-			throws FileNotFoundException, FileOverwriteException, IOException;
-
-	/**
-	 * Retrieves the file from specified path on archiving file system and stores
-	 * it to the specified file on local file system.
-	 * 
-	 * @param fileOnLocalFileSystem
-	 *          A non exiting file on the local file system.
-	 * @param fileOnArchiveFileSystem
-	 *          A path to an existing file on the archiving file system.
-	 * @throws FileNotFoundException
-	 *           If there isn't a file on the archiving file system with the
-	 *           specified path.
-	 * @throws FileOverwriteException
-	 *           If there is already a file on the local file system.
-	 * @throws IOException
-	 *           If there was any other problem with the operation.
-	 */
-	void getFile(File fileOnLocalFileSystem, URI fileOnArchiveFileSystem)
-			throws FileNotFoundException, FileOverwriteException, IOException;
 
 	/**
 	 * Lists the contents of the specified path.

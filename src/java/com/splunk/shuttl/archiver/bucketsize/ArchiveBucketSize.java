@@ -15,15 +15,14 @@
 package com.splunk.shuttl.archiver.bucketsize;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URI;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.filesystem.FileOverwriteException;
+import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -40,6 +39,7 @@ public class ArchiveBucketSize {
 	private final PathResolver pathResolver;
 	private final BucketSizeIO bucketSizeIO;
 	private final ArchiveFileSystem archiveFileSystem;
+	private TransactionProvider transactionProvider;
 
 	/**
 	 * @see ArchiveBucketSize
@@ -60,26 +60,14 @@ public class ArchiveBucketSize {
 	}
 
 	/**
-	 * Put metadata on the {@link ArchiveFileSystem} about a bucket's size.
+	 * @return a transaction for putting bucket size on the archiveFileSystem.
 	 */
-	public void putSize(Bucket bucket) {
+	public Transaction getBucketSizeTransaction(Bucket bucket) {
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
+		URI temp = pathResolver.resolveTempPathForBucketSize(bucket);
 		URI bucketSizeFilePath = pathResolver.getBucketSizeFileUriForBucket(bucket);
-		try {
-			archiveFileSystem.putFileAtomically(fileWithBucketSize,
-					bucketSizeFilePath);
-			// TODO: This is duplication between ArchiveBucketTransferer. There should
-			// exist a ArchiveTransferer?
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		} catch (FileOverwriteException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
+		return TransactionProvider.createPut(archiveFileSystem,
+				fileWithBucketSize.toURI(), temp, bucketSizeFilePath);
 	}
 
 	/**

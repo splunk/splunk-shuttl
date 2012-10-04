@@ -24,6 +24,14 @@ public class TransactionExecuter {
 	 * called last, even if any other step throws exception.
 	 */
 	public void execute(Transaction transaction) {
+		TransactionExecuter.executeTransaction(transaction);
+	}
+
+	/**
+	 * Execute a transaction in the right order. Makes sure that clean is always
+	 * called last, even if any other step throws exception.
+	 */
+	public static void executeTransaction(Transaction transaction) {
 		try {
 			transaction.prepare();
 			transaction.commit();

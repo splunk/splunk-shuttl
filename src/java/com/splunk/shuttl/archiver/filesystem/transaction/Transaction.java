@@ -38,18 +38,15 @@ public class Transaction {
 	private final URI remoteTemp;
 	private final URI dst;
 
-	public Transaction(HasFileStructure hasFileStructure,
-			DataTransferer dataTransfer, TransactionCleaner transactionCleaner,
-			URI src, URI remoteTemp, URI dst) {
-		this(hasFileStructure, dataTransfer, transactionCleaner, null, src,
-				remoteTemp, dst);
+	protected Transaction(TransactionalFileSystem reciever,
+			DataTransferer dataTransferer, URI src, URI remoteTemp, URI dst) {
+		this(reciever, dataTransferer, reciever, null, src, remoteTemp, dst);
 	}
 
-	protected Transaction(HasFileStructure hasFileStructure,
-			DataTransferer dataTransfer, TransactionCleaner transactionCleaner,
-			Bucket bucket, URI remoteTemp, URI dst) {
-		this(hasFileStructure, dataTransfer, transactionCleaner, bucket, bucket
-				.getURI(), remoteTemp, dst);
+	protected Transaction(TransactionalFileSystem reciever,
+			DataTransferer dataTransferer, Bucket bucket, URI remoteTemp, URI dst) {
+		this(reciever, dataTransferer, reciever, bucket, bucket.getURI(),
+				remoteTemp, dst);
 	}
 
 	private Transaction(HasFileStructure hasFileStructure,
@@ -76,7 +73,7 @@ public class Transaction {
 	private void makeDirectories() {
 		try {
 			hasFileStructure.mkdirs(remoteTemp);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(did("Tried making directories up to: " + remoteTemp, e,
 					"To make directories.", "uri", remoteTemp));
 			throw new TransactionException(e);
@@ -137,7 +134,7 @@ public class Transaction {
 	}
 
 	/**
-	 * Generated
+	 * Generated ->
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -171,15 +168,19 @@ public class Transaction {
 		return true;
 	}
 
-	public static Transaction create(TransactionalFileSystem tfs, Bucket bucket,
-			URI temp, URI dst) {
-		return new Transaction(tfs, new DataTransferer(tfs, tfs), tfs, bucket,
-				temp, dst);
+	public Bucket getBucket() {
+		return bucket;
 	}
 
-	public static Transaction create(TransactionalFileSystem tfs, URI src,
-			URI temp, URI dst) {
-		return new Transaction(tfs, new DataTransferer(tfs, tfs), tfs, src, temp,
-				dst);
+	public URI getSrc() {
+		return src;
+	}
+
+	public URI getRemoteTemp() {
+		return remoteTemp;
+	}
+
+	public URI getDst() {
+		return dst;
 	}
 }

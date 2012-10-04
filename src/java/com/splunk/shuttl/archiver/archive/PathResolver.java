@@ -29,6 +29,8 @@ import com.splunk.shuttl.archiver.util.UtilsURI;
 public class PathResolver {
 
 	public static final char SEPARATOR = '/';
+	private static final String bucketSizeSuffix = SEPARATOR + "archive_meta"
+			+ SEPARATOR + "bucket.size";
 
 	private final ArchiveConfiguration configuration;
 
@@ -143,8 +145,7 @@ public class PathResolver {
 	 *         information.
 	 */
 	public URI getBucketSizeFileUriForBucket(Bucket bucket) {
-		return URI.create(resolveArchivePath(bucket).toString() + SEPARATOR
-				+ "archive_meta" + SEPARATOR + "bucket.size");
+		return URI.create(resolveArchivePath(bucket).toString() + bucketSizeSuffix);
 	}
 
 	/**
@@ -157,4 +158,12 @@ public class PathResolver {
 				+ resolveArchivePath(bucket).getPath());
 	}
 
+	/**
+	 * @return {@link URI} to a temporary location for the bucket size. @see
+	 *         {@link PathResolver#resolveTempPathForBucketSize(Bucket)}.
+	 */
+	public URI resolveTempPathForBucketSize(Bucket bucket) {
+		URI tempPathForBucket = resolveTempPathForBucket(bucket);
+		return URI.create(tempPathForBucket.toString() + bucketSizeSuffix);
+	}
 }

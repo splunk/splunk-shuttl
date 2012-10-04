@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
@@ -69,7 +68,7 @@ public class ArchiveFileSystemFactory {
 	 */
 	public static ArchiveFileSystem getWithConfiguration(
 			ArchiveConfiguration config) {
-		return getForUriToTmpDir(config.getTmpDirectory());
+		return getForUriToTmpDir(config.getArchivingRoot());
 	}
 
 	/**
@@ -99,7 +98,7 @@ public class ArchiveFileSystemFactory {
 
 	private static ArchiveFileSystem createHadoopFileSystem(URI uri) {
 		FileSystem hadoopFs = getHadoopFileSystemSafe(uri);
-		return new HadoopFileSystemArchive(hadoopFs, new Path(uri.getPath()));
+		return new HadoopFileSystemArchive(hadoopFs);
 	}
 
 	private static FileSystem getHadoopFileSystemSafe(URI uri) {

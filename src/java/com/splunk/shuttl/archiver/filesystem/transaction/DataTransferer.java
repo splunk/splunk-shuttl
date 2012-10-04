@@ -51,17 +51,17 @@ public class DataTransferer {
 	public void transferBucket(Bucket src, URI remoteTemp, URI dst)
 			throws IOException {
 		throwIfSchemesDiffer(remoteTemp, dst);
-		if (!src.isRemote())
-			bucketTransferer.putBucket(src, remoteTemp, dst);
-		else
+		if (src.isRemote())
 			bucketTransferer.getBucket(src, new File(remoteTemp), new File(dst));
+		else
+			bucketTransferer.putBucket(src, remoteTemp, dst);
 	}
 
 	private void throwIfSchemesDiffer(URI remoteTemp, URI dst) {
 		if (schemesDiffer(remoteTemp, dst))
 			throw new TransactionException(
-			"Remote temp URI and destination URI must be the same. Temp: "
-					+ remoteTemp + ", Destination: " + dst);
+					"Remote temp URI and destination URI must be the same. Temp: "
+							+ remoteTemp + ", Destination: " + dst);
 	}
 
 	private boolean schemesDiffer(URI remoteTemp, URI dst) {

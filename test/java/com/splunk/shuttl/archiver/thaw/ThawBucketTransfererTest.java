@@ -26,6 +26,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -38,40 +40,31 @@ public class ThawBucketTransfererTest {
 	ArchiveFileSystem archiveFileSystem;
 	ThawLocationProvider thawLocationProvider;
 	BucketFactory bucketFactory;
+	private TransactionExecuter transactionExecuter;
 
 	@BeforeMethod
 	public void setUp() {
-		bucket = TUtilsBucket.createBucket();
+		bucket = TUtilsBucket.createRemoteBucket();
 		thawLocationProvider = mock(ThawLocationProvider.class);
 		archiveFileSystem = mock(ArchiveFileSystem.class);
 		bucketFactory = mock(BucketFactory.class);
+		transactionExecuter = mock(TransactionExecuter.class);
 		bucketTransferer = new ThawBucketTransferer(thawLocationProvider,
-				archiveFileSystem, bucketFactory);
+				archiveFileSystem, bucketFactory, transactionExecuter);
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void _givenBucket_transferBucketFromArchiveToLocationThatIsNotThawLocation()
+	public void _givenBucket_transferBucketByExecutingATransaction()
 			throws IOException {
-		stub(thawLocationProvider.getLocationInThawForBucket(bucket)).toReturn(
-				createDirectory());
-		File transferDirectory = createDirectory();
-		when(thawLocationProvider.getThawTransferLocation(bucket)).thenReturn(
-				transferDirectory);
+		File temp = createDirectory();
+		when(thawLocationProvider.getThawTransferLocation(bucket)).thenReturn(temp);
+		File dst = createDirectory();
+		when(thawLocationProvider.getLocationInThawForBucket(bucket)).thenReturn(
+				dst);
 		bucketTransferer.transferBucketToThaw(bucket);
-
-		verify(archiveFileSystem).getFile(transferDirectory, bucket.getURI());
-	}
-
-	public void _whenArchiveFileSystemThrowsIOException_keepThrowing()
-			throws IOException {
-		doThrow(IOException.class).when(archiveFileSystem).getFile(any(File.class),
-				eq(bucket.getURI()));
-		try {
-			bucketTransferer.transferBucketToThaw(bucket);
-			fail();
-		} catch (IOException e) {
-			// We should come here instead of the fail call.
-		}
+		verify(transactionExecuter).execute(
+				eq(TransactionProvider.createPut(archiveFileSystem, bucket,
+						temp.toURI(), dst.toURI())));
 	}
 
 	public void _givenSuccessfulTransfer_returnBucketTransferedBucketOnLocalDisk()

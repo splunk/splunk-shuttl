@@ -40,10 +40,11 @@ public class HadoopFileSystemArchiveSlowTest {
 				.makeQualified(hadoopFileSystem);
 
 		HadoopFileSystemArchive realFileStructure = new HadoopFileSystemArchive(
-				hadoopFileSystem, new Path("/"));
+				hadoopFileSystem);
 		try {
 			hadoopFileSystem.mkdirs(path);
 			assertTrue(hadoopFileSystem.exists(path));
+			hadoopFileSystem.delete(otherRoot, true);
 			assertFalse(hadoopFileSystem.exists(otherRoot));
 
 			// Test

@@ -17,9 +17,7 @@ package com.splunk.shuttl.archiver.bucketsize;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -30,6 +28,8 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
@@ -41,6 +41,7 @@ public class BucketSizeIOFunctionalTest {
 	private ArchiveFileSystem archiveFileSystem;
 	private PathResolver pathResolver;
 	private ArchiveConfiguration localConfig;
+	private ArchiveBucketSize archiveBucketSize;
 
 	@BeforeMethod
 	public void setUp() {
@@ -50,6 +51,8 @@ public class BucketSizeIOFunctionalTest {
 		pathResolver = new PathResolver(localConfig);
 		bucketSizeIO = new BucketSizeIO(archiveFileSystem,
 				new LocalFileSystemPaths(createDirectory().getAbsolutePath()));
+		archiveBucketSize = new ArchiveBucketSize(pathResolver, bucketSizeIO,
+				archiveFileSystem);
 	}
 
 	@AfterMethod
@@ -60,16 +63,14 @@ public class BucketSizeIOFunctionalTest {
 	public void BucketSizeIO_givenHadoopFileSystem_putsFileWithSizeAndReadsIt()
 			throws IOException {
 		Bucket bucket = TUtilsBucket.createRealBucket();
-		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
 		long bucketSize = bucket.getSize();
-		URI uriForFileWithBucketSize = pathResolver
-				.getBucketSizeFileUriForBucket(bucket);
 
-		archiveFileSystem.putFileAtomically(fileWithBucketSize,
-				uriForFileWithBucketSize);
+		Transaction bucketSizeTransaction = archiveBucketSize
+				.getBucketSizeTransaction(bucket);
+		TransactionExecuter.executeTransaction(bucketSizeTransaction);
 
 		long remotelyReadSize = bucketSizeIO
-				.readSizeFromRemoteFile(uriForFileWithBucketSize);
+				.readSizeFromRemoteFile(bucketSizeTransaction.getDst());
 		assertEquals(bucketSize, remotelyReadSize);
 	}
 

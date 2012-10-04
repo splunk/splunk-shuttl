@@ -28,6 +28,7 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -65,8 +66,17 @@ public class ArchiveBucketTransferer {
 		URI tempPath = pathResolver.resolveTempPathForBucket(bucket);
 		logger.info(will("attempting to transfer bucket to archive", "bucket",
 				bucket, "destination", destination));
-		Transaction bucketTransaction = Transaction.create(archiveFileSystem,
-				bucket, tempPath, destination);
+		Transaction bucketTransaction = TransactionProvider.createPut(
+				archiveFileSystem, bucket, tempPath, destination);
+
+		// TODO: Merge the bucket transaction and the bucketsize transaction. They
+		// should be able to be run at once with
+		// transactionExecuter.execute(Transaction... transactions)
+		bucketTransaction(bucket, bucketTransaction);
+		bucketSizeTransaction(bucket);
+	}
+
+	private void bucketTransaction(Bucket bucket, Transaction bucketTransaction) {
 		try {
 			transactionExecuter.execute(bucketTransaction);
 		} catch (TransactionException e) {
@@ -74,7 +84,17 @@ public class ArchiveBucketTransferer {
 					"To transfer the bucket to the archive.", "bucket", bucket));
 			throw new FailedToArchiveBucketException(e);
 		}
-		archiveBucketSize.putSize(bucket);
+	}
+
+	private void bucketSizeTransaction(Bucket bucket) {
+		try {
+			transactionExecuter.execute(archiveBucketSize
+					.getBucketSizeTransaction(bucket));
+		} catch (TransactionException e) {
+			logger.error(did("Tried to transactionally transfer"
+					+ " the bucketSize metadata to the archive.", e,
+					"The transaction to complete.", "bucket", bucket));
+		}
 	}
 
 	/**
