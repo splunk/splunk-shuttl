@@ -37,6 +37,32 @@ public class GlacierArchiveFileSystemFactoryTest {
 		assertEquals(VAULT, glacier.getVault());
 	}
 
+	@Test(expectedExceptions = { InvalidGlacierUriException.class })
+	public void _givenNoId_throws() {
+		testMissingUriPart(ID);
+	}
+
+	private void testMissingUriPart(String uriPart) {
+		String noId = getValidUri().toString().replaceAll(uriPart, "");
+		assertFalse(noId.contains(uriPart));
+		GlacierArchiveFileSystemFactory.create(URI.create(noId));
+	}
+
+	@Test(expectedExceptions = { InvalidGlacierUriException.class })
+	public void _givenNoSecret_throws() {
+		testMissingUriPart(SECRET);
+	}
+
+	@Test(expectedExceptions = { InvalidGlacierUriException.class })
+	public void _givenNoEndpoint_throws() {
+		testMissingUriPart(ENDPOINT);
+	}
+
+	@Test(expectedExceptions = { InvalidGlacierUriException.class })
+	public void _givenNoVault_throws() {
+		testMissingUriPart(VAULT);
+	}
+
 	/**
 	 * @return valid uri for creating a {@link GlacierArchiveFileSystem}
 	 */
