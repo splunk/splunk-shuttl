@@ -19,6 +19,8 @@ import static org.testng.Assert.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
+
 @Test(groups = { "fast-unit" })
 public class BucketNameTest {
 
@@ -64,13 +66,13 @@ public class BucketNameTest {
 		assertEquals(dbWithNumber, bucketName.getDB());
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getDB_givenEmptyDB_throwIllegalBucketNameException() {
 		bucketName = getBucketName("", earliest, latest, index);
 		bucketName.getDB();
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getDB_givenDBWithUnderscores_throwIllegalBucketNameException() {
 		String db = "d_b";
 		bucketName = getBucketName(db, earliest, latest, index);
@@ -82,13 +84,13 @@ public class BucketNameTest {
 		assertEquals(0, bucketName.getEarliest());
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getEarliest_givenLettersInsteadOfNumbersForEarliest_throwIllegalBucketNameException() {
 		bucketName = getBucketName(db, "lettersInsteadOfNumbers", latest, index);
 		bucketName.getEarliest();
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getEarliest_givenEmptyEarliest_throwIllegalBucketNameException() {
 		getBucketName(db, "", latest, index).getEarliest();
 	}
@@ -98,13 +100,13 @@ public class BucketNameTest {
 		assertEquals(0, bucketName.getLatest());
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getLatest_givenLettersForLatest_throwIllegalBucketNameException() {
 		bucketName = getBucketName(db, earliest, "lettersInsteadOfNumbers", index);
 		bucketName.getLatest();
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getLatest_givenEmptyLatest_throwIllegalBucketNameException() {
 		getBucketName(db, earliest, "", index).getLatest();
 	}
@@ -115,7 +117,7 @@ public class BucketNameTest {
 		assertEquals(index, bucketName.getIndex());
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getIndex_givenEmptyIndex_throwIllegalBucketNameException() {
 		getBucketName(db, earliest, latest, "").getIndex();
 	}

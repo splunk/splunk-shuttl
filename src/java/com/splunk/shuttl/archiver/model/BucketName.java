@@ -14,19 +14,13 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.model;
 
-import static com.splunk.shuttl.archiver.LogFormatter.*;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.log4j.Logger;
+import com.splunk.shuttl.archiver.util.GroupRegex;
+import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
 
 /**
  * Bucket name with db-name, earliest time, latest time and bucket index.
  */
 public class BucketName {
-
-	private final static Logger logger = Logger.getLogger(BucketName.class);
 
 	public static final String LEGAL_NAME_REGEX = "([A-Za-z0-9]+?)_(\\d+?)_(\\d+?)_(.+)";
 
@@ -37,74 +31,54 @@ public class BucketName {
 
 	private final String name;
 
+	private GroupRegex groupRegex;
+
 	/**
 	 * @param name
 	 *          of the bucket as a string.
 	 */
 	public BucketName(String name) {
 		this.name = name;
+		this.groupRegex = new GroupRegex(LEGAL_NAME_REGEX, name);
 	}
 
 	/**
-	 * Throws {@link IllegalBucketNameException} if name was not valid to get db.
+	 * Throws {@link IllegalRegexGroupException} if name was not valid to get db.
 	 * 
 	 * @return db value of the {@link Bucket}'s name.
 	 */
 	public String getDB() {
-		return getRegexValue(DB_GROUP);
+		return groupRegex.getValue(DB_GROUP);
 	}
 
 	/**
-	 * Throws {@link IllegalBucketNameException} if name was not valid to get
+	 * Throws {@link IllegalRegexGroupException} if name was not valid to get
 	 * earliest.
 	 * 
 	 * @return earliest time of the {@link Bucket}'s name.
 	 */
 	public long getEarliest() {
-		return Long.parseLong(getRegexValue(EARLIEST_GROUP));
+		return Long.parseLong(groupRegex.getValue(EARLIEST_GROUP));
 	}
 
 	/**
-	 * Throws {@link IllegalBucketNameException} if name was not valid to get
+	 * Throws {@link IllegalRegexGroupException} if name was not valid to get
 	 * Latest.
 	 * 
 	 * @return time of the {@link BucketName}
 	 */
 	public long getLatest() {
-		return Long.parseLong(getRegexValue(LATEST_GROUP));
+		return Long.parseLong(groupRegex.getValue(LATEST_GROUP));
 	}
 
 	/**
-	 * Throws {@link IllegalBucketNameException} if name was not valid to get
+	 * Throws {@link IllegalRegexGroupException} if name was not valid to get
 	 * Index.
 	 * 
 	 * @return index of the {@link Bucket}'s name.
 	 */
 	public String getIndex() {
-		return getRegexValue(INDEX_GROUP);
-	}
-
-	private String getRegexValue(int indexGroup) {
-		throwExceptionIfNotValidRegex();
-		return getRegexGroup(indexGroup);
-	}
-
-	private String getRegexGroup(int groupIndex) {
-		Pattern legalPattern = Pattern.compile(LEGAL_NAME_REGEX);
-		Matcher matcher = legalPattern.matcher(name);
-		matcher.find();
-		String group = matcher.group(groupIndex);
-		return group;
-	}
-
-	private void throwExceptionIfNotValidRegex() {
-		if (!Pattern.matches(LEGAL_NAME_REGEX, name)) {
-			logger.debug(did("Verified legal bucket name",
-					"Bucket name was not legal. Throwing IllegalBucketNameException",
-					"Bucket name to be legal", "bucket_name", name,
-					"legal_bucket_name_regex", LEGAL_NAME_REGEX));
-			throw new IllegalBucketNameException();
-		}
+		return groupRegex.getValue(INDEX_GROUP);
 	}
 
 	/*

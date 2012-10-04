@@ -23,10 +23,10 @@ import java.util.List;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
-import com.splunk.shuttl.archiver.model.IllegalBucketNameException;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
 
 /**
  * Removes aka flushes, buckets in an index for a time range.
@@ -92,7 +92,7 @@ public class Flusher {
 				if (BucketFilter.isBucketWithinTimeRange(b, earliest, latest)) {
 					filtered.add(b);
 				}
-			} catch (IllegalBucketNameException e) {
+			} catch (IllegalRegexGroupException e) {
 				// Do nothing.
 			}
 		}

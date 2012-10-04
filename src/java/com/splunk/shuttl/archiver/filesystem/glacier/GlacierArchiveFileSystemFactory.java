@@ -30,24 +30,26 @@ public class GlacierArchiveFileSystemFactory {
 	 */
 	public static GlacierArchiveFileSystem create(URI uri) {
 		CredentialsParser parser = new CredentialsParser(uri).parse();
-		return new GlacierArchiveFileSystem(null, null, null, null);
-		// parser.id, parser.secret, parser.endpoint, parser.vault
+		return new GlacierArchiveFileSystem(parser.id, parser.secret,
+				parser.endpoint, parser.vault);
 	}
 
 	private static class CredentialsParser {
 
+		public static final String LEGAL_URI_REGEX = "glacier://(.+?):(.+?)@(.+?)/(.+)";
+
 		private final URI uri;
-		private String id;
-		private String secret;
-		private String endpoint;
-		private String vault;
+		public String id = "";
+		public String secret = "";
+		public String endpoint = "";
+		public String vault = "";
 
 		public CredentialsParser(URI uri) {
 			this.uri = uri;
 		}
 
 		public CredentialsParser parse() {
-			return null;
+			return this;
 		}
 
 	}
