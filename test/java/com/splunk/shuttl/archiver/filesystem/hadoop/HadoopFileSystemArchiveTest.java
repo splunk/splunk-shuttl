@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shuttl.archiver.filesystem;
+package com.splunk.shuttl.archiver.filesystem.hadoop;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
@@ -34,6 +34,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.filesystem.FileOverwriteException;
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopFileSystemArchive;
 import com.splunk.shuttl.testutil.TUtilsFile;
 import com.splunk.shuttl.testutil.TUtilsFileSystem;
 import com.splunk.shuttl.testutil.TUtilsTestNG;

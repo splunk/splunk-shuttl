@@ -26,6 +26,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopFileSystemArchive;
 
 /**
  * Factory for getting an {@link ArchiveFileSystem}

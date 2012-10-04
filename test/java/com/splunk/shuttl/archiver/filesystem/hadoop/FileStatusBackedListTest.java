@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shuttl.archiver.filesystem;
+package com.splunk.shuttl.archiver.filesystem.hadoop;
 
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -25,6 +25,8 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.splunk.shuttl.archiver.filesystem.hadoop.FileStatusBackedList;
 
 @Test(groups = { "fast-unit" })
 public class FileStatusBackedListTest {

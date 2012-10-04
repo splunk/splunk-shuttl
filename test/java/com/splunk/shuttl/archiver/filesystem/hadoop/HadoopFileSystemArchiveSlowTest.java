@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.filesystem;
+package com.splunk.shuttl.archiver.filesystem.hadoop;
 
 import static org.testng.Assert.*;
 
@@ -23,6 +23,7 @@ import org.apache.hadoop.fs.Path;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopFileSystemArchive;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
 public class HadoopFileSystemArchiveSlowTest {
