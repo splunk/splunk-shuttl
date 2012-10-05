@@ -78,9 +78,15 @@ public class TUtilsBucket {
 
 	private static Bucket createBucketWithIndexInDirectory(String index,
 			File bucketDir) {
+		return createBucketWithIndexInDirectoryAndFormat(index, bucketDir,
+				BucketFormat.SPLUNK_BUCKET);
+	}
+
+	private static Bucket createBucketWithIndexInDirectoryAndFormat(String index,
+			File bucketDir, BucketFormat format) {
 		Bucket testBucket = null;
 		try {
-			testBucket = new Bucket(index, bucketDir, BucketFormat.SPLUNK_BUCKET);
+			testBucket = new Bucket(index, bucketDir, format);
 		} catch (Exception e) {
 			TUtilsTestNG.failForException("Couldn't create a test bucket", e);
 			throw new RuntimeException(
@@ -256,5 +262,19 @@ public class TUtilsBucket {
 			TUtilsTestNG.failForException("Could not create remote bucket", e);
 			return null;
 		}
+	}
+
+	/**
+	 * @return {@link Bucket} with a tgz format
+	 */
+	public static Bucket createTgzBucket() {
+		File bucketDir = createDirectory();
+		try {
+			new File(bucketDir, randomBucketName() + ".tgz").createNewFile();
+		} catch (IOException e) {
+			TUtilsTestNG.failForException("Could not create tgz file.", e);
+		}
+		return createBucketWithIndexInDirectoryAndFormat("index", bucketDir,
+				BucketFormat.SPLUNK_BUCKET_TGZ);
 	}
 }

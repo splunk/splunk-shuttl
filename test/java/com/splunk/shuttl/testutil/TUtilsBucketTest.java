@@ -226,4 +226,16 @@ public class TUtilsBucketTest {
 		assertEquals(BucketFormat.SPLUNK_BUCKET_TGZ, TUtilsBucket
 				.createRealSplunkBucketTgz().getFormat());
 	}
+
+	public void createTgzBucket_noArgs_hasSplunkBucketTgzFormat() {
+		assertEquals(BucketFormat.SPLUNK_BUCKET_TGZ, TUtilsBucket.createTgzBucket()
+				.getFormat());
+	}
+
+	public void createTgzBucket_noArgs_hasOneTgzFileInBucket() {
+		File[] bucketFiles = TUtilsBucket.createTgzBucket().getDirectory()
+				.listFiles();
+		assertEquals(1, bucketFiles.length);
+		assertTrue(bucketFiles[0].getName().endsWith("tgz"));
+	}
 }
