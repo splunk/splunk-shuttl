@@ -14,14 +14,21 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.glacier;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.splunk.shuttl.archiver.archive.BucketDeleter;
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
+import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -32,14 +39,24 @@ import com.splunk.shuttl.archiver.model.Bucket;
 public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 
 	private final HadoopArchiveFileSystem hadoop;
+	private final GlacierClient glacierClient;
+	private final TgzFormatExporter tgzFormatExporter;
+	private final Logger logger;
+	private BucketDeleter bucketDeleter;
 	private final String id;
 	private final String secret;
 	private final String endpoint;
 	private final String vault;
 
-	public GlacierArchiveFileSystem(HadoopArchiveFileSystem hadoop, String id,
-			String secret, String endpoint, String vault) {
+	public GlacierArchiveFileSystem(HadoopArchiveFileSystem hadoop,
+			GlacierClient glacierClient, TgzFormatExporter tgzFormatExporter,
+			Logger logger, BucketDeleter bucketDeleter, String id, String secret,
+			String endpoint, String vault) {
 		this.hadoop = hadoop;
+		this.glacierClient = glacierClient;
+		this.tgzFormatExporter = tgzFormatExporter;
+		this.logger = logger;
+		this.bucketDeleter = bucketDeleter;
 		this.id = id;
 		this.secret = secret;
 		this.endpoint = endpoint;
@@ -47,9 +64,34 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 	}
 
 	@Override
-	public void putBucket(Bucket localBucket, URI temp, URI dst)
-			throws IOException {
-		// TODO Auto-generated method stub
+	public void putBucket(Bucket bucket, URI temp, URI dst) throws IOException {
+		if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)) {
+			Bucket tgzBucket = exportToTgzBucketWithWarning(bucket);
+			uploadBucket(tgzBucket, dst);
+			bucketDeleter.deleteBucket(tgzBucket);
+		} else {
+			uploadBucket(bucket, dst);
+		}
+	}
+
+	private Bucket exportToTgzBucketWithWarning(Bucket localBucket) {
+		Bucket bucketToUpload = tgzFormatExporter.exportBucket(localBucket);
+		logger.warn(warn("Exported bucket to tgz because glacier should only "
+				+ "upload one file", "Bucket got exported",
+				"Will upload this tgz bucket. You can prevent this "
+						+ "warning by configuring glacier with bucket formats "
+						+ "that already are one file, i.e. CSV and SPLUNK_BUCKET_TGZ",
+				"bucket", localBucket));
+		return bucketToUpload;
+	}
+
+	private void uploadBucket(Bucket bucketToUpload, URI dst) {
+		File[] bucketFiles = bucketToUpload.getDirectory().listFiles();
+		if (bucketFiles.length == 1)
+			glacierClient.upload(bucketFiles[0], dst);
+		else
+			throw new GlacierArchivingException("Bucket has to be "
+					+ "represented with only one file. Bucket: " + bucketToUpload);
 	}
 
 	@Override

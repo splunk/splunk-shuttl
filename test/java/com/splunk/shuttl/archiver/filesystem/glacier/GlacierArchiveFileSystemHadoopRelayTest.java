@@ -41,7 +41,8 @@ public class GlacierArchiveFileSystemHadoopRelayTest {
 	@BeforeMethod
 	public void setUp() {
 		hadoop = mock(HadoopArchiveFileSystem.class);
-		glacier = new GlacierArchiveFileSystem(hadoop, null, null, null, null);
+		glacier = new GlacierArchiveFileSystem(hadoop, null, null, null, null,
+				null, null, null, null);
 		uri1 = URI.create("u:/foo");
 		uri2 = URI.create("u:/bar");
 		file1 = mock(File.class);
