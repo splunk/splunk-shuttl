@@ -97,7 +97,7 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 	@Override
 	public void getBucket(Bucket remoteBucket, File temp, File dst)
 			throws IOException {
-		// TODO Auto-generated method stub
+		glacierClient.downloadToDir(remoteBucket.getURI(), temp);
 	}
 
 	@Override

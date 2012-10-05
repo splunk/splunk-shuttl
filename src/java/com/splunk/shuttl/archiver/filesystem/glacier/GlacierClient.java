@@ -27,8 +27,15 @@ public class GlacierClient {
 	 * @param temp
 	 */
 	public void upload(File bucketFiles, URI dst) {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException();
+	}
 
+	/**
+	 * @param uri
+	 * @param toDir
+	 */
+	public void downloadToDir(URI uri, File toDir) {
+		throw new UnsupportedOperationException();
 	}
 
 }

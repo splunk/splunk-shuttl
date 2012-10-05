@@ -96,4 +96,12 @@ public class GlacierArchiveFileSystemTest {
 		inOrder.verify(bucketDeleter).deleteBucket(tgzBucket);
 		inOrder.verifyNoMoreInteractions();
 	}
+
+	public void getBucket__getsBucketWithBucketsRemoteUri() throws IOException {
+		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
+		File temp = mock(File.class);
+		File dst = mock(File.class);
+		glacier.getBucket(remoteBucket, temp, dst);
+		verify(glacierClient).downloadToDir(remoteBucket.getURI(), temp);
+	}
 }
