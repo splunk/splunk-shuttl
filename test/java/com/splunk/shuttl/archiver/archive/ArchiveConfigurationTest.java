@@ -86,6 +86,13 @@ public class ArchiveConfigurationTest {
 		assertEquals(expected, actual);
 	}
 
+	public void getLocalArchiverDir_stubbedMBeanLocalArchiverDir_sameAsInMBean() {
+		String expected = "localArchiverDir";
+		when(mBean.getLocalArchiverDir()).thenReturn(expected);
+		String actual = createConfiguration().getLocalArchiverDir();
+		assertEquals(expected, actual);
+	}
+
 	public void getBucketFormatPriority_null_emptyList() {
 		when(mBean.getBucketFormatPriority()).thenReturn(null);
 		List<BucketFormat> priorityList = createConfiguration()

@@ -133,8 +133,9 @@ public class TUtilsFunctional {
 			List<BucketFormat> bucketFormats) {
 		String archivePath = createDirectory().getAbsolutePath();
 		URI archivingRoot = URI.create("file:" + archivePath);
-		return ArchiveConfiguration.createSafeConfiguration(archivingRoot,
-				bucketFormats, "clusterName", "serverName", bucketFormats);
+		return ArchiveConfiguration.createSafeConfiguration("localArchiverDir",
+				archivingRoot, bucketFormats, "clusterName", "serverName",
+				bucketFormats);
 	}
 
 }

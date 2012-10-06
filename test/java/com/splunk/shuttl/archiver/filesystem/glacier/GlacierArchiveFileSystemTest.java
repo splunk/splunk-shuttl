@@ -35,10 +35,6 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 public class GlacierArchiveFileSystemTest {
 
 	private GlacierClient glacierClient;
-	private String id;
-	private String secret;
-	private String endpoint;
-	private String vault;
 	private GlacierArchiveFileSystem glacier;
 
 	private URI temp;
@@ -49,16 +45,12 @@ public class GlacierArchiveFileSystemTest {
 
 	@BeforeMethod
 	public void setUp() {
-		id = "id";
-		secret = "secret";
-		endpoint = "endpoint";
-		vault = "vault";
 		glacierClient = mock(GlacierClient.class);
 		tgzFormatExporter = mock(TgzFormatExporter.class);
 		logger = mock(Logger.class);
 		bucketDeleter = mock(BucketDeleter.class);
 		glacier = new GlacierArchiveFileSystem(null, glacierClient,
-				tgzFormatExporter, logger, bucketDeleter, id, secret, endpoint, vault);
+				tgzFormatExporter, logger, bucketDeleter);
 
 		temp = URI.create("u:/temp");
 		dst = URI.create("u:/dst");

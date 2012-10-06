@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.net.URI;
@@ -21,6 +22,7 @@ import java.net.URI;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.filesystem.glacier.GlacierArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.glacier.GlacierArchiveFileSystemFactoryTest;
 
@@ -38,31 +40,39 @@ public class ArchiveFileSystemFactoryTest {
 	}
 
 	@Test(groups = { "slow-unit" })
-	public void getWithUri_givenLocalFileURI_nonNullFileSystem() {
+	public void getWithUriAndLocalFileSystemPaths_givenLocalFileURI_nonNullFileSystem() {
 		URI localUri = URI.create("file:/tmp");
 		ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
-				.getWithUri(localUri);
+				.getWithUriAndLocalFileSystemPaths(localUri, getLocalFileSystemPaths());
 		assertNotNull(fileSystem);
 	}
 
 	@Test(groups = { "end-to-end" })
 	@Parameters({ "hadoop.host", "hadoop.port" })
-	public void getWithUri_givenHdfsUri_nonNullFileSystem(String host, String port) {
+	public void getWithUriAndLocalFileSystemPaths_givenHdfsUri_nonNullFileSystem(
+			String host, String port) {
 		URI localUri = URI.create("hdfs://" + host + ":" + port + "/tmp");
 		ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
-				.getWithUri(localUri);
+				.getWithUriAndLocalFileSystemPaths(localUri, getLocalFileSystemPaths());
 		assertNotNull(fileSystem);
 	}
 
+	private LocalFileSystemPaths getLocalFileSystemPaths() {
+		return new LocalFileSystemPaths(createDirectory().getAbsolutePath());
+	}
+
 	@Test(groups = { "fast-unit" }, expectedExceptions = { UnsupportedUriException.class })
-	public void getWithUri_givenUnsupportedUri_throwUnsupportedUriException() {
-		ArchiveFileSystemFactory.getWithUri(URI.create("unsupported:/uri"));
+	public void getWithUriAndLocalFileSystemPaths_givenUnsupportedUri_throwUnsupportedUriException() {
+		ArchiveFileSystemFactory.getWithUriAndLocalFileSystemPaths(
+				URI.create("unsupported:/uri"), getLocalFileSystemPaths());
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void getWithUri_givenGlacierUri_getsGlacierFS() {
+	public void getWithUriAndLocalFileSystemPaths_givenGlacierUri_getsGlacierFS() {
 		ArchiveFileSystem fs = ArchiveFileSystemFactory
-				.getWithUri(GlacierArchiveFileSystemFactoryTest.getValidUri());
+				.getWithUriAndLocalFileSystemPaths(
+						GlacierArchiveFileSystemFactoryTest.getValidUri(),
+						getLocalFileSystemPaths());
 		assertTrue(fs instanceof GlacierArchiveFileSystem);
 	}
 }

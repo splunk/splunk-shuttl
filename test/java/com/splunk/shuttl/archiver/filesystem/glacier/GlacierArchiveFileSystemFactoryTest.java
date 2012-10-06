@@ -26,40 +26,47 @@ public class GlacierArchiveFileSystemFactoryTest {
 	private static final String ID = "id";
 	private static final String SECRET = "secret";
 	private static final String ENDPOINT = "aws.endpoint.com";
+	private static final String BUCKET = "bucket";
 	private static final String VAULT = "vault_name";
 
-	public void _givenValidUri_createsFileSystem() {
-		GlacierArchiveFileSystem glacier = GlacierArchiveFileSystemFactory
-				.create(getValidUri());
-		assertEquals(ID, glacier.getId());
-		assertEquals(SECRET, glacier.getSecret());
-		assertEquals(ENDPOINT, glacier.getEndpoint());
-		assertEquals(VAULT, glacier.getVault());
+	public void getCredentials_givenValidUri_createsFileSystem() {
+		AWSCredentialsImpl credentials = GlacierArchiveFileSystemFactory
+				.getCredentials(getValidUri());
+		assertEquals(ID, credentials.getAWSAccessKeyId());
+		assertEquals(SECRET, credentials.getAWSSecretKey());
+		assertEquals(ENDPOINT, credentials.getEndpoint());
+		assertEquals(BUCKET, credentials.getBucket());
+		assertEquals(VAULT, credentials.getVault());
 	}
 
 	@Test(expectedExceptions = { InvalidGlacierUriException.class })
-	public void _givenNoId_throws() {
+	public void getCredentials_givenNoId_throws() {
 		testMissingUriPart(ID);
 	}
 
 	private void testMissingUriPart(String uriPart) {
 		String noId = getValidUri().toString().replaceAll(uriPart, "");
 		assertFalse(noId.contains(uriPart));
-		GlacierArchiveFileSystemFactory.create(URI.create(noId));
+		GlacierArchiveFileSystemFactory.getCredentials(URI.create(noId));
 	}
 
 	@Test(expectedExceptions = { InvalidGlacierUriException.class })
-	public void _givenNoSecret_throws() {
+	public void getCredentials_givenNoSecret_throws() {
 		testMissingUriPart(SECRET);
 	}
 
 	@Test(expectedExceptions = { InvalidGlacierUriException.class })
-	public void _givenNoEndpoint_throws() {
+	public void getCredentials_givenNoEndpoint_throws() {
 		testMissingUriPart(ENDPOINT);
 	}
 
 	@Test(expectedExceptions = { InvalidGlacierUriException.class })
-	public void _givenNoVault_throws() {
+	public void getCredentials_givenNoBucket_throws() {
+		testMissingUriPart(BUCKET);
+	}
+
+	@Test(expectedExceptions = { InvalidGlacierUriException.class })
+	public void getCredentials_givenNoVault_throws() {
 		testMissingUriPart(VAULT);
 	}
 
@@ -67,8 +74,8 @@ public class GlacierArchiveFileSystemFactoryTest {
 	 * @return valid uri for creating a {@link GlacierArchiveFileSystem}
 	 */
 	public static URI getValidUri() {
-		return URI.create("glacier://" + ID + ":" + SECRET + "@" + ENDPOINT + "/"
-				+ VAULT);
+		return URI.create("glacier://" + ID + ":" + SECRET + "@" + ENDPOINT + ":"
+				+ BUCKET + "/" + VAULT);
 	}
 
 }

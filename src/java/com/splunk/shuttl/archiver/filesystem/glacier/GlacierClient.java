@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.transfer.ArchiveTransferManager;
 import com.amazonaws.services.glacier.transfer.UploadResult;
 import com.splunk.shuttl.archiver.util.UtilsURI;
@@ -88,5 +89,13 @@ public class GlacierClient {
 	 */
 	public void putArchiveId(URI uri, String archiveId) {
 		archiveIds.put(uri, archiveId);
+	}
+
+	public static GlacierClient create(AWSCredentialsImpl credentials) {
+		AmazonGlacierClient amazonGlacierClient = new AmazonGlacierClient(
+				credentials);
+		amazonGlacierClient.setEndpoint(credentials.getEndpoint());
+		return new GlacierClient(new ArchiveTransferManager(amazonGlacierClient,
+				credentials), credentials.getVault());
 	}
 }

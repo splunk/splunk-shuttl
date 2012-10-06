@@ -16,6 +16,14 @@ package com.splunk.shuttl.archiver.filesystem.glacier;
 
 import java.net.URI;
 
+import org.apache.log4j.Logger;
+
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.archive.BucketDeleter;
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
+import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
+import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.util.GroupRegex;
 import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
 
@@ -26,25 +34,49 @@ public class GlacierArchiveFileSystemFactory {
 
 	/**
 	 * @param uri
-	 *          - Has the format of glacier://ID:SECRET@ENDPOINT/VAULT
+	 *          - Has the format of glacier://ID:SECRET@ENDPOINT:BUCKET/VAULT
 	 * 
 	 * @throws UnsupportedGlacierUriException
 	 *           - if the format is not valid.
 	 */
-	public static GlacierArchiveFileSystem create(URI uri) {
+	public static GlacierArchiveFileSystem create(URI uri,
+			LocalFileSystemPaths localFileSystemPaths) {
+		AWSCredentialsImpl credentials = getCredentials(uri);
+		GlacierClient glacierClient = GlacierClient.create(credentials);
+
+		URI s3n = URI.create("s3n://" + credentials.getAWSAccessKeyId() + ":"
+				+ credentials.getAWSSecretKey() + "@" + credentials.getBucket() + "/"
+				+ credentials.getVault());
+		HadoopArchiveFileSystem hadoop = (HadoopArchiveFileSystem) ArchiveFileSystemFactory
+				.getWithUriAndLocalFileSystemPaths(s3n, localFileSystemPaths);
+		TgzFormatExporter tgzFormatExporter = TgzFormatExporter
+				.create(CreatesBucketTgz.create(localFileSystemPaths.getTgzDirectory()));
+		Logger logger = Logger.getLogger(GlacierArchiveFileSystem.class);
+		BucketDeleter bucketDeleter = BucketDeleter.create();
+
+		return new GlacierArchiveFileSystem(hadoop, glacierClient,
+				tgzFormatExporter, logger, bucketDeleter);
+	}
+
+	/**
+	 * @param validUri
+	 * @return
+	 */
+	public static AWSCredentialsImpl getCredentials(URI uri) {
 		CredentialsParser parser = new CredentialsParser(uri).parse();
-		return new GlacierArchiveFileSystem(null, null, null, null, null,
-				parser.id, parser.secret, parser.endpoint, parser.vault);
+		return new AWSCredentialsImpl(parser.id, parser.secret, parser.endpoint,
+				parser.bucket, parser.vault);
 	}
 
 	private static class CredentialsParser {
 
-		public static final String LEGAL_URI_REGEX = "glacier://(.+?):(.+?)@(.+?)/(.+)";
+		public static final String LEGAL_URI_REGEX = "glacier://(.+?):(.+?)@(.+?):(.+?)/(.+)";
 
 		private final URI uri;
 		public String id = "";
 		public String secret = "";
 		public String endpoint = "";
+		public String bucket = "";
 		public String vault = "";
 
 		public CredentialsParser(URI uri) {
@@ -64,7 +96,8 @@ public class GlacierArchiveFileSystemFactory {
 			id = regex.getValue(1);
 			secret = regex.getValue(2);
 			endpoint = regex.getValue(3);
-			vault = regex.getValue(4);
+			bucket = regex.getValue(4);
+			vault = regex.getValue(5);
 			return this;
 		}
 

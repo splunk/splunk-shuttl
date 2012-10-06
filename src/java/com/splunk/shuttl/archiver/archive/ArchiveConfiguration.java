@@ -35,6 +35,7 @@ public class ArchiveConfiguration {
 	private static final String ARCHIVE_DATA_DIRECTORY_NAME = "archive_data";
 	private static final String TEMPORARY_DATA_DIRECTORY_NAME = "temporary_data";
 
+	private final String localArchiverDir;
 	private final List<BucketFormat> bucketFormats;
 	private final URI archivingRoot;
 	private final String clusterName;
@@ -42,9 +43,11 @@ public class ArchiveConfiguration {
 	private final List<BucketFormat> bucketFormatPriority;
 	private final URI tmpDirectory;
 
-	private ArchiveConfiguration(List<BucketFormat> bucketFormats,
-			URI archivingRoot, String clusterName, String serverName,
-			List<BucketFormat> bucketFormatPriority, URI tmpDirectory) {
+	private ArchiveConfiguration(String localArchiverDir,
+			List<BucketFormat> bucketFormats, URI archivingRoot, String clusterName,
+			String serverName, List<BucketFormat> bucketFormatPriority,
+			URI tmpDirectory) {
+		this.localArchiverDir = localArchiverDir;
 		this.bucketFormats = bucketFormats;
 		this.archivingRoot = archivingRoot;
 		this.clusterName = clusterName;
@@ -99,21 +102,22 @@ public class ArchiveConfiguration {
 		String clusterName = mBean.getClusterName();
 		String serverName = mBean.getServerName();
 		List<BucketFormat> bucketFormatPriority = createFormatPriorityList(mBean);
-		return createSafeConfiguration(archivingRootURI, bucketFormats,
-				clusterName,
-				serverName, bucketFormatPriority);
+		return createSafeConfiguration(mBean.getLocalArchiverDir(),
+				archivingRootURI, bucketFormats, clusterName, serverName,
+				bucketFormatPriority);
 	}
 
 	public static ArchiveConfiguration createSafeConfiguration(
-			URI archivingRootURI,
+			String localArchiverDir, URI archivingRootURI,
 			List<BucketFormat> bucketFormats, String clusterName, String serverName,
 			List<BucketFormat> bucketFormatPriority) {
 		URI archivingData = getChildToArchivingRoot(archivingRootURI,
 				ARCHIVE_DATA_DIRECTORY_NAME);
 		URI tmpDirectory = getChildToArchivingRoot(archivingRootURI,
 				TEMPORARY_DATA_DIRECTORY_NAME);
-		return new ArchiveConfiguration(bucketFormats, archivingData, clusterName,
-				serverName, bucketFormatPriority, tmpDirectory);
+		return new ArchiveConfiguration(localArchiverDir, bucketFormats,
+				archivingData, clusterName, serverName, bucketFormatPriority,
+				tmpDirectory);
 	}
 
 	private static URI archivingRootFromMBean(ShuttlArchiverMBean mBean) {
@@ -180,6 +184,13 @@ public class ArchiveConfiguration {
 	 */
 	public URI getTmpDirectory() {
 		return tmpDirectory;
+	}
+
+	/**
+	 * @return path to where files are stored on the local file system.
+	 */
+	public String getLocalArchiverDir() {
+		return localArchiverDir;
 	}
 
 }

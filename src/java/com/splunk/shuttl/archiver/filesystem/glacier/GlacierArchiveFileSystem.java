@@ -43,24 +43,15 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 	private final TgzFormatExporter tgzFormatExporter;
 	private final Logger logger;
 	private BucketDeleter bucketDeleter;
-	private final String id;
-	private final String secret;
-	private final String endpoint;
-	private final String vault;
 
 	public GlacierArchiveFileSystem(HadoopArchiveFileSystem hadoop,
 			GlacierClient glacierClient, TgzFormatExporter tgzFormatExporter,
-			Logger logger, BucketDeleter bucketDeleter, String id, String secret,
-			String endpoint, String vault) {
+			Logger logger, BucketDeleter bucketDeleter) {
 		this.hadoop = hadoop;
 		this.glacierClient = glacierClient;
 		this.tgzFormatExporter = tgzFormatExporter;
 		this.logger = logger;
 		this.bucketDeleter = bucketDeleter;
-		this.id = id;
-		this.secret = secret;
-		this.endpoint = endpoint;
-		this.vault = vault;
 	}
 
 	@Override
@@ -115,22 +106,6 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 	@Override
 	public void cleanBucketTransaction(Bucket bucket, URI temp) {
 		// Do nothing.
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getSecret() {
-		return secret;
-	}
-
-	public String getEndpoint() {
-		return endpoint;
-	}
-
-	public String getVault() {
-		return vault;
 	}
 
 	@Override

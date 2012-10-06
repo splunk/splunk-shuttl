@@ -23,6 +23,7 @@ import javax.management.InstanceNotFoundException;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 
 /**
@@ -146,6 +147,14 @@ public class LocalFileSystemPaths {
 							"To get the MBean", "exception", e));
 			throw new ArchiverMBeanNotRegisteredException(e);
 		}
+	}
+
+	/**
+	 * @param create
+	 *          - with config.
+	 */
+	public static LocalFileSystemPaths create(ArchiveConfiguration config) {
+		return new LocalFileSystemPaths(config.getLocalArchiverDir());
 	}
 
 }
