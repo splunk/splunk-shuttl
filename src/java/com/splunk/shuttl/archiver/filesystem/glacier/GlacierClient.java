@@ -15,27 +15,78 @@
 package com.splunk.shuttl.archiver.filesystem.glacier;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URI;
+import java.util.HashMap;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.glacier.transfer.ArchiveTransferManager;
+import com.amazonaws.services.glacier.transfer.UploadResult;
+import com.splunk.shuttl.archiver.util.UtilsURI;
 
 /**
  * Implementation of doing operations to the Amazon Glacier service.
  */
 public class GlacierClient {
 
+	private ArchiveTransferManager transferManager;
+	private String vault;
+	private HashMap<URI, String> archiveIds;
+
 	/**
-	 * @param bucketFiles
-	 * @param temp
+	 * @param transferManager
+	 * @param vault
 	 */
-	public void upload(File bucketFiles, URI dst) {
-		throw new UnsupportedOperationException();
+	public GlacierClient(ArchiveTransferManager transferManager, String vault) {
+		this.transferManager = transferManager;
+		this.vault = vault;
+		this.archiveIds = new HashMap<URI, String>();
 	}
 
 	/**
-	 * @param uri
-	 * @param toDir
+	 * Uploads a file to glacier and stores the of the transfer archiveId in
+	 * memory.
 	 */
-	public void downloadToDir(URI uri, File toDir) {
-		throw new UnsupportedOperationException();
+	public void upload(File file, URI dst) throws AmazonServiceException,
+			AmazonClientException, FileNotFoundException {
+		UploadResult result = transferManager.upload(vault, dst.toString(), file);
+		putArchiveId(dst, result.getArchiveId());
 	}
 
+	/**
+	 * Downloads a file stored in glacier with a URI.
+	 * 
+	 * @throws GlacierArchiveIdDoesNotExist
+	 *           if the archiveId is not stored in memory.
+	 */
+	public void downloadToDir(URI uri, File dir) {
+		if (!dir.exists())
+			dir.mkdirs();
+		if (!dir.isDirectory())
+			throw new IllegalArgumentException("File needs to be a directory: " + dir);
+
+		String filename = UtilsURI.getFileNameWithTrimmedEndingFileSeparator(uri);
+		transferManager.download(vault, getArchiveId(uri), new File(dir, filename));
+	}
+
+	/**
+	 * Get the archiveId mapped to a URI.
+	 */
+	public String getArchiveId(URI uri) {
+		if (!archiveIds.containsKey(uri))
+			throw new GlacierArchiveIdDoesNotExist(
+					"Could not get the archiveId for uri: " + uri
+							+ ", which means that we cannot download the archive. "
+							+ "Download the archive inventory and parse out the "
+							+ "description for the uri->archiveId mappings.");
+		return archiveIds.get(uri);
+	}
+
+	/**
+	 * Map a uri to a archiveId.
+	 */
+	public void putArchiveId(URI uri, String archiveId) {
+		archiveIds.put(uri, archiveId);
+	}
 }
