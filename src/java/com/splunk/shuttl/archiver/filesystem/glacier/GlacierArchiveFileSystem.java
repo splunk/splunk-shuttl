@@ -87,17 +87,29 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 
 	private void uploadBucket(Bucket bucketToUpload, URI dst) {
 		File[] bucketFiles = bucketToUpload.getDirectory().listFiles();
-		if (bucketFiles.length == 1)
-			glacierClient.upload(bucketFiles[0], dst);
-		else
+		if (bucketFiles.length != 1)
 			throw new GlacierArchivingException("Bucket has to be "
 					+ "represented with only one file. Bucket: " + bucketToUpload);
+
+		File bucketFile = bucketFiles[0];
+		try {
+			glacierClient.upload(bucketFile, dst);
+		} catch (Exception e) {
+			throw new GlacierArchivingException("Got exception when uploading "
+					+ "file to glacier. File: " + bucketFile + ", exception: " + e);
+		}
 	}
 
 	@Override
 	public void getBucket(Bucket remoteBucket, File temp, File dst)
 			throws IOException {
-		glacierClient.downloadToDir(remoteBucket.getURI(), temp);
+		URI uri = remoteBucket.getURI();
+		try {
+			glacierClient.downloadToDir(uri, temp);
+		} catch (Exception e) {
+			throw new GlacierThawingException("Got exception when downloading "
+					+ "from glacier. URI: " + uri);
+		}
 	}
 
 	@Override

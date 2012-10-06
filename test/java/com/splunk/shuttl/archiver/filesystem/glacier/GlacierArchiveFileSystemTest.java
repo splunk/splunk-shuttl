@@ -104,4 +104,21 @@ public class GlacierArchiveFileSystemTest {
 		glacier.getBucket(remoteBucket, temp, dst);
 		verify(glacierClient).downloadToDir(remoteBucket.getURI(), temp);
 	}
+
+	@Test(expectedExceptions = { GlacierArchivingException.class })
+	public void putBucket_glacierClientThrows_wrapsExceptionInGlacierArchivingException()
+			throws IOException {
+		doThrow(RuntimeException.class).when(glacierClient).upload(any(File.class),
+				any(URI.class));
+		glacier.putBucket(TUtilsBucket.createTgzBucket(), temp, dst);
+	}
+
+	@Test(expectedExceptions = { GlacierThawingException.class })
+	public void getBucket_glacierClientThrows_wrapsExceptionInGlacierThawingException()
+			throws IOException {
+		doThrow(RuntimeException.class).when(glacierClient).downloadToDir(
+				any(URI.class), any(File.class));
+		glacier.getBucket(TUtilsBucket.createRemoteBucket(), mock(File.class),
+				mock(File.class));
+	}
 }
