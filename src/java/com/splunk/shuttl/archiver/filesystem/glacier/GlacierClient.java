@@ -14,10 +14,14 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.glacier;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.HashMap;
+
+import org.apache.log4j.Logger;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -30,6 +34,8 @@ import com.splunk.shuttl.archiver.util.UtilsURI;
  * Implementation of doing operations to the Amazon Glacier service.
  */
 public class GlacierClient {
+
+	private static final Logger logger = Logger.getLogger(GlacierClient.class);
 
 	private ArchiveTransferManager transferManager;
 	private String vault;
@@ -51,7 +57,10 @@ public class GlacierClient {
 	 */
 	public void upload(File file, URI dst) throws AmazonServiceException,
 			AmazonClientException, FileNotFoundException {
+		logger.info(will("Use amazon glacier ArchiveTransferManager"
+				+ " to transfer file to a vault", "file", file, "vault", vault));
 		UploadResult result = transferManager.upload(vault, dst.toString(), file);
+		logger.info(done("Uploading file to glacier."));
 		putArchiveId(dst, result.getArchiveId());
 	}
 
@@ -94,7 +103,8 @@ public class GlacierClient {
 	public static GlacierClient create(AWSCredentialsImpl credentials) {
 		AmazonGlacierClient amazonGlacierClient = new AmazonGlacierClient(
 				credentials);
-		amazonGlacierClient.setEndpoint(credentials.getEndpoint());
+		amazonGlacierClient.setEndpoint("https://" + credentials.getEndpoint()
+				+ "/");
 		return new GlacierClient(new ArchiveTransferManager(amazonGlacierClient,
 				credentials), credentials.getVault());
 	}

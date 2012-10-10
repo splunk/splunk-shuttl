@@ -183,4 +183,10 @@ public class Transaction {
 	public URI getDst() {
 		return dst;
 	}
+
+	@Override
+	public String toString() {
+		return "Transaction [bucket=" + bucket + ", src=" + src + ", remoteTemp="
+				+ remoteTemp + ", dst=" + dst + "]";
+	}
 }
