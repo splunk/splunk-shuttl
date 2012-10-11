@@ -19,7 +19,6 @@ import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,20 +50,19 @@ public class ArchiveIndexesListerTest {
 
 	public void listIndexes_givenPathResolverAndArchiveFileSystem_useIndexesHomeToListArchivedIndexes()
 			throws IOException {
-		URI uri = URI.create("valid:/uri");
-		when(pathResolver.getIndexesHome()).thenReturn(uri);
+		String path = "/path/indexesHome";
+		when(pathResolver.getIndexesHome()).thenReturn(path);
 		archivedIndexesLister.listIndexes();
-		verify(fileSystem).listPath(uri);
+		verify(fileSystem).listPath(path);
 	}
 
 	public void listIndexes_givenDirectoriesWhoseNamesAreIndexesFromFileSystem_getIndexes()
 			throws IOException {
 		String index1 = "dir1";
 		String index2 = "dir2";
-		List<URI> urisToIndexDirectories = Arrays.asList(
-				URI.create("valid:/uri/" + index1), URI.create("valid:/uri/" + index2));
-		when(fileSystem.listPath(any(URI.class)))
-				.thenReturn(urisToIndexDirectories);
+		List<String> urisToIndexDirectories = Arrays.asList(
+				"/valid/path/" + index1, "/valid/path/" + index2);
+		when(fileSystem.listPath(anyString())).thenReturn(urisToIndexDirectories);
 		List<String> listIndexes = archivedIndexesLister.listIndexes();
 		assertEquals(listIndexes, Arrays.asList(index1, index2));
 	}

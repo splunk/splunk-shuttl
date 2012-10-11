@@ -51,6 +51,7 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -149,7 +150,8 @@ public class ArchiverEndToEndTest {
 		Date earliest = TUtilsDate.getNowWithoutMillis();
 		Date latest = TUtilsDate.getLaterDate(earliest);
 
-		Bucket bucketToFreeze = TUtilsBucket.createBucketWithIndexAndTimeRange(
+		LocalBucket bucketToFreeze = TUtilsBucket
+				.createBucketWithIndexAndTimeRange(
 				thawIndex, earliest, latest);
 		assertEquals(earliest, bucketToFreeze.getEarliest());
 		assertEquals(latest, bucketToFreeze.getLatest());

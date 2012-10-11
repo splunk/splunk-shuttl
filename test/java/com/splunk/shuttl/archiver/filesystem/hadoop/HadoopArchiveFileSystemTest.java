@@ -22,11 +22,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -34,11 +31,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.filesystem.FileOverwriteException;
-import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
 import com.splunk.shuttl.testutil.TUtilsFile;
 import com.splunk.shuttl.testutil.TUtilsFileSystem;
-import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 /**
  * Using the method naming convention:
@@ -66,31 +60,35 @@ public class HadoopArchiveFileSystemTest {
 		File file1 = createFileInParent(dir, "file1");
 		File file2 = createFileInParent(dir, "file2");
 
-		List<URI> listing = hadoopArchiveFileSystem.listPath(dir.toURI());
+		List<String> listing = hadoopArchiveFileSystem.listPath(dir
+				.getAbsolutePath());
 
 		assertEquals(2, listing.size());
-		assertTrue(listing.contains(file1.toURI()));
-		assertTrue(listing.contains(file2.toURI()));
+		assertTrue(listing.contains(file1.getAbsolutePath()));
+		assertTrue(listing.contains(file2.getAbsolutePath()));
 	}
 
 	public void listPath_listingAnEmptyDirectory_emptyList() throws IOException {
 		File testDirectory = TUtilsFile.createDirectory();
-		List<URI> listing = hadoopArchiveFileSystem.listPath(testDirectory.toURI());
+		List<String> listing = hadoopArchiveFileSystem.listPath(testDirectory
+				.getAbsolutePath());
 		assertEquals(0, listing.size());
 	}
 
 	public void listPath_listingAPathThatPointsToAFile_aListOnlyContainingThePathToTheFile()
 			throws IOException {
 		File file = createFile();
-		List<URI> listing = hadoopArchiveFileSystem.listPath(file.toURI());
-		assertTrue(listing.contains(file.toURI()));
+		List<String> listing = hadoopArchiveFileSystem.listPath(file
+				.getAbsolutePath());
+		assertTrue(listing.contains(file.getAbsolutePath()));
 	}
 
 	public void listPath_listingAPathThatDoNotExist_emptyList()
 			throws IOException, URISyntaxException {
 		File file = createFilePath();
 		assertFalse(file.exists());
-		List<URI> listing = hadoopArchiveFileSystem.listPath(file.toURI());
+		List<String> listing = hadoopArchiveFileSystem.listPath(file
+				.getAbsolutePath());
 		assertEquals(0, listing.size());
 	}
 
@@ -100,7 +98,7 @@ public class HadoopArchiveFileSystemTest {
 		List<String> expectedContent = FileUtils.readLines(fileWithContent);
 
 		InputStream openFile = hadoopArchiveFileSystem.openFile(fileWithContent
-				.toURI());
+				.getAbsolutePath());
 		assertEquals(expectedContent, IOUtils.readLines(openFile));
 	}
 
@@ -112,7 +110,7 @@ public class HadoopArchiveFileSystemTest {
 
 		File nextLevelDir = new File(emptyDir, "next-level-dir");
 		assertFalse(nextLevelDir.exists());
-		hadoopArchiveFileSystem.mkdirs(nextLevelDir.toURI());
+		hadoopArchiveFileSystem.mkdirs(nextLevelDir.getAbsolutePath());
 		assertTrue(nextLevelDir.exists());
 	}
 
@@ -123,13 +121,13 @@ public class HadoopArchiveFileSystemTest {
 		File one = new File(dir, "one");
 		File two = new File(one, "two");
 
-		hadoopArchiveFileSystem.mkdirs(two.toURI());
+		hadoopArchiveFileSystem.mkdirs(two.getAbsolutePath());
 		assertTrue(two.exists());
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void mkdirs_givenExistingDir_doesNothing() throws IOException {
-		hadoopArchiveFileSystem.mkdirs(createDirectory().toURI());
+		hadoopArchiveFileSystem.mkdirs(createDirectory().getAbsolutePath());
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -137,96 +135,9 @@ public class HadoopArchiveFileSystemTest {
 		File dir = createDirectory();
 		File newName = new File(createDirectory(), "foo.bar");
 		assertFalse(newName.exists());
-		hadoopArchiveFileSystem.rename(dir.toURI(), newName.toURI());
+		hadoopArchiveFileSystem.rename(dir.getAbsolutePath(),
+				newName.getAbsolutePath());
 		assertTrue(newName.exists());
 		assertFalse(dir.exists());
-	}
-
-	public void getFile_givenExistingFileOnHadoopFileSystem_transfersFileToTemp()
-			throws IOException {
-		File src = createFile();
-		File temp = createFileInParent(createDirectory(), "temp");
-		File dst = createFileInParent(createDirectory(), "dst");
-		assertTrue(temp.delete());
-		assertTrue(dst.delete());
-
-		hadoopArchiveFileSystem.getFile(src.toURI(), temp, dst);
-
-		assertTrue(src.exists());
-		assertTrue(temp.exists());
-		assertFalse(dst.exists());
-	}
-
-	@Test(expectedExceptions = { FileNotFoundException.class })
-	public void getFile_srcDoesNotExist_throws() throws IOException {
-		File src = createFilePath();
-		assertFalse(src.exists());
-		hadoopArchiveFileSystem.getFile(src.toURI(), createFilePath(),
-				createFilePath());
-	}
-
-	@Test(expectedExceptions = FileOverwriteException.class)
-	public void getFile_whenLocalFileAllreadyExist_fileOverwriteException()
-			throws IOException {
-		File dst = createFile();
-		hadoopArchiveFileSystem.getFile(null, null, dst);
-	}
-
-	public void putFile_givenValidPaths_transferFileToTemp() throws IOException {
-		File from = TUtilsFile.createFileInParent(createDirectory(), "source");
-		TUtilsFile.populateFileWithRandomContent(from);
-		File temp = createFilePath();
-		File dst = createFilePath();
-
-		hadoopArchiveFileSystem.putFile(from, temp.toURI(), dst.toURI());
-		TUtilsTestNG.assertFileContentsEqual(from, temp);
-	}
-
-	public void putFile_tempExists_deleteRecursivelyAndOverwrite()
-			throws IOException {
-		File dirWithOneFile = createDirectory();
-		createFileInParent(dirWithOneFile, "x");
-		File dirWithTwoFiles = createDirectory();
-		createFileInParent(dirWithTwoFiles, "a");
-		createFileInParent(dirWithTwoFiles, "b");
-
-		assertTrue(dirWithTwoFiles.exists());
-		hadoopArchiveFileSystem.putFile(dirWithOneFile, dirWithTwoFiles.toURI(),
-				createFilePath().toURI());
-
-		Set<String> names = new HashSet<String>();
-		for (File f : dirWithTwoFiles.listFiles())
-			names.add(f.getName());
-		assertTrue(names.contains("x"));
-		assertFalse(names.contains("a"));
-		assertFalse(names.contains("b"));
-	}
-
-	@Test(expectedExceptions = { FileOverwriteException.class })
-	public void putFile_dstExist_throws() throws IOException {
-		File dst = createFile();
-		assertTrue(dst.exists());
-		hadoopArchiveFileSystem.putFile(null, null, dst.toURI());
-	}
-
-	@Test(expectedExceptions = FileNotFoundException.class)
-	public void putFile_whenLocalFileDoNotExist_fileNotFoundException()
-			throws IOException {
-		File file = createFilePath();
-		assertFalse(file.exists());
-		hadoopArchiveFileSystem.putFile(file, file.toURI(), file.toURI());
-	}
-
-	public void putFile_withDirectoryContainingAnotherDirectory_bothDirectoriesExistsInTheArchive()
-			throws IOException {
-		File dir1 = createDirectory();
-		File dir2 = createDirectoryInParent(dir1, "anotherdir");
-		File fileInDir2 = createFileInParent(dir2, "file");
-		File tmp = createDirectory();
-		hadoopArchiveFileSystem
-				.putFile(dir1, tmp.toURI(), createFilePath().toURI());
-		File transferredDir2 = new File(tmp, dir2.getName());
-		assertTrue(transferredDir2.exists());
-		assertTrue(new File(transferredDir2, fileInDir2.getName()).exists());
 	}
 }

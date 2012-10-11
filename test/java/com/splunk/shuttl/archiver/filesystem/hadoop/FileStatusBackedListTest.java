@@ -26,24 +26,22 @@ import org.apache.hadoop.fs.Path;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.filesystem.hadoop.FileStatusBackedList;
-
 @Test(groups = { "fast-unit" })
 public class FileStatusBackedListTest {
 
-	private FileStatusBackedList uriList;
+	private FileStatusBackedList pathList;
 	private FileStatus[] fileStatus;
 
 	@BeforeMethod
 	public void beforeMethod() {
 		fileStatus = new FileStatus[] { mock(FileStatus.class),
 				mock(FileStatus.class) };
-		uriList = new FileStatusBackedList(fileStatus);
+		pathList = new FileStatusBackedList(fileStatus);
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void FileStatusBackedList() {
-		assertNotNull(uriList);
+		assertNotNull(pathList);
 	}
 
 	public void get_correctIndex_correctItem() throws URISyntaxException {
@@ -53,8 +51,8 @@ public class FileStatusBackedListTest {
 		when(fileStatus[1].getPath()).thenReturn(new Path(uri1));
 
 		// Test
-		assertEquals(uri0, uriList.get(0));
-		assertEquals(uri1, uriList.get(1));
+		assertEquals(uri0.getPath(), pathList.get(0));
+		assertEquals(uri1.getPath(), pathList.get(1));
 
 	}
 
@@ -63,6 +61,6 @@ public class FileStatusBackedListTest {
 	}
 
 	public void size_nonEmpty_returnCorrectSize() {
-		assertEquals(2, uriList.size());
+		assertEquals(2, pathList.size());
 	}
 }

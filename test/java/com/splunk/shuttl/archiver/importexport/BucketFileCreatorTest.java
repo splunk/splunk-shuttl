@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.util.UtilsFile;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -72,7 +73,8 @@ public abstract class BucketFileCreatorTest {
 	}
 
 	public void _givenFile_createsBucketInParentFileToFile() {
-		Bucket createdBucket = bucketFileCreator.createBucketWithFile(file, bucket);
+		LocalBucket createdBucket = bucketFileCreator.createBucketWithFile(file,
+				bucket);
 		assertEquals(dir, createdBucket.getDirectory().getParentFile());
 	}
 
@@ -88,7 +90,8 @@ public abstract class BucketFileCreatorTest {
 
 	public void _givenFile_fileMovedToBucketDirectory() {
 		long fileSize = file.length();
-		Bucket createdBucket = bucketFileCreator.createBucketWithFile(file, bucket);
+		LocalBucket createdBucket = bucketFileCreator.createBucketWithFile(file,
+				bucket);
 		File bucketDir = createdBucket.getDirectory();
 		assertEquals(1, bucketDir.listFiles().length);
 		File movedFile = bucketDir.listFiles()[0];
@@ -98,7 +101,8 @@ public abstract class BucketFileCreatorTest {
 	}
 
 	public void _givenFile_bucketDirectoryHasSameNameAsFileWithoutExtension() {
-		Bucket createdBucket = bucketFileCreator.createBucketWithFile(file, bucket);
+		LocalBucket createdBucket = bucketFileCreator.createBucketWithFile(file,
+				bucket);
 		File bucketDir = createdBucket.getDirectory();
 		String fileWithoutExtension = UtilsFile.getFileNameSansExt(file,
 				getExtension());

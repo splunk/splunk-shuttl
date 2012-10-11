@@ -18,8 +18,9 @@ import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.splunk.shuttl.archiver.importexport.csv.NoFileFoundException;
+import com.splunk.shuttl.archiver.importexport.NoFileFoundException;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Util functions for {@link Bucket}s.
@@ -30,22 +31,23 @@ public class UtilsBucket {
 	 * @return the csv {@link File} representing the bucket
 	 * @throws {@link NoFileFoundException} when no csv file was found.
 	 */
-	public static File getCsvFile(Bucket csvBucket) {
+	public static File getCsvFile(LocalBucket csvBucket) {
 		return getFileFromBucket(csvBucket, "csv");
 	}
 
-	private static boolean isBucketEmpty(Bucket csvBucket) {
+	private static boolean isBucketEmpty(LocalBucket csvBucket) {
 		return csvBucket.getDirectory().listFiles().length == 0;
 	}
 
-	private static File getFileFromBucket(Bucket bucket, String extension) {
+	private static File getFileFromBucket(LocalBucket bucket, String extension) {
 		if (isBucketEmpty(bucket))
 			throw new IllegalArgumentException("Bucket was empty!");
 		else
 			return doGetFileFromBucket(bucket, extension);
 	}
 
-	private static File doGetFileFromBucket(Bucket csvBucket, String extension) {
+	private static File doGetFileFromBucket(LocalBucket csvBucket,
+			String extension) {
 		for (File file : csvBucket.getDirectory().listFiles())
 			if (FilenameUtils.getExtension(file.getName()).equals(extension))
 				return file;
@@ -55,7 +57,7 @@ public class UtilsBucket {
 	/**
 	 * @return the .tgz file in a bucket, which has a TGZ bucket format.
 	 */
-	public static File getTgzFile(Bucket realTgzBucket) {
+	public static File getTgzFile(LocalBucket realTgzBucket) {
 		return getFileFromBucket(realTgzBucket, "tgz");
 	}
 }

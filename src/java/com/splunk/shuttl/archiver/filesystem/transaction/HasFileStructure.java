@@ -15,7 +15,6 @@
 package com.splunk.shuttl.archiver.filesystem.transaction;
 
 import java.io.IOException;
-import java.net.URI;
 
 /**
  * Something that has directories can also make them and rename them, in this
@@ -28,13 +27,13 @@ public interface HasFileStructure {
 	 * 
 	 * @throws IOException
 	 */
-	void mkdirs(URI uri) throws IOException;
+	void mkdirs(String path) throws IOException;
 
 	/**
-	 * Rename directory;
+	 * Rename directory.
 	 * 
 	 * @throws IOException
 	 */
-	void rename(URI from, URI to) throws IOException;
+	void rename(String from, String to) throws IOException;
 
 }

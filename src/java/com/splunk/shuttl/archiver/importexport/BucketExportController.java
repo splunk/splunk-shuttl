@@ -27,6 +27,7 @@ import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * For exporting a {@link Bucket} to {@link BucketFormat#CSV}, since it's
@@ -40,7 +41,8 @@ public class BucketExportController {
 
 	}
 
-	private final static Logger logger = Logger.getLogger(BucketExportController.class);
+	private final static Logger logger = Logger
+			.getLogger(BucketExportController.class);
 	private Map<BucketFormat, BucketExporter> formatChangers;
 
 	/**
@@ -56,7 +58,7 @@ public class BucketExportController {
 	/**
 	 * @return a new {@link Bucket} in the new format.
 	 */
-	public Bucket exportBucket(Bucket bucket, BucketFormat newFormat) {
+	public LocalBucket exportBucket(LocalBucket bucket, BucketFormat newFormat) {
 		if (newFormat.equals(BucketFormat.UNKNOWN))
 			logAndThrowUnknownFormatException(bucket, newFormat);
 
@@ -78,14 +80,15 @@ public class BucketExportController {
 		return bucket.getFormat().equals(newFormat);
 	}
 
-	private Bucket getBucketInNewFormat(Bucket bucket, BucketFormat newFormat) {
+	private LocalBucket getBucketInNewFormat(LocalBucket bucket,
+			BucketFormat newFormat) {
 		if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET))
 			return changeFormatFromSplunkBucketToFormat(bucket, newFormat);
 		else
 			throw new UnsupportedOperationException("Can only ");
 	}
 
-	private Bucket changeFormatFromSplunkBucketToFormat(Bucket bucket,
+	private LocalBucket changeFormatFromSplunkBucketToFormat(LocalBucket bucket,
 			BucketFormat newFormat) {
 		if (formatChangers.containsKey(newFormat))
 			return formatChangers.get(newFormat).exportBucket(bucket);

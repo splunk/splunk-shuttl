@@ -15,13 +15,24 @@
 package com.splunk.shuttl.archiver.filesystem.transaction;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.BucketTransactionCleaner;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.TransfersBuckets;
+import com.splunk.shuttl.archiver.filesystem.transaction.file.FileTransactionCleaner;
+import com.splunk.shuttl.archiver.filesystem.transaction.file.TransfersFiles;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
  * Transactions for putting and getting {@link Bucket}s and their metadata. <br/>
  * TODO: Merge with {@link ArchiveFileSystem}.
  */
-public interface TransactionalFileSystem extends TransfersBuckets,
-		TransfersFiles, HasFileStructure, TransactionCleaner {
+public interface TransactionalFileSystem extends HasFileStructure {
+
+	TransfersBuckets getBucketTransferer();
+
+	TransfersFiles getFileTransferer();
+
+	BucketTransactionCleaner getBucketTransactionCleaner();
+
+	FileTransactionCleaner getFileTransactionCleaner();
 
 }

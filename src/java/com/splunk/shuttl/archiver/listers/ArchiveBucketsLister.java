@@ -16,9 +16,7 @@ package com.splunk.shuttl.archiver.listers;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,8 +27,7 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
-import com.splunk.shuttl.archiver.util.UtilsURI;
+import com.splunk.shuttl.archiver.model.RemoteBucket;
 
 /**
  * Lists {@link Bucket}s in an {@link ArchiveFileSystem}.
@@ -81,18 +78,18 @@ public class ArchiveBucketsLister {
 	 */
 	public List<Bucket> listBucketsInIndex(String index) {
 		ArrayList<Bucket> buckets = new ArrayList<Bucket>();
-		for (URI uriToBucket : getUriToBucketsWithIndex(index))
-			buckets.add(createBucketFromUriToBucket(uriToBucket));
+		for (String pathToBucket : getUriToBucketsWithIndex(index))
+			buckets.add(createBucketFromPathToBucket(pathToBucket));
 		return buckets;
 	}
 
-	private List<URI> getUriToBucketsWithIndex(String index) {
-		URI bucketsHome = pathResolver.getBucketsHome(index);
-		List<URI> urisToBuckets = listBucketsHomeInArchive(bucketsHome);
+	private List<String> getUriToBucketsWithIndex(String index) {
+		String bucketsHome = pathResolver.getBucketsHome(index);
+		List<String> urisToBuckets = listBucketsHomeInArchive(bucketsHome);
 		return urisToBuckets;
 	}
 
-	private List<URI> listBucketsHomeInArchive(URI bucketsHome) {
+	private List<String> listBucketsHomeInArchive(String bucketsHome) {
 		try {
 			return archiveFileSystem.listPath(bucketsHome);
 		} catch (IOException e) {
@@ -103,39 +100,16 @@ public class ArchiveBucketsLister {
 		}
 	}
 
-	private Bucket createBucketFromUriToBucket(URI uriToBucket) {
-		String bucketIndex = pathResolver.resolveIndexFromUriToBucket(uriToBucket);
-		String bucketName = FilenameUtils.getBaseName(UtilsURI
-				.getPathByTrimmingEndingFileSeparator(uriToBucket));
-		return this.createBucketWithErrorHandling(uriToBucket, bucketIndex,
+	private Bucket createBucketFromPathToBucket(String pathToBucket) {
+		String bucketIndex = pathResolver.resolveIndexFromUriToBucket(pathToBucket);
+		String bucketName = FilenameUtils.getBaseName(pathToBucket);
+		return this.createBucketWithErrorHandling(pathToBucket, bucketIndex,
 				bucketName);
 	}
 
-	private Bucket createBucketWithErrorHandling(URI uriToBucket,
+	private Bucket createBucketWithErrorHandling(String pathToBucket,
 			String bucketIndex, String bucketName) {
-		Exception exception = null;
-		try {
-			return new Bucket(uriToBucket, bucketIndex, bucketName, null);
-		} catch (FileNotFoundException e) {
-			exception = e;
-			logger.debug(did(
-					"Created bucket with uri, bucket_index, bucket_name, bucket_format",
-					e, "To create the bucket without problems.", "uri", uriToBucket,
-					"bucket_index", bucketIndex, "bucket_name", bucketName, "format",
-					null, "exception", e));
-		} catch (FileNotDirectoryException e) {
-			exception = e;
-			logger.debug(did(
-					"Created bucket with uri, bucket_index, bucket_name, bucket_format",
-					e, "To create the bucket without problems.", "uri", uriToBucket,
-					"bucket_index", bucketIndex, "bucket_name", bucketName, "format",
-					null, "exception", e));
-		}
-		if (exception != null)
-			logger.warn(warn("Tried to create bucket with uri, index and name",
-					exception, "Returning null for this bucket", "uri", uriToBucket,
-					"bucket_index", bucketIndex, "bucket_name", bucketName, "exception",
-					exception));
-		return null;
+		return new RemoteBucket(pathToBucket, bucketIndex, bucketName,
+				(BucketFormat) null);
 	}
 }

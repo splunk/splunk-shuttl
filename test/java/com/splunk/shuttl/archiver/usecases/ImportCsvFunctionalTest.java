@@ -36,6 +36,7 @@ import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
@@ -49,7 +50,7 @@ public class ImportCsvFunctionalTest {
 
 	private ArchiveConfiguration localCsvArchiveConfigration;
 	private BucketThawer csvThawer;
-	private Bucket realBucket;
+	private LocalBucket realBucket;
 	private BucketArchiver csvArchiver;
 	private File thawDirectory;
 	private File archiverData;
@@ -116,7 +117,7 @@ public class ImportCsvFunctionalTest {
 		TUtilsFunctional.archiveBucket(realBucket, csvArchiver, splunkHome);
 	}
 
-	private long sizeOfBucket(Bucket b) {
+	private long sizeOfBucket(LocalBucket b) {
 		return FileUtils.sizeOfDirectory(b.getDirectory());
 	}
 }

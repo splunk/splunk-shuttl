@@ -19,7 +19,6 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -28,8 +27,13 @@ import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.BucketTransactionCleaner;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.TransfersBuckets;
+import com.splunk.shuttl.archiver.filesystem.transaction.file.FileTransactionCleaner;
+import com.splunk.shuttl.archiver.filesystem.transaction.file.TransfersFiles;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * The glacier file system is not good for storing multiple files, it will
@@ -54,10 +58,10 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 		this.bucketDeleter = bucketDeleter;
 	}
 
-	@Override
-	public void putBucket(Bucket bucket, URI temp, URI dst) throws IOException {
+	private void putBucket(LocalBucket bucket, String temp, String dst)
+			throws IOException {
 		if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET)) {
-			Bucket tgzBucket = exportToTgzBucketWithWarning(bucket);
+			LocalBucket tgzBucket = exportToTgzBucketWithWarning(bucket);
 			uploadBucket(tgzBucket, dst);
 			bucketDeleter.deleteBucket(tgzBucket);
 		} else {
@@ -65,8 +69,8 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 		}
 	}
 
-	private Bucket exportToTgzBucketWithWarning(Bucket localBucket) {
-		Bucket bucketToUpload = tgzFormatExporter.exportBucket(localBucket);
+	private LocalBucket exportToTgzBucketWithWarning(LocalBucket localBucket) {
+		LocalBucket bucketToUpload = tgzFormatExporter.exportBucket(localBucket);
 		logger.warn(warn("Exported bucket to tgz because glacier should only "
 				+ "upload one file", "Bucket got exported",
 				"Will upload this tgz bucket. You can prevent this "
@@ -76,7 +80,7 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 		return bucketToUpload;
 	}
 
-	private void uploadBucket(Bucket bucketToUpload, URI dst) {
+	private void uploadBucket(LocalBucket bucketToUpload, String dst) {
 		File[] bucketFiles = bucketToUpload.getDirectory().listFiles();
 		if (bucketFiles.length != 1)
 			throw new GlacierArchivingException("Bucket has to be "
@@ -91,56 +95,80 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 		}
 	}
 
-	@Override
-	public void getBucket(Bucket remoteBucket, File temp, File dst)
+	private void getBucket(Bucket remoteBucket, File temp, File dst)
 			throws IOException {
-		URI uri = remoteBucket.getURI();
+		String path = remoteBucket.getPath();
 		try {
-			glacierClient.downloadToDir(uri, temp);
+			glacierClient.downloadToDir(path, temp);
 		} catch (Exception e) {
 			throw new GlacierThawingException("Got exception when downloading "
-					+ "from glacier. URI: " + uri);
+					+ "from glacier. Path: " + path);
 		}
 	}
 
 	@Override
-	public void cleanBucketTransaction(Bucket bucket, URI temp) {
-		// Do nothing.
+	public void mkdirs(String path) throws IOException {
+		hadoop.mkdirs(path);
 	}
 
 	@Override
-	public void putFile(File src, URI temp, URI dst) throws IOException {
-		hadoop.putFile(src, temp, dst);
-	}
-
-	@Override
-	public void getFile(URI src, File temp, File dst) throws IOException {
-		hadoop.getFile(src, temp, dst);
-	}
-
-	@Override
-	public void mkdirs(URI uri) throws IOException {
-		hadoop.mkdirs(uri);
-	}
-
-	@Override
-	public void rename(URI from, URI to) throws IOException {
+	public void rename(String from, String to) throws IOException {
 		hadoop.rename(from, to);
 	}
 
 	@Override
-	public void cleanFileTransaction(URI src, URI temp) {
-		hadoop.cleanFileTransaction(src, temp);
-	}
-
-	@Override
-	public List<URI> listPath(URI pathToBeListed) throws IOException {
+	public List<String> listPath(String pathToBeListed) throws IOException {
 		return hadoop.listPath(pathToBeListed);
 	}
 
 	@Override
-	public InputStream openFile(URI fileOnArchiveFileSystem) throws IOException {
+	public InputStream openFile(String fileOnArchiveFileSystem)
+			throws IOException {
 		return hadoop.openFile(fileOnArchiveFileSystem);
 	}
 
+	@Override
+	public TransfersBuckets getBucketTransferer() {
+		return new TransfersBuckets() {
+
+			@Override
+			public void put(Bucket localBucket, String temp, String dst)
+					throws IOException {
+				putBucket((LocalBucket) localBucket, temp, dst);
+			}
+
+			@Override
+			public void get(Bucket remoteBucket, File temp, File dst)
+					throws IOException {
+				getBucket(remoteBucket, temp, dst);
+			}
+		};
+	}
+
+	@Override
+	public TransfersFiles getFileTransferer() {
+		return hadoop.getFileTransferer();
+	}
+
+	@Override
+	public BucketTransactionCleaner getBucketTransactionCleaner() {
+		return new BucketTransactionCleaner() {
+
+			@Override
+			public void cleanTransaction(Bucket src, String temp) {
+				// Do nothing.
+			}
+		};
+	}
+
+	@Override
+	public FileTransactionCleaner getFileTransactionCleaner() {
+		return new FileTransactionCleaner() {
+
+			@Override
+			public void cleanTransaction(String src, String temp) {
+				hadoop.getFileTransactionCleaner().cleanTransaction(src, temp);
+			}
+		};
+	}
 }

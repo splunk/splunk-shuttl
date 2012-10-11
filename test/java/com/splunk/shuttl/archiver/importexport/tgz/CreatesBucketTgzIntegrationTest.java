@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "slow-unit" })
@@ -34,7 +34,7 @@ public class CreatesBucketTgzIntegrationTest {
 				ShellExecutor.getInstance(), new GetsBucketsExportFile(
 						createDirectory()));
 
-		Bucket bucket = TUtilsBucket.createBucket();
+		LocalBucket bucket = TUtilsBucket.createBucket();
 		File tgz = createsBucketTgz.createTgz(bucket);
 		assertTrue(tgz.exists());
 		assertNotEquals(0, tgz.length());

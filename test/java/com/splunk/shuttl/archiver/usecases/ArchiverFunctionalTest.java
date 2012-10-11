@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -35,7 +34,7 @@ import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "functional" })
@@ -65,14 +64,14 @@ public class ArchiverFunctionalTest {
 	}
 
 	public void Archiver_givenExistingBucket_archiveIt() throws IOException {
-		Bucket bucket = TUtilsBucket.createBucket();
+		LocalBucket bucket = TUtilsBucket.createBucket();
 		int filesInBucket = bucket.getDirectory().listFiles().length;
 
 		bucketArchiver.archiveBucket(bucket);
 
-		URI bucketArchiveUri = pathResolver.resolveArchivePath(bucket);
-		List<URI> urisInBucketDirectoryInArchive = archiveFileSystem
-				.listPath(bucketArchiveUri);
+		String bucketArchivePath = pathResolver.resolveArchivePath(bucket);
+		List<String> urisInBucketDirectoryInArchive = archiveFileSystem
+				.listPath(bucketArchivePath);
 		assertTrue(filesInBucket <= urisInBucketDirectoryInArchive.size());
 	}
 

@@ -18,10 +18,10 @@ package com.splunk.shuttl.archiver.filesystem.hadoop;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -29,7 +29,12 @@ import org.apache.hadoop.fs.Path;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.FileOverwriteException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.BucketTransactionCleaner;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.TransfersBuckets;
+import com.splunk.shuttl.archiver.filesystem.transaction.file.FileTransactionCleaner;
+import com.splunk.shuttl.archiver.filesystem.transaction.file.TransfersFiles;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 		TransactionalFileSystem {
@@ -41,7 +46,7 @@ public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 	}
 
 	@Override
-	public List<URI> listPath(URI pathToBeListed) throws IOException {
+	public List<String> listPath(String pathToBeListed) throws IOException {
 		Path hadoopPath = new Path(pathToBeListed);
 		FileStatus[] fileStatusOfPath = hadoopFileSystem.listStatus(hadoopPath);
 		if (fileStatusOfPath != null)
@@ -51,39 +56,28 @@ public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 	}
 
 	@Override
-	public InputStream openFile(URI fileOnArchiveFileSystem) throws IOException {
+	public InputStream openFile(String fileOnArchiveFileSystem)
+			throws IOException {
 		return hadoopFileSystem.open(new Path(fileOnArchiveFileSystem));
 	}
 
-	@Override
-	public void putBucket(Bucket bucket, URI temp, URI dst) throws IOException {
-		putFile(bucket.getDirectory(), temp, dst);
-	}
-
-	@Override
-	public void getBucket(Bucket bucket, File temp, File dst) throws IOException {
-		getFile(bucket.getURI(), temp, dst);
-	}
-
-	@Override
-	public void putFile(File src, URI temp, URI dst) throws IOException {
-		if (hadoopFileSystem.exists(new Path(dst)))
+	private void putFile(File src, Path temp, Path dst) throws IOException {
+		if (hadoopFileSystem.exists(dst))
 			throw new FileOverwriteException();
-		Path tempPath = new Path(temp);
-		hadoopFileSystem.delete(tempPath, true);
-		hadoopFileSystem.copyFromLocalFile(new Path(src.toURI()), tempPath);
+		hadoopFileSystem.delete(temp, true);
+		hadoopFileSystem.copyFromLocalFile(new Path(src.toURI()), temp);
 	}
 
-	@Override
-	public void getFile(URI src, File temp, File dst) throws IOException {
+	private void getFile(Path src, File temp, File dst) throws IOException {
 		if (dst.exists())
 			throw new FileOverwriteException();
-		hadoopFileSystem.copyToLocalFile(new Path(src), new Path(temp.toURI()));
+		FileUtils.deleteDirectory(temp);
+		hadoopFileSystem.copyToLocalFile(src, new Path(temp.toURI()));
 	}
 
 	@Override
-	public void mkdirs(URI uri) throws IOException {
-		mkdirsWithPath(new Path(uri));
+	public void mkdirs(String path) throws IOException {
+		mkdirsWithPath(new Path(path));
 	}
 
 	private void mkdirsWithPath(Path path) throws IOException {
@@ -91,19 +85,67 @@ public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 	}
 
 	@Override
-	public void rename(URI from, URI to) throws IOException {
+	public void rename(String from, String to) throws IOException {
 		mkdirsWithPath(new Path(to).getParent());
 		hadoopFileSystem.rename(new Path(from), new Path(to));
 	}
 
 	@Override
-	public void cleanFileTransaction(URI src, URI temp) {
-		// do nothing.
+	public TransfersBuckets getBucketTransferer() {
+		return new TransfersBuckets() {
+
+			@Override
+			public void put(Bucket bucket, String temp, String dst)
+					throws IOException {
+				LocalBucket localBucket = (LocalBucket) bucket;
+				putFile(localBucket.getDirectory(), new Path(temp), new Path(dst));
+			}
+
+			@Override
+			public void get(Bucket remoteBucket, File temp, File dst)
+					throws IOException {
+				getFile(new Path(remoteBucket.getPath()), temp, dst);
+			}
+		};
 	}
 
 	@Override
-	public void cleanBucketTransaction(Bucket bucket, URI temp) {
-		// do nothing.
+	public TransfersFiles getFileTransferer() {
+		return new TransfersFiles() {
+
+			@Override
+			public void put(String localData, String temp, String dst)
+					throws IOException {
+				putFile(new File(localData), new Path(temp), new Path(dst));
+			}
+
+			@Override
+			public void get(String remoteData, File temp, File dst)
+					throws IOException {
+				getFile(new Path(remoteData), temp, dst);
+			}
+		};
 	}
 
+	@Override
+	public BucketTransactionCleaner getBucketTransactionCleaner() {
+		return new BucketTransactionCleaner() {
+
+			@Override
+			public void cleanTransaction(Bucket bucket, String temp) {
+				// Do nothing.
+			}
+		};
+	}
+
+	@Override
+	public FileTransactionCleaner getFileTransactionCleaner() {
+		return new FileTransactionCleaner() {
+
+			@Override
+			public void cleanTransaction(String file, String temp) {
+				// Do nothing.
+			}
+		};
+	}
 }

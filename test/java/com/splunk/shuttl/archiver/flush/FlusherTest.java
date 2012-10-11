@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsDate;
@@ -69,7 +70,7 @@ public class FlusherTest {
 
 	public void _givenThawedBucket_flushingTheTimeRangeOfThawedBucketDeletesBucket()
 			throws IllegalIndexException {
-		Bucket thawedBucket = TUtilsBucket.createBucketInDirectoryWithIndex(
+		LocalBucket thawedBucket = TUtilsBucket.createBucketInDirectoryWithIndex(
 				thawDir, index);
 		assertTrue(thawedBucket.getDirectory().exists());
 		flusher.flush(index, thawedBucket.getEarliest(), thawedBucket.getLatest());
@@ -81,7 +82,7 @@ public class FlusherTest {
 			throws IllegalIndexException {
 		Date date = TUtilsDate.getNowWithoutMillis();
 		Date laterDate = TUtilsDate.getLaterDate(date);
-		Bucket bucket = TUtilsBucket.createBucketInDirectoryWithTimes(thawDir,
+		LocalBucket bucket = TUtilsBucket.createBucketInDirectoryWithTimes(thawDir,
 				date, date);
 		assertTrue(bucket.getDirectory().exists());
 		flusher.flush(index, laterDate, laterDate);
@@ -91,8 +92,10 @@ public class FlusherTest {
 
 	public void _givenTwoThawedBuckets_withinTimeRangeDeletesBuckets()
 			throws IllegalIndexException {
-		Bucket b1 = TUtilsBucket.createBucketInDirectoryWithIndex(thawDir, index);
-		Bucket b2 = TUtilsBucket.createBucketInDirectoryWithTimesAndIndex(thawDir,
+		LocalBucket b1 = TUtilsBucket.createBucketInDirectoryWithIndex(thawDir,
+				index);
+		LocalBucket b2 = TUtilsBucket.createBucketInDirectoryWithTimesAndIndex(
+				thawDir,
 				b1.getEarliest(), b1.getLatest(), index);
 		flusher.flush(index, b1.getEarliest(), b1.getLatest());
 		assertFalse(b1.getDirectory().exists());

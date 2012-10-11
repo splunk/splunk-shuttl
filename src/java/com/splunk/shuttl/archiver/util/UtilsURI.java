@@ -35,7 +35,10 @@ public class UtilsURI {
 	 * </pre>
 	 */
 	public static String getPathByTrimmingEndingFileSeparator(URI uri) {
-		String path = uri.getPath();
+		return getPathByTrimmingEndingFileSeparator(uri.getPath());
+	}
+
+	public static String getPathByTrimmingEndingFileSeparator(String path) {
 		if (path.endsWith(File.separator))
 			return path.substring(0, path.length() - 1);
 		else

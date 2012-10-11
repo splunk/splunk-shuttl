@@ -30,6 +30,7 @@ import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -63,8 +64,8 @@ public class ThawBucketTransfererTest {
 				dst);
 		bucketTransferer.transferBucketToThaw(bucket);
 		verify(transactionExecuter).execute(
-				eq(TransactionProvider.createPut(archiveFileSystem, bucket,
-						temp.toURI(), dst.toURI())));
+				eq(TransactionProvider.createGet(archiveFileSystem, bucket,
+						temp.getAbsolutePath(), dst.getAbsolutePath())));
 	}
 
 	public void _givenSuccessfulTransfer_returnBucketTransferedBucketOnLocalDisk()
@@ -73,7 +74,7 @@ public class ThawBucketTransfererTest {
 				.toReturn(createDirectory());
 		Bucket bucketToTransfer = TUtilsBucket.createBucket();
 		File bucketLocationOnLocalDisk = createDirectory();
-		Bucket bucketOnLocalDisk = mock(Bucket.class);
+		LocalBucket bucketOnLocalDisk = mock(LocalBucket.class);
 
 		when(thawLocationProvider.getLocationInThawForBucket(bucketToTransfer))
 				.thenReturn(bucketLocationOnLocalDisk);

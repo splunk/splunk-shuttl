@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Creates a tgz file from a bucket. Useful when either compressing the buckets
@@ -47,7 +47,7 @@ public class CreatesBucketTgz {
 	/**
 	 * Creates a .tgz file from a bucket.
 	 */
-	public File createTgz(Bucket bucket) {
+	public File createTgz(LocalBucket bucket) {
 		File tgz = getsBucketsExportFile.getExportFile(bucket, "tgz");
 		try {
 			createTgzFileFromBucket(bucket, tgz);
@@ -58,12 +58,12 @@ public class CreatesBucketTgz {
 		return tgz;
 	}
 
-	private void createTgzFileFromBucket(Bucket bucket, File tgz) {
+	private void createTgzFileFromBucket(LocalBucket bucket, File tgz) {
 		String[] command = buildTgzCommand(bucket, tgz);
 		executeCommand(command);
 	}
 
-	private String[] buildTgzCommand(Bucket bucket, File tgz) {
+	private String[] buildTgzCommand(LocalBucket bucket, File tgz) {
 		File bucketDir = bucket.getDirectory();
 		String parentPath = bucketDir.getParentFile().getAbsolutePath();
 		String tgzCmd = "tar -C " + parentPath + " -c " + bucketDir.getName()

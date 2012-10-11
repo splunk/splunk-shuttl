@@ -19,7 +19,6 @@ import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
-import java.net.URI;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -51,30 +50,30 @@ public class ArchiveBucketSizeTest {
 	public void getBucketSizeTransaction_givenBucket_createsWithPathResolverUris() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		File src = mock(File.class);
-		URI temp = URI.create("u://ri");
-		URI dst = URI.create("u://dst");
+		String temp = "/temp/path";
+		String dst = "/dst/path";
 		when(bucketSizeIO.getFileWithBucketSize(bucket)).thenReturn(src);
 		when(pathResolver.resolveTempPathForBucketSize(bucket)).thenReturn(temp);
 		when(pathResolver.getBucketSizeFileUriForBucket(bucket)).thenReturn(dst);
 
 		Transaction bucketSizeTransaction = archiveBucketSize
 				.getBucketSizeTransaction(bucket);
-		assertEquals(TransactionProvider.createPut(archiveFileSystem, src.toURI(),
-				temp, dst), bucketSizeTransaction);
+		assertEquals(TransactionProvider.createPut(archiveFileSystem,
+				src.getAbsolutePath(), temp, dst), bucketSizeTransaction);
 	}
 
 	public void getSize_givenUriToFileWithBucketSize_passesUriToBucketSizeFileForReading() {
 		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
-		URI uriToFileWIthBucketSize = URI.create("remote:/uri");
+		String pathToFileWIthBucketSize = "path/to/bucket/size";
 		when(pathResolver.getBucketSizeFileUriForBucket(remoteBucket)).thenReturn(
-				uriToFileWIthBucketSize);
+				pathToFileWIthBucketSize);
 		archiveBucketSize.getSize(remoteBucket);
-		verify(bucketSizeIO).readSizeFromRemoteFile(uriToFileWIthBucketSize);
+		verify(bucketSizeIO).readSizeFromRemoteFile(pathToFileWIthBucketSize);
 	}
 
 	public void getSize_givenBucketFileSizeReadSuccessfully_returnValue() {
 		long size = 4711;
-		when(bucketSizeIO.readSizeFromRemoteFile(any(URI.class))).thenReturn(size);
+		when(bucketSizeIO.readSizeFromRemoteFile(anyString())).thenReturn(size);
 		long actualSize = archiveBucketSize.getSize(TUtilsBucket
 				.createRemoteBucket());
 		assertEquals(size, actualSize);

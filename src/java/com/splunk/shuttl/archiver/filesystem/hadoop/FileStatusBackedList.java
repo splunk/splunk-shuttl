@@ -15,7 +15,6 @@
 
 package com.splunk.shuttl.archiver.filesystem.hadoop;
 
-import java.net.URI;
 import java.util.AbstractList;
 
 import org.apache.hadoop.fs.FileStatus;
@@ -24,10 +23,10 @@ import org.apache.hadoop.fs.FileStatus;
  * Wraps around {@link FileStatus} and provides a list of URI objects.
  * 
  */
-public class FileStatusBackedList extends AbstractList<URI> {
+public class FileStatusBackedList extends AbstractList<String> {
 
 	private final FileStatus[] fileStatus;
-	private final URI[] uriCache;
+	private final String[] pathCache;
 
 	/**
 	 * Creates a list backed by the specified FileStatus array.
@@ -35,14 +34,14 @@ public class FileStatusBackedList extends AbstractList<URI> {
 	public FileStatusBackedList(FileStatus... fileStatus) {
 		super();
 		this.fileStatus = fileStatus;
-		this.uriCache = new URI[fileStatus.length];
+		this.pathCache = new String[fileStatus.length];
 	}
 
 	@Override
-	public URI get(int index) {
-		if (uriCache[index] == null)
-			uriCache[index] = fileStatus[index].getPath().toUri();
-		return uriCache[index];
+	public String get(int index) {
+		if (pathCache[index] == null)
+			pathCache[index] = fileStatus[index].getPath().toUri().getPath();
+		return pathCache[index];
 	}
 
 	@Override

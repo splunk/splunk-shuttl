@@ -20,7 +20,6 @@ import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,7 +64,7 @@ public class ArchiveBucketsListerTest {
 
 	public void listBucketsInIndex_givenBucketsHome_listBucketsOnArchiveFilesSystem()
 			throws IOException {
-		URI bucketsHome = URI.create("valid:/uri/bucketsHome");
+		String bucketsHome = "/path/to/bucketsHome";
 		when(pathResolver.getBucketsHome(anyString())).thenReturn(bucketsHome);
 		archiveBucketsLister.listBucketsInIndex("index");
 		verify(archiveFileSystem).listPath(bucketsHome);
@@ -73,35 +72,35 @@ public class ArchiveBucketsListerTest {
 
 	public void listBucketsInIndex_listedBucketsHomeInArchive_resolveIndexFromUrisToBuckets()
 			throws IOException {
-		String uriBase = "valid:/uri/bucketsHome/";
-		URI bucketUri1 = URI.create(uriBase + "bucket1");
-		URI bucketUri2 = URI.create(uriBase + "bucket2");
-		List<URI> bucketsInBucketsHome = Arrays.asList(bucketUri1, bucketUri2);
-		when(archiveFileSystem.listPath(any(URI.class))).thenReturn(
+		String basePath = "/path/to/bucketsHome/";
+		String bucketUri1 = basePath + "bucket1";
+		String bucketUri2 = basePath + "bucket2";
+		List<String> bucketsInBucketsHome = Arrays.asList(bucketUri1, bucketUri2);
+		when(archiveFileSystem.listPath(anyString())).thenReturn(
 				bucketsInBucketsHome);
 		archiveBucketsLister.listBucketsInIndex("index");
-		for (URI uriToBucket : bucketsInBucketsHome)
+		for (String uriToBucket : bucketsInBucketsHome)
 			verify(pathResolver).resolveIndexFromUriToBucket(uriToBucket);
 	}
 
 	public void listBucketsInIndex_givenUriToBucketsAndIndexToThoseBuckets_returnListOfBucketsNameAndIndexButNullFormat()
 			throws IOException {
-		String uriBase = "valid:/uri/bucketsHome/";
+		String basePath = "/path/to/bucketsHome/";
 		String index = "index";
 		String bucketName1 = "bucket1";
 		String bucketName2 = "bucket2";
-		URI bucketUri1 = URI.create(uriBase + bucketName1);
-		URI bucketUri2 = URI.create(uriBase + bucketName2);
-		List<URI> bucketsInBucketsHome = Arrays.asList(bucketUri1, bucketUri2);
-		when(archiveFileSystem.listPath(any(URI.class))).thenReturn(
+		String bucketPath1 = basePath + bucketName1;
+		String bucketPath2 = basePath + bucketName2;
+		List<String> bucketsInBucketsHome = Arrays.asList(bucketPath1, bucketPath2);
+		when(archiveFileSystem.listPath(anyString())).thenReturn(
 				bucketsInBucketsHome);
-		when(pathResolver.resolveIndexFromUriToBucket(any(URI.class))).thenReturn(
+		when(pathResolver.resolveIndexFromUriToBucket(anyString())).thenReturn(
 				index);
 
 		List<Bucket> buckets = archiveBucketsLister.listBucketsInIndex(index);
 		assertEquals(2, buckets.size());
-		Bucket bucket1 = new Bucket(bucketUri1, index, bucketName1, null);
-		Bucket bucket2 = new Bucket(bucketUri2, index, bucketName2, null);
+		Bucket bucket1 = new Bucket(bucketPath1, index, bucketName1, null);
+		Bucket bucket2 = new Bucket(bucketPath2, index, bucketName2, null);
 		for (Bucket bucket : buckets)
 			assertTrue(TUtilsTestNG
 					.isBucketEqualOnIndexFormatAndName(bucket1, bucket)

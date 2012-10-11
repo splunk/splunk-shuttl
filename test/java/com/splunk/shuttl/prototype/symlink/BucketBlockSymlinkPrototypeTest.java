@@ -37,8 +37,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.SplunkServiceParameters;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -54,7 +54,7 @@ public class BucketBlockSymlinkPrototypeTest {
 
 	Path testDataPath;
 	FileSystem hadoopFileSystem;
-	private Bucket realBucket;
+	private LocalBucket realBucket;
 	private File thawLocation;
 
 	@BeforeMethod

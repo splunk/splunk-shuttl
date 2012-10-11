@@ -28,7 +28,7 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
+import com.splunk.shuttl.archiver.filesystem.transaction.AbstractTransaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -65,7 +65,7 @@ public class BucketSizeIOFunctionalTest {
 		Bucket bucket = TUtilsBucket.createRealBucket();
 		long bucketSize = bucket.getSize();
 
-		Transaction bucketSizeTransaction = archiveBucketSize
+		AbstractTransaction<?> bucketSizeTransaction = (AbstractTransaction<?>) archiveBucketSize
 				.getBucketSizeTransaction(bucket);
 		TransactionExecuter.executeTransaction(bucketSizeTransaction);
 

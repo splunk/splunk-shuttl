@@ -21,20 +21,20 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
 import com.splunk.shuttl.archiver.bucketlock.SimpleFileLock.NotLockedException;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketArchiverRunnerTest {
 
 	BucketArchiverRunner bucketArchiverRunner;
 	BucketArchiver bucketArchiver;
-	Bucket bucket;
+	LocalBucket bucket;
 	BucketLock bucketLock;
 
 	@BeforeMethod
 	public void setUp() {
 		bucketArchiver = mock(BucketArchiver.class);
-		bucket = mock(Bucket.class);
+		bucket = mock(LocalBucket.class);
 		bucketLock = mock(BucketLock.class);
 		when(bucketLock.isLocked()).thenReturn(true);
 		bucketArchiverRunner = new BucketArchiverRunner(bucketArchiver, bucket,

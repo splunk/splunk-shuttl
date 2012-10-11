@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.importexport.BucketImportController;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -46,29 +47,19 @@ public class GetsBucketsFromArchiveTest {
 		bucket = mock(Bucket.class);
 	}
 
-	public void _givenSuccessfulTransfer_importBucketAndGetSizeFromBucket()
-			throws Exception {
-		Bucket dummy = TUtilsBucket.createBucket();
-		Bucket bucketThawed = mock(Bucket.class);
-		when(thawBucketTransferer.transferBucketToThaw(bucket)).thenReturn(
-				bucketThawed);
-		when(bucketImportController.restoreToSplunkBucketFormat(bucketThawed)).thenReturn(
-				dummy);
-		when(bucketSizeResolver.resolveBucketSize(bucketThawed)).thenReturn(dummy);
-
-		getsBucketsFromArchive.getBucketFromArchive(bucket);
-	}
-
 	public void _givenSuccessfulImportAndSizeResolving_returnImportedBucketWithSize()
 			throws Exception {
-		Bucket importedBucket = TUtilsBucket.createBucket();
+		LocalBucket importedBucket = TUtilsBucket.createBucket();
 		Bucket sizedBucket = mock(Bucket.class);
 		stub(sizedBucket.getSize()).toReturn(121L);
-		when(bucketImportController.restoreToSplunkBucketFormat(any(Bucket.class)))
+		when(
+				bucketImportController
+						.restoreToSplunkBucketFormat(any(LocalBucket.class)))
 				.thenReturn(importedBucket);
 		when(bucketSizeResolver.resolveBucketSize(any(Bucket.class))).thenReturn(
 				sizedBucket);
-		Bucket actualBucket = getsBucketsFromArchive.getBucketFromArchive(bucket);
+		LocalBucket actualBucket = getsBucketsFromArchive
+				.getBucketFromArchive(bucket);
 
 		assertEquals(importedBucket.getDirectory(), actualBucket.getDirectory());
 		assertEquals(importedBucket.getEarliest(), actualBucket.getEarliest());
@@ -76,7 +67,7 @@ public class GetsBucketsFromArchiveTest {
 		assertEquals(importedBucket.getIndex(), actualBucket.getIndex());
 		assertEquals(importedBucket.getFormat(), actualBucket.getFormat());
 		assertEquals(importedBucket.getName(), actualBucket.getName());
-		assertEquals(importedBucket.getURI(), actualBucket.getURI());
+		assertEquals(importedBucket.getPath(), actualBucket.getPath());
 		assertEquals(sizedBucket.getSize(), actualBucket.getSize());
 	}
 

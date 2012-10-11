@@ -33,8 +33,8 @@ import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
@@ -84,8 +84,8 @@ public class ThawFunctionalTest {
 	public void Thawer_givenOneArchivedBucket_thawArchivedBucket() {
 		Date earliest = TUtilsDate.getNowWithoutMillis();
 		Date latest = earliest;
-		Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(thawIndex,
-				earliest, latest);
+		LocalBucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
+				thawIndex, earliest, latest);
 		archiveBucket(bucket, bucketArchiver);
 
 		assertTrue(isDirectoryEmpty(thawDirectory));
@@ -105,8 +105,8 @@ public class ThawFunctionalTest {
 		for (int i = 0; i < 3; i++) {
 			Date early = new Date(earliest.getTime() + i * HUNDRED_SECONDS);
 			Date later = new Date(early.getTime() + SECOND);
-			Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(thawIndex,
-					early, later);
+			LocalBucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
+					thawIndex, early, later);
 			archiveBucket(bucket, bucketArchiver);
 			assertFalse(bucket.getDirectory().exists());
 		}

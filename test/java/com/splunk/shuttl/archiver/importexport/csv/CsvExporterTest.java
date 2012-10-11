@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 @Test(groups = { "fast-unit" })
 public class CsvExporterTest {
@@ -40,8 +41,8 @@ public class CsvExporterTest {
 	}
 
 	public void _givenBucket_exportsToACsvFileAndCreatesTheBucketObject() {
-		Bucket bucket = mock(Bucket.class);
-		Bucket csvBucket = mock(Bucket.class);
+		LocalBucket bucket = mock(LocalBucket.class);
+		LocalBucket csvBucket = mock(LocalBucket.class);
 		File csvFile = mock(File.class);
 		when(bucketToCsvFileExporter.exportBucketToCsv(bucket)).thenReturn(csvFile);
 		when(bucketFileCreator.createBucketWithFile(csvFile, bucket)).thenReturn(

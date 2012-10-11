@@ -37,6 +37,7 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketFormatChooser;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -48,7 +49,7 @@ public class ExportCsvFunctionalTest {
 	private BucketArchiver csvBucketArchiver;
 	private ArchiveBucketsLister bucketsLister;
 	private BucketFormatResolver bucketFormatResolver;
-	private Bucket bucket;
+	private LocalBucket bucket;
 	private File archiverData;
 
 	@BeforeMethod

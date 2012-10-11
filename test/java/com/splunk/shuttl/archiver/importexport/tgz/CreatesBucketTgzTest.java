@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -39,7 +39,7 @@ public class CreatesBucketTgzTest {
 	private GetsBucketsExportFile getsBucketsExportFile;
 
 	private HashMap<String, String> emptyMap;
-	private Bucket bucket;
+	private LocalBucket bucket;
 	private File tgz;
 
 	@BeforeMethod

@@ -21,7 +21,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -29,7 +29,7 @@ public class MoveAndArchiveBucketUnderLockTest {
 
 	MoveAndArchiveBucketUnderLock moveAndArchiveBucketUnderLock;
 	IndexPreservingBucketMover bucketMover;
-	Bucket bucket;
+	LocalBucket bucket;
 	ArchiveRestHandler archiveRestHandler;
 
 	@BeforeMethod
@@ -48,16 +48,17 @@ public class MoveAndArchiveBucketUnderLockTest {
 	}
 
 	public void moveThenArchiveBucket_givenBucket_archivesTheMovedBucket() {
-		Bucket movedBucket = mock(Bucket.class);
+		LocalBucket movedBucket = mock(LocalBucket.class);
 		when(bucketMover.moveBucket(bucket)).thenReturn(movedBucket);
 		moveAndArchiveBucketUnderLock.moveThenArchiveBucket(bucket);
-		verify(archiveRestHandler).callRestToArchiveBucket(movedBucket);
+		verify(archiveRestHandler).callRestToArchiveLocalBucket(movedBucket);
 	}
 
 	public void handleLockedBucket_givenBucket_movesAndArchivesTheBucket() {
 		moveAndArchiveBucketUnderLock.handleSharedLockedBucket(bucket);
 		verify(bucketMover).moveBucket(bucket);
-		verify(archiveRestHandler).callRestToArchiveBucket(any(Bucket.class));
+		verify(archiveRestHandler).callRestToArchiveLocalBucket(
+				any(LocalBucket.class));
 		verifyNoMoreInteractions(bucketMover, archiveRestHandler);
 	}
 

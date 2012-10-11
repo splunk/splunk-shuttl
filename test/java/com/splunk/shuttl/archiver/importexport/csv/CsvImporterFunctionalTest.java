@@ -23,8 +23,8 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkImportTool;
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
@@ -32,7 +32,7 @@ import com.splunk.shuttl.testutil.TUtilsEnvironment;
 public class CsvImporterFunctionalTest {
 
 	private CsvImporter integratedCsvImporter;
-	private Bucket csvBucket;
+	private LocalBucket csvBucket;
 
 	@BeforeMethod
 	public void setUp() {
@@ -52,15 +52,15 @@ public class CsvImporterFunctionalTest {
 			@Override
 			public void run() {
 				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
-				Bucket importedBucket = integratedCsvImporter
+				LocalBucket importedBucket = integratedCsvImporter
 						.importBucket(csvBucket);
 				assertFormatIsChangedOnImportedBucket(csvBucket, importedBucket);
 			}
 		});
 	}
 
-	private void assertFormatIsChangedOnImportedBucket(Bucket csvBucket,
-			Bucket importedBucket) {
+	private void assertFormatIsChangedOnImportedBucket(LocalBucket csvBucket,
+			LocalBucket importedBucket) {
 		assertEquals(BucketFormat.SPLUNK_BUCKET, importedBucket.getFormat());
 		assertEquals(csvBucket.getName(), importedBucket.getName());
 		assertEquals(csvBucket.getDirectory(), importedBucket.getDirectory());

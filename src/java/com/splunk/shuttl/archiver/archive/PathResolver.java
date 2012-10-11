@@ -15,8 +15,6 @@
 
 package com.splunk.shuttl.archiver.archive;
 
-import java.net.URI;
-
 import org.apache.commons.io.FilenameUtils;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
@@ -51,11 +49,11 @@ public class PathResolver {
 	 *          to archive.
 	 * @return URI to archive the bucket
 	 */
-	public URI resolveArchivePath(Bucket bucket) {
-		String archivePathForBucket = getArchivingPath().toString() + SEPARATOR
+	public String resolveArchivePath(Bucket bucket) {
+		String archivePathForBucket = getArchivingPath() + SEPARATOR
 				+ bucket.getIndex() + SEPARATOR + bucket.getName() + SEPARATOR
 				+ bucket.getFormat();
-		return URI.create(archivePathForBucket);
+		return archivePathForBucket;
 	}
 
 	/**
@@ -64,17 +62,17 @@ public class PathResolver {
 	 * 
 	 * @return Archiving path that starts with "/"
 	 */
-	private URI getArchivingPath() {
-		return URI.create(configuration.getArchivingRoot().toString() + SEPARATOR
+	private String getArchivingPath() {
+		return configuration.getArchivePath() + SEPARATOR
 				+ configuration.getClusterName() + SEPARATOR
-				+ configuration.getServerName());
+				+ configuration.getServerName();
 	}
 
 	/**
 	 * @return Indexes home, which is where on the {@link ArchiveFileSystem} that
 	 *         you can list indexes.
 	 */
-	public URI getIndexesHome() {
+	public String getIndexesHome() {
 		return getArchivingPath();
 	}
 
@@ -82,22 +80,21 @@ public class PathResolver {
 	 * @return Buckets home for an index, which is where on the
 	 *         {@link ArchiveFileSystem} you can list buckets.
 	 */
-	public URI getBucketsHome(String index) {
-		return URI.create(getIndexesHome().toString() + SEPARATOR + index);
+	public String getBucketsHome(String index) {
+		return getIndexesHome() + SEPARATOR + index;
 	}
 
 	/**
-	 * Resolves index from a {@link URI} to a bucket.<br/>
+	 * Resolves index from a Path to a bucket.<br/>
 	 * <br/>
 	 * 
 	 * @param bucketURI
-	 *          , {@link URI} needs to have the index in a structure decided by a
+	 *          , Path needs to have the index in a structure decided by a
 	 *          {@link PathResolver}.
 	 */
-	public String resolveIndexFromUriToBucket(URI bucketURI) {
-		String bucketPath = UtilsURI
-				.getPathByTrimmingEndingFileSeparator(bucketURI);
-		String parentWhichIsIndex = getParent(bucketPath);
+	public String resolveIndexFromUriToBucket(String bucketPath) {
+		String parentWhichIsIndex = getParent(UtilsURI
+				.getPathByTrimmingEndingFileSeparator(bucketPath));
 		return FilenameUtils.getBaseName(parentWhichIsIndex);
 	}
 
@@ -106,15 +103,14 @@ public class PathResolver {
 	}
 
 	/**
-	 * @return {@link URI} to where formats can be listed for a bucket.
+	 * @return Path to where formats can be listed for a bucket.
 	 */
-	public URI getFormatsHome(String index, String bucketName) {
-		return URI
-				.create(getBucketsHome(index).toString() + SEPARATOR + bucketName);
+	public String getFormatsHome(String index, String bucketName) {
+		return getBucketsHome(index) + SEPARATOR + bucketName;
 	}
 
 	/**
-	 * {@link URI} to an archived bucket.
+	 * Path to an archived bucket.
 	 * 
 	 * @param index
 	 *          to the bucket
@@ -122,12 +118,11 @@ public class PathResolver {
 	 *          of the bucket
 	 * @param format
 	 *          of the bucket
-	 * @return {@link URI} to archived bucket.
+	 * @return Path to archived bucket.
 	 */
-	public URI resolveArchivedBucketURI(String index, String bucketName,
+	public String resolveArchivedBucketURI(String index, String bucketName,
 			BucketFormat format) {
-		return URI.create(getFormatsHome(index, bucketName).toString() + SEPARATOR
-				+ format);
+		return getFormatsHome(index, bucketName) + SEPARATOR + format;
 	}
 
 	/**
@@ -141,29 +136,26 @@ public class PathResolver {
 	}
 
 	/**
-	 * @return {@link URI} to where a bucket's file with local disk size
-	 *         information.
+	 * @return Path to where a bucket's file with local disk size information.
 	 */
-	public URI getBucketSizeFileUriForBucket(Bucket bucket) {
-		return URI.create(resolveArchivePath(bucket).toString() + bucketSizeSuffix);
+	public String getBucketSizeFileUriForBucket(Bucket bucket) {
+		return resolveArchivePath(bucket) + bucketSizeSuffix;
 	}
 
 	/**
-	 * @return {@link URI} to a temporary location on the
-	 *         {@link ArchiveFileSystem} where it can be transferred to, and yet
-	 *         be "invisible" from the system.
+	 * @return Path to a temporary location on the {@link ArchiveFileSystem} where
+	 *         it can be transferred to, and yet be "invisible" from the system.
 	 */
-	public URI resolveTempPathForBucket(Bucket bucket) {
-		return URI.create(configuration.getTmpDirectory().toString()
-				+ resolveArchivePath(bucket).getPath());
+	public String resolveTempPathForBucket(Bucket bucket) {
+		return configuration.getTmpDirectory() + resolveArchivePath(bucket);
 	}
 
 	/**
-	 * @return {@link URI} to a temporary location for the bucket size. @see
+	 * @return Path to a temporary location for the bucket size. @see
 	 *         {@link PathResolver#resolveTempPathForBucketSize(Bucket)}.
 	 */
-	public URI resolveTempPathForBucketSize(Bucket bucket) {
-		URI tempPathForBucket = resolveTempPathForBucket(bucket);
-		return URI.create(tempPathForBucket.toString() + bucketSizeSuffix);
+	public String resolveTempPathForBucketSize(Bucket bucket) {
+		String tempPathForBucket = resolveTempPathForBucket(bucket);
+		return tempPathForBucket + bucketSizeSuffix;
 	}
 }

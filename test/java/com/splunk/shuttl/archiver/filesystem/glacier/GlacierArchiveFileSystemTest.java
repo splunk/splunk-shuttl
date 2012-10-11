@@ -19,7 +19,6 @@ import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 
 import org.apache.log4j.Logger;
 import org.mockito.InOrder;
@@ -27,18 +26,20 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketDeleter;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.TransfersBuckets;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.archiver.model.RemoteBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class GlacierArchiveFileSystemTest {
 
 	private GlacierClient glacierClient;
-	private GlacierArchiveFileSystem glacier;
+	private TransfersBuckets glacierBucketTransferer;
 
-	private URI temp;
-	private URI dst;
+	private String temp;
+	private String dst;
 	private TgzFormatExporter tgzFormatExporter;
 	private Logger logger;
 	private BucketDeleter bucketDeleter;
@@ -49,40 +50,40 @@ public class GlacierArchiveFileSystemTest {
 		tgzFormatExporter = mock(TgzFormatExporter.class);
 		logger = mock(Logger.class);
 		bucketDeleter = mock(BucketDeleter.class);
-		glacier = new GlacierArchiveFileSystem(null, glacierClient,
-				tgzFormatExporter, logger, bucketDeleter);
+		glacierBucketTransferer = new GlacierArchiveFileSystem(null, glacierClient,
+				tgzFormatExporter, logger, bucketDeleter).getBucketTransferer();
 
-		temp = URI.create("u:/temp");
-		dst = URI.create("u:/dst");
+		temp = "/path/temp";
+		dst = "/path/dst";
 	}
 
 	public void putBucket_givenTgzBucket_uploadBucketToTheRealDestination()
 			throws IOException {
-		Bucket tgzBucket = TUtilsBucket.createTgzBucket();
-		glacier.putBucket(tgzBucket, temp, dst);
+		LocalBucket tgzBucket = TUtilsBucket.createTgzBucket();
+		glacierBucketTransferer.put(tgzBucket, temp, dst);
 		verify(glacierClient).upload(eq(getBucketFile(tgzBucket)), eq(dst));
 	}
 
-	private File getBucketFile(Bucket tgzBucket) {
+	private File getBucketFile(LocalBucket tgzBucket) {
 		return tgzBucket.getDirectory().listFiles()[0];
 	}
 
 	public void putBucket_givenSplunkBucket_exportBucketToTgzAndLogThisEventThenUploadTgz()
 			throws IOException {
-		Bucket bucket = TUtilsBucket.createBucket();
-		Bucket tgzBucket = TUtilsBucket.createTgzBucket();
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		LocalBucket tgzBucket = TUtilsBucket.createTgzBucket();
 		when(tgzFormatExporter.exportBucket(bucket)).thenReturn(tgzBucket);
-		glacier.putBucket(bucket, temp, dst);
+		glacierBucketTransferer.put(bucket, temp, dst);
 		verify(glacierClient).upload(eq(getBucketFile(tgzBucket)), eq(dst));
 		verify(logger).warn(anyString());
 	}
 
 	public void putBucket_givenSplunkBucket_exportedBucketGetsUploadedThenDeleted()
 			throws IOException {
-		Bucket bucket = TUtilsBucket.createBucket();
-		Bucket tgzBucket = TUtilsBucket.createTgzBucket();
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		LocalBucket tgzBucket = TUtilsBucket.createTgzBucket();
 		when(tgzFormatExporter.exportBucket(bucket)).thenReturn(tgzBucket);
-		glacier.putBucket(bucket, temp, dst);
+		glacierBucketTransferer.put(bucket, temp, dst);
 		InOrder inOrder = inOrder(glacierClient, bucketDeleter);
 		inOrder.verify(glacierClient).upload(eq(getBucketFile(tgzBucket)), eq(dst));
 		inOrder.verify(bucketDeleter).deleteBucket(tgzBucket);
@@ -90,27 +91,27 @@ public class GlacierArchiveFileSystemTest {
 	}
 
 	public void getBucket__getsBucketWithBucketsRemoteUri() throws IOException {
-		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
+		RemoteBucket remoteBucket = TUtilsBucket.createRemoteBucket();
 		File temp = mock(File.class);
 		File dst = mock(File.class);
-		glacier.getBucket(remoteBucket, temp, dst);
-		verify(glacierClient).downloadToDir(remoteBucket.getURI(), temp);
+		glacierBucketTransferer.get(remoteBucket, temp, dst);
+		verify(glacierClient).downloadToDir(remoteBucket.getPath(), temp);
 	}
 
 	@Test(expectedExceptions = { GlacierArchivingException.class })
 	public void putBucket_glacierClientThrows_wrapsExceptionInGlacierArchivingException()
 			throws IOException {
 		doThrow(RuntimeException.class).when(glacierClient).upload(any(File.class),
-				any(URI.class));
-		glacier.putBucket(TUtilsBucket.createTgzBucket(), temp, dst);
+				anyString());
+		glacierBucketTransferer.put(TUtilsBucket.createTgzBucket(), temp, dst);
 	}
 
 	@Test(expectedExceptions = { GlacierThawingException.class })
 	public void getBucket_glacierClientThrows_wrapsExceptionInGlacierThawingException()
 			throws IOException {
 		doThrow(RuntimeException.class).when(glacierClient).downloadToDir(
-				any(URI.class), any(File.class));
-		glacier.getBucket(TUtilsBucket.createRemoteBucket(), mock(File.class),
-				mock(File.class));
+				anyString(), any(File.class));
+		glacierBucketTransferer.get(TUtilsBucket.createRemoteBucket(),
+				mock(File.class), mock(File.class));
 	}
 }

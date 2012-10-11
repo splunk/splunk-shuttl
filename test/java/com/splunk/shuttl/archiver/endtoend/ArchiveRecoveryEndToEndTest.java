@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
@@ -38,7 +37,7 @@ import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -122,9 +121,9 @@ public class ArchiveRecoveryEndToEndTest {
 	private void givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets()
 			throws IOException {
 		// Setup buckets
-		Bucket firstFailingBucket = TUtilsBucket.createBucket();
-		Bucket secondFailingBucket = TUtilsBucket.createBucket();
-		Bucket successfulBucket = TUtilsBucket.createBucket();
+		LocalBucket firstFailingBucket = TUtilsBucket.createBucket();
+		LocalBucket secondFailingBucket = TUtilsBucket.createBucket();
+		LocalBucket successfulBucket = TUtilsBucket.createBucket();
 
 		// Test
 		failingBucketFreezerWithoutRecovery.freezeBucket(firstFailingBucket
@@ -133,19 +132,21 @@ public class ArchiveRecoveryEndToEndTest {
 				.getIndex(), secondFailingBucket.getDirectory().getAbsolutePath());
 
 		// Verify bucket archiving failed.
-		URI firstBucketURI = pathResolver.resolveArchivePath(firstFailingBucket);
-		URI secondBucketURI = pathResolver.resolveArchivePath(secondFailingBucket);
-		assertFalse(hadoopFileSystem.exists(new Path(firstBucketURI)));
-		assertFalse(hadoopFileSystem.exists(new Path(secondBucketURI)));
+		String firstBucketPath = pathResolver
+				.resolveArchivePath(firstFailingBucket);
+		String secondBucketPath = pathResolver
+				.resolveArchivePath(secondFailingBucket);
+		assertFalse(hadoopFileSystem.exists(new Path(firstBucketPath)));
+		assertFalse(hadoopFileSystem.exists(new Path(secondBucketPath)));
 
 		successfulBucketFreezerWithRecovery.freezeBucket(successfulBucket
 				.getIndex(), successfulBucket.getDirectory().getAbsolutePath());
 		TUtilsFunctional.waitForAsyncArchiving();
 
 		// Verification
-		URI thirdBucketURI = pathResolver.resolveArchivePath(successfulBucket);
-		assertTrue(hadoopFileSystem.exists(new Path(firstBucketURI)));
-		assertTrue(hadoopFileSystem.exists(new Path(secondBucketURI)));
-		assertTrue(hadoopFileSystem.exists(new Path(thirdBucketURI)));
+		String thirdBucketPath = pathResolver.resolveArchivePath(successfulBucket);
+		assertTrue(hadoopFileSystem.exists(new Path(firstBucketPath)));
+		assertTrue(hadoopFileSystem.exists(new Path(secondBucketPath)));
+		assertTrue(hadoopFileSystem.exists(new Path(thirdBucketPath)));
 	}
 }

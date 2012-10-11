@@ -24,13 +24,13 @@ import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketDeleterTest {
 
-	private Bucket bucket;
+	private LocalBucket bucket;
 	private BucketDeleter bucketDeleter;
 	private Logger logger;
 
@@ -50,7 +50,7 @@ public class BucketDeleterTest {
 
 	public void deleteBucket_deletionThrowsException_logsException()
 			throws IOException {
-		Bucket throwsIOExceptionOnDelete = mock(Bucket.class);
+		LocalBucket throwsIOExceptionOnDelete = mock(LocalBucket.class);
 		doThrow(IOException.class).when(throwsIOExceptionOnDelete).deleteBucket();
 		bucketDeleter.deleteBucket(throwsIOExceptionOnDelete);
 		verify(logger).warn(anyString());

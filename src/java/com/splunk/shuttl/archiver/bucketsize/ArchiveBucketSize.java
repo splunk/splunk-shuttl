@@ -15,7 +15,6 @@
 package com.splunk.shuttl.archiver.bucketsize;
 
 import java.io.File;
-import java.net.URI;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
@@ -39,7 +38,6 @@ public class ArchiveBucketSize {
 	private final PathResolver pathResolver;
 	private final BucketSizeIO bucketSizeIO;
 	private final ArchiveFileSystem archiveFileSystem;
-	private TransactionProvider transactionProvider;
 
 	/**
 	 * @see ArchiveBucketSize
@@ -55,8 +53,9 @@ public class ArchiveBucketSize {
 	 * @return size of an archived bucket on the local file system.
 	 */
 	public long getSize(Bucket bucket) {
-		URI fileUriForSizeFile = pathResolver.getBucketSizeFileUriForBucket(bucket);
-		return bucketSizeIO.readSizeFromRemoteFile(fileUriForSizeFile);
+		String filePathForSizeFile = pathResolver
+				.getBucketSizeFileUriForBucket(bucket);
+		return bucketSizeIO.readSizeFromRemoteFile(filePathForSizeFile);
 	}
 
 	/**
@@ -64,10 +63,11 @@ public class ArchiveBucketSize {
 	 */
 	public Transaction getBucketSizeTransaction(Bucket bucket) {
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
-		URI temp = pathResolver.resolveTempPathForBucketSize(bucket);
-		URI bucketSizeFilePath = pathResolver.getBucketSizeFileUriForBucket(bucket);
+		String temp = pathResolver.resolveTempPathForBucketSize(bucket);
+		String bucketSizeFilePath = pathResolver
+				.getBucketSizeFileUriForBucket(bucket);
 		return TransactionProvider.createPut(archiveFileSystem,
-				fileWithBucketSize.toURI(), temp, bucketSizeFilePath);
+				fileWithBucketSize.getAbsolutePath(), temp, bucketSizeFilePath);
 	}
 
 	/**

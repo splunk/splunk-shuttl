@@ -31,7 +31,7 @@ import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
@@ -75,8 +75,8 @@ public class BucketExportControllerIntegrationTest {
 	}
 
 	private void exportingBucketWithRealDataToCsvCreatesCsvBucket() {
-		Bucket realBucket = TUtilsBucket.createRealBucket();
-		Bucket csvBucket = bucketExportController
+		LocalBucket realBucket = TUtilsBucket.createRealBucket();
+		LocalBucket csvBucket = bucketExportController
 				.exportBucket(realBucket, BucketFormat.CSV);
 
 		assertEquals(realBucket.getName(), csvBucket.getName());

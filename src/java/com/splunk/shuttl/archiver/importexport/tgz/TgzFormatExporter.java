@@ -16,9 +16,9 @@ package com.splunk.shuttl.archiver.importexport.tgz;
 
 import java.io.File;
 
-import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Changes the format of a bucket to gzip.
@@ -39,7 +39,7 @@ public class TgzFormatExporter implements BucketExporter {
 	}
 
 	@Override
-	public Bucket exportBucket(Bucket b) {
+	public LocalBucket exportBucket(LocalBucket b) {
 		File tgz = createsBucketTgz.createTgz(b);
 		return bucketFileCreator.createBucketWithFile(tgz, b);
 	}

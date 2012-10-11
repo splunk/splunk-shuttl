@@ -23,15 +23,15 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.importexport.csv.NoFileFoundException;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.importexport.NoFileFoundException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class UtilsBucketTest {
 
 	public void getCsvFile_givenCsvBucket_getsTheCsvFile() {
-		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
+		LocalBucket csvBucket = TUtilsBucket.createRealCsvBucket();
 		File csvFile = UtilsBucket.getCsvFile(csvBucket);
 		assertFileIsCsv(csvFile);
 	}
@@ -41,7 +41,7 @@ public class UtilsBucketTest {
 	}
 
 	public void getCsvFile_givenCsvBucketWithMoreThanOneFile_getsTheCsvFile() {
-		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
+		LocalBucket csvBucket = TUtilsBucket.createRealCsvBucket();
 		createFileInParent(csvBucket.getDirectory(), "abc.foo");
 		createFileInParent(csvBucket.getDirectory(), "xyz.bar");
 		assertFileIsCsv(UtilsBucket.getCsvFile(csvBucket));
@@ -49,7 +49,7 @@ public class UtilsBucketTest {
 
 	@Test(expectedExceptions = { IllegalArgumentException.class })
 	public void getCsvFile_emptyBucket_throwsException() {
-		Bucket emptyBucket = TUtilsBucket.createBucket();
+		LocalBucket emptyBucket = TUtilsBucket.createBucket();
 		FileUtils.deleteQuietly(emptyBucket.getDirectory());
 		assertTrue(emptyBucket.getDirectory().mkdirs());
 		UtilsBucket.getCsvFile(emptyBucket);
@@ -57,7 +57,7 @@ public class UtilsBucketTest {
 
 	@Test(expectedExceptions = { NoFileFoundException.class })
 	public void getCsvFile_noCsvFile_throwsRuntimeException() {
-		Bucket bucketWithoutCsvFile = TUtilsBucket.createBucket();
+		LocalBucket bucketWithoutCsvFile = TUtilsBucket.createBucket();
 		UtilsBucket.getCsvFile(bucketWithoutCsvFile);
 	}
 }

@@ -15,12 +15,12 @@
 package com.splunk.shuttl.archiver.importexport;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Imports buckets from some format to {@link BucketFormat#SPLUNK_BUCKET}.
  */
 public interface BucketImporter {
 
-	Bucket importBucket(Bucket b);
+	LocalBucket importBucket(LocalBucket b);
 }

@@ -23,6 +23,7 @@ import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Transfers bucket to thaw.
@@ -48,11 +49,12 @@ public class ThawBucketTransferer {
 	 * 
 	 * @return the transferred bucket.
 	 */
-	public Bucket transferBucketToThaw(Bucket bucket) throws IOException {
+	public LocalBucket transferBucketToThaw(Bucket bucket) throws IOException {
 		File temp = thawLocationProvider.getThawTransferLocation(bucket);
 		File dst = thawLocationProvider.getLocationInThawForBucket(bucket);
 		Transaction getBucketTransaction = TransactionProvider.createGet(
-				archiveFileSystem, bucket, temp.toURI(), dst.toURI());
+				archiveFileSystem, bucket, temp.getAbsolutePath(),
+				dst.getAbsolutePath());
 		transactionExecuter.execute(getBucketTransaction);
 
 		return bucketFactory.createWithIndexDirectoryAndSize(bucket.getIndex(),

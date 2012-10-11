@@ -16,6 +16,7 @@ package com.splunk.shuttl.archiver.importexport;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 public interface BucketExporter {
 
@@ -24,5 +25,5 @@ public interface BucketExporter {
 	 * other format decided by the implementation. All other properties besides
 	 * format and maybe size should be left unchanged.
 	 */
-	Bucket exportBucket(Bucket b);
+	LocalBucket exportBucket(LocalBucket b);
 }

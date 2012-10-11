@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -86,13 +85,12 @@ public class BucketSizeIOTest {
 	public void readSizeFromRemoteFile_givenArchiveFileSystem_getsInputStreamToFileWithSize()
 			throws IOException {
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
-		URI uriToFile = URI.create("uri:/to/remote/file/with/size");
+		String pathToFile = "path/to/remote/file/with/size";
 		InputStream inputStreamToFile = new FileInputStream(fileWithBucketSize);
-		when(archiveFileSystem.openFile(uriToFile)).thenReturn(inputStreamToFile);
+		when(archiveFileSystem.openFile(pathToFile)).thenReturn(inputStreamToFile);
 
-		Long sizeFromRemoteFile = bucketSizeIO.readSizeFromRemoteFile(uriToFile);
+		Long sizeFromRemoteFile = bucketSizeIO.readSizeFromRemoteFile(pathToFile);
 		assertEquals(bucket.getSize(), sizeFromRemoteFile);
 	}
-
 	// TODO: Test closing stream for successful and unsuccessful reads.
 }

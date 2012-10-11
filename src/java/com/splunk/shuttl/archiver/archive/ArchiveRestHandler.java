@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.ShuttlConstants;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.rest.ListBucketsEndpoint;
 
 /**
@@ -56,7 +57,7 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		this.logger = logger;
 	}
 
-	public void callRestToArchiveBucket(Bucket bucket) {
+	public void callRestToArchiveLocalBucket(LocalBucket bucket) {
 		HttpResponse response = null;
 		try {
 			HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
@@ -71,7 +72,7 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		}
 	}
 
-	private static HttpUriRequest createBucketArchiveRequest(Bucket bucket)
+	private static HttpUriRequest createBucketArchiveRequest(LocalBucket bucket)
 			throws UnsupportedEncodingException {
 		// CONFIG configure the host and port with a general solution.
 		String requestString = "http://localhost:9090/"
@@ -164,7 +165,7 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	 */
 	@Override
 	public void handleSharedLockedBucket(Bucket bucket) {
-		callRestToArchiveBucket(bucket);
+		callRestToArchiveLocalBucket((LocalBucket) bucket);
 	}
 
 	/*

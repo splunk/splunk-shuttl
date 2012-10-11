@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkExportTool;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -40,7 +40,7 @@ public class BucketToCsvFileExporterTest {
 	private BucketToCsvFileExporter bucketToCsvFileExporter;
 	private SplunkExportTool exportTool;
 	private GetsBucketsExportFile getsBucketsExportFile;
-	private Bucket bucket;
+	private LocalBucket bucket;
 	private ShellExecutor shellExecutor;
 	private Map<String, String> emptyMap;
 

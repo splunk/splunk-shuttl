@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
 /**
@@ -68,7 +69,7 @@ public class BucketFreezerSystemExitTest {
 
 	@Test(groups = { "fast-unit" })
 	public void main_existingDirecotry_returnCode0() throws IOException {
-		File directory = TUtilsFile.createDirectory();
+		File directory = TUtilsBucket.createBucket().getDirectory();
 		runMainWithDepentencies_withArguments("index-name",
 				directory.getAbsolutePath());
 		verify(runtimeMock).exit(0);

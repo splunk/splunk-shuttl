@@ -18,7 +18,6 @@ import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
@@ -35,7 +34,7 @@ import com.splunk.shuttl.testutil.TUtilsFile;
 @Test(groups = { "fast-unit" })
 public class MovesBucketsTest {
 
-	private Bucket bucket;
+	private LocalBucket bucket;
 	private File directoryToMoveTo;
 
 	@BeforeMethod(alwaysRun = true)
@@ -51,14 +50,16 @@ public class MovesBucketsTest {
 
 	@Test(groups = { "fast-unit" })
 	public void moveBucket_givenSetUp_movedBucketsParentIsTheDirectoryToMoveTo() {
-		Bucket movedBucket = MovesBuckets.moveBucket(bucket, directoryToMoveTo);
+		LocalBucket movedBucket = MovesBuckets
+				.moveBucket(bucket, directoryToMoveTo);
 		assertEquals(directoryToMoveTo.getAbsolutePath(), movedBucket
 				.getDirectory().getParentFile().getAbsolutePath());
 	}
 
 	public void moveBucket_givenExistingDirectory_keepIndexFormatAndBucketName()
 			throws IOException {
-		Bucket movedBucket = MovesBuckets.moveBucket(bucket, directoryToMoveTo);
+		LocalBucket movedBucket = MovesBuckets
+				.moveBucket(bucket, directoryToMoveTo);
 
 		assertEquals(movedBucket.getName(), bucket.getName());
 		assertEquals(movedBucket.getIndex(), bucket.getIndex());
@@ -95,7 +96,8 @@ public class MovesBucketsTest {
 		TUtilsFile.populateFileWithRandomContent(contents);
 		List<String> contentLines = IOUtils.readLines(new FileReader(contents));
 
-		Bucket movedBucket = MovesBuckets.moveBucket(bucket, directoryToMoveTo);
+		LocalBucket movedBucket = MovesBuckets
+				.moveBucket(bucket, directoryToMoveTo);
 
 		File movedContents = new File(movedBucket.getDirectory().getAbsolutePath(),
 				contentsFileName);
@@ -114,15 +116,8 @@ public class MovesBucketsTest {
 
 	@Test(groups = { "slow-unit" })
 	public void moveBucket_givenRealCsvBucket_keepsTheCsvFormat() {
-		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
+		LocalBucket csvBucket = TUtilsBucket.createRealCsvBucket();
 		Bucket movedBucket = MovesBuckets.moveBucket(csvBucket, directoryToMoveTo);
 		assertEquals(csvBucket.getFormat(), movedBucket.getFormat());
-	}
-
-	@Test(expectedExceptions = { RemoteBucketException.class })
-	public void moveBucketToDir_initWithNonFileUri_throwsRemoteBucketException()
-			throws FileNotFoundException, FileNotDirectoryException {
-		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
-		MovesBuckets.moveBucket(remoteBucket, directoryToMoveTo);
 	}
 }

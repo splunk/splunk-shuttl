@@ -40,6 +40,7 @@ import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
@@ -88,7 +89,7 @@ public class BucketSizeFunctionalTest {
 	}
 
 	public void BucketSize_archiveBucket_remoteBucketHasSameSizeAsBeforeArchiving() {
-		Bucket bucket = TUtilsBucket.createRealBucket();
+		LocalBucket bucket = TUtilsBucket.createRealBucket();
 		long bucketSize = bucket.getSize();
 
 		TUtilsFunctional.archiveBucket(bucket, bucketArchiver);
@@ -104,7 +105,7 @@ public class BucketSizeFunctionalTest {
 	}
 
 	public void BucketSize_bucketRoundTrip_bucketGetSizeShouldBeTheSameBeforeArchiveAndAfterThaw() {
-		Bucket bucket = TUtilsBucket.createRealBucket();
+		LocalBucket bucket = TUtilsBucket.createRealBucket();
 
 		TUtilsFunctional.archiveBucket(bucket, bucketArchiver);
 		bucketThawer.thawBuckets(bucket.getIndex(), bucket.getEarliest(),

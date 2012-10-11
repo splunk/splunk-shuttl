@@ -17,7 +17,6 @@ package com.splunk.shuttl.archiver.filesystem;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
@@ -40,14 +39,14 @@ public interface ArchiveFileSystem extends TransactionalFileSystem {
 	 * @throws IOException
 	 *           If there was any other problem with the operation.
 	 */
-	List<URI> listPath(URI pathToBeListed) throws IOException;
+	List<String> listPath(String pathToBeListed) throws IOException;
 
 	/**
-	 * @param fileOnArchiveFileSystem
+	 * @param pathToFileWithBucketSize
 	 *          A path to an existing file on the archiving file system.
 	 * @return an open {@link InputStream} to a file on the archive file system.
 	 * @throws IOException
 	 *           If there was any other problem with the operation.
 	 */
-	InputStream openFile(URI fileOnArchiveFileSystem) throws IOException;
+	InputStream openFile(String pathToFileWithBucketSize) throws IOException;
 }

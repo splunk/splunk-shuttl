@@ -17,9 +17,9 @@ package com.splunk.shuttl.archiver.importexport.csv;
 import java.io.File;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Exports a bucket with SPLUNK_BUCKET format to a bucket with CSV format.
@@ -39,7 +39,7 @@ public class CsvExporter implements BucketExporter {
 	 * @return the specified bucket in {@link BucketFormat.CSV} format.
 	 */
 	@Override
-	public Bucket exportBucket(Bucket bucket) {
+	public LocalBucket exportBucket(LocalBucket bucket) {
 		File csvFile = bucketToCsvFileExporter.exportBucketToCsv(bucket);
 		return bucketFileCreator.createBucketWithFile(csvFile, bucket);
 	}

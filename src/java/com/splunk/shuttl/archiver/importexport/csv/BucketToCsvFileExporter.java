@@ -27,6 +27,7 @@ import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkExportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.util.UtilsList;
 
 /**
@@ -34,15 +35,15 @@ import com.splunk.shuttl.archiver.util.UtilsList;
  */
 public class BucketToCsvFileExporter {
 
-	private static final Logger logger = Logger.getLogger(BucketToCsvFileExporter.class);
+	private static final Logger logger = Logger
+			.getLogger(BucketToCsvFileExporter.class);
 
 	private final SplunkExportTool exportTool;
 	private final GetsBucketsExportFile getsBucketsExportFile;
 	private final ShellExecutor shellExecutor;
 
 	public BucketToCsvFileExporter(SplunkExportTool exportTool,
-			GetsBucketsExportFile getsBucketsExportFile,
-			ShellExecutor shellExecutor) {
+			GetsBucketsExportFile getsBucketsExportFile, ShellExecutor shellExecutor) {
 		this.exportTool = exportTool;
 		this.getsBucketsExportFile = getsBucketsExportFile;
 		this.shellExecutor = shellExecutor;
@@ -51,7 +52,7 @@ public class BucketToCsvFileExporter {
 	/**
 	 * @return Csv file of the {@link Bucket}
 	 */
-	public File exportBucketToCsv(Bucket bucket) {
+	public File exportBucketToCsv(LocalBucket bucket) {
 		File csvFile = getsBucketsExportFile.getCsvFile(bucket);
 		List<String> command = constructCommand(bucket, csvFile);
 		Map<String, String> env = exportTool.getEnvironment();
@@ -60,7 +61,7 @@ public class BucketToCsvFileExporter {
 		return csvFile;
 	}
 
-	private List<String> constructCommand(Bucket bucket, File csvFile) {
+	private List<String> constructCommand(LocalBucket bucket, File csvFile) {
 		List<String> executableCommand = exportTool.getExecutableCommand();
 		List<String> arguments = Arrays.asList(new String[] {
 				bucket.getDirectory().getAbsolutePath(), csvFile.getAbsolutePath(),
@@ -92,8 +93,7 @@ public class BucketToCsvFileExporter {
 	 */
 	public static BucketToCsvFileExporter create(File csvDirectory) {
 		return new BucketToCsvFileExporter(new SplunkExportTool(),
-				new GetsBucketsExportFile(csvDirectory),
-				ShellExecutor.getInstance());
+				new GetsBucketsExportFile(csvDirectory), ShellExecutor.getInstance());
 	}
 
 }

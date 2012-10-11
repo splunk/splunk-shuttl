@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.util.UtilsFile;
 
 /**
@@ -46,7 +47,7 @@ public class BucketFileCreator {
 	 * @return {@link Bucket} created from the specified .csv file and it's
 	 *         original {@link Bucket}.
 	 */
-	public Bucket createBucketWithFile(File file, Bucket bucket) {
+	public LocalBucket createBucketWithFile(File file, Bucket bucket) {
 		if (file.getName().endsWith(extension))
 			return doCreateBucketWithCsvFile(file, bucket);
 		else
@@ -54,7 +55,7 @@ public class BucketFileCreator {
 					+ ", did not have extension: " + extension);
 	}
 
-	private Bucket doCreateBucketWithCsvFile(File file, Bucket bucket) {
+	private LocalBucket doCreateBucketWithCsvFile(File file, Bucket bucket) {
 		if (file.exists())
 			return createBucketWithExistingCsvFile(file, bucket);
 		else
@@ -62,7 +63,7 @@ public class BucketFileCreator {
 					+ file);
 	}
 
-	private Bucket createBucketWithExistingCsvFile(File file, Bucket bucket) {
+	private LocalBucket createBucketWithExistingCsvFile(File file, Bucket bucket) {
 		File bucketDir = createBucketDirectory(file);
 		moveFileToBucketDir(file, bucketDir);
 		return createBucketObject(file, bucket, bucketDir);
@@ -78,9 +79,10 @@ public class BucketFileCreator {
 		file.renameTo(new File(bucketFile, file.getName()));
 	}
 
-	private Bucket createBucketObject(File file, Bucket bucket, File bucketDir) {
+	private LocalBucket createBucketObject(File file, Bucket bucket,
+			File bucketDir) {
 		try {
-			return new Bucket(bucketDir.toURI(), bucket.getIndex(),
+			return new LocalBucket(bucketDir, bucket.getIndex(),
 					removeExtension(file), format, bucket.getSize());
 		} catch (Exception e) {
 			logBucketCreationException(bucket, bucketDir, e);

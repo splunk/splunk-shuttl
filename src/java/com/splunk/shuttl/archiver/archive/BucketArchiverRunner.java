@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
 import com.splunk.shuttl.archiver.bucketlock.SimpleFileLock.NotLockedException;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * The {@link BucketArchiverRunner} makes sure that the bucket is locked,
@@ -33,7 +33,7 @@ public class BucketArchiverRunner implements Runnable {
 			.getLogger(BucketArchiverRunner.class);
 
 	private final BucketArchiver bucketArchiver;
-	private final Bucket bucket;
+	private final LocalBucket bucket;
 	private final BucketLock bucketLock;
 
 	/**
@@ -44,8 +44,8 @@ public class BucketArchiverRunner implements Runnable {
 	 * @param bucketLock
 	 *          which is already locked.
 	 */
-	public BucketArchiverRunner(BucketArchiver bucketArchiver, Bucket bucket,
-			BucketLock bucketLock) {
+	public BucketArchiverRunner(BucketArchiver bucketArchiver,
+			LocalBucket bucket, BucketLock bucketLock) {
 		if (!bucketLock.isLocked())
 			throw new NotLockedException("Bucket Lock has to be locked already"
 					+ " before archiving bucket");

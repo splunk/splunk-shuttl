@@ -29,6 +29,7 @@ import com.splunk.shuttl.archiver.archive.UnknownBucketFormatException;
 import com.splunk.shuttl.archiver.importexport.BucketExportController.UnknownFormatChangerToFormatException;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -47,7 +48,7 @@ public class BucketExportControllerTest {
 
 	@Test(groups = { "fast-unit" })
 	public void _whenBucketIsAlreadyInThatFormat_returnTheSameBucket() {
-		Bucket bucket = mock(Bucket.class);
+		LocalBucket bucket = mock(LocalBucket.class);
 		when(bucket.getFormat()).thenReturn(BucketFormat.SPLUNK_BUCKET);
 		Bucket exportedToFormat = bucketExportController.exportBucket(bucket,
 				BucketFormat.SPLUNK_BUCKET);
@@ -56,12 +57,12 @@ public class BucketExportControllerTest {
 
 	@Test(expectedExceptions = { UnknownBucketFormatException.class })
 	public void _formatIsUnknown_throwUnknownBucketFormatException() {
-		Bucket bucket = mock(Bucket.class);
+		LocalBucket bucket = mock(LocalBucket.class);
 		bucketExportController.exportBucket(bucket, BucketFormat.UNKNOWN);
 	}
 
 	public void _bucketIsUnknown_throwsUnsupportedOperationException() {
-		Bucket unknownFormatedBucket = mock(Bucket.class);
+		LocalBucket unknownFormatedBucket = mock(LocalBucket.class);
 		when(unknownFormatedBucket.getFormat()).thenReturn(BucketFormat.UNKNOWN);
 		try {
 			bucketExportController.exportBucket(unknownFormatedBucket, BucketFormat.CSV);
@@ -72,8 +73,8 @@ public class BucketExportControllerTest {
 	}
 
 	public void _givenCsvBucket_exportsSplunkBucketWithCsvExporter() {
-		Bucket bucket = TUtilsBucket.createBucket();
-		Bucket csvBucket = mock(Bucket.class);
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		LocalBucket csvBucket = mock(LocalBucket.class);
 		when(csvChanger.exportBucket(bucket)).thenReturn(csvBucket);
 		Bucket newBucket = bucketExportController.exportBucket(bucket, BucketFormat.CSV);
 		assertEquals(csvBucket, newBucket);

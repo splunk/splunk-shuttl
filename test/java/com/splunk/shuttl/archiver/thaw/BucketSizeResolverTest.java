@@ -57,7 +57,7 @@ public class BucketSizeResolverTest {
 		assertEquals(bucketWithoutSize.getName(), sizedBucket.getName());
 		assertEquals(bucketWithoutSize.getEarliest(), sizedBucket.getEarliest());
 		assertEquals(bucketWithoutSize.getLatest(), sizedBucket.getLatest());
-		assertEquals(bucketWithoutSize.getURI(), sizedBucket.getURI());
+		assertEquals(bucketWithoutSize.getPath(), sizedBucket.getPath());
 		assertFalse(bucketWithoutSize.getSize() == sizedBucket.getSize());
 	}
 }

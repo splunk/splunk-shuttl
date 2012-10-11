@@ -21,6 +21,7 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.csv.CsvImporter;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzImporter;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Restores a {@link Bucket} that's in any {@link BucketFormat} to
@@ -43,7 +44,7 @@ public class BucketImportController {
 	 *          to restore to {@link BucketFormat#SPLUNK_BUCKET}.
 	 * @return bucket in {@link BucketFormat#SPLUNK_BUCKET}
 	 */
-	public Bucket restoreToSplunkBucketFormat(Bucket bucket) {
+	public LocalBucket restoreToSplunkBucketFormat(LocalBucket bucket) {
 		BucketFormat format = bucket.getFormat();
 		if (format.equals(BucketFormat.SPLUNK_BUCKET))
 			return bucket;

@@ -33,8 +33,8 @@ import com.splunk.shuttl.archiver.archive.BucketArchiverRunner;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_ARCHIVER)
 public class ArchiveBucketEndpoint {
@@ -87,7 +87,7 @@ public class ArchiveBucketEndpoint {
 	private Runnable createBucketArchiverRunner(String index, String path) {
 		BucketArchiver bucketArchiver = BucketArchiverFactory
 				.createConfiguredArchiver();
-		Bucket bucket = BucketFactory.createBucketWithIndexDirectoryAndFormat(
+		LocalBucket bucket = BucketFactory.createBucketWithIndexDirectoryAndFormat(
 				index, new File(path), BucketFormat.SPLUNK_BUCKET);
 		BucketLock bucketLock = new ArchiveBucketLock(bucket);
 		throwExceptionIfSharedLockCannotBeAcquired(bucketLock);

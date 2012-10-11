@@ -42,11 +42,12 @@ public class ArchiveConfiguration {
 	private final String serverName;
 	private final List<BucketFormat> bucketFormatPriority;
 	private final URI tmpDirectory;
+	private final String archivePath;
 
 	private ArchiveConfiguration(String localArchiverDir,
 			List<BucketFormat> bucketFormats, URI archivingRoot, String clusterName,
 			String serverName, List<BucketFormat> bucketFormatPriority,
-			URI tmpDirectory) {
+			URI tmpDirectory, String archivePath) {
 		this.localArchiverDir = localArchiverDir;
 		this.bucketFormats = bucketFormats;
 		this.archivingRoot = archivingRoot;
@@ -54,6 +55,7 @@ public class ArchiveConfiguration {
 		this.serverName = serverName;
 		this.bucketFormatPriority = bucketFormatPriority;
 		this.tmpDirectory = tmpDirectory;
+		this.archivePath = archivePath;
 	}
 
 	/**
@@ -117,7 +119,7 @@ public class ArchiveConfiguration {
 				TEMPORARY_DATA_DIRECTORY_NAME);
 		return new ArchiveConfiguration(localArchiverDir, bucketFormats,
 				archivingData, clusterName, serverName, bucketFormatPriority,
-				tmpDirectory);
+				tmpDirectory, archivingData == null ? null : archivingData.getPath());
 	}
 
 	private static URI archivingRootFromMBean(ShuttlArchiverMBean mBean) {
@@ -191,6 +193,13 @@ public class ArchiveConfiguration {
 	 */
 	public String getLocalArchiverDir() {
 		return localArchiverDir;
+	}
+
+	/**
+	 * @return path where the files are stored on the archiving file system.
+	 */
+	public String getArchivePath() {
+		return archivePath;
 	}
 
 }

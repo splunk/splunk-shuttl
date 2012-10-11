@@ -30,6 +30,7 @@ import com.splunk.shuttl.archiver.flush.ThawedBuckets;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
@@ -64,8 +65,8 @@ public class ListThawEndpoint {
 		SplunkSettings splunkSettings = SplunkSettingsFactory.create();
 		List<Bucket> filteredBuckets = new java.util.ArrayList<Bucket>();
 		for (String index : indexes) {
-			List<Bucket> buckets = ThawedBuckets.getBucketsFromThawLocation(index,
-					splunkSettings.getThawLocation(index));
+			List<LocalBucket> buckets = ThawedBuckets.getBucketsFromThawLocation(
+					index, splunkSettings.getThawLocation(index));
 			filteredBuckets.addAll(BucketFilter.filterBuckets(buckets, earliest,
 					latest));
 		}

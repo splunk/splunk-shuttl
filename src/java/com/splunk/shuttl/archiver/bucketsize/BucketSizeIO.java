@@ -19,7 +19,6 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -98,18 +97,18 @@ public class BucketSizeIO {
 	}
 
 	/**
-	 * @param uriToFileWithBucketSize
+	 * @param filePathForSizeFile
 	 * @return
 	 */
-	public long readSizeFromRemoteFile(URI uriToFileWithBucketSize) {
-		InputStream inputStream = getInputStreamToFile(uriToFileWithBucketSize);
+	public long readSizeFromRemoteFile(String filePathForSizeFile) {
+		InputStream inputStream = getInputStreamToFile(filePathForSizeFile);
 		List<String> lines = getLinesFromInputStream(inputStream);
 		return Long.parseLong(lines.get(0));
 	}
 
-	private InputStream getInputStreamToFile(URI uriToFileWithBucketSize) {
+	private InputStream getInputStreamToFile(String pathToFileWithBucketSize) {
 		try {
-			return archiveFileSystem.openFile(uriToFileWithBucketSize);
+			return archiveFileSystem.openFile(pathToFileWithBucketSize);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

@@ -25,7 +25,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.importexport.BucketExportController;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -36,7 +36,7 @@ public class BucketArchiverTest {
 	private ArchiveBucketTransferer archiveBucketTransferer;
 	private BucketDeleter deletesBuckets;
 
-	private Bucket bucket;
+	private LocalBucket bucket;
 	private List<BucketFormat> bucketFormats;
 
 	@BeforeMethod(groups = { "fast-unit" })
@@ -53,27 +53,27 @@ public class BucketArchiverTest {
 
 	@Test(groups = { "fast-unit" })
 	public void archiveBucket_givenBucket_exportsBucketAndTransfersBucket() {
-		Bucket exportedBucket = getMockedBucketReturnFromExporter();
+		LocalBucket exportedBucket = getMockedBucketReturnFromExporter();
 		bucketArchiver.archiveBucket(bucket);
 		verify(archiveBucketTransferer).transferBucketToArchive(exportedBucket);
 	}
 
-	private Bucket getMockedBucketReturnFromExporter() {
-		Bucket exportedBucket = TUtilsBucket.createBucket();
+	private LocalBucket getMockedBucketReturnFromExporter() {
+		LocalBucket exportedBucket = TUtilsBucket.createBucket();
 		when(exporter.exportBucket(eq(bucket), any(BucketFormat.class)))
 				.thenReturn(exportedBucket);
 		return exportedBucket;
 	}
 
 	public void archiveBucket_givenBucketAndExportedBucket_deletesBothBucketsWithBucketDeleter() {
-		Bucket exportedBucket = getMockedBucketReturnFromExporter();
+		LocalBucket exportedBucket = getMockedBucketReturnFromExporter();
 		bucketArchiver.archiveBucket(bucket);
 		verify(deletesBuckets).deleteBucket(bucket);
 		verify(deletesBuckets).deleteBucket(exportedBucket);
 	}
 
 	public void archiveBucket_whenExceptionIsThrown_deleteExportedBucketButNotOriginalBucket() {
-		Bucket exportedBucket = getMockedBucketReturnFromExporter();
+		LocalBucket exportedBucket = getMockedBucketReturnFromExporter();
 		doThrow(new RuntimeException()).when(archiveBucketTransferer)
 				.transferBucketToArchive(exportedBucket);
 		try {

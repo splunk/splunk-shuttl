@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "slow-unit" })
@@ -37,8 +37,8 @@ public class TgzFormatExporterTest {
 		TgzFormatExporter toTgz = new TgzFormatExporter(createsBucketTgz,
 				bucketFileCreator);
 
-		Bucket bucket = TUtilsBucket.createBucket();
-		Bucket tgzBucket = toTgz.exportBucket(bucket);
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		LocalBucket tgzBucket = toTgz.exportBucket(bucket);
 
 		assertEquals(BucketFormat.SPLUNK_BUCKET_TGZ, tgzBucket.getFormat());
 		File bucketDir = tgzBucket.getDirectory();

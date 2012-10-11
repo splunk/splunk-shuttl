@@ -18,7 +18,6 @@ package com.splunk.shuttl.archiver.archive;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -62,8 +61,8 @@ public class ArchiveBucketTransferer {
 	 *           if bucket failed to be transfered to the archive for any reason.
 	 */
 	public void transferBucketToArchive(Bucket bucket) {
-		URI destination = pathResolver.resolveArchivePath(bucket);
-		URI tempPath = pathResolver.resolveTempPathForBucket(bucket);
+		String destination = pathResolver.resolveArchivePath(bucket);
+		String tempPath = pathResolver.resolveTempPathForBucket(bucket);
 		logger.info(will("attempting to transfer bucket to archive", "bucket",
 				bucket, "destination", destination));
 		Transaction bucketTransaction = TransactionProvider.createPut(
@@ -108,12 +107,12 @@ public class ArchiveBucketTransferer {
 	 * @return true if the {@link Bucket} in {@link BucketFormat} is archived.
 	 */
 	public boolean isArchived(Bucket bucket, BucketFormat format) {
-		URI bucketUriWithFormat = pathResolver.resolveArchivedBucketURI(
+		String bucketUriWithFormat = pathResolver.resolveArchivedBucketURI(
 				bucket.getIndex(), bucket.getName(), format);
 		return !listPathsForBucketUri(bucketUriWithFormat).isEmpty();
 	}
 
-	private List<URI> listPathsForBucketUri(URI bucketUriWithFormat) {
+	private List<String> listPathsForBucketUri(String bucketUriWithFormat) {
 		try {
 			return archiveFileSystem.listPath(bucketUriWithFormat);
 		} catch (IOException e) {
@@ -122,11 +121,11 @@ public class ArchiveBucketTransferer {
 		}
 	}
 
-	private void logIOException(URI bucketUriWithFormat, IOException e) {
+	private void logIOException(String bucketPathWithFormat, IOException e) {
 		Logger.getLogger(getClass())
 				.error(
 						did("Listed path in the archive with uri: + uri", e,
-								"To list files at uri", "uri", bucketUriWithFormat,
+								"To list files at uri", "uri", bucketPathWithFormat,
 								"exception", e));
 	}
 }

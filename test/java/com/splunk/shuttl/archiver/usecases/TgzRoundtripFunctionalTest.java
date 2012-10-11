@@ -38,6 +38,7 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
@@ -84,7 +85,7 @@ public class TgzRoundtripFunctionalTest {
 	}
 
 	private Bucket getTgzBucketArchived() {
-		Bucket bucket = TUtilsBucket.createRealBucket();
+		LocalBucket bucket = TUtilsBucket.createRealBucket();
 		archiveBucket(bucket, bucketArchiver);
 		return bucket;
 	}
@@ -108,11 +109,14 @@ public class TgzRoundtripFunctionalTest {
 		List<Bucket> buckets = bucketThawer.getThawedBuckets();
 		assertEquals(1, buckets.size());
 		Bucket thawedBucket = buckets.get(0);
+		File thawedBucketDir = new File(thawedBucket.getPath());
+		assertTrue(thawedBucketDir.isDirectory());
+		assertTrue(thawedBucketDir.exists());
 
 		assertEquals(BucketFormat.SPLUNK_BUCKET, thawedBucket.getFormat());
-		assertEquals(thawDir.getAbsolutePath(), thawedBucket.getDirectory()
-				.getParentFile().getAbsolutePath());
-		int length = thawedBucket.getDirectory().listFiles().length;
+		assertEquals(thawDir.getAbsolutePath(), thawedBucketDir.getParentFile()
+				.getAbsolutePath());
+		int length = thawedBucketDir.listFiles().length;
 		assertTrue(2 < length);
 	}
 }

@@ -28,11 +28,12 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 @Test(groups = { "fast-unit" })
 public class TUtilsBucketTest {
 
-	Bucket bucket;
+	LocalBucket bucket;
 
 	@BeforeMethod
 	public void setUp() {
@@ -89,7 +90,7 @@ public class TUtilsBucketTest {
 		File bucketDir = TUtilsBucket
 				.createFileFormatedAsBucket("db_12351290_12351235_1");
 		try {
-			new Bucket("index-name", bucketDir, BucketFormat.SPLUNK_BUCKET);
+			new LocalBucket(bucketDir, "index-name", BucketFormat.SPLUNK_BUCKET);
 		} catch (Exception e) {
 			TUtilsTestNG.failForException("Coudn't create a valid bucket dir", e);
 		}
@@ -97,7 +98,7 @@ public class TUtilsBucketTest {
 
 	public void createBucketInDirectory_givenDirectory_createsBucketInThatDirectory() {
 		File parent = TUtilsFile.createDirectory();
-		Bucket bucketCreated = TUtilsBucket.createBucketInDirectory(parent);
+		LocalBucket bucketCreated = TUtilsBucket.createBucketInDirectory(parent);
 		assertEquals(parent, bucketCreated.getDirectory().getParentFile());
 	}
 
@@ -105,8 +106,8 @@ public class TUtilsBucketTest {
 		File parent = null;
 		try {
 			parent = createDirectory();
-			Bucket bucket = TUtilsBucket.createBucketInDirectoryWithTimes(parent,
-					new Date(), new Date());
+			LocalBucket bucket = TUtilsBucket.createBucketInDirectoryWithTimes(
+					parent, new Date(), new Date());
 			assertEquals(parent.getAbsolutePath(), bucket.getDirectory()
 					.getParentFile().getAbsolutePath());
 		} finally {
@@ -188,10 +189,6 @@ public class TUtilsBucketTest {
 	public void createRealCsvBucket_createSuccess_bucketHasCsvFormat() {
 		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
 		assertEquals(BucketFormat.CSV, csvBucket.getFormat());
-	}
-
-	public void createRemoteBucket_noArguments_isRemote() {
-		assertTrue(TUtilsBucket.createRemoteBucket().isRemote());
 	}
 
 	public void createRemoteBucket_noArguments_hasIndex() {

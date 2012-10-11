@@ -22,7 +22,6 @@ import static org.testng.Assert.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 
 import org.testng.annotations.BeforeMethod;
@@ -31,6 +30,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.FileOverwriteException;
+import com.splunk.shuttl.archiver.filesystem.transaction.AbstractTransaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
@@ -60,8 +60,8 @@ public class ArchiveBucketTransfererTest {
 	@Test(groups = { "fast-unit" })
 	public void transferBucketToArchive_givenValidBucketAndUri_putBucketWithArchiveFileSystem() {
 		Bucket bucket = TUtilsBucket.createBucket();
-		URI destination = URI.create("file:/some/path");
-		URI temp = URI.create("file:/temp/path");
+		String destination = "/some/path";
+		String temp = "/temp/path";
 		when(pathResolver.resolveArchivePath(bucket)).thenReturn(destination);
 		when(pathResolver.resolveTempPathForBucket(bucket)).thenReturn(temp);
 		archiveBucketTransferer.transferBucketToArchive(bucket);
@@ -71,17 +71,17 @@ public class ArchiveBucketTransfererTest {
 
 	public void transferBucketToArchive_givenSuccessfulBucketTransfer_startBucketSizeTransaction() {
 		Bucket bucket = mock(Bucket.class);
-		Transaction transaction = mock(Transaction.class);
+		Transaction abstractTransaction = mock(Transaction.class);
 		when(archiveBucketSize.getBucketSizeTransaction(bucket)).thenReturn(
-				transaction);
+				abstractTransaction);
 		archiveBucketTransferer.transferBucketToArchive(bucket);
-		verify(transactionExecuter).execute(transaction);
+		verify(transactionExecuter).execute(abstractTransaction);
 	}
 
 	public void transferBucketToArchive_whenBucketTransferIsUnsuccessful_dontPutBucketSizeInArchive()
 			throws FileNotFoundException, FileOverwriteException, IOException {
 		doThrow(Exception.class).when(transactionExecuter).execute(
-				any(Transaction.class));
+				any(AbstractTransaction.class));
 		try {
 			archiveBucketTransferer.transferBucketToArchive(mock(Bucket.class));
 			fail();
@@ -94,18 +94,18 @@ public class ArchiveBucketTransfererTest {
 	public void _archiveFileSystemThrowsFileNotFoundException_throwFailedToArchiveBucketException()
 			throws IOException {
 		doThrow(TransactionException.class).when(transactionExecuter).execute(
-				any(Transaction.class));
+				any(AbstractTransaction.class));
 		archiveBucketTransferer.transferBucketToArchive(mock(Bucket.class));
 	}
 
 	public void isArchived_bucketInFormatIsNotInArchiveFileSystem_false()
 			throws IOException {
 		Bucket bucket = TUtilsBucket.createBucket();
-		URI bucketUri = URI.create("valid:/bucket/uri");
+		String bucketPath = "/bucket/path";
 		when(
 				pathResolver.resolveArchivedBucketURI(bucket.getIndex(),
-						bucket.getName(), bucket.getFormat())).thenReturn(bucketUri);
-		when(archive.listPath(bucketUri)).thenReturn(new ArrayList<URI>());
+						bucket.getName(), bucket.getFormat())).thenReturn(bucketPath);
+		when(archive.listPath(bucketPath)).thenReturn(new ArrayList<String>());
 
 		assertFalse(archiveBucketTransferer.isArchived(bucket, bucket.getFormat()));
 	}
@@ -113,12 +113,11 @@ public class ArchiveBucketTransfererTest {
 	public void isArchived_bucketInFormatExistsInTheArchiveFileSystem_true()
 			throws IOException {
 		Bucket bucket = TUtilsBucket.createBucket();
-		URI bucketUri = URI.create("valid:/bucket/uri");
+		String bucketPath = "/bucket/uri";
 		when(
 				pathResolver.resolveArchivedBucketURI(bucket.getIndex(),
-						bucket.getName(), bucket.getFormat())).thenReturn(bucketUri);
-		when(archive.listPath(bucketUri)).thenReturn(
-				asList(URI.create("valid:/uri")));
+						bucket.getName(), bucket.getFormat())).thenReturn(bucketPath);
+		when(archive.listPath(bucketPath)).thenReturn(asList("/valid/path"));
 		assertTrue(archiveBucketTransferer.isArchived(bucket, bucket.getFormat()));
 	}
 }

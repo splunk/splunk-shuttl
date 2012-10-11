@@ -33,6 +33,7 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer.FailedBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -90,12 +91,12 @@ public class BucketThawerTest {
 
 	public void thawBuckets_bucketAlreadyThawedToThawLocation_doesNotThawBucketAgain()
 			throws IOException {
-		Bucket thawedBucket = TUtilsBucket.createBucket();
+		LocalBucket thawedBucket = TUtilsBucket.createBucket();
 		when(thawLocationProvider.getLocationInThawForBucket(thawedBucket))
 				.thenReturn(thawedBucket.getDirectory());
 		when(
 				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
-						latestTime)).thenReturn(asList(thawedBucket));
+						latestTime)).thenReturn(asList((Bucket) thawedBucket));
 
 		bucketThawer.thawBuckets(index, earliestTime, latestTime);
 		verifyZeroInteractions(getsBucketsFromArchive);
@@ -134,8 +135,8 @@ public class BucketThawerTest {
 		when(
 				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
 						latestTime)).thenReturn(asList(bucket1, bucket2));
-		Bucket thawedBucket1 = mock(Bucket.class);
-		Bucket thawedBucket2 = mock(Bucket.class);
+		LocalBucket thawedBucket1 = mock(LocalBucket.class);
+		LocalBucket thawedBucket2 = mock(LocalBucket.class);
 		when(getsBucketsFromArchive.getBucketFromArchive(bucket1)).thenReturn(
 				thawedBucket1);
 		when(getsBucketsFromArchive.getBucketFromArchive(bucket2)).thenReturn(
@@ -193,7 +194,7 @@ public class BucketThawerTest {
 	public void getFailedBuckets_whenBucketSucceed_doesntContainThatBucket()
 			throws ThawTransferFailException, ImportThawedBucketFailException {
 		when(getsBucketsFromArchive.getBucketFromArchive(bucket)).thenReturn(
-				mock(Bucket.class));
+				mock(LocalBucket.class));
 		run_thawBuckets_bucketFieldPassedToGetsBucketFromArchive();
 		assertTrue(bucketThawer.getFailedBuckets().isEmpty());
 	}

@@ -23,7 +23,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.importexport.BucketExportController;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketArchiverTwoFormatsTest {
@@ -33,10 +33,10 @@ public class BucketArchiverTwoFormatsTest {
 	private ArchiveBucketTransferer archiveBucketTransferer;
 	private BucketDeleter bucketDeleter;
 
-	private Bucket bucket;
+	private LocalBucket bucket;
 	private List<BucketFormat> formats;
-	private Bucket exportedBucket1;
-	private Bucket exportedBucket2;
+	private LocalBucket exportedBucket1;
+	private LocalBucket exportedBucket2;
 
 	@BeforeMethod
 	public void setUp() {
@@ -47,7 +47,7 @@ public class BucketArchiverTwoFormatsTest {
 		bucketArchiver = new BucketArchiver(exporter, archiveBucketTransferer,
 				bucketDeleter, formats);
 
-		bucket = mock(Bucket.class);
+		bucket = mock(LocalBucket.class);
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -61,8 +61,8 @@ public class BucketArchiverTwoFormatsTest {
 	}
 
 	private void setUpTwoFormatsAndTwoExportedBuckets() {
-		exportedBucket1 = mock(Bucket.class);
-		exportedBucket2 = mock(Bucket.class);
+		exportedBucket1 = mock(LocalBucket.class);
+		exportedBucket2 = mock(LocalBucket.class);
 		when(exporter.exportBucket(bucket, formats.get(0))).thenReturn(
 				exportedBucket1);
 		when(exporter.exportBucket(bucket, formats.get(1))).thenReturn(

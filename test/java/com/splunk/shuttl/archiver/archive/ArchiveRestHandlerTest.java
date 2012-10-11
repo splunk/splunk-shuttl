@@ -30,7 +30,7 @@ import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 /**
@@ -51,21 +51,21 @@ public class ArchiveRestHandlerTest {
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void callRestToArchiveBucket_givenBucket_executesRequestOnHttpClient()
+	public void callRestToArchiveLocalBucket_givenBucket_executesRequestOnHttpClient()
 			throws ClientProtocolException, IOException {
-		Bucket bucket = TUtilsBucket.createBucket();
-		archiveRestHandler.callRestToArchiveBucket(bucket);
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
 
 		verify(httpClient).execute(any(HttpUriRequest.class));
 	}
 
 	@SuppressWarnings("unchecked")
-	public void callRestToArchiveBucket_httpClientThrowsClientProtocolException_caughtAndLogged()
+	public void callRestToArchiveLocalBucket_httpClientThrowsClientProtocolException_caughtAndLogged()
 			throws ClientProtocolException, IOException {
 		when(httpClient.execute(any(HttpUriRequest.class))).thenThrow(
 				ClientProtocolException.class);
-		Bucket bucket = TUtilsBucket.createBucket();
-		archiveRestHandler.callRestToArchiveBucket(bucket);
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
 
 		verifyClassWasOnlyErrorLogged(ClientProtocolException.class);
 	}
@@ -79,12 +79,12 @@ public class ArchiveRestHandlerTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void callRestToArchiveBucket_httpClientThrowsIOException_caughtAndLogged()
+	public void callRestToArchiveLocalBucket_httpClientThrowsIOException_caughtAndLogged()
 			throws ClientProtocolException, IOException {
 		when(httpClient.execute(any(HttpUriRequest.class))).thenThrow(
 				IOException.class);
-		Bucket bucket = TUtilsBucket.createBucket();
-		archiveRestHandler.callRestToArchiveBucket(bucket);
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
 
 		verifyClassWasOnlyErrorLogged(IOException.class);
 	}

@@ -17,7 +17,6 @@ package com.splunk.shuttl.archiver.model;
 import static org.testng.AssertJUnit.*;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -28,27 +27,27 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 public class RemoteBucketTest {
 
 	Bucket bucket;
-	URI uri;
+	String path;
 	String bucketName;
 	String index;
 	BucketFormat format;
 
 	@BeforeMethod
 	public void setUp() throws IOException {
-		uri = URI.create("valid:/uri");
+		path = "/valid/remote/bucket/path";
 		bucketName = "bucketName";
 		index = "index";
 		format = BucketFormat.UNKNOWN;
-		bucket = new Bucket(uri, index, bucketName, format);
+		bucket = new RemoteBucket(path, index, bucketName, format);
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void uriConstructor_nonFileUri_ok() throws IOException {
-		new Bucket(uri, null, null, null);
+		new Bucket(path, null, null, null);
 	}
 
-	public void getURI_initWithUri_uri() {
-		assertEquals(uri, bucket.getURI());
+	public void getPath_initWithUri_uri() {
+		assertEquals(path, bucket.getPath());
 	}
 
 	public void getName_initWithBucketName_bucketName() {
@@ -62,21 +61,4 @@ public class RemoteBucketTest {
 	public void getFormat_initWithFormat_format() {
 		assertEquals(format, bucket.getFormat());
 	}
-
-	@Test(expectedExceptions = { RemoteBucketException.class })
-	public void getDirectory_initWithNonFileUri_throwsRemoteBucketException() {
-		bucket.getDirectory();
-	}
-
-	@Test(expectedExceptions = { RemoteBucketException.class })
-	public void deleteBucket_initWithNonFileUri_throwsRemoteBucketException()
-			throws IOException {
-		bucket.deleteBucket();
-	}
-
-	@Test
-	public void isRemote_afterSetUp_true() {
-		assertTrue(bucket.isRemote());
-	}
-
 }

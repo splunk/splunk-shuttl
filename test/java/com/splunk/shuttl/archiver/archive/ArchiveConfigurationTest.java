@@ -72,6 +72,12 @@ public class ArchiveConfigurationTest {
 		assertEquals(expectedUri, actualUri);
 	}
 
+	public void getArchivePath_givenArchivingRoot_isThePathOfArchivingRoot() {
+		when(mBean.getArchiverRootURI()).thenReturn("valid:/uri");
+		ArchiveConfiguration conf = createConfiguration();
+		assertEquals(conf.getArchivingRoot().getPath(), conf.getArchivePath());
+	}
+
 	public void getClusterName_stubbedMBeanClusterName_sameAsInMBean() {
 		String expected = "clusterName";
 		when(mBean.getClusterName()).thenReturn(expected);

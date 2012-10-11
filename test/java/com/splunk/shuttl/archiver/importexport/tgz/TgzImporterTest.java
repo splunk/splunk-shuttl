@@ -23,14 +23,14 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzImporter.TgzImportFailedException;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "slow-unit" })
 public class TgzImporterTest {
 
 	private TgzImporter tgzImporter;
-	private Bucket tgzBucket;
+	private LocalBucket tgzBucket;
 
 	@BeforeMethod
 	public void setUp() {
@@ -39,15 +39,14 @@ public class TgzImporterTest {
 	}
 
 	public void _givenTgzAndOriginalBucket_importsTgzBucketToBeEqualToOriginal() {
-		Bucket tgzBucket = TUtilsBucket.createRealSplunkBucketTgz();
-		Bucket original = TUtilsBucket.createRealBucket();
+		LocalBucket original = TUtilsBucket.createRealBucket();
 
-		Bucket imported = tgzImporter.importBucket(tgzBucket);
+		LocalBucket imported = tgzImporter.importBucket(tgzBucket);
 		assertEquals(original.getFormat(), imported.getFormat());
 		assertEquals(numberOfFiles(original), numberOfFiles(imported));
 	}
 
-	private int numberOfFiles(Bucket original) {
+	private int numberOfFiles(LocalBucket original) {
 		return original.getDirectory().listFiles().length;
 	}
 

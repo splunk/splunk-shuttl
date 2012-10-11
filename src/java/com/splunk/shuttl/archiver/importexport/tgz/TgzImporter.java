@@ -24,6 +24,7 @@ import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.util.UtilsBucket;
 
 /**
@@ -33,15 +34,12 @@ public class TgzImporter implements BucketImporter {
 
 	private ShellExecutor shellExecutor;
 
-	/**
-	 * @param instance
-	 */
 	public TgzImporter(ShellExecutor shellExecutor) {
 		this.shellExecutor = shellExecutor;
 	}
 
 	@Override
-	public Bucket importBucket(Bucket bucket) {
+	public LocalBucket importBucket(LocalBucket bucket) {
 		File tgzFile = UtilsBucket.getTgzFile(bucket);
 		int exit = executeCommand(buildCommand(bucket, tgzFile));
 		deleteOnSuccess(bucket, tgzFile, exit);
@@ -49,7 +47,7 @@ public class TgzImporter implements BucketImporter {
 				bucket.getIndex(), bucket.getDirectory(), BucketFormat.SPLUNK_BUCKET);
 	}
 
-	private String[] buildCommand(Bucket b, File tgzFile) {
+	private String[] buildCommand(LocalBucket b, File tgzFile) {
 		String tgzPath = tgzFile.getAbsolutePath();
 		String bucketParentPath = b.getDirectory().getParentFile()
 				.getAbsolutePath();

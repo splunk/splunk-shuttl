@@ -14,25 +14,17 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.transaction;
 
-import java.net.URI;
-
-import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
  * Cleans transactions.
  */
-public interface TransactionCleaner {
+public interface TransactionCleaner<T> {
 
 	/**
 	 * Transaction either finished or got aborted. Clean up can be done here. <br/>
 	 * For example: Removing all the files that got transfered or that are left in
 	 * temp.
 	 */
-	void cleanFileTransaction(URI src, URI temp);
+	void cleanTransaction(T src, String temp);
 
-	/**
-	 * Pretty much the same as
-	 * {@link TransactionCleaner#cleanFileTransaction(URI, URI)}.
-	 */
-	void cleanBucketTransaction(Bucket bucket, URI temp);
 }

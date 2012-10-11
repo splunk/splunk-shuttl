@@ -12,23 +12,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.filesystem.transaction;
+package com.splunk.shuttl.archiver.filesystem.transaction.bucket;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransfersData;
+import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
- * 
+ * Transfers buckets from and to somewhere.
  */
-public interface TransfersFiles extends PutsFiles, GetsFiles {
-
-}
-
-interface PutsFiles {
-	void putFile(File src, URI temp, URI dst) throws IOException;
-}
-
-interface GetsFiles {
-	void getFile(URI src, File temp, File dst) throws IOException;
+public interface TransfersBuckets extends TransfersData<Bucket> {
 }

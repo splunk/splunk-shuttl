@@ -35,7 +35,7 @@ public class PathResolverTest {
 	private ArchiveConfiguration configuration;
 	private PathResolver pathResolver;
 	private Bucket bucket;
-	private URI archiveRoot;
+	private String archivePath;
 	private String clusterName;
 	private String serverName;
 	private String bucketIndex;
@@ -43,7 +43,7 @@ public class PathResolverTest {
 	private String bucketName;
 	private String tmpDirectory;
 
-	private final String ROOT_URI = "hdfs://somehost:12345";
+	private final String ROOT_PATH = "/archive/path";
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void setUp() {
@@ -57,15 +57,15 @@ public class PathResolverTest {
 	}
 
 	private void stubArchiveConfiguration() {
-		archiveRoot = URI.create(ROOT_URI);
-		when(configuration.getArchivingRoot()).thenReturn(archiveRoot);
+		archivePath = ROOT_PATH;
+		when(configuration.getArchivePath()).thenReturn(archivePath);
 		clusterName = "cluster_name";
 		when(configuration.getClusterName()).thenReturn(clusterName);
 		serverName = "server_name";
 		when(configuration.getServerName()).thenReturn(serverName);
 		tmpDirectory = "tmp_dir";
 		when(configuration.getTmpDirectory()).thenReturn(
-				URI.create(ROOT_URI + "/" + tmpDirectory));
+				URI.create(ROOT_PATH + "/" + tmpDirectory));
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -77,11 +77,10 @@ public class PathResolverTest {
 
 	public void resolveArchivePath_givenWritableFileSystemUri_uriStartsWithWritablePath() {
 		// Test
-		URI archivePath = pathResolver.resolveArchivePath(bucket);
+		String archivePath = pathResolver.resolveArchivePath(bucket);
 
 		// Verify
-		assertTrue(archivePath.toString().startsWith(
-				configuration.getArchivingRoot().toString()));
+		assertTrue(archivePath.startsWith(configuration.getArchivePath()));
 	}
 
 	public void getIndexesHome_givenNothing_returnsPathThatEndsWithThePathToWhereIndexesLive() {
@@ -90,8 +89,8 @@ public class PathResolverTest {
 	}
 
 	public void getIndexesHome_givenNothing_returnsPathThatStartsWithWritablePath() {
-		assertTrue(pathResolver.getIndexesHome().toString()
-				.startsWith(configuration.getArchivingRoot().toString()));
+		assertTrue(pathResolver.getIndexesHome().startsWith(
+				configuration.getArchivePath()));
 	}
 
 	public void getBucketsHome_givenIndex_uriWithPathThatEndsWithWhereBucketsLive() {
@@ -102,29 +101,27 @@ public class PathResolverTest {
 
 	public void getBucketsHome_givenNothing_startsWithWritablePath() {
 		assertTrue(pathResolver.getBucketsHome(null).toString()
-				.startsWith(archiveRoot.toString()));
+				.startsWith(archivePath.toString()));
 	}
 
 	public void resolveIndexFromUriToBucket_givenValidUriToBucket_indexForTheBucket() {
-		String archivePathUpToBucket = getArchivePathUpToBucket();
-		URI bucketURI = URI.create("schema:/" + archivePathUpToBucket);
 		assertEquals(bucketIndex,
-				pathResolver.resolveIndexFromUriToBucket(bucketURI));
+				pathResolver.resolveIndexFromUriToBucket(getArchivePathUpToBucket()));
 	}
 
 	public void resolveIndexFromUriToBucket_uriEndsWithSeparator_indexForBucket() {
-		String archivePathUpToBucket = getArchivePathUpToBucket();
-		URI bucketURI = URI.create("schema:/" + archivePathUpToBucket + "/");
-		assertEquals(bucketIndex,
-				pathResolver.resolveIndexFromUriToBucket(bucketURI));
+		assertEquals(
+				bucketIndex,
+				pathResolver.resolveIndexFromUriToBucket(getArchivePathUpToBucket()
+						+ "/"));
 	}
 
 	public void getFormatsHome_givenIndexAndBucketName_uriEqualsBucketsHomePlusBucketName() {
 		String index = "index";
 		String bucketName = "bucketName";
-		URI expectedFormatsHome = URI.create(pathResolver.getBucketsHome(index)
-				.toString() + "/" + bucketName);
-		URI actualFormatsHome = pathResolver.getFormatsHome(index, bucketName);
+		String expectedFormatsHome = pathResolver.getBucketsHome(index).toString()
+				+ "/" + bucketName;
+		String actualFormatsHome = pathResolver.getFormatsHome(index, bucketName);
 		assertEquals(expectedFormatsHome, actualFormatsHome);
 	}
 
@@ -132,9 +129,9 @@ public class PathResolverTest {
 		String index = "index";
 		String bucketName = "bucketName";
 		BucketFormat format = BucketFormat.UNKNOWN;
-		URI expectedBucketUri = URI.create(pathResolver.getFormatsHome(index,
-				bucketName) + "/" + format);
-		URI actualBucketUri = pathResolver.resolveArchivedBucketURI(index,
+		String expectedBucketUri = pathResolver.getFormatsHome(index, bucketName)
+				+ "/" + format;
+		String actualBucketUri = pathResolver.resolveArchivedBucketURI(index,
 				bucketName, format);
 		assertEquals(expectedBucketUri, actualBucketUri);
 	}
@@ -152,14 +149,14 @@ public class PathResolverTest {
 	}
 
 	private String archiveServerCluster() {
-		return archiveRoot.toString() + "/" + clusterName + "/" + serverName;
+		return archivePath.toString() + "/" + clusterName + "/" + serverName;
 	}
 
 	public void resolveTempPathForBucket_givenBucket_tmpDirConcatWithBucketPath() {
 		Bucket bucket = TUtilsBucket.createBucket();
-		URI uri = pathResolver.resolveTempPathForBucket(bucket);
-		URI expected = URI.create(configuration.getTmpDirectory().toString()
-				+ pathResolver.resolveArchivePath(bucket).getPath());
+		String uri = pathResolver.resolveTempPathForBucket(bucket);
+		String expected = configuration.getTmpDirectory().toString()
+				+ pathResolver.resolveArchivePath(bucket);
 		assertEquals(expected, uri);
 	}
 
@@ -175,17 +172,15 @@ public class PathResolverTest {
 	}
 
 	public void getBucketSizeFileUriForBucket_givenBucket_livesInAMetadataFolderInTheBucket() {
-		URI uritoFileWithBucketSize = pathResolver
+		String uritoFileWithBucketSize = pathResolver
 				.getBucketSizeFileUriForBucket(bucket);
-		assertEquals(
-				URI.create(getArchivePathUpToFormat() + "/archive_meta/bucket.size"),
+		assertEquals(getArchivePathUpToFormat() + "/archive_meta/bucket.size",
 				uritoFileWithBucketSize);
 	}
 
 	public void resolveTempPathForBucketSize_bucket_livesInTempMetadataFolderOfTempBucketPath() {
-		URI temp = pathResolver.resolveTempPathForBucketSize(bucket);
-		assertEquals(
-				URI.create(pathResolver.resolveTempPathForBucket(bucket).toString()
-						+ "/archive_meta/bucket.size"), temp);
+		String temp = pathResolver.resolveTempPathForBucketSize(bucket);
+		assertEquals(pathResolver.resolveTempPathForBucket(bucket).toString()
+				+ "/archive_meta/bucket.size", temp);
 	}
 }

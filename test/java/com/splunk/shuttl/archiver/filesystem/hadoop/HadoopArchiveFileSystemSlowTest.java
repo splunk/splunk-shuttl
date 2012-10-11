@@ -23,7 +23,6 @@ import org.apache.hadoop.fs.Path;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
 public class HadoopArchiveFileSystemSlowTest {
@@ -49,7 +48,8 @@ public class HadoopArchiveFileSystemSlowTest {
 			assertFalse(hadoopFileSystem.exists(otherRoot));
 
 			// Test
-			realFileStructure.rename(path.toUri(), otherRoot.toUri());
+			realFileStructure.rename(path.toUri().getPath(), otherRoot.toUri()
+					.getPath());
 
 			assertTrue(hadoopFileSystem.exists(otherRoot));
 			assertFalse(hadoopFileSystem.exists(path));

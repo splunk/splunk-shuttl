@@ -36,6 +36,7 @@ import com.splunk.shuttl.archiver.flush.Flusher;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
@@ -77,10 +78,10 @@ public class FlusherFunctionalTest {
 		Date early = TUtilsDate.getNowWithoutMillis();
 		Date later = TUtilsDate.getLaterDate(early);
 
-		Bucket b1 = TUtilsBucket.createBucketWithIndexAndTimeRange(index, early,
-				early);
-		Bucket b2 = TUtilsBucket.createBucketWithIndexAndTimeRange(index, later,
-				later);
+		LocalBucket b1 = TUtilsBucket.createBucketWithIndexAndTimeRange(index,
+				early, early);
+		LocalBucket b2 = TUtilsBucket.createBucketWithIndexAndTimeRange(index,
+				later, later);
 
 		archiveBuckets(b1, b2);
 		thawBuckets(early, later);
@@ -106,7 +107,7 @@ public class FlusherFunctionalTest {
 		bucketThawer.thawBuckets(index, early, later);
 	}
 
-	private void archiveBuckets(Bucket b1, Bucket b2) {
+	private void archiveBuckets(LocalBucket b1, LocalBucket b2) {
 		BucketArchiver bucketArchiver = BucketArchiverFactory
 				.createWithConfiguration(config, localFileSystemPaths);
 

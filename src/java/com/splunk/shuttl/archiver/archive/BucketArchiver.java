@@ -19,7 +19,7 @@ import java.util.List;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.importexport.BucketExportController;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Archives buckets the way that it is configured to archive them.
@@ -54,7 +54,7 @@ public class BucketArchiver {
 		this.bucketFormats = bucketFormats;
 	}
 
-	public void archiveBucket(Bucket bucket) {
+	public void archiveBucket(LocalBucket bucket) {
 		boolean successfullyArchivedAllFormats = true;
 		for (BucketFormat format : bucketFormats)
 			if (!archiveBucketTransferer.isArchived(bucket, format))
@@ -65,8 +65,9 @@ public class BucketArchiver {
 			bucketDeleter.deleteBucket(bucket);
 	}
 
-	private boolean isSuccessfulArchiving(Bucket bucket, BucketFormat format) {
-		Bucket exportedBucket = bucketExportController.exportBucket(bucket, format);
+	private boolean isSuccessfulArchiving(LocalBucket bucket, BucketFormat format) {
+		LocalBucket exportedBucket = bucketExportController.exportBucket(bucket,
+				format);
 		try {
 			archiveBucketTransferer.transferBucketToArchive(exportedBucket);
 			return true;

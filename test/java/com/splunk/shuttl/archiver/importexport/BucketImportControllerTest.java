@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.csv.CsvImporter;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -44,7 +45,7 @@ public class BucketImportControllerTest {
 
 	@Test(groups = { "fast-unit" })
 	public void _bucketInSplunkBucketFormat_sameBucket() {
-		Bucket bucket = TUtilsBucket.createBucket();
+		LocalBucket bucket = TUtilsBucket.createBucket();
 		assertEquals(BucketFormat.SPLUNK_BUCKET, bucket.getFormat());
 		Bucket restoredBucket = bucketImportController
 				.restoreToSplunkBucketFormat(bucket);
@@ -52,8 +53,8 @@ public class BucketImportControllerTest {
 	}
 
 	public void _bucketInCsvFormat_returnBucketFromCsvImporter() {
-		Bucket realCsvBucket = TUtilsBucket.createRealCsvBucket();
-		Bucket importedBucket = mock(Bucket.class);
+		LocalBucket realCsvBucket = TUtilsBucket.createRealCsvBucket();
+		LocalBucket importedBucket = mock(LocalBucket.class);
 		when(csvImporter.importBucket(realCsvBucket)).thenReturn(importedBucket);
 		Bucket restoredBucket = bucketImportController
 				.restoreToSplunkBucketFormat(realCsvBucket);
@@ -62,7 +63,7 @@ public class BucketImportControllerTest {
 
 	@Test(expectedExceptions = { UnsupportedOperationException.class })
 	public void _bucketInUnknownFormat_throwsUnsupportedOperationException() {
-		Bucket unknownBucket = mock(Bucket.class);
+		LocalBucket unknownBucket = mock(LocalBucket.class);
 		when(unknownBucket.getFormat()).thenReturn(BucketFormat.UNKNOWN);
 		bucketImportController.restoreToSplunkBucketFormat(unknownBucket);
 	}

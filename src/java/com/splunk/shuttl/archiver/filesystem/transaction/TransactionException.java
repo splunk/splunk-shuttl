@@ -16,7 +16,7 @@ package com.splunk.shuttl.archiver.filesystem.transaction;
 
 
 /**
- * Thrown when a {@link Transaction} gets an exception.
+ * Thrown when a {@link AbstractTransaction} gets an exception.
  */
 public class TransactionException extends RuntimeException {
 

@@ -26,6 +26,7 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.model.MovesBuckets;
 
 /**
@@ -68,17 +69,17 @@ public class IndexPreservingBucketMover {
 	 *          to move
 	 * @return the new bucket moved to the new location.
 	 */
-	public Bucket moveBucket(Bucket bucket) {
+	public LocalBucket moveBucket(LocalBucket bucket) {
 		logger.debug(will("moving bucket", "bucket", bucket, "destination",
 				movedBucketsLocation));
-		Bucket movedBucket = moveBucketToMovedBucketsLocationAndPerserveItsIndex(bucket);
+		LocalBucket movedBucket = moveBucketToMovedBucketsLocationAndPerserveItsIndex(bucket);
 		logger.debug(did("moved bucket", "success", null, "bucket", bucket,
 				"destination", movedBucketsLocation));
 		return movedBucket;
 	}
 
-	private Bucket moveBucketToMovedBucketsLocationAndPerserveItsIndex(
-			Bucket bucket) {
+	private LocalBucket moveBucketToMovedBucketsLocationAndPerserveItsIndex(
+			LocalBucket bucket) {
 		File indexDirectory = new File(movedBucketsLocation, bucket.getIndex());
 		indexDirectory.mkdirs();
 		return MovesBuckets.moveBucket(bucket, indexDirectory);

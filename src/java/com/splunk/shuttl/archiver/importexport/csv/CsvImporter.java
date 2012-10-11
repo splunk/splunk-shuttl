@@ -28,6 +28,7 @@ import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkImportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.util.UtilsBucket;
 import com.splunk.shuttl.archiver.util.UtilsList;
 
@@ -59,17 +60,17 @@ public class CsvImporter implements BucketImporter {
 	 *         {@link BucketFormat#CSV} format.
 	 */
 	@Override
-	public Bucket importBucket(Bucket bucket) {
+	public LocalBucket importBucket(LocalBucket bucket) {
 		if (!isBucketInCsvFormat(bucket))
 			throw new IllegalArgumentException("Bucket not in csv format");
 		else
 			return getImportedBucketCsvBucket(bucket);
 	}
 
-	private Bucket getImportedBucketCsvBucket(Bucket bucket) {
+	private LocalBucket getImportedBucketCsvBucket(LocalBucket bucket) {
 		List<String> importCommand = createCommandForImportingBucket(bucket);
 		int exit = executeImportCommand(importCommand);
-		Bucket newBucket = createNewBucket(bucket);
+		LocalBucket newBucket = createNewBucket(bucket);
 		deleteCsvFileOnSuccessfulImport(bucket, exit);
 		return newBucket;
 	}
@@ -80,7 +81,7 @@ public class CsvImporter implements BucketImporter {
 		return exit;
 	}
 
-	private List<String> createCommandForImportingBucket(Bucket bucket) {
+	private List<String> createCommandForImportingBucket(LocalBucket bucket) {
 		List<String> executableCommand = splunkImportTool.getExecutableCommand();
 		File bucketDirectory = bucket.getDirectory();
 		List<String> arguments = Arrays.asList(new String[] {
@@ -89,7 +90,7 @@ public class CsvImporter implements BucketImporter {
 		return UtilsList.join(executableCommand, arguments);
 	}
 
-	private void deleteCsvFileOnSuccessfulImport(Bucket bucket, int exit) {
+	private void deleteCsvFileOnSuccessfulImport(LocalBucket bucket, int exit) {
 		if (isSuccessfulImport(exit))
 			deleteCsvFileInBucket(bucket);
 	}
@@ -98,7 +99,7 @@ public class CsvImporter implements BucketImporter {
 		return exit == 0;
 	}
 
-	private void deleteCsvFileInBucket(Bucket bucket) {
+	private void deleteCsvFileInBucket(LocalBucket bucket) {
 		boolean deleted = UtilsBucket.getCsvFile(bucket).delete();
 		if (!deleted)
 			logUnsuccessfulDelete(bucket);
@@ -114,7 +115,7 @@ public class CsvImporter implements BucketImporter {
 		return csvBucket.getFormat().equals(BucketFormat.CSV);
 	}
 
-	private Bucket createNewBucket(Bucket bucket) {
+	private LocalBucket createNewBucket(LocalBucket bucket) {
 		return bucketFactory.createWithIndexDirectoryAndFormat(bucket.getIndex(),
 				bucket.getDirectory(), BucketFormat.SPLUNK_BUCKET);
 	}

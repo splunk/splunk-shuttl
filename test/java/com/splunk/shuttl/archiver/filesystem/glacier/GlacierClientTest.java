@@ -21,7 +21,6 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URI;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
@@ -50,7 +49,7 @@ public class GlacierClientTest {
 			throws AmazonServiceException, AmazonClientException,
 			FileNotFoundException {
 		File file = createFile();
-		URI dst = URI.create("valid://uri");
+		String dst = "/path/dst";
 		UploadResult uploadResult = mock(UploadResult.class);
 		String archiveId = "archiveId";
 		when(uploadResult.getArchiveId()).thenReturn(archiveId);
@@ -63,17 +62,17 @@ public class GlacierClientTest {
 
 	@Test(expectedExceptions = { GlacierArchiveIdDoesNotExist.class })
 	public void getArchiveId_doesNotContainUri_throws() {
-		glacierClient.getArchiveId(URI.create("u://doesNotExist"));
+		glacierClient.getArchiveId("/path/doesNotExist");
 	}
 
 	public void download_givenArchiveIdWithUri_getsTheArchive() {
 		String filename = "filename.ext";
-		URI uri = URI.create("valid://uri/" + filename);
+		String path = "/path/to/" + filename;
 		String archiveId = "archiveId";
-		glacierClient.putArchiveId(uri, archiveId);
+		glacierClient.putArchiveId(path, archiveId);
 		File dir = createDirectory();
 
-		glacierClient.downloadToDir(uri, dir);
+		glacierClient.downloadToDir(path, dir);
 		verify(transferManager).download(eq(vault), eq(archiveId),
 				eq(new File(dir, filename)));
 	}
@@ -84,7 +83,7 @@ public class GlacierClientTest {
 	}
 
 	public void download_givenNotExistingFile_makesDirs() {
-		URI uri = URI.create("valid://uri");
+		String uri = "/path";
 		glacierClient.putArchiveId(uri, "foo");
 
 		File dir = createDirectory();

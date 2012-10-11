@@ -35,6 +35,7 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
@@ -72,7 +73,7 @@ public class ArchiveBucketsSizeFunctionalTest {
 	}
 
 	public void _givenArchivedBucket_putSizeOfBucketThenListRemoteBucketAndGetSize() {
-		Bucket realBucket = TUtilsBucket.createRealBucket();
+		LocalBucket realBucket = TUtilsBucket.createRealBucket();
 		long realBucketSize = realBucket.getSize();
 		TUtilsFunctional.archiveBucket(realBucket, bucketArchiver);
 
