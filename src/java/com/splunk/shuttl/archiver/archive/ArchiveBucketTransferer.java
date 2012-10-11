@@ -27,7 +27,6 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
-import com.splunk.shuttl.archiver.filesystem.transaction.LocalTransactionalFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.transaction.bucket.PutBucketTransaction;
 import com.splunk.shuttl.archiver.model.Bucket;
 

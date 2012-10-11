@@ -29,7 +29,7 @@ import javax.xml.bind.Unmarshaller;
  * 
  */
 public class JAXBUtils {
-	public static void save(Class confClass, Object confObj, File xmlFile)
+	public static void save(Class<?> confClass, Object confObj, File xmlFile)
 			throws Exception {
 		JAXBContext context = JAXBContext.newInstance(confClass);
 		Marshaller m = context.createMarshaller();
@@ -38,7 +38,7 @@ public class JAXBUtils {
 
 	}
 
-	public static Object refresh(Class confClass, File xmlFile)
+	public static Object refresh(Class<?> confClass, File xmlFile)
 			throws JAXBException, FileNotFoundException {
 		JAXBContext context = JAXBContext.newInstance(confClass);
 		Unmarshaller um = context.createUnmarshaller();

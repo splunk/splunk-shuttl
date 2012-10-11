@@ -21,7 +21,6 @@ import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
-import com.splunk.shuttl.archiver.filesystem.transaction.LocalTransactionalFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.transaction.file.PutFileTransaction;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -67,7 +66,8 @@ public class ArchiveBucketSize {
 		String temp = pathResolver.resolveTempPathForBucketSize(bucket);
 		String bucketSizeFilePath = pathResolver
 				.getBucketSizeFileUriForBucket(bucket);
-		return PutFileTransaction.create(archiveFileSystem, fileWithBucketSize.getAbsolutePath(), temp, bucketSizeFilePath);
+		return PutFileTransaction.create(archiveFileSystem,
+				fileWithBucketSize.getAbsolutePath(), temp, bucketSizeFilePath);
 	}
 
 	/**
