@@ -20,7 +20,7 @@ import java.io.IOException;
 import com.splunk.shuttl.archiver.filesystem.transaction.AbstractTransaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.HasFileStructure;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionCleaner;
-import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
+import com.splunk.shuttl.archiver.filesystem.transaction.LocalTransactionalFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
 
 /**
@@ -47,7 +47,7 @@ public class GetFileTransaction extends AbstractTransaction<String> {
 	public static GetFileTransaction create(TransactionalFileSystem fs,
 			String src, String temp, String dst) {
 		return new GetFileTransaction(fs.getFileTransferer(),
-				TransactionProvider.getLocalTransactionalFileSystem(),
+				LocalTransactionalFileSystemFactory.create(),
 				fs.getFileTransactionCleaner(), src, temp, dst);
 	}
 }

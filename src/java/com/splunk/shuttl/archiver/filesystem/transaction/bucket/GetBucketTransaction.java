@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.splunk.shuttl.archiver.filesystem.transaction.AbstractTransaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.HasFileStructure;
-import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
+import com.splunk.shuttl.archiver.filesystem.transaction.LocalTransactionalFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionalFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -47,7 +47,7 @@ public class GetBucketTransaction extends AbstractTransaction<Bucket> {
 	public static GetBucketTransaction create(TransactionalFileSystem fs,
 			Bucket src, String temp, String dst) {
 		return new GetBucketTransaction(fs.getBucketTransferer(),
-				TransactionProvider.getLocalTransactionalFileSystem(),
+				LocalTransactionalFileSystemFactory.create(),
 				fs.getBucketTransactionCleaner(), src, temp, dst);
 	}
 }

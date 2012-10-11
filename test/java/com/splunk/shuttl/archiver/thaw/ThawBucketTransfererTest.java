@@ -27,7 +27,8 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
-import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
+import com.splunk.shuttl.archiver.filesystem.transaction.LocalTransactionalFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.GetBucketTransaction;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -64,8 +65,7 @@ public class ThawBucketTransfererTest {
 				dst);
 		bucketTransferer.transferBucketToThaw(bucket);
 		verify(transactionExecuter).execute(
-				eq(TransactionProvider.createGet(archiveFileSystem, bucket,
-						temp.getAbsolutePath(), dst.getAbsolutePath())));
+				eq(GetBucketTransaction.create(archiveFileSystem, bucket, temp.getAbsolutePath(), dst.getAbsolutePath())));
 	}
 
 	public void _givenSuccessfulTransfer_returnBucketTransferedBucketOnLocalDisk()

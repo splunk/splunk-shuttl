@@ -20,7 +20,8 @@ import java.io.IOException;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
-import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
+import com.splunk.shuttl.archiver.filesystem.transaction.LocalTransactionalFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.GetBucketTransaction;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -52,9 +53,7 @@ public class ThawBucketTransferer {
 	public LocalBucket transferBucketToThaw(Bucket bucket) throws IOException {
 		File temp = thawLocationProvider.getThawTransferLocation(bucket);
 		File dst = thawLocationProvider.getLocationInThawForBucket(bucket);
-		Transaction getBucketTransaction = TransactionProvider.createGet(
-				archiveFileSystem, bucket, temp.getAbsolutePath(),
-				dst.getAbsolutePath());
+		Transaction getBucketTransaction = GetBucketTransaction.create(archiveFileSystem, bucket, temp.getAbsolutePath(), dst.getAbsolutePath());
 		transactionExecuter.execute(getBucketTransaction);
 
 		return bucketFactory.createWithIndexDirectoryAndSize(bucket.getIndex(),

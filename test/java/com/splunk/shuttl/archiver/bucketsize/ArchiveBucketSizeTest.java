@@ -26,7 +26,8 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
-import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
+import com.splunk.shuttl.archiver.filesystem.transaction.LocalTransactionalFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.transaction.file.PutFileTransaction;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -58,8 +59,7 @@ public class ArchiveBucketSizeTest {
 
 		Transaction bucketSizeTransaction = archiveBucketSize
 				.getBucketSizeTransaction(bucket);
-		assertEquals(TransactionProvider.createPut(archiveFileSystem,
-				src.getAbsolutePath(), temp, dst), bucketSizeTransaction);
+		assertEquals(PutFileTransaction.create(archiveFileSystem, src.getAbsolutePath(), temp, dst), bucketSizeTransaction);
 	}
 
 	public void getSize_givenUriToFileWithBucketSize_passesUriToBucketSizeFileForReading() {

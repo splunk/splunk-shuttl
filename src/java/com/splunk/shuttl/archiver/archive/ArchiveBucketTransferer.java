@@ -27,7 +27,8 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
-import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
+import com.splunk.shuttl.archiver.filesystem.transaction.LocalTransactionalFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.PutBucketTransaction;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -65,8 +66,7 @@ public class ArchiveBucketTransferer {
 		String tempPath = pathResolver.resolveTempPathForBucket(bucket);
 		logger.info(will("attempting to transfer bucket to archive", "bucket",
 				bucket, "destination", destination));
-		Transaction bucketTransaction = TransactionProvider.createPut(
-				archiveFileSystem, bucket, tempPath, destination);
+		Transaction bucketTransaction = PutBucketTransaction.create(archiveFileSystem, bucket, tempPath, destination);
 
 		// TODO: Merge the bucket transaction and the bucketsize transaction. They
 		// should be able to be run at once with

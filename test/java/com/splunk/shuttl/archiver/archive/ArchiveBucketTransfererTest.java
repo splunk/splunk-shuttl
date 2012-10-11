@@ -34,7 +34,8 @@ import com.splunk.shuttl.archiver.filesystem.transaction.AbstractTransaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
-import com.splunk.shuttl.archiver.filesystem.transaction.TransactionProvider;
+import com.splunk.shuttl.archiver.filesystem.transaction.LocalTransactionalFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.PutBucketTransaction;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -66,7 +67,7 @@ public class ArchiveBucketTransfererTest {
 		when(pathResolver.resolveTempPathForBucket(bucket)).thenReturn(temp);
 		archiveBucketTransferer.transferBucketToArchive(bucket);
 		verify(transactionExecuter).execute(
-				eq(TransactionProvider.createPut(archive, bucket, temp, destination)));
+				eq(PutBucketTransaction.create(archive, bucket, temp, destination)));
 	}
 
 	public void transferBucketToArchive_givenSuccessfulBucketTransfer_startBucketSizeTransaction() {
