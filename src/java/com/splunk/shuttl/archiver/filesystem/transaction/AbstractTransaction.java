@@ -54,7 +54,7 @@ public abstract class AbstractTransaction<T> implements Transaction {
 			hasFileStructure.mkdirs(temp);
 		} catch (Exception e) {
 			logger.error(did("Tried making directories up to: " + temp, e,
-					"To make directories.", "uri", temp));
+					"To make directories.", "path", temp));
 			throw new TransactionException(e);
 		}
 	}

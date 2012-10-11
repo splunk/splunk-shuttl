@@ -64,7 +64,7 @@ public class GlacierClient {
 	}
 
 	/**
-	 * Downloads a file stored in glacier with a URI.
+	 * Downloads a file stored in glacier with a path.
 	 * 
 	 * @throws GlacierArchiveIdDoesNotExist
 	 *           if the archiveId is not stored in memory.
@@ -80,7 +80,7 @@ public class GlacierClient {
 	}
 
 	/**
-	 * Get the archiveId mapped to a URI.
+	 * Get the archiveId mapped to a path.
 	 */
 	public String getArchiveId(String path) {
 		if (!archiveIds.containsKey(path))
@@ -88,12 +88,12 @@ public class GlacierClient {
 					"Could not get the archiveId for dst: " + path
 							+ ", which means that we cannot download the archive. "
 							+ "Download the archive inventory and parse out the "
-							+ "description for the uri->archiveId mappings.");
+							+ "description for the path->archiveId mappings.");
 		return archiveIds.get(path);
 	}
 
 	/**
-	 * Map a uri to a archiveId.
+	 * Map a path to a archiveId.
 	 */
 	public void putArchiveId(String path, String archiveId) {
 		archiveIds.put(path, archiveId);

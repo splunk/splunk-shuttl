@@ -70,9 +70,9 @@ public class ArchiverFunctionalTest {
 		bucketArchiver.archiveBucket(bucket);
 
 		String bucketArchivePath = pathResolver.resolveArchivePath(bucket);
-		List<String> urisInBucketDirectoryInArchive = archiveFileSystem
+		List<String> pathsInBucketDirectoryInArchive = archiveFileSystem
 				.listPath(bucketArchivePath);
-		assertTrue(filesInBucket <= urisInBucketDirectoryInArchive.size());
+		assertTrue(filesInBucket <= pathsInBucketDirectoryInArchive.size());
 	}
 
 }

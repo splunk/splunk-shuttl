@@ -16,7 +16,6 @@
 package com.splunk.shuttl.archiver.model;
 
 import java.io.FileNotFoundException;
-import java.net.URI;
 import java.util.Date;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
@@ -33,9 +32,9 @@ public class Bucket {
 	protected final Long size; // size on file system in bytes
 
 	/**
-	 * Bucket created with an URI to support remote buckets.
+	 * Bucket created with a path which support remote and local buckets.
 	 * 
-	 * @param uri
+	 * @param path
 	 *          to bucket
 	 * @param index
 	 *          that the bucket belongs to.
@@ -51,20 +50,6 @@ public class Bucket {
 		this(path, index, bucketName, format, null);
 	}
 
-	/**
-	 * Bucket created with an URI to support remote buckets.
-	 * 
-	 * @param uri
-	 *          to bucket
-	 * @param index
-	 *          that the bucket belongs to.
-	 * @param bucketName
-	 *          that identifies the bucket
-	 * @param format
-	 *          of this bucket
-	 * @throws FileNotFoundException
-	 * @throws FileNotDirectoryException
-	 */
 	public Bucket(String path, String index, String bucketName,
 			BucketFormat format, Long size) {
 		this.path = path;
@@ -96,7 +81,7 @@ public class Bucket {
 	}
 
 	/**
-	 * @return {@link URI} of this bucket.
+	 * @return path of this bucket, which should be globaly unique.
 	 */
 	public String getPath() {
 		return path;

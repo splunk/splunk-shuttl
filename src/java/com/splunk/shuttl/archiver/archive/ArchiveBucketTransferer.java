@@ -65,7 +65,8 @@ public class ArchiveBucketTransferer {
 		String tempPath = pathResolver.resolveTempPathForBucket(bucket);
 		logger.info(will("attempting to transfer bucket to archive", "bucket",
 				bucket, "destination", destination));
-		Transaction bucketTransaction = PutBucketTransaction.create(archiveFileSystem, bucket, tempPath, destination);
+		Transaction bucketTransaction = PutBucketTransaction.create(
+				archiveFileSystem, bucket, tempPath, destination);
 
 		// TODO: Merge the bucket transaction and the bucketsize transaction. They
 		// should be able to be run at once with
@@ -106,25 +107,24 @@ public class ArchiveBucketTransferer {
 	 * @return true if the {@link Bucket} in {@link BucketFormat} is archived.
 	 */
 	public boolean isArchived(Bucket bucket, BucketFormat format) {
-		String bucketUriWithFormat = pathResolver.resolveArchivedBucketURI(
+		String bucketPathWithFormat = pathResolver.resolveArchivedBucketPath(
 				bucket.getIndex(), bucket.getName(), format);
-		return !listPathsForBucketUri(bucketUriWithFormat).isEmpty();
+		return !listPathsForBucketPath(bucketPathWithFormat).isEmpty();
 	}
 
-	private List<String> listPathsForBucketUri(String bucketUriWithFormat) {
+	private List<String> listPathsForBucketPath(String bucketPathWithFormat) {
 		try {
-			return archiveFileSystem.listPath(bucketUriWithFormat);
+			return archiveFileSystem.listPath(bucketPathWithFormat);
 		} catch (IOException e) {
-			logIOException(bucketUriWithFormat, e);
+			logIOException(bucketPathWithFormat, e);
 			throw new RuntimeException(e);
 		}
 	}
 
 	private void logIOException(String bucketPathWithFormat, IOException e) {
-		Logger.getLogger(getClass())
-				.error(
-						did("Listed path in the archive with uri: + uri", e,
-								"To list files at uri", "uri", bucketPathWithFormat,
-								"exception", e));
+		Logger.getLogger(getClass()).error(
+				did("Listed path in the archive with path: " + bucketPathWithFormat, e,
+						"To list files at path", "path", bucketPathWithFormat, "exception",
+						e));
 	}
 }

@@ -54,7 +54,7 @@ public class ArchiveBucketSize {
 	 */
 	public long getSize(Bucket bucket) {
 		String filePathForSizeFile = pathResolver
-				.getBucketSizeFileUriForBucket(bucket);
+				.getBucketSizeFilePathForBucket(bucket);
 		return bucketSizeIO.readSizeFromRemoteFile(filePathForSizeFile);
 	}
 
@@ -65,7 +65,7 @@ public class ArchiveBucketSize {
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
 		String temp = pathResolver.resolveTempPathForBucketSize(bucket);
 		String bucketSizeFilePath = pathResolver
-				.getBucketSizeFileUriForBucket(bucket);
+				.getBucketSizeFilePathForBucket(bucket);
 		return PutFileTransaction.create(archiveFileSystem,
 				fileWithBucketSize.getAbsolutePath(), temp, bucketSizeFilePath);
 	}

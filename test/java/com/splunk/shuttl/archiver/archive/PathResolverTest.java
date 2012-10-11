@@ -75,7 +75,7 @@ public class PathResolverTest {
 		assertEquals(expected, actual);
 	}
 
-	public void resolveArchivePath_givenWritableFileSystemUri_uriStartsWithWritablePath() {
+	public void resolveArchivePath_givenWritableFileSystemPath_pathStartsWithWritablePath() {
 		// Test
 		String archivePath = pathResolver.resolveArchivePath(bucket);
 
@@ -93,7 +93,7 @@ public class PathResolverTest {
 				configuration.getArchivePath()));
 	}
 
-	public void getBucketsHome_givenIndex_uriWithPathThatEndsWithWhereBucketsLive() {
+	public void getBucketsHome_givenIndex_pathThatEndsWithWhereBucketsLive() {
 		String expected = archiveServerCluster() + "/" + bucketIndex;
 		String actual = pathResolver.getBucketsHome(bucketIndex).toString();
 		assertEquals(expected, actual);
@@ -104,19 +104,19 @@ public class PathResolverTest {
 				.startsWith(archivePath.toString()));
 	}
 
-	public void resolveIndexFromUriToBucket_givenValidUriToBucket_indexForTheBucket() {
+	public void resolveIndexFromPathToBucket_givenValidPathToBucket_indexForTheBucket() {
 		assertEquals(bucketIndex,
-				pathResolver.resolveIndexFromUriToBucket(getArchivePathUpToBucket()));
+				pathResolver.resolveIndexFromPathToBucket(getArchivePathUpToBucket()));
 	}
 
-	public void resolveIndexFromUriToBucket_uriEndsWithSeparator_indexForBucket() {
+	public void resolveIndexFromPathToBucket_pathEndsWithSeparator_indexForBucket() {
 		assertEquals(
 				bucketIndex,
-				pathResolver.resolveIndexFromUriToBucket(getArchivePathUpToBucket()
+				pathResolver.resolveIndexFromPathToBucket(getArchivePathUpToBucket()
 						+ "/"));
 	}
 
-	public void getFormatsHome_givenIndexAndBucketName_uriEqualsBucketsHomePlusBucketName() {
+	public void getFormatsHome_givenIndexAndBucketName_pathEqualsBucketsHomePlusBucketName() {
 		String index = "index";
 		String bucketName = "bucketName";
 		String expectedFormatsHome = pathResolver.getBucketsHome(index).toString()
@@ -125,15 +125,15 @@ public class PathResolverTest {
 		assertEquals(expectedFormatsHome, actualFormatsHome);
 	}
 
-	public void resolveArchivedBucketURI_givenIndexBucketNameAndFormat_uriEqualsFormatsHomePlusFormat() {
+	public void resolveArchivedBucketPath_givenIndexBucketNameAndFormat_pathEqualsFormatsHomePlusFormat() {
 		String index = "index";
 		String bucketName = "bucketName";
 		BucketFormat format = BucketFormat.UNKNOWN;
-		String expectedBucketUri = pathResolver.getFormatsHome(index, bucketName)
+		String expectedBucketPath = pathResolver.getFormatsHome(index, bucketName)
 				+ "/" + format;
-		String actualBucketUri = pathResolver.resolveArchivedBucketURI(index,
+		String actualBucketPath = pathResolver.resolveArchivedBucketPath(index,
 				bucketName, format);
-		assertEquals(expectedBucketUri, actualBucketUri);
+		assertEquals(expectedBucketPath, actualBucketPath);
 	}
 
 	private String getArchivePathUpToBucket() {
@@ -154,10 +154,10 @@ public class PathResolverTest {
 
 	public void resolveTempPathForBucket_givenBucket_tmpDirConcatWithBucketPath() {
 		Bucket bucket = TUtilsBucket.createBucket();
-		String uri = pathResolver.resolveTempPathForBucket(bucket);
+		String path = pathResolver.resolveTempPathForBucket(bucket);
 		String expected = configuration.getTmpDirectory().toString()
 				+ pathResolver.resolveArchivePath(bucket);
-		assertEquals(expected, uri);
+		assertEquals(expected, path);
 	}
 
 	public void getConfigured_registeredMBean_getsPathResolverInstance() {
@@ -171,9 +171,9 @@ public class PathResolverTest {
 		});
 	}
 
-	public void getBucketSizeFileUriForBucket_givenBucket_livesInAMetadataFolderInTheBucket() {
+	public void getBucketSizeFilePathForBucket_givenBucket_livesInAMetadataFolderInTheBucket() {
 		String uritoFileWithBucketSize = pathResolver
-				.getBucketSizeFileUriForBucket(bucket);
+				.getBucketSizeFilePathForBucket(bucket);
 		assertEquals(getArchivePathUpToFormat() + "/archive_meta/bucket.size",
 				uritoFileWithBucketSize);
 	}

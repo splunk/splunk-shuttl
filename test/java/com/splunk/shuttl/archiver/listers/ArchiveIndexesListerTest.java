@@ -60,9 +60,9 @@ public class ArchiveIndexesListerTest {
 			throws IOException {
 		String index1 = "dir1";
 		String index2 = "dir2";
-		List<String> urisToIndexDirectories = Arrays.asList(
+		List<String> pathsToIndexDirectories = Arrays.asList(
 				"/valid/path/" + index1, "/valid/path/" + index2);
-		when(fileSystem.listPath(anyString())).thenReturn(urisToIndexDirectories);
+		when(fileSystem.listPath(anyString())).thenReturn(pathsToIndexDirectories);
 		List<String> listIndexes = archivedIndexesLister.listIndexes();
 		assertEquals(listIndexes, Arrays.asList(index1, index2));
 	}

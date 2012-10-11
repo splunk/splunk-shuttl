@@ -70,20 +70,20 @@ public class ArchiveBucketsListerTest {
 		verify(archiveFileSystem).listPath(bucketsHome);
 	}
 
-	public void listBucketsInIndex_listedBucketsHomeInArchive_resolveIndexFromUrisToBuckets()
+	public void listBucketsInIndex_listedBucketsHomeInArchive_resolveIndexFromPathsToBuckets()
 			throws IOException {
 		String basePath = "/path/to/bucketsHome/";
-		String bucketUri1 = basePath + "bucket1";
-		String bucketUri2 = basePath + "bucket2";
-		List<String> bucketsInBucketsHome = Arrays.asList(bucketUri1, bucketUri2);
+		String bucketPath1 = basePath + "bucket1";
+		String bucketPath2 = basePath + "bucket2";
+		List<String> bucketsInBucketsHome = Arrays.asList(bucketPath1, bucketPath2);
 		when(archiveFileSystem.listPath(anyString())).thenReturn(
 				bucketsInBucketsHome);
 		archiveBucketsLister.listBucketsInIndex("index");
-		for (String uriToBucket : bucketsInBucketsHome)
-			verify(pathResolver).resolveIndexFromUriToBucket(uriToBucket);
+		for (String pathToBucket : bucketsInBucketsHome)
+			verify(pathResolver).resolveIndexFromPathToBucket(pathToBucket);
 	}
 
-	public void listBucketsInIndex_givenUriToBucketsAndIndexToThoseBuckets_returnListOfBucketsNameAndIndexButNullFormat()
+	public void listBucketsInIndex_givenPathToBucketsAndIndexToThoseBuckets_returnListOfBucketsNameAndIndexButNullFormat()
 			throws IOException {
 		String basePath = "/path/to/bucketsHome/";
 		String index = "index";
@@ -94,7 +94,7 @@ public class ArchiveBucketsListerTest {
 		List<String> bucketsInBucketsHome = Arrays.asList(bucketPath1, bucketPath2);
 		when(archiveFileSystem.listPath(anyString())).thenReturn(
 				bucketsInBucketsHome);
-		when(pathResolver.resolveIndexFromUriToBucket(anyString())).thenReturn(
+		when(pathResolver.resolveIndexFromPathToBucket(anyString())).thenReturn(
 				index);
 
 		List<Bucket> buckets = archiveBucketsLister.listBucketsInIndex(index);

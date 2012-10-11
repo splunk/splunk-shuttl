@@ -62,7 +62,7 @@ public class BucketFormatResolverTest {
 		verify(archiveFileSystem).listPath(formatsHome);
 	}
 
-	public void resolveBucketsFormats_givenFormatUris_directoryNameIsFormat()
+	public void resolveBucketsFormats_givenFormatPaths_directoryNameIsFormat()
 			throws IOException {
 		BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 		String formatPath = "/path/" + format;
@@ -73,14 +73,14 @@ public class BucketFormatResolverTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void resolveBucketsFormats_givenChosenFormat_resolvingUriForBucketWithFormat() {
+	public void resolveBucketsFormats_givenChosenFormat_resolvingPathForBucketWithFormat() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 		when(bucketFormatChooser.chooseBucketFormat(anyList())).thenReturn(format);
 
 		bucketFormatResolver.resolveBucketsFormats(Arrays.asList(bucket));
 
-		verify(pathResolver).resolveArchivedBucketURI(bucket.getIndex(),
+		verify(pathResolver).resolveArchivedBucketPath(bucket.getIndex(),
 				bucket.getName(), format);
 	}
 
@@ -102,7 +102,7 @@ public class BucketFormatResolverTest {
 	public void resolveBucketsFormats_givenPathToBucketWithResolvedFormat_bucketWithPath() {
 		String path = "/path/to/bucket/with/new/format";
 		when(
-				pathResolver.resolveArchivedBucketURI(anyString(), anyString(),
+				pathResolver.resolveArchivedBucketPath(anyString(), anyString(),
 						any(BucketFormat.class))).thenReturn(path);
 
 		List<Bucket> bucketsWithFormat = bucketFormatResolver

@@ -47,14 +47,14 @@ public class ArchiveBucketSizeTest {
 				archiveFileSystem);
 	}
 
-	public void getBucketSizeTransaction_givenBucket_createsWithPathResolverUris() {
+	public void getBucketSizeTransaction_givenBucket_createsWithPathResolverPaths() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		File src = mock(File.class);
 		String temp = "/temp/path";
 		String dst = "/dst/path";
 		when(bucketSizeIO.getFileWithBucketSize(bucket)).thenReturn(src);
 		when(pathResolver.resolveTempPathForBucketSize(bucket)).thenReturn(temp);
-		when(pathResolver.getBucketSizeFileUriForBucket(bucket)).thenReturn(dst);
+		when(pathResolver.getBucketSizeFilePathForBucket(bucket)).thenReturn(dst);
 
 		Transaction bucketSizeTransaction = archiveBucketSize
 				.getBucketSizeTransaction(bucket);
@@ -62,10 +62,10 @@ public class ArchiveBucketSizeTest {
 				src.getAbsolutePath(), temp, dst), bucketSizeTransaction);
 	}
 
-	public void getSize_givenUriToFileWithBucketSize_passesUriToBucketSizeFileForReading() {
+	public void getSize_givenPathToFileWithBucketSize_passesPathToBucketSizeFileForReading() {
 		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
 		String pathToFileWIthBucketSize = "path/to/bucket/size";
-		when(pathResolver.getBucketSizeFileUriForBucket(remoteBucket)).thenReturn(
+		when(pathResolver.getBucketSizeFilePathForBucket(remoteBucket)).thenReturn(
 				pathToFileWIthBucketSize);
 		archiveBucketSize.getSize(remoteBucket);
 		verify(bucketSizeIO).readSizeFromRemoteFile(pathToFileWIthBucketSize);

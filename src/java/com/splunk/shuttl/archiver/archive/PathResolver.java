@@ -47,7 +47,7 @@ public class PathResolver {
 	 * 
 	 * @param bucket
 	 *          to archive.
-	 * @return URI to archive the bucket
+	 * @return Path to archive the bucket
 	 */
 	public String resolveArchivePath(Bucket bucket) {
 		String archivePathForBucket = getArchivingPath() + SEPARATOR
@@ -88,11 +88,11 @@ public class PathResolver {
 	 * Resolves index from a Path to a bucket.<br/>
 	 * <br/>
 	 * 
-	 * @param bucketURI
+	 * @param bucketPath
 	 *          , Path needs to have the index in a structure decided by a
 	 *          {@link PathResolver}.
 	 */
-	public String resolveIndexFromUriToBucket(String bucketPath) {
+	public String resolveIndexFromPathToBucket(String bucketPath) {
 		String parentWhichIsIndex = getParent(UtilsURI
 				.getPathByTrimmingEndingFileSeparator(bucketPath));
 		return FilenameUtils.getBaseName(parentWhichIsIndex);
@@ -120,7 +120,7 @@ public class PathResolver {
 	 *          of the bucket
 	 * @return Path to archived bucket.
 	 */
-	public String resolveArchivedBucketURI(String index, String bucketName,
+	public String resolveArchivedBucketPath(String index, String bucketName,
 			BucketFormat format) {
 		return getFormatsHome(index, bucketName) + SEPARATOR + format;
 	}
@@ -138,7 +138,7 @@ public class PathResolver {
 	/**
 	 * @return Path to where a bucket's file with local disk size information.
 	 */
-	public String getBucketSizeFileUriForBucket(Bucket bucket) {
+	public String getBucketSizeFilePathForBucket(Bucket bucket) {
 		return resolveArchivePath(bucket) + bucketSizeSuffix;
 	}
 

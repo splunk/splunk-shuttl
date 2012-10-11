@@ -45,7 +45,7 @@ public class GlacierClientTest {
 		glacierClient = new GlacierClient(transferManager, vault);
 	}
 
-	public void upload_givenUri_canGetArchiveIdWithUri()
+	public void upload_givenPath_canGetArchiveIdWithPath()
 			throws AmazonServiceException, AmazonClientException,
 			FileNotFoundException {
 		File file = createFile();
@@ -61,11 +61,11 @@ public class GlacierClientTest {
 	}
 
 	@Test(expectedExceptions = { GlacierArchiveIdDoesNotExist.class })
-	public void getArchiveId_doesNotContainUri_throws() {
+	public void getArchiveId_doesNotContainPath_throws() {
 		glacierClient.getArchiveId("/path/doesNotExist");
 	}
 
-	public void download_givenArchiveIdWithUri_getsTheArchive() {
+	public void download_givenArchiveIdWithPath_getsTheArchive() {
 		String filename = "filename.ext";
 		String path = "/path/to/" + filename;
 		String archiveId = "archiveId";
@@ -83,13 +83,13 @@ public class GlacierClientTest {
 	}
 
 	public void download_givenNotExistingFile_makesDirs() {
-		String uri = "/path";
-		glacierClient.putArchiveId(uri, "foo");
+		String path = "/path";
+		glacierClient.putArchiveId(path, "foo");
 
 		File dir = createDirectory();
 		FileUtils.deleteQuietly(dir);
 		assertFalse(dir.exists());
-		glacierClient.downloadToDir(uri, dir);
+		glacierClient.downloadToDir(path, dir);
 		assertTrue(dir.exists());
 	}
 }

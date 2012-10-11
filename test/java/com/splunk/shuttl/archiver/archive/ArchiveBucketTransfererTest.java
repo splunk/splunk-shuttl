@@ -58,7 +58,7 @@ public class ArchiveBucketTransfererTest {
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void transferBucketToArchive_givenValidBucketAndUri_putBucketWithArchiveFileSystem() {
+	public void transferBucketToArchive_givenValidBucketAndPath_putBucketWithArchiveFileSystem() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		String destination = "/some/path";
 		String temp = "/temp/path";
@@ -103,7 +103,7 @@ public class ArchiveBucketTransfererTest {
 		Bucket bucket = TUtilsBucket.createBucket();
 		String bucketPath = "/bucket/path";
 		when(
-				pathResolver.resolveArchivedBucketURI(bucket.getIndex(),
+				pathResolver.resolveArchivedBucketPath(bucket.getIndex(),
 						bucket.getName(), bucket.getFormat())).thenReturn(bucketPath);
 		when(archive.listPath(bucketPath)).thenReturn(new ArrayList<String>());
 
@@ -113,9 +113,9 @@ public class ArchiveBucketTransfererTest {
 	public void isArchived_bucketInFormatExistsInTheArchiveFileSystem_true()
 			throws IOException {
 		Bucket bucket = TUtilsBucket.createBucket();
-		String bucketPath = "/bucket/uri";
+		String bucketPath = "/bucket/path";
 		when(
-				pathResolver.resolveArchivedBucketURI(bucket.getIndex(),
+				pathResolver.resolveArchivedBucketPath(bucket.getIndex(),
 						bucket.getName(), bucket.getFormat())).thenReturn(bucketPath);
 		when(archive.listPath(bucketPath)).thenReturn(asList("/valid/path"));
 		assertTrue(archiveBucketTransferer.isArchived(bucket, bucket.getFormat()));

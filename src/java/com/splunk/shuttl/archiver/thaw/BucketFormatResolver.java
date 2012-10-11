@@ -76,7 +76,7 @@ public class BucketFormatResolver {
 		BucketFormat chosenFormat = bucketFormatChooser
 				.chooseBucketFormat(availableFormats);
 		String pathToBucketWithChosenBucket = pathResolver
-				.resolveArchivedBucketURI(bucket.getIndex(), bucket.getName(),
+				.resolveArchivedBucketPath(bucket.getIndex(), bucket.getName(),
 						chosenFormat);
 		return createBucketWithErrorHandling(bucket, chosenFormat,
 				pathToBucketWithChosenBucket);

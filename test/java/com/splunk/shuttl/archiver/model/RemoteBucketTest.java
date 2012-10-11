@@ -42,11 +42,11 @@ public class RemoteBucketTest {
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void uriConstructor_nonFileUri_ok() throws IOException {
+	public void pathConstructor_nonFileUri_ok() throws IOException {
 		new Bucket(path, null, null, null);
 	}
 
-	public void getPath_initWithUri_uri() {
+	public void getPath_initWithPath_path() {
 		assertEquals(path, bucket.getPath());
 	}
 

@@ -110,7 +110,7 @@ public class LocalFileSystemPathsTest {
 				.getAbsolutePath());
 	}
 
-	public void getArchiverDirectory_givenUriWithFileSchemeAndTilde_resolvesTildeAsUserHome() {
+	public void getArchiverDirectory_givenPathWithFileSchemeAndTilde_resolvesTildeAsUserHome() {
 		File archiverDirectory = new LocalFileSystemPaths("file:/~/archiver_dir")
 				.getArchiverDirectory();
 		File expected = new File(FileUtils.getUserDirectoryPath(), "archiver_dir");

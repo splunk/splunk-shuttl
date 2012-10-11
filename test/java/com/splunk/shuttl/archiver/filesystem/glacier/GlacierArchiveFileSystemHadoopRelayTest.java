@@ -34,8 +34,8 @@ public class GlacierArchiveFileSystemHadoopRelayTest {
 
 	private GlacierArchiveFileSystem glacier;
 	private HadoopArchiveFileSystem hadoop;
-	private String uri1;
-	private String uri2;
+	private String path1;
+	private String path2;
 	private File file1;
 	private File file2;
 	private TransfersFiles hadoopTransfersFiles;
@@ -49,46 +49,46 @@ public class GlacierArchiveFileSystemHadoopRelayTest {
 		hadoopCleansFiles = mock(FileTransactionCleaner.class);
 		when(hadoop.getFileTransactionCleaner()).thenReturn(hadoopCleansFiles);
 		glacier = new GlacierArchiveFileSystem(hadoop, null, null, null, null);
-		uri1 = "/path/foo";
-		uri2 = "/path/bar";
+		path1 = "/path/foo";
+		path2 = "/path/bar";
 		file1 = mock(File.class);
 		file2 = mock(File.class);
 	}
 
 	public void rename__relaysToHadoop() throws IOException {
-		glacier.rename(uri1, uri2);
-		verify(hadoop).rename(uri1, uri2);
+		glacier.rename(path1, path2);
+		verify(hadoop).rename(path1, path2);
 	}
 
 	public void putFile__relaysToHadoop() throws IOException {
 		String local = "local";
-		glacier.getFileTransferer().put(local, uri1, uri2);
-		verify(hadoopTransfersFiles).put(local, uri1, uri2);
+		glacier.getFileTransferer().put(local, path1, path2);
+		verify(hadoopTransfersFiles).put(local, path1, path2);
 	}
 
 	public void getFile__relaysToHadoop() throws IOException {
-		glacier.getFileTransferer().get(uri1, file1, file2);
-		verify(hadoopTransfersFiles).get(uri1, file1, file2);
+		glacier.getFileTransferer().get(path1, file1, file2);
+		verify(hadoopTransfersFiles).get(path1, file1, file2);
 	}
 
 	public void cleanFileTransaction__relaysToHadoop() {
-		glacier.getFileTransactionCleaner().cleanTransaction(uri1, uri2);
-		verify(hadoopCleansFiles).cleanTransaction(uri1, uri2);
+		glacier.getFileTransactionCleaner().cleanTransaction(path1, path2);
+		verify(hadoopCleansFiles).cleanTransaction(path1, path2);
 	}
 
 	public void mkdirs__relaysToHadoop() throws IOException {
-		glacier.mkdirs(uri1);
-		verify(hadoop).mkdirs(uri1);
+		glacier.mkdirs(path1);
+		verify(hadoop).mkdirs(path1);
 	}
 
 	public void listPath__relaysToHadoop() throws IOException {
-		when(hadoop.listPath(uri1)).thenReturn(asList(uri2));
-		assertEquals(asList(uri2), glacier.listPath(uri1));
+		when(hadoop.listPath(path1)).thenReturn(asList(path2));
+		assertEquals(asList(path2), glacier.listPath(path1));
 	}
 
 	public void openFile__relaysToHadoop() throws IOException {
 		InputStream in = mock(InputStream.class);
-		when(hadoop.openFile(uri1)).thenReturn(in);
-		assertEquals(in, glacier.openFile(uri1));
+		when(hadoop.openFile(path1)).thenReturn(in);
+		assertEquals(in, glacier.openFile(path1));
 	}
 }

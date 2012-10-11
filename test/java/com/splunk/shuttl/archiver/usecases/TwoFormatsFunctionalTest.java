@@ -80,7 +80,7 @@ public class TwoFormatsFunctionalTest {
 
 	private void assertBucketIsArchivedInFormat(Bucket realBucket,
 			BucketFormat format) throws IOException {
-		String splunkBucketPath = pathResolver.resolveArchivedBucketURI(
+		String splunkBucketPath = pathResolver.resolveArchivedBucketPath(
 				realBucket.getIndex(), realBucket.getName(), format);
 		List<String> listPath = archiveFileSystem.listPath(splunkBucketPath);
 		assertFalse(listPath.contains(splunkBucketPath));

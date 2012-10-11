@@ -90,7 +90,7 @@ public class GlacierArchiveFileSystemTest {
 		inOrder.verifyNoMoreInteractions();
 	}
 
-	public void getBucket__getsBucketWithBucketsRemoteUri() throws IOException {
+	public void getBucket__getsBucketWithBucketsRemotePath() throws IOException {
 		RemoteBucket remoteBucket = TUtilsBucket.createRemoteBucket();
 		File temp = mock(File.class);
 		File dst = mock(File.class);

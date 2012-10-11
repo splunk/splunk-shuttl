@@ -78,15 +78,15 @@ public class ArchiveBucketsLister {
 	 */
 	public List<Bucket> listBucketsInIndex(String index) {
 		ArrayList<Bucket> buckets = new ArrayList<Bucket>();
-		for (String pathToBucket : getUriToBucketsWithIndex(index))
+		for (String pathToBucket : getPathToBucketsWithIndex(index))
 			buckets.add(createBucketFromPathToBucket(pathToBucket));
 		return buckets;
 	}
 
-	private List<String> getUriToBucketsWithIndex(String index) {
+	private List<String> getPathToBucketsWithIndex(String index) {
 		String bucketsHome = pathResolver.getBucketsHome(index);
-		List<String> urisToBuckets = listBucketsHomeInArchive(bucketsHome);
-		return urisToBuckets;
+		List<String> pathsToBuckets = listBucketsHomeInArchive(bucketsHome);
+		return pathsToBuckets;
 	}
 
 	private List<String> listBucketsHomeInArchive(String bucketsHome) {
@@ -101,7 +101,7 @@ public class ArchiveBucketsLister {
 	}
 
 	private Bucket createBucketFromPathToBucket(String pathToBucket) {
-		String bucketIndex = pathResolver.resolveIndexFromUriToBucket(pathToBucket);
+		String bucketIndex = pathResolver.resolveIndexFromPathToBucket(pathToBucket);
 		String bucketName = FilenameUtils.getBaseName(pathToBucket);
 		return this.createBucketWithErrorHandling(pathToBucket, bucketIndex,
 				bucketName);

@@ -23,7 +23,7 @@ import java.io.IOException;
 public interface HasFileStructure {
 
 	/**
-	 * Create directories with uri.
+	 * Create directories with path.
 	 * 
 	 * @throws IOException
 	 */

@@ -20,7 +20,7 @@ import java.util.AbstractList;
 import org.apache.hadoop.fs.FileStatus;
 
 /**
- * Wraps around {@link FileStatus} and provides a list of URI objects.
+ * Wraps around {@link FileStatus} and provides a list of paths.
  * 
  */
 public class FileStatusBackedList extends AbstractList<String> {

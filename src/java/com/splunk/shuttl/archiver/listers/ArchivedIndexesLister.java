@@ -54,14 +54,14 @@ public class ArchivedIndexesLister {
 	 */
 	public List<String> listIndexes() {
 		String indexesHome = pathResolver.getIndexesHome();
-		List<String> indexPaths = listIndexesUrisOnArchiveFileSystem(indexesHome);
+		List<String> indexPaths = listIndexesPathsOnArchiveFileSystem(indexesHome);
 		List<String> indexes = new ArrayList<String>();
 		for (String path : indexPaths)
 			indexes.add(FilenameUtils.getName(path));
 		return indexes;
 	}
 
-	private List<String> listIndexesUrisOnArchiveFileSystem(String indexesHome) {
+	private List<String> listIndexesPathsOnArchiveFileSystem(String indexesHome) {
 		try {
 			return fileSystem.listPath(indexesHome);
 		} catch (IOException e) {
