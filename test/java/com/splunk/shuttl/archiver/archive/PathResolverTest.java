@@ -19,7 +19,6 @@ import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
-import java.net.URI;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -58,14 +57,14 @@ public class PathResolverTest {
 
 	private void stubArchiveConfiguration() {
 		archivePath = ROOT_PATH;
-		when(configuration.getArchivePath()).thenReturn(archivePath);
+		when(configuration.getArchiveDataPath()).thenReturn(archivePath);
 		clusterName = "cluster_name";
 		when(configuration.getClusterName()).thenReturn(clusterName);
 		serverName = "server_name";
 		when(configuration.getServerName()).thenReturn(serverName);
 		tmpDirectory = "tmp_dir";
-		when(configuration.getTmpDirectory()).thenReturn(
-				URI.create(ROOT_PATH + "/" + tmpDirectory));
+		when(configuration.getArchiveTempPath()).thenReturn(
+				ROOT_PATH + "/" + tmpDirectory);
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -80,7 +79,7 @@ public class PathResolverTest {
 		String archivePath = pathResolver.resolveArchivePath(bucket);
 
 		// Verify
-		assertTrue(archivePath.startsWith(configuration.getArchivePath()));
+		assertTrue(archivePath.startsWith(configuration.getArchiveDataPath()));
 	}
 
 	public void getIndexesHome_givenNothing_returnsPathThatEndsWithThePathToWhereIndexesLive() {
@@ -90,7 +89,7 @@ public class PathResolverTest {
 
 	public void getIndexesHome_givenNothing_returnsPathThatStartsWithWritablePath() {
 		assertTrue(pathResolver.getIndexesHome().startsWith(
-				configuration.getArchivePath()));
+				configuration.getArchiveDataPath()));
 	}
 
 	public void getBucketsHome_givenIndex_pathThatEndsWithWhereBucketsLive() {
@@ -155,7 +154,7 @@ public class PathResolverTest {
 	public void resolveTempPathForBucket_givenBucket_tmpDirConcatWithBucketPath() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		String path = pathResolver.resolveTempPathForBucket(bucket);
-		String expected = configuration.getTmpDirectory().toString()
+		String expected = configuration.getArchiveTempPath().toString()
 				+ pathResolver.resolveArchivePath(bucket);
 		assertEquals(expected, path);
 	}

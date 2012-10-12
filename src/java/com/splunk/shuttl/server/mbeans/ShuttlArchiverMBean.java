@@ -44,8 +44,11 @@ public interface ShuttlArchiverMBean {
 
 	public void setServerName(String serverName);
 
-	public String getArchiverRootURI();
+	public String getBackendName();
 
-	public void setArchiverRootURI(String URI);
+	public void setBackendName(String backendName);
 
+	public String getArchivePath();
+
+	public void setArchivePath(String archivePath);
 }

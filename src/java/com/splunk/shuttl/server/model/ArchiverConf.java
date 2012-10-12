@@ -29,14 +29,15 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlRootElement(namespace = "com.splunk.shuttl.server.model")
 @XmlType(propOrder = { "localArchiverDir", "archiveFormats", "clusterName",
-		"serverName", "archiverRootURI", "bucketFormatPriority" })
+		"serverName", "bucketFormatPriority", "backendName", "archivePath" })
 public class ArchiverConf {
 	private String localArchiverDir;
 	private List<String> archiveFormats;
 	private String clusterName;
 	private String serverName;
-	private String archiverRootURI;
 	private List<String> bucketFormatPriority;
+	private String backendName;
+	private String archivePath;
 
 	public String getLocalArchiverDir() {
 		return localArchiverDir;
@@ -80,12 +81,19 @@ public class ArchiverConf {
 		this.bucketFormatPriority = priorityList;
 	}
 
-	public void setArchiverRootURI(String URI) {
-		archiverRootURI = URI;
+	public String getBackendName() {
+		return backendName;
 	}
 
-	public String getArchiverRootURI() {
-		return archiverRootURI;
+	public void setBackendName(String backendName) {
+		this.backendName = backendName;
 	}
 
+	public String getArchivePath() {
+		return archivePath;
+	}
+
+	public void setArchivePath(String archivePath) {
+		this.archivePath = archivePath;
+	}
 }

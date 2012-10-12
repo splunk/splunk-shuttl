@@ -3,6 +3,9 @@
     <localArchiverDir>file:/~/shuttl_archiver</localArchiverDir>
     <!-- Supported values for backend: local, hdfs, s3, s3n or glacier -->
     <backendName>hdfs</backendName>
+    <!-- Path on the backend where Shuttl will store data -->
+    <archivePath>/archive_root</archivePath>
+
     <clusterName>cluster_name</clusterName>
     <serverName>server_name</serverName>
     <archiveFormats>

@@ -102,13 +102,23 @@ public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
 	}
 
 	@Override
-	public String getArchiverRootURI() {
-		return conf.getArchiverRootURI();
+	public String getBackendName() {
+		return conf.getBackendName();
 	}
 
 	@Override
-	public void setArchiverRootURI(String uri) {
-		conf.setArchiverRootURI(uri);
+	public void setBackendName(String backendName) {
+		conf.setBackendName(backendName);
+	}
+
+	@Override
+	public String getArchivePath() {
+		return conf.getArchivePath();
+	}
+
+	@Override
+	public void setArchivePath(String archivePath) {
+		conf.setArchivePath(archivePath);
 	}
 
 	@Override

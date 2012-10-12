@@ -18,7 +18,7 @@ import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
-import java.net.URI;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,24 +58,13 @@ public class ArchiveConfigurationTest {
 				.getArchiveFormats());
 	}
 
-	public void getArchivingRoot_givenNullUri_null() {
-		when(mBean.getArchiverRootURI()).thenReturn(null);
-		assertNull(createConfiguration().getArchivingRoot());
-	}
-
-	public void getArchivingRoot_givenUriInMBean_childToTheUri() {
-		String uriString = "valid:/uri";
-		when(mBean.getArchiverRootURI()).thenReturn(uriString);
-		URI actualUri = createConfiguration().getArchivingRoot();
-		String childName = FilenameUtils.getName(actualUri.getPath());
-		URI expectedUri = URI.create(uriString + "/" + childName);
-		assertEquals(expectedUri, actualUri);
-	}
-
-	public void getArchivePath_givenArchivingRoot_isThePathOfArchivingRoot() {
-		when(mBean.getArchiverRootURI()).thenReturn("valid:/uri");
-		ArchiveConfiguration conf = createConfiguration();
-		assertEquals(conf.getArchivingRoot().getPath(), conf.getArchivePath());
+	public void getArchiveDataPath_givenPathInMBean_childToThePath() {
+		String path = "/archive/path";
+		when(mBean.getArchivePath()).thenReturn(path);
+		String actualPath = createConfiguration().getArchiveDataPath();
+		String childName = FilenameUtils.getName(actualPath);
+		String expectedPath = path + "/" + childName;
+		assertEquals(expectedPath, actualPath);
 	}
 
 	public void getClusterName_stubbedMBeanClusterName_sameAsInMBean() {
@@ -133,28 +122,35 @@ public class ArchiveConfigurationTest {
 		assertEquals(BucketFormat.UNKNOWN, priorityList.get(1));
 	}
 
-	public void getTmpDirectory_givenNullArchivingRoot_null() {
-		when(mBean.getArchiverRootURI()).thenReturn(null);
-		assertNull(createConfiguration().getTmpDirectory());
+	public void getArchiveTempPath_givenArchivePath_pathIsAChildOfTheArchivePath() {
+		String archivePath = "/archive/path";
+		when(mBean.getArchivePath()).thenReturn(archivePath);
+		String tempPath = createConfiguration().getArchiveTempPath();
+
+		String tmpDirectoryName = FilenameUtils.getName(tempPath);
+		String expected = archivePath + "/" + tmpDirectoryName;
+		assertEquals(expected, tempPath);
 	}
 
-	public void getTmpDirectory_givenArchiverRootUri_pathIsAChildOfTheArchivingRootURI() {
-		String archiverRoot = "valid:/uri/archiver/data";
-		when(mBean.getArchiverRootURI()).thenReturn(archiverRoot);
-		URI tmpDirectory = createConfiguration().getTmpDirectory();
-
-		String tmpDirectoryName = FilenameUtils.getName(tmpDirectory.getPath());
-		URI expected = URI.create(archiverRoot + "/" + tmpDirectoryName);
-		assertEquals(expected, tmpDirectory);
-	}
-
-	public void getTmpDirectory_givenArchiverRootUri_pathIsNotWithingetArchiverRoot() {
-		when(mBean.getArchiverRootURI()).thenReturn("valid:/uri/archiver/data");
+	public void getArchiveTempPath_givenArchivePath_pathIsNotWithInArchiveDataPath() {
+		when(mBean.getArchivePath()).thenReturn("/archive/path");
 		ArchiveConfiguration configuration = createConfiguration();
-		URI archivingRoot = configuration.getArchivingRoot();
-		URI tmpDirectory = configuration.getTmpDirectory();
+		String archivingRoot = configuration.getArchiveDataPath();
+		String tempPath = configuration.getArchiveTempPath();
 
-		assertFalse(tmpDirectory.getPath().contains(archivingRoot.getPath()));
+		assertFalse(tempPath.contains(archivingRoot));
 	}
 
+	public void _givenArchivePath_archiveTempPathAndArchiveDataPathHasTheSameParent() {
+		when(mBean.getArchivePath()).thenReturn("/archive/path");
+		ArchiveConfiguration configuration = createConfiguration();
+		String archiveDataPath = configuration.getArchiveDataPath();
+		String archiveTempPath = configuration.getArchiveTempPath();
+
+		assertPathsHasSameParent(archiveDataPath, archiveTempPath);
+	}
+
+	private void assertPathsHasSameParent(String path1, String path2) {
+		assertEquals(new File(path1).getParent(), new File(path2).getParent());
+	}
 }

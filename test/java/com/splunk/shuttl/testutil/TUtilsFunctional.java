@@ -119,7 +119,7 @@ public class TUtilsFunctional {
 	 */
 	public static void tearDownLocalConfig(ArchiveConfiguration config) {
 		FileUtils.deleteQuietly(new File(config.getArchivingRoot()));
-		FileUtils.deleteQuietly(new File(config.getTmpDirectory()));
+		FileUtils.deleteQuietly(new File(config.getArchiveTempPath()));
 	}
 
 	/**
@@ -132,10 +132,8 @@ public class TUtilsFunctional {
 	public static ArchiveConfiguration getLocalConfigurationThatArchivesFormats(
 			List<BucketFormat> bucketFormats) {
 		String archivePath = createDirectory().getAbsolutePath();
-		URI archivingRoot = URI.create("file:" + archivePath);
 		return ArchiveConfiguration.createSafeConfiguration("localArchiverDir",
-				archivingRoot, bucketFormats, "clusterName", "serverName",
-				bucketFormats);
+				archivePath, bucketFormats, "clusterName", "serverName", bucketFormats);
 	}
 
 }
