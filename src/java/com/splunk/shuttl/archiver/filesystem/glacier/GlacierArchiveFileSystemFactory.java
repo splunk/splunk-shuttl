@@ -20,8 +20,8 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.BucketDeleter;
-import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.s3.S3ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.util.GroupRegex;
@@ -33,28 +33,24 @@ import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
 public class GlacierArchiveFileSystemFactory {
 
 	/**
-	 * @param uri
-	 *          - Has the format of glacier://ID:SECRET@ENDPOINT:BUCKET/VAULT
-	 * 
 	 * @throws UnsupportedGlacierUriException
 	 *           - if the format is not valid.
 	 */
-	public static GlacierArchiveFileSystem create(URI uri,
+	public static GlacierArchiveFileSystem create(
 			LocalFileSystemPaths localFileSystemPaths) {
-		AWSCredentialsImpl credentials = getCredentials(uri);
+		AWSCredentialsImpl credentials = getCredentials(null);
 		GlacierClient glacierClient = GlacierClient.create(credentials);
-
-		URI s3n = URI.create("s3n://" + credentials.getAWSAccessKeyId() + ":"
-				+ credentials.getAWSSecretKey() + "@" + credentials.getBucket() + "/"
-				+ credentials.getVault());
-		HadoopArchiveFileSystem hadoop = (HadoopArchiveFileSystem) ArchiveFileSystemFactory
-				.getWithUriAndLocalFileSystemPaths(s3n, localFileSystemPaths);
+		//
+		// URI s3n = URI.create("s3n://" + credentials.getAWSAccessKeyId() + ":"
+		// + credentials.getAWSSecretKey() + "@" + credentials.getBucket() + "/"
+		// + credentials.getVault());
+		ArchiveFileSystem s3 = S3ArchiveFileSystemFactory.createS3n();
 		TgzFormatExporter tgzFormatExporter = TgzFormatExporter
 				.create(CreatesBucketTgz.create(localFileSystemPaths.getTgzDirectory()));
 		Logger logger = Logger.getLogger(GlacierArchiveFileSystem.class);
 		BucketDeleter bucketDeleter = BucketDeleter.create();
 
-		return new GlacierArchiveFileSystem(hadoop, glacierClient,
+		return new GlacierArchiveFileSystem(s3, glacierClient,
 				tgzFormatExporter, logger, bucketDeleter);
 	}
 

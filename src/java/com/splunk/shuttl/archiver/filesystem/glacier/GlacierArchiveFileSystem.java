@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.transaction.bucket.BucketTransactionCleaner;
 import com.splunk.shuttl.archiver.filesystem.transaction.bucket.TransfersBuckets;
 import com.splunk.shuttl.archiver.filesystem.transaction.file.FileTransactionCleaner;
@@ -42,13 +41,13 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
  */
 public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 
-	private final HadoopArchiveFileSystem hadoop;
+	private final ArchiveFileSystem hadoop;
 	private final GlacierClient glacierClient;
 	private final TgzFormatExporter tgzFormatExporter;
 	private final Logger logger;
 	private BucketDeleter bucketDeleter;
 
-	public GlacierArchiveFileSystem(HadoopArchiveFileSystem hadoop,
+	public GlacierArchiveFileSystem(ArchiveFileSystem hadoop,
 			GlacierClient glacierClient, TgzFormatExporter tgzFormatExporter,
 			Logger logger, BucketDeleter bucketDeleter) {
 		this.hadoop = hadoop;

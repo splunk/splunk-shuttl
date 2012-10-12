@@ -17,9 +17,7 @@ package com.splunk.shuttl.archiver.filesystem;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
-import java.net.URI;
-
-import org.testng.annotations.Parameters;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
@@ -28,32 +26,29 @@ import com.splunk.shuttl.archiver.filesystem.glacier.GlacierArchiveFileSystemFac
 
 public class ArchiveFileSystemFactoryTest {
 
-	@Test(groups = { "fast-unit" })
-	public void isSupportedUri_givenFileUri_true() {
-		assertTrue(ArchiveFileSystemFactory.isSupportedUri(URI.create("file:/")));
+	private String localBackend;
+
+	@BeforeMethod(alwaysRun = true)
+	public void setUp() {
+		localBackend = "local";
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void isSupportedUri_givenUnSupportedUri_false() {
-		assertFalse(ArchiveFileSystemFactory.isSupportedUri(URI
-				.create("unsupported:/uri")));
+	public void isSupportedBackend_givenLocalBackendName_true() {
+		assertTrue(ArchiveFileSystemFactory.isSupportedBackend(localBackend));
+	}
+
+	@Test(groups = { "fast-unit" })
+	public void isSupportedBackend_givenUnSupportedUri_false() {
+		assertFalse(ArchiveFileSystemFactory
+				.isSupportedBackend("unsupported_backend"));
 	}
 
 	@Test(groups = { "slow-unit" })
-	public void getWithUriAndLocalFileSystemPaths_givenLocalFileURI_nonNullFileSystem() {
-		URI localUri = URI.create("file:/tmp");
+	public void getByNameAndLocalFileSystemPaths_givenLocalBackend_nonNullFileSystem() {
 		ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
-				.getWithUriAndLocalFileSystemPaths(localUri, getLocalFileSystemPaths());
-		assertNotNull(fileSystem);
-	}
-
-	@Test(groups = { "end-to-end" })
-	@Parameters({ "hadoop.host", "hadoop.port" })
-	public void getWithUriAndLocalFileSystemPaths_givenHdfsUri_nonNullFileSystem(
-			String host, String port) {
-		URI localUri = URI.create("hdfs://" + host + ":" + port + "/tmp");
-		ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
-				.getWithUriAndLocalFileSystemPaths(localUri, getLocalFileSystemPaths());
+				.getByNameAndLocalFileSystemPaths(localBackend,
+						getLocalFileSystemPaths());
 		assertNotNull(fileSystem);
 	}
 
@@ -61,17 +56,17 @@ public class ArchiveFileSystemFactoryTest {
 		return new LocalFileSystemPaths(createDirectory().getAbsolutePath());
 	}
 
-	@Test(groups = { "fast-unit" }, expectedExceptions = { UnsupportedUriException.class })
-	public void getWithUriAndLocalFileSystemPaths_givenUnsupportedUri_throwUnsupportedUriException() {
-		ArchiveFileSystemFactory.getWithUriAndLocalFileSystemPaths(
-				URI.create("unsupported:/uri"), getLocalFileSystemPaths());
+	@Test(groups = { "fast-unit" }, expectedExceptions = { UnsupportedBackendException.class })
+	public void getByNameAndLocalFileSystemPaths_givenUnsupportedUri_throwUnsupportedUriException() {
+		ArchiveFileSystemFactory.getByNameAndLocalFileSystemPaths(
+				"unsupported_backend", getLocalFileSystemPaths());
 	}
 
-	@Test(groups = { "fast-unit" })
-	public void getWithUriAndLocalFileSystemPaths_givenGlacierUri_getsGlacierFS() {
+	@Test(groups = { "fast-unit" }, enabled = false)
+	public void getByNameAndLocalFileSystemPaths_givenGlacierUri_getsGlacierFS() {
 		ArchiveFileSystem fs = ArchiveFileSystemFactory
-				.getWithUriAndLocalFileSystemPaths(
-						GlacierArchiveFileSystemFactoryTest.getValidUri(),
+				.getByNameAndLocalFileSystemPaths(
+						GlacierArchiveFileSystemFactoryTest.getBackendName(),
 						getLocalFileSystemPaths());
 		assertTrue(fs instanceof GlacierArchiveFileSystem);
 	}

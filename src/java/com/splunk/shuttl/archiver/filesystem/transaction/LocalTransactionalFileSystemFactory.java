@@ -14,8 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.transaction;
 
-import java.net.URI;
-
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 
 /**
@@ -24,7 +22,7 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 public class LocalTransactionalFileSystemFactory {
 
 	public static TransactionalFileSystem create() {
-		return ArchiveFileSystemFactory.getWithUriAndLocalFileSystemPaths(
-				URI.create("file:/"), null);
+		return ArchiveFileSystemFactory.getByNameAndLocalFileSystemPaths("local",
+				null);
 	}
 }

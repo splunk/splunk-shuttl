@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.ConfigurationPaths;
 import com.splunk.shuttl.server.mbeans.util.JAXBUtils;
 
 /**
@@ -30,12 +31,11 @@ import com.splunk.shuttl.server.mbeans.util.JAXBUtils;
  */
 public abstract class MBeanBase<T> implements MBeanPersistance {
 	private static final Logger logger = Logger.getLogger(MBeanBase.class);
-	private static final String CONFIGURATION_PATH = "etc/apps/shuttl/conf/";
 
 	private final File confFile;
 
 	public MBeanBase() {
-		this(getDefaultConfDirectory());
+		this(ConfigurationPaths.getDefaultConfDirectory());
 	}
 
 	public MBeanBase(File confDirectory) {
@@ -46,13 +46,6 @@ public abstract class MBeanBase<T> implements MBeanPersistance {
 	public MBeanBase(String confFilePath) {
 		this.confFile = new File(confFilePath);
 		refresh();
-	}
-
-	/**
-	 * @return directory where shuttl has it's MBean configuration files.
-	 */
-	private static File getDefaultConfDirectory() {
-		return new File(System.getenv("SPLUNK_HOME"), CONFIGURATION_PATH);
 	}
 
 	@Override

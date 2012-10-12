@@ -9,28 +9,14 @@
 	<parameter name="hadoop.port" value="9000" />
 	<parameter name="shuttl.host" value="localhost" />
 	<parameter name="shuttl.port" value="9090" />
-	<parameter name="splunk.home" value="./build-cache/splunk" />
+	<parameter name="splunk.home" value="./build-cache/splunk-1" />
 	<parameter name="shuttl.conf.dir" value="./build/shuttl/conf" />
 
-	<test name="functional" preserve-order="true" enabled="true">
-		<classes>
-			<class name="com.splunk.shuttl.archiver.importexport.csv.CsvImporterFunctionalTest" />
-			<class name="com.splunk.shuttl.archiver.importexport.BucketExporterIntegrationTest" />
-
-		</classes>
-	</test> <!-- Test -->
-	
 	<test name="end-to-end" preserve-order="true" enabled="true">
 		<classes>
-			<class name="com.splunk.shuttl.archiver.endtoend.ArchiverEndToEndTest" />
-			<class name="com.splunk.shuttl.archiver.usecases.ImportCsvFunctionalTest" />
-			<class name="com.splunk.shuttl.archiver.usecases.TwoFormatsFunctionalTest" />
-		</classes>
-	</test> <!-- Test -->
-
-	<test name="prototype" preserve-order="true" enabled="false">
-		<classes>
-			<class name="com.splunk.shuttl.prototype.BucketBlockSymlinkPrototypeTest" />
+			<class name="com.splunk.shuttl.archiver.filesystem.BackendConfigurationFilesTest" />
+			<class name="com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystemFactoryTest" />
+			<class name="com.splunk.shuttl.archiver.ConfigurationPathsTest" />
 		</classes>
 	</test> <!-- Test -->
 

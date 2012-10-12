@@ -111,7 +111,7 @@ public class ArchiveRecoveryEndToEndTest {
 
 	private void cleanHadoopFileSystem() {
 		try {
-			hadoopFileSystem.delete(new Path(config.getArchivingRoot()), true);
+			hadoopFileSystem.delete(new Path(config.getArchiveDataPath()), true);
 			hadoopFileSystem.delete(new Path(config.getArchiveTempPath()), true);
 		} catch (IOException e) {
 			e.printStackTrace();

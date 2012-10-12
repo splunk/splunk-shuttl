@@ -19,6 +19,7 @@
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
 	<property name="stage.conf.dir" value="${stage.dir}/conf" />
+	<property name="stage.conf.backend.dir" value="${stage.conf.dir}/backend" />
 	<property name="shuttl.conf.dir" location="${stage.conf.dir}" />
 	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
 	<property name="srcdir" value="${basedir}/src/java/" />
@@ -1018,8 +1019,8 @@
 	</target>
 
 	<target name="configure-staged-archiver-conf">
-		<property name="stage.conf.archiver.xml" value="${stage.conf.dir}/archiver.xml" />
-		<replace file="${stage.conf.archiver.xml}">
+		<property name="stage.backend.hdfs.properties" value="${stage.conf.backend.dir}/hdfs.properties" />
+		<replace file="${stage.backend.hdfs.properties}">
 			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
 			<replacefilter token="@HADOOP.PORT@" value="${hadoop.port}" />
 		</replace>

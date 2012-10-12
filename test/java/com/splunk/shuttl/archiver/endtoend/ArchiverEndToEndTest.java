@@ -284,8 +284,8 @@ public class ArchiverEndToEndTest {
 
 	private void deleteArchivingRoot(FileSystem hadoopFileSystem) {
 		try {
-			URI configuredRoot = archiveConfiguration.getArchivingRoot();
-			hadoopFileSystem.delete(new Path(configuredRoot), true);
+			String archiveDataPath = archiveConfiguration.getArchiveDataPath();
+			hadoopFileSystem.delete(new Path(archiveDataPath), true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

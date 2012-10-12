@@ -118,7 +118,7 @@ public class TUtilsFunctional {
 	 * archive on the local file system.
 	 */
 	public static void tearDownLocalConfig(ArchiveConfiguration config) {
-		FileUtils.deleteQuietly(new File(config.getArchivingRoot()));
+		FileUtils.deleteQuietly(new File(config.getArchiveDataPath()));
 		FileUtils.deleteQuietly(new File(config.getArchiveTempPath()));
 	}
 
@@ -133,7 +133,8 @@ public class TUtilsFunctional {
 			List<BucketFormat> bucketFormats) {
 		String archivePath = createDirectory().getAbsolutePath();
 		return ArchiveConfiguration.createSafeConfiguration("localArchiverDir",
-				archivePath, bucketFormats, "clusterName", "serverName", bucketFormats);
+				archivePath, bucketFormats, "clusterName", "serverName", bucketFormats,
+				"local");
 	}
 
 }

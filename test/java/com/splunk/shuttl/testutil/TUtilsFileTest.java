@@ -15,11 +15,15 @@
 
 package com.splunk.shuttl.testutil;
 
-import static org.testng.AssertJUnit.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static java.util.Arrays.*;
+import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -166,5 +170,20 @@ public class TUtilsFileTest {
 		File shuttlTestDir = TUtilsFile.getShuttlTestDirectory();
 		assertEquals(shuttlTestDir.getAbsolutePath(), file.getParentFile()
 				.getAbsolutePath());
+	}
+
+	public void writeKeyValueProperties_givenFile_getsPropertiesWritten()
+			throws IOException {
+		String kv1 = "key1 = value1";
+		String kv2 = "key2 = value2";
+		File file = createFile();
+		Properties properties = TUtilsFile.writeKeyValueProperties(file, kv1, kv2);
+
+		String actualValue1 = properties.getProperty("key1");
+		String actualValue2 = properties.getProperty("key2");
+		assertEquals("value1", actualValue1);
+		assertEquals("value2", actualValue2);
+		List<String> lines = FileUtils.readLines(file);
+		assertEquals(lines, asList(kv1, kv2));
 	}
 }

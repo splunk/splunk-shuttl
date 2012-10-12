@@ -15,12 +15,15 @@
 
 package com.splunk.shuttl.testutil;
 
+import static java.util.Arrays.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Properties;
 
 import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FileUtils;
@@ -263,5 +266,22 @@ public class TUtilsFile {
 		if (!dir.exists())
 			createDirectory(dir);
 		return dir;
+	}
+
+	/**
+	 * @return key value {@link Properties} set on a specific file.
+	 */
+	public static Properties writeKeyValueProperties(File hdfsProperties,
+			String... kvs) {
+		try {
+			FileUtils.writeLines(hdfsProperties, asList(kvs));
+			Properties properties = new Properties();
+			properties.load(new FileInputStream(hdfsProperties));
+			return properties;
+		} catch (Exception e) {
+			TUtilsTestNG.failForException("Got exception when setting up properties",
+					e);
+			return null;
+		}
 	}
 }

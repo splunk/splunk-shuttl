@@ -20,11 +20,11 @@ import java.net.URI;
  * Thrown when method does not support the uri.</br> See
  * {@link ArchiveFileSystemFactory#getWithUri(URI)}
  */
-public class UnsupportedUriException extends RuntimeException {
+public class UnsupportedBackendException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	public UnsupportedUriException(String message) {
+	public UnsupportedBackendException(String message) {
 		super(message);
 	}
 

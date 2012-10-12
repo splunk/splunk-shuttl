@@ -67,6 +67,13 @@ public class ArchiveConfigurationTest {
 		assertEquals(expectedPath, actualPath);
 	}
 
+	public void getBackendName_stubbedMBeanBackendName_sameAsInMBean() {
+		String expected = "backend";
+		when(mBean.getBackendName()).thenReturn(expected);
+		String actual = createConfiguration().getBackendName();
+		assertEquals(expected, actual);
+	}
+
 	public void getClusterName_stubbedMBeanClusterName_sameAsInMBean() {
 		String expected = "clusterName";
 		when(mBean.getClusterName()).thenReturn(expected);
