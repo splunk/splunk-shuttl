@@ -59,8 +59,8 @@ public class S3ArchiveFileSystemFactory {
 		try {
 			Properties properties = new Properties();
 			properties.load(FileUtils.openInputStream(s3properties));
-			String id = properties.getProperty("amazon.id");
-			String secret = properties.getProperty("amazon.secret");
+			String id = properties.getProperty("aws.id");
+			String secret = properties.getProperty("aws.secret");
 			String bucket = properties.getProperty("s3.bucket");
 			URI s3Uri = URI.create(scheme + "://" + id + ":" + secret + "@" + bucket);
 			return new HadoopArchiveFileSystem(FileSystem.get(s3Uri,

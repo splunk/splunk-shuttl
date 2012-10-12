@@ -14,11 +14,14 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.glacier;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
 
-import java.net.URI;
+import java.io.File;
 
 import org.testng.annotations.Test;
+
+import com.splunk.shuttl.testutil.TUtilsFile;
 
 @Test(groups = { "fast-unit" })
 public class GlacierArchiveFileSystemFactoryTest {
@@ -29,10 +32,14 @@ public class GlacierArchiveFileSystemFactoryTest {
 	private static final String BUCKET = "bucket";
 	private static final String VAULT = "vault_name";
 
-	@Test(groups = { "fast-unit" }, enabled = false)
+	@Test(groups = { "fast-unit" })
 	public void getCredentials_givenValidUri_createsFileSystem() {
+		File properties = createFile();
+		TUtilsFile.writeKeyValueProperties(properties, "aws.id=" + ID,
+				"aws.secret=" + SECRET, "glacier.endpoint=" + ENDPOINT,
+				"glacier.vault=" + VAULT, "s3.bucket=" + BUCKET);
 		AWSCredentialsImpl credentials = GlacierArchiveFileSystemFactory
-				.getCredentials(null);
+				.getCredentials(properties);
 		assertEquals(ID, credentials.getAWSAccessKeyId());
 		assertEquals(SECRET, credentials.getAWSSecretKey());
 		assertEquals(ENDPOINT, credentials.getEndpoint());
@@ -40,36 +47,36 @@ public class GlacierArchiveFileSystemFactoryTest {
 		assertEquals(VAULT, credentials.getVault());
 	}
 
-	@Test(expectedExceptions = { InvalidGlacierUriException.class })
-	public void getCredentials_givenNoId_throws() {
-		testMissingUriPart(ID);
-	}
-
-	private void testMissingUriPart(String uriPart) {
-		String noId = getBackendName().toString().replaceAll(uriPart, "");
-		assertFalse(noId.contains(uriPart));
-		GlacierArchiveFileSystemFactory.getCredentials(URI.create(noId));
-	}
-
-	@Test(expectedExceptions = { InvalidGlacierUriException.class })
-	public void getCredentials_givenNoSecret_throws() {
-		testMissingUriPart(SECRET);
-	}
-
-	@Test(expectedExceptions = { InvalidGlacierUriException.class })
-	public void getCredentials_givenNoEndpoint_throws() {
-		testMissingUriPart(ENDPOINT);
-	}
-
-	@Test(expectedExceptions = { InvalidGlacierUriException.class })
-	public void getCredentials_givenNoBucket_throws() {
-		testMissingUriPart(BUCKET);
-	}
-
-	@Test(expectedExceptions = { InvalidGlacierUriException.class })
-	public void getCredentials_givenNoVault_throws() {
-		testMissingUriPart(VAULT);
-	}
+	// @Test(expectedExceptions = { InvalidGlacierConfigurationException.class })
+	// public void getCredentials_givenNoId_throws() {
+	// testMissingUriPart(ID);
+	// }
+	//
+	// private void testMissingUriPart(String property) {
+	// String noId = getBackendName().toString().replaceAll(uriPart, "");
+	// assertFalse(noId.contains(uriPart));
+	// GlacierArchiveFileSystemFactory.getCredentials(URI.create(noId));
+	// }
+	//
+	// @Test(expectedExceptions = { InvalidGlacierConfigurationException.class })
+	// public void getCredentials_givenNoSecret_throws() {
+	// testMissingUriPart(SECRET);
+	// }
+	//
+	// @Test(expectedExceptions = { InvalidGlacierConfigurationException.class })
+	// public void getCredentials_givenNoEndpoint_throws() {
+	// testMissingUriPart(ENDPOINT);
+	// }
+	//
+	// @Test(expectedExceptions = { InvalidGlacierConfigurationException.class })
+	// public void getCredentials_givenNoBucket_throws() {
+	// testMissingUriPart(BUCKET);
+	// }
+	//
+	// @Test(expectedExceptions = { InvalidGlacierConfigurationException.class })
+	// public void getCredentials_givenNoVault_throws() {
+	// testMissingUriPart(VAULT);
+	// }
 
 	/**
 	 * @return valid uri for creating a {@link GlacierArchiveFileSystem}

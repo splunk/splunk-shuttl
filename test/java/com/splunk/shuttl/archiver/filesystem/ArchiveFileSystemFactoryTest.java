@@ -21,8 +21,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
-import com.splunk.shuttl.archiver.filesystem.glacier.GlacierArchiveFileSystem;
-import com.splunk.shuttl.archiver.filesystem.glacier.GlacierArchiveFileSystemFactoryTest;
 
 public class ArchiveFileSystemFactoryTest {
 
@@ -60,14 +58,5 @@ public class ArchiveFileSystemFactoryTest {
 	public void getByNameAndLocalFileSystemPaths_givenUnsupportedUri_throwUnsupportedUriException() {
 		ArchiveFileSystemFactory.getByNameAndLocalFileSystemPaths(
 				"unsupported_backend", getLocalFileSystemPaths());
-	}
-
-	@Test(groups = { "fast-unit" }, enabled = false)
-	public void getByNameAndLocalFileSystemPaths_givenGlacierUri_getsGlacierFS() {
-		ArchiveFileSystem fs = ArchiveFileSystemFactory
-				.getByNameAndLocalFileSystemPaths(
-						GlacierArchiveFileSystemFactoryTest.getBackendName(),
-						getLocalFileSystemPaths());
-		assertTrue(fs instanceof GlacierArchiveFileSystem);
 	}
 }

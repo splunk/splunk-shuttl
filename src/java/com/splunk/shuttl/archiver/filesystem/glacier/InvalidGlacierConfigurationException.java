@@ -16,11 +16,11 @@ package com.splunk.shuttl.archiver.filesystem.glacier;
 
 import java.net.URI;
 
-public class InvalidGlacierUriException extends RuntimeException {
+public class InvalidGlacierConfigurationException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	public InvalidGlacierUriException(URI uri) {
+	public InvalidGlacierConfigurationException(URI uri) {
 		super("Expected glacier://ID:SECRET@ENDPOINT/VAULT, actual: " + uri);
 	}
 }
