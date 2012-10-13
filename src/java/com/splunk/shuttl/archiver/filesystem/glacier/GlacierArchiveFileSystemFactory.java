@@ -15,11 +15,8 @@
 package com.splunk.shuttl.archiver.filesystem.glacier;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
@@ -37,8 +34,6 @@ import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
  */
 public class GlacierArchiveFileSystemFactory {
 
-	private static final String GLACIER_PROPERTIES_FILENAME = "amazon.properties";
-
 	/**
 	 * @throws UnsupportedGlacierUriException
 	 *           - if the format is not valid.
@@ -46,12 +41,13 @@ public class GlacierArchiveFileSystemFactory {
 	public static GlacierArchiveFileSystem create(
 			LocalFileSystemPaths localFileSystemPaths) {
 		return create(localFileSystemPaths, BackendConfigurationFiles.create()
-				.getByName(GLACIER_PROPERTIES_FILENAME));
+				.getByName(AWSCredentialsImpl.AMAZON_PROPERTIES_FILENAME));
 	}
 
 	public static GlacierArchiveFileSystem create(
 			LocalFileSystemPaths localFileSystemPaths, File amazonProperties) {
-		AWSCredentialsImpl credentials = getCredentials(amazonProperties);
+		AWSCredentialsImpl credentials = AWSCredentialsImpl
+				.createWithPropertyFile(amazonProperties);
 		GlacierClient glacierClient = GlacierClient.create(credentials);
 
 		ArchiveFileSystem s3 = S3ArchiveFileSystemFactory.createS3n();
@@ -62,24 +58,6 @@ public class GlacierArchiveFileSystemFactory {
 
 		return new GlacierArchiveFileSystem(s3, glacierClient, tgzFormatExporter,
 				logger, bucketDeleter);
-	}
-
-	/**
-	 * @return AWSCredentials taken from the amazonProperties file.
-	 */
-	public static AWSCredentialsImpl getCredentials(File amazonProperties) {
-		try {
-			Properties properties = new Properties();
-			properties.load(FileUtils.openInputStream(amazonProperties));
-			String id = properties.getProperty("aws.id");
-			String secret = properties.getProperty("aws.secret");
-			String bucket = properties.getProperty("s3.bucket");
-			String vault = properties.getProperty("glacier.vault");
-			String endpoint = properties.getProperty("glacier.endpoint");
-			return new AWSCredentialsImpl(id, secret, endpoint, bucket, vault);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@SuppressWarnings("unused")

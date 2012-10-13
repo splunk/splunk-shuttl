@@ -15,7 +15,7 @@
 	<test name="end-to-end" preserve-order="true" enabled="true">
 		<classes>
 			<class name="com.splunk.shuttl.archiver.filesystem.BackendConfigurationFilesTest" />
-			<class name="com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystemFactoryTest" />
+			<class name="com.splunk.shuttl.archiver.filesystem.glacier.AWSCredentialsImplTest" />
 			<class name="com.splunk.shuttl.archiver.ConfigurationPathsTest" />
 		</classes>
 	</test> <!-- Test -->

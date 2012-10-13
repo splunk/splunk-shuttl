@@ -17,22 +17,19 @@ package com.splunk.shuttl.archiver.filesystem.s3;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.BackendConfigurationFiles;
+import com.splunk.shuttl.archiver.filesystem.glacier.AWSCredentialsImpl;
 import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
 
 /**
  * Factory for creating an AWS S3 or S3n back-end.
  */
 public class S3ArchiveFileSystemFactory {
-
-	private static final String AMAZON_PROPERTIES_FILENAME = "amazon.properties";
 
 	/**
 	 * @return back-end running S3.
@@ -50,23 +47,27 @@ public class S3ArchiveFileSystemFactory {
 
 	private static ArchiveFileSystem create(String scheme) {
 		return createWithPropertyFile(
-				BackendConfigurationFiles.create()
-						.getByName(AMAZON_PROPERTIES_FILENAME), scheme);
+				BackendConfigurationFiles.create().getByName(
+						AWSCredentialsImpl.AMAZON_PROPERTIES_FILENAME), scheme);
 	}
 
 	public static HadoopArchiveFileSystem createWithPropertyFile(
-			File s3properties, String scheme) {
+			File amazonProperties, String scheme) {
+		URI s3Uri = createS3UriForHadoopFileSystem(amazonProperties, scheme);
+
 		try {
-			Properties properties = new Properties();
-			properties.load(FileUtils.openInputStream(s3properties));
-			String id = properties.getProperty("aws.id");
-			String secret = properties.getProperty("aws.secret");
-			String bucket = properties.getProperty("s3.bucket");
-			URI s3Uri = URI.create(scheme + "://" + id + ":" + secret + "@" + bucket);
 			return new HadoopArchiveFileSystem(FileSystem.get(s3Uri,
 					new Configuration()));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private static URI createS3UriForHadoopFileSystem(File amazonProperties,
+			String scheme) {
+		AWSCredentialsImpl credentials = AWSCredentialsImpl
+				.createWithPropertyFile(amazonProperties);
+		return URI.create(scheme + "://" + credentials.getAWSAccessKeyId() + ":"
+				+ credentials.getAWSSecretKey() + "@" + credentials.getS3Bucket());
 	}
 }
