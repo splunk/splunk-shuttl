@@ -129,6 +129,8 @@ public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
 	@Override
 	protected void setConfObject(ArchiverConf conf) {
 		this.conf = conf;
+		if (conf.getArchiverRootURI() != null)
+			new OverrideWithOldArchiverRootURIConfiguration(conf).override();
 	}
 
 	@Override

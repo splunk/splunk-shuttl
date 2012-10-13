@@ -51,4 +51,5 @@ public interface ShuttlArchiverMBean {
 	public String getArchivePath();
 
 	public void setArchivePath(String archivePath);
+
 }

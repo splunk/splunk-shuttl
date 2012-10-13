@@ -17,9 +17,7 @@ package com.splunk.shuttl.archiver.filesystem.hadoop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
@@ -31,15 +29,13 @@ import com.splunk.shuttl.archiver.filesystem.BackendConfigurationFiles;
  */
 public class HadoopArchiveFileSystemFactory {
 
-	private static final String HDFS_PROPERTIES_FILENAME = "hdfs.properties";
-
 	/**
 	 * @return Hadoop file system as a back-end with properties in the
 	 *         shuttl/conf/backend directory.
 	 */
 	public static ArchiveFileSystem create() {
 		return createWithPropertyFile(BackendConfigurationFiles.create().getByName(
-				HDFS_PROPERTIES_FILENAME));
+				HdfsProperties.HDFS_PROPERTIES_FILENAME));
 	}
 
 	public static HadoopArchiveFileSystem createWithPropertyFile(
@@ -53,19 +49,10 @@ public class HadoopArchiveFileSystemFactory {
 
 	private static HadoopArchiveFileSystem doCreate(File hdfsProperties)
 			throws IOException {
-		Properties properties = loadProperties(hdfsProperties);
-		String host = properties.getProperty("hadoop.host");
-		String port = properties.getProperty("hadoop.port");
-		FileSystem fs = FileSystem.get(URI.create("hdfs://" + host + ":" + port),
-				new Configuration());
+		HdfsProperties properties = HdfsProperties.create(hdfsProperties);
+		FileSystem fs = FileSystem.get(
+				URI.create("hdfs://" + properties.getHost() + ":"
+						+ properties.getPort()), new Configuration());
 		return new HadoopArchiveFileSystem(fs);
 	}
-
-	private static Properties loadProperties(File hdfsProperties)
-			throws IOException {
-		Properties properties = new Properties();
-		properties.load(FileUtils.openInputStream(hdfsProperties));
-		return properties;
-	}
-
 }

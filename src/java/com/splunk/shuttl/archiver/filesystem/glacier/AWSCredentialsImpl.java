@@ -25,7 +25,7 @@ import com.splunk.shuttl.archiver.filesystem.BackendConfigurationFiles;
 
 public class AWSCredentialsImpl implements AWSCredentials {
 
-	static final String AMAZON_PROPERTIES_FILENAME = "amazon.properties";
+	public static final String AMAZON_PROPERTIES_FILENAME = "amazon.properties";
 
 	private final String id;
 	private final String secret;
@@ -71,8 +71,12 @@ public class AWSCredentialsImpl implements AWSCredentials {
 	}
 
 	public static AWSCredentialsImpl create() {
-		return createWithPropertyFile(BackendConfigurationFiles.create().getByName(
-				AWSCredentialsImpl.AMAZON_PROPERTIES_FILENAME));
+		return createWithPropertyFile(getAmazonPropertiesFile());
+	}
+
+	public static File getAmazonPropertiesFile() {
+		return BackendConfigurationFiles.create().getByName(
+				AWSCredentialsImpl.AMAZON_PROPERTIES_FILENAME);
 	}
 
 	/**
