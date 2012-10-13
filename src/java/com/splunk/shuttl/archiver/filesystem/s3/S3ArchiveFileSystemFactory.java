@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.s3;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -22,7 +21,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.filesystem.BackendConfigurationFiles;
 import com.splunk.shuttl.archiver.filesystem.glacier.AWSCredentialsImpl;
 import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
 
@@ -46,14 +44,7 @@ public class S3ArchiveFileSystemFactory {
 	}
 
 	private static ArchiveFileSystem create(String scheme) {
-		return createWithPropertyFile(
-				BackendConfigurationFiles.create().getByName(
-						AWSCredentialsImpl.AMAZON_PROPERTIES_FILENAME), scheme);
-	}
-
-	public static HadoopArchiveFileSystem createWithPropertyFile(
-			File amazonProperties, String scheme) {
-		URI s3Uri = createS3UriForHadoopFileSystem(amazonProperties, scheme);
+		URI s3Uri = createS3UriForHadoopFileSystem(scheme);
 
 		try {
 			return new HadoopArchiveFileSystem(FileSystem.get(s3Uri,
@@ -63,10 +54,8 @@ public class S3ArchiveFileSystemFactory {
 		}
 	}
 
-	private static URI createS3UriForHadoopFileSystem(File amazonProperties,
-			String scheme) {
-		AWSCredentialsImpl credentials = AWSCredentialsImpl
-				.createWithPropertyFile(amazonProperties);
+	private static URI createS3UriForHadoopFileSystem(String scheme) {
+		AWSCredentialsImpl credentials = AWSCredentialsImpl.create();
 		return URI.create(scheme + "://" + credentials.getAWSAccessKeyId() + ":"
 				+ credentials.getAWSSecretKey() + "@" + credentials.getS3Bucket());
 	}

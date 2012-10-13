@@ -21,10 +21,11 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.splunk.shuttl.archiver.filesystem.BackendConfigurationFiles;
 
 public class AWSCredentialsImpl implements AWSCredentials {
 
-	public static final String AMAZON_PROPERTIES_FILENAME = "amazon.properties";
+	static final String AMAZON_PROPERTIES_FILENAME = "amazon.properties";
 
 	private final String id;
 	private final String secret;
@@ -69,6 +70,11 @@ public class AWSCredentialsImpl implements AWSCredentials {
 		return valueWhenNotNull(vault, "Missing glacier vault property.");
 	}
 
+	public static AWSCredentialsImpl create() {
+		return createWithPropertyFile(BackendConfigurationFiles.create().getByName(
+				AWSCredentialsImpl.AMAZON_PROPERTIES_FILENAME));
+	}
+
 	/**
 	 * @param properties
 	 *          file containing amazon properties for all the fields.
@@ -96,7 +102,5 @@ public class AWSCredentialsImpl implements AWSCredentials {
 		public AmazonPropertyMissing(String msg) {
 			super(msg);
 		}
-
 	}
-
 }

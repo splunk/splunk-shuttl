@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.glacier;
 
-import java.io.File;
 import java.net.URI;
 
 import org.apache.log4j.Logger;
@@ -22,7 +21,6 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.filesystem.BackendConfigurationFiles;
 import com.splunk.shuttl.archiver.filesystem.s3.S3ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
@@ -40,14 +38,7 @@ public class GlacierArchiveFileSystemFactory {
 	 */
 	public static GlacierArchiveFileSystem create(
 			LocalFileSystemPaths localFileSystemPaths) {
-		return create(localFileSystemPaths, BackendConfigurationFiles.create()
-				.getByName(AWSCredentialsImpl.AMAZON_PROPERTIES_FILENAME));
-	}
-
-	public static GlacierArchiveFileSystem create(
-			LocalFileSystemPaths localFileSystemPaths, File amazonProperties) {
-		AWSCredentialsImpl credentials = AWSCredentialsImpl
-				.createWithPropertyFile(amazonProperties);
+		AWSCredentialsImpl credentials = AWSCredentialsImpl.create();
 		GlacierClient glacierClient = GlacierClient.create(credentials);
 
 		ArchiveFileSystem s3 = S3ArchiveFileSystemFactory.createS3n();
