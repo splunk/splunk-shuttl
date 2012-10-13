@@ -23,6 +23,7 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.glacier.AWSCredentialsImpl;
 import com.splunk.shuttl.archiver.filesystem.hadoop.HdfsProperties;
 import com.splunk.shuttl.server.model.ArchiverConf;
@@ -69,7 +70,10 @@ public class OverrideWithOldArchiverRootURIConfiguration {
 			conf.setArchivePath(archiverRootURI.getPath());
 		if (conf.getBackendName() == null) {
 			String scheme = archiverRootURI.getScheme();
-			conf.setBackendName(scheme.equals("file") ? "local" : scheme);
+			String localBackendName = ArchiveFileSystemFactory.LOCAL_FILESYSTEM_BACKEND_NAME;
+			String localFileSystemAdjustedScheme = scheme.equals("file") ? localBackendName
+					: scheme;
+			conf.setBackendName(localFileSystemAdjustedScheme);
 		}
 	}
 

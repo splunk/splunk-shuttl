@@ -37,13 +37,14 @@ import com.splunk.shuttl.archiver.filesystem.s3.S3ArchiveFileSystemFactory;
  */
 public class ArchiveFileSystemFactory {
 
+	public static final String LOCAL_FILESYSTEM_BACKEND_NAME = "local";
 	private static final Logger logger = Logger
 			.getLogger(ArchiveFileSystemFactory.class);
 	private static final Set<String> supportedBackends;
 
 	static {
 		supportedBackends = new HashSet<String>();
-		supportedBackends.add("local");
+		supportedBackends.add(LOCAL_FILESYSTEM_BACKEND_NAME);
 		supportedBackends.add("hdfs");
 		supportedBackends.add("s3");
 		supportedBackends.add("s3n");
@@ -97,7 +98,7 @@ public class ArchiveFileSystemFactory {
 
 	private static ArchiveFileSystem supportedArchiveFileSystem(String backend,
 			LocalFileSystemPaths localFileSystemPaths) {
-		if (backend.equals("local"))
+		if (backend.equals(LOCAL_FILESYSTEM_BACKEND_NAME))
 			return new HadoopArchiveFileSystem(
 					getHadoopFileSystemSafe(URI.create("file:/")));
 		else if (backend.equals("hdfs"))
