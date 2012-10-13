@@ -63,7 +63,7 @@ public class PathResolver {
 	 * @return Archiving path that starts with "/"
 	 */
 	private String getArchivingPath() {
-		return configuration.getArchivePath() + SEPARATOR
+		return configuration.getArchiveDataPath() + SEPARATOR
 				+ configuration.getClusterName() + SEPARATOR
 				+ configuration.getServerName();
 	}
@@ -147,7 +147,7 @@ public class PathResolver {
 	 *         it can be transferred to, and yet be "invisible" from the system.
 	 */
 	public String resolveTempPathForBucket(Bucket bucket) {
-		return configuration.getTmpDirectory() + resolveArchivePath(bucket);
+		return configuration.getArchiveTempPath() + resolveArchivePath(bucket);
 	}
 
 	/**

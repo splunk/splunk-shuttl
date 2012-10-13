@@ -102,9 +102,9 @@ public class GlacierClient {
 	public static GlacierClient create(AWSCredentialsImpl credentials) {
 		AmazonGlacierClient amazonGlacierClient = new AmazonGlacierClient(
 				credentials);
-		amazonGlacierClient.setEndpoint("https://" + credentials.getEndpoint()
+		amazonGlacierClient.setEndpoint("https://" + credentials.getGlacierEndpoint()
 				+ "/");
 		return new GlacierClient(new ArchiveTransferManager(amazonGlacierClient,
-				credentials), credentials.getVault());
+				credentials), credentials.getGlacierVault());
 	}
 }

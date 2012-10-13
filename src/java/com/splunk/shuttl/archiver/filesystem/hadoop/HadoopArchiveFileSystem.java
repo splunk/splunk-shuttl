@@ -148,4 +148,8 @@ public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 			}
 		};
 	}
+
+	public FileSystem getFileSystem() {
+		return hadoopFileSystem;
+	}
 }

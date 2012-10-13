@@ -14,20 +14,13 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.glacier;
 
-import static org.testng.Assert.*;
+import java.net.URI;
 
-import org.testng.annotations.Test;
+public class InvalidGlacierConfigurationException extends RuntimeException {
 
-@Test(groups = { "fast-unit" })
-public class AWSCredentialsImplTest {
+	private static final long serialVersionUID = 1L;
 
-	public void _givenIdAndSecret_getsCredentials() {
-		AWSCredentialsImpl credentials = new AWSCredentialsImpl("id", "secret",
-				"endpoint", "bucket", "vault");
-		assertEquals("id", credentials.getAWSAccessKeyId());
-		assertEquals("secret", credentials.getAWSSecretKey());
-		assertEquals("endpoint", credentials.getEndpoint());
-		assertEquals("bucket", credentials.getBucket());
-		assertEquals("vault", credentials.getVault());
+	public InvalidGlacierConfigurationException(URI uri) {
+		super("Expected glacier://ID:SECRET@ENDPOINT/VAULT, actual: " + uri);
 	}
 }

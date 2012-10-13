@@ -18,13 +18,11 @@ package com.splunk.shuttl.archiver.archive;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.lang.ref.SoftReference;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.management.InstanceNotFoundException;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
@@ -37,25 +35,25 @@ public class ArchiveConfiguration {
 
 	private final String localArchiverDir;
 	private final List<BucketFormat> bucketFormats;
-	private final URI archivingRoot;
 	private final String clusterName;
 	private final String serverName;
 	private final List<BucketFormat> bucketFormatPriority;
-	private final URI tmpDirectory;
+	private final String tempPath;
 	private final String archivePath;
+	private final String backendName;
 
 	private ArchiveConfiguration(String localArchiverDir,
-			List<BucketFormat> bucketFormats, URI archivingRoot, String clusterName,
-			String serverName, List<BucketFormat> bucketFormatPriority,
-			URI tmpDirectory, String archivePath) {
+			List<BucketFormat> bucketFormats, String clusterName, String serverName,
+			List<BucketFormat> bucketFormatPriority, String tempPath,
+			String archivePath, String backendName) {
 		this.localArchiverDir = localArchiverDir;
 		this.bucketFormats = bucketFormats;
-		this.archivingRoot = archivingRoot;
 		this.clusterName = clusterName;
 		this.serverName = serverName;
 		this.bucketFormatPriority = bucketFormatPriority;
-		this.tmpDirectory = tmpDirectory;
+		this.tempPath = tempPath;
 		this.archivePath = archivePath;
+		this.backendName = backendName;
 	}
 
 	/**
@@ -99,32 +97,28 @@ public class ArchiveConfiguration {
 	public static ArchiveConfiguration createConfigurationWithMBean(
 			ShuttlArchiverMBean mBean) {
 		List<BucketFormat> bucketFormats = bucketFormatsFromMBean(mBean);
-		URI archivingRootURI = archivingRootFromMBean(mBean);
 
+		String backendName = mBean.getBackendName();
+		String archivePath = mBean.getArchivePath();
 		String clusterName = mBean.getClusterName();
 		String serverName = mBean.getServerName();
 		List<BucketFormat> bucketFormatPriority = createFormatPriorityList(mBean);
-		return createSafeConfiguration(mBean.getLocalArchiverDir(),
-				archivingRootURI, bucketFormats, clusterName, serverName,
-				bucketFormatPriority);
+		return createSafeConfiguration(mBean.getLocalArchiverDir(), archivePath,
+				bucketFormats, clusterName, serverName, bucketFormatPriority,
+				backendName);
 	}
 
 	public static ArchiveConfiguration createSafeConfiguration(
-			String localArchiverDir, URI archivingRootURI,
+			String localArchiverDir, String archivePath,
 			List<BucketFormat> bucketFormats, String clusterName, String serverName,
-			List<BucketFormat> bucketFormatPriority) {
-		URI archivingData = getChildToArchivingRoot(archivingRootURI,
+			List<BucketFormat> bucketFormatPriority, String backendName) {
+		String archiveDataPath = getChildToArchivingRoot(archivePath,
 				ARCHIVE_DATA_DIRECTORY_NAME);
-		URI tmpDirectory = getChildToArchivingRoot(archivingRootURI,
+		String archiveTempPath = getChildToArchivingRoot(archivePath,
 				TEMPORARY_DATA_DIRECTORY_NAME);
 		return new ArchiveConfiguration(localArchiverDir, bucketFormats,
-				archivingData, clusterName, serverName, bucketFormatPriority,
-				tmpDirectory, archivingData == null ? null : archivingData.getPath());
-	}
-
-	private static URI archivingRootFromMBean(ShuttlArchiverMBean mBean) {
-		String archivingRoot = mBean.getArchiverRootURI();
-		return archivingRoot != null ? URI.create(archivingRoot) : null;
+				clusterName, serverName, bucketFormatPriority, archiveTempPath,
+				archiveDataPath, backendName);
 	}
 
 	private static List<BucketFormat> bucketFormatsFromMBean(
@@ -132,14 +126,9 @@ public class ArchiveConfiguration {
 		return getFormatsFromNames(mBean.getArchiveFormats());
 	}
 
-	private static URI getChildToArchivingRoot(URI archivingRoot,
-			String childNameToArchivingRoot) {
-		if (archivingRoot != null) {
-			String rootName = FilenameUtils.getName(archivingRoot.getPath());
-			return archivingRoot.resolve(rootName + "/" + childNameToArchivingRoot);
-		} else {
-			return null;
-		}
+	private static String getChildToArchivingRoot(String archivePath,
+			String childNameToArchivPath) {
+		return archivePath + "/" + childNameToArchivPath;
 	}
 
 	private static List<BucketFormat> createFormatPriorityList(
@@ -158,10 +147,6 @@ public class ArchiveConfiguration {
 
 	public List<BucketFormat> getArchiveFormats() {
 		return bucketFormats;
-	}
-
-	public URI getArchivingRoot() {
-		return archivingRoot;
 	}
 
 	public String getClusterName() {
@@ -184,8 +169,8 @@ public class ArchiveConfiguration {
 	/**
 	 * @return The Path on hadoop filesystem that is used as a temp directory
 	 */
-	public URI getTmpDirectory() {
-		return tmpDirectory;
+	public String getArchiveTempPath() {
+		return tempPath;
 	}
 
 	/**
@@ -198,8 +183,15 @@ public class ArchiveConfiguration {
 	/**
 	 * @return path where the files are stored on the archiving file system.
 	 */
-	public String getArchivePath() {
+	public String getArchiveDataPath() {
 		return archivePath;
+	}
+
+	/**
+	 * @return backend name to archive data to.
+	 */
+	public String getBackendName() {
+		return backendName;
 	}
 
 }

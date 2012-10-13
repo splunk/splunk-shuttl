@@ -151,8 +151,7 @@ public class ArchiverEndToEndTest {
 		Date latest = TUtilsDate.getLaterDate(earliest);
 
 		LocalBucket bucketToFreeze = TUtilsBucket
-				.createBucketWithIndexAndTimeRange(
-				thawIndex, earliest, latest);
+				.createBucketWithIndexAndTimeRange(thawIndex, earliest, latest);
 		assertEquals(earliest, bucketToFreeze.getEarliest());
 		assertEquals(latest, bucketToFreeze.getLatest());
 
@@ -276,7 +275,7 @@ public class ArchiverEndToEndTest {
 
 	private void deleteArchivingTmpPath(FileSystem hadoopFileSystem) {
 		try {
-			URI configuredTmp = archiveConfiguration.getTmpDirectory();
+			String configuredTmp = archiveConfiguration.getArchiveTempPath();
 			hadoopFileSystem.delete(new Path(configuredTmp), true);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -285,8 +284,8 @@ public class ArchiverEndToEndTest {
 
 	private void deleteArchivingRoot(FileSystem hadoopFileSystem) {
 		try {
-			URI configuredRoot = archiveConfiguration.getArchivingRoot();
-			hadoopFileSystem.delete(new Path(configuredRoot), true);
+			String archiveDataPath = archiveConfiguration.getArchiveDataPath();
+			hadoopFileSystem.delete(new Path(archiveDataPath), true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
