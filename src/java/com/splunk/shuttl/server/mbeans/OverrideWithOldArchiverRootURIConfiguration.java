@@ -67,20 +67,25 @@ public class OverrideWithOldArchiverRootURIConfiguration {
 	private void setConfigurationValues() {
 		if (conf.getArchivePath() == null)
 			conf.setArchivePath(archiverRootURI.getPath());
-		if (conf.getBackendName() == null)
-			conf.setBackendName(archiverRootURI.getScheme());
+		if (conf.getBackendName() == null) {
+			String scheme = archiverRootURI.getScheme();
+			conf.setBackendName(scheme.equals("file") ? "local" : scheme);
+		}
 	}
 
 	private void overridePropertyFiles() {
 		String scheme = archiverRootURI.getScheme();
-		if (scheme.equals("hdfs"))
+		if (scheme.equals("hdfs")) {
 			overrideHdfs();
-		else if (scheme.equals("s3") || scheme.equals("s3n"))
+		} else if (scheme.equals("s3") || scheme.equals("s3n")) {
 			overrideS3orS3n();
-		else
+		} else if (scheme.equals("file")) {
+			// Do nothing.
+		} else {
 			throw new ShuttlMBeanException(
 					"Does not now how to configure with ArchiverRootURI: "
 							+ archiverRootURI);
+		}
 	}
 
 	private void overrideHdfs() {

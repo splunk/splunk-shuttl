@@ -87,7 +87,7 @@ public class ShuttlArchiverMBeanArchiverRootURITest {
 	}
 
 	@Parameters(value = { "splunk.home" })
-	public void load_oldVersionWithS3ArchiverRootURI_setsBackendAndPathWithURIAndAmazonProperties(
+	public void _givenArchiverRootURIWithS3Scheme_setsBackendAndPathWithURIAndAmazonProperties(
 			final String splunkHome) {
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
@@ -121,6 +121,14 @@ public class ShuttlArchiverMBeanArchiverRootURITest {
 		assertEquals(id, amazonProperties.getProperty("aws.id"));
 		assertEquals(secret, amazonProperties.getProperty("aws.secret"));
 		assertEquals(bucket, amazonProperties.getProperty("s3.bucket"));
+	}
+
+	@Test(groups = { "fast-unit" })
+	public void _givenArchiverRootURIWithFileScheme_setsBackendNameAndArchivePath()
+			throws IOException {
+		createArchiverMbeanWithArchiverRootURI("file:/archiver_root");
+		assertEquals("local", archiverMBean.getBackendName());
+		assertEquals("/archiver_root", archiverMBean.getArchivePath());
 	}
 
 }
