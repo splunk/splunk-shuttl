@@ -11,15 +11,16 @@ actions. However, the actions are entirely implemented by the administrator of t
 Shuttl provides a full-lifecycle solution for data in Splunk.
 
 It can:
-* manage the transfer of data from Splunk to an archive system
-* enable an administrator to inventory/search the archive
-* allow an administrator to selectively restore archived data into "thawed"
-* remove archived data from thawed
+* Manage the transfer of data from Splunk to an archive system
+* Enable an administrator to inventory/search the archive
+* Allow an administrator to selectively restore archived data into "thawed"
+* Remove archived data from thawed
 
-This works on the following systems
+Shuttl support on the following systems back-end systems for storage:
 * Attached storage
 * HDFS
-* S3 (in theory)
+* S3 and S3n
+* Amazon Glacier
 
 License
 ---------
@@ -53,7 +54,7 @@ You can download it [Splunk][splunk-download].  And see the [Splunk documentatio
 
 ### Hadoop (optional)
 
-This is needed if you are using HDFS/S3. Currently the Hadoop version used is 1.0.3
+This is needed if you are using HDFS. Currently the Hadoop version used is 1.0.3
 
 You can download it from one of the [mirror sites][hadoop-download].
 And see the [Hadoop documentation][] for instructions on installing and more.
@@ -93,7 +94,7 @@ Build shuttl:
 
 Run the tests:
 
-	$ ant test-all
+	$ ./testit.sh
 
 ### How to Setup Passphraseless SSH
 
@@ -145,22 +146,44 @@ Here's how to install the Shuttl app in your Splunk instance. Shuttl comes with 
 4. Start Splunk up, and enable the Shuttl App via the Manager
 5. If the index is getting data, and calling the archiver, then you should see the data in HDFS
 
-### Shuttl Configuration
-There are two configuration files that you might care about. One for archiving and one for the Shuttl server. They both live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
+### Shuttl Configuration (NEW)
+There are three configuration files that you might care about. One for archiving, one for Splunk and one for the Shuttl server. They all live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
 
-The archiver.xml:
+In addition to these configuration files, there are property files for the backends. These live in shuttl/conf/backend directory. These need to be configured as well depending on the backendName you choose.
+
+archiver.xml:
 - localArchiverDir: A local path (or an uri with file:/ schema) where shuttl's archiver's temporary transfer data, locks, metadata, etc. is stored.
-- archiverRootURI: An URI where to archive the data. Currently supports the "hdfs://" and "file:/" schemas.
+- backendName: The of the backend you want to use. Currently supports: local, hdfs, s3, s3n and glacier.
+- archivePath: The absolute path in the archive where your files will be stored. Required for all backends.
 - clusterName: Unique name for your Splunk cluster. Use the default if you don't care to name your cluster for each Shuttl installation. Note, this is only a Shuttl concept for a group of Splunk indexers that should be treated as a cluster. Splunk does not have this notion.
 - serverName: This is the Splunk Server Name. Check Splunk Manager for that server to populate this value. Must be unique per Shuttl installation.
-- archiveFormats: The formats to archive the data as. The current available formats are SPLUNK_BUCKET and CSV. You can configure Shuttl to archive your data as both formats.
+- archiveFormats: The formats to archive the data as. The current available formats are SPLUNK_BUCKET, CSV and SPLUNK_BUCKET_TGZ. You can configure Shuttl to archive your data as all formats at the same time, which you can use for different use cases.
+* Warning: The old archiverRootURI is deprecated. It will still work for right now, but we recommend that you use the new configuration with property files instead.
 
-The server.xml:
+server.xml:
 - httpHost: The host name of the machine. (usually localhost)
 - httpPort: The port for the shuttl server. (usually 9090)
 
+splunk.xml:
+- host: The host name for the splunk instance where Shuttl is installed. Should be localhost
+- port: The management port for the splunk server. (Splunk defaults to 8089)
+- username: Splunk username
+- password: Splunk password
+
+backend/hdfs.properties (required for hdfs.):
+- hadoop.host = The host name to the hdfs name node. 
+- hadoop.port = the port to the hdfs name node.
+
+backend/amazon.properties (required for s3, s3n or glacier)
+- aws.id = Your Amazon Web Services ID
+- aws.secret = Your Amazon Web Services secret
+- s3.bucket = Bucket name for storage in s3
+- glacier.vault = The vault name for storage in glacier.
+- glacier.endpoint = The server endpoint to where the data will be stored. (i.e. https://glacier.us-east-1.amazonaws.com/)
+* Note: The glacier backend currently uses both glacier and s3, so s3.bucket is still required when using glacier. This is also the reason why archivePath is always required.
+
 Note, the directory that the data will be archived to is
-	[archiverRootURI]/archive_data/[clusterName]/[serverName]/[indexName]
+	[archivePath]/archive_data/[clusterName]/[serverName]/[indexName]
 
 ### Splunk Index Configuration
 
