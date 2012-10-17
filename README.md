@@ -106,34 +106,6 @@ Create a file called `build.properties`
 
 Copy the contents from `default.properties` to `build.properties` and edit the values you want to change
 
-### Running tests against your own Splunk and/or Hadoop
-
-Warning: All of your Splunk indexes is cleared if you do this
-
-Assertions: The tests assert that your Hadoop namenode has been formatted
-
-How to do it:
-
-Set `SPLUNK_HOME` and/or `HADOOP_HOME` environment variables
-
-In your `build.properties`, set the properties `defined.means.running.on.self.defined.splunk.home` and/or `defined.means.running.on.self.defined.hadoop.home` to any value
-
-Now run:
-
-	$ `ant test-all`
-
-The script will now use your own environment variables to run the tests. You don't have to run with both properties defined. You can run with either one
-
-### Specifying which Hadoop version to run
-
-In your `build.properties`, set the property `hadoop.version` to the version you want to run
-
-Now run:
-
-	$ `ant clean-all`
-	$ `ant test-all`
-
-
 Installing the app
 ------------------
 
@@ -202,3 +174,31 @@ In addition, you need to configure Splunk to call the archiver script (set coldT
 Note: Note the repeat of "mytest" as an argument to the coldToFrozenScript. This should always match the index name.
 
 WARNING: the settings rotatePeriodInSecs, frozenTimePeriodInSecs, maxWarmDBCount are there only for testing to verify that data can be successfully transfered by inducing rapid bucket rolling. Don't use in production. See [Set a retirement and archiving policy](http://docs.splunk.com/Documentation/Splunk/latest/admin/Setaretirementandarchivingpolicy) and [Indexes.conf](http://docs.splunk.com/Documentation/Splunk/4.3.3/admin/Indexesconf) documentation to suit your test and deployment needs. Expected usage in production is that maxDataSize correspond to a HDFS block or larger (splunk default is 750mb), and maxHotIdleSecs should be set to 86400 for buckets approximately 24hrs worth of data.
+
+### Running tests against your own Splunk and/or Hadoop
+
+Warning: All of your Splunk indexes is cleared if you do this
+
+Assertions: The tests assert that your Hadoop namenode has been formatted
+
+How to do it:
+
+Set `SPLUNK_HOME` and/or `HADOOP_HOME` environment variables
+
+In your `build.properties`, set the properties `defined.means.running.on.self.defined.splunk.home` and/or `defined.means.running.on.self.defined.hadoop.home` to any value
+
+Now run:
+
+	$ `ant test-all`
+
+The script will now use your own environment variables to run the tests. You don't have to run with both properties defined. You can run with either one
+
+### Specifying which Hadoop version to run tests with
+
+In your `build.properties`, set the property `hadoop.version` to the version you want to run
+
+Now run:
+
+	$ `ant clean-all`
+	$ `ant test-all`
+
