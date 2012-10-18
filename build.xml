@@ -430,7 +430,7 @@
 
 	<target name="hadoop-copy-confs">
 		<property name="hadoop.conf.dir" value="${hadoop.utils}/conf" />
-		<copy todir="${hadoop.extracted.conf.dir}">
+		<copy todir="${hadoop.extracted.conf.dir}" overwrite="true">
 			<fileset dir="${hadoop.conf.dir}" includes="*" />
 		</copy>
 		<antcall target="hadoop-setup-copied-confs" />
