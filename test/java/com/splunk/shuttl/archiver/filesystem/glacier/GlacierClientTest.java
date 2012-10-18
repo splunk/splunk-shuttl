@@ -21,6 +21,8 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
@@ -37,12 +39,14 @@ public class GlacierClientTest {
 	private ArchiveTransferManager transferManager;
 	private String vault;
 	private GlacierClient glacierClient;
+	private Map<String, String> archiveIds;
 
 	@BeforeMethod
 	public void setUp() {
 		transferManager = mock(ArchiveTransferManager.class);
 		vault = "vault";
-		glacierClient = new GlacierClient(transferManager, vault);
+		archiveIds = new HashMap<String, String>();
+		glacierClient = new GlacierClient(transferManager, vault, archiveIds);
 	}
 
 	public void upload_givenPath_canGetArchiveIdWithPath()

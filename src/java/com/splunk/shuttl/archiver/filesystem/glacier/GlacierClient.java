@@ -19,6 +19,7 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -38,16 +39,22 @@ public class GlacierClient {
 
 	private ArchiveTransferManager transferManager;
 	private String vault;
-	private HashMap<String, String> archiveIds;
+	// TODO: Better solution with db or flat files?
+	private static final HashMap<String, String> archiveIdCache = new HashMap<String, String>();
+	private final Map<String, String> archiveIds;
 
 	/**
-	 * @param transferManager
-	 * @param vault
+	 * Uses the in-memory static final archiveIdCache.
 	 */
-	public GlacierClient(ArchiveTransferManager transferManager, String vault) {
+	private GlacierClient(ArchiveTransferManager transferManager, String vault) {
+		this(transferManager, vault, archiveIdCache);
+	}
+
+	/* for tests */GlacierClient(ArchiveTransferManager transferManager,
+			String vault, Map<String, String> archiveIds) {
 		this.transferManager = transferManager;
 		this.vault = vault;
-		this.archiveIds = new HashMap<String, String>();
+		this.archiveIds = archiveIds;
 	}
 
 	/**
@@ -57,7 +64,8 @@ public class GlacierClient {
 	public void upload(File file, String dst) throws AmazonServiceException,
 			AmazonClientException, FileNotFoundException {
 		logger.info(will("Use amazon glacier ArchiveTransferManager"
-				+ " to transfer file to a vault", "file", file, "vault", vault));
+				+ " to transfer file to a vault", "file", file, "vault", vault,
+				"destination", dst));
 		UploadResult result = transferManager.upload(vault, dst, file);
 		logger.info(done("Uploading file to glacier."));
 		putArchiveId(dst, result.getArchiveId());
@@ -102,8 +110,7 @@ public class GlacierClient {
 	public static GlacierClient create(AWSCredentialsImpl credentials) {
 		AmazonGlacierClient amazonGlacierClient = new AmazonGlacierClient(
 				credentials);
-		amazonGlacierClient.setEndpoint("https://" + credentials.getGlacierEndpoint()
-				+ "/");
+		amazonGlacierClient.setEndpoint(credentials.getGlacierEndpoint());
 		return new GlacierClient(new ArchiveTransferManager(amazonGlacierClient,
 				credentials), credentials.getGlacierVault());
 	}

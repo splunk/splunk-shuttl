@@ -101,7 +101,7 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 			glacierClient.downloadToDir(path, temp);
 		} catch (Exception e) {
 			throw new GlacierThawingException("Got exception when downloading "
-					+ "from glacier. Path: " + path);
+					+ "from glacier. Exception: " + e + ", Path: " + path);
 		}
 	}
 
