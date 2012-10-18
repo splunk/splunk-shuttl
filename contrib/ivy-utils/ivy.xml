@@ -9,7 +9,7 @@
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.1.2" />
 		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.1.2" />
 		<dependency org="log4j" name="log4j" rev="1.2.16" />
-		<dependency org="org.testng" name="testng" rev="6.4" />
+		<dependency org="org.testng" name="testng" rev="6.8"/>
 		<dependency org="org.apache.hadoop" name="hadoop-core" rev="@HADOOP.VERSION@"/>
 		<dependency org="commons-lang" name="commons-lang" rev="2.5"/>
 		<dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.9.5"/>

@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-asl-1.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/mockito-all-1.9.0.jar"/>
-	<classpathentry kind="lib" path="lib/testng-6.4.jar"/>
+	<classpathentry kind="lib" path="lib/testng-6.8.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.1.2.jar"/>

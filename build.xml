@@ -14,7 +14,7 @@
 	<property name="build-cache.absolute" location="${build-cache}" />
 	<property name="classdir" value="${builddir}/classes" />
 	<property name="test-classdir" value="${builddir}/testclasses" />
-	<property name="testng.jar" value="testng-6.4.jar" />
+	<property name="testng.jar" value="testng-6.8.jar" />
 	<property name="appname" value="shuttl" />
 	<property name="package.dir" value="${basedir}/package" />
 	<property name="stage.dir" value="${builddir}/${appname}" />
@@ -284,7 +284,7 @@
 
 	<target name="slow-unit-tests" depends="compile, do-slow-unit-tests" />
 	<target name="do-slow-unit-tests">
-		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="slow-unit" outputdir="${builddir}/test-results/slow-unit">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="slow-unit" outputdir="${builddir}/test-results/slow-unit" verbose="0">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
