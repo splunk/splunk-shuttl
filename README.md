@@ -118,12 +118,12 @@ Here's how to install the Shuttl app in your Splunk instance. Shuttl comes with 
 4. Start Splunk up, and enable the Shuttl App via the Manager
 5. If the index is getting data, and calling the archiver, then you should see the data in HDFS
 
-### Shuttl Configuration (NEW)
+### Shuttl Configuration (new)
 There are three configuration files that you might care about. One for archiving, one for Splunk and one for the Shuttl server. They all live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
 
 In addition to these configuration files, there are property files for the backends. These live in shuttl/conf/backend directory. These need to be configured as well depending on the backendName you choose.
 
-archiver.xml:
+#### archiver.xml:
 - localArchiverDir: A local path (or an uri with file:/ schema) where shuttl's archiver's temporary transfer data, locks, metadata, etc. is stored.
 - backendName: The of the backend you want to use. Currently supports: local, hdfs, s3, s3n and glacier.
 - archivePath: The absolute path in the archive where your files will be stored. Required for all backends.
@@ -132,26 +132,26 @@ archiver.xml:
 - archiveFormats: The formats to archive the data as. The current available formats are SPLUNK_BUCKET, CSV and SPLUNK_BUCKET_TGZ. You can configure Shuttl to archive your data as all formats at the same time, which you can use for different use cases.
 * Warning: The old archiverRootURI is deprecated. It will still work for right now, but we recommend that you use the new configuration with property files instead.
 
-server.xml:
+#### server.xml:
 - httpHost: The host name of the machine. (usually localhost)
 - httpPort: The port for the shuttl server. (usually 9090)
 
-splunk.xml:
+#### splunk.xml:
 - host: The host name for the splunk instance where Shuttl is installed. Should be localhost
 - port: The management port for the splunk server. (Splunk defaults to 8089)
 - username: Splunk username
 - password: Splunk password
 
-backend/hdfs.properties (required for hdfs.):
-- hadoop.host = The host name to the hdfs name node. 
-- hadoop.port = the port to the hdfs name node.
+#### backend/hdfs.properties (required for hdfs.):
+- hadoop.host: The host name to the hdfs name node. 
+- hadoop.port: The port to the hdfs name node.
 
-backend/amazon.properties (required for s3, s3n or glacier)
-- aws.id = Your Amazon Web Services ID
-- aws.secret = Your Amazon Web Services secret
-- s3.bucket = Bucket name for storage in s3
-- glacier.vault = The vault name for storage in glacier.
-- glacier.endpoint = The server endpoint to where the data will be stored. (i.e. https://glacier.us-east-1.amazonaws.com/)
+#### backend/amazon.properties (required for s3, s3n or glacier)
+- aws.id: Your Amazon Web Services ID
+- aws.secret: Your Amazon Web Services secret
+- s3.bucket: Bucket name for storage in s3
+- glacier.vault: The vault name for storage in glacier.
+- glacier.endpoint: The server endpoint to where the data will be stored. (i.e. https://glacier.us-east-1.amazonaws.com/)
 * Note: The glacier backend currently uses both glacier and s3, so s3.bucket is still required when using glacier. This is also the reason why archivePath is always required.
 
 Note, the directory that the data will be archived to is
