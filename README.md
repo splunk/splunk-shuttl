@@ -175,6 +175,9 @@ Note: Note the repeat of "mytest" as an argument to the coldToFrozenScript. This
 
 WARNING: the settings rotatePeriodInSecs, frozenTimePeriodInSecs, maxWarmDBCount are there only for testing to verify that data can be successfully transfered by inducing rapid bucket rolling. Don't use in production. See [Set a retirement and archiving policy](http://docs.splunk.com/Documentation/Splunk/latest/admin/Setaretirementandarchivingpolicy) and [Indexes.conf](http://docs.splunk.com/Documentation/Splunk/4.3.3/admin/Indexesconf) documentation to suit your test and deployment needs. Expected usage in production is that maxDataSize correspond to a HDFS block or larger (splunk default is 750mb), and maxHotIdleSecs should be set to 86400 for buckets approximately 24hrs worth of data.
 
+Other developer notes
+---------------------
+
 ### Running tests against your own Splunk and/or Hadoop
 
 Warning: All of your Splunk indexes is cleared if you do this
