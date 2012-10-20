@@ -692,7 +692,7 @@
 	<target name="check-if-splunk-is-running">
 		<exec executable="sh" outputproperty="isRunning">
 			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk status | grep 'splunkd is running' | grep -o running || true" />
+			<arg value="${splunk.home}/bin/splunk status ${splunk.accept.license.flags} | grep 'splunkd is running' | grep -o running || true" />
 		</exec>
 		<if>
 			<equals arg1="${isRunning}" arg2="running" />
@@ -741,7 +741,7 @@
 	<target name="shuttl-kill-server">
 		<exec executable="${basedir}/src/sh/kill-shuttl-server.sh" />
 	</target>
-	
+
 	<target name="check-for-splunk-binary">
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
 	</target>
