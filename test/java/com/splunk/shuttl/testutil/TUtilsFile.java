@@ -284,4 +284,11 @@ public class TUtilsFile {
 			return null;
 		}
 	}
+
+	/**
+	 * @return file with filename.
+	 */
+	public static File createFile(String fileName) {
+		return createDirectoryInParent(createDirectory(), fileName);
+	}
 }

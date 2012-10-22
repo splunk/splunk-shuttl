@@ -186,4 +186,11 @@ public class TUtilsFileTest {
 		List<String> lines = FileUtils.readLines(file);
 		assertEquals(lines, asList(kv1, kv2));
 	}
+
+	public void createFile_givenFileName_uniqueFileEvenWithTheSameFileName() {
+		String fileName = "fileName";
+		File file1 = createFile(fileName);
+		File file2 = createFile(fileName);
+		assertNotEquals(file1.getAbsolutePath(), file2.getAbsolutePath());
+	}
 }
