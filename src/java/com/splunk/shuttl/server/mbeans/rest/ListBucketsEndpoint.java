@@ -116,7 +116,7 @@ public class ListBucketsEndpoint {
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
-		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
+		BucketSizeIO bucketSizeIO = BucketSizeIO.create(archiveFileSystem,
 				LocalFileSystemPaths.create());
 		return new BucketSizeResolver(
 				ArchiveBucketSize.create(config, bucketSizeIO));

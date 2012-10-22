@@ -14,16 +14,9 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.bucketsize;
 
-import static com.splunk.shuttl.archiver.LogFormatter.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
@@ -34,9 +27,9 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketSizeIO {
 
-	private static final Logger logger = Logger.getLogger(BucketSizeIO.class);
+	private static final String FILE_EXTENSION = ".size";
 	private final ArchiveFileSystem archiveFileSystem;
-	private LocalFileSystemPaths localFileSystemPaths;
+	private final FlatFileStorage flatFileStorage;
 
 	/**
 	 * @param archiveFileSystem
@@ -45,55 +38,17 @@ public class BucketSizeIO {
 	 *          for storing bucket size on local disk.
 	 */
 	public BucketSizeIO(ArchiveFileSystem archiveFileSystem,
-			LocalFileSystemPaths localFileSystemPaths) {
+			FlatFileStorage flatFileStorage) {
 		this.archiveFileSystem = archiveFileSystem;
-		this.localFileSystemPaths = localFileSystemPaths;
+		this.flatFileStorage = flatFileStorage;
 	}
 
 	/**
 	 * @return a file that contains information about the specified bucket's size.
 	 */
 	public File getFileWithBucketSize(Bucket bucket) {
-		File tempFile = getTempFileForBucket(bucket);
-		writeSizeToFile(bucket.getSize(), tempFile);
-		return tempFile;
-	}
-
-	private File getTempFileForBucket(Bucket bucket) {
-		try {
-			return createFile(bucket);
-		} catch (IOException e) {
-			logIOExceptionForCreatingFile(bucket, e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	private File createFile(Bucket bucket) throws IOException {
-		File file = new File(localFileSystemPaths.getMetadataDirectory(),
-				bucket.getName() + ".size");
-		file.createNewFile();
-		return file;
-	}
-
-	private void logIOExceptionForCreatingFile(Bucket bucket, IOException e) {
-		logger.debug(did("Tried creating temp file for BucketSizeFile.", e,
-				"To create temp file.", "bucket", bucket, "exception", e));
-	}
-
-	private void writeSizeToFile(Long size, File file) {
-		String content = size + "";
-		try {
-			FileUtils.write(file, content);
-		} catch (IOException e) {
-			logIOExceptionForWritingToFile(file, content, e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void logIOExceptionForWritingToFile(File file, String content,
-			IOException e) {
-		logger.debug(did("Tried to write to file for BucketSizeFile.", e,
-				"To write size to file", "file", file, "content", content));
+		flatFileStorage.writeFlatFile(bucket, FILE_EXTENSION, bucket.getSize());
+		return flatFileStorage.getFlatFile(bucket, FILE_EXTENSION);
 	}
 
 	/**
@@ -102,8 +57,7 @@ public class BucketSizeIO {
 	 */
 	public long readSizeFromRemoteFile(String filePathForSizeFile) {
 		InputStream inputStream = getInputStreamToFile(filePathForSizeFile);
-		List<String> lines = getLinesFromInputStream(inputStream);
-		return Long.parseLong(lines.get(0));
+		return flatFileStorage.readFlatFile(inputStream);
 	}
 
 	private InputStream getInputStreamToFile(String pathToFileWithBucketSize) {
@@ -114,14 +68,9 @@ public class BucketSizeIO {
 		}
 	}
 
-	private List<String> getLinesFromInputStream(InputStream inputStream) {
-		try {
-			return IOUtils.readLines(inputStream);
-		} catch (IOException e) {
-			throw new RuntimeException(e); // TODO: Test this, so it's documented that
-																			// this is expected
-			// behaviour.
-		}
+	public static BucketSizeIO create(ArchiveFileSystem archiveFileSystem,
+			LocalFileSystemPaths localFileSystemPaths) {
+		return new BucketSizeIO(archiveFileSystem, new FlatFileStorage(
+				localFileSystemPaths));
 	}
-
 }

@@ -48,7 +48,7 @@ public class BucketSizeIOTest {
 		archiveFileSystem = mock(ArchiveFileSystem.class);
 		tempDir = createDirectory();
 		localFileSystemPaths = new LocalFileSystemPaths(tempDir.getAbsolutePath());
-		bucketSizeIO = new BucketSizeIO(archiveFileSystem, localFileSystemPaths);
+		bucketSizeIO = BucketSizeIO.create(archiveFileSystem, localFileSystemPaths);
 		bucket = TUtilsBucket.createBucket();
 	}
 

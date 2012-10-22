@@ -77,8 +77,8 @@ public class BucketSizeFunctionalTest {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
 		archiveBucketSize = ArchiveBucketSize.create(pathResolver,
-				archiveFileSystem, new BucketSizeIO(archiveFileSystem,
-						localFileSystemPaths));
+				archiveFileSystem,
+				BucketSizeIO.create(archiveFileSystem, localFileSystemPaths));
 	}
 
 	@AfterMethod

@@ -93,6 +93,7 @@ public class ArchiveBucketTransferer {
 			logger.error(did("Tried to transactionally transfer"
 					+ " the bucketSize metadata to the archive.", e,
 					"The transaction to complete.", "bucket", bucket));
+			throw new FailedToArchiveBucketException(e);
 		}
 	}
 

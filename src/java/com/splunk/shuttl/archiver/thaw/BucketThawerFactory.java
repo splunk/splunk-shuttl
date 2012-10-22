@@ -56,7 +56,7 @@ public class BucketThawerFactory {
 				archiveFileSystem, thawLocationProvider);
 		ListsBucketsFiltered listsBucketsFiltered = ListsBucketsFilteredFactory
 				.create(configuration);
-		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
+		BucketSizeIO bucketSizeIO = BucketSizeIO.create(archiveFileSystem,
 				localFileSystemPaths);
 		BucketSizeResolver bucketSizeResolver = new BucketSizeResolver(
 				ArchiveBucketSize.create(configuration, bucketSizeIO));

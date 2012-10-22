@@ -49,7 +49,7 @@ public class BucketSizeIOFunctionalTest {
 		archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(localConfig);
 		pathResolver = new PathResolver(localConfig);
-		bucketSizeIO = new BucketSizeIO(archiveFileSystem,
+		bucketSizeIO = BucketSizeIO.create(archiveFileSystem,
 				new LocalFileSystemPaths(createDirectory().getAbsolutePath()));
 		archiveBucketSize = new ArchiveBucketSize(pathResolver, bucketSizeIO,
 				archiveFileSystem);
