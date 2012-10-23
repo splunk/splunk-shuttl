@@ -43,8 +43,6 @@ public class ShuttlArchiverMBeanTest {
 	@BeforeMethod(groups = { "fast-unit" })
 	public void createMBean() throws Exception {
 		File confFile = getTempFile();
-		System.out.println("ShuttlArchiverMBeanTest - running "
-				+ confFile.getPath());
 		archiverMBean = ShuttlArchiver.createWithConfFile(confFile);
 		clusterName = "cluster_name";
 		serverName = "server_name";
