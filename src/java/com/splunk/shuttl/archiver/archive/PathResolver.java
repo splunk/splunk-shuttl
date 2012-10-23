@@ -15,6 +15,8 @@
 
 package com.splunk.shuttl.archiver.archive;
 
+import java.io.File;
+
 import org.apache.commons.io.FilenameUtils;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
@@ -27,8 +29,12 @@ import com.splunk.shuttl.archiver.util.UtilsURI;
 public class PathResolver {
 
 	public static final char SEPARATOR = '/';
-	private static final String bucketSizeSuffix = SEPARATOR + "archive_meta"
-			+ SEPARATOR + "bucket.size";
+
+	/**
+	 * The older bucket size metadata filename.
+	 */
+	public static final String BUCKET_SIZE_FILE_NAME = "bucket.size";
+	private static final String METADATA_DIR_NAME = "archive_meta";
 
 	private final ArchiveConfiguration configuration;
 
@@ -136,13 +142,6 @@ public class PathResolver {
 	}
 
 	/**
-	 * @return Path to where a bucket's file with local disk size information.
-	 */
-	public String getBucketSizeFilePathForBucket(Bucket bucket) {
-		return resolveArchivePath(bucket) + bucketSizeSuffix;
-	}
-
-	/**
 	 * @return Path to a temporary location on the {@link ArchiveFileSystem} where
 	 *         it can be transferred to, and yet be "invisible" from the system.
 	 */
@@ -151,11 +150,20 @@ public class PathResolver {
 	}
 
 	/**
-	 * @return Path to a temporary location for the bucket size. @see
-	 *         {@link PathResolver#resolveTempPathForBucketSize(Bucket)}.
+	 * @return Path to where a file with meta data for a bucket can be stored.
 	 */
-	public String resolveTempPathForBucketSize(Bucket bucket) {
-		String tempPathForBucket = resolveTempPathForBucket(bucket);
-		return tempPathForBucket + bucketSizeSuffix;
+	public String resolvePathForBucketMetadata(Bucket bucket, File metadataFile) {
+		return resolveArchivePath(bucket) + SEPARATOR + METADATA_DIR_NAME
+				+ SEPARATOR + metadataFile.getName();
+	}
+
+	/**
+	 * @return Path to a temporary location for bucket metadata, where it can be
+	 *         transferred.
+	 */
+	public String resolveTempPathForBucketMetadata(Bucket bucket,
+			File metadataFile) {
+		return resolveTempPathForBucket(bucket) + SEPARATOR + METADATA_DIR_NAME
+				+ SEPARATOR + metadataFile.getName();
 	}
 }

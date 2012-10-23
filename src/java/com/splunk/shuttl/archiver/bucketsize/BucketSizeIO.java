@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 
@@ -27,7 +28,10 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class BucketSizeIO {
 
-	private static final String FILE_EXTENSION = ".size";
+	/**
+	 * For compatibility with older Shuttl versions.
+	 */
+	private static final String FILE_NAME = PathResolver.BUCKET_SIZE_FILE_NAME;
 	private final ArchiveFileSystem archiveFileSystem;
 	private final FlatFileStorage flatFileStorage;
 
@@ -47,8 +51,8 @@ public class BucketSizeIO {
 	 * @return a file that contains information about the specified bucket's size.
 	 */
 	public File getFileWithBucketSize(Bucket bucket) {
-		flatFileStorage.writeFlatFile(bucket, FILE_EXTENSION, bucket.getSize());
-		return flatFileStorage.getFlatFile(bucket, FILE_EXTENSION);
+		flatFileStorage.writeFlatFile(bucket, FILE_NAME, bucket.getSize());
+		return flatFileStorage.getFlatFile(bucket, FILE_NAME);
 	}
 
 	/**

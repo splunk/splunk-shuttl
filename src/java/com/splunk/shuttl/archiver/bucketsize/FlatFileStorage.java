@@ -49,9 +49,12 @@ public class FlatFileStorage {
 		}
 	}
 
-	private File createFile(Bucket bucket, String extension) throws IOException {
-		File file = new File(localFileSystemPaths.getMetadataDirectory(),
-				bucket.getName() + extension);
+	private File createFile(Bucket bucket, String fileName) throws IOException {
+		File uniqueDirWithBucketName = new File(
+				localFileSystemPaths.getMetadataDirectory(), bucket.getName());
+		uniqueDirWithBucketName.mkdirs();
+
+		File file = new File(uniqueDirWithBucketName, fileName);
 		file.createNewFile();
 		return file;
 	}
@@ -64,8 +67,8 @@ public class FlatFileStorage {
 	/**
 	 * Writes data to a file identified by a bucket and an extension.
 	 */
-	public void writeFlatFile(Bucket bucket, String extension, Long data) {
-		File file = getFlatFile(bucket, extension);
+	public void writeFlatFile(Bucket bucket, String fileName, Long data) {
+		File file = getFlatFile(bucket, fileName);
 		String content = data + "";
 		try {
 			FileUtils.write(file, content);

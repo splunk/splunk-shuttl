@@ -53,8 +53,9 @@ public class ArchiveBucketSize {
 	 * @return size of an archived bucket on the local file system.
 	 */
 	public long getSize(Bucket bucket) {
-		String filePathForSizeFile = pathResolver
-				.getBucketSizeFilePathForBucket(bucket);
+		File bucketSizeFile = bucketSizeIO.getFileWithBucketSize(bucket);
+		String filePathForSizeFile = pathResolver.resolvePathForBucketMetadata(
+				bucket, bucketSizeFile);
 		return bucketSizeIO.readSizeFromRemoteFile(filePathForSizeFile);
 	}
 
@@ -63,9 +64,10 @@ public class ArchiveBucketSize {
 	 */
 	public Transaction getBucketSizeTransaction(Bucket bucket) {
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
-		String temp = pathResolver.resolveTempPathForBucketSize(bucket);
-		String bucketSizeFilePath = pathResolver
-				.getBucketSizeFilePathForBucket(bucket);
+		String temp = pathResolver.resolveTempPathForBucketMetadata(bucket,
+				fileWithBucketSize);
+		String bucketSizeFilePath = pathResolver.resolvePathForBucketMetadata(
+				bucket, fileWithBucketSize);
 		return PutFileTransaction.create(archiveFileSystem,
 				fileWithBucketSize.getAbsolutePath(), temp, bucketSizeFilePath);
 	}

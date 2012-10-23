@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -66,20 +67,21 @@ public class BucketSizeIOTest {
 		assertEquals(bucket.getSize() + "", firstLine);
 	}
 
-	public void getFileWithBucketSize_givenBucket_fileNameContainsBucketNameForUniquness() {
+	public void getFileWithBucketSize_givenBucket_fileNameLivesInDirWIthBucketNameForUniquness() {
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
-		assertTrue(fileWithBucketSize.getName().contains(bucket.getName()));
+		assertEquals(fileWithBucketSize.getParentFile().getName(), bucket.getName());
 	}
 
-	public void getFileWithBucketSize_givenBucket_fileNameContainsSizeLitteralForExternalUnderstandingOfTheFile() {
+	public void getFileWithBucketSize_givenBucket_fileNameIsPathResolversBucketSizeFileNameForOlderShuttlCompatibillity() {
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
-		assertTrue(fileWithBucketSize.getName().contains(".size"));
+		assertEquals(fileWithBucketSize.getName(),
+				PathResolver.BUCKET_SIZE_FILE_NAME);
 	}
 
 	public void getFileWithBucketSize_givenLocalFileSystemPaths_isInMetadataDirectory() {
 		File file = bucketSizeIO.getFileWithBucketSize(bucket);
-		assertEquals(localFileSystemPaths.getMetadataDirectory().getAbsolutePath(),
-				file.getParentFile().getAbsolutePath());
+		assertTrue(file.getParentFile().getAbsolutePath()
+				.contains(localFileSystemPaths.getMetadataDirectory().getName()));
 	}
 
 	public void readSizeFromRemoteFile_givenArchiveFileSystem_getsInputStreamToFileWithSize()

@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.bucketsize;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -53,8 +54,10 @@ public class ArchiveBucketSizeTest {
 		String temp = "/temp/path";
 		String dst = "/dst/path";
 		when(bucketSizeIO.getFileWithBucketSize(bucket)).thenReturn(src);
-		when(pathResolver.resolveTempPathForBucketSize(bucket)).thenReturn(temp);
-		when(pathResolver.getBucketSizeFilePathForBucket(bucket)).thenReturn(dst);
+		when(pathResolver.resolveTempPathForBucketMetadata(bucket, src))
+				.thenReturn(temp);
+		when(pathResolver.resolvePathForBucketMetadata(bucket, src))
+				.thenReturn(dst);
 
 		Transaction bucketSizeTransaction = archiveBucketSize
 				.getBucketSizeTransaction(bucket);
@@ -65,8 +68,13 @@ public class ArchiveBucketSizeTest {
 	public void getSize_givenPathToFileWithBucketSize_passesPathToBucketSizeFileForReading() {
 		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
 		String pathToFileWIthBucketSize = "path/to/bucket/size";
-		when(pathResolver.getBucketSizeFilePathForBucket(remoteBucket)).thenReturn(
-				pathToFileWIthBucketSize);
+		File bucketSizeMetaFile = createFile();
+		when(bucketSizeIO.getFileWithBucketSize(any(Bucket.class))).thenReturn(
+				bucketSizeMetaFile);
+		when(
+				pathResolver.resolvePathForBucketMetadata(remoteBucket,
+						bucketSizeMetaFile)).thenReturn(pathToFileWIthBucketSize);
+
 		archiveBucketSize.getSize(remoteBucket);
 		verify(bucketSizeIO).readSizeFromRemoteFile(pathToFileWIthBucketSize);
 	}

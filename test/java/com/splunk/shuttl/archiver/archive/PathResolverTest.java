@@ -15,11 +15,13 @@
 
 package com.splunk.shuttl.archiver.archive;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 
+import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -31,12 +33,16 @@ import com.splunk.shuttl.testutil.TUtilsMBean;
 @Test(groups = { "fast-unit" })
 public class PathResolverTest {
 
+	/**
+	 * 
+	 */
 	private ArchiveConfiguration configuration;
 	private PathResolver pathResolver;
 	private Bucket bucket;
 	private String archivePath;
 	private String clusterName;
 	private String serverName;
+	private String metadataDirName = "archive_meta";
 	private String bucketIndex;
 	private BucketFormat bucketFormat;
 	private String bucketName;
@@ -151,6 +157,10 @@ public class PathResolverTest {
 		return archivePath.toString() + "/" + clusterName + "/" + serverName;
 	}
 
+	private String getArchivePathUpToBucketMetadata() {
+		return getArchivePathUpToFormat() + "/" + metadataDirName;
+	}
+
 	public void resolveTempPathForBucket_givenBucket_tmpDirConcatWithBucketPath() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		String path = pathResolver.resolveTempPathForBucket(bucket);
@@ -170,16 +180,40 @@ public class PathResolverTest {
 		});
 	}
 
-	public void getBucketSizeFilePathForBucket_givenBucket_livesInAMetadataFolderInTheBucket() {
-		String uritoFileWithBucketSize = pathResolver
-				.getBucketSizeFilePathForBucket(bucket);
-		assertEquals(getArchivePathUpToFormat() + "/archive_meta/bucket.size",
-				uritoFileWithBucketSize);
+	public void resolvePathForBucketMetadata_bucketAndFile_livesInMetadataFolderInTheBucket() {
+		String wholeMetadataPath = pathResolver.resolvePathForBucketMetadata(
+				bucket, createFile());
+
+		// Using java.util.File because they I'm comparing paths, and File can
+		// handle trailing separators.
+		String expected = new File(getArchivePathUpToBucketMetadata())
+				.getAbsolutePath();
+		String actual = new File(wholeMetadataPath).getParentFile()
+				.getAbsolutePath();
+		assertEquals(expected, actual);
 	}
 
-	public void resolveTempPathForBucketSize_bucket_livesInTempMetadataFolderOfTempBucketPath() {
-		String temp = pathResolver.resolveTempPathForBucketSize(bucket);
-		assertEquals(pathResolver.resolveTempPathForBucket(bucket).toString()
-				+ "/archive_meta/bucket.size", temp);
+	public void resolvePathForBucketMetadata_bucketAndFile_hasFileNameOfMetadataFile() {
+		File metadataFile = createFile("metadata.file");
+		String metadataPath = pathResolver.resolvePathForBucketMetadata(bucket,
+				metadataFile);
+		assertEquals(metadataFile.getName(), FilenameUtils.getName(metadataPath));
 	}
+
+	public void resolveTempPathForBucketSize_bucket_livesInTempMetadataDirectoryOfTempBucketPath() {
+		String tempMetadataPath = pathResolver.resolveTempPathForBucketMetadata(
+				bucket, createFile());
+		String actualMetadataParentPath = new File(tempMetadataPath)
+				.getParentFile().getAbsolutePath();
+		assertEquals(pathResolver.resolveTempPathForBucket(bucket) + "/"
+				+ metadataDirName, actualMetadataParentPath);
+	}
+
+	public void resolveTempPathForBucketMetadata_bucketAndFile_hasFileNameOfMetadataFile() {
+		File metadataFile = createFile("fileName.meta");
+		String tempPath = pathResolver.resolveTempPathForBucketMetadata(bucket,
+				metadataFile);
+		assertEquals(metadataFile.getName(), FilenameUtils.getName(tempPath));
+	}
+
 }
