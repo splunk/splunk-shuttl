@@ -284,7 +284,7 @@
 
 	<target name="slow-unit-tests" depends="compile, do-slow-unit-tests" />
 	<target name="do-slow-unit-tests">
-		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="slow-unit" outputdir="${builddir}/test-results/slow-unit" verbose="0">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="slow-unit" outputdir="${builddir}/test-results/slow-unit" verbose="1">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
