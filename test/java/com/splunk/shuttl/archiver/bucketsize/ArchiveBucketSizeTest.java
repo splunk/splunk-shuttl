@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.bucketsize;
 
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -24,7 +25,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.filesystem.transaction.file.PutFileTransaction;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -36,17 +37,19 @@ public class ArchiveBucketSizeTest {
 	private PathResolver pathResolver;
 	private ArchiveFileSystem archiveFileSystem;
 	private FlatFileStorage flatFileStorage;
+	private TransactionExecuter transactionExecuter;
 
 	@BeforeMethod
 	public void setUp() {
 		pathResolver = mock(PathResolver.class);
 		archiveFileSystem = mock(ArchiveFileSystem.class);
 		flatFileStorage = mock(FlatFileStorage.class);
+		transactionExecuter = mock(TransactionExecuter.class);
 		archiveBucketSize = new ArchiveBucketSize(pathResolver, archiveFileSystem,
-				flatFileStorage, null);
+				flatFileStorage, null, transactionExecuter);
 	}
 
-	public void getBucketSizeTransaction_givenBucket_createsWithPathResolverPaths() {
+	public void putBucketSizeTransaction_givenBucket_createsWithPathResolverPaths() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		File src = mock(File.class);
 		String temp = "/temp/path";
@@ -58,9 +61,14 @@ public class ArchiveBucketSizeTest {
 		when(pathResolver.resolvePathForBucketMetadata(bucket, src))
 				.thenReturn(dst);
 
-		Transaction bucketSizeTransaction = archiveBucketSize
-				.getBucketSizeTransaction(bucket);
-		assertEquals(PutFileTransaction.create(archiveFileSystem,
-				src.getAbsolutePath(), temp, dst), bucketSizeTransaction);
+		archiveBucketSize.persistBucketSize(bucket);
+		verify(transactionExecuter).execute(
+				eq(PutFileTransaction.create(archiveFileSystem, src.getAbsolutePath(),
+						temp, dst)));
+	}
+
+	public void getSizeMetadataFileName__fileNameIsPathResolversBucketSizeFileNameForOlderShuttlCompatibillity() {
+		assertEquals(archiveBucketSize.getSizeMetadataFileName(),
+				PathResolver.BUCKET_SIZE_FILE_NAME);
 	}
 }

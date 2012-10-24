@@ -86,15 +86,7 @@ public class ArchiveBucketTransferer {
 	}
 
 	private void bucketSizeTransaction(Bucket bucket) {
-		try {
-			transactionExecuter.execute(archiveBucketSize
-					.getBucketSizeTransaction(bucket));
-		} catch (TransactionException e) {
-			logger.error(did("Tried to transactionally transfer"
-					+ " the bucketSize metadata to the archive.", e,
-					"The transaction to complete.", "bucket", bucket));
-			throw new FailedToArchiveBucketException(e);
-		}
+		archiveBucketSize.persistBucketSize(bucket);
 	}
 
 	/**

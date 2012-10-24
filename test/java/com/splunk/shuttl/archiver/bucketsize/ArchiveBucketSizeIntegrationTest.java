@@ -30,6 +30,7 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.model.RemoteBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
@@ -57,7 +58,7 @@ public class ArchiveBucketSizeIntegrationTest {
 		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
 		flatFileStorage = new FlatFileStorage(localFileSystemPaths);
 		archiveBucketSize = new ArchiveBucketSize(pathResolver, localFileSystem,
-				flatFileStorage, localFileSystemPaths);
+				flatFileStorage, localFileSystemPaths, new TransactionExecuter());
 
 		remoteBucket = TUtilsBucket.createRemoteBucket();
 		expectedSize = 123L;
