@@ -15,6 +15,7 @@
 package com.splunk.shuttl.archiver.bucketsize;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -57,16 +58,18 @@ public class BucketSizeIO {
 
 	/**
 	 * @param filePathForSizeFile
-	 * @return
+	 * @return null if the file doesn't exist
 	 */
-	public long readSizeFromRemoteFile(String filePathForSizeFile) {
-		InputStream inputStream = getInputStreamToFile(filePathForSizeFile);
-		return flatFileStorage.readFlatFile(inputStream);
+	public Long readSizeFromRemoteFile(String filePathForSizeFile) {
+		InputStream in = getInputStreamToFile(filePathForSizeFile);
+		return in == null ? null : flatFileStorage.readFlatFile(in);
 	}
 
 	private InputStream getInputStreamToFile(String pathToFileWithBucketSize) {
 		try {
 			return archiveFileSystem.openFile(pathToFileWithBucketSize);
+		} catch (FileNotFoundException e) {
+			return null;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -76,5 +79,12 @@ public class BucketSizeIO {
 			LocalFileSystemPaths localFileSystemPaths) {
 		return new BucketSizeIO(archiveFileSystem, new FlatFileStorage(
 				localFileSystemPaths));
+	}
+
+	/**
+	 * @return file name for the bucket size metadata.
+	 */
+	public String getSizeMetadataFileName() {
+		return FILE_NAME;
 	}
 }

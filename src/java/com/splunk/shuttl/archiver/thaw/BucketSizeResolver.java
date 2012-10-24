@@ -37,15 +37,7 @@ public class BucketSizeResolver {
 	 *          that needs size to be resolved from the archive.
 	 */
 	public Bucket resolveBucketSize(Bucket bucket) {
-		return createBucketWithSize(bucket);
-	}
-
-	private Bucket createBucketWithSize(Bucket bucket) {
-		long size = archiveBucketSize.getSize(bucket);
-		return createBucketWithErrorHandling(bucket, size);
-	}
-
-	private Bucket createBucketWithErrorHandling(Bucket bucket, long size) {
+		Long size = archiveBucketSize.getSize(bucket);
 		return new Bucket(bucket.getPath(), bucket.getIndex(), bucket.getName(),
 				bucket.getFormat(), size);
 	}

@@ -78,7 +78,8 @@ public class BucketSizeFunctionalTest {
 				.getWithConfiguration(config);
 		archiveBucketSize = ArchiveBucketSize.create(pathResolver,
 				archiveFileSystem,
-				BucketSizeIO.create(archiveFileSystem, localFileSystemPaths));
+				BucketSizeIO.create(archiveFileSystem, localFileSystemPaths),
+				localFileSystemPaths);
 	}
 
 	@AfterMethod
@@ -101,7 +102,7 @@ public class BucketSizeFunctionalTest {
 
 		assertEquals(1, listBucketsInIndex.size());
 		Bucket bucketInArchive = listBucketsInIndex.get(0);
-		assertEquals(bucketSize, archiveBucketSize.getSize(bucketInArchive));
+		assertEquals(bucketSize, (long) archiveBucketSize.getSize(bucketInArchive));
 	}
 
 	public void BucketSize_bucketRoundTrip_bucketGetSizeShouldBeTheSameBeforeArchiveAndAfterThaw() {

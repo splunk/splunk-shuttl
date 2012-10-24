@@ -69,8 +69,8 @@ public class BucketArchiverFactory {
 		PathResolver pathResolver = new PathResolver(config);
 		BucketSizeIO bucketSizeIO = BucketSizeIO.create(archiveFileSystem,
 				localFileSystemPaths);
-		ArchiveBucketSize archiveBucketSize = new ArchiveBucketSize(pathResolver,
-				bucketSizeIO, archiveFileSystem);
+		ArchiveBucketSize archiveBucketSize = ArchiveBucketSize.create(
+				pathResolver, archiveFileSystem, bucketSizeIO, localFileSystemPaths);
 
 		TgzFormatExporter tgzFormatExporter = TgzFormatExporter
 				.create(CreatesBucketTgz.create(localFileSystemPaths));

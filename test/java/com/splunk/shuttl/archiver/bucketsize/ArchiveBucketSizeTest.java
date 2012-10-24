@@ -14,8 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.bucketsize;
 
-import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -45,7 +43,7 @@ public class ArchiveBucketSizeTest {
 		archiveFileSystem = mock(ArchiveFileSystem.class);
 		bucketSizeIO = mock(BucketSizeIO.class);
 		archiveBucketSize = new ArchiveBucketSize(pathResolver, bucketSizeIO,
-				archiveFileSystem);
+				archiveFileSystem, null, null);
 	}
 
 	public void getBucketSizeTransaction_givenBucket_createsWithPathResolverPaths() {
@@ -63,28 +61,5 @@ public class ArchiveBucketSizeTest {
 				.getBucketSizeTransaction(bucket);
 		assertEquals(PutFileTransaction.create(archiveFileSystem,
 				src.getAbsolutePath(), temp, dst), bucketSizeTransaction);
-	}
-
-	public void getSize_givenPathToFileWithBucketSize_passesPathToBucketSizeFileForReading() {
-		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
-		String pathToFileWIthBucketSize = "path/to/bucket/size";
-		File bucketSizeMetaFile = createFile();
-		when(bucketSizeIO.getFileWithBucketSize(any(Bucket.class))).thenReturn(
-				bucketSizeMetaFile);
-		when(
-				pathResolver.resolvePathForBucketMetadata(remoteBucket,
-						bucketSizeMetaFile)).thenReturn(pathToFileWIthBucketSize);
-
-		archiveBucketSize.getSize(remoteBucket);
-		verify(bucketSizeIO).readSizeFromRemoteFile(pathToFileWIthBucketSize);
-	}
-
-	public void getSize_givenBucketFileSizeReadSuccessfully_returnValue() {
-		long size = 4711;
-		when(bucketSizeIO.readSizeFromRemoteFile(anyString())).thenReturn(size);
-		long actualSize = archiveBucketSize.getSize(TUtilsBucket
-				.createRemoteBucket());
-		assertEquals(size, actualSize);
-
 	}
 }

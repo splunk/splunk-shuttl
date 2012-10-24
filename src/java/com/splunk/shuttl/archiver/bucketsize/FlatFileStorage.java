@@ -38,11 +38,11 @@ public class FlatFileStorage {
 	}
 
 	/**
-	 * @return a {@link File} that's unique for the bucket and its extension.
+	 * @return a {@link File} that's unique for the bucket and its filename.
 	 */
-	public File getFlatFile(Bucket bucket, String extension) {
+	public File getFlatFile(Bucket bucket, String fileName) {
 		try {
-			return createFile(bucket, extension);
+			return createFile(bucket, fileName);
 		} catch (IOException e) {
 			logIOExceptionForCreatingFile(bucket, e);
 			throw new RuntimeException(e);
@@ -50,8 +50,8 @@ public class FlatFileStorage {
 	}
 
 	private File createFile(Bucket bucket, String fileName) throws IOException {
-		File file = new File(localFileSystemPaths.getMetadataDirectory(bucket), fileName);
-		file.createNewFile();
+		File file = new File(localFileSystemPaths.getMetadataDirectory(bucket),
+				fileName);
 		return file;
 	}
 
@@ -65,8 +65,18 @@ public class FlatFileStorage {
 	 */
 	public void writeFlatFile(Bucket bucket, String fileName, Long data) {
 		File file = getFlatFile(bucket, fileName);
+		writeFlatFile(file, data);
+	}
+
+	/**
+	 * Writes data to an existing file, that can be read by the
+	 * {@link FlatFileStorage} class.
+	 */
+	public void writeFlatFile(File file, Long data) {
 		String content = data + "";
 		try {
+			file.getParentFile().mkdirs();
+			file.createNewFile();
 			FileUtils.write(file, content);
 		} catch (IOException e) {
 			logIOExceptionForWritingToFile(file, content, e);
@@ -83,9 +93,12 @@ public class FlatFileStorage {
 	/**
 	 * @return data read from the inputstream to the flat file.
 	 */
-	public long readFlatFile(InputStream inputStream) {
+	public Long readFlatFile(InputStream inputStream) {
 		List<String> lines = getLinesFromInputStream(inputStream);
-		return Long.parseLong(lines.get(0));
+		if (lines.isEmpty())
+			return null;
+		else
+			return Long.parseLong(lines.get(0));
 	}
 
 	private List<String> getLinesFromInputStream(InputStream inputStream) {

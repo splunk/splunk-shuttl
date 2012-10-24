@@ -158,6 +158,11 @@ public class LocalFileSystemPathsTest {
 				.getMetadataDirectory(bucket));
 	}
 
+	public void getMetadataTransfersDirectory_bucket_uniquePerBucket() {
+		assertBucketUniquePathInsideArchiverDirectory(localFileSystemPaths
+				.getMetadataTransfersDirectory(bucket));
+	}
+
 	@Test(expectedExceptions = { ArchiverMBeanNotRegisteredException.class })
 	public void create_withNoArchiverMBeanRegistration_throwsRuntimeException() {
 		LocalFileSystemPaths.create();

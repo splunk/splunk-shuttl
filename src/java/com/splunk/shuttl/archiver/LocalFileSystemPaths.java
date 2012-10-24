@@ -49,6 +49,8 @@ public class LocalFileSystemPaths {
 
 	final String METADATA_DIR_NAME = "metadata-dir";
 
+	final String METADATA_TRANSFERS_NAME = "metadata-transfers-dir";
+
 	private final String archiverDirectoryPath;
 
 	public LocalFileSystemPaths(File directory) {
@@ -159,6 +161,14 @@ public class LocalFileSystemPaths {
 	 */
 	public File getMetadataDirectory(Bucket bucket) {
 		return createBucketUniqueDirUnderArchiverDir(METADATA_DIR_NAME, bucket);
+	}
+
+	/**
+	 * Directory for transferring metadata. Will be unique for the bucket.
+	 */
+	public File getMetadataTransfersDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(METADATA_TRANSFERS_NAME,
+				bucket);
 	}
 
 	public static LocalFileSystemPaths create() {

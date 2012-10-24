@@ -116,10 +116,10 @@ public class ListBucketsEndpoint {
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
+		LocalFileSystemPaths localFileSystemPaths = LocalFileSystemPaths.create();
 		BucketSizeIO bucketSizeIO = BucketSizeIO.create(archiveFileSystem,
-				LocalFileSystemPaths.create());
-		return new BucketSizeResolver(
-				ArchiveBucketSize.create(config, bucketSizeIO));
+				localFileSystemPaths);
+		return new BucketSizeResolver(ArchiveBucketSize.create(new PathResolver(
+				config), archiveFileSystem, bucketSizeIO, localFileSystemPaths));
 	}
-
 }

@@ -49,10 +49,12 @@ public class BucketSizeIOFunctionalTest {
 		archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(localConfig);
 		pathResolver = new PathResolver(localConfig);
-		bucketSizeIO = BucketSizeIO.create(archiveFileSystem,
-				new LocalFileSystemPaths(createDirectory().getAbsolutePath()));
+		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
+				createDirectory());
+		FlatFileStorage flatFileStorage = new FlatFileStorage(localFileSystemPaths);
+		bucketSizeIO = new BucketSizeIO(archiveFileSystem, flatFileStorage);
 		archiveBucketSize = new ArchiveBucketSize(pathResolver, bucketSizeIO,
-				archiveFileSystem);
+				archiveFileSystem, flatFileStorage, localFileSystemPaths);
 	}
 
 	@AfterMethod
