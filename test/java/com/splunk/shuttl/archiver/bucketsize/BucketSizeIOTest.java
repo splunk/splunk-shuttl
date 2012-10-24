@@ -14,80 +14,26 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.bucketsize;
 
-import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class BucketSizeIOTest {
 
 	private BucketSizeIO bucketSizeIO;
-	private ArchiveFileSystem archiveFileSystem;
-	private File tempDir;
-	private LocalFileSystemPaths localFileSystemPaths;
-	private Bucket bucket;
 
 	@BeforeMethod
 	public void setUp() {
-		archiveFileSystem = mock(ArchiveFileSystem.class);
-		tempDir = createDirectory();
-		localFileSystemPaths = new LocalFileSystemPaths(tempDir.getAbsolutePath());
-		bucketSizeIO = BucketSizeIO.create(archiveFileSystem, localFileSystemPaths);
-		bucket = TUtilsBucket.createBucket();
+		bucketSizeIO = new BucketSizeIO();
 	}
 
-	@AfterMethod
-	public void tearDown() {
-		FileUtils.deleteQuietly(tempDir);
-	}
-
-	public void getFileWithBucketSize_givenBucket_returnsFileWithSizeOfBucket()
-			throws IOException {
-		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
-		List<String> linesOfFile = FileUtils.readLines(fileWithBucketSize);
-		assertEquals(1, linesOfFile.size());
-		String firstLine = linesOfFile.get(0);
-		assertEquals(bucket.getSize() + "", firstLine);
-	}
-
-	public void getFileWithBucketSize_givenBucket_fileNameIsPathResolversBucketSizeFileNameForOlderShuttlCompatibillity() {
-		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
-		assertEquals(fileWithBucketSize.getName(),
+	public void getSizeMetadataFileName__fileNameIsPathResolversBucketSizeFileNameForOlderShuttlCompatibillity() {
+		assertEquals(bucketSizeIO.getSizeMetadataFileName(),
 				PathResolver.BUCKET_SIZE_FILE_NAME);
 	}
 
-	public void getFileWithBucketSize_givenLocalFileSystemPaths_isInMetadataDirectoryForBucket() {
-		File file = bucketSizeIO.getFileWithBucketSize(bucket);
-		assertTrue(file.getParentFile().getAbsolutePath()
-				.contains(localFileSystemPaths.getMetadataDirectory(bucket).getName()));
-	}
-
-	public void readSizeFromRemoteFile_givenArchiveFileSystem_getsInputStreamToFileWithSize()
-			throws IOException {
-		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
-		String pathToFile = "path/to/remote/file/with/size";
-		InputStream inputStreamToFile = new FileInputStream(fileWithBucketSize);
-		when(archiveFileSystem.openFile(pathToFile)).thenReturn(inputStreamToFile);
-
-		Long sizeFromRemoteFile = bucketSizeIO.readSizeFromRemoteFile(pathToFile);
-		assertEquals(bucket.getSize(), sizeFromRemoteFile);
-	}
-	// TODO: Test closing stream for successful and unsuccessful reads.
 }

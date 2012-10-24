@@ -115,7 +115,10 @@ public class ArchiveBucketSize {
 	 * @return a transaction for putting bucket size on the archiveFileSystem.
 	 */
 	public Transaction getBucketSizeTransaction(Bucket bucket) {
-		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
+		flatFileStorage.writeFlatFile(bucket,
+				bucketSizeIO.getSizeMetadataFileName(), bucket.getSize());
+		File fileWithBucketSize = flatFileStorage.getFlatFile(bucket,
+				bucketSizeIO.getSizeMetadataFileName());
 		String temp = pathResolver.resolveTempPathForBucketMetadata(bucket,
 				fileWithBucketSize);
 		String bucketSizeFilePath = pathResolver.resolvePathForBucketMetadata(

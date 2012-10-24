@@ -14,15 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.bucketsize;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-
-import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
  * Logic for reading and writing a file with bucket size.
@@ -33,53 +25,6 @@ public class BucketSizeIO {
 	 * For compatibility with older Shuttl versions.
 	 */
 	private static final String FILE_NAME = PathResolver.BUCKET_SIZE_FILE_NAME;
-	private final ArchiveFileSystem archiveFileSystem;
-	private final FlatFileStorage flatFileStorage;
-
-	/**
-	 * @param archiveFileSystem
-	 *          to read the file size off of.
-	 * @param localFileSystemPaths
-	 *          for storing bucket size on local disk.
-	 */
-	public BucketSizeIO(ArchiveFileSystem archiveFileSystem,
-			FlatFileStorage flatFileStorage) {
-		this.archiveFileSystem = archiveFileSystem;
-		this.flatFileStorage = flatFileStorage;
-	}
-
-	/**
-	 * @return a file that contains information about the specified bucket's size.
-	 */
-	public File getFileWithBucketSize(Bucket bucket) {
-		flatFileStorage.writeFlatFile(bucket, FILE_NAME, bucket.getSize());
-		return flatFileStorage.getFlatFile(bucket, FILE_NAME);
-	}
-
-	/**
-	 * @param filePathForSizeFile
-	 * @return null if the file doesn't exist
-	 */
-	public Long readSizeFromRemoteFile(String filePathForSizeFile) {
-		InputStream in = getInputStreamToFile(filePathForSizeFile);
-		return in == null ? null : flatFileStorage.readFlatFile(in);
-	}
-
-	private InputStream getInputStreamToFile(String pathToFileWithBucketSize) {
-		try {
-			return archiveFileSystem.openFile(pathToFileWithBucketSize);
-		} catch (FileNotFoundException e) {
-			return null;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static BucketSizeIO create(ArchiveFileSystem archiveFileSystem,
-			LocalFileSystemPaths localFileSystemPaths) {
-		return new BucketSizeIO(archiveFileSystem, new FlatFileStorage(
-				localFileSystemPaths));
-	}
 
 	/**
 	 * @return file name for the bucket size metadata.

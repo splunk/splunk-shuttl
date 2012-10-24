@@ -57,7 +57,7 @@ public class ArchiveBucketSizeIntegrationTest {
 		pathResolver = new PathResolver(config);
 		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
 		flatFileStorage = new FlatFileStorage(localFileSystemPaths);
-		bucketSizeIO = new BucketSizeIO(localFileSystem, flatFileStorage);
+		bucketSizeIO = new BucketSizeIO();
 		archiveBucketSize = new ArchiveBucketSize(pathResolver, bucketSizeIO,
 				localFileSystem, flatFileStorage, localFileSystemPaths);
 
@@ -65,7 +65,9 @@ public class ArchiveBucketSizeIntegrationTest {
 		expectedSize = 123L;
 
 		String metadataPath = pathResolver.resolvePathForBucketMetadata(
-				remoteBucket, bucketSizeIO.getFileWithBucketSize(remoteBucket));
+				remoteBucket,
+				flatFileStorage.getFlatFile(remoteBucket,
+						bucketSizeIO.getSizeMetadataFileName()));
 		remoteMetadata = new File(metadataPath);
 
 		File metadataDirectory = localFileSystemPaths
@@ -95,7 +97,6 @@ public class ArchiveBucketSizeIntegrationTest {
 		assertTrue(remoteMetadata.exists());
 		assertFalse(localMetadata.exists());
 
-		flatFileStorage.writeFlatFile(remoteMetadata, expectedSize);
 		Long size = archiveBucketSize.getSize(remoteBucket);
 		assertEquals(expectedSize, size);
 	}
@@ -110,7 +111,7 @@ public class ArchiveBucketSizeIntegrationTest {
 		assertEquals(expectedSize, size);
 	}
 
-	public void getSize_localExistingMetadataDoesNotContainSize_readsSizeRemotely()
+	public void getSize_localExistingMetadataDoesNotContainSize_getsSize()
 			throws IOException {
 		flatFileStorage.writeFlatFile(remoteMetadata, expectedSize);
 		assertTrue(localMetadata.createNewFile());

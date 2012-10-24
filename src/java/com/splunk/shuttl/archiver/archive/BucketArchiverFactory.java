@@ -67,8 +67,7 @@ public class BucketArchiverFactory {
 		BucketToCsvFileExporter bucketToCsvFileExporter = BucketToCsvFileExporter
 				.create(localFileSystemPaths);
 		PathResolver pathResolver = new PathResolver(config);
-		BucketSizeIO bucketSizeIO = BucketSizeIO.create(archiveFileSystem,
-				localFileSystemPaths);
+		BucketSizeIO bucketSizeIO = new BucketSizeIO();
 		ArchiveBucketSize archiveBucketSize = ArchiveBucketSize.create(
 				pathResolver, archiveFileSystem, bucketSizeIO, localFileSystemPaths);
 
