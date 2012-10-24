@@ -50,11 +50,7 @@ public class FlatFileStorage {
 	}
 
 	private File createFile(Bucket bucket, String fileName) throws IOException {
-		File uniqueDirWithBucketName = new File(
-				localFileSystemPaths.getMetadataDirectory(), bucket.getName());
-		uniqueDirWithBucketName.mkdirs();
-
-		File file = new File(uniqueDirWithBucketName, fileName);
+		File file = new File(localFileSystemPaths.getMetadataDirectory(bucket), fileName);
 		file.createNewFile();
 		return file;
 	}

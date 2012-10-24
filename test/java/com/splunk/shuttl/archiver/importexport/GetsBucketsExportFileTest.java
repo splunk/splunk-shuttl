@@ -23,40 +23,35 @@ import java.io.IOException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class GetsBucketsExportFileTest {
 
-	private File dir;
 	private GetsBucketsExportFile getsBucketsExportFile;
 	private Bucket bucket;
 	private String extension;
+	private LocalFileSystemPaths localFileSystemPaths;
 
 	@BeforeMethod
 	public void setUp() {
 		bucket = TUtilsBucket.createBucket();
-		dir = createDirectory();
+		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
 		extension = "ext";
-		getsBucketsExportFile = new GetsBucketsExportFile(dir);
+		getsBucketsExportFile = new GetsBucketsExportFile(localFileSystemPaths);
 	}
 
-	public void __fileInDirWithIndexName() {
+	public void __fileInExportDir() {
 		File file = getsBucketsExportFile.getExportFile(bucket, extension);
-		assertEquals(bucket.getIndex(), file.getParentFile().getName());
+		assertEquals(localFileSystemPaths.getExportDirectory(bucket),
+				file.getParentFile());
 	}
 
 	public void __parentDirectoryExists() {
 		File file = getsBucketsExportFile.getExportFile(bucket, extension);
 		assertTrue(file.getParentFile().exists());
-	}
-
-	public void __parentsParentIsTheDirGivenToTheConstructor() {
-		File file = getsBucketsExportFile.getExportFile(bucket, extension);
-		assertEquals(dir.getAbsolutePath(), file.getParentFile().getParentFile()
-				.getAbsolutePath());
 	}
 
 	public void __fileEndsWithExtension() {

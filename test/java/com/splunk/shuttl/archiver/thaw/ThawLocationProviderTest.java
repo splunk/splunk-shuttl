@@ -24,6 +24,7 @@ import java.io.IOException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -35,15 +36,15 @@ public class ThawLocationProviderTest {
 	SplunkSettings splunkSettings;
 	Bucket bucket;
 	File thawLocation;
-	File transferLocation;
+	LocalFileSystemPaths localFileSystemPaths;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
 		bucket = TUtilsBucket.createBucket();
 		splunkSettings = mock(SplunkSettings.class);
-		transferLocation = createDirectory();
+		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
 		thawLocationProvider = new ThawLocationProvider(splunkSettings,
-				transferLocation);
+				localFileSystemPaths);
 
 		stubSplunkSettingsToReturnThawLocation();
 	}
@@ -71,10 +72,10 @@ public class ThawLocationProviderTest {
 		assertEquals(bucket.getName(), bucketsLocation.getName());
 	}
 
-	public void getThawTransferLocation_givenTransferLocation_fileIsInDirWithIndexName() {
+	public void getThawTransferLocation_givenTransferLocation_fileIsInThawTransferDirectoryForBucket() {
 		File transferLoc = thawLocationProvider.getThawTransferLocation(bucket);
-		File indexDir = new File(transferLocation, bucket.getIndex());
-		assertEquals(indexDir.getAbsolutePath(), transferLoc.getParentFile()
+		File transferDir = localFileSystemPaths.getThawTransfersDirectory(bucket);
+		assertEquals(transferDir.getAbsolutePath(), transferLoc.getParentFile()
 				.getAbsolutePath());
 	}
 

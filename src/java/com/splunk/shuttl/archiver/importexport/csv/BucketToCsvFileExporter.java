@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkExportTool;
@@ -91,9 +92,11 @@ public class BucketToCsvFileExporter {
 	/**
 	 * @return a CsvExporter
 	 */
-	public static BucketToCsvFileExporter create(File csvDirectory) {
+	public static BucketToCsvFileExporter create(
+			LocalFileSystemPaths localFileSystemPaths) {
 		return new BucketToCsvFileExporter(new SplunkExportTool(),
-				new GetsBucketsExportFile(csvDirectory), ShellExecutor.getInstance());
+				new GetsBucketsExportFile(localFileSystemPaths),
+				ShellExecutor.getInstance());
 	}
 
 }

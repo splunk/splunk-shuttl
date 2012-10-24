@@ -19,11 +19,10 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 
-import org.apache.commons.io.FileUtils;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -31,22 +30,19 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 @Test(groups = { "fast-unit" })
 public class ThawBucketLockerTest {
 
-	private File thawLocksDirectory;
 	private ThawBucketLocker thawBucketLocker;
+	private LocalFileSystemPaths localFileSystemPaths;
 
 	@BeforeMethod
 	public void setUp() {
-		thawLocksDirectory = createDirectory();
-		thawBucketLocker = new ThawBucketLocker(thawLocksDirectory);
-	}
-
-	@AfterMethod
-	public void tearDown() {
-		FileUtils.deleteQuietly(thawLocksDirectory);
+		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
+		thawBucketLocker = new ThawBucketLocker(localFileSystemPaths);
 	}
 
 	public void getLockForBucket_givenThawLocksDirectory_lockIsInThatDirectory() {
 		Bucket bucket = TUtilsBucket.createBucket();
+		File thawLocksDirectory = localFileSystemPaths
+				.getThawLocksDirectory(bucket);
 		BucketLock lockForBucket = thawBucketLocker.getLockForBucket(bucket);
 		assertEquals(thawLocksDirectory.getAbsolutePath(), lockForBucket
 				.getLockFile().getParentFile().getAbsolutePath());

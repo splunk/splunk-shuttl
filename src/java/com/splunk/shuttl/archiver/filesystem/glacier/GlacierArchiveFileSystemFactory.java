@@ -43,7 +43,7 @@ public class GlacierArchiveFileSystemFactory {
 
 		ArchiveFileSystem s3 = S3ArchiveFileSystemFactory.createS3n();
 		TgzFormatExporter tgzFormatExporter = TgzFormatExporter
-				.create(CreatesBucketTgz.create(localFileSystemPaths.getTgzDirectory()));
+				.create(CreatesBucketTgz.create(localFileSystemPaths));
 		Logger logger = Logger.getLogger(GlacierArchiveFileSystem.class);
 		BucketDeleter bucketDeleter = BucketDeleter.create();
 

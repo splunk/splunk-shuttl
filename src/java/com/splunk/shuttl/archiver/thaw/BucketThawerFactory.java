@@ -50,7 +50,7 @@ public class BucketThawerFactory {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(configuration);
 		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
-				splunkSettings, localFileSystemPaths.getThawTransfersDirectory());
+				splunkSettings, localFileSystemPaths);
 
 		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
 				archiveFileSystem, thawLocationProvider);
@@ -64,8 +64,7 @@ public class BucketThawerFactory {
 				thawBucketTransferer, BucketImportController.create(),
 				bucketSizeResolver);
 		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive,
-				thawLocationProvider, new ThawBucketLocker(
-						localFileSystemPaths.getThawLocksDirectory()));
+				thawLocationProvider, new ThawBucketLocker(localFileSystemPaths));
 	}
 
 	private static ThawBucketTransferer getThawBucketTransferer(

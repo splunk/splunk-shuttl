@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
@@ -42,22 +43,20 @@ import com.splunk.shuttl.testutil.TUtilsEnvironment;
 public class BucketExportControllerIntegrationTest {
 
 	private BucketExportController bucketExportController;
-	private File csvDirectory;
-	private File tgzDirectory;
+	private LocalFileSystemPaths localFileSystemPaths;
 
 	@BeforeMethod
 	public void setUp() {
-		csvDirectory = createDirectory();
-		tgzDirectory = createDirectory();
-		bucketExportController = BucketExportController.create(
-				CsvExporter.create(BucketToCsvFileExporter.create(csvDirectory)),
-				TgzFormatExporter.create(CreatesBucketTgz.create(tgzDirectory)));
+		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
+		bucketExportController = BucketExportController
+				.create(CsvExporter.create(BucketToCsvFileExporter
+						.create(localFileSystemPaths)), TgzFormatExporter
+						.create(CreatesBucketTgz.create(localFileSystemPaths)));
 	}
 
 	@AfterMethod
 	public void tearDown() {
-		FileUtils.deleteQuietly(csvDirectory);
-		FileUtils.deleteQuietly(tgzDirectory);
+		FileUtils.deleteQuietly(localFileSystemPaths.getArchiverDirectory());
 	}
 
 	@Test(groups = { "end-to-end" })
@@ -76,8 +75,8 @@ public class BucketExportControllerIntegrationTest {
 
 	private void exportingBucketWithRealDataToCsvCreatesCsvBucket() {
 		LocalBucket realBucket = TUtilsBucket.createRealBucket();
-		LocalBucket csvBucket = bucketExportController
-				.exportBucket(realBucket, BucketFormat.CSV);
+		LocalBucket csvBucket = bucketExportController.exportBucket(realBucket,
+				BucketFormat.CSV);
 
 		assertEquals(realBucket.getName(), csvBucket.getName());
 		assertEquals(BucketFormat.CSV, csvBucket.getFormat());

@@ -65,7 +65,7 @@ public class BucketArchiverFactory {
 			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem,
 			LocalFileSystemPaths localFileSystemPaths) {
 		BucketToCsvFileExporter bucketToCsvFileExporter = BucketToCsvFileExporter
-				.create(localFileSystemPaths.getCsvDirectory());
+				.create(localFileSystemPaths);
 		PathResolver pathResolver = new PathResolver(config);
 		BucketSizeIO bucketSizeIO = BucketSizeIO.create(archiveFileSystem,
 				localFileSystemPaths);
@@ -73,7 +73,7 @@ public class BucketArchiverFactory {
 				bucketSizeIO, archiveFileSystem);
 
 		TgzFormatExporter tgzFormatExporter = TgzFormatExporter
-				.create(CreatesBucketTgz.create(localFileSystemPaths.getTgzDirectory()));
+				.create(CreatesBucketTgz.create(localFileSystemPaths));
 
 		return new BucketArchiver(BucketExportController.create(
 				CsvExporter.create(bucketToCsvFileExporter), tgzFormatExporter),

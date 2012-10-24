@@ -21,6 +21,7 @@ import java.io.File;
 
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -31,7 +32,7 @@ public class TgzFormatExporterTest {
 
 	public void __createsATgzThenCreatesTheBucketObject() {
 		CreatesBucketTgz createsBucketTgz = CreatesBucketTgz
-				.create(createDirectory());
+				.create(new LocalFileSystemPaths(createDirectory()));
 		BucketFileCreator bucketFileCreator = BucketFileCreator.createForTgz();
 
 		TgzFormatExporter toTgz = new TgzFormatExporter(createsBucketTgz,

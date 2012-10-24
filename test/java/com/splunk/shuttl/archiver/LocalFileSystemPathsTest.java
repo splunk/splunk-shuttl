@@ -24,14 +24,19 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
+
 @Test(groups = { "fast-unit" })
 public class LocalFileSystemPathsTest {
 
 	private LocalFileSystemPaths localFileSystemPaths;
 	private String testDirectoryPath;
+	private Bucket bucket;
 
 	@BeforeMethod
 	public void setUp() {
+		bucket = TUtilsBucket.createBucket();
 		testDirectoryPath = createFilePath().getAbsolutePath();
 		localFileSystemPaths = new LocalFileSystemPaths(testDirectoryPath);
 		removeArchiverDirectory();
@@ -58,47 +63,77 @@ public class LocalFileSystemPathsTest {
 		assertFalse(new File(path).exists());
 	}
 
-	public void getSafeLocation_setUp_dirExistsInsideArchiverDirectory() {
+	public void getSafeLocation__dirExistsInsideArchiverDirectory() {
 		File safeDir = localFileSystemPaths.getSafeDirectory();
-		assertExistsInsideArchiverDirectory(safeDir);
+		assertExistsInParentArchiverDirectory(safeDir);
 	}
 
-	private void assertExistsInsideArchiverDirectory(File failLocation) {
-		assertTrue(failLocation.exists());
-		assertParentIsArchiverDirectory(failLocation);
-	}
-
-	private void assertParentIsArchiverDirectory(File safeDir) {
+	private void assertExistsInParentArchiverDirectory(File dir) {
+		assertTrue(dir.exists());
 		assertEquals(localFileSystemPaths.getArchiverDirectory(),
-				safeDir.getParentFile());
+				dir.getParentFile());
 	}
 
 	public void getFailLocation_setUp_dirExistsInsideArchiverDirectory() {
 		File failLocation = localFileSystemPaths.getFailDirectory();
-		assertExistsInsideArchiverDirectory(failLocation);
+		assertExistsInParentArchiverDirectory(failLocation);
 	}
 
-	public void getArchiveLocksDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemPaths
-				.getArchiveLocksDirectory());
+	public void getArchiveLocksDirectory_bucket_uniquePerBucket() {
+		File locksDir = localFileSystemPaths.getArchiveLocksDirectory(bucket);
+		assertBucketUniquePathInsideArchiverDirectory(locksDir);
 	}
 
-	public void getCsvDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemPaths.getCsvDirectory());
+	private void assertBucketUniquePathInsideArchiverDirectory(File dir) {
+		assertTrue(dir.exists());
+		String separator = File.separator;
+		String bucketUniquePathInArchiverDir = bucket.getIndex() + separator
+				+ bucket.getName() + separator + bucket.getFormat();
+		String path = dir.getAbsolutePath();
+		assertTrue(path.endsWith(bucketUniquePathInArchiverDir));
+
+		assertTrue(path.contains(localFileSystemPaths.getArchiverDirectory()
+				.getAbsolutePath()));
 	}
 
-	public void getTgzDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemPaths.getTgzDirectory());
+	public void getExportDirectory_bucket_uniquePerBucket() {
+		assertBucketUniquePathInsideArchiverDirectory(localFileSystemPaths
+				.getExportDirectory(bucket));
 	}
 
-	public void getThawLocksDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemPaths
-				.getThawLocksDirectory());
+	public void getThawLocksDirectory_bucket_uniquePerBucket() {
+		assertBucketUniquePathInsideArchiverDirectory(localFileSystemPaths
+				.getThawLocksDirectory(bucket));
 	}
 
-	public void getThawTransferDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemPaths
-				.getThawTransfersDirectory());
+	public void getThawLocksDirectoryForAllBuckets__dirExistsInsideArchiverDirectory() {
+		assertExistsInParentArchiverDirectory(localFileSystemPaths
+				.getThawLocksDirectoryForAllBuckets());
+	}
+
+	public void getThawLocksDirectory_bucket_dirExistsInsideThawLocksDirectoryForAllBuckets() {
+		File thawLocksDirectory = localFileSystemPaths
+				.getThawLocksDirectory(bucket);
+		File thawLocksDirectoryForAllBuckets = localFileSystemPaths
+				.getThawLocksDirectoryForAllBuckets();
+
+		assertTrue(thawLocksDirectory.getAbsolutePath().contains(
+				thawLocksDirectoryForAllBuckets.getAbsolutePath()));
+	}
+
+	public void getThawTransfersDirectory_bucket_uniquePerBucket() {
+		assertBucketUniquePathInsideArchiverDirectory(localFileSystemPaths
+				.getThawTransfersDirectory(bucket));
+	}
+
+	public void getThawTransfersDirectory_bucket_dirExistsInsideThawTransfersDirectoryForAllBuckets() {
+		File thawTransfersDir = localFileSystemPaths
+				.getThawTransfersDirectory(bucket);
+		File thawTransfersDirForAllBuckets = localFileSystemPaths
+				.getThawTransfersDirectoryForAllBuckets();
+
+		assertTrue(thawTransfersDir.getAbsolutePath().contains(
+				thawTransfersDirForAllBuckets.getAbsolutePath()));
 	}
 
 	public void getArchiverDirectory_givenTildeWithoutRoot_resolvesTildeAsUserHome() {
@@ -118,9 +153,9 @@ public class LocalFileSystemPathsTest {
 				.getAbsolutePath());
 	}
 
-	public void getMetadataDirectory_setUp_dirExistsInsideArchiverDirectory() {
-		assertExistsInsideArchiverDirectory(localFileSystemPaths
-				.getMetadataDirectory());
+	public void getMetadataDirectory_bucket_uniquePerBucket() {
+		assertBucketUniquePathInsideArchiverDirectory(localFileSystemPaths
+				.getMetadataDirectory(bucket));
 	}
 
 	@Test(expectedExceptions = { ArchiverMBeanNotRegisteredException.class })

@@ -21,6 +21,7 @@ import java.io.File;
 
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -32,7 +33,7 @@ public class CreatesBucketTgzIntegrationTest {
 	public void _usingRealClasses_tgzBucketFileExists() {
 		CreatesBucketTgz createsBucketTgz = new CreatesBucketTgz(
 				ShellExecutor.getInstance(), new GetsBucketsExportFile(
-						createDirectory()));
+						new LocalFileSystemPaths(createDirectory())));
 
 		LocalBucket bucket = TUtilsBucket.createBucket();
 		File tgz = createsBucketTgz.createTgz(bucket);

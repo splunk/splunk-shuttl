@@ -19,6 +19,7 @@ import static java.util.Arrays.*;
 import java.io.File;
 import java.util.HashMap;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -78,8 +79,9 @@ public class CreatesBucketTgz {
 			throw new TgzBucketCreationFailedException();
 	}
 
-	public static CreatesBucketTgz create(File tgzDir) {
+	public static CreatesBucketTgz create(
+			LocalFileSystemPaths localFileSystemPaths) {
 		return new CreatesBucketTgz(ShellExecutor.getInstance(),
-				new GetsBucketsExportFile(tgzDir));
+				new GetsBucketsExportFile(localFileSystemPaths));
 	}
 }

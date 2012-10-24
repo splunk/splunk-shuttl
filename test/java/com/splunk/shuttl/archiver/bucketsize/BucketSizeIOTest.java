@@ -67,21 +67,16 @@ public class BucketSizeIOTest {
 		assertEquals(bucket.getSize() + "", firstLine);
 	}
 
-	public void getFileWithBucketSize_givenBucket_fileNameLivesInDirWIthBucketNameForUniquness() {
-		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
-		assertEquals(fileWithBucketSize.getParentFile().getName(), bucket.getName());
-	}
-
 	public void getFileWithBucketSize_givenBucket_fileNameIsPathResolversBucketSizeFileNameForOlderShuttlCompatibillity() {
 		File fileWithBucketSize = bucketSizeIO.getFileWithBucketSize(bucket);
 		assertEquals(fileWithBucketSize.getName(),
 				PathResolver.BUCKET_SIZE_FILE_NAME);
 	}
 
-	public void getFileWithBucketSize_givenLocalFileSystemPaths_isInMetadataDirectory() {
+	public void getFileWithBucketSize_givenLocalFileSystemPaths_isInMetadataDirectoryForBucket() {
 		File file = bucketSizeIO.getFileWithBucketSize(bucket);
 		assertTrue(file.getParentFile().getAbsolutePath()
-				.contains(localFileSystemPaths.getMetadataDirectory().getName()));
+				.contains(localFileSystemPaths.getMetadataDirectory(bucket).getName()));
 	}
 
 	public void readSizeFromRemoteFile_givenArchiveFileSystem_getsInputStreamToFileWithSize()

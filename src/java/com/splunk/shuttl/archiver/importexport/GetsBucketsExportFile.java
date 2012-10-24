@@ -16,6 +16,7 @@ package com.splunk.shuttl.archiver.importexport;
 
 import java.io.File;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -24,10 +25,10 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class GetsBucketsExportFile {
 
-	private final File dirForStoringExportFiles;
+	private final LocalFileSystemPaths localFileSystemPaths;
 
-	public GetsBucketsExportFile(File dirForStoringExportFiles) {
-		this.dirForStoringExportFiles = dirForStoringExportFiles;
+	public GetsBucketsExportFile(LocalFileSystemPaths localFileSystemPaths) {
+		this.localFileSystemPaths = localFileSystemPaths;
 	}
 
 	/**
@@ -38,9 +39,8 @@ public class GetsBucketsExportFile {
 	}
 
 	public File getExportFile(Bucket bucket, String extension) {
-		File indexDir = new File(dirForStoringExportFiles, bucket.getIndex());
-		indexDir.mkdirs();
-		File file = new File(indexDir, bucket.getName() + "." + extension);
+		File exportDir = localFileSystemPaths.getExportDirectory(bucket);
+		File file = new File(exportDir, bucket.getName() + "." + extension);
 		if (file.exists())
 			file.delete();
 		return file;
