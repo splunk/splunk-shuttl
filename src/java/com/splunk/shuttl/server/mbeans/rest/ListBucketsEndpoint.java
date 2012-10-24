@@ -34,7 +34,6 @@ import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
-import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
@@ -117,8 +116,7 @@ public class ListBucketsEndpoint {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
 		LocalFileSystemPaths localFileSystemPaths = LocalFileSystemPaths.create();
-		BucketSizeIO bucketSizeIO = new BucketSizeIO();
 		return new BucketSizeResolver(ArchiveBucketSize.create(new PathResolver(
-				config), archiveFileSystem, bucketSizeIO, localFileSystemPaths));
+				config), archiveFileSystem, localFileSystemPaths));
 	}
 }

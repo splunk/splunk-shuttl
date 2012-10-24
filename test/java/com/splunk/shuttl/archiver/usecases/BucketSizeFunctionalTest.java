@@ -33,7 +33,6 @@ import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
-import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
@@ -77,7 +76,7 @@ public class BucketSizeFunctionalTest {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
 		archiveBucketSize = ArchiveBucketSize.create(pathResolver,
-				archiveFileSystem, new BucketSizeIO(), localFileSystemPaths);
+				archiveFileSystem, localFileSystemPaths);
 	}
 
 	@AfterMethod

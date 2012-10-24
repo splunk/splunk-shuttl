@@ -58,7 +58,7 @@ public class ArchiveBucketsSizeFunctionalTest {
 				archiverData.getAbsolutePath());
 		PathResolver pathResolver = new PathResolver(config);
 		archiveBucketSize = ArchiveBucketSize.create(pathResolver,
-				archiveFileSystem, new BucketSizeIO(), localFileSystemPaths);
+				archiveFileSystem, localFileSystemPaths);
 		listsBucketsFiltered = ListsBucketsFilteredFactory.create(config);
 		bucketArchiver = BucketArchiverFactory
 				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,

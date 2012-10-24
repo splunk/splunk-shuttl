@@ -44,19 +44,22 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class ArchiveBucketSize {
 
+	/**
+	 * For compatibility with older Shuttl versions.
+	 */
+	public static final String FILE_NAME = PathResolver.BUCKET_SIZE_FILE_NAME;
+
 	private final Logger logger = Logger.getLogger(ArchiveBucketSize.class);
 
 	private final PathResolver pathResolver;
-	private final BucketSizeIO bucketSizeIO;
 	private final ArchiveFileSystem archiveFileSystem;
 	private final FlatFileStorage flatFileStorage;
 	private final LocalFileSystemPaths localFileSystemPaths;
 
 	public ArchiveBucketSize(PathResolver pathResolver,
-			BucketSizeIO bucketSizeIO, ArchiveFileSystem archiveFileSystem,
-			FlatFileStorage flatFileStorage, LocalFileSystemPaths localFileSystemPaths) {
+			ArchiveFileSystem archiveFileSystem, FlatFileStorage flatFileStorage,
+			LocalFileSystemPaths localFileSystemPaths) {
 		this.pathResolver = pathResolver;
-		this.bucketSizeIO = bucketSizeIO;
 		this.archiveFileSystem = archiveFileSystem;
 		this.flatFileStorage = flatFileStorage;
 		this.localFileSystemPaths = localFileSystemPaths;
@@ -67,8 +70,7 @@ public class ArchiveBucketSize {
 	 *         if the archiveSize is not persisted locally nor remotely.
 	 */
 	public Long getSize(Bucket bucket) {
-		File metadataFile = flatFileStorage.getFlatFile(bucket,
-				bucketSizeIO.getSizeMetadataFileName());
+		File metadataFile = flatFileStorage.getFlatFile(bucket, FILE_NAME);
 		Long size;
 		try {
 			getRemoteFileIfNeeded(bucket, metadataFile);
@@ -115,10 +117,8 @@ public class ArchiveBucketSize {
 	 * @return a transaction for putting bucket size on the archiveFileSystem.
 	 */
 	public Transaction getBucketSizeTransaction(Bucket bucket) {
-		flatFileStorage.writeFlatFile(bucket,
-				bucketSizeIO.getSizeMetadataFileName(), bucket.getSize());
-		File fileWithBucketSize = flatFileStorage.getFlatFile(bucket,
-				bucketSizeIO.getSizeMetadataFileName());
+		flatFileStorage.writeFlatFile(bucket, FILE_NAME, bucket.getSize());
+		File fileWithBucketSize = flatFileStorage.getFlatFile(bucket, FILE_NAME);
 		String temp = pathResolver.resolveTempPathForBucketMetadata(bucket,
 				fileWithBucketSize);
 		String bucketSizeFilePath = pathResolver.resolvePathForBucketMetadata(
@@ -133,9 +133,16 @@ public class ArchiveBucketSize {
 	 * @param localFileSystemPaths
 	 */
 	public static ArchiveBucketSize create(PathResolver pathResolver,
-			ArchiveFileSystem archiveFileSystem, BucketSizeIO bucketSizeIO,
+			ArchiveFileSystem archiveFileSystem,
 			LocalFileSystemPaths localFileSystemPaths) {
-		return new ArchiveBucketSize(pathResolver, bucketSizeIO, archiveFileSystem,
+		return new ArchiveBucketSize(pathResolver, archiveFileSystem,
 				new FlatFileStorage(localFileSystemPaths), localFileSystemPaths);
+	}
+
+	/**
+	 * @return file name of the metadata file with bucket size.
+	 */
+	public String getSizeMetadataFileName() {
+		return FILE_NAME;
 	}
 }

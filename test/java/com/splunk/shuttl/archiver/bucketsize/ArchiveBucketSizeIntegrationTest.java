@@ -38,7 +38,6 @@ import com.splunk.shuttl.testutil.TUtilsFunctional;
 public class ArchiveBucketSizeIntegrationTest {
 
 	private ArchiveFileSystem localFileSystem;
-	private BucketSizeIO bucketSizeIO;
 	private PathResolver pathResolver;
 	private ArchiveBucketSize archiveBucketSize;
 	private RemoteBucket remoteBucket;
@@ -57,23 +56,20 @@ public class ArchiveBucketSizeIntegrationTest {
 		pathResolver = new PathResolver(config);
 		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
 		flatFileStorage = new FlatFileStorage(localFileSystemPaths);
-		bucketSizeIO = new BucketSizeIO();
-		archiveBucketSize = new ArchiveBucketSize(pathResolver, bucketSizeIO,
-				localFileSystem, flatFileStorage, localFileSystemPaths);
+		archiveBucketSize = new ArchiveBucketSize(pathResolver, localFileSystem,
+				flatFileStorage, localFileSystemPaths);
 
 		remoteBucket = TUtilsBucket.createRemoteBucket();
 		expectedSize = 123L;
 
 		String metadataPath = pathResolver.resolvePathForBucketMetadata(
 				remoteBucket,
-				flatFileStorage.getFlatFile(remoteBucket,
-						bucketSizeIO.getSizeMetadataFileName()));
+				flatFileStorage.getFlatFile(remoteBucket, ArchiveBucketSize.FILE_NAME));
 		remoteMetadata = new File(metadataPath);
 
 		File metadataDirectory = localFileSystemPaths
 				.getMetadataDirectory(remoteBucket);
-		localMetadata = new File(metadataDirectory,
-				bucketSizeIO.getSizeMetadataFileName());
+		localMetadata = new File(metadataDirectory, ArchiveBucketSize.FILE_NAME);
 
 		FileUtils.deleteQuietly(remoteMetadata);
 		FileUtils.deleteQuietly(localMetadata);

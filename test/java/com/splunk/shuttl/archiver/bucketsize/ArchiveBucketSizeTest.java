@@ -35,17 +35,15 @@ public class ArchiveBucketSizeTest {
 	private ArchiveBucketSize archiveBucketSize;
 	private PathResolver pathResolver;
 	private ArchiveFileSystem archiveFileSystem;
-	private BucketSizeIO bucketSizeIO;
 	private FlatFileStorage flatFileStorage;
 
 	@BeforeMethod
 	public void setUp() {
 		pathResolver = mock(PathResolver.class);
 		archiveFileSystem = mock(ArchiveFileSystem.class);
-		bucketSizeIO = mock(BucketSizeIO.class);
 		flatFileStorage = mock(FlatFileStorage.class);
-		archiveBucketSize = new ArchiveBucketSize(pathResolver, bucketSizeIO,
-				archiveFileSystem, flatFileStorage, null);
+		archiveBucketSize = new ArchiveBucketSize(pathResolver, archiveFileSystem,
+				flatFileStorage, null);
 	}
 
 	public void getBucketSizeTransaction_givenBucket_createsWithPathResolverPaths() {
@@ -53,8 +51,7 @@ public class ArchiveBucketSizeTest {
 		File src = mock(File.class);
 		String temp = "/temp/path";
 		String dst = "/dst/path";
-		String fileName = "fileName";
-		when(bucketSizeIO.getSizeMetadataFileName()).thenReturn(fileName);
+		String fileName = ArchiveBucketSize.FILE_NAME;
 		when(flatFileStorage.getFlatFile(bucket, fileName)).thenReturn(src);
 		when(pathResolver.resolveTempPathForBucketMetadata(bucket, src))
 				.thenReturn(temp);

@@ -16,7 +16,6 @@ package com.splunk.shuttl.archiver.archive;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
-import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
@@ -67,9 +66,8 @@ public class BucketArchiverFactory {
 		BucketToCsvFileExporter bucketToCsvFileExporter = BucketToCsvFileExporter
 				.create(localFileSystemPaths);
 		PathResolver pathResolver = new PathResolver(config);
-		BucketSizeIO bucketSizeIO = new BucketSizeIO();
 		ArchiveBucketSize archiveBucketSize = ArchiveBucketSize.create(
-				pathResolver, archiveFileSystem, bucketSizeIO, localFileSystemPaths);
+				pathResolver, archiveFileSystem, localFileSystemPaths);
 
 		TgzFormatExporter tgzFormatExporter = TgzFormatExporter
 				.create(CreatesBucketTgz.create(localFileSystemPaths));

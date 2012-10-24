@@ -30,7 +30,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 
 public class FlatFileStorage {
 
-	private static final Logger logger = Logger.getLogger(BucketSizeIO.class);
+	private static final Logger logger = Logger.getLogger(FlatFileStorage.class);
 	private LocalFileSystemPaths localFileSystemPaths;
 
 	public FlatFileStorage(LocalFileSystemPaths localFileSystemPaths) {
