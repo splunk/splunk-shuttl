@@ -55,10 +55,10 @@ public class FlatFileStorageTest {
 	}
 
 	public void writeFlatFile_bucketFileNameAndData_writesDataToFlatFileIdentifiedToBucketAndFileName() {
-		Long data = 123L;
+		String data = "data";
 		flatFileStorage.writeFlatFile(bucket, fileName, data);
-		Long actualData = flatFileStorage.readFlatFile(flatFileStorage.getFlatFile(
-				bucket, fileName));
+		String actualData = flatFileStorage.readFlatFile(flatFileStorage
+				.getFlatFile(bucket, fileName));
 		assertEquals(data, actualData);
 	}
 

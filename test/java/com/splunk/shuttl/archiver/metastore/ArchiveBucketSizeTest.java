@@ -48,15 +48,16 @@ public class ArchiveBucketSizeTest {
 	public void persistBucketSize_givenBucket_putsBucketWithMetadataStore() {
 		archiveBucketSize.persistBucketSize(bucket);
 		verify(metadataStore).put(bucket,
-				archiveBucketSize.getSizeMetadataFileName(), bucket.getSize());
+				archiveBucketSize.getSizeMetadataFileName(), "" + bucket.getSize());
 	}
 
 	public void readBucketSize_givenBucket_sizeFromMetadataStore() {
-		Long data = 123L;
+		String data = "123";
+		Long longData = 123L;
 		when(
 				metadataStore.read(bucket, archiveBucketSize.getSizeMetadataFileName()))
 				.thenReturn(data);
-		assertEquals(data, archiveBucketSize.readBucketSize(bucket));
+		assertEquals(longData, archiveBucketSize.readBucketSize(bucket));
 	}
 
 	public void readBucketSize_metadataStoreException_null() {

@@ -47,7 +47,7 @@ public class MetadataStoreReadIntegrationTest {
 	private File remoteMetadata;
 	private LocalFileSystemPaths localFileSystemPaths;
 	private File localMetadata;
-	private Long expectedSize;
+	private String expectedData;
 	private MetadataStore metadataStore;
 	private String fileName;
 
@@ -64,7 +64,7 @@ public class MetadataStoreReadIntegrationTest {
 				localFileSystem, new TransactionExecuter(), localFileSystemPaths);
 
 		remoteBucket = TUtilsBucket.createRemoteBucket();
-		expectedSize = 123L;
+		expectedData = "data";
 
 		fileName = "FileNameOfMetadataFile.file";
 		localMetadata = flatFileStorage.getFlatFile(remoteBucket, fileName);
@@ -90,25 +90,25 @@ public class MetadataStoreReadIntegrationTest {
 	}
 
 	public void readBucketSize_sizeMetadataExistsRemotely_readsSize() {
-		flatFileStorage.writeFlatFile(remoteMetadata, expectedSize);
+		flatFileStorage.writeFlatFile(remoteMetadata, expectedData);
 		assertTrue(remoteMetadata.exists());
 		assertFalse(localMetadata.exists());
 
-		assertEquals(expectedSize, metadataStore.read(remoteBucket, fileName));
+		assertEquals(expectedData, metadataStore.read(remoteBucket, fileName));
 	}
 
 	public void readBucketSize_sizeMetadataExistsLocally_readsSize()
 			throws IOException {
-		flatFileStorage.writeFlatFile(localMetadata, expectedSize);
+		flatFileStorage.writeFlatFile(localMetadata, expectedData);
 		assertTrue(localMetadata.exists());
 		assertNotNull(flatFileStorage.readFlatFile(localMetadata));
 
-		assertEquals(expectedSize, metadataStore.read(remoteBucket, fileName));
+		assertEquals(expectedData, metadataStore.read(remoteBucket, fileName));
 	}
 
 	public void readBucketSize_localExistingMetadataDoesNotContainSize_getsSize()
 			throws IOException {
-		flatFileStorage.writeFlatFile(remoteMetadata, expectedSize);
+		flatFileStorage.writeFlatFile(remoteMetadata, expectedData);
 		assertTrue(remoteMetadata.exists());
 		assertTrue(localMetadata.createNewFile());
 		assertTrue(localMetadata.exists());
@@ -118,7 +118,7 @@ public class MetadataStoreReadIntegrationTest {
 		} catch (FlatFileReadException e) {
 		}
 
-		assertEquals(expectedSize, metadataStore.read(remoteBucket, fileName));
+		assertEquals(expectedData, metadataStore.read(remoteBucket, fileName));
 	}
 
 	@Test(expectedExceptions = { CouldNotReadMetadataException.class })

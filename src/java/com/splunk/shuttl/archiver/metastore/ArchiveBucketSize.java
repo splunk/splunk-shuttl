@@ -49,7 +49,8 @@ public class ArchiveBucketSize {
 	 */
 	public Long readBucketSize(Bucket bucket) {
 		try {
-			return metadataStore.read(bucket, getSizeMetadataFileName());
+			return Long.parseLong(metadataStore.read(bucket,
+					getSizeMetadataFileName()));
 		} catch (CouldNotReadMetadataException e) {
 			return null;
 		}
@@ -67,7 +68,7 @@ public class ArchiveBucketSize {
 	 *          to persist bucket size for.
 	 */
 	public void persistBucketSize(Bucket bucket) {
-		metadataStore.put(bucket, getSizeMetadataFileName(), bucket.getSize());
+		metadataStore.put(bucket, getSizeMetadataFileName(), "" + bucket.getSize());
 	}
 
 	/**

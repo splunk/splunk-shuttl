@@ -65,7 +65,7 @@ public class MetadataStoreTest {
 		when(pathResolver.resolvePathForBucketMetadata(bucket, flatFile))
 				.thenReturn(flatFileRealPath);
 
-		metadataStore.put(bucket, filename, 123L);
+		metadataStore.put(bucket, filename, "data");
 
 		verify(transactionExecuter).execute(
 				eq(PutFileTransaction.create(archiveFileSystem,

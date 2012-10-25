@@ -60,7 +60,7 @@ public class MetadataStore {
 	/**
 	 * Put metadata for a bucket with a filename as identifier.
 	 */
-	public void put(Bucket bucket, String fileName, Long data) {
+	public void put(Bucket bucket, String fileName, String data) {
 		try {
 			transactionExecuter.execute(putBucketSizeTransaction(bucket, fileName,
 					data));
@@ -73,8 +73,8 @@ public class MetadataStore {
 	}
 
 	private Transaction putBucketSizeTransaction(Bucket bucket, String fileName,
-			Long data) {
-		flatFileStorage.writeFlatFile(bucket, fileName, bucket.getSize());
+			String data) {
+		flatFileStorage.writeFlatFile(bucket, fileName, data);
 		File fileWithBucketSize = flatFileStorage.getFlatFile(bucket, fileName);
 		String temp = pathResolver.resolveTempPathForBucketMetadata(bucket,
 				fileWithBucketSize);
@@ -88,11 +88,11 @@ public class MetadataStore {
 	/**
 	 * Read metadata stored with bucket and filename identifiers.
 	 */
-	public Long read(Bucket bucket, String fileName) {
+	public String read(Bucket bucket, String fileName) {
 		File metadataFile = flatFileStorage.getFlatFile(bucket, fileName);
 		getRemoteFileIfNeeded(bucket, metadataFile);
 
-		Long data = readLocalMetadataFile(metadataFile);
+		String data = readLocalMetadataFile(metadataFile);
 		if (data == null)
 			throw new CouldNotReadMetadataException();
 		else
@@ -106,7 +106,7 @@ public class MetadataStore {
 		}
 	}
 
-	private Long readLocalMetadataFile(File metadata) {
+	private String readLocalMetadataFile(File metadata) {
 		try {
 			return flatFileStorage.readFlatFile(metadata);
 		} catch (FlatFileReadException e) {

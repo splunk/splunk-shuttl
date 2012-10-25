@@ -44,7 +44,7 @@ public class FlatFileStorage {
 	/**
 	 * Writes data to a file identified by a bucket and an extension.
 	 */
-	public void writeFlatFile(Bucket bucket, String fileName, Long data) {
+	public void writeFlatFile(Bucket bucket, String fileName, String data) {
 		File file = getFlatFile(bucket, fileName);
 		writeFlatFile(file, data);
 	}
@@ -53,7 +53,7 @@ public class FlatFileStorage {
 	 * Writes data to an existing file, that can be read by the
 	 * {@link FlatFileStorage} class.
 	 */
-	void writeFlatFile(File file, Long data) {
+	void writeFlatFile(File file, String data) {
 		String content = data + "";
 		try {
 			file.getParentFile().mkdirs();
@@ -74,9 +74,9 @@ public class FlatFileStorage {
 	/**
 	 * @return first line of data read from the file.
 	 */
-	public Long readFlatFile(File file) {
+	public String readFlatFile(File file) {
 		try {
-			return Long.parseLong(getFirstLineFromFile(file));
+			return getFirstLineFromFile(file);
 		} catch (Exception e) {
 			throw new FlatFileReadException(e);
 		}
