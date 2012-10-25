@@ -126,6 +126,7 @@ public class ArchiverEndToEndTest {
 
 		try {
 			thawDirectoryLocation = splunkSettings.getThawLocation(thawIndex);
+			thawDirectoryLocation.mkdirs();
 		} catch (IllegalIndexException e) {
 			TUtilsTestNG.failForException("IllegalIndexException in test", e);
 		}
@@ -265,12 +266,16 @@ public class ArchiverEndToEndTest {
 		FileUtils.deleteQuietly(tempDirectory);
 		FileSystem hadoopFileSystem = TUtilsFunctional.getHadoopFileSystem(
 				hadoopHost, hadoopPort);
+		cleanThawDirectory();
+		deleteArchivingTmpPath(hadoopFileSystem);
+		deleteArchivingRoot(hadoopFileSystem);
+	}
+
+	private void cleanThawDirectory() {
 		File[] files = thawDirectoryLocation.listFiles();
 		if (files != null)
 			for (File dir : files)
 				FileUtils.deleteQuietly(dir);
-		deleteArchivingTmpPath(hadoopFileSystem);
-		deleteArchivingRoot(hadoopFileSystem);
 	}
 
 	private void deleteArchivingTmpPath(FileSystem hadoopFileSystem) {
