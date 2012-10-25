@@ -80,6 +80,7 @@ public class MetadataStore {
 				fileWithBucketSize);
 		String bucketSizeFilePath = pathResolver.resolvePathForBucketMetadata(
 				bucket, fileWithBucketSize);
+
 		return PutFileTransaction.create(archiveFileSystem,
 				fileWithBucketSize.getAbsolutePath(), temp, bucketSizeFilePath);
 	}
@@ -89,11 +90,7 @@ public class MetadataStore {
 	 */
 	public Long read(Bucket bucket, String fileName) {
 		File metadataFile = flatFileStorage.getFlatFile(bucket, fileName);
-		try {
-			getRemoteFileIfNeeded(bucket, metadataFile);
-		} catch (TransactionException e) {
-			logWarning(bucket, metadataFile, e);
-		}
+		getRemoteFileIfNeeded(bucket, metadataFile);
 
 		Long data = readLocalMetadataFile(metadataFile);
 		if (data == null)
@@ -109,13 +106,6 @@ public class MetadataStore {
 		}
 	}
 
-	private void logWarning(Bucket bucket, File metadataFile,
-			TransactionException e) {
-		logger.warn(warn("Tried getting the remote metadata: " + metadataFile, e,
-				"Will return null instead of the real metadata", "file", metadataFile,
-				"bucket", bucket));
-	}
-
 	private Long readLocalMetadataFile(File metadata) {
 		try {
 			return flatFileStorage.readFlatFile(metadata);
@@ -129,10 +119,23 @@ public class MetadataStore {
 				bucket, metadataFile);
 		File metadataTransfersDir = localFileSystemPaths
 				.getMetadataTransfersDirectory(bucket);
+
 		Transaction getBucketSizeTransaction = GetFileTransaction.create(
 				archiveFileSystem, remotePathForMetadata,
 				metadataTransfersDir.getAbsolutePath(), metadataFile.getAbsolutePath());
-		transactionExecuter.execute(getBucketSizeTransaction);
+
+		executeTransaction(bucket, metadataFile, getBucketSizeTransaction);
+	}
+
+	private void executeTransaction(Bucket bucket, File metadataFile,
+			Transaction getBucketSizeTransaction) {
+		try {
+			transactionExecuter.execute(getBucketSizeTransaction);
+		} catch (TransactionException e) {
+			logger.warn(warn("Tried getting the remote metadata: " + metadataFile, e,
+					"Will return null instead of the real metadata", "file",
+					metadataFile, "bucket", bucket));
+		}
 	}
 
 	public static class CouldNotReadMetadataException extends RuntimeException {

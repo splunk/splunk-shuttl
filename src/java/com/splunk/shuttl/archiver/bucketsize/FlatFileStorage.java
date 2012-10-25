@@ -38,23 +38,7 @@ public class FlatFileStorage {
 	 * @return a {@link File} that's unique for the bucket and its filename.
 	 */
 	public File getFlatFile(Bucket bucket, String fileName) {
-		try {
-			return createFile(bucket, fileName);
-		} catch (IOException e) {
-			logIOExceptionForCreatingFile(bucket, e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	private File createFile(Bucket bucket, String fileName) throws IOException {
-		File file = new File(localFileSystemPaths.getMetadataDirectory(bucket),
-				fileName);
-		return file;
-	}
-
-	private void logIOExceptionForCreatingFile(Bucket bucket, IOException e) {
-		logger.debug(did("Tried creating temp file for BucketSizeFile.", e,
-				"To create temp file.", "bucket", bucket, "exception", e));
+		return new File(localFileSystemPaths.getMetadataDirectory(bucket), fileName);
 	}
 
 	/**
@@ -69,7 +53,7 @@ public class FlatFileStorage {
 	 * Writes data to an existing file, that can be read by the
 	 * {@link FlatFileStorage} class.
 	 */
-	public void writeFlatFile(File file, Long data) {
+	void writeFlatFile(File file, Long data) {
 		String content = data + "";
 		try {
 			file.getParentFile().mkdirs();
@@ -98,13 +82,8 @@ public class FlatFileStorage {
 		}
 	}
 
-	private String getFirstLineFromFile(File file) {
-		try {
-			return FileUtils.readLines(file).get(0);
-		} catch (IOException e) {
-			throw new RuntimeException(e); // TODO: Test this, so it's documented
-																			// that this is expected behaviour.
-		}
+	private String getFirstLineFromFile(File file) throws IOException {
+		return FileUtils.readLines(file).get(0);
 	}
 
 	public static class FlatFileReadException extends RuntimeException {
