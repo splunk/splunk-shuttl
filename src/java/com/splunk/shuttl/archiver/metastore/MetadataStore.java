@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.bucketsize;
+package com.splunk.shuttl.archiver.metastore;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
@@ -24,13 +24,13 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.FailedToArchiveBucketException;
 import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.bucketsize.FlatFileStorage.FlatFileReadException;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.filesystem.transaction.file.GetFileTransaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.file.PutFileTransaction;
+import com.splunk.shuttl.archiver.metastore.FlatFileStorage.FlatFileReadException;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**

@@ -17,13 +17,13 @@ package com.splunk.shuttl.archiver.thaw;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.importexport.BucketImportController;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 
 /**

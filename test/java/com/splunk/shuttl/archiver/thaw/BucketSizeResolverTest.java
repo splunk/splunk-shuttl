@@ -20,7 +20,7 @@ import static org.testng.AssertJUnit.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 

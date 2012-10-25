@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.bucketsize;
+package com.splunk.shuttl.archiver.metastore;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
@@ -23,7 +23,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
-import com.splunk.shuttl.archiver.bucketsize.FlatFileStorage.FlatFileReadException;
+import com.splunk.shuttl.archiver.metastore.FlatFileStorage.FlatFileReadException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 

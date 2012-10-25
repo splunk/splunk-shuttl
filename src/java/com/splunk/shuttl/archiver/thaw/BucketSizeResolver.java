@@ -14,7 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**

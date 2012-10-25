@@ -32,11 +32,11 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -99,7 +99,8 @@ public class BucketSizeFunctionalTest {
 
 		assertEquals(1, listBucketsInIndex.size());
 		Bucket bucketInArchive = listBucketsInIndex.get(0);
-		assertEquals(bucketSize, (long) archiveBucketSize.readBucketSize(bucketInArchive));
+		assertEquals(bucketSize,
+				(long) archiveBucketSize.readBucketSize(bucketInArchive));
 	}
 
 	public void BucketSize_bucketRoundTrip_bucketGetSizeShouldBeTheSameBeforeArchiveAndAfterThaw() {

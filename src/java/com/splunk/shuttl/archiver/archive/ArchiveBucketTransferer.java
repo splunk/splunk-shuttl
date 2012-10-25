@@ -22,12 +22,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.filesystem.transaction.bucket.PutBucketTransaction;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**

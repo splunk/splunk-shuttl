@@ -15,7 +15,6 @@
 package com.splunk.shuttl.archiver.archive;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
@@ -24,6 +23,7 @@ import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 
 /**
  * Construction code for creating BucketArchivers that archives in different
