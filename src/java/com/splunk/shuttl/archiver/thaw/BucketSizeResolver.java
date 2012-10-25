@@ -37,7 +37,7 @@ public class BucketSizeResolver {
 	 *          that needs size to be resolved from the archive.
 	 */
 	public Bucket resolveBucketSize(Bucket bucket) {
-		Long size = archiveBucketSize.getSize(bucket);
+		Long size = archiveBucketSize.readBucketSize(bucket);
 		return new Bucket(bucket.getPath(), bucket.getIndex(), bucket.getName(),
 				bucket.getFormat(), size);
 	}

@@ -18,11 +18,8 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
@@ -91,23 +88,31 @@ public class FlatFileStorage {
 	}
 
 	/**
-	 * @return data read from the inputstream to the flat file.
+	 * @return first line of data read from the file.
 	 */
-	public Long readFlatFile(InputStream inputStream) {
-		List<String> lines = getLinesFromInputStream(inputStream);
-		if (lines.isEmpty())
-			return null;
-		else
-			return Long.parseLong(lines.get(0));
+	public Long readFlatFile(File file) {
+		try {
+			return Long.parseLong(getFirstLineFromFile(file));
+		} catch (Exception e) {
+			throw new FlatFileReadException(e);
+		}
 	}
 
-	private List<String> getLinesFromInputStream(InputStream inputStream) {
+	private String getFirstLineFromFile(File file) {
 		try {
-			return IOUtils.readLines(inputStream);
+			return FileUtils.readLines(file).get(0);
 		} catch (IOException e) {
 			throw new RuntimeException(e); // TODO: Test this, so it's documented
 																			// that this is expected behaviour.
 		}
 	}
 
+	public static class FlatFileReadException extends RuntimeException {
+
+		private static final long serialVersionUID = 0L;
+
+		public FlatFileReadException(Exception e) {
+			super(e);
+		}
+	}
 }

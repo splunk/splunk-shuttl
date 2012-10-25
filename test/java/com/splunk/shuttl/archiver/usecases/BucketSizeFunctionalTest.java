@@ -99,7 +99,7 @@ public class BucketSizeFunctionalTest {
 
 		assertEquals(1, listBucketsInIndex.size());
 		Bucket bucketInArchive = listBucketsInIndex.get(0);
-		assertEquals(bucketSize, (long) archiveBucketSize.getSize(bucketInArchive));
+		assertEquals(bucketSize, (long) archiveBucketSize.readBucketSize(bucketInArchive));
 	}
 
 	public void BucketSize_bucketRoundTrip_bucketGetSizeShouldBeTheSameBeforeArchiveAndAfterThaw() {

@@ -83,7 +83,7 @@ public class ArchiveBucketsSizeFunctionalTest {
 		Bucket remoteBucket = buckets.get(0);
 		assertRealAndRemoteBucketsAreEqual(realBucket, remoteBucket);
 
-		long remoteBucketSize = archiveBucketSize.getSize(remoteBucket);
+		long remoteBucketSize = archiveBucketSize.readBucketSize(remoteBucket);
 		assertEquals(realBucketSize, remoteBucketSize);
 	}
 

@@ -14,24 +14,11 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.bucketsize;
 
-import static com.splunk.shuttl.archiver.LogFormatter.*;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
-
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
-import com.splunk.shuttl.archiver.archive.FailedToArchiveBucketException;
 import com.splunk.shuttl.archiver.archive.PathResolver;
+import com.splunk.shuttl.archiver.bucketsize.MetadataStore.CouldNotReadMetadataException;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
-import com.splunk.shuttl.archiver.filesystem.transaction.TransactionException;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
-import com.splunk.shuttl.archiver.filesystem.transaction.file.GetFileTransaction;
-import com.splunk.shuttl.archiver.filesystem.transaction.file.PutFileTransaction;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -50,85 +37,22 @@ public class ArchiveBucketSize {
 	 */
 	public static final String FILE_NAME = PathResolver.BUCKET_SIZE_FILE_NAME;
 
-	private final Logger logger = Logger.getLogger(ArchiveBucketSize.class);
+	private final MetadataStore metadataStore;
 
-	private final PathResolver pathResolver;
-	private final ArchiveFileSystem archiveFileSystem;
-	private final FlatFileStorage flatFileStorage;
-	private final LocalFileSystemPaths localFileSystemPaths;
-	private final TransactionExecuter transactionExecuter;
-
-	public ArchiveBucketSize(PathResolver pathResolver,
-			ArchiveFileSystem archiveFileSystem, FlatFileStorage flatFileStorage,
-			LocalFileSystemPaths localFileSystemPaths,
-			TransactionExecuter transactionExecuter) {
-		this.pathResolver = pathResolver;
-		this.archiveFileSystem = archiveFileSystem;
-		this.flatFileStorage = flatFileStorage;
-		this.localFileSystemPaths = localFileSystemPaths;
-		this.transactionExecuter = transactionExecuter;
+	public ArchiveBucketSize(MetadataStore metadataStore) {
+		this.metadataStore = metadataStore;
 	}
 
 	/**
 	 * @return size of an archived bucket on the local file system. Returns null
 	 *         if the archiveSize is not persisted locally nor remotely.
 	 */
-	public Long getSize(Bucket bucket) {
-		File metadataFile = flatFileStorage.getFlatFile(bucket, FILE_NAME);
-		Long size;
+	public Long readBucketSize(Bucket bucket) {
 		try {
-			getRemoteFileIfNeeded(bucket, metadataFile);
-		} catch (TransactionException e) {
-			logger.warn(warn("Tried getting the remote metadata: " + metadataFile, e,
-					"Will return null instead of the real metadata", "file",
-					metadataFile, "bucket", bucket));
-		} finally {
-			size = readLocalMetadataFile(metadataFile);
-		}
-		return size == null ? null : size;
-	}
-
-	private void getRemoteFileIfNeeded(Bucket bucket, File metadataFile) {
-		if (!metadataFile.exists() || readLocalMetadataFile(metadataFile) == null) {
-			FileUtils.deleteQuietly(metadataFile);
-			getRemoteFile(bucket, metadataFile);
-		}
-	}
-
-	private Long readLocalMetadataFile(File metadataFile) {
-		try {
-			return flatFileStorage.readFlatFile(FileUtils
-					.openInputStream(metadataFile));
-		} catch (FileNotFoundException e) {
+			return metadataStore.read(bucket, getSizeMetadataFileName());
+		} catch (CouldNotReadMetadataException e) {
 			return null;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		}
-	}
-
-	private void getRemoteFile(Bucket bucket, File metadataFile) {
-		String remotePathForMetadata = pathResolver.resolvePathForBucketMetadata(
-				bucket, metadataFile);
-		File metadataTransfersDir = localFileSystemPaths
-				.getMetadataTransfersDirectory(bucket);
-		Transaction getBucketSizeTransaction = GetFileTransaction.create(
-				archiveFileSystem, remotePathForMetadata,
-				metadataTransfersDir.getAbsolutePath(), metadataFile.getAbsolutePath());
-		transactionExecuter.execute(getBucketSizeTransaction);
-	}
-
-	/**
-	 * @return a transaction for putting bucket size on the archiveFileSystem.
-	 */
-	private Transaction putBucketSizeTransaction(Bucket bucket) {
-		flatFileStorage.writeFlatFile(bucket, FILE_NAME, bucket.getSize());
-		File fileWithBucketSize = flatFileStorage.getFlatFile(bucket, FILE_NAME);
-		String temp = pathResolver.resolveTempPathForBucketMetadata(bucket,
-				fileWithBucketSize);
-		String bucketSizeFilePath = pathResolver.resolvePathForBucketMetadata(
-				bucket, fileWithBucketSize);
-		return PutFileTransaction.create(archiveFileSystem,
-				fileWithBucketSize.getAbsolutePath(), temp, bucketSizeFilePath);
 	}
 
 	/**
@@ -143,14 +67,7 @@ public class ArchiveBucketSize {
 	 *          to persist bucket size for.
 	 */
 	public void persistBucketSize(Bucket bucket) {
-		try {
-			transactionExecuter.execute(putBucketSizeTransaction(bucket));
-		} catch (TransactionException e) {
-			logger.error(did("Tried to transactionally transfer"
-					+ " the bucketSize metadata to the archive.", e,
-					"The transaction to complete.", "bucket", bucket));
-			throw new FailedToArchiveBucketException(e);
-		}
+		metadataStore.put(bucket, getSizeMetadataFileName(), bucket.getSize());
 	}
 
 	/**
@@ -161,8 +78,8 @@ public class ArchiveBucketSize {
 	public static ArchiveBucketSize create(PathResolver pathResolver,
 			ArchiveFileSystem archiveFileSystem,
 			LocalFileSystemPaths localFileSystemPaths) {
-		return new ArchiveBucketSize(pathResolver, archiveFileSystem,
-				new FlatFileStorage(localFileSystemPaths), localFileSystemPaths,
-				new TransactionExecuter());
+		return new ArchiveBucketSize(new MetadataStore(pathResolver,
+				new FlatFileStorage(localFileSystemPaths), archiveFileSystem,
+				new TransactionExecuter(), localFileSystemPaths));
 	}
 }

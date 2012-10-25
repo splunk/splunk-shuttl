@@ -44,7 +44,7 @@ public class BucketSizeResolverTest {
 
 	public void resolveBucketsSizes_givenBucketWithoutSize_createsBucketWithSize() {
 		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
-		when(archiveBucketSize.getSize(remoteBucket)).thenReturn(4L);
+		when(archiveBucketSize.readBucketSize(remoteBucket)).thenReturn(4L);
 
 		Bucket bucketWithSize = bucketSizeResolver.resolveBucketSize(remoteBucket);
 		assertEquals(4, (long) bucketWithSize.getSize());

@@ -45,11 +45,11 @@ public class ArchiveBucketSizeTest {
 		archiveFileSystem = mock(ArchiveFileSystem.class);
 		flatFileStorage = mock(FlatFileStorage.class);
 		transactionExecuter = mock(TransactionExecuter.class);
-		archiveBucketSize = new ArchiveBucketSize(pathResolver, archiveFileSystem,
-				flatFileStorage, null, transactionExecuter);
+		archiveBucketSize = new ArchiveBucketSize(new MetadataStore(pathResolver,
+				flatFileStorage, archiveFileSystem, transactionExecuter, null));
 	}
 
-	public void putBucketSizeTransaction_givenBucket_createsWithPathResolverPaths() {
+	public void persistBucketSize_givenBucket_createsWithPathResolverPaths() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		File src = mock(File.class);
 		String temp = "/temp/path";
@@ -67,7 +67,7 @@ public class ArchiveBucketSizeTest {
 						temp, dst)));
 	}
 
-	public void getSizeMetadataFileName__fileNameIsPathResolversBucketSizeFileNameForOlderShuttlCompatibillity() {
+	public void readBucketSizeMetadataFileName__fileNameIsPathResolversBucketSizeFileNameForOlderShuttlCompatibillity() {
 		assertEquals(archiveBucketSize.getSizeMetadataFileName(),
 				PathResolver.BUCKET_SIZE_FILE_NAME);
 	}

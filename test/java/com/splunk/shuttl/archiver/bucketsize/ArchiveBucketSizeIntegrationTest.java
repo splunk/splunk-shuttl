@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.PathResolver;
+import com.splunk.shuttl.archiver.bucketsize.FlatFileStorage.FlatFileReadException;
+import com.splunk.shuttl.archiver.bucketsize.MetadataStore.CouldNotReadMetadataException;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
@@ -47,6 +49,7 @@ public class ArchiveBucketSizeIntegrationTest {
 	private LocalFileSystemPaths localFileSystemPaths;
 	private File localMetadata;
 	private Long expectedSize;
+	private MetadataStore metadataStore;
 
 	@BeforeMethod
 	public void setUp() {
@@ -57,8 +60,9 @@ public class ArchiveBucketSizeIntegrationTest {
 		pathResolver = new PathResolver(config);
 		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
 		flatFileStorage = new FlatFileStorage(localFileSystemPaths);
-		archiveBucketSize = new ArchiveBucketSize(pathResolver, localFileSystem,
-				flatFileStorage, localFileSystemPaths, new TransactionExecuter());
+		metadataStore = new MetadataStore(pathResolver, flatFileStorage,
+				localFileSystem, new TransactionExecuter(), localFileSystemPaths);
+		archiveBucketSize = new ArchiveBucketSize(metadataStore);
 
 		remoteBucket = TUtilsBucket.createRemoteBucket();
 		expectedSize = 123L;
@@ -82,53 +86,59 @@ public class ArchiveBucketSizeIntegrationTest {
 		FileUtils.deleteQuietly(localMetadata);
 	}
 
-	public void getSize_sizeMetadataDoesNotExistLocallyNorRemotely_null() {
+	public void readBucketSize_sizeMetadataDoesNotExistLocallyNorRemotely_null() {
 		assertFalse(remoteMetadata.exists());
 		assertFalse(localMetadata.exists());
-		Long size = archiveBucketSize.getSize(remoteBucket);
+		Long size = archiveBucketSize.readBucketSize(remoteBucket);
 		assertNull(size);
 	}
 
-	public void getSize_sizeMetadataExistsRemotely_readsSize() {
+	public void readBucketSize_sizeMetadataExistsRemotely_readsSize() {
 		flatFileStorage.writeFlatFile(remoteMetadata, expectedSize);
 		assertTrue(remoteMetadata.exists());
 		assertFalse(localMetadata.exists());
 
-		Long size = archiveBucketSize.getSize(remoteBucket);
+		Long size = archiveBucketSize.readBucketSize(remoteBucket);
 		assertEquals(expectedSize, size);
 	}
 
-	public void getSize_sizeMetadataExistsLocally_readsSize() throws IOException {
+	public void readBucketSize_sizeMetadataExistsLocally_readsSize()
+			throws IOException {
 		flatFileStorage.writeFlatFile(localMetadata, expectedSize);
 		assertTrue(localMetadata.exists());
-		assertNotNull(flatFileStorage.readFlatFile(FileUtils
-				.openInputStream(localMetadata)));
+		assertNotNull(flatFileStorage.readFlatFile(localMetadata));
 
-		Long size = archiveBucketSize.getSize(remoteBucket);
+		Long size = archiveBucketSize.readBucketSize(remoteBucket);
 		assertEquals(expectedSize, size);
 	}
 
-	public void getSize_localExistingMetadataDoesNotContainSize_getsSize()
+	public void readBucketSize_localExistingMetadataDoesNotContainSize_getsSize()
 			throws IOException {
 		flatFileStorage.writeFlatFile(remoteMetadata, expectedSize);
 		assertTrue(localMetadata.createNewFile());
 		assertTrue(remoteMetadata.exists());
 		assertTrue(localMetadata.exists());
-		assertNull(flatFileStorage.readFlatFile(FileUtils
-				.openInputStream(localMetadata)));
+		try {
+			flatFileStorage.readFlatFile(localMetadata);
+			fail();
+		} catch (FlatFileReadException e) {
+		}
 
-		Long size = archiveBucketSize.getSize(remoteBucket);
+		Long size = archiveBucketSize.readBucketSize(remoteBucket);
 		assertEquals(expectedSize, size);
 	}
 
-	public void getSize_localMetaDoesNotContainDataAndRemoteDoesNotExist_null()
+	public void readBucketSize_localMetaDoesNotContainDataAndRemoteDoesNotExist_null()
 			throws IOException {
 		assertTrue(localMetadata.createNewFile());
 		assertFalse(remoteMetadata.exists());
 		assertTrue(localMetadata.exists());
-		assertNull(flatFileStorage.readFlatFile(FileUtils
-				.openInputStream(localMetadata)));
+		try {
+			metadataStore.read(remoteBucket, localMetadata.getName());
+			fail();
+		} catch (CouldNotReadMetadataException e) {
+		}
 
-		assertNull(archiveBucketSize.getSize(remoteBucket));
+		assertNull(archiveBucketSize.readBucketSize(remoteBucket));
 	}
 }
