@@ -18,15 +18,11 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
-import java.io.File;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
-import com.splunk.shuttl.archiver.filesystem.transaction.file.PutFileTransaction;
+import com.splunk.shuttl.archiver.bucketsize.MetadataStore.CouldNotReadMetadataException;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -34,41 +30,39 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 public class ArchiveBucketSizeTest {
 
 	private ArchiveBucketSize archiveBucketSize;
-	private PathResolver pathResolver;
-	private ArchiveFileSystem archiveFileSystem;
-	private FlatFileStorage flatFileStorage;
-	private TransactionExecuter transactionExecuter;
+	private MetadataStore metadataStore;
+	private Bucket bucket;
 
 	@BeforeMethod
 	public void setUp() {
-		pathResolver = mock(PathResolver.class);
-		archiveFileSystem = mock(ArchiveFileSystem.class);
-		flatFileStorage = mock(FlatFileStorage.class);
-		transactionExecuter = mock(TransactionExecuter.class);
-		archiveBucketSize = new ArchiveBucketSize(new MetadataStore(pathResolver,
-				flatFileStorage, archiveFileSystem, transactionExecuter, null));
-	}
-
-	public void persistBucketSize_givenBucket_createsWithPathResolverPaths() {
-		Bucket bucket = TUtilsBucket.createBucket();
-		File src = mock(File.class);
-		String temp = "/temp/path";
-		String dst = "/dst/path";
-		String fileName = ArchiveBucketSize.FILE_NAME;
-		when(flatFileStorage.getFlatFile(bucket, fileName)).thenReturn(src);
-		when(pathResolver.resolveTempPathForBucketMetadata(bucket, src))
-				.thenReturn(temp);
-		when(pathResolver.resolvePathForBucketMetadata(bucket, src))
-				.thenReturn(dst);
-
-		archiveBucketSize.persistBucketSize(bucket);
-		verify(transactionExecuter).execute(
-				eq(PutFileTransaction.create(archiveFileSystem, src.getAbsolutePath(),
-						temp, dst)));
+		metadataStore = mock(MetadataStore.class);
+		archiveBucketSize = new ArchiveBucketSize(metadataStore);
+		bucket = TUtilsBucket.createBucket();
 	}
 
 	public void readBucketSizeMetadataFileName__fileNameIsPathResolversBucketSizeFileNameForOlderShuttlCompatibillity() {
 		assertEquals(archiveBucketSize.getSizeMetadataFileName(),
 				PathResolver.BUCKET_SIZE_FILE_NAME);
 	}
+
+	public void persistBucketSize_givenBucket_putsBucketWithMetadataStore() {
+		archiveBucketSize.persistBucketSize(bucket);
+		verify(metadataStore).put(bucket,
+				archiveBucketSize.getSizeMetadataFileName(), bucket.getSize());
+	}
+
+	public void readBucketSize_givenBucket_sizeFromMetadataStore() {
+		Long data = 123L;
+		when(
+				metadataStore.read(bucket, archiveBucketSize.getSizeMetadataFileName()))
+				.thenReturn(data);
+		assertEquals(data, archiveBucketSize.readBucketSize(bucket));
+	}
+
+	public void readBucketSize_metadataStoreException_null() {
+		when(metadataStore.read(any(Bucket.class), anyString())).thenThrow(
+				new CouldNotReadMetadataException());
+		assertEquals(null, archiveBucketSize.readBucketSize(bucket));
+	}
+
 }
