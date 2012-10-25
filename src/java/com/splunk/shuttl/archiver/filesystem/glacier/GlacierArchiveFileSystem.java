@@ -45,16 +45,19 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 	private final GlacierClient glacierClient;
 	private final TgzFormatExporter tgzFormatExporter;
 	private final Logger logger;
-	private BucketDeleter bucketDeleter;
+	private final BucketDeleter bucketDeleter;
+	private final GlacierArchiveIdStore glacierArchiveIdStore;
 
 	public GlacierArchiveFileSystem(ArchiveFileSystem hadoop,
 			GlacierClient glacierClient, TgzFormatExporter tgzFormatExporter,
-			Logger logger, BucketDeleter bucketDeleter) {
+			Logger logger, BucketDeleter bucketDeleter,
+			GlacierArchiveIdStore glacierArchiveIdStore) {
 		this.hadoop = hadoop;
 		this.glacierClient = glacierClient;
 		this.tgzFormatExporter = tgzFormatExporter;
 		this.logger = logger;
 		this.bucketDeleter = bucketDeleter;
+		this.glacierArchiveIdStore = glacierArchiveIdStore;
 	}
 
 	private void putBucket(LocalBucket bucket, String temp, String dst)
@@ -81,11 +84,20 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 
 	private void uploadBucket(LocalBucket bucketToUpload, String dst) {
 		File[] bucketFiles = bucketToUpload.getDirectory().listFiles();
+		validateUpload(bucketToUpload, bucketFiles);
+
+		File bucketFile = bucketFiles[0];
+		uploadBucketToGlacier(dst, bucketFile);
+		persistArchiveId(bucketToUpload, dst);
+	}
+
+	private void validateUpload(LocalBucket bucketToUpload, File[] bucketFiles) {
 		if (bucketFiles.length != 1)
 			throw new GlacierArchivingException("Bucket has to be "
 					+ "represented with only one file. Bucket: " + bucketToUpload);
+	}
 
-		File bucketFile = bucketFiles[0];
+	private void uploadBucketToGlacier(String dst, File bucketFile) {
 		try {
 			glacierClient.upload(bucketFile, dst);
 		} catch (Exception e) {
@@ -94,9 +106,30 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 		}
 	}
 
+	private void persistArchiveId(LocalBucket bucketToUpload, String dst) {
+		String archiveId = glacierClient.getArchiveId(dst);
+		glacierArchiveIdStore.putArchiveId(bucketToUpload, archiveId);
+	}
+
 	private void getBucket(Bucket remoteBucket, File temp, File dst)
 			throws IOException {
 		String path = remoteBucket.getPath();
+		putArchiveIdIfNotPresent(remoteBucket, path);
+		downloadBucketToTemp(temp, path);
+	}
+
+	private void putArchiveIdIfNotPresent(Bucket remoteBucket, String path) {
+		try {
+			glacierClient.getArchiveId(path);
+		} catch (GlacierArchiveIdDoesNotExist e) {
+			logger.info(will("Will set archiveId on glacierClient from persisted "
+					+ "archiveId, because it did not exist."));
+			String archiveId = glacierArchiveIdStore.getArchiveId(remoteBucket);
+			glacierClient.putArchiveId(path, archiveId);
+		}
+	}
+
+	private void downloadBucketToTemp(File temp, String path) {
 		try {
 			glacierClient.downloadToDir(path, temp);
 		} catch (Exception e) {

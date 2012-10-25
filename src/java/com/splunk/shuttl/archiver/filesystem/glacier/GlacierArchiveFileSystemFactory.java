@@ -19,11 +19,13 @@ import java.net.URI;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.s3.S3ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
+import com.splunk.shuttl.archiver.metastore.MetadataStore;
 import com.splunk.shuttl.archiver.util.GroupRegex;
 import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
 
@@ -47,8 +49,11 @@ public class GlacierArchiveFileSystemFactory {
 		Logger logger = Logger.getLogger(GlacierArchiveFileSystem.class);
 		BucketDeleter bucketDeleter = BucketDeleter.create();
 
+		MetadataStore metadataStore = MetadataStore.create(
+				ArchiveConfiguration.getSharedInstance(), s3, localFileSystemPaths);
+
 		return new GlacierArchiveFileSystem(s3, glacierClient, tgzFormatExporter,
-				logger, bucketDeleter);
+				logger, bucketDeleter, new GlacierArchiveIdStore(metadataStore));
 	}
 
 	@SuppressWarnings("unused")

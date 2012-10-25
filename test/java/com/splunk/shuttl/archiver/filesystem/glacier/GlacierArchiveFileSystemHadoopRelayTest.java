@@ -48,7 +48,7 @@ public class GlacierArchiveFileSystemHadoopRelayTest {
 		when(hadoop.getFileTransferer()).thenReturn(hadoopTransfersFiles);
 		hadoopCleansFiles = mock(FileTransactionCleaner.class);
 		when(hadoop.getFileTransactionCleaner()).thenReturn(hadoopCleansFiles);
-		glacier = new GlacierArchiveFileSystem(hadoop, null, null, null, null);
+		glacier = new GlacierArchiveFileSystem(hadoop, null, null, null, null, null);
 		path1 = "/path/foo";
 		path2 = "/path/bar";
 		file1 = mock(File.class);

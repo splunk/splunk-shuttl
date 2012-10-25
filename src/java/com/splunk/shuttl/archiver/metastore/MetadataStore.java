@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.FailedToArchiveBucketException;
 import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
@@ -142,5 +143,13 @@ public class MetadataStore {
 
 		private static final long serialVersionUID = 0;
 
+	}
+
+	public static MetadataStore create(ArchiveConfiguration config,
+			ArchiveFileSystem archiveFileSystem,
+			LocalFileSystemPaths localFileSystemPaths) {
+		return new MetadataStore(new PathResolver(config), new FlatFileStorage(
+				localFileSystemPaths), archiveFileSystem, new TransactionExecuter(),
+				localFileSystemPaths);
 	}
 }
