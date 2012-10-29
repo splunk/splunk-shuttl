@@ -626,7 +626,7 @@
 			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport} -auth ${splunk.username}:${splunk.password}" />
 		</exec>
 		<!-- changing splunkd port needs a restart. -->
-		<antcall target="splunkd-restart"/>
+		<antcall target="splunkd-restart" />
 	</target>
 
 	<target name="splunkd-restart">
@@ -713,12 +713,13 @@
 	</target>
 
 	<target name="enable-shuttl-splunk-app" depends="check-if-shuttl-is-enabled" unless="isShuttlAlreadyEnabled">
-		<exec executable="curl">
-			<arg value="-s" />
-			<arg line="-u ${splunk.username}:${splunk.password}" />
-			<arg line="-k https://${splunk.host}:${splunk.mgmtport}/services/apps/local/shuttl/enable" />
-			<arg line="-X POST" />
-		</exec>
+		<var name="splunk.endpoint" unset="true" />
+		<property name="splunk.endpoint" value="services/apps/local/shuttl/enable" />
+
+		<var name="splunk.endpoint.options" unset="true" />
+		<property name="splunk.endpoint.options" value="" />
+
+		<antcall target="splunk-curl-post-call" />
 	</target>
 
 	<target name="check-if-shuttl-is-enabled" depends="set-splunk-home">
@@ -760,21 +761,34 @@
 
 	<target name="splunk-make-cluster-master-with-replication-2">
 		<antcall target="curl-set-cluster-master-with-replication-2" />
-		<antcall target="splunkd-restart"/>
+		<antcall target="splunkd-restart" />
 	</target>
 
 	<target name="curl-set-cluster-master-with-replication-2" depends="splunk-start">
-		<exec executable="curl">
-			<arg value="-s" />
-			<arg line="-u ${splunk.username}:${splunk.password}" />
-			<arg line="-k https://${splunk.host}:${splunk.mgmtport}/services/cluster/config/config" />
-			<arg line="-X POST" />
-			<arg line="-d mode=master" />
-			<arg line="-d replication_factor=2" />
-		</exec>
+		<var name="splunk.endpoint" unset="true" />
+		<property name="splunk.endpoint" value="services/cluster/config/config" />
+
+		<var name="splunk.endpoint.options" unset="true" />
+		<property name="splunk.endpoint.options" value="-d mode=master -d replication_factor=2" />
+
+		<antcall target="splunk-curl-post-call" />
 	</target>
 
 	<!-- END Splunk cluster targets -->
+
+	<!-- Call with ${splunk.endpoint} and ${splunk.endpoint.data} set -->
+	<target name="splunk-curl-post-call">
+		<fail unless="splunk.endpoint" message="property splunk.endpoint must be set before calling this target" />
+		<fail unless="splunk.endpoint.options" message="property splunk.endpoint.data must be set before calling this target" />
+
+		<exec executable="curl">
+			<arg value="-s" />
+			<arg line="-u ${splunk.username}:${splunk.password}" />
+			<arg line="-k https://${splunk.host}:${splunk.mgmtport}/${splunk.endpoint}" />
+			<arg line="-X POST" />
+			<arg line="${splunk.endpoint.options}" />
+		</exec>
+	</target>
 
 	<!-- Archiver-testing-helpers -->
 	<target name="helper-archiver-extended-debugging">
