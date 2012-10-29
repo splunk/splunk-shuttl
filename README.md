@@ -169,7 +169,7 @@ In addition, you need to configure Splunk to call the archiver script (set coldT
 	rotatePeriodInSecs = 10
 	frozenTimePeriodInSecs = 120
 	maxWarmDBCount = 1
-	coldToFrozenScript = "$SPLUNK_HOME/etc/apps/shuttl/bin/archiveBucket.sh mytest"
+	coldToFrozenScript = $SPLUNK_HOME/etc/apps/shuttl/bin/archiveBucket.sh mytest
 
 Note: Note the repeat of "mytest" as an argument to the coldToFrozenScript. This should always match the index name.
 
