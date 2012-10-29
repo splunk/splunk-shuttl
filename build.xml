@@ -626,6 +626,10 @@
 			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport} -auth ${splunk.username}:${splunk.password}" />
 		</exec>
 		<!-- changing splunkd port needs a restart. -->
+		<antcall target="splunkd-restart"/>
+	</target>
+
+	<target name="splunkd-restart">
 		<antcall>
 			<target name="splunk-stop" />
 			<target name="splunk-start" />
@@ -751,6 +755,26 @@
 			<arg line="clean eventdata -f" />
 		</exec>
 	</target>
+
+	<!-- Splunk cluster targets -->
+
+	<target name="splunk-make-cluster-master-with-replication-2">
+		<antcall target="curl-set-cluster-master-with-replication-2" />
+		<antcall target="splunkd-restart"/>
+	</target>
+
+	<target name="curl-set-cluster-master-with-replication-2" depends="splunk-start">
+		<exec executable="curl">
+			<arg value="-s" />
+			<arg line="-u ${splunk.username}:${splunk.password}" />
+			<arg line="-k https://${splunk.host}:${splunk.mgmtport}/services/cluster/config/config" />
+			<arg line="-X POST" />
+			<arg line="-d mode=master" />
+			<arg line="-d replication_factor=2" />
+		</exec>
+	</target>
+
+	<!-- END Splunk cluster targets -->
 
 	<!-- Archiver-testing-helpers -->
 	<target name="helper-archiver-extended-debugging">
