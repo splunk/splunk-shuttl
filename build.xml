@@ -46,6 +46,10 @@
 	<property name="splunk.server.name" value="splunk-1" />
 	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
 
+	<!-- splunk cluster properties -->
+	<property name="cluster.config.endpoint" value="services/cluster/config/config" />
+
+
 	<!-- ivy properties -->
 	<property name="ivy.utils" value="${contribdir}/ivy-utils" />
 	<property name="ivy.xml.original" value="${ivy.utils}/ivy.xml" />
@@ -766,10 +770,22 @@
 
 	<target name="curl-set-cluster-master-with-replication-2" depends="splunk-start">
 		<var name="splunk.endpoint" unset="true" />
-		<property name="splunk.endpoint" value="services/cluster/config/config" />
+		<property name="splunk.endpoint" value="${cluster.config.endpoint}" />
 
 		<var name="splunk.endpoint.options" unset="true" />
 		<property name="splunk.endpoint.options" value="-d mode=master -d replication_factor=2" />
+
+		<antcall target="splunk-curl-post-call" />
+	</target>
+
+	<target name="splunk-make-slave">
+		<fail unless="cluster.replication.port" message="property cluster.replication.port must be set before calling this target" />
+		<fail unless="cluster.master.uri" message="property cluster.master.uri must be set before calling this target" />
+		<var name="splunk.endpoint" unset="true" />
+		<property name="splunk.endpoint" value="${cluster.config.endpoint}" />
+
+		<var name="splunk.endpoint.options" unset="true" />
+		<property name="splunk.endpoint.options" value="-d mode=slave -d replication_port=${cluster.replication.port} -d master_uri=${cluster.master.uri}" />
 
 		<antcall target="splunk-curl-post-call" />
 	</target>
