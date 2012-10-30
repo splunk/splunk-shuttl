@@ -546,6 +546,7 @@
 			<target name="install-shuttl-splunk-app" />
 			<target name="splunk-set-splunkd-port" />
 			<target name="splunk-start" />
+			<target name="splunk-set-server-name" />
 			<target name="enable-shuttl-splunk-app" />
 		</antcall>
 	</target>
