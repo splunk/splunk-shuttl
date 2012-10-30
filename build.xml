@@ -761,6 +761,15 @@
 		</exec>
 	</target>
 
+	<target name="splunk-set-server-name">
+		<var name="splunk.endpoint" unset="true" />
+		<property name="splunk.endpoint" value="services/server/settings/settings" />
+
+		<var name="splunk.endpoint.options" unset="true" />
+		<property name="splunk.endpoint.options" value="-d serverName=${splunk.server.name}" />
+		<antcall target="splunk-curl-post-call" />
+	</target>
+
 	<!-- Splunk cluster targets -->
 
 	<target name="splunk-make-cluster-master-with-replication-2">
