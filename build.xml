@@ -670,14 +670,12 @@
 	</target>
 
 	<target name="splunk-stop-forced" depends="set-splunk-home">
-		<var name="splunk.stop.command" unset="true" />
-		<property name="splunk.stop.command" value="stop -f" />
+		<var name="splunk.stop.command" value="stop -f" />
 		<antcall target="do-splunk-stop" />
 	</target>
 
 	<target name="splunk-stop" depends="set-splunk-home">
-		<var name="splunk.stop.command" unset="true" />
-		<property name="splunk.stop.command" value="stop" />
+		<var name="splunk.stop.command" value="stop" />
 		<antcall target="do-splunk-stop" />
 	</target>
 
@@ -717,11 +715,9 @@
 	</target>
 
 	<target name="enable-shuttl-splunk-app" depends="check-if-shuttl-is-enabled" unless="isShuttlAlreadyEnabled">
-		<var name="splunk.endpoint" unset="true" />
-		<property name="splunk.endpoint" value="services/apps/local/shuttl/enable" />
+		<var name="splunk.endpoint" value="services/apps/local/shuttl/enable" />
 
-		<var name="splunk.endpoint.options" unset="true" />
-		<property name="splunk.endpoint.options" value="" />
+		<var name="splunk.endpoint.options" value="" />
 
 		<antcall target="splunk-curl-post-call" />
 	</target>
@@ -762,11 +758,8 @@
 	</target>
 
 	<target name="splunk-set-server-name">
-		<var name="splunk.endpoint" unset="true" />
-		<property name="splunk.endpoint" value="services/server/settings/settings" />
-
-		<var name="splunk.endpoint.options" unset="true" />
-		<property name="splunk.endpoint.options" value="-d serverName=${splunk.server.name}" />
+		<var name="splunk.endpoint" value="services/server/settings/settings" />
+		<var name="splunk.endpoint.options" value="-d serverName=${splunk.server.name}" />
 		<antcall target="splunk-curl-post-call" />
 	</target>
 
@@ -778,23 +771,17 @@
 	</target>
 
 	<target name="curl-set-cluster-master-with-replication-2" depends="splunk-start">
-		<var name="splunk.endpoint" unset="true" />
-		<property name="splunk.endpoint" value="${cluster.config.endpoint}" />
-
-		<var name="splunk.endpoint.options" unset="true" />
-		<property name="splunk.endpoint.options" value="-d mode=master -d replication_factor=2" />
-
+		<var name="splunk.endpoint" value="${cluster.config.endpoint}" />
+		<var name="splunk.endpoint.options" value="-d mode=master -d replication_factor=2" />
 		<antcall target="splunk-curl-post-call" />
 	</target>
 
 	<target name="splunk-make-slave">
 		<fail unless="cluster.replication.port" message="property cluster.replication.port must be set before calling this target" />
 		<fail unless="cluster.master.uri" message="property cluster.master.uri must be set before calling this target" />
-		<var name="splunk.endpoint" unset="true" />
-		<property name="splunk.endpoint" value="${cluster.config.endpoint}" />
+		<var name="splunk.endpoint" value="${cluster.config.endpoint}" />
 
-		<var name="splunk.endpoint.options" unset="true" />
-		<property name="splunk.endpoint.options" value="-d mode=slave -d replication_port=${cluster.replication.port} -d master_uri=${cluster.master.uri}" />
+		<var name="splunk.endpoint.options" value="-d mode=slave -d replication_port=${cluster.replication.port} -d master_uri=${cluster.master.uri}" />
 
 		<antcall target="splunk-curl-post-call" />
 	</target>
