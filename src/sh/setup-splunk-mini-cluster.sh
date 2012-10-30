@@ -45,7 +45,7 @@ make-cluster-slave() {
       -Dsplunk.mgmtport=$mgmt_port \
       -Dsplunk.server.name=$server_name \
       -Dcluster.replication.port=$replication_port \
-      -Dcluster.master.uri=https://localhost:$MASTER_PORT \
+      -Dcluster.master.port=$MASTER_PORT \
       splunk-make-slave"
 }
 
