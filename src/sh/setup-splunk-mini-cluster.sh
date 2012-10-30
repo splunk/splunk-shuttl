@@ -53,3 +53,12 @@ make-cluster-master $MASTER_NAME $MASTER_PORT
 make-cluster-slave $SLAVE1_NAME $SLAVE1_PORT 8214
 make-cluster-slave $SLAVE2_NAME $SLAVE2_PORT 8215
 
+create-fast-rolling-cluster-index() {
+  server_name=$1
+  call_ant_with_string_args "\
+      -Dsplunk.server.name=$server_name \
+      splunk-cluster-fast-rolling-index"
+}
+
+create-fast-rolling-cluster-index $MASTER_NAME 
+

@@ -778,13 +778,28 @@
 	</target>
 
 	<target name="splunk-make-slave">
+		<antcall target="curl-set-cluster-slave" />
+		<antcall target="splunkd-restart" />
+	</target>
+	
+	<target name="curl-set-cluster-slave">	
 		<fail unless="cluster.replication.port" message="property cluster.replication.port must be set before calling this target" />
 		<fail unless="cluster.master.uri" message="property cluster.master.uri must be set before calling this target" />
-		<var name="splunk.endpoint" value="${cluster.config.endpoint}" />
 
+		<var name="splunk.endpoint" value="${cluster.config.endpoint}" />
 		<var name="splunk.endpoint.options" value="-d mode=slave -d replication_port=${cluster.replication.port} -d master_uri=${cluster.master.uri}" />
 
 		<antcall target="splunk-curl-post-call" />
+	</target>
+
+	<target name="splunk-cluster-fast-rolling-index" depends="set-splunk-home">
+		<property name="cluster.indexes.conf" value="${splunk.home}/etc/master-apps/cluster/local/indexes.conf" />
+
+		<copy file="${manual.testing.confs.dir}/fast-rolling-indexes.conf" tofile="${cluster.indexes.conf}" overwrite="true" />
+		<concat destfile="${cluster.indexes.conf}" append="true">
+			<filelist dir="${manual.testing.confs.dir}" files="cluster-repFactor-for-indexes.file" />
+		</concat>
+		<echo>Created archiver-test-index for index replication: ${cluster.indexes.conf}</echo>
 	</target>
 
 	<!-- END Splunk cluster targets -->
