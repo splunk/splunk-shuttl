@@ -785,7 +785,7 @@
 	<target name="curl-set-cluster-slave" depends="computers-ip">
 		<fail unless="cluster.replication.port" message="property cluster.replication.port must be set before calling this target" />
 		<fail unless="cluster.master.port" message="property cluster.master.port must be set before calling this target" />
-		
+
 		<var name="splunk.endpoint" value="${cluster.config.endpoint}" />
 		<var name="splunk.endpoint.options" value="-d mode=slave -d replication_port=${cluster.replication.port} -d master_uri=https://${computer.ip}:${cluster.master.port}" />
 
@@ -793,7 +793,7 @@
 	</target>
 
 	<target name="computers-ip">
-		<exec executable="${basedir}/src/sh/my-ip.sh" outputproperty="computer.ip"/>
+		<exec executable="${basedir}/src/sh/my-ip.sh" outputproperty="computer.ip" />
 	</target>
 
 	<target name="splunk-cluster-fast-rolling-index" depends="set-splunk-home">
@@ -807,7 +807,7 @@
 	</target>
 
 	<!-- END Splunk cluster targets -->
-	
+
 	<!-- Call with ${splunk.endpoint} and ${splunk.endpoint.data} set -->
 	<target name="splunk-curl-post-call">
 		<fail unless="splunk.endpoint" message="property splunk.endpoint must be set before calling this target" />
