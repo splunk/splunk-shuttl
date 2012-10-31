@@ -23,6 +23,7 @@
 	<property name="shuttl.conf.dir" location="${stage.conf.dir}" />
 	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
 	<property name="srcdir" value="${basedir}/src/java/" />
+	<property name="src.sh" value="${basedir}/src/sh" />
 	<property name="testdir" value="${basedir}/test/java/" />
 	<property name="test-debug-dir" value="${basedir}/test/debug" />
 	<property name="test-resources-dir" value="${basedir}/test/resources" />
@@ -745,7 +746,7 @@
 	</target>
 
 	<target name="shuttl-kill-server">
-		<exec executable="${basedir}/src/sh/kill-shuttl-server.sh" />
+		<exec executable="${src.sh}/kill-shuttl-server.sh" />
 	</target>
 
 	<target name="check-for-splunk-binary">
@@ -793,7 +794,7 @@
 	</target>
 
 	<target name="computers-ip">
-		<exec executable="${basedir}/src/sh/my-ip.sh" outputproperty="computer.ip" />
+		<exec executable="${src.sh}/my-ip.sh" outputproperty="computer.ip" />
 	</target>
 
 	<target name="splunk-cluster-fast-rolling-index" depends="set-splunk-home">
@@ -807,7 +808,7 @@
 	</target>
 
 	<target name="splunk-cluster-bundle-apply" depends="set-splunk-home">
-		<exec executable="${basedir}/src/sh/apply-splunk-cluster-bundle.sh">
+		<exec executable="${src.sh}/apply-splunk-cluster-bundle.sh">
 			<arg value="${splunk.home}" />
 			<arg value="${splunk.username}" />
 			<arg value="${splunk.password}" />
