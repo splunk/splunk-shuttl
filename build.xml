@@ -806,6 +806,14 @@
 		<echo>Created archiver-test-index for index replication: ${cluster.indexes.conf}</echo>
 	</target>
 
+	<target name="splunk-cluster-bundle-apply" depends="set-splunk-home">
+		<exec executable="${basedir}/src/sh/apply-splunk-cluster-bundle.sh">
+			<arg value="${splunk.home}" />
+			<arg value="${splunk.username}" />
+			<arg value="${splunk.password}" />
+		</exec>
+	</target>
+
 	<!-- END Splunk cluster targets -->
 
 	<!-- Call with ${splunk.endpoint} and ${splunk.endpoint.data} set -->

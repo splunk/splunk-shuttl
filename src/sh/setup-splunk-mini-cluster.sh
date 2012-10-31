@@ -62,3 +62,12 @@ create-fast-rolling-cluster-index() {
 
 create-fast-rolling-cluster-index $MASTER_NAME 
 
+apply-cluster-bundle() {
+  server_name=$1
+  call_ant_with_string_args "\
+      -Dsplunk.server.name=$server_name \
+      splunk-cluster-bundle-apply"
+}
+
+apply-cluster-bundle $MASTER_NAME
+
