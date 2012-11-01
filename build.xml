@@ -815,6 +815,17 @@
 		</exec>
 	</target>
 
+	<target name="cluster-setup">
+		<exec executable="${src.sh}/setup-splunk-mini-cluster.sh">
+			<arg value="${cluster.master.name}" />
+			<arg value="${cluster.master.port}" />
+			<arg value="${cluster.slave1.name}" />
+			<arg value="${cluster.slave1.port}" />
+			<arg value="${cluster.slave2.name}" />
+			<arg value="${cluster.slave2.port}" />
+		</exec>
+	</target>
+
 	<!-- END Splunk cluster targets -->
 
 	<!-- Call with ${splunk.endpoint} and ${splunk.endpoint.data} set -->
