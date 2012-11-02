@@ -59,6 +59,9 @@ public class TUtilsMBean {
 	 */
 	static void unregisterMBeans() {
 		RegistersMBeans.create().unregisterMBean(ShuttlArchiverMBean.OBJECT_NAME);
+		RegistersMBeans.create().unregisterMBean(JMXSplunkMBean.OBJECT_NAME);
+		RegistersMBeans.create().unregisterMBean(ShuttlServer.OBJECT_NAME);
+
 	}
 
 	/**
