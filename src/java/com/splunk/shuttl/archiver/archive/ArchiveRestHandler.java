@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import javax.management.InstanceNotFoundException;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -30,6 +32,7 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
@@ -38,7 +41,10 @@ import com.splunk.shuttl.ShuttlConstants;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.server.mbeans.ShuttlServer;
+import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.rest.ListBucketsEndpoint;
+import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
 /**
  * Handling all the calls and returns to and from {@link ListBucketsEndpoint}
@@ -47,14 +53,17 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 
 	private final HttpClient httpClient;
 	private final Logger logger;
+	private ShuttlServerMBean serverMBean;
 
-	public ArchiveRestHandler(HttpClient httpClient) {
-		this(httpClient, Logger.getLogger(ArchiveRestHandler.class));
+	public ArchiveRestHandler(HttpClient httpClient, ShuttlServerMBean mbean) {
+		this(httpClient, Logger.getLogger(ArchiveRestHandler.class), mbean);
 	}
 
-	public ArchiveRestHandler(HttpClient httpClient, Logger logger) {
+	public ArchiveRestHandler(HttpClient httpClient, Logger logger,
+			ShuttlServerMBean serverMBean) {
 		this.httpClient = httpClient;
 		this.logger = logger;
+		this.serverMBean = serverMBean;
 	}
 
 	public void callRestToArchiveLocalBucket(LocalBucket bucket) {
@@ -72,11 +81,12 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		}
 	}
 
-	private static HttpUriRequest createBucketArchiveRequest(LocalBucket bucket)
+	private HttpUriRequest createBucketArchiveRequest(LocalBucket bucket)
 			throws UnsupportedEncodingException {
 		// CONFIG configure the host and port with a general solution.
-		String requestString = "http://localhost:9090/"
-				+ ShuttlConstants.ENDPOINT_CONTEXT + ShuttlConstants.ENDPOINT_ARCHIVER
+		String requestString = "http://localhost:" + serverMBean.getHttpPort()
+				+ "/" + ShuttlConstants.ENDPOINT_CONTEXT
+				+ ShuttlConstants.ENDPOINT_ARCHIVER
 				+ ShuttlConstants.ENDPOINT_BUCKET_ARCHIVER;
 
 		HttpPost request = new HttpPost(requestString);
@@ -180,4 +190,22 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		// Do nothing.
 	}
 
+	public static ArchiveRestHandler create() {
+		Logger logger = Logger.getLogger(ArchiveRestHandler.class);
+		ShuttlServerMBean serverMBean = getServerMBean(logger);
+
+		return new ArchiveRestHandler(new DefaultHttpClient(), logger, serverMBean);
+	}
+
+	private static ShuttlServerMBean getServerMBean(Logger logger) {
+		RegistersMBeans.create().registerMBean(ShuttlServer.OBJECT_NAME,
+				new ShuttlServer());
+		try {
+			return ShuttlServer.getMBeanProxy();
+		} catch (InstanceNotFoundException e) {
+			logger.error(did("Created a ShuttlServerMBean proxy", e,
+					"To get the instance without exception"));
+			throw new RuntimeException(e);
+		}
+	}
 }

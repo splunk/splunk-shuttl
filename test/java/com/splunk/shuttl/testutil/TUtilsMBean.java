@@ -25,6 +25,7 @@ import com.splunk.shuttl.server.mbeans.JMXSplunk;
 import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
+import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
 public class TUtilsMBean {
@@ -41,6 +42,7 @@ public class TUtilsMBean {
 				ShuttlArchiver.createWithConfDirectory(confDir));
 		registerByNameAndClass(JMXSplunkMBean.OBJECT_NAME,
 				JMXSplunk.createWithConfDirectory(confDir));
+		registerByNameAndClass(ShuttlServer.OBJECT_NAME, new ShuttlServer(confDir));
 	}
 
 	private static void registerByNameAndClass(String objectName, Object mBean) {
