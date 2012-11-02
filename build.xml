@@ -116,6 +116,7 @@
 		<antcall>
 			<target name="hadoop-teardown" />
 			<target name="splunk-teardown" />
+			<target name="cluster-teardown" />
 		</antcall>
 		<delete dir="${build-cache}" />
 		<mkdir dir="${build-cache}" />
