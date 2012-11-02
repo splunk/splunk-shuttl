@@ -11,6 +11,10 @@ SLAVE1_PORT=$4
 SLAVE2_NAME=$5
 SLAVE2_PORT=$6
 
+MASTER_SHUTTL_PORT=$7
+SLAVE1_SHUTTL_PORT=$8
+SLAVE2_SHUTTL_PORT=$9
+
 SCRIPT_DIR=$(dirname $0)
 SHUTTL_HOME=`$SCRIPT_DIR/print-shuttl-home.sh`
 source $SHUTTL_HOME/src/sh/ant-call-build-xml.sh
@@ -18,15 +22,17 @@ source $SHUTTL_HOME/src/sh/ant-call-build-xml.sh
 setup-splunk-instance() {
   server_name=$1
   mgmt_port=$2
+  shuttl_port=$3
   call_ant_with_string_args "\
       -Dsplunk.mgmtport=$mgmt_port \
       -Dsplunk.server.name=$server_name \
+      -Dshuttl.port=$shuttl_port \
       splunk-setup"
 }
 
-setup-splunk-instance $MASTER_NAME $MASTER_PORT 
-setup-splunk-instance $SLAVE1_NAME $SLAVE1_PORT
-setup-splunk-instance $SLAVE2_NAME $SLAVE2_PORT
+setup-splunk-instance $MASTER_NAME $MASTER_PORT $MASTER_SHUTTL_PORT
+setup-splunk-instance $SLAVE1_NAME $SLAVE1_PORT $SLAVE1_SHUTTL_PORT
+setup-splunk-instance $SLAVE2_NAME $SLAVE2_PORT $SLAVE2_SHUTTL_PORT
 
 make-cluster-master() {
   server_name=$1
@@ -70,4 +76,5 @@ apply-cluster-bundle() {
 }
 
 apply-cluster-bundle $MASTER_NAME
+
 

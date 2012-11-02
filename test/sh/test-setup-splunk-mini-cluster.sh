@@ -14,6 +14,10 @@ slave1_port=8071
 slave2_name=splunk-slave2
 slave2_port=8072
 
+master_shuttl_port=6090
+slave1_shuttl_port=6091
+slave2_shuttl_port=6092
+
 teardown_splunk() {
   name=$1
   port=$2
@@ -24,9 +28,9 @@ teardown_splunk() {
 }
 
 teardown() {
-  teardown_splunk $master_name $master_port
-  teardown_splunk $slave1_name $slave1_port
-  teardown_splunk $slave2_name $slave2_port
+  teardown_splunk $master_name $master_port $master_shuttl_port
+  teardown_splunk $slave1_name $slave1_port $slave1_shuttl_port
+  teardown_splunk $slave2_name $slave2_port $slave2_shuttl_port
 }
 
 run_script() {
@@ -36,7 +40,10 @@ run_script() {
       $slave1_name \
       $slave1_port \
       $slave2_name \
-      $slave2_port
+      $slave2_port \
+      $master_shuttl_port \
+      $slave1_shuttl_port \
+      $slave2_shuttl_port
 }
 
 run_script

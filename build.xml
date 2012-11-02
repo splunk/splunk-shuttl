@@ -823,6 +823,9 @@
 			<arg value="${cluster.slave1.port}" />
 			<arg value="${cluster.slave2.name}" />
 			<arg value="${cluster.slave2.port}" />
+			<arg value="${cluster.master.shuttl.port}" />
+			<arg value="${cluster.slave1.shuttl.port}" />
+			<arg value="${cluster.slave2.shuttl.port}" />
 		</exec>
 	</target>
 
