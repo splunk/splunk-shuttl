@@ -36,4 +36,10 @@ public interface HasFileStructure {
 	 */
 	void rename(String from, String to) throws IOException;
 
+	/**
+	 * True if the file exists.
+	 * 
+	 * @throws IOException
+	 */
+	boolean exists(String path) throws IOException;
 }

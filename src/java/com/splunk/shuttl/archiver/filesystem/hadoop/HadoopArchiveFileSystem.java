@@ -17,7 +17,6 @@ package com.splunk.shuttl.archiver.filesystem.hadoop;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,12 +54,6 @@ public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 			return Collections.emptyList();
 	}
 
-	@Override
-	public InputStream openFile(String fileOnArchiveFileSystem)
-			throws IOException {
-		return hadoopFileSystem.open(new Path(fileOnArchiveFileSystem));
-	}
-
 	private void putFile(File src, Path temp, Path dst) throws IOException {
 		if (hadoopFileSystem.exists(dst))
 			throw new FileOverwriteException();
@@ -88,6 +81,11 @@ public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 	public void rename(String from, String to) throws IOException {
 		mkdirsWithPath(new Path(to).getParent());
 		hadoopFileSystem.rename(new Path(from), new Path(to));
+	}
+
+	@Override
+	public boolean exists(String path) throws IOException {
+		return hadoopFileSystem.exists(new Path(path));
 	}
 
 	@Override

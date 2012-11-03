@@ -18,7 +18,6 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -149,14 +148,13 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 	}
 
 	@Override
-	public List<String> listPath(String pathToBeListed) throws IOException {
-		return hadoop.listPath(pathToBeListed);
+	public boolean exists(String path) throws IOException {
+		return hadoop.exists(path);
 	}
 
 	@Override
-	public InputStream openFile(String fileOnArchiveFileSystem)
-			throws IOException {
-		return hadoop.openFile(fileOnArchiveFileSystem);
+	public List<String> listPath(String pathToBeListed) throws IOException {
+		return hadoop.listPath(pathToBeListed);
 	}
 
 	@Override
