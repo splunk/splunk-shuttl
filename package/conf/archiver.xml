@@ -7,7 +7,7 @@
     <archivePath>/archive_root</archivePath>
 
     <clusterName>cluster_name</clusterName>
-    <serverName>server_name</serverName>
+    <serverName>@SPLUNK.SERVER.NAME@</serverName>
     <archiveFormats>
         <archiveFormat>SPLUNK_BUCKET</archiveFormat>
     </archiveFormats>

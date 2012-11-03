@@ -1120,14 +1120,14 @@
 			<target name="configure-staged-archiver-conf" />
 			<target name="configure-staged-server-conf" />
 			<target name="configure-staged-splunk-conf" />
+			<target name="configure-staged-hdfs-properties" />
 		</antcall>
 	</target>
 
 	<target name="configure-staged-archiver-conf">
-		<property name="stage.backend.hdfs.properties" value="${stage.conf.backend.dir}/hdfs.properties" />
-		<replace file="${stage.backend.hdfs.properties}">
-			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
-			<replacefilter token="@HADOOP.PORT@" value="${hadoop.port}" />
+		<property name="stage.conf.archiver.xml" value="${stage.conf.dir}/archiver.xml" />
+		<replace file="${stage.conf.archiver.xml}">
+			<replacefilter token="@SPLUNK.SERVER.NAME@" value="${splunk.server.name}" />
 		</replace>
 	</target>
 
@@ -1146,6 +1146,14 @@
 			<replacefilter token="@SPLUNK.PORT@" value="${splunk.mgmtport}" />
 			<replacefilter token="@SPLUNK.USERNAME@" value="${splunk.username}" />
 			<replacefilter token="@SPLUNK.PASSWORD@" value="${splunk.password}" />
+		</replace>
+	</target>
+
+	<target name="configure-staged-hdfs-properties">
+		<property name="stage.backend.hdfs.properties" value="${stage.conf.backend.dir}/hdfs.properties" />
+		<replace file="${stage.backend.hdfs.properties}">
+			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
+			<replacefilter token="@HADOOP.PORT@" value="${hadoop.port}" />
 		</replace>
 	</target>
 
