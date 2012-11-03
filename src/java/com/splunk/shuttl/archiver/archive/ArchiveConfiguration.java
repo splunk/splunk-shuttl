@@ -75,7 +75,7 @@ public class ArchiveConfiguration {
 		return sharedInstance;
 	}
 
-	private static ArchiveConfiguration createConfigurationFromMBean() {
+	public static ArchiveConfiguration createConfigurationFromMBean() {
 		try {
 			return createConfigurationWithMBean(ShuttlArchiver.getMBeanProxy());
 		} catch (InstanceNotFoundException e) {

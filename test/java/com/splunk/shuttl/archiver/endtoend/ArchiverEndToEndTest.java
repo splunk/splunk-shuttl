@@ -22,7 +22,6 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +33,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -54,6 +52,7 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.archiver.testutil.TUtilsHttp;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
@@ -234,20 +233,8 @@ public class ArchiverEndToEndTest {
 		List<BasicNameValuePair> postParams = asList(nameValue("index", index),
 				nameValue("from", earliest.getTime()),
 				nameValue("to", latest.getTime()));
-		setParamsToPostRequest(httpPost, postParams);
+		TUtilsHttp.setParamsToPostRequest(httpPost, postParams);
 		return httpPost;
-	}
-
-	private void setParamsToPostRequest(HttpPost httpPost,
-			List<BasicNameValuePair> postParams) {
-		try {
-			httpPost.setEntity(new UrlEncodedFormEntity(postParams));
-		} catch (UnsupportedEncodingException e) {
-			TUtilsTestNG
-					.failForException(
-							"Could not create url encoded form entity with params: "
-									+ postParams, e);
-		}
 	}
 
 	private HttpResponse executeUriRequest(HttpUriRequest request) {
