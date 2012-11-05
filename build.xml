@@ -328,6 +328,24 @@
 		</testng>
 	</target>
 
+	<target name="cluster-tests">
+		<antcallback target="run-cluster-tests-with-setup-and-teardown" return="testng.failed" />
+		<fail if="testng.failed" message="Tests have failed." />
+	</target>
+
+	<target name="run-cluster-tests-with-setup-and-teardown">
+		<antcall target="cluster-setup" />
+		<antcallback target="do-cluster-tests" return="testng.failed" />
+		<antcall target="cluster-teardown" />
+	</target>
+
+	<target name="do-cluster-tests" depends="compile,set-splunk-home">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="cluster-test" outputdir="${builddir}/test-results/cluster-test">
+			<propertyset refid="testng" />
+			<classfileset dir="${test-classdir}" includes="**/*.class" />
+		</testng>
+	</target>
+
 	<!-- Setting environment specific properties -->
 	<target name="set-environment-property">
 		<property environment="env" />
