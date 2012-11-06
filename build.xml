@@ -34,25 +34,25 @@
 	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
 	<property name="hadoop.apache.org.hadoop.common.host" value="ftp://apache.cs.utah.edu/apache.org/hadoop/common" />
 	<property name="hadoop.download.name.extracted" value="hadoop" />
-        <property name="hadoop.download.name" value="hadoop.tar.gz" />
+	<property name="hadoop.download.name" value="hadoop.tar.gz" />
 	<property name="hadoop.download.dir" value="${contribdir}" />
 	<property name="hadoop.download.path" value="${hadoop.download.dir}/${hadoop.download.name}" />
 	<property name="hadoop.extracted.dir" value="${build-cache}" />
 	<property name="hadoop.extracted.path" value="${hadoop.extracted.dir}/${hadoop.download.name.extracted}" />
 	<property name="hadoop.extracted.conf.dir" value="${hadoop.extracted.path}/conf" />
 
-        <!-- hbase properties -->
-        <property name="hbase.utils" value="${contribdir}/hbase-utils" />
-        <property name="hbase.download.name.extracted" value="hbase" />
-        <property name="hbase.apache.org.hbase.common.host" value="ftp://apache.cs.utah.edu/apache.org/hbase" /> 
-        <property name="hbase.download.name" value="hbase.tar.gz" />
+	<!-- hbase properties -->
+	<property name="hbase.utils" value="${contribdir}/hbase-utils" />
+	<property name="hbase.download.name.extracted" value="hbase" />
+	<property name="hbase.apache.org.hbase.common.host" value="ftp://apache.cs.utah.edu/apache.org/hbase" />
+	<property name="hbase.download.name" value="hbase.tar.gz" />
 	<property name="hbase.download.dir" value="${contribdir}" />
 	<property name="hbase.download.path" value="${hbase.download.dir}/${hbase.download.name}" />
-        <property name="hbase.extracted.dir" value="${build-cache}" />
+	<property name="hbase.extracted.dir" value="${build-cache}" />
 	<property name="hbase.extracted.path" value="${hbase.extracted.dir}/${hbase.download.name.extracted}" />
 	<property name="hbase.extracted.conf.dir" value="${hbase.extracted.path}/conf" />
-        
-        <!-- splunk properties -->
+
+	<!-- splunk properties -->
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
 	<property name="splunk.server.name" value="splunk-1" />
 	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
@@ -330,12 +330,14 @@
 	<target name="run-end-to-end-tests-with-setup" depends="jar">
 		<antcall>
 			<target name="hadoop-setup" />
-                        <target name="splunk-setup" />
+			<target name="splunk-setup" />
+			<target name="hbase-setup" />
 		</antcall>
 		<antcallback target="do-end-to-end-tests" return="testng.failed" />
 		<antcall>
+			<target name="hbase-teardown" />
 			<target name="splunk-teardown" />
-                        <target name="hadoop-teardown" />
+			<target name="hadoop-teardown" />
 		</antcall>
 	</target>
 
@@ -396,11 +398,10 @@
 		<echo>Running tests with HADOOP_HOME: ${hadoop.home}</echo>
 	</target>
 
-        <target name="set-hbase-home">
-                <property name="hbase.home" value="${hbase.extracted.path}" />
-        </target>
-        
-        <!-- Hadoop -->
+	<target name="set-hbase-home">
+		<property name="hbase.home" value="${hbase.extracted.path}" />
+	</target>
+	<!-- Hadoop -->
 	<target name="hadoop-setup" depends="set-hadoop-home">
 		<antcall>
 			<target name="hadoop-prepare-build-cache" />
@@ -580,10 +581,10 @@
 
 	<target name="check-for-hadoop-binaries">
 		<available file="${hadoop.home}/bin" type="dir" property="existsHadoopBinaries" />
-        </target>
+	</target>
 
 
-        <!-- Hbase -->
+	<!-- Hbase -->
 	<target name="hbase-setup" depends="set-hbase-home,hadoop-setup">
 		<antcall>
 			<target name="hbase-prepare-build-cache" />
@@ -707,17 +708,9 @@
 		<exec executable="${hbase.home}/bin/stop-hbase.sh" />
 	</target>
 
-	<target name="hbase-start" depends="set-hbase-home, hadoop-start">
+	<target name="hbase-start" depends="set-hbase-home">
 		<exec executable="${hbase.home}/bin/start-hbase.sh" />
-        </target>
-
-        <target name="hbase-restart" depends="set-hbase-home, set-hadoop-home">
-                <antcall>
-                    <target name="hbase-stop" />
-                    <target name="hadoop-stop" />
-                    <target name="hbase-start" />
-                </antcall>
-        </target>
+	</target>
 
 	<target name="hbase-teardown" depends="set-hbase-home,check-for-hbase-binaries" if="existsHBaseBinaries">
 		<antcall>
@@ -727,13 +720,21 @@
 
 	<target name="check-for-hbase-binaries">
 		<available file="${hbase.home}/bin" type="dir" property="existsHBaseBinaries" />
-        </target>
+	</target>
 
 	<!-- Splunk -->
 	<target name="splunk-setup" depends="set-splunk-home">
 		<antcall>
-			<target name="splunk-unpack-if-not-extracted" />
-			<target name="splunk-configure-and-start" />
+			<target name="hbase-download" />
+			<target name="hbase-extract" />
+			<target name="hbase-copy-confs" />
+		</antcall>
+	</target>
+	<target name="hbase-restart" depends="set-hbase-home, set-hadoop-home">
+		<antcall>
+			<target name="hbase-stop" />
+			<target name="hadoop-stop" />
+			<target name="hbase-start" />
 		</antcall>
 	</target>
 
