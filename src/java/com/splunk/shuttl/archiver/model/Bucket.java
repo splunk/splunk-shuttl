@@ -149,7 +149,7 @@ public class Bucket {
 	 * @return true if the bucket is a replicated bucket.
 	 */
 	public boolean isReplicatedBucket() {
-		throw new UnsupportedOperationException();
+		return bucketName.getDB().equals("rb");
 	}
 
 }

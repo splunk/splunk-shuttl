@@ -299,4 +299,9 @@ public class TUtilsBucket {
 		String removedIndex = bucketName.substring(0, idx);
 		return removedIndex + newBucketIndex + "_" + guid;
 	}
+
+	public static Bucket createReplicatedBucket() {
+		return createReplicatedBucket(randomIndexName(), createDirectory(),
+				randomIndexName());
+	}
 }
