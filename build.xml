@@ -29,7 +29,6 @@
 	<property name="test-resources-dir" value="${basedir}/test/resources" />
 	<property name="libdir" value="${basedir}/lib" />
 	<property name="ant-libs" value="${contribdir}/ant-libs" />
-	<property name="splunk-sdk" value="${contribdir}/splunk-sdk" />
 
 	<!-- hadoop properties -->
 	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
@@ -67,7 +66,6 @@
 
 
 	<path id="build.classpath">
-		<pathelement location="${splunk-sdk}/splunk.jar" />
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
 		<pathelement location="${basedir}/src/java/com/splunk/shuttl/connector/conf" />
 		<pathelement path="${classdir}" />
@@ -486,7 +484,7 @@
 	</target>
 
 	<target name="set-hadoop-classpath" depends="jar">
-		<property name="hadoop.classpath" value="${name.api.versioned.path}:${name.server.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar:${splunk-sdk}/splunk.jar" />
+		<property name="hadoop.classpath" value="${name.api.versioned.path}:${name.server.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar" />
 	</target>
 
 	<target name="hadoop-conf-core-site-xml">
@@ -1129,7 +1127,6 @@
                           jsp-api-2.1-6.1.14.jar,
                           servlet-api-2.5-20081211.jar,
                           servlet-api-2.5-6.1.14.jar" />
-			<fileset dir="${splunk-sdk}" />
 		</copy>
 	</target>
 
