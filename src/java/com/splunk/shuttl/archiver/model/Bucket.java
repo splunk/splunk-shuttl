@@ -138,4 +138,18 @@ public class Bucket {
 		return size;
 	}
 
+	/**
+	 * @return the GUID for the bucket.
+	 */
+	public String getGuid() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * @return true if the bucket is a replicated bucket.
+	 */
+	public boolean isReplicatedBucket() {
+		throw new UnsupportedOperationException();
+	}
+
 }
