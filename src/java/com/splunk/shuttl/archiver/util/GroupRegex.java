@@ -42,8 +42,12 @@ public class GroupRegex {
 	 * @return value from the regex group by index.
 	 */
 	public String getValue(int groupIndex) {
-		throwExceptionIfNotValidRegex();
-		return getRegexGroup(groupIndex);
+		throwExceptionIfNotValidRegex(groupIndex);
+		try {
+			return getRegexGroup(groupIndex);
+		} catch (IndexOutOfBoundsException e) {
+			throw new IllegalRegexGroupException(e);
+		}
 	}
 
 	private String getRegexGroup(int groupIndex) {
@@ -53,7 +57,7 @@ public class GroupRegex {
 		return matcher.group(groupIndex);
 	}
 
-	private void throwExceptionIfNotValidRegex() {
+	private void throwExceptionIfNotValidRegex(int groupIndex) {
 		if (!Pattern.matches(regex, value)) {
 			logger.debug(did("Verified legal bucket name",
 					"Bucket name was not legal. Throwing IllegalBucketNameException",

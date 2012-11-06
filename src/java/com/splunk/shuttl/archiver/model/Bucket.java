@@ -142,7 +142,7 @@ public class Bucket {
 	 * @return the GUID for the bucket.
 	 */
 	public String getGuid() {
-		throw new UnsupportedOperationException();
+		return bucketName.getGuid();
 	}
 
 	/**

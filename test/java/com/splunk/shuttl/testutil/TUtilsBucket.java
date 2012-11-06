@@ -304,4 +304,8 @@ public class TUtilsBucket {
 		return createReplicatedBucket(randomIndexName(), createDirectory(),
 				randomIndexName());
 	}
+
+	public static Bucket createReplicatedBucket(String guid) {
+		return createReplicatedBucket(randomIndexName(), createDirectory(), guid);
+	}
 }
