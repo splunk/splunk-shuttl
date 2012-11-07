@@ -45,6 +45,7 @@
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
 	<property name="splunk.server.name" value="splunk-1" />
 	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
+	<property name="splunk.default.password" value="changeme" />
 
 	<!-- splunk cluster properties -->
 	<property name="cluster.config.endpoint" value="services/cluster/config/config" />
@@ -561,12 +562,27 @@
 
 	<target name="splunk-configure-and-start">
 		<antcall>
-			<target name="install-shuttl-splunk-app" />
 			<target name="splunk-set-splunkd-port" />
+			<target name="splunk-set-password" />
+			<target name="install-shuttl-splunk-app" />
 			<target name="splunk-start" />
 			<target name="splunk-set-server-name" />
 			<target name="enable-shuttl-splunk-app" />
 		</antcall>
+	</target>
+
+	<target name="splunk-set-password">
+		<var name="splunk.endpoint" value="services/authentication/changepassword/admin" />
+		<var name="splunk.endpoint.options" value="-d password=${splunk.password}" />
+
+
+		<property name="configured.splunk.password" value="${splunk.password}" />
+		<var name="splunk.password" value="${splunk.default.password}" />
+		<antcall>
+			<target name="splunk-start" />
+			<target name="splunk-curl-post-call" />
+		</antcall>
+		<var name="splunk.password" value="${configured.splunk.password}" />
 	</target>
 
 	<target name="splunk-unpack-if-not-extracted" unless="defined.means.running.on.self.defined.splunk.home">
@@ -644,10 +660,12 @@
 	<target name="splunk-set-splunkd-port">
 		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
 		<antcall target="splunk-start" />
+
 		<exec executable="sh">
 			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport} -auth ${splunk.username}:${splunk.password}" />
+			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport} -auth ${splunk.username}:${splunk.default.password}" />
 		</exec>
+
 		<!-- changing splunkd port needs a restart. -->
 		<antcall target="splunkd-restart" />
 	</target>
