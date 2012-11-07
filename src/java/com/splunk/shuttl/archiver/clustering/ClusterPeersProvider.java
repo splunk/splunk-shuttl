@@ -16,15 +16,39 @@ package com.splunk.shuttl.archiver.clustering;
 
 import java.net.URI;
 
+import javax.management.InstanceNotFoundException;
+
 import com.splunk.ClusterPeers;
+import com.splunk.Service;
+import com.splunk.shuttl.server.mbeans.JMXSplunk;
+import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
 
 /**
  * Creates ClusterPeers by after getting a master uri.
  */
 public class ClusterPeersProvider {
 
+	private final JMXSplunkMBean mBeanProxy;
+
+	/**
+	 * @param mBeanProxy
+	 */
+	public ClusterPeersProvider(JMXSplunkMBean mBeanProxy) {
+		this.mBeanProxy = mBeanProxy;
+	}
+
 	public ClusterPeers getForMasterUri(URI masterUri) {
-		throw new UnsupportedOperationException();
+		Service service = new Service(masterUri.getHost(), masterUri.getPort());
+		service.login(mBeanProxy.getUsername(), mBeanProxy.getPassword());
+		return new ClusterPeers(service);
+	}
+
+	public static ClusterPeersProvider create() {
+		try {
+			return new ClusterPeersProvider(JMXSplunk.getMBeanProxy());
+		} catch (InstanceNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
