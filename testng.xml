@@ -2,7 +2,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Suite" parallel="none">
 	<parameter name="splunk.username" value="admin" />
-	<parameter name="splunk.password" value="changeme" />
+	<parameter name="splunk.password" value="changed" />
 	<parameter name="splunk.host" value="localhost" />
 	<parameter name="splunk.mgmtport" value="8089" />
 	<parameter name="hadoop.host" value="localhost" />
@@ -11,12 +11,21 @@
 	<parameter name="shuttl.port" value="9090" />
 	<parameter name="splunk.home" value="./build-cache/splunk-1" />
 	<parameter name="shuttl.conf.dir" value="./build/shuttl/conf" />
+	<parameter name="cluster.master.port" value="8070" />
+	<parameter name="cluster.slave1.port" value="8071" />
 
-	<test name="end-to-end" preserve-order="true" enabled="true">
+	<test name="end-to-end" preserve-order="true" enabled="false">
 		<classes>
 			<class name="com.splunk.shuttl.archiver.filesystem.BackendConfigurationFilesTest" />
 			<class name="com.splunk.shuttl.archiver.filesystem.glacier.AWSCredentialsImplTest" />
 			<class name="com.splunk.shuttl.archiver.ConfigurationPathsTest" />
+		</classes>
+	</test> <!-- Test -->
+
+	<test name="cluster-test" preserve-order="true" enabled="true">
+		<classes>
+			<class name="com.splunk.ClusterConfigTest" />
+			<class name="com.splunk.ClusterPeersTest" />
 		</classes>
 	</test> <!-- Test -->
 

@@ -12,22 +12,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk;
+package com.splunk.shuttl.testutil;
 
-import java.net.URI;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
-/**
- * Extension of the Splunk SDK for the Cluster Config endpoint. <br/>
- * 
- * Used for getting a Splunk cluster slave's cluster master uri.
- */
-public class ClusterConfig extends Entity {
+public class TUtilsIp {
 
-	ClusterConfig(Service service) {
-		super(service, "cluster/config/config");
-	}
-
-	public URI getClusterMasterUri() {
-		return URI.create(getString("master_uri", null));
+	/**
+	 * @return the IP of the machine running the test.
+	 */
+	public static String getLocalHostIp() {
+		try {
+			return InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			TUtilsTestNG.failForException("Could not get local host ip.", e);
+			return null;
+		}
 	}
 }
