@@ -17,7 +17,7 @@ package com.splunk.shuttl.archiver.clustering;
 import com.splunk.ClusterPeer;
 
 /**
- * 
+ * Container for host and port for a Splunk indexer.
  */
 public class IndexerInfo {
 
