@@ -14,9 +14,45 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.clustering;
 
+import com.splunk.ClusterPeer;
+
 /**
- *
+ * 
  */
 public class IndexerInfo {
+
+	private final String host;
+	private final int port;
+
+	public IndexerInfo(String host, int port) {
+		this.host = host;
+		this.port = port;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		IndexerInfo other = (IndexerInfo) obj;
+		if (host == null) {
+			if (other.host != null)
+				return false;
+		} else if (!host.equals(other.host))
+			return false;
+		if (port != other.port)
+			return false;
+		return true;
+	}
+
+	public static IndexerInfo create(ClusterPeer clusterPeer) {
+		if (clusterPeer == null)
+			return null;
+		else
+			return new IndexerInfo(clusterPeer.getHost(), clusterPeer.getPort());
+	}
 
 }

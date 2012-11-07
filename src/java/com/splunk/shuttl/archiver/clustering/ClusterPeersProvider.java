@@ -16,32 +16,15 @@ package com.splunk.shuttl.archiver.clustering;
 
 import java.net.URI;
 
-import com.splunk.ClusterConfig;
-import com.splunk.ClusterPeer;
 import com.splunk.ClusterPeers;
 
 /**
- * Handles all communication to the ClusterMaster.
+ * Creates ClusterPeers by after getting a master uri.
  */
-public class ClusterMaster {
+public class ClusterPeersProvider {
 
-	private final ClusterConfig clusterConfig;
-	private ClusterPeersProvider peersProvider;
-
-	public ClusterMaster(ClusterConfig clusterConfig,
-			ClusterPeersProvider peersProvider) {
-		this.clusterConfig = clusterConfig;
-		this.peersProvider = peersProvider;
-	}
-
-	/**
-	 * 
-	 */
-	public IndexerInfo indexerForGuid(String guid) {
-		URI clusterMasterUri = clusterConfig.getClusterMasterUri();
-		ClusterPeers clusterPeers = peersProvider.getForMasterUri(clusterMasterUri);
-		ClusterPeer clusterPeer = clusterPeers.get(guid);
-		return IndexerInfo.create(clusterPeer);
+	public ClusterPeers getForMasterUri(URI masterUri) {
+		throw new UnsupportedOperationException();
 	}
 
 }

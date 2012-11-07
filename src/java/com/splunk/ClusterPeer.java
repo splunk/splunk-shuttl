@@ -19,7 +19,7 @@ package com.splunk;
  */
 public class ClusterPeer extends Entity {
 
-	ClusterPeer(Service service, String path) {
+	public ClusterPeer(Service service, String path) {
 		super(service, path);
 	}
 

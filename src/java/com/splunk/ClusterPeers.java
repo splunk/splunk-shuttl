@@ -19,7 +19,7 @@ package com.splunk;
  */
 public class ClusterPeers extends EntityCollection<ClusterPeer> {
 
-	ClusterPeers(Service service) {
+	public ClusterPeers(Service service) {
 		super(service, "cluster/master/peers", ClusterPeer.class);
 	}
 
