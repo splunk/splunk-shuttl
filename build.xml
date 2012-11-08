@@ -562,8 +562,7 @@
 
 	<target name="splunk-configure-and-start">
 		<antcall>
-			<target name="splunk-set-splunkd-port" />
-			<target name="splunk-set-password" />
+			<target name="splunk-set-splunkd-port-and-password" />
 			<target name="install-shuttl-splunk-app" />
 			<target name="splunk-start" />
 			<target name="splunk-set-server-name" />
@@ -571,10 +570,16 @@
 		</antcall>
 	</target>
 
+	<target name="splunk-set-splunkd-port-and-password" unless="splunkd.mgmtport.is.already.set" depends="set-splunk-home,check-if-mgmt-port-is-already-set">
+		<antcall>
+			<target name="splunk-set-splunkd-port" />
+			<target name="splunk-set-password" />
+		</antcall>
+	</target>
+
 	<target name="splunk-set-password">
 		<var name="splunk.endpoint" value="services/authentication/changepassword/admin" />
 		<var name="splunk.endpoint.options" value="-d password=${splunk.password}" />
-
 
 		<property name="configured.splunk.password" value="${splunk.password}" />
 		<var name="splunk.password" value="${splunk.default.password}" />
@@ -670,6 +675,17 @@
 		<antcall target="splunkd-restart" />
 	</target>
 
+	<target name="check-if-mgmt-port-is-already-set">
+		<exec executable="sh" outputproperty="splunk.current.mgmtport">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk show splunkd-port ${splunk.accept.license.flags} | awk '{ print $3 }'" />
+		</exec>
+
+		<condition property="splunkd.mgmtport.is.already.set">
+			<equals arg1="${splunk.current.mgmtport}" arg2="${splunk.mgmtport}" />
+		</condition>
+	</target>
+
 	<target name="splunkd-restart">
 		<antcall>
 			<target name="splunk-stop" />
@@ -733,6 +749,7 @@
 	</target>
 
 	<target name="check-if-splunk-is-running">
+		<var name="isRunning" unset="true" />
 		<exec executable="sh" outputproperty="isRunning">
 			<arg value="-c" />
 			<arg value="${splunk.home}/bin/splunk status ${splunk.accept.license.flags} | grep 'splunkd is running' | grep -o running || true" />
