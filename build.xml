@@ -560,36 +560,6 @@
 		</antcall>
 	</target>
 
-	<target name="splunk-configure-and-start">
-		<antcall>
-			<target name="splunk-set-splunkd-port-and-password" />
-			<target name="install-shuttl-splunk-app" />
-			<target name="splunk-start" />
-			<target name="splunk-set-server-name" />
-			<target name="enable-shuttl-splunk-app" />
-		</antcall>
-	</target>
-
-	<target name="splunk-set-splunkd-port-and-password" unless="splunkd.mgmtport.is.already.set" depends="set-splunk-home,check-if-mgmt-port-is-already-set">
-		<antcall>
-			<target name="splunk-set-splunkd-port" />
-			<target name="splunk-set-password" />
-		</antcall>
-	</target>
-
-	<target name="splunk-set-password">
-		<var name="splunk.endpoint" value="services/authentication/changepassword/admin" />
-		<var name="splunk.endpoint.options" value="-d password=${splunk.password}" />
-
-		<property name="configured.splunk.password" value="${splunk.password}" />
-		<var name="splunk.password" value="${splunk.default.password}" />
-		<antcall>
-			<target name="splunk-start" />
-			<target name="splunk-curl-post-call" />
-		</antcall>
-		<var name="splunk.password" value="${configured.splunk.password}" />
-	</target>
-
 	<target name="splunk-unpack-if-not-extracted" unless="defined.means.running.on.self.defined.splunk.home">
 		<antcall target="do-splunk-unpack-if-not-extracted" />
 	</target>
@@ -621,6 +591,71 @@
 			</path>
 		</pathconvert>
 		<fail unless="foundSplunkTgz" message="There has to be a splunk version packaged with .tgz in ${splunk.tgz.dir}" />
+	</target>
+
+	<target name="splunk-configure-and-start">
+		<antcall>
+			<target name="splunk-set-splunkd-port-and-password" />
+			<target name="install-shuttl-splunk-app" />
+			<target name="splunk-set-server-name" />
+			<target name="enable-shuttl-splunk-app" />
+		</antcall>
+	</target>
+
+	<target name="splunk-set-splunkd-port-and-password" unless="splunkd.mgmtport.is.already.set" depends="set-splunk-home,check-if-mgmt-port-is-already-set">
+		<antcall>
+			<target name="splunk-set-splunkd-port" />
+			<target name="splunk-set-password" />
+		</antcall>
+	</target>
+
+	<target name="check-if-mgmt-port-is-already-set" depends="splunk-login">
+		<exec executable="sh" outputproperty="splunk.current.mgmtport">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk show splunkd-port | awk '{ print $3 }'" />
+		</exec>
+
+		<condition property="splunkd.mgmtport.is.already.set">
+			<equals arg1="${splunk.current.mgmtport}" arg2="${splunk.mgmtport}" />
+		</condition>
+	</target>
+
+	<!-- Try both the default and changed password -->
+	<target name="splunk-login" depends="set-splunk-home,splunk-start">
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.default.password} 2> /dev/null" />
+		</exec>
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.password} 2> /dev/null" />
+		</exec>
+	</target>
+
+	<target name="splunk-set-splunkd-port" depends="splunk-login">
+		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
+		<antcall target="splunk-start" />
+
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport}" />
+		</exec>
+
+		<!-- changing splunkd port needs a restart. -->
+		<antcall target="splunkd-restart" />
+	</target>
+
+	<target name="splunk-set-password">
+		<var name="splunk.endpoint" value="services/authentication/changepassword/admin" />
+		<var name="splunk.endpoint.options" value="-d password=${splunk.password}" />
+
+		<property name="configured.splunk.password" value="${splunk.password}" />
+		<var name="splunk.password" value="${splunk.default.password}" />
+		<antcall>
+			<target name="splunk-start" />
+			<target name="splunk-curl-post-call" />
+		</antcall>
+		<var name="splunk.password" value="${configured.splunk.password}" />
 	</target>
 
 	<target name="install-shuttl-splunk-app">
@@ -662,40 +697,10 @@
 		</antcall>
 	</target>
 
-	<target name="splunk-set-splunkd-port" depends="splunk-login">
-		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
-		<antcall target="splunk-start" />
-
-		<exec executable="sh">
-			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport}" />
-		</exec>
-
-		<!-- changing splunkd port needs a restart. -->
-		<antcall target="splunkd-restart" />
-	</target>
-
-	<target name="check-if-mgmt-port-is-already-set" depends="splunk-login">
-		<exec executable="sh" outputproperty="splunk.current.mgmtport">
-			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk show splunkd-port | awk '{ print $3 }'" />
-		</exec>
-
-		<condition property="splunkd.mgmtport.is.already.set">
-			<equals arg1="${splunk.current.mgmtport}" arg2="${splunk.mgmtport}" />
-		</condition>
-	</target>
-
-	<!-- Try both the default and changed password -->
-	<target name="splunk-login" depends="set-splunk-home,splunk-start">
-		<exec executable="sh">
-			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.default.password} 2> /dev/null" />
-		</exec>
-		<exec executable="sh">
-			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.password} 2> /dev/null" />
-		</exec>
+	<target name="splunk-set-server-name">
+		<var name="splunk.endpoint" value="services/server/settings/settings" />
+		<var name="splunk.endpoint.options" value="-d serverName=${splunk.server.name}" />
+		<antcall target="splunk-curl-post-call" />
 	</target>
 
 	<target name="splunkd-restart">
@@ -823,12 +828,6 @@
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="clean eventdata -f" />
 		</exec>
-	</target>
-
-	<target name="splunk-set-server-name">
-		<var name="splunk.endpoint" value="services/server/settings/settings" />
-		<var name="splunk.endpoint.options" value="-d serverName=${splunk.server.name}" />
-		<antcall target="splunk-curl-post-call" />
 	</target>
 
 	<!-- Splunk cluster targets -->
