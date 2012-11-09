@@ -687,7 +687,7 @@
 	</target>
 
 	<!-- Try both the default and changed password -->
-	<target name="splunk-login" depends="set-splunk-home">
+	<target name="splunk-login" depends="set-splunk-home,splunk-start">
 		<exec executable="sh">
 			<arg value="-c" />
 			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.default.password} 2> /dev/null" />
@@ -710,6 +710,7 @@
 	<target name="splunk-start" depends="set-splunk-home">
 		<!-- antcallback instead of depends, to make sure it's running the "check" target again,
 		and not taking a previous check when Splunk might have been in a different state -->
+		<var name="isSplunkRunning" unset="true" />
 		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
 		<if>
 			<isset property="isSplunkRunning" />
@@ -907,10 +908,14 @@
 	<!-- END Splunk cluster targets -->
 
 	<!-- Call with ${splunk.endpoint} and ${splunk.endpoint.data} set -->
-	<target name="splunk-curl-post-call">
+	<target name="splunk-curl-post-call" depends="splunk-start">
 		<fail unless="splunk.endpoint" message="property splunk.endpoint must be set before calling this target" />
 		<fail unless="splunk.endpoint.options" message="property splunk.endpoint.data must be set before calling this target" />
 
+		<echo>Making curl call:</echo>
+		<echo>Auth: -u ${splunk.username}:${splunk.password}</echo>
+		<echo>Endpoint: -k https://${splunk.host}:${splunk.mgmtport}/${splunk.endpoint}</echo>
+		<echo>Options: ${splunk.endpoint.options}</echo>
 		<exec executable="curl">
 			<arg value="-s" />
 			<arg line="-u ${splunk.username}:${splunk.password}" />
