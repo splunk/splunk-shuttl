@@ -787,6 +787,7 @@
 		<var name="splunk.endpoint.options" value="" />
 
 		<antcall target="splunk-curl-post-call" />
+		<antcall target="splunkd-restart" />
 	</target>
 
 	<target name="check-if-shuttl-is-enabled" depends="set-splunk-home">
@@ -1022,7 +1023,6 @@
 			<target name="manual-test-configure-shuttl-archiver-conf" />
 			<target name="manual-test-create-fast-rolling-index" />
 			<target name="splunk-set-splunkd-port" />
-			<target name="splunk-start" />
 			<target name="enable-shuttl-splunk-app" />
 		</antcall>
 	</target>
