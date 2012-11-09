@@ -662,28 +662,40 @@
 		</antcall>
 	</target>
 
-	<target name="splunk-set-splunkd-port">
+	<target name="splunk-set-splunkd-port" depends="splunk-login">
 		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
 		<antcall target="splunk-start" />
 
 		<exec executable="sh">
 			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport} -auth ${splunk.username}:${splunk.default.password}" />
+			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport}" />
 		</exec>
 
 		<!-- changing splunkd port needs a restart. -->
 		<antcall target="splunkd-restart" />
 	</target>
 
-	<target name="check-if-mgmt-port-is-already-set">
+	<target name="check-if-mgmt-port-is-already-set" depends="splunk-login">
 		<exec executable="sh" outputproperty="splunk.current.mgmtport">
 			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk show splunkd-port ${splunk.accept.license.flags} | awk '{ print $3 }'" />
+			<arg value="${splunk.home}/bin/splunk show splunkd-port | awk '{ print $3 }'" />
 		</exec>
 
 		<condition property="splunkd.mgmtport.is.already.set">
 			<equals arg1="${splunk.current.mgmtport}" arg2="${splunk.mgmtport}" />
 		</condition>
+	</target>
+
+	<!-- Try both the default and changed password -->
+	<target name="splunk-login" depends="set-splunk-home">
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.default.password} 2> /dev/null" />
+		</exec>
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.password} 2> /dev/null" />
+		</exec>
 	</target>
 
 	<target name="splunkd-restart">
