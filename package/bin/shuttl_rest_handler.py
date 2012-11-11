@@ -1,5 +1,6 @@
 import splunk
 import os
+import json
 from xml.dom import minidom
 
 BIN_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -11,7 +12,7 @@ class RendersPort(splunk.rest.BaseRestHandler):
 
     def handle_GET(self):
         response = self.response
-        response.write('Shuttl Port: ' + self._getShuttlPort())
+        response.write(json.dumps({'shuttl_port' : self._getShuttlPort() }, indent=2))
 
     def _getShuttlPort(self):
         xmldoc = minidom.parse(SHUTTL_CONF)
