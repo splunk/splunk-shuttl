@@ -29,6 +29,14 @@ public class IndexerInfo {
 		this.port = port;
 	}
 
+	public String getHost() {
+		return host;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

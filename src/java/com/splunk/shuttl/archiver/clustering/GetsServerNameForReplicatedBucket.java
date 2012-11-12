@@ -26,10 +26,10 @@ import com.splunk.shuttl.archiver.model.Bucket;
 public class GetsServerNameForReplicatedBucket {
 
 	private final ClusterMaster clusterMaster;
-	private RemoteIndexer remoteIndexer;
+	private CallsRemoteIndexer remoteIndexer;
 
 	public GetsServerNameForReplicatedBucket(ClusterMaster clusterMaster,
-			RemoteIndexer remoteIndexer) {
+			CallsRemoteIndexer remoteIndexer) {
 		this.clusterMaster = clusterMaster;
 		this.remoteIndexer = remoteIndexer;
 	}

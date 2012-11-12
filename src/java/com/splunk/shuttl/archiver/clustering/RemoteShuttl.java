@@ -15,17 +15,15 @@
 package com.splunk.shuttl.archiver.clustering;
 
 /**
- *
+ * Does REST calls to remote shuttls.
  */
-public class RemoteIndexer {
+public class RemoteShuttl {
 
 	/**
-	 * @param indexerInfo
-	 * @return
+	 * @return server name from a Shuttl server.
 	 */
-	public String getShuttlConfiguredServerName(IndexerInfo indexerInfo) {
-		// TODO Auto-generated method stub
-		return null;
+	public String getServerName(String hostname, int shuttlPort) {
+		throw new UnsupportedOperationException();
 	}
 
 }

@@ -29,12 +29,12 @@ public class GetsServerNameForReplicatedBucketTest {
 	private GetsServerNameForReplicatedBucket underTest;
 	private ClusterMaster clusterMaster;
 	private Bucket replicatedBucket;
-	private RemoteIndexer remoteIndexer;
+	private CallsRemoteIndexer remoteIndexer;
 
 	@BeforeMethod
 	public void setUp() {
 		clusterMaster = mock(ClusterMaster.class);
-		remoteIndexer = mock(RemoteIndexer.class);
+		remoteIndexer = mock(CallsRemoteIndexer.class);
 		underTest = new GetsServerNameForReplicatedBucket(clusterMaster,
 				remoteIndexer);
 		replicatedBucket = mock(Bucket.class);
