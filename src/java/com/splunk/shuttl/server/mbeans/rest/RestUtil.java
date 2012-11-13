@@ -95,7 +95,7 @@ public class RestUtil {
 		return RestUtil.writeMapAsJson(response);
 	}
 
-	private static String writeMapAsJson(Map<String, Object> ret) {
+	public static String writeMapAsJson(Map<String, Object> ret) {
 		try {
 			return new ObjectMapper().writeValueAsString(ret);
 		} catch (Exception e) {
