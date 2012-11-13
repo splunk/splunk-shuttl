@@ -491,7 +491,7 @@
 	</target>
 
 	<target name="set-hadoop-classpath" depends="jar">
-		<property name="hadoop.classpath" value="${name.api.versioned.path}:${name.server.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar" />
+		<property name="hadoop.classpath" value="${name.api.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar" />
 	</target>
 
 	<target name="hadoop-conf-core-site-xml">
@@ -1056,16 +1056,12 @@
 		<property name="name.api.versioned.path" value="${builddir}/jar/${name.api.versioned}.jar" />
 		<property name="name.test.versioned" value="${appname}-test-${version}" />
 		<property name="name.test.versioned.path" value="${builddir}/jar/${name.test.versioned}.jar" />
-		<property name="name.cli.versioned" value="${appname}-cli-${version}" />
-		<property name="name.cli.versioned.path" value="${builddir}/jar/${name.cli.versioned}.jar" />
-		<property name="name.server.versioned" value="${appname}-server-${version}" />
-		<property name="name.server.versioned.path" value="${builddir}/jar/${name.server.versioned}.jar" />
 	</target>
 
 	<!-- create the jar file -->
 	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
-		<jar destfile="${name.server.versioned.path}" basedir="${classdir}">
+		<jar destfile="${name.api.versioned.path}" basedir="${classdir}">
 			<manifest>
 				<section name="com/splunk/shuttl">
 					<attribute name="Implementation-Title" value="Shuttl" />
@@ -1074,28 +1070,7 @@
 				</section>
 				<attribute name="Main-Class" value="com.splunk.shuttl.server.ShuttlJettyServer" />
 			</manifest>
-			<include name="com/splunk/shuttl/customsearch/**" />
-			<include name="com/splunk/shuttl/s2s/**" />
-			<include name="com/splunk/shuttl/server/**" />
-			<include name="com/splunk/shuttl/metrics/**" />
-			<include name="com/splunk/shuttl/exporter/**" />
-			<include name="com/splunk/shuttl/*" />
-			<include name="com/splunk/*" />
-			<include name="com/splunk/shuttl/archiver/**" />
-			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
-		</jar>
-		<jar destfile="${name.api.versioned.path}" basedir="${classdir}">
-			<manifest>
-				<section name="com/splunk/shuttl">
-					<attribute name="Implementation-Title" value="Shuttl" />
-					<attribute name="Implementation-Version" value="${version}" />
-					<attribute name="Implementation-Vendor" value="Splunk" />
-				</section>
-			</manifest>
-			<include name="com/splunk/shuttl/mapred/**" />
-			<include name="com/splunk/shuttl/mapreduce/**" />
-			<include name="com/splunk/shuttl/exporter/**" />
-			<include name="com/splunk/shuttl/ShuttlConstants.class" />
+			<include name="com/splunk/**" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.test.versioned.path}" basedir="${test-classdir}">
@@ -1107,17 +1082,6 @@
 				</section>
 			</manifest>
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
-		</jar>
-		<jar destfile="${name.cli.versioned.path}" basedir="${classdir}">
-			<manifest>
-				<section name="com/splunk/shuttl">
-					<attribute name="Implementation-Title" value="Shuttl" />
-					<attribute name="Implementation-Version" value="${version}" />
-					<attribute name="Implementation-Vendor" value="Splunk" />
-				</section>
-				<attribute name="Main-Class" value="com.splunk.shuttl.cli.ShuttlCLI" />
-			</manifest>
-			<include name="com/splunk/shuttl/cli/**" />
 		</jar>
 	</target>
 
@@ -1167,7 +1131,6 @@
 		</replace>
 		<!-- copy the jar in there -->
 		<copy file="${name.api.versioned.path}" todir="${stage.dir}/bin" />
-		<copy file="${name.server.versioned.path}" todir="${stage.dir}/bin" />
 	</target>
 
 
