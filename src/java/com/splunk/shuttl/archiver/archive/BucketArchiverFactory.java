@@ -36,13 +36,13 @@ public class BucketArchiverFactory {
 	 */
 	public static BucketArchiver createConfiguredArchiver() {
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-		return createWithConfiguration(config, LocalFileSystemPaths.create());
+		return createWithConfAndLocalPaths(config, LocalFileSystemPaths.create());
 	}
 
 	/**
 	 * Testability with specified configuration.
 	 */
-	public static BucketArchiver createWithConfiguration(
+	public static BucketArchiver createWithConfAndLocalPaths(
 			ArchiveConfiguration config, LocalFileSystemPaths localFileSystemPaths) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);

@@ -73,7 +73,7 @@ public class ImportCsvFunctionalTest {
 						localFileSystemPaths);
 
 		realBucket = TUtilsBucket.createRealBucket();
-		csvArchiver = BucketArchiverFactory.createWithConfiguration(
+		csvArchiver = BucketArchiverFactory.createWithConfAndLocalPaths(
 				localCsvArchiveConfigration, localFileSystemPaths);
 	}
 

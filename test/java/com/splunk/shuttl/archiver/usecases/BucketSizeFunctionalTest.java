@@ -62,7 +62,7 @@ public class BucketSizeFunctionalTest {
 		archiverData = createDirectory();
 		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
 				archiverData.getAbsolutePath());
-		bucketArchiver = BucketArchiverFactory.createWithConfiguration(config,
+		bucketArchiver = BucketArchiverFactory.createWithConfAndLocalPaths(config,
 				localFileSystemPaths);
 		SplunkSettings splunkSettings = mock(SplunkSettings.class);
 		thawLocation = createDirectory();
