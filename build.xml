@@ -491,7 +491,7 @@
 	</target>
 
 	<target name="set-hadoop-classpath" depends="jar">
-		<property name="hadoop.classpath" value="${name.api.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar" />
+		<property name="hadoop.classpath" value="${shuttl.versioned.jar.name.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar" />
 	</target>
 
 	<target name="hadoop-conf-core-site-xml">
@@ -1052,8 +1052,8 @@
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties srcfile="${classdir}/com/splunk/shuttl/server/version.properties" />
 
-		<property name="name.api.versioned" value="${appname}-api-${version}" />
-		<property name="name.api.versioned.path" value="${builddir}/jar/${name.api.versioned}.jar" />
+		<property name="shuttl.versioned.jar.name" value="${appname}-${version}" />
+		<property name="shuttl.versioned.jar.name.path" value="${builddir}/jar/${shuttl.versioned.jar.name}.jar" />
 		<property name="name.test.versioned" value="${appname}-test-${version}" />
 		<property name="name.test.versioned.path" value="${builddir}/jar/${name.test.versioned}.jar" />
 	</target>
@@ -1061,7 +1061,7 @@
 	<!-- create the jar file -->
 	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
-		<jar destfile="${name.api.versioned.path}" basedir="${classdir}">
+		<jar destfile="${shuttl.versioned.jar.name.path}" basedir="${classdir}">
 			<manifest>
 				<section name="com/splunk/shuttl">
 					<attribute name="Implementation-Title" value="Shuttl" />
@@ -1130,7 +1130,7 @@
 			<replacefilter token="@VERSION@" value="${version}" />
 		</replace>
 		<!-- copy the jar in there -->
-		<copy file="${name.api.versioned.path}" todir="${stage.dir}/bin" />
+		<copy file="${shuttl.versioned.jar.name.path}" todir="${stage.dir}/bin" />
 	</target>
 
 
