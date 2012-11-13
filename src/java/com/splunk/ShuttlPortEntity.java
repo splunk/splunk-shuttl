@@ -14,13 +14,56 @@
 // limitations under the License.
 package com.splunk;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.Socket;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
+
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
+import com.amazonaws.util.json.JSONTokener;
+
 /**
  * Calls splunk instances shuttl port.
  */
-public class ShuttlPortEntity extends Entity {
+public class ShuttlPortEntity {
 
-	public ShuttlPortEntity(Service service) {
-		super(service, "/shuttl/port");
+	private Service service;
+	private HttpClient httpClient;
+
+	private ShuttlPortEntity(Service service, HttpClient httpClient) {
+		this.service = service;
+		this.httpClient = httpClient;
 	}
 
 	/**
@@ -28,7 +71,138 @@ public class ShuttlPortEntity extends Entity {
 	 *         is connected to.
 	 */
 	public int getShuttlPort() {
-		throw new UnsupportedOperationException();
+		URI shuttlPortRequestUri = URI
+				.create(service.getScheme() + "://" + service.getHost() + ":"
+						+ service.getPort() + "/services/shuttl/port");
+		HttpGet httpGet = new HttpGet(shuttlPortRequestUri);
+		HttpResponse response;
+		try {
+			response = httpClient.execute(httpGet);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		InputStream content;
+		try {
+			content = response.getEntity().getContent();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		JSONTokener jsonTokener = new JSONTokener(new InputStreamReader(content));
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(jsonTokener);
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+		String shuttlPort;
+		try {
+			shuttlPort = jsonObject.getString("shuttl_port");
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+
+		return Integer.parseInt(shuttlPort);
 	}
 
+	/**
+	 * @param splunkService
+	 * @return
+	 */
+	public static ShuttlPortEntity create(Service splunkService) {
+		return new ShuttlPortEntity(splunkService, getInsecureHttpClient());
+	}
+
+	/**
+	 * @return
+	 */
+	@SuppressWarnings("deprecation")
+	private static HttpClient getInsecureHttpClient() {
+		KeyStore trustStore = getTrustStore();
+		SSLSocketFactory sf = createSSLSocketFactory(trustStore);
+		sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+
+		HttpParams params = new BasicHttpParams();
+		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
+
+		SchemeRegistry registry = new SchemeRegistry();
+		registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(),
+				80));
+		registry.register(new Scheme("https", sf, 443));
+
+		ClientConnectionManager ccm = new ThreadSafeClientConnManager(params,
+				registry);
+
+		return new DefaultHttpClient(ccm, params);
+	}
+
+	private static SSLSocketFactory createSSLSocketFactory(KeyStore trustStore) {
+		try {
+			return new EasySSLSocketFactory(trustStore);
+		} catch (KeyManagementException e) {
+			throw new RuntimeException(e);
+		} catch (UnrecoverableKeyException e) {
+			throw new RuntimeException(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		} catch (KeyStoreException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static KeyStore getTrustStore() {
+		try {
+			KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			trustStore.load(null, null);
+			return trustStore;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static TrustManager getTrustManager() {
+		return new X509TrustManager() {
+			@Override
+			public void checkClientTrusted(X509Certificate[] arg0, String arg1)
+					throws CertificateException {
+			}
+
+			@Override
+			public void checkServerTrusted(X509Certificate[] arg0, String arg1)
+					throws CertificateException {
+			}
+
+			@Override
+			public X509Certificate[] getAcceptedIssuers() {
+				return null;
+			};
+		};
+	}
+
+	private static class EasySSLSocketFactory extends SSLSocketFactory {
+		SSLContext sslContext = SSLContext.getInstance("TLS");
+
+		public EasySSLSocketFactory(KeyStore truststore)
+				throws NoSuchAlgorithmException, KeyManagementException,
+				KeyStoreException, UnrecoverableKeyException {
+			super(truststore);
+			TrustManager tm = getTrustManager();
+			sslContext.init(null, new TrustManager[] { tm }, new SecureRandom());
+		}
+
+		@Override
+		public Socket createSocket(Socket socket, String host, int port,
+				boolean autoClose) throws IOException, UnknownHostException {
+			return sslContext.getSocketFactory().createSocket(socket, host, port,
+					autoClose);
+		}
+
+		@Override
+		public Socket createSocket() throws IOException {
+			return sslContext.getSocketFactory().createSocket();
+		}
+
+	}
 }

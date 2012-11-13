@@ -24,7 +24,7 @@ public class ShuttlPortEntityProvider {
 
 	public ShuttlPortEntity getForIndexerInfo(IndexerInfo indexer) {
 		Service splunkService = new Service(indexer.getHost(), indexer.getPort());
-		return new ShuttlPortEntity(splunkService);
+		return ShuttlPortEntity.create(splunkService);
 	}
 
 }

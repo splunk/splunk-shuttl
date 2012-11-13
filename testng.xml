@@ -4,7 +4,7 @@
 	<parameter name="splunk.username" value="admin" />
 	<parameter name="splunk.password" value="changed" />
 	<parameter name="splunk.host" value="localhost" />
-	<parameter name="splunk.mgmtport" value="8089" />
+	<parameter name="splunk.mgmtport" value="8088" />
 	<parameter name="hadoop.host" value="localhost" />
 	<parameter name="hadoop.port" value="9000" />
 	<parameter name="shuttl.host" value="localhost" />
@@ -19,13 +19,14 @@
 	<parameter name="cluster.slave2.shuttl.port" value="7092" />
 	
 
-	<test name="end-to-end" preserve-order="true" enabled="false">
+	<test name="end-to-end" preserve-order="true" enabled="true">
 		<classes>
 			<class name="com.splunk.shuttl.archiver.clustering.RemoteShuttlTest" />
+			<class name="com.splunk.ShuttlPortEntityTest" />
 		</classes>
 	</test> <!-- Test -->
 
-	<test name="cluster-test" preserve-order="true" enabled="true">
+	<test name="cluster-test" preserve-order="true" enabled="false">
 		<classes>
 			<class name="com.splunk.ClusterConfigTest" />
 			<class name="com.splunk.ClusterPeersTest" />
