@@ -8,7 +8,7 @@
 	<parameter name="hadoop.host" value="localhost" />
 	<parameter name="hadoop.port" value="9000" />
 	<parameter name="shuttl.host" value="localhost" />
-	<parameter name="shuttl.port" value="9090" />
+	<parameter name="shuttl.port" value="9099" />
 	<parameter name="splunk.home" value="./build-cache/splunk-1" />
 	<parameter name="shuttl.conf.dir" value="./build/shuttl/conf" />
 	<parameter name="cluster.master.port" value="8070" />

@@ -46,7 +46,7 @@ public class RemoteShuttlTest {
 						String actualServerName = remoteShuttl.getServerName(shuttlHost,
 								Integer.parseInt(shuttlPort));
 						String expectedServerName = getConfiguredServerName();
-						assertEquals(expectedServerName, actualServerName);
+						assertEquals(actualServerName, expectedServerName);
 					}
 
 					private String getConfiguredServerName() {

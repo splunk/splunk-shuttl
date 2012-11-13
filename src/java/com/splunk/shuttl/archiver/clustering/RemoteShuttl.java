@@ -14,13 +14,17 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.clustering;
 
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
+import com.amazonaws.util.json.JSONTokener;
 import com.splunk.shuttl.ShuttlConstants;
 
 /**
@@ -41,25 +45,49 @@ public class RemoteShuttl {
 	 * @return server name from a Shuttl server.
 	 */
 	public String getServerName(String hostname, int shuttlPort) {
-		HttpGet get = new HttpGet("http://" + hostname + ":" + shuttlPort + "/"
+		HttpGet get = constructServerNameRequest(hostname, shuttlPort);
+		return getServerNameByRestRequest(get);
+	}
+
+	private HttpGet constructServerNameRequest(String hostname, int shuttlPort) {
+		return new HttpGet("http://" + hostname + ":" + shuttlPort + "/"
 				+ ShuttlConstants.ENDPOINT_CONTEXT
 				+ ShuttlConstants.ENDPOINT_SHUTTL_CONFIGURATION
 				+ ShuttlConstants.ENDPOINT_CONFIG_SERVERNAME);
-		return executeRequest(get);
 	}
 
-	private String executeRequest(HttpGet get) {
-		List<String> readLines = getLinesFromRequest(get);
-		return readLines.get(0).split(":")[1].replaceAll("}", "");
+	private String getServerNameByRestRequest(HttpGet httpGet) {
+		HttpResponse response = executeRequest(httpGet);
+		InputStream reponseContent = getReponseContent(response);
+		return getServerNameFromResponse(reponseContent);
 	}
 
-	private List<String> getLinesFromRequest(HttpGet get) {
+	private HttpResponse executeRequest(HttpGet httpGet) {
 		try {
-			HttpResponse response = defaultHttpClient.execute(get);
-			return IOUtils.readLines(response.getEntity().getContent());
-		} catch (Exception e) {
+			return defaultHttpClient.execute(httpGet);
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	private InputStream getReponseContent(HttpResponse response) {
+		try {
+			return response.getEntity().getContent();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private String getServerNameFromResponse(InputStream responseContent) {
+		try {
+			JSONObject jsonObject = createJsonObject(responseContent);
+			return jsonObject.getString("server_name");
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private JSONObject createJsonObject(InputStream in) throws JSONException {
+		return new JSONObject(new JSONTokener(new InputStreamReader(in)));
+	}
 }

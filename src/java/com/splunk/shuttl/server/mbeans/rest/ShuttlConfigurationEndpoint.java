@@ -19,10 +19,13 @@ import static com.splunk.shuttl.ShuttlConstants.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.management.InstanceNotFoundException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 
 @Path(ENDPOINT_SHUTTL_CONFIGURATION)
 public class ShuttlConfigurationEndpoint {
@@ -31,9 +34,17 @@ public class ShuttlConfigurationEndpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(ENDPOINT_CONFIG_SERVERNAME)
 	public String getServerName() {
-		final String serverName = null;
+		String serverName = getConfiguredServerName();
 		Map<String, Object> hashMap = new HashMap<String, Object>();
 		hashMap.put("server_name", serverName);
 		return RestUtil.writeMapAsJson(hashMap);
+	}
+
+	private String getConfiguredServerName() {
+		try {
+			return ShuttlArchiver.getMBeanProxy().getServerName();
+		} catch (InstanceNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
