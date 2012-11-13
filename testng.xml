@@ -14,15 +14,13 @@
 	<parameter name="cluster.master.port" value="8070" />
 	<parameter name="cluster.slave1.port" value="8071" />
 
-	<test name="end-to-end" preserve-order="true" enabled="false">
+	<test name="end-to-end" preserve-order="true" enabled="true">
 		<classes>
-			<class name="com.splunk.shuttl.archiver.filesystem.BackendConfigurationFilesTest" />
-			<class name="com.splunk.shuttl.archiver.filesystem.glacier.AWSCredentialsImplTest" />
-			<class name="com.splunk.shuttl.archiver.ConfigurationPathsTest" />
+			<class name="com.splunk.shuttl.archiver.clustering.RemoteShuttlTest" />
 		</classes>
 	</test> <!-- Test -->
 
-	<test name="cluster-test" preserve-order="true" enabled="true">
+	<test name="cluster-test" preserve-order="true" enabled="false">
 		<classes>
 			<class name="com.splunk.ClusterConfigTest" />
 			<class name="com.splunk.ClusterPeersTest" />

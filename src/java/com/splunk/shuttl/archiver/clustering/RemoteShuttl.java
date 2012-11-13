@@ -14,16 +14,52 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.clustering;
 
+import java.util.List;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import com.splunk.shuttl.ShuttlConstants;
+
 /**
  * Does REST calls to remote shuttls.
  */
 public class RemoteShuttl {
 
+	private DefaultHttpClient defaultHttpClient;
+
+	/**
+	 * @param defaultHttpClient
+	 */
+	public RemoteShuttl(DefaultHttpClient defaultHttpClient) {
+		this.defaultHttpClient = defaultHttpClient;
+	}
+
 	/**
 	 * @return server name from a Shuttl server.
 	 */
 	public String getServerName(String hostname, int shuttlPort) {
-		throw new UnsupportedOperationException();
+		HttpGet get = new HttpGet("http://" + hostname + ":" + shuttlPort + "/"
+				+ ShuttlConstants.ENDPOINT_CONTEXT
+				+ ShuttlConstants.ENDPOINT_SHUTTL_CONFIGURATION
+				+ ShuttlConstants.ENDPOINT_CONFIG_SERVERNAME);
+		return executeRequest(get);
+	}
+
+	private String executeRequest(HttpGet get) {
+		List<String> readLines = getLinesFromRequest(get);
+		return readLines.get(0).split(":")[1].replaceAll("}", "");
+	}
+
+	private List<String> getLinesFromRequest(HttpGet get) {
+		try {
+			HttpResponse response = defaultHttpClient.execute(get);
+			return IOUtils.readLines(response.getEntity().getContent());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
