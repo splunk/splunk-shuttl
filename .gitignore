@@ -41,3 +41,7 @@ infinitest.filter
 
 # Vim
 *.swp
+
+# File that makes testng.xml be higher up in the eclipse package explorer.
+# Eclipse for mac is extremely annoying.
+/zz.file
