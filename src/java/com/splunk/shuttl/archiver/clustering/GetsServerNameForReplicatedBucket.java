@@ -47,4 +47,9 @@ public class GetsServerNameForReplicatedBucket {
 		return remoteIndexer.getShuttlConfiguredServerName(indexerInfo);
 	}
 
+	public static GetsServerNameForReplicatedBucket create() {
+		return new GetsServerNameForReplicatedBucket(ClusterMaster.create(),
+				CallsRemoteIndexer.create());
+	}
+
 }

@@ -19,6 +19,7 @@ import java.net.URI;
 import com.splunk.ClusterConfig;
 import com.splunk.ClusterPeer;
 import com.splunk.ClusterPeers;
+import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
 
 /**
  * Handles all communication to the ClusterMaster.
@@ -35,13 +36,19 @@ public class ClusterMaster {
 	}
 
 	/**
-	 * 
+	 * Indexer host and port from a guid.
 	 */
 	public IndexerInfo indexerForGuid(String guid) {
 		URI clusterMasterUri = clusterConfig.getClusterMasterUri();
 		ClusterPeers clusterPeers = peersProvider.getForMasterUri(clusterMasterUri);
 		ClusterPeer clusterPeer = clusterPeers.get(guid);
 		return IndexerInfo.create(clusterPeer);
+	}
+
+	public static ClusterMaster create() {
+		return new ClusterMaster(new ClusterConfig(
+				SplunkSettingsFactory.getLoggedInSplunkService()),
+				ClusterPeersProvider.create());
 	}
 
 }

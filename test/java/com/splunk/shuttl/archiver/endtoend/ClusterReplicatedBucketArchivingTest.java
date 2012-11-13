@@ -48,12 +48,15 @@ public class ClusterReplicatedBucketArchivingTest {
 
 	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.port",
 			"cluster.slave2.host", "cluster.slave2.port",
-			"cluster.slave2.shuttl.port" })
+			"cluster.slave2.shuttl.port", "splunk.username", "splunk.password" })
 	public void test(String slave1Host, String slave1Port, String slave2Host,
-			String slave2Port, String slave2ShuttlPort) {
+			String slave2Port, String slave2ShuttlPort, String splunkUser,
+			String splunkPass) {
 		index = "shuttl";
-		Service slave1 = new Service(slave1Host, Integer.parseInt(slave1Port));
-		Service slave2 = new Service(slave2Host, Integer.parseInt(slave2Port));
+		Service slave1 = getLoggedInService(slave1Host, slave1Port, splunkUser,
+				splunkPass);
+		Service slave2 = getLoggedInService(slave2Host, slave2Port, splunkUser,
+				splunkPass);
 
 		assertTrue(slave2.getIndexes().containsKey(index));
 		String coldPathExpanded = slave2.getIndexes().get(index)
@@ -93,6 +96,13 @@ public class ClusterReplicatedBucketArchivingTest {
 				}
 			}
 		});
+	}
+
+	private Service getLoggedInService(String slave2Host, String slave2Port,
+			String splunkUser, String splunkPass) {
+		Service slave2 = new Service(slave2Host, Integer.parseInt(slave2Port));
+		slave2.login(splunkUser, splunkPass);
+		return slave2;
 	}
 
 	private void callSlave2ArchiveBucketEndpoint(String index, String bucketPath,

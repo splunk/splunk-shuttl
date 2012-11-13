@@ -23,7 +23,7 @@ import java.net.URI;
  */
 public class ClusterConfig extends Entity {
 
-	ClusterConfig(Service service) {
+	public ClusterConfig(Service service) {
 		super(service, "cluster/config/config");
 	}
 

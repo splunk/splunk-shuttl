@@ -266,6 +266,12 @@
 	<target name="clean-built-classes-then-compile" depends="clean-built-classes, compile" />
 
 	<propertyset id="testng">
+		<propertyref name="cluster.master.port" />
+		<propertyref name="cluster.slave1.host" />
+		<propertyref name="cluster.slave1.port" />
+		<propertyref name="cluster.slave2.host" />
+		<propertyref name="cluster.slave2.port" />
+		<propertyref name="cluster.slave2.shuttl.port" />
 		<propertyref name="splunk.username" />
 		<propertyref name="splunk.password" />
 		<propertyref name="splunk.home" />
@@ -1074,6 +1080,7 @@
 			<include name="com/splunk/shuttl/metrics/**" />
 			<include name="com/splunk/shuttl/exporter/**" />
 			<include name="com/splunk/shuttl/*" />
+			<include name="com/splunk/*" />
 			<include name="com/splunk/shuttl/archiver/**" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>

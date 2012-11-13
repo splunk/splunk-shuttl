@@ -16,7 +16,7 @@ package com.splunk.shuttl.archiver.archive;
 
 import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
-import static org.testng.AssertJUnit.*;
+import static org.testng.Assert.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -159,5 +159,35 @@ public class ArchiveConfigurationTest {
 
 	private void assertPathsHasSameParent(String path1, String path2) {
 		assertEquals(new File(path1).getParent(), new File(path2).getParent());
+	}
+
+	public void newWithServerName_serverName_newInstanceWithNewServerName() {
+		ArchiveConfiguration original = createConfiguration();
+		ArchiveConfiguration newConfig = original
+				.newConfigWithServerName("newServerName");
+		assertNotEquals(original, newConfig);
+		assertNotEquals(original.getServerName(), newConfig.getServerName());
+	}
+
+	public void newWithServerName_configHasAllValues_allValuesOtherThanServerNameAreTheSame() {
+		List<BucketFormat> list = asList(BucketFormat.UNKNOWN);
+		ArchiveConfiguration originalConf = new ArchiveConfiguration("a", list,
+				"c", "d", list, "f", "g", "h");
+		ArchiveConfiguration newConf = originalConf
+				.newConfigWithServerName("newServerName");
+
+		assertEquals(originalConf.getArchiveDataPath(),
+				newConf.getArchiveDataPath());
+		assertEquals(originalConf.getArchiveFormats(), newConf.getArchiveFormats());
+		assertEquals(originalConf.getArchiveTempPath(),
+				newConf.getArchiveTempPath());
+		assertEquals(originalConf.getBackendName(), newConf.getBackendName());
+		assertEquals(originalConf.getBucketFormatPriority(),
+				newConf.getBucketFormatPriority());
+		assertEquals(originalConf.getClusterName(), newConf.getClusterName());
+		assertEquals(originalConf.getLocalArchiverDir(),
+				newConf.getLocalArchiverDir());
+
+		assertNotEquals(originalConf.getServerName(), newConf.getServerName());
 	}
 }

@@ -196,12 +196,12 @@ public class TUtilsFile {
 	 *          name of the child
 	 * @return the created directory.
 	 */
-	public static File createDirectoryInParent(File parent, String string) {
-		File child = new File(parent, string);
+	public static File createDirectoryInParent(File parent, String name) {
 		if (!parent.getAbsolutePath().contains(
 				getShuttlTestDirectory().getAbsolutePath()))
-			throw new IllegalArgumentException(
-					"Parent must live in the ShuttlTestDirectory. Parent: " + parent);
+			System.err.println("Warning! Creating files in parent outside of "
+					+ "ShuttlTestDirectory. File: " + parent);
+		File child = new File(parent, name);
 		createDirectory(child);
 		return child;
 	}
