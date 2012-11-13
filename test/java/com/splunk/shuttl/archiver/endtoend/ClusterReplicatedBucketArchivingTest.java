@@ -38,6 +38,7 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.testutil.TUtilsHttp;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
@@ -48,10 +49,11 @@ public class ClusterReplicatedBucketArchivingTest {
 
 	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.port",
 			"cluster.slave2.host", "cluster.slave2.port",
-			"cluster.slave2.shuttl.port", "splunk.username", "splunk.password" })
+			"cluster.slave2.shuttl.port", "splunk.username", "splunk.password",
+			"splunk.home" })
 	public void test(String slave1Host, String slave1Port, String slave2Host,
 			String slave2Port, String slave2ShuttlPort, String splunkUser,
-			String splunkPass) {
+			String splunkPass, final String splunkHome) {
 		index = "shuttl";
 		Service slave1 = getLoggedInService(slave1Host, slave1Port, splunkUser,
 				splunkPass);
@@ -76,26 +78,40 @@ public class ClusterReplicatedBucketArchivingTest {
 		}
 
 		String slave1SplunkHome = slave1.getSettings().getSplunkHome();
-		File slave1ShuttlConfDir = new File(slave1SplunkHome
+		final File slave1ShuttlConfDir = new File(slave1SplunkHome
 				+ "/etc/apps/shuttl/conf");
-		TUtilsMBean.runWithRegisteredMBeans(slave1ShuttlConfDir, new Runnable() {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 			@Override
 			public void run() {
-				ArchiveConfiguration config = ArchiveConfiguration
-						.createConfigurationFromMBean();
-				PathResolver pathResolver = new PathResolver(config);
-				String archivePath = pathResolver.resolveArchivePath(rb);
-				ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
-						.getWithConfiguration(config);
-				try {
-					assertTrue(archiveFileSystem.exists(archivePath));
-				} catch (IOException e) {
-					TUtilsTestNG
-							.failForException("Path did not exist: " + archivePath, e);
-				}
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				TUtilsMBean.runWithRegisteredMBeans(slave1ShuttlConfDir,
+						new AssertBucketWasArchived(rb));
 			}
 		});
+	}
+
+	private static class AssertBucketWasArchived implements Runnable {
+		private LocalBucket replicatedBucket;
+
+		public AssertBucketWasArchived(LocalBucket rb) {
+			this.replicatedBucket = rb;
+		}
+
+		@Override
+		public void run() {
+			ArchiveConfiguration config = ArchiveConfiguration
+					.createConfigurationFromMBean();
+			PathResolver pathResolver = new PathResolver(config);
+			String archivePath = pathResolver.resolveArchivePath(replicatedBucket);
+			ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
+					.getWithConfiguration(config);
+			try {
+				assertTrue(archiveFileSystem.exists(archivePath));
+			} catch (IOException e) {
+				TUtilsTestNG.failForException("Path did not exist: " + archivePath, e);
+			}
+		}
 	}
 
 	private Service getLoggedInService(String slave2Host, String slave2Port,
@@ -118,6 +134,6 @@ public class ClusterReplicatedBucketArchivingTest {
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpResponse response = httpClient.execute(httpPost);
 
-		assertEquals(200, response.getStatusLine().getStatusCode());
+		assertEquals(204, response.getStatusLine().getStatusCode());
 	}
 }
