@@ -339,9 +339,15 @@
 	</target>
 
 	<target name="run-cluster-tests-with-setup-and-teardown">
-		<antcall target="cluster-setup" />
+		<antcall>
+			<target name="cluster-setup" />
+			<target name="hadoop-setup" />
+		</antcall>
 		<antcallback target="do-cluster-tests" return="testng.failed" />
-		<antcall target="cluster-teardown" />
+		<antcall>
+			<target name="cluster-teardown" />
+			<target name="hadoop-teardown" />
+		</antcall>
 	</target>
 
 	<target name="do-cluster-tests" depends="compile,set-splunk-home">
