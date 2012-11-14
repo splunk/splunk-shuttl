@@ -42,8 +42,8 @@ public class LocalBucket extends Bucket {
 	public LocalBucket(File directory, String index, String bucketName,
 			BucketFormat format, Long size) throws FileNotFoundException,
 			FileNotDirectoryException {
-		super(verifyDirectory(directory).getAbsolutePath(), index, directory
-				.getName(), format, setSizeOnNullSizedLocalBucket(directory, size));
+		super(verifyDirectory(directory).getAbsolutePath(), index, bucketName,
+				format, setSizeOnNullSizedLocalBucket(directory, size));
 		this.directory = directory;
 	}
 

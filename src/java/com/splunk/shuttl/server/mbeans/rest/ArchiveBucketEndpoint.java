@@ -101,6 +101,8 @@ public class ArchiveBucketEndpoint {
 		ArchiveConfiguration conf = getConfigurationDependingOnBucketProperties(bucket);
 		BucketArchiver bucketArchiver = BucketArchiverFactory
 				.createWithConfig(conf);
+
+		bucket = getNormalizedBucket(bucket);
 		return new BucketArchiverRunner(bucketArchiver, bucket, bucketLock);
 	}
 
@@ -118,6 +120,20 @@ public class ArchiveBucketEndpoint {
 		String serverName = GetsServerNameForReplicatedBucket.create()
 				.getServerName(bucket);
 		return configuration.newConfigWithServerName(serverName);
+	}
+
+	private LocalBucket getNormalizedBucket(LocalBucket bucket) {
+		if (bucket.isReplicatedBucket())
+			return getBucketWithNormalBucketName(bucket);
+		else
+			return bucket;
+	}
+
+	private LocalBucket getBucketWithNormalBucketName(LocalBucket b) {
+		String normalizedBucketName = b.getName().replaceFirst("rb", "db");
+		return BucketFactory.createBucketWithIndexDirectoryBucketNameAndSize(
+				b.getIndex(), new File(b.getPath()), normalizedBucketName,
+				b.getFormat(), b.getSize());
 	}
 
 	private void throwExceptionIfSharedLockCannotBeAcquired(BucketLock bucketLock) {
