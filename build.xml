@@ -331,11 +331,9 @@
 		<antcall>
 			<target name="hadoop-setup" />
 			<target name="splunk-setup" />
-			<target name="hbase-setup" />
 		</antcall>
 		<antcallback target="do-end-to-end-tests" return="testng.failed" />
 		<antcall>
-			<target name="hbase-teardown" />
 			<target name="splunk-teardown" />
 			<target name="hadoop-teardown" />
 		</antcall>
@@ -401,6 +399,7 @@
 	<target name="set-hbase-home">
 		<property name="hbase.home" value="${hbase.extracted.path}" />
 	</target>
+
 	<!-- Hadoop -->
 	<target name="hadoop-setup" depends="set-hadoop-home">
 		<antcall>
@@ -708,8 +707,16 @@
 		<exec executable="${hbase.home}/bin/stop-hbase.sh" />
 	</target>
 
-	<target name="hbase-start" depends="set-hbase-home">
+	<target name="hbase-start" depends="set-hbase-home, hadoop-start">
 		<exec executable="${hbase.home}/bin/start-hbase.sh" />
+	</target>
+
+	<target name="hbase-restart" depends="set-hbase-home, set-hadoop-home">
+		<antcall>
+			<target name="hbase-stop" />
+			<target name="hadoop-stop" />
+			<target name="hbase-start" />
+		</antcall>
 	</target>
 
 	<target name="hbase-teardown" depends="set-hbase-home,check-for-hbase-binaries" if="existsHBaseBinaries">
@@ -728,13 +735,6 @@
 			<target name="hbase-download" />
 			<target name="hbase-extract" />
 			<target name="hbase-copy-confs" />
-		</antcall>
-	</target>
-	<target name="hbase-restart" depends="set-hbase-home, set-hadoop-home">
-		<antcall>
-			<target name="hbase-stop" />
-			<target name="hadoop-stop" />
-			<target name="hbase-start" />
 		</antcall>
 	</target>
 
