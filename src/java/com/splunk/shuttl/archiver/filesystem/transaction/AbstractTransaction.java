@@ -45,8 +45,18 @@ public abstract class AbstractTransaction<T> implements Transaction {
 
 	@Override
 	public void prepare() {
-		makeDirectories();
-		transferData();
+		if (!destinationExists()) {
+			makeDirectories();
+			transferData();
+		}
+	}
+
+	private boolean destinationExists() {
+		try {
+			return hasFileStructure.exists(dst);
+		} catch (IOException e) {
+			throw new TransactionException(e);
+		}
 	}
 
 	private void makeDirectories() {
@@ -79,6 +89,11 @@ public abstract class AbstractTransaction<T> implements Transaction {
 
 	@Override
 	public void commit() {
+		if (!destinationExists())
+			renameTemporaryPathToDestinationPath();
+	}
+
+	private void renameTemporaryPathToDestinationPath() {
 		try {
 			hasFileStructure.rename(temp, dst);
 		} catch (IOException e) {
