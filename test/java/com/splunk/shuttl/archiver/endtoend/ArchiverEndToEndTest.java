@@ -22,17 +22,17 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+
+import javax.management.InstanceNotFoundException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -52,8 +52,11 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.archiver.testutil.TUtilsHttp;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.server.mbeans.ShuttlServer;
+import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsDate;
 import com.splunk.shuttl.testutil.TUtilsFile;
@@ -97,9 +100,9 @@ public class ArchiverEndToEndTest {
 					final String splunkPort, final String hadoopHost,
 					final String hadoopPort, final String shuttlHost,
 					final String shuttlPort) {
-				setUp(splunkUserName, splunkPw, splunkHost, splunkPort, shuttlHost,
-						shuttlPort);
 				try {
+					setUp(splunkUserName, splunkPw, splunkHost, splunkPort, shuttlHost,
+							shuttlPort);
 					archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket();
 				} catch (Exception e) {
 					TUtilsTestNG.failForException("Test got exception", e);
@@ -111,7 +114,8 @@ public class ArchiverEndToEndTest {
 	}
 
 	private void setUp(String splunkUserName, String splunkPw, String splunkHost,
-			String splunkPort, String shuttlHost, String shuttlPort) {
+			String splunkPort, String shuttlHost, String shuttlPort)
+			throws InstanceNotFoundException {
 		this.shuttlHost = shuttlHost;
 		this.shuttlPort = Integer.parseInt(shuttlPort);
 		archiveConfiguration = ArchiveConfiguration.getSharedInstance();
@@ -132,15 +136,17 @@ public class ArchiverEndToEndTest {
 		}
 	}
 
-	private BucketFreezer getSuccessfulBucketFreezer() {
+	private BucketFreezer getSuccessfulBucketFreezer()
+			throws InstanceNotFoundException {
 		File movedBucketsLocation = createDirectoryInParent(tempDirectory,
 				ArchiverEndToEndTest.class.getName() + "-safeBuckets");
 		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
 				.create(movedBucketsLocation);
 		BucketLocker bucketLocker = new BucketLockerInTestDir(
 				createDirectoryInParent(tempDirectory, "bucketlocks"));
+		ShuttlServerMBean serverMBean = ShuttlServer.getMBeanProxy();
 		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-				new DefaultHttpClient());
+				new DefaultHttpClient(), serverMBean);
 
 		return new BucketFreezer(bucketMover, bucketLocker, archiveRestHandler,
 				mock(FailedBucketsArchiver.class));
@@ -227,20 +233,8 @@ public class ArchiverEndToEndTest {
 		List<BasicNameValuePair> postParams = asList(nameValue("index", index),
 				nameValue("from", earliest.getTime()),
 				nameValue("to", latest.getTime()));
-		setParamsToPostRequest(httpPost, postParams);
+		TUtilsHttp.setParamsToPostRequest(httpPost, postParams);
 		return httpPost;
-	}
-
-	private void setParamsToPostRequest(HttpPost httpPost,
-			List<BasicNameValuePair> postParams) {
-		try {
-			httpPost.setEntity(new UrlEncodedFormEntity(postParams));
-		} catch (UnsupportedEncodingException e) {
-			TUtilsTestNG
-					.failForException(
-							"Could not create url encoded form entity with params: "
-									+ postParams, e);
-		}
 	}
 
 	private HttpResponse executeUriRequest(HttpUriRequest request) {

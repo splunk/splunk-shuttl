@@ -109,7 +109,7 @@ public class FlusherFunctionalTest {
 
 	private void archiveBuckets(LocalBucket b1, LocalBucket b2) {
 		BucketArchiver bucketArchiver = BucketArchiverFactory
-				.createWithConfiguration(config, localFileSystemPaths);
+				.createWithConfAndLocalPaths(config, localFileSystemPaths);
 
 		archiveBucket(b1, bucketArchiver);
 		archiveBucket(b2, bucketArchiver);

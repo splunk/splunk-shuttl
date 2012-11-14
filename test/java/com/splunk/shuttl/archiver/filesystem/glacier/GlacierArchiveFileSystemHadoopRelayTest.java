@@ -20,7 +20,6 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -86,9 +85,8 @@ public class GlacierArchiveFileSystemHadoopRelayTest {
 		assertEquals(asList(path2), glacier.listPath(path1));
 	}
 
-	public void openFile__relaysToHadoop() throws IOException {
-		InputStream in = mock(InputStream.class);
-		when(hadoop.openFile(path1)).thenReturn(in);
-		assertEquals(in, glacier.openFile(path1));
+	public void exists__relaysToHadoop() throws IOException {
+		glacier.exists(path1);
+		verify(hadoop).exists(path1);
 	}
 }

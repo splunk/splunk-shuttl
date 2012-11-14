@@ -47,6 +47,8 @@ public final class ShuttlConstants {
 	public static final String ENDPOINT_EXPORT_SRVC_STATUS = "/exportservicestatus";
 	public static final String ATT_DEF_HADOOP_CLUSTER_HOST = "DefHadoopClusterHost";
 	public static final String ATT_DEF_HADOOP_CLUSTER_PORT = "DefHadoopClusterPort";
+	public static final String ENDPOINT_SHUTTL_CONFIGURATION = "/config";
+	public static final String ENDPOINT_CONFIG_SERVERNAME = "/server_name";
 
 	// Splunk field names
 	public static final String SPLUNK_EVENT_FIELD_RAW = "_raw";

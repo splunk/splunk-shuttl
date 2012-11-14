@@ -16,20 +16,21 @@ package com.splunk.shuttl.archiver.archive;
 
 import static org.testng.Assert.*;
 
-import java.io.File;
-
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.ArchiverMBeanNotRegisteredException;
 import com.splunk.shuttl.testutil.TUtilsConf;
+import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 
-@Test(groups = { "fast-unit" })
 public class BucketFreezerProviderTest {
 
-	public void getConfiguredBucketFreezer_givenRegisteredMBeans_notNull() {
-		File shuttlConfs = TUtilsConf.getNullConfsDir();
-		TUtilsMBean.runWithRegisteredMBeans(shuttlConfs, new Runnable() {
+	@Test(groups = { "end-to-end" })
+	@Parameters(value = { "splunk.home" })
+	public void getConfiguredBucketFreezer_givenRegisteredMBeans_notNull(
+			final String splunkHome) {
+		final Runnable assertGettingNonNullInstance = new Runnable() {
 
 			@Override
 			public void run() {
@@ -37,10 +38,21 @@ public class BucketFreezerProviderTest {
 						.getConfiguredBucketFreezer();
 				assertNotNull(bf);
 			}
+		};
+
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				TUtilsMBean.runWithRegisteredMBeans(TUtilsConf.getNullConfsDir(),
+						assertGettingNonNullInstance);
+			}
 		});
+
 	}
 
-	@Test(expectedExceptions = { ArchiverMBeanNotRegisteredException.class })
+	@Test(groups = { "fast-unit" }, expectedExceptions = { ArchiverMBeanNotRegisteredException.class })
 	public void getConfiguredBucketFreezer_notRegisteredMBeans_throwArchiverMBeanNotRegistered() {
 		new BucketFreezerProvider().getConfiguredBucketFreezer();
 	}

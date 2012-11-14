@@ -235,4 +235,42 @@ public class TUtilsBucketTest {
 		assertEquals(1, bucketFiles.length);
 		assertTrue(bucketFiles[0].getName().endsWith("tgz"));
 	}
+
+	public void createReplicatedBucket__nameStartsWith_rb() {
+		Bucket bucket = TUtilsBucket.createReplicatedBucket("foo",
+				createDirectory(), "baz");
+		assertTrue(bucket.getName().startsWith("rb"));
+	}
+
+	public void createReplicatedBucket_parent_directoryIsInParent() {
+		File parent = createDirectory();
+		LocalBucket b = TUtilsBucket.createReplicatedBucket("foo", parent, "baz");
+		assertEquals(b.getDirectory().getParentFile().getAbsolutePath(),
+				parent.getAbsolutePath());
+	}
+
+	public void createReplicatedBucket_guid_endsWith_guid() {
+		Bucket b = TUtilsBucket.createReplicatedBucket("foo", createDirectory(),
+				"baz");
+		assertTrue(b.getName().endsWith("_baz"));
+	}
+
+	public void createReplicatedBucket_index_hasThatIndex() {
+		String index = "replicated_index";
+		LocalBucket b = TUtilsBucket.createReplicatedBucket(index,
+				createDirectory(), "baz");
+		assertEquals(index, b.getIndex());
+	}
+
+	public void replaceEverythingAfterEarliestTimeWithIndexAndGuid_indexAndGuid_endsWithIndexAndGuid() {
+		String name = bucket.getName();
+		long newIndex = 1234;
+		String newName = TUtilsBucket
+				.replaceEverythingAfterEarliestTimeWithIndexAndGuid(name, 1234, "guid");
+		assertTrue(newName.endsWith(newIndex + "_" + "guid"));
+
+		int idx = newName.lastIndexOf(newIndex + "");
+		String removedLastPart = newName.substring(0, idx);
+		assertTrue(bucket.getName().startsWith(removedLastPart));
+	}
 }

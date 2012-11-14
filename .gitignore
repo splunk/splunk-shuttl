@@ -37,4 +37,11 @@ ivy.xml
 
 
 # Infinitest filters, for filtering out tests that developers don't want to be run for every save
-infinitest.filters
+infinitest.filter
+
+# Vim
+*.swp
+
+# File that makes testng.xml be higher up in the eclipse package explorer.
+# Eclipse for mac is extremely annoying.
+/zz.file

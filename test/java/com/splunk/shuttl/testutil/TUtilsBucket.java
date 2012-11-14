@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
+import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -30,6 +31,7 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.BucketExportControllerIntegrationTest;
 import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.BucketName;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.model.RemoteBucket;
@@ -273,5 +275,37 @@ public class TUtilsBucket {
 		}
 		return createBucketWithIndexInDirectoryAndFormat("index", bucketDir,
 				BucketFormat.SPLUNK_BUCKET_TGZ);
+	}
+
+	/**
+	 * @return bucket that has the bucket name of a bucket created with Splunk
+	 *         clustering bucket replication.
+	 */
+	public static LocalBucket createReplicatedBucket(String index, File parent,
+			String guid) {
+		Bucket bucket = createBucket();
+		String replicatedBucketName = bucket.getName().replaceFirst("db", "rb");
+		String finalBucketName = replaceEverythingAfterEarliestTimeWithIndexAndGuid(
+				replicatedBucketName, new Random().nextLong(), guid);
+
+		File dir = createDirectoryInParent(parent, finalBucketName);
+		return createBucketWithIndexInDirectory(index, dir);
+	}
+
+	public static String replaceEverythingAfterEarliestTimeWithIndexAndGuid(
+			String bucketName, long newBucketIndex, String guid) {
+		String bucketIndex = new BucketName(bucketName).getIndex();
+		int idx = bucketName.lastIndexOf(bucketIndex);
+		String removedIndex = bucketName.substring(0, idx);
+		return removedIndex + newBucketIndex + "_" + guid;
+	}
+
+	public static Bucket createReplicatedBucket() {
+		return createReplicatedBucket(randomIndexName(), createDirectory(),
+				randomIndexName());
+	}
+
+	public static Bucket createReplicatedBucket(String guid) {
+		return createReplicatedBucket(randomIndexName(), createDirectory(), guid);
 	}
 }

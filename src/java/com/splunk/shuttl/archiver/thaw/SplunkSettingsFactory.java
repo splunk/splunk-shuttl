@@ -26,7 +26,7 @@ public class SplunkSettingsFactory {
 		return new SplunkSettings(splunkService);
 	}
 
-	private static Service getLoggedInSplunkService() {
+	public static Service getLoggedInSplunkService() {
 		SplunkConfiguration splunkConf = SplunkConfiguration.create();
 		Service splunkService = new Service(splunkConf.getHost(),
 				splunkConf.getPort());

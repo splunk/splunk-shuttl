@@ -27,12 +27,14 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
 import com.splunk.shuttl.archiver.archive.BucketArchiverRunner;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
+import com.splunk.shuttl.archiver.clustering.GetsServerNameForReplicatedBucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
@@ -48,7 +50,13 @@ public class ArchiveBucketEndpoint {
 			@FormParam("index") String index) {
 		verifyValidArguments(path, index);
 		logArchiveEndpoint(path, index);
-		archiveBucketOnAnotherThread(index, path);
+		try {
+			archiveBucketOnAnotherThread(index, path);
+		} catch (Throwable e) {
+			logger.error(did("Tried archiving a bucket", e, "To archive the bucket",
+					"index", index, "bucket_path", path));
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void verifyValidArguments(String path, String index) {
@@ -85,13 +93,47 @@ public class ArchiveBucketEndpoint {
 	}
 
 	private Runnable createBucketArchiverRunner(String index, String path) {
-		BucketArchiver bucketArchiver = BucketArchiverFactory
-				.createConfiguredArchiver();
 		LocalBucket bucket = BucketFactory.createBucketWithIndexDirectoryAndFormat(
 				index, new File(path), BucketFormat.SPLUNK_BUCKET);
 		BucketLock bucketLock = new ArchiveBucketLock(bucket);
 		throwExceptionIfSharedLockCannotBeAcquired(bucketLock);
+
+		ArchiveConfiguration conf = getConfigurationDependingOnBucketProperties(bucket);
+		BucketArchiver bucketArchiver = BucketArchiverFactory
+				.createWithConfig(conf);
+
+		bucket = getNormalizedBucket(bucket);
 		return new BucketArchiverRunner(bucketArchiver, bucket, bucketLock);
+	}
+
+	private ArchiveConfiguration getConfigurationDependingOnBucketProperties(
+			LocalBucket bucket) {
+		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
+		if (bucket.isReplicatedBucket())
+			return configWithChangedServerNameForReplicatedBucket(bucket, config);
+		else
+			return config;
+	}
+
+	private ArchiveConfiguration configWithChangedServerNameForReplicatedBucket(
+			LocalBucket bucket, ArchiveConfiguration configuration) {
+		String serverName = GetsServerNameForReplicatedBucket.create()
+				.getServerName(bucket);
+		return configuration.newConfigWithServerName(serverName);
+	}
+
+	private LocalBucket getNormalizedBucket(LocalBucket bucket) {
+		if (bucket.isReplicatedBucket())
+			return getBucketWithNormalBucketName(bucket);
+		else
+			return bucket;
+	}
+
+	private LocalBucket getBucketWithNormalBucketName(LocalBucket b) {
+		String normalizedBucketName = b.getName().replaceFirst("rb", "db");
+		return BucketFactory.createBucketWithIndexDirectoryBucketNameAndSize(
+				b.getIndex(), new File(b.getPath()), normalizedBucketName,
+				b.getFormat(), b.getSize());
 	}
 
 	private void throwExceptionIfSharedLockCannotBeAcquired(BucketLock bucketLock) {

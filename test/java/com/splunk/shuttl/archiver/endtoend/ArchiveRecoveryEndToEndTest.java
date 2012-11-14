@@ -21,6 +21,8 @@ import static org.testng.AssertJUnit.*;
 import java.io.File;
 import java.io.IOException;
 
+import javax.management.InstanceNotFoundException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -38,6 +40,8 @@ import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.server.mbeans.ShuttlServer;
+import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -63,24 +67,26 @@ public class ArchiveRecoveryEndToEndTest {
 
 			@Override
 			public void run() {
-				setUp(hadoopHost, hadoopPort);
-				runTests();
-				tearDown();
+				try {
+					setUp(hadoopHost, hadoopPort);
+					runTests();
+					tearDown();
+				} catch (Exception e) {
+					TUtilsTestNG.failForException(
+							"Got Exception from archive recovery end to end test.", e);
+				}
 			}
 
-			private void runTests() {
-				try {
-					givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets();
-				} catch (IOException e) {
-					TUtilsTestNG.failForException(
-							"Got IOException from archive recovery end to end test.", e);
-				}
+			private void runTests() throws IOException {
+				givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets();
 			}
 		});
 	}
 
-	private void setUp(String hadoopHost, String hadoopPort) {
+	private void setUp(String hadoopHost, String hadoopPort)
+			throws InstanceNotFoundException {
 		config = ArchiveConfiguration.getSharedInstance();
+		ShuttlServerMBean serverMBean = ShuttlServer.getMBeanProxy();
 		localFileSystemPaths = LocalFileSystemPaths.create();
 		pathResolver = new PathResolver(config);
 		hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
@@ -89,9 +95,9 @@ public class ArchiveRecoveryEndToEndTest {
 				.create(localFileSystemPaths.getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(
-				TUtilsMockito.createInternalServerErrorHttpClientMock());
+				TUtilsMockito.createInternalServerErrorHttpClientMock(), serverMBean);
 		ArchiveRestHandler successfulRealRestHandler = new ArchiveRestHandler(
-				new DefaultHttpClient());
+				new DefaultHttpClient(), serverMBean);
 
 		FailedBucketsArchiver noOpFailedBucketsArchiver = mock(FailedBucketsArchiver.class);
 		FailedBucketsArchiver realFailedBucketsArchiver = new FailedBucketsArchiver(

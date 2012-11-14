@@ -23,11 +23,13 @@ import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
 public class BucketName {
 
 	public static final String LEGAL_NAME_REGEX = "([A-Za-z0-9]+?)_(\\d+?)_(\\d+?)_(.+)";
+	public static final String GUID_ADDITION = "_(.+)";
 
 	private static final int DB_GROUP = 1;
 	private static final int LATEST_GROUP = 2;
 	private static final int EARLIEST_GROUP = 3;
 	private static final int INDEX_GROUP = 4;
+	private static final int GUID_GROUP = 5;
 
 	private final String name;
 
@@ -39,7 +41,22 @@ public class BucketName {
 	 */
 	public BucketName(String name) {
 		this.name = name;
-		this.groupRegex = new GroupRegex(LEGAL_NAME_REGEX, name);
+		String regex = LEGAL_NAME_REGEX;
+		if (getUnderscoresInName() == 4)
+			regex += GUID_ADDITION;
+		this.groupRegex = new GroupRegex(regex, name);
+	}
+
+	private int getUnderscoresInName() {
+		return name == null ? 0 : name.split("_").length - 1;
+	}
+
+	private void validateBucketName() {
+		int underscoresInName = getUnderscoresInName();
+		if (underscoresInName > 4 || underscoresInName < 3)
+			throw new IllegalBucketNameException(
+					"Underscores in the bucket name must be 3 or 4. Was: "
+							+ underscoresInName + ", name: " + name);
 	}
 
 	/**
@@ -48,6 +65,7 @@ public class BucketName {
 	 * @return db value of the {@link Bucket}'s name.
 	 */
 	public String getDB() {
+		validateBucketName();
 		return groupRegex.getValue(DB_GROUP);
 	}
 
@@ -78,6 +96,7 @@ public class BucketName {
 	 * @return index of the {@link Bucket}'s name.
 	 */
 	public String getIndex() {
+		validateBucketName();
 		return groupRegex.getValue(INDEX_GROUP);
 	}
 
@@ -98,4 +117,20 @@ public class BucketName {
 		return name;
 	}
 
+	/**
+	 * @return the bucket's GUID, if it has one. Throws otherwise.
+	 */
+	public String getGuid() {
+		return groupRegex.getValue(GUID_GROUP);
+	}
+
+	public static class IllegalBucketNameException extends RuntimeException {
+
+		public IllegalBucketNameException(String msg) {
+			super(msg);
+		}
+
+		private static final long serialVersionUID = 1L;
+
+	}
 }

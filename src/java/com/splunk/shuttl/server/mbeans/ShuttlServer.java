@@ -16,6 +16,9 @@ package com.splunk.shuttl.server.mbeans;
 
 import java.io.File;
 
+import javax.management.InstanceNotFoundException;
+
+import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 import com.splunk.shuttl.server.model.ServerConf;
 
 /**
@@ -25,6 +28,8 @@ import com.splunk.shuttl.server.model.ServerConf;
  */
 public class ShuttlServer extends MBeanBase<ServerConf> implements
 		ShuttlServerMBean {
+
+	public static final String OBJECT_NAME = "com.splunk.shuttl.mbeans:type=Server";
 
 	private ServerConf conf;
 
@@ -82,5 +87,11 @@ public class ShuttlServer extends MBeanBase<ServerConf> implements
 	@Override
 	protected void setConfObject(ServerConf conf) {
 		this.conf = conf;
+	}
+
+	public static ShuttlServerMBean getMBeanProxy()
+			throws InstanceNotFoundException {
+		return MBeanUtils.getMBeanInstance(ShuttlServer.OBJECT_NAME,
+				ShuttlServerMBean.class);
 	}
 }

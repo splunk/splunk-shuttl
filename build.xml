@@ -23,12 +23,12 @@
 	<property name="shuttl.conf.dir" location="${stage.conf.dir}" />
 	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
 	<property name="srcdir" value="${basedir}/src/java/" />
+	<property name="src.sh" value="${basedir}/src/sh" />
 	<property name="testdir" value="${basedir}/test/java/" />
 	<property name="test-debug-dir" value="${basedir}/test/debug" />
 	<property name="test-resources-dir" value="${basedir}/test/resources" />
 	<property name="libdir" value="${basedir}/lib" />
 	<property name="ant-libs" value="${contribdir}/ant-libs" />
-	<property name="splunk-sdk" value="${contribdir}/splunk-sdk" />
 
 	<!-- hadoop properties -->
 	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
@@ -45,6 +45,11 @@
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
 	<property name="splunk.server.name" value="splunk-1" />
 	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
+	<property name="splunk.default.password" value="changeme" />
+
+	<!-- splunk cluster properties -->
+	<property name="cluster.config.endpoint" value="services/cluster/config/config" />
+
 
 	<!-- ivy properties -->
 	<property name="ivy.utils" value="${contribdir}/ivy-utils" />
@@ -62,7 +67,6 @@
 
 
 	<path id="build.classpath">
-		<pathelement location="${splunk-sdk}/splunk.jar" />
 		<pathelement location="${flume.home}/flume-0.9.3-CDH3B4-core.jar" />
 		<pathelement location="${basedir}/src/java/com/splunk/shuttl/connector/conf" />
 		<pathelement path="${classdir}" />
@@ -111,6 +115,7 @@
 		<antcall>
 			<target name="hadoop-teardown" />
 			<target name="splunk-teardown" />
+			<target name="cluster-teardown" />
 		</antcall>
 		<delete dir="${build-cache}" />
 		<mkdir dir="${build-cache}" />
@@ -261,6 +266,12 @@
 	<target name="clean-built-classes-then-compile" depends="clean-built-classes, compile" />
 
 	<propertyset id="testng">
+		<propertyref name="cluster.master.port" />
+		<propertyref name="cluster.slave1.host" />
+		<propertyref name="cluster.slave1.port" />
+		<propertyref name="cluster.slave2.host" />
+		<propertyref name="cluster.slave2.port" />
+		<propertyref name="cluster.slave2.shuttl.port" />
 		<propertyref name="splunk.username" />
 		<propertyref name="splunk.password" />
 		<propertyref name="splunk.home" />
@@ -317,6 +328,24 @@
 	<target name="do-end-to-end-tests" depends="compile,set-splunk-home">
 		<!-- these use splunk and hadoop -->
 		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="end-to-end" outputdir="${builddir}/test-results/end-to-end">
+			<propertyset refid="testng" />
+			<classfileset dir="${test-classdir}" includes="**/*.class" />
+		</testng>
+	</target>
+
+	<target name="cluster-tests">
+		<antcallback target="run-cluster-tests-with-setup-and-teardown" return="testng.failed" />
+		<fail if="testng.failed" message="Tests have failed." />
+	</target>
+
+	<target name="run-cluster-tests-with-setup-and-teardown">
+		<antcall target="cluster-setup" />
+		<antcallback target="do-cluster-tests" return="testng.failed" />
+		<antcall target="cluster-teardown" />
+	</target>
+
+	<target name="do-cluster-tests" depends="compile,set-splunk-home">
+		<testng failureproperty="testng.failed" classpathref="build.classpath" groups="cluster-test" outputdir="${builddir}/test-results/cluster-test">
 			<propertyset refid="testng" />
 			<classfileset dir="${test-classdir}" includes="**/*.class" />
 		</testng>
@@ -462,7 +491,7 @@
 	</target>
 
 	<target name="set-hadoop-classpath" depends="jar">
-		<property name="hadoop.classpath" value="${name.api.versioned.path}:${name.server.versioned.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar:${splunk-sdk}/splunk.jar" />
+		<property name="hadoop.classpath" value="${shuttl.versioned.jar.name.path}:${libdir}/commons-codec-1.4.jar:${libdir}/httpclient-4.1.2.jar:${libdir}/httpcore-4.1.2.jar" />
 	</target>
 
 	<target name="hadoop-conf-core-site-xml">
@@ -537,15 +566,6 @@
 		</antcall>
 	</target>
 
-	<target name="splunk-configure-and-start">
-		<antcall>
-			<target name="install-shuttl-splunk-app" />
-			<target name="splunk-set-splunkd-port" />
-			<target name="splunk-start" />
-			<target name="enable-shuttl-splunk-app" />
-		</antcall>
-	</target>
-
 	<target name="splunk-unpack-if-not-extracted" unless="defined.means.running.on.self.defined.splunk.home">
 		<antcall target="do-splunk-unpack-if-not-extracted" />
 	</target>
@@ -577,6 +597,71 @@
 			</path>
 		</pathconvert>
 		<fail unless="foundSplunkTgz" message="There has to be a splunk version packaged with .tgz in ${splunk.tgz.dir}" />
+	</target>
+
+	<target name="splunk-configure-and-start">
+		<antcall>
+			<target name="splunk-set-splunkd-port-and-password" />
+			<target name="install-shuttl-splunk-app" />
+			<target name="splunk-set-server-name" />
+			<target name="enable-shuttl-splunk-app" />
+		</antcall>
+	</target>
+
+	<target name="splunk-set-splunkd-port-and-password" unless="splunkd.mgmtport.is.already.set" depends="set-splunk-home,check-if-mgmt-port-is-already-set">
+		<antcall>
+			<target name="splunk-set-splunkd-port" />
+			<target name="splunk-set-password" />
+		</antcall>
+	</target>
+
+	<target name="check-if-mgmt-port-is-already-set" depends="splunk-login">
+		<exec executable="sh" outputproperty="splunk.current.mgmtport">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk show splunkd-port | awk '{ print $3 }'" />
+		</exec>
+
+		<condition property="splunkd.mgmtport.is.already.set">
+			<equals arg1="${splunk.current.mgmtport}" arg2="${splunk.mgmtport}" />
+		</condition>
+	</target>
+
+	<!-- Try both the default and changed password -->
+	<target name="splunk-login" depends="set-splunk-home,splunk-start">
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.default.password} 2> /dev/null" />
+		</exec>
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.password} 2> /dev/null" />
+		</exec>
+	</target>
+
+	<target name="splunk-set-splunkd-port" depends="splunk-login">
+		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
+		<antcall target="splunk-start" />
+
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport}" />
+		</exec>
+
+		<!-- changing splunkd port needs a restart. -->
+		<antcall target="splunkd-restart" />
+	</target>
+
+	<target name="splunk-set-password">
+		<var name="splunk.endpoint" value="services/authentication/changepassword/admin" />
+		<var name="splunk.endpoint.options" value="-d password=${splunk.password}" />
+
+		<property name="configured.splunk.password" value="${splunk.password}" />
+		<var name="splunk.password" value="${splunk.default.password}" />
+		<antcall>
+			<target name="splunk-start" />
+			<target name="splunk-curl-post-call" />
+		</antcall>
+		<var name="splunk.password" value="${configured.splunk.password}" />
 	</target>
 
 	<target name="install-shuttl-splunk-app">
@@ -618,14 +703,13 @@
 		</antcall>
 	</target>
 
-	<target name="splunk-set-splunkd-port">
-		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
-		<antcall target="splunk-start" />
-		<exec executable="sh">
-			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk set splunkd-port ${splunk.mgmtport} -auth ${splunk.username}:${splunk.password}" />
-		</exec>
-		<!-- changing splunkd port needs a restart. -->
+	<target name="splunk-set-server-name">
+		<var name="splunk.endpoint" value="services/server/settings/settings" />
+		<var name="splunk.endpoint.options" value="-d serverName=${splunk.server.name}" />
+		<antcall target="splunk-curl-post-call" />
+	</target>
+
+	<target name="splunkd-restart">
 		<antcall>
 			<target name="splunk-stop" />
 			<target name="splunk-start" />
@@ -637,6 +721,7 @@
 	<target name="splunk-start" depends="set-splunk-home">
 		<!-- antcallback instead of depends, to make sure it's running the "check" target again,
 		and not taking a previous check when Splunk might have been in a different state -->
+		<var name="isSplunkRunning" unset="true" />
 		<antcallback target="check-if-splunk-is-running" return="isSplunkRunning" />
 		<if>
 			<isset property="isSplunkRunning" />
@@ -662,14 +747,12 @@
 	</target>
 
 	<target name="splunk-stop-forced" depends="set-splunk-home">
-		<var name="splunk.stop.command" unset="true" />
-		<property name="splunk.stop.command" value="stop -f" />
+		<var name="splunk.stop.command" value="stop -f" />
 		<antcall target="do-splunk-stop" />
 	</target>
 
 	<target name="splunk-stop" depends="set-splunk-home">
-		<var name="splunk.stop.command" unset="true" />
-		<property name="splunk.stop.command" value="stop" />
+		<var name="splunk.stop.command" value="stop" />
 		<antcall target="do-splunk-stop" />
 	</target>
 
@@ -690,9 +773,10 @@
 	</target>
 
 	<target name="check-if-splunk-is-running">
+		<var name="isRunning" unset="true" />
 		<exec executable="sh" outputproperty="isRunning">
 			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk status | grep 'splunkd is running' | grep -o running || true" />
+			<arg value="${splunk.home}/bin/splunk status ${splunk.accept.license.flags} | grep 'splunkd is running' | grep -o running || true" />
 		</exec>
 		<if>
 			<equals arg1="${isRunning}" arg2="running" />
@@ -709,12 +793,12 @@
 	</target>
 
 	<target name="enable-shuttl-splunk-app" depends="check-if-shuttl-is-enabled" unless="isShuttlAlreadyEnabled">
-		<exec executable="curl">
-			<arg value="-s" />
-			<arg line="-u ${splunk.username}:${splunk.password}" />
-			<arg line="-k https://${splunk.host}:${splunk.mgmtport}/services/apps/local/shuttl/enable" />
-			<arg line="-X POST" />
-		</exec>
+		<var name="splunk.endpoint" value="services/apps/local/shuttl/enable" />
+
+		<var name="splunk.endpoint.options" value="" />
+
+		<antcall target="splunk-curl-post-call" />
+		<antcall target="splunkd-restart" />
 	</target>
 
 	<target name="check-if-shuttl-is-enabled" depends="set-splunk-home">
@@ -739,9 +823,9 @@
 	</target>
 
 	<target name="shuttl-kill-server">
-		<exec executable="${basedir}/src/sh/kill-shuttl-server.sh" />
+		<exec executable="${src.sh}/kill-shuttl-server.sh" />
 	</target>
-	
+
 	<target name="check-for-splunk-binary">
 		<available file="${splunk.home}/bin/splunk" type="file" property="existsSplunkBinary" />
 	</target>
@@ -749,6 +833,101 @@
 	<target name="splunk-clean-eventdata" depends="set-splunk-home">
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="clean eventdata -f" />
+		</exec>
+	</target>
+
+	<!-- Splunk cluster targets -->
+
+	<target name="splunk-make-cluster-master-with-replication-2">
+		<antcall target="curl-set-cluster-master-with-replication-2" />
+		<antcall target="splunkd-restart" />
+	</target>
+
+	<target name="curl-set-cluster-master-with-replication-2" depends="splunk-start">
+		<var name="splunk.endpoint" value="${cluster.config.endpoint}" />
+		<var name="splunk.endpoint.options" value="-d mode=master -d replication_factor=2" />
+		<antcall target="splunk-curl-post-call" />
+	</target>
+
+	<target name="splunk-make-slave">
+		<antcall target="curl-set-cluster-slave" />
+		<antcall target="splunkd-restart" />
+	</target>
+
+	<target name="curl-set-cluster-slave" depends="computers-ip">
+		<fail unless="cluster.replication.port" message="property cluster.replication.port must be set before calling this target" />
+		<fail unless="cluster.master.port" message="property cluster.master.port must be set before calling this target" />
+
+		<var name="splunk.endpoint" value="${cluster.config.endpoint}" />
+		<var name="splunk.endpoint.options" value="-d mode=slave -d replication_port=${cluster.replication.port} -d master_uri=https://${computer.ip}:${cluster.master.port}" />
+
+		<antcall target="splunk-curl-post-call" />
+	</target>
+
+	<target name="computers-ip">
+		<exec executable="${src.sh}/my-ip.sh" outputproperty="computer.ip" />
+	</target>
+
+	<target name="splunk-cluster-fast-rolling-index" depends="set-splunk-home">
+		<property name="cluster.indexes.conf" value="${splunk.home}/etc/master-apps/cluster/local/indexes.conf" />
+
+		<copy file="${manual.testing.confs.dir}/fast-rolling-indexes.conf" tofile="${cluster.indexes.conf}" overwrite="true" />
+		<concat destfile="${cluster.indexes.conf}" append="true">
+			<filelist dir="${manual.testing.confs.dir}" files="cluster-repFactor-for-indexes.file" />
+		</concat>
+		<echo>Created archiver-test-index for index replication: ${cluster.indexes.conf}</echo>
+	</target>
+
+	<target name="splunk-cluster-bundle-apply" depends="set-splunk-home">
+		<exec executable="${src.sh}/apply-splunk-cluster-bundle.sh">
+			<arg value="${splunk.home}" />
+			<arg value="${splunk.username}" />
+			<arg value="${splunk.password}" />
+		</exec>
+	</target>
+
+	<target name="cluster-setup">
+		<exec executable="${src.sh}/setup-splunk-mini-cluster.sh">
+			<arg value="${cluster.master.name}" />
+			<arg value="${cluster.master.port}" />
+			<arg value="${cluster.slave1.name}" />
+			<arg value="${cluster.slave1.port}" />
+			<arg value="${cluster.slave2.name}" />
+			<arg value="${cluster.slave2.port}" />
+			<arg value="${cluster.master.shuttl.port}" />
+			<arg value="${cluster.slave1.shuttl.port}" />
+			<arg value="${cluster.slave2.shuttl.port}" />
+		</exec>
+	</target>
+
+	<target name="cluster-teardown">
+		<exec executable="${src.sh}/teardown-splunk-mini-cluster.sh">
+			<arg value="${cluster.master.name}" />
+			<arg value="${cluster.master.port}" />
+			<arg value="${cluster.slave1.name}" />
+			<arg value="${cluster.slave1.port}" />
+			<arg value="${cluster.slave2.name}" />
+			<arg value="${cluster.slave2.port}" />
+		</exec>
+	</target>
+
+	<!-- END Splunk cluster targets -->
+
+	<!-- Call with ${splunk.endpoint} and ${splunk.endpoint.data} set -->
+	<target name="splunk-curl-post-call" depends="splunk-start">
+		<fail unless="splunk.endpoint" message="property splunk.endpoint must be set before calling this target" />
+		<fail unless="splunk.endpoint.options" message="property splunk.endpoint.data must be set before calling this target" />
+
+		<echo>Making curl call:</echo>
+		<echo>Auth: -u ${splunk.username}:${splunk.password}</echo>
+		<echo>Endpoint: -k https://${splunk.host}:${splunk.mgmtport}/${splunk.endpoint}</echo>
+		<echo>Options: ${splunk.endpoint.options}</echo>
+		<exec executable="curl">
+			<arg value="-s" />
+			<arg line="-u ${splunk.username}:${splunk.password}" />
+			<arg line="-k https://${splunk.host}:${splunk.mgmtport}/${splunk.endpoint}" />
+			<arg line="-X POST" />
+			<arg line="${splunk.endpoint.options}" />
 		</exec>
 	</target>
 
@@ -849,7 +1028,6 @@
 			<target name="manual-test-configure-shuttl-archiver-conf" />
 			<target name="manual-test-create-fast-rolling-index" />
 			<target name="splunk-set-splunkd-port" />
-			<target name="splunk-start" />
 			<target name="enable-shuttl-splunk-app" />
 		</antcall>
 	</target>
@@ -874,20 +1052,16 @@
 	<target name="versionized-jar-name" depends="version">
 		<loadproperties srcfile="${classdir}/com/splunk/shuttl/server/version.properties" />
 
-		<property name="name.api.versioned" value="${appname}-api-${version}" />
-		<property name="name.api.versioned.path" value="${builddir}/jar/${name.api.versioned}.jar" />
+		<property name="shuttl.versioned.jar.name" value="${appname}-${version}" />
+		<property name="shuttl.versioned.jar.name.path" value="${builddir}/jar/${shuttl.versioned.jar.name}.jar" />
 		<property name="name.test.versioned" value="${appname}-test-${version}" />
 		<property name="name.test.versioned.path" value="${builddir}/jar/${name.test.versioned}.jar" />
-		<property name="name.cli.versioned" value="${appname}-cli-${version}" />
-		<property name="name.cli.versioned.path" value="${builddir}/jar/${name.cli.versioned}.jar" />
-		<property name="name.server.versioned" value="${appname}-server-${version}" />
-		<property name="name.server.versioned.path" value="${builddir}/jar/${name.server.versioned}.jar" />
 	</target>
 
 	<!-- create the jar file -->
 	<target name="jar" depends="compile,versionized-jar-name">
 		<mkdir dir="${builddir}/jar" />
-		<jar destfile="${name.server.versioned.path}" basedir="${classdir}">
+		<jar destfile="${shuttl.versioned.jar.name.path}" basedir="${classdir}">
 			<manifest>
 				<section name="com/splunk/shuttl">
 					<attribute name="Implementation-Title" value="Shuttl" />
@@ -896,27 +1070,7 @@
 				</section>
 				<attribute name="Main-Class" value="com.splunk.shuttl.server.ShuttlJettyServer" />
 			</manifest>
-			<include name="com/splunk/shuttl/customsearch/**" />
-			<include name="com/splunk/shuttl/s2s/**" />
-			<include name="com/splunk/shuttl/server/**" />
-			<include name="com/splunk/shuttl/metrics/**" />
-			<include name="com/splunk/shuttl/exporter/**" />
-			<include name="com/splunk/shuttl/*" />
-			<include name="com/splunk/shuttl/archiver/**" />
-			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
-		</jar>
-		<jar destfile="${name.api.versioned.path}" basedir="${classdir}">
-			<manifest>
-				<section name="com/splunk/shuttl">
-					<attribute name="Implementation-Title" value="Shuttl" />
-					<attribute name="Implementation-Version" value="${version}" />
-					<attribute name="Implementation-Vendor" value="Splunk" />
-				</section>
-			</manifest>
-			<include name="com/splunk/shuttl/mapred/**" />
-			<include name="com/splunk/shuttl/mapreduce/**" />
-			<include name="com/splunk/shuttl/exporter/**" />
-			<include name="com/splunk/shuttl/ShuttlConstants.class" />
+			<include name="com/splunk/**" />
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
 		</jar>
 		<jar destfile="${name.test.versioned.path}" basedir="${test-classdir}">
@@ -928,17 +1082,6 @@
 				</section>
 			</manifest>
 			<fileset dir="${package.dir}/bin" includes="log4j.properties" />
-		</jar>
-		<jar destfile="${name.cli.versioned.path}" basedir="${classdir}">
-			<manifest>
-				<section name="com/splunk/shuttl">
-					<attribute name="Implementation-Title" value="Shuttl" />
-					<attribute name="Implementation-Version" value="${version}" />
-					<attribute name="Implementation-Vendor" value="Splunk" />
-				</section>
-				<attribute name="Main-Class" value="com.splunk.shuttl.cli.ShuttlCLI" />
-			</manifest>
-			<include name="com/splunk/shuttl/cli/**" />
 		</jar>
 	</target>
 
@@ -987,8 +1130,7 @@
 			<replacefilter token="@VERSION@" value="${version}" />
 		</replace>
 		<!-- copy the jar in there -->
-		<copy file="${name.api.versioned.path}" todir="${stage.dir}/bin" />
-		<copy file="${name.server.versioned.path}" todir="${stage.dir}/bin" />
+		<copy file="${shuttl.versioned.jar.name.path}" todir="${stage.dir}/bin" />
 	</target>
 
 
@@ -1006,7 +1148,6 @@
                           jsp-api-2.1-6.1.14.jar,
                           servlet-api-2.5-20081211.jar,
                           servlet-api-2.5-6.1.14.jar" />
-			<fileset dir="${splunk-sdk}" />
 		</copy>
 	</target>
 
@@ -1015,14 +1156,14 @@
 			<target name="configure-staged-archiver-conf" />
 			<target name="configure-staged-server-conf" />
 			<target name="configure-staged-splunk-conf" />
+			<target name="configure-staged-hdfs-properties" />
 		</antcall>
 	</target>
 
 	<target name="configure-staged-archiver-conf">
-		<property name="stage.backend.hdfs.properties" value="${stage.conf.backend.dir}/hdfs.properties" />
-		<replace file="${stage.backend.hdfs.properties}">
-			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
-			<replacefilter token="@HADOOP.PORT@" value="${hadoop.port}" />
+		<property name="stage.conf.archiver.xml" value="${stage.conf.dir}/archiver.xml" />
+		<replace file="${stage.conf.archiver.xml}">
+			<replacefilter token="@SPLUNK.SERVER.NAME@" value="${splunk.server.name}" />
 		</replace>
 	</target>
 
@@ -1041,6 +1182,14 @@
 			<replacefilter token="@SPLUNK.PORT@" value="${splunk.mgmtport}" />
 			<replacefilter token="@SPLUNK.USERNAME@" value="${splunk.username}" />
 			<replacefilter token="@SPLUNK.PASSWORD@" value="${splunk.password}" />
+		</replace>
+	</target>
+
+	<target name="configure-staged-hdfs-properties">
+		<property name="stage.backend.hdfs.properties" value="${stage.conf.backend.dir}/hdfs.properties" />
+		<replace file="${stage.backend.hdfs.properties}">
+			<replacefilter token="@HADOOP.HOST@" value="${hadoop.host}" />
+			<replacefilter token="@HADOOP.PORT@" value="${hadoop.port}" />
 		</replace>
 	</target>
 

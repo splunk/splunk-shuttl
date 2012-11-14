@@ -138,4 +138,18 @@ public class Bucket {
 		return size;
 	}
 
+	/**
+	 * @return the GUID for the bucket.
+	 */
+	public String getGuid() {
+		return bucketName.getGuid();
+	}
+
+	/**
+	 * @return true if the bucket is a replicated bucket.
+	 */
+	public boolean isReplicatedBucket() {
+		return bucketName.getDB().equals("rb");
+	}
+
 }

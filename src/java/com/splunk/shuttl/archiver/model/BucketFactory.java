@@ -91,7 +91,7 @@ public class BucketFactory {
 	public static LocalBucket createBucketWithIndexDirectoryAndSize(String index,
 			File bucketFile, BucketFormat format, Long size) {
 		return createBucketWithIndexDirectoryBucketNameAndSize(index, bucketFile,
-				bucketFile.getAbsolutePath(), format, size);
+				bucketFile.getName(), format, size);
 	}
 
 	/**

@@ -42,7 +42,7 @@ public class ArchiveConfiguration {
 	private final String archivePath;
 	private final String backendName;
 
-	private ArchiveConfiguration(String localArchiverDir,
+	ArchiveConfiguration(String localArchiverDir,
 			List<BucketFormat> bucketFormats, String clusterName, String serverName,
 			List<BucketFormat> bucketFormatPriority, String tempPath,
 			String archivePath, String backendName) {
@@ -75,7 +75,7 @@ public class ArchiveConfiguration {
 		return sharedInstance;
 	}
 
-	private static ArchiveConfiguration createConfigurationFromMBean() {
+	public static ArchiveConfiguration createConfigurationFromMBean() {
 		try {
 			return createConfigurationWithMBean(ShuttlArchiver.getMBeanProxy());
 		} catch (InstanceNotFoundException e) {
@@ -155,6 +155,12 @@ public class ArchiveConfiguration {
 
 	public String getServerName() {
 		return serverName;
+	}
+
+	public ArchiveConfiguration newConfigWithServerName(String serverName) {
+		return new ArchiveConfiguration(localArchiverDir, bucketFormats,
+				clusterName, serverName, bucketFormatPriority, tempPath, archivePath,
+				backendName);
 	}
 
 	/**

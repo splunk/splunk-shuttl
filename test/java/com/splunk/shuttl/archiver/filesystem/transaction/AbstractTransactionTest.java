@@ -55,7 +55,9 @@ public class AbstractTransactionTest {
 		};
 	}
 
-	public void prepare__createsDirsThenTransfersData() throws IOException {
+	public void prepare_destinationDoesNotExist_createsDirsThenTransfersData()
+			throws IOException {
+		when(hasFileStructure.exists(dst)).thenReturn(false);
 		transaction.prepare();
 		InOrder inOrder = inOrder(hasFileStructure, transfersData);
 		inOrder.verify(hasFileStructure).mkdirs(temp);
@@ -63,9 +65,25 @@ public class AbstractTransactionTest {
 		inOrder.verifyNoMoreInteractions();
 	}
 
-	public void commit__renamesTempToTheRealDataPath() throws IOException {
+	public void prepare_destinationExists_noMoreInteractions() throws IOException {
+		when(hasFileStructure.exists(dst)).thenReturn(true);
+		transaction.prepare();
+		verify(hasFileStructure).exists(dst);
+		verifyNoMoreInteractions(hasFileStructure, transfersData);
+	}
+
+	public void commit_destinationDoesNotExist_renamesTempToTheRealDataPath()
+			throws IOException {
+		when(hasFileStructure.exists(dst)).thenReturn(false);
 		transaction.commit();
 		verify(hasFileStructure).rename(temp, dst);
+	}
+
+	public void commit_destinationExists_doesNotCommit() throws IOException {
+		when(hasFileStructure.exists(dst)).thenReturn(true);
+		transaction.commit();
+		verify(hasFileStructure).exists(dst);
+		verifyNoMoreInteractions(hasFileStructure);
 	}
 
 	@Test(expectedExceptions = { TransactionException.class })

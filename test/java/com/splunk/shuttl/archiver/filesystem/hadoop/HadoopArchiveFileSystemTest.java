@@ -19,14 +19,10 @@ import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -92,14 +88,14 @@ public class HadoopArchiveFileSystemTest {
 		assertEquals(0, listing.size());
 	}
 
-	public void openFile_existingFileOnHadoop_inputStreamToFile()
-			throws FileNotFoundException, IOException {
-		File fileWithContent = createFileWithRandomContent();
-		List<String> expectedContent = FileUtils.readLines(fileWithContent);
+	public void exists_givenExistingPath_exists() throws IOException {
+		File f = createFile();
+		assertTrue(hadoopArchiveFileSystem.exists(f.getAbsolutePath()));
+	}
 
-		InputStream openFile = hadoopArchiveFileSystem.openFile(fileWithContent
-				.getAbsolutePath());
-		assertEquals(expectedContent, IOUtils.readLines(openFile));
+	public void exists_nonExistingPath_doesNotExist() throws IOException {
+		File f = createFilePath();
+		assertFalse(hadoopArchiveFileSystem.exists(f.getAbsolutePath()));
 	}
 
 	@Test(groups = { "fast-unit" })

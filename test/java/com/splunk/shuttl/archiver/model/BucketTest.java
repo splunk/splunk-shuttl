@@ -167,4 +167,23 @@ public class BucketTest {
 		assertNull(bucket.getSize());
 	}
 
+	public void isReplicatedBucket_normalBucket_false() {
+		assertFalse(TUtilsBucket.createBucket().isReplicatedBucket());
+	}
+
+	public void isReplicatedBucket_replicatedBucket_true() {
+		assertTrue(TUtilsBucket.createReplicatedBucket().isReplicatedBucket());
+	}
+
+	public void getGuid_bucketWithGuid_guid() {
+		String guid = "guid";
+		Bucket bucketWithGuid = TUtilsBucket.createReplicatedBucket(guid);
+		assertEquals(guid, bucketWithGuid.getGuid());
+	}
+
+	@Test(expectedExceptions = { RuntimeException.class })
+	public void getGuid_bucketWithoutGuid_throws() {
+		TUtilsBucket.createBucket().getGuid();
+	}
+
 }

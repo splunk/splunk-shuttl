@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 /**
@@ -42,21 +43,43 @@ public class ArchiveRestHandlerTest {
 	private ArchiveRestHandler archiveRestHandler;
 	private HttpClient httpClient;
 	private Logger logger;
+	private ShuttlServerMBean serverMBean;
 
 	@BeforeMethod
 	public void setUp() {
 		httpClient = mock(HttpClient.class, Mockito.RETURNS_MOCKS);
 		logger = mock(Logger.class);
-		archiveRestHandler = new ArchiveRestHandler(httpClient, logger);
+		serverMBean = mock(ShuttlServerMBean.class);
+		archiveRestHandler = new ArchiveRestHandler(httpClient, logger, serverMBean);
 	}
 
 	@Test(groups = { "fast-unit" })
 	public void callRestToArchiveLocalBucket_givenBucket_executesRequestOnHttpClient()
 			throws ClientProtocolException, IOException {
+		int shuttlPort = 1234;
+		when(serverMBean.getHttpPort()).thenReturn(shuttlPort);
+
 		LocalBucket bucket = TUtilsBucket.createBucket();
 		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
 
 		verify(httpClient).execute(any(HttpUriRequest.class));
+	}
+
+	@Test(groups = { "fast-unit" })
+	public void callRestToArchiveLocalBucket_givenShuttlPort_requestHasShuttlPort()
+			throws ClientProtocolException, IOException {
+		int shuttlPort = 1234;
+		when(serverMBean.getHttpPort()).thenReturn(shuttlPort);
+
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
+
+		ArgumentCaptor<HttpUriRequest> requestCaptor = ArgumentCaptor
+				.forClass(HttpUriRequest.class);
+		verify(httpClient).execute(requestCaptor.capture());
+		HttpUriRequest captured = requestCaptor.getValue();
+		int requestPort = captured.getURI().getPort();
+		assertEquals(shuttlPort, requestPort);
 	}
 
 	@SuppressWarnings("unchecked")
