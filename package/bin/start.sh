@@ -20,4 +20,5 @@
 
 cd $SPLUNK_HOME/etc/apps/shuttl/bin
 
-exec $JAVA_HOME/bin/java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.server.ShuttlJettyServer
+source java_executable.env
+exec $JAVA -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.server.ShuttlJettyServer

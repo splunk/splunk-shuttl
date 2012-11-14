@@ -47,4 +47,5 @@ fi
 index=$1
 bucket=$2
 
-exec $JAVA_HOME/bin/java -cp ./*:../lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $index $bucket
+source java_executable.env
+exec $JAVA -cp ./*:../lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $index $bucket
