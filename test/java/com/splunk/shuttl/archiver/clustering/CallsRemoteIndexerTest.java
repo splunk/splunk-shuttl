@@ -20,7 +20,6 @@ import static org.testng.Assert.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.ShuttlPortEntity;
 
 @Test
 public class CallsRemoteIndexerTest {

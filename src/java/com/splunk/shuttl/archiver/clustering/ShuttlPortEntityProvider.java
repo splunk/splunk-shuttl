@@ -15,7 +15,6 @@
 package com.splunk.shuttl.archiver.clustering;
 
 import com.splunk.Service;
-import com.splunk.ShuttlPortEntity;
 
 /**
  * Provides {@link ShuttlPortEntity}s

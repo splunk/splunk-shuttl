@@ -12,12 +12,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk;
+package com.splunk.shuttl.archiver.clustering;
 
 import static org.testng.Assert.*;
 
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
+
+import com.splunk.Service;
+import com.splunk.shuttl.archiver.clustering.ShuttlPortEntity;
 
 @Test(groups = { "end-to-end" })
 public class ShuttlPortEntityTest {

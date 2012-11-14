@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk;
+package com.splunk.shuttl.archiver.clustering;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +52,7 @@ import org.apache.http.protocol.HTTP;
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
 import com.amazonaws.util.json.JSONTokener;
+import com.splunk.Service;
 
 /**
  * Calls splunk instances shuttl port.
