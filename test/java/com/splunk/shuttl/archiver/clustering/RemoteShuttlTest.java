@@ -20,7 +20,6 @@ import java.io.File;
 
 import javax.management.InstanceNotFoundException;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -42,7 +41,7 @@ public class RemoteShuttlTest {
 
 					@Override
 					public void run() {
-						remoteShuttl = new RemoteShuttl(new DefaultHttpClient());
+						remoteShuttl = RemoteShuttl.create();
 						String actualServerName = remoteShuttl.getServerName(shuttlHost,
 								Integer.parseInt(shuttlPort));
 						String expectedServerName = getConfiguredServerName();

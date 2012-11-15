@@ -51,7 +51,7 @@ public class ClusterReplicatedBucketArchivingTest {
 	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.port",
 			"cluster.slave2.host", "cluster.slave2.port",
 			"cluster.slave2.shuttl.port", "splunk.username", "splunk.password",
-			"splunk.home" })
+			"cluster.slave2.splunk.home" })
 	public void test(String slave1Host, String slave1Port, String slave2Host,
 			String slave2Port, String slave2ShuttlPort, String splunkUser,
 			String splunkPass, final String splunkHome) {

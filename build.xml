@@ -45,6 +45,7 @@
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
 	<property name="splunk.server.name" value="splunk-1" />
 	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
+	<property name="cluster.slave2.splunk.home" value="${build-cache}/${cluster.slave2.name}" />
 	<property name="splunk.default.password" value="changeme" />
 
 	<!-- splunk cluster properties -->
@@ -272,6 +273,7 @@
 		<propertyref name="cluster.slave2.host" />
 		<propertyref name="cluster.slave2.port" />
 		<propertyref name="cluster.slave2.shuttl.port" />
+		<propertyref name="cluster.slave2.splunk.home" />
 		<propertyref name="splunk.username" />
 		<propertyref name="splunk.password" />
 		<propertyref name="splunk.home" />
@@ -758,7 +760,7 @@
 	</target>
 
 	<target name="splunk-stop" depends="set-splunk-home">
-		<var name="splunk.stop.command" value="stop" />
+		<var name="splunk.stop.command" value="stop -f" />
 		<antcall target="do-splunk-stop" />
 	</target>
 

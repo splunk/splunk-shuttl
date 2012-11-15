@@ -15,8 +15,6 @@
 package com.splunk.shuttl.archiver.clustering;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -33,7 +31,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -51,7 +48,6 @@ import org.apache.http.protocol.HTTP;
 
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
-import com.amazonaws.util.json.JSONTokener;
 import com.splunk.Service;
 
 /**
@@ -59,12 +55,13 @@ import com.splunk.Service;
  */
 public class ShuttlPortEntity {
 
-	private Service service;
-	private HttpClient httpClient;
+	private final Service service;
+	private final JsonRestEndpointCaller restEndpointCaller;
 
-	private ShuttlPortEntity(Service service, HttpClient httpClient) {
+	private ShuttlPortEntity(Service service,
+			JsonRestEndpointCaller jsonRestEndpointCaller) {
 		this.service = service;
-		this.httpClient = httpClient;
+		this.restEndpointCaller = jsonRestEndpointCaller;
 	}
 
 	/**
@@ -72,47 +69,30 @@ public class ShuttlPortEntity {
 	 *         is connected to.
 	 */
 	public int getShuttlPort() {
+		HttpGet httpGet = createHttpGetRequest();
+		JSONObject jsonObject = restEndpointCaller.getJson(httpGet);
+		return getShuttlPortFromJSONResponse(jsonObject);
+	}
+
+	private HttpGet createHttpGetRequest() {
 		URI shuttlPortRequestUri = URI
 				.create(service.getScheme() + "://" + service.getHost() + ":"
 						+ service.getPort() + "/services/shuttl/port");
 		HttpGet httpGet = new HttpGet(shuttlPortRequestUri);
-		HttpResponse response;
-		try {
-			response = httpClient.execute(httpGet);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-		InputStream content;
-		try {
-			content = response.getEntity().getContent();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-		JSONTokener jsonTokener = new JSONTokener(new InputStreamReader(content));
-		JSONObject jsonObject;
-		try {
-			jsonObject = new JSONObject(jsonTokener);
-		} catch (JSONException e) {
-			throw new RuntimeException(e);
-		}
-		String shuttlPort;
-		try {
-			shuttlPort = jsonObject.getString("shuttl_port");
-		} catch (JSONException e) {
-			throw new RuntimeException(e);
-		}
-
-		return Integer.parseInt(shuttlPort);
+		return httpGet;
 	}
 
-	/**
-	 * @param splunkService
-	 * @return
-	 */
+	private int getShuttlPortFromJSONResponse(JSONObject jsonObject) {
+		try {
+			return Integer.parseInt(jsonObject.getString("shuttl_port"));
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static ShuttlPortEntity create(Service splunkService) {
-		return new ShuttlPortEntity(splunkService, getInsecureHttpClient());
+		return new ShuttlPortEntity(splunkService, new JsonRestEndpointCaller(
+				getInsecureHttpClient()));
 	}
 
 	/**

@@ -14,8 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.clustering;
 
-import org.apache.http.impl.client.DefaultHttpClient;
-
 /**
  * Makes calls to a remote indexer.
  */
@@ -41,6 +39,6 @@ public class CallsRemoteIndexer {
 
 	public static CallsRemoteIndexer create() {
 		return new CallsRemoteIndexer(new ShuttlPortEntityProvider(),
-				new RemoteShuttl(new DefaultHttpClient()));
+				RemoteShuttl.create());
 	}
 }

@@ -14,17 +14,11 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.clustering;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
-import com.amazonaws.util.json.JSONTokener;
 import com.splunk.shuttl.ShuttlConstants;
 
 /**
@@ -32,21 +26,19 @@ import com.splunk.shuttl.ShuttlConstants;
  */
 public class RemoteShuttl {
 
-	private DefaultHttpClient defaultHttpClient;
+	private JsonRestEndpointCaller restEndpointCaller;
 
-	/**
-	 * @param defaultHttpClient
-	 */
-	public RemoteShuttl(DefaultHttpClient defaultHttpClient) {
-		this.defaultHttpClient = defaultHttpClient;
+	public RemoteShuttl(JsonRestEndpointCaller restEndpointCaller) {
+		this.restEndpointCaller = restEndpointCaller;
 	}
 
 	/**
 	 * @return server name from a Shuttl server.
 	 */
 	public String getServerName(String hostname, int shuttlPort) {
-		HttpGet get = constructServerNameRequest(hostname, shuttlPort);
-		return getServerNameByRestRequest(get);
+		HttpGet httpGet = constructServerNameRequest(hostname, shuttlPort);
+		JSONObject json = restEndpointCaller.getJson(httpGet);
+		return getServerNameFromJsonResponse(json);
 	}
 
 	private HttpGet constructServerNameRequest(String hostname, int shuttlPort) {
@@ -56,38 +48,15 @@ public class RemoteShuttl {
 				+ ShuttlConstants.ENDPOINT_CONFIG_SERVERNAME);
 	}
 
-	private String getServerNameByRestRequest(HttpGet httpGet) {
-		HttpResponse response = executeRequest(httpGet);
-		InputStream reponseContent = getReponseContent(response);
-		return getServerNameFromResponse(reponseContent);
-	}
-
-	private HttpResponse executeRequest(HttpGet httpGet) {
+	private String getServerNameFromJsonResponse(JSONObject jsonObject) {
 		try {
-			return defaultHttpClient.execute(httpGet);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private InputStream getReponseContent(HttpResponse response) {
-		try {
-			return response.getEntity().getContent();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private String getServerNameFromResponse(InputStream responseContent) {
-		try {
-			JSONObject jsonObject = createJsonObject(responseContent);
 			return jsonObject.getString("server_name");
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private JSONObject createJsonObject(InputStream in) throws JSONException {
-		return new JSONObject(new JSONTokener(new InputStreamReader(in)));
+	public static RemoteShuttl create() {
+		return new RemoteShuttl(new JsonRestEndpointCaller(new DefaultHttpClient()));
 	}
 }
