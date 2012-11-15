@@ -15,8 +15,8 @@
 package com.splunk.shuttl.archiver.metastore;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.metastore.MetadataStore.CouldNotReadMetadataException;
 import com.splunk.shuttl.archiver.model.Bucket;

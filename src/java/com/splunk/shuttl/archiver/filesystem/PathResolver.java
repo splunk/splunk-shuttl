@@ -13,13 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.splunk.shuttl.archiver.archive;
+package com.splunk.shuttl.archiver.filesystem;
 
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.util.UtilsURI;
 

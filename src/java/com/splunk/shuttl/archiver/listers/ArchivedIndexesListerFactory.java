@@ -15,8 +15,8 @@
 package com.splunk.shuttl.archiver.listers;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
 
 public class ArchivedIndexesListerFactory {
 
