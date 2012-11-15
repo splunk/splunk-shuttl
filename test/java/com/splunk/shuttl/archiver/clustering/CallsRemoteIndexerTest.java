@@ -25,13 +25,13 @@ import org.testng.annotations.Test;
 public class CallsRemoteIndexerTest {
 
 	private CallsRemoteIndexer callsRemoteIndexer;
-	private ShuttlPortEntityProvider entityProvider;
+	private ShuttlPortEndpointProvider entityProvider;
 	private RemoteShuttl remoteShuttl;
 
 	@BeforeMethod
 	public void setUp() {
 		remoteShuttl = mock(RemoteShuttl.class);
-		entityProvider = mock(ShuttlPortEntityProvider.class);
+		entityProvider = mock(ShuttlPortEndpointProvider.class);
 		callsRemoteIndexer = new CallsRemoteIndexer(entityProvider, remoteShuttl);
 	}
 
@@ -42,7 +42,7 @@ public class CallsRemoteIndexerTest {
 		IndexerInfo indexerInfo = mock(IndexerInfo.class);
 		when(indexerInfo.getHost()).thenReturn("host");
 
-		ShuttlPortEntity shuttlService = mock(ShuttlPortEntity.class);
+		ShuttlPortEndpoint shuttlService = mock(ShuttlPortEndpoint.class);
 		when(entityProvider.getForIndexerInfo(indexerInfo)).thenReturn(
 				shuttlService);
 		when(shuttlService.getShuttlPort()).thenReturn(shuttlPort);

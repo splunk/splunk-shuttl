@@ -20,10 +20,10 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.Service;
-import com.splunk.shuttl.archiver.clustering.ShuttlPortEntity;
+import com.splunk.shuttl.archiver.clustering.ShuttlPortEndpoint;
 
 @Test(groups = { "end-to-end" })
-public class ShuttlPortEntityTest {
+public class ShuttlPortEndpointTest {
 
 	@Parameters(value = { "splunk.host", "splunk.mgmtport", "shuttl.port",
 			"splunk.username", "splunk.password" })
@@ -31,7 +31,7 @@ public class ShuttlPortEntityTest {
 			String splunkHost, String splunkPort, String shuttlPort,
 			String splunkUser, String splunkPass) {
 		Service service = new Service(splunkHost, Integer.parseInt(splunkPort));
-		ShuttlPortEntity shuttlPortEntity = ShuttlPortEntity.create(service);
+		ShuttlPortEndpoint shuttlPortEntity = ShuttlPortEndpoint.create(service);
 
 		int actualShuttlPort = shuttlPortEntity.getShuttlPort();
 

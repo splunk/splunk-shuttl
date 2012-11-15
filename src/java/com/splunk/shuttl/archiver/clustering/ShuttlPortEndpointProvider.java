@@ -17,13 +17,13 @@ package com.splunk.shuttl.archiver.clustering;
 import com.splunk.Service;
 
 /**
- * Provides {@link ShuttlPortEntity}s
+ * Provides {@link ShuttlPortEndpoint}s
  */
-public class ShuttlPortEntityProvider {
+public class ShuttlPortEndpointProvider {
 
-	public ShuttlPortEntity getForIndexerInfo(IndexerInfo indexer) {
+	public ShuttlPortEndpoint getForIndexerInfo(IndexerInfo indexer) {
 		Service splunkService = new Service(indexer.getHost(), indexer.getPort());
-		return ShuttlPortEntity.create(splunkService);
+		return ShuttlPortEndpoint.create(splunkService);
 	}
 
 }

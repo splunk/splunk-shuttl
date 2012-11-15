@@ -27,12 +27,12 @@ import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 /**
  * Calls splunk instances shuttl port.
  */
-public class ShuttlPortEntity {
+public class ShuttlPortEndpoint {
 
 	private final Service service;
 	private final JsonRestEndpointCaller restEndpointCaller;
 
-	private ShuttlPortEntity(Service service,
+	private ShuttlPortEndpoint(Service service,
 			JsonRestEndpointCaller jsonRestEndpointCaller) {
 		this.service = service;
 		this.restEndpointCaller = jsonRestEndpointCaller;
@@ -64,9 +64,9 @@ public class ShuttlPortEntity {
 		}
 	}
 
-	public static ShuttlPortEntity create(Service splunkService) {
+	public static ShuttlPortEndpoint create(Service splunkService) {
 		JsonRestEndpointCaller endpointCaller = new JsonRestEndpointCaller(
 				InsecureHttpClientFactory.getInsecureHttpClient());
-		return new ShuttlPortEntity(splunkService, endpointCaller);
+		return new ShuttlPortEndpoint(splunkService, endpointCaller);
 	}
 }
