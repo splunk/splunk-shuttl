@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/sbin/ifconfig | grep "inet.*broadcast" | awk '{print $2}'
+/sbin/ifconfig -a | perl -ne 'if ( m/^\s*inet (?:addr:)?([\d.]+).*?cast/ ) { print qq($1\n); exit 0; }'
