@@ -261,6 +261,7 @@
 	<target name="test-all" depends="clean-built-classes-then-compile">
 		<antcallback target="do-test" return="testng.failed" />
 		<antcallback target="run-end-to-end-tests-with-setup" return="testng.failed" />
+		<antcallback target="run-cluster-tests-with-setup-and-teardown" return="testng.failed" />
 		<fail if="testng.failed" message="Tests have failed." />
 	</target>
 
