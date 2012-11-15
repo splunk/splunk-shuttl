@@ -20,6 +20,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
 import com.splunk.shuttl.ShuttlConstants;
+import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 
 /**
  * Does REST calls to remote shuttls.

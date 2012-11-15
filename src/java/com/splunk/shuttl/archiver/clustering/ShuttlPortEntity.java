@@ -21,7 +21,8 @@ import org.apache.http.client.methods.HttpGet;
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
 import com.splunk.Service;
-import com.splunk.shuttl.archiver.util.InsecureHttpClientFactory;
+import com.splunk.shuttl.archiver.http.InsecureHttpClientFactory;
+import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 
 /**
  * Calls splunk instances shuttl port.

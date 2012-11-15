@@ -12,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.clustering;
+package com.splunk.shuttl.archiver.http;
 
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 import com.amazonaws.util.StringInputStream;
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
+import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 
 @Test(groups = { "fast-unit" })
 public class JsonRestEndpointCallerTest {
