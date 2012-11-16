@@ -29,5 +29,11 @@
     <classpathentry kind="lib" path="lib/jets3t-0.7.1.jar"/>
     <classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/splunk-0.8.0.jar"/>
-	<classpathentry kind="output" path="eclipse-bin"/>
+    <classpathentry kind="lib" path="lib/hbase-0.94.1.jar"/>
+    <classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
+    <classpathentry kind="lib" path="lib/slf4j-api-1.6.6.jar" />
+    <classpathentry kind="lib" path="lib/zookeeper-3.4.3.jar" />
+    <classpathentry kind="lib" path="lib/protobuf-java-2.4.0a.jar" />
+    <classpathentry kind="lib" path="lib/guava-11.0.2.jar" />
+    <classpathentry kind="output" path="eclipse-bin"/>
 </classpath>

@@ -25,6 +25,7 @@
 
 # Downloads
 /contrib/hadoop.tar.gz
+/contrib/hbase.tar.gz
 
 # Property files
 build.properties

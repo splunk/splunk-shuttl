@@ -34,14 +34,25 @@
 	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
 	<property name="hadoop.apache.org.hadoop.common.host" value="ftp://apache.cs.utah.edu/apache.org/hadoop/common" />
 	<property name="hadoop.download.name.extracted" value="hadoop" />
-	<property name="hadoop.download.name" value="hadoop.tar.gz" />
+        <property name="hadoop.download.name" value="hadoop.tar.gz" />
 	<property name="hadoop.download.dir" value="${contribdir}" />
 	<property name="hadoop.download.path" value="${hadoop.download.dir}/${hadoop.download.name}" />
 	<property name="hadoop.extracted.dir" value="${build-cache}" />
 	<property name="hadoop.extracted.path" value="${hadoop.extracted.dir}/${hadoop.download.name.extracted}" />
 	<property name="hadoop.extracted.conf.dir" value="${hadoop.extracted.path}/conf" />
 
-	<!-- splunk properties -->
+        <!-- hbase properties -->
+        <property name="hbase.utils" value="${contribdir}/hbase-utils" />
+        <property name="hbase.download.name.extracted" value="hbase" />
+        <property name="hbase.apache.org.hbase.common.host" value="ftp://apache.cs.utah.edu/apache.org/hbase" /> 
+        <property name="hbase.download.name" value="hbase.tar.gz" />
+	<property name="hbase.download.dir" value="${contribdir}" />
+	<property name="hbase.download.path" value="${hbase.download.dir}/${hbase.download.name}" />
+        <property name="hbase.extracted.dir" value="${build-cache}" />
+	<property name="hbase.extracted.path" value="${hbase.extracted.dir}/${hbase.download.name.extracted}" />
+	<property name="hbase.extracted.conf.dir" value="${hbase.extracted.path}/conf" />
+        
+        <!-- splunk properties -->
 	<property name="splunk.tgz.dir" value="${basedir}/put-splunk-tgz-here" />
 	<property name="splunk.server.name" value="splunk-1" />
 	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
@@ -319,12 +330,12 @@
 	<target name="run-end-to-end-tests-with-setup" depends="jar">
 		<antcall>
 			<target name="hadoop-setup" />
-			<target name="splunk-setup" />
+                        <target name="splunk-setup" />
 		</antcall>
 		<antcallback target="do-end-to-end-tests" return="testng.failed" />
 		<antcall>
 			<target name="splunk-teardown" />
-			<target name="hadoop-teardown" />
+                        <target name="hadoop-teardown" />
 		</antcall>
 	</target>
 
@@ -385,7 +396,11 @@
 		<echo>Running tests with HADOOP_HOME: ${hadoop.home}</echo>
 	</target>
 
-	<!-- Hadoop -->
+        <target name="set-hbase-home">
+                <property name="hbase.home" value="${hbase.extracted.path}" />
+        </target>
+        
+        <!-- Hadoop -->
 	<target name="hadoop-setup" depends="set-hadoop-home">
 		<antcall>
 			<target name="hadoop-prepare-build-cache" />
@@ -565,7 +580,154 @@
 
 	<target name="check-for-hadoop-binaries">
 		<available file="${hadoop.home}/bin" type="dir" property="existsHadoopBinaries" />
+        </target>
+
+
+        <!-- Hbase -->
+	<target name="hbase-setup" depends="set-hbase-home,hadoop-setup">
+		<antcall>
+			<target name="hbase-prepare-build-cache" />
+			<target name="hbase-boot" />
+		</antcall>
 	</target>
+
+	<target name="hbase-prepare-build-cache" depends="set-hbase-home">
+		<antcall target="do-hbase-prepare-build-cache" />
+	</target>
+
+	<target name="do-hbase-prepare-build-cache" depends="check-hbase-in-cache" unless="isHBaseInCache">
+		<antcall>
+			<target name="hbase-download" />
+			<target name="hbase-extract" />
+			<target name="hbase-copy-confs" />
+		</antcall>
+	</target>
+
+	<target name="check-hbase-in-cache">
+		<condition property="isHBaseInCache">
+			<available file="${hbase.extracted.path}" type="dir" />
+		</condition>
+	</target>
+
+	<target name="hbase-download" depends="check-if-hbase-is-downloaded" unless="isDownloaded">
+		<antcall>
+			<target name="do-hbase-download" />
+		</antcall>
+	</target>
+
+	<target name="do-hbase-download" depends="set-hbase-download-url">
+		<echo>Downloading Hbase from ${hbase.download.url}</echo>
+		<exec executable="curl">
+			<arg value="-s" />
+			<arg value="${hbase.download.url}" />
+			<arg line="-o ${hbase.download.name}" />
+		</exec>
+		<!-- this move will make hbase.download.path make sense -->
+		<move file="${hbase.download.name}" todir="${hbase.download.dir}" />
+	</target>
+
+	<target name="check-if-hbase-is-downloaded">
+		<condition property="isDownloaded">
+			<available file="${hbase.download.path}" type="file" />
+		</condition>
+	</target>
+
+	<target name="set-hbase-download-url">
+		<property name="hbase.version.url" value="hbase-${hbase.version}/hbase-${hbase.version}.tar.gz" />
+		<property name="hbase.download.url" value="${hbase.apache.org.hbase.common.host}/${hbase.version.url}" />
+	</target>
+
+	<!-- extract to build cache-->
+	<target name="hbase-extract" depends="hbase-extract-check-if-hbase-is-downloaded" if="isDownloaded">
+		<!-- PLEASEREVIEW: unclear if the check for downloaded is correct; better not to check
+		and fail, no? -->
+		<echo>Extracting...</echo>
+		<echo>download path: ${hbase.download.path}</echo>
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg line="'tar xf ${hbase.download.path} -C ${hbase.extracted.dir}'" />
+		</exec>
+		<exec executable="sh">
+			<arg value="-c" />
+			<arg line="'mv ${hbase.extracted.dir}/hbase-* ${hbase.extracted.path}'" />
+		</exec>
+	</target>
+
+	<!-- This condition may seem redundant with "check-if-hbase-is-downloaded" but it isn't. \
+	A condition is only evaluated ones and if you use the condition in another target it won't\ 
+	be evaluated again -->
+	<target name="hbase-extract-check-if-hbase-is-downloaded">
+		<condition property="isDownloaded">
+			<available file="${hbase.download.path}" type="file" />
+		</condition>
+	</target>
+
+
+	<target name="hbase-copy-confs">
+		<property name="hbase.conf.dir" value="${hbase.utils}/conf" />
+		<copy todir="${hbase.extracted.conf.dir}" overwrite="true">
+			<fileset dir="${hbase.conf.dir}" includes="*" />
+		</copy>
+		<antcall target="hbase-setup-copied-confs" />
+	</target>
+
+	<target name="hbase-setup-copied-confs" depends="set-extracted-hbase-conf-properties">
+		<antcall>
+			<target name="hbase-conf-hbase-env-sh" />
+			<target name="hbase-conf-hbase-site-xml" />
+		</antcall>
+	</target>
+
+	<target name="set-extracted-hbase-conf-properties">
+		<property name="hbase.env.sh" value="${hbase.extracted.conf.dir}/hbase-env.sh" />
+		<property name="hbase.site.xml" value="${hbase.extracted.conf.dir}/hbase-site.xml" />
+	</target>
+
+	<target name="hbase-conf-hbase-env-sh" depends="set-environment-property">
+		<fail unless="env.JAVA_HOME" message="You need to have JAVA_HOME set in order to get hbase configured." />
+		<replace file="${hbase.env.sh}">
+			<replacefilter token="@JAVA.HOME@" value="${env.JAVA_HOME}" />
+		</replace>
+	</target>
+
+	<target name="hbase-conf-hbase-site-xml">
+		<replace file="${hbase.site.xml}">
+			<replacefilter token="@HBASE.PATH@" value="${hbase.home}" />
+		</replace>
+	</target>
+
+	<!-- Stop, copy and start -->
+	<target name="hbase-boot" depends="set-hbase-home">
+		<antcall>
+			<target name="hbase-start" />
+		</antcall>
+	</target>
+
+	<target name="hbase-stop" depends="set-hbase-home">
+		<exec executable="${hbase.home}/bin/stop-hbase.sh" />
+	</target>
+
+	<target name="hbase-start" depends="set-hbase-home, hadoop-start">
+		<exec executable="${hbase.home}/bin/start-hbase.sh" />
+        </target>
+
+        <target name="hbase-restart" depends="set-hbase-home, set-hadoop-home">
+                <antcall>
+                    <target name="hbase-stop" />
+                    <target name="hadoop-stop" />
+                    <target name="hbase-start" />
+                </antcall>
+        </target>
+
+	<target name="hbase-teardown" depends="set-hbase-home,check-for-hbase-binaries" if="existsHBaseBinaries">
+		<antcall>
+			<target name="hbase-stop" />
+		</antcall>
+	</target>
+
+	<target name="check-for-hbase-binaries">
+		<available file="${hbase.home}/bin" type="dir" property="existsHBaseBinaries" />
+        </target>
 
 	<!-- Splunk -->
 	<target name="splunk-setup" depends="set-splunk-home">
