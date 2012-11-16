@@ -636,14 +636,15 @@
 	</target>
 
 	<!-- Try both the default and changed password -->
+	<!-- These calls might output that login failed, but it's all good. -->
 	<target name="splunk-login" depends="set-splunk-home,splunk-start">
 		<exec executable="sh">
 			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.default.password} 2> /dev/null" />
+			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.default.password}" />
 		</exec>
 		<exec executable="sh">
 			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.password} 2> /dev/null" />
+			<arg value="${splunk.home}/bin/splunk login -auth ${splunk.username}:${splunk.password}" />
 		</exec>
 	</target>
 
