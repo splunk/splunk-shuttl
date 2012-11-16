@@ -136,4 +136,22 @@ public class HadoopArchiveFileSystemTest {
 		assertTrue(newName.exists());
 		assertFalse(dir.exists());
 	}
+
+	public void bucketTransactionCleaner_existingFile_deletesDirectoryRecursivly() {
+		File dir = createDirectory();
+		File fileInDir = createDirectoryInParent(dir, "some.file");
+		hadoopArchiveFileSystem.getBucketTransactionCleaner().cleanTransaction(
+				null, dir.getAbsolutePath());
+
+		assertFalse(dir.exists());
+		assertFalse(fileInDir.exists());
+	}
+
+	public void fileTransactionCleaner_existingFile_deletesFile() {
+		File file = createFile();
+		hadoopArchiveFileSystem.getFileTransactionCleaner().cleanTransaction(null,
+				file.getAbsolutePath());
+
+		assertFalse(file.exists());
+	}
 }

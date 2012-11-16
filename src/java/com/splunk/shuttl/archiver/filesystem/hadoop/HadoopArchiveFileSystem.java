@@ -88,6 +88,14 @@ public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 		return hadoopFileSystem.exists(new Path(path));
 	}
 
+	private void deletePath(String path) {
+		try {
+			hadoopFileSystem.delete(new Path(path), true);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public TransfersBuckets getBucketTransferer() {
 		return new TransfersBuckets() {
@@ -131,7 +139,7 @@ public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 
 			@Override
 			public void cleanTransaction(Bucket bucket, String temp) {
-				// Do nothing.
+				deletePath(temp);
 			}
 		};
 	}
@@ -142,7 +150,7 @@ public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 
 			@Override
 			public void cleanTransaction(String file, String temp) {
-				// Do nothing.
+				deletePath(temp);
 			}
 		};
 	}
