@@ -37,6 +37,14 @@ import org.testng.AssertJUnit;
  */
 public class TUtilsFile {
 
+	public static File createFileIn(File parent, String child) {
+		return createFileIn(parent.getAbsolutePath(), child);
+	}
+
+	public static File createFileIn(String parent, String child) {
+		return new File(parent, child);
+	}
+
 	/**
 	 * @return a temporary file with random content.
 	 * 
@@ -125,7 +133,7 @@ public class TUtilsFile {
 	 * @return A directory with specified name that will be removed on JVM exit
 	 */
 	public static File createDirectoryWithName(String name) {
-		File tmpDirectory = new File(createDirectory(), name);
+		File tmpDirectory = createFileIn(createDirectory(), name);
 		createDirectory(tmpDirectory);
 		try {
 			FileUtils.forceDeleteOnExit(tmpDirectory);
@@ -152,7 +160,7 @@ public class TUtilsFile {
 	}
 
 	private static File getFileInShuttlTestDirectory(String tempDirName) {
-		return new File(getShuttlTestDirectory(), tempDirName);
+		return createFileIn(getShuttlTestDirectory(), tempDirName);
 	}
 
 	private static void createDirectory(File dir) {
@@ -201,13 +209,13 @@ public class TUtilsFile {
 				getShuttlTestDirectory().getAbsolutePath()))
 			System.err.println("Warning! Creating files in parent outside of "
 					+ "ShuttlTestDirectory. File: " + parent);
-		File child = new File(parent, name);
+		File child = createFileIn(parent, name);
 		createDirectory(child);
 		return child;
 	}
 
 	public static File createFileInParent(File parent, String fileName) {
-		File child = new File(parent, fileName);
+		File child = createFileIn(parent, fileName);
 		try {
 			child.createNewFile();
 		} catch (IOException e) {
@@ -261,7 +269,7 @@ public class TUtilsFile {
 	 *         shuttl's tests, should be children of.
 	 */
 	public static File getShuttlTestDirectory() {
-		File dir = new File(File.separator + "var" + File.separator + "tmp",
+		File dir = createFileIn(File.separator + "var" + File.separator + "tmp",
 				"ShuttlTestDirectory");
 		if (!dir.exists())
 			createDirectory(dir);
