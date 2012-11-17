@@ -732,9 +732,8 @@
 	<!-- Splunk -->
 	<target name="splunk-setup" depends="set-splunk-home">
 		<antcall>
-			<target name="hbase-download" />
-			<target name="hbase-extract" />
-			<target name="hbase-copy-confs" />
+			<target name="splunk-unpack-if-not-extracted" />
+			<target name="splunk-configure-and-start" />
 		</antcall>
 	</target>
 
