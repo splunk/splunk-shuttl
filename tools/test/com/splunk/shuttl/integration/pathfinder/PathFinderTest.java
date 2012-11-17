@@ -14,34 +14,77 @@
 // limitations under the License.
 package com.splunk.shuttl.integration.pathfinder;
 
+import static java.util.Arrays.*;
+import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.archive.PathResolver;
+import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+
 @Test(groups = { "fast-unit" })
 public class PathFinderTest {
 	private PathFinder pathFinder;
+	private PathResolver pathResolver;
+	private ArchiveFileSystem fileSystem;
 
 	@BeforeMethod
-	public void setUp() {
-		this.pathFinder = new PathFinder();
+	public void setUp() throws IOException {
+		pathResolver = mock(PathResolver.class);
+		fileSystem = mock(ArchiveFileSystem.class);
+		this.pathFinder = new PathFinder(pathResolver, fileSystem);
+
+		when(pathResolver.getIndexesHome()).thenReturn("rootPath");
+		when(fileSystem.listPath("rootPath")).thenReturn(
+						asList("rootPath/file.csv", "rootPath/file2.csv",
+						"rootPath/file3.csv"));
 	}
-	public void getUnsyncedPaths_noSyncedPathsInInput_returnsAllPaths() {
+
+	@Test
+	public void getAllFilePathsFromRootPath_givenRootPath_returnsAllFilesFromRoot()
+			throws IOException {
+		List<String> result = pathFinder.getAllFilePathsFromRootPath("rootPath");
+
+		System.out.println(result.get(0));
+		assertEquals(3, result.size());
+	}
+
+	@Test
+	public void getAllFilePathsFromRootPath_complexTreeStructure_returnsAllFiles()
+			throws IOException {
+		String rootPath = "rootPath";
+		String subFolder = rootPath.concat("/subFolder");
+		List<String> pathsInRoot = asList(subFolder,
+				rootPath.concat("/file.csv"));
+		List<String> pathsInSubFolder = asList(subFolder.concat("/file.csv"),subFolder.concat("/file2.csv"));
+
+		when(pathResolver.getIndexesHome()).thenReturn(rootPath);
+		when(fileSystem.listPath(rootPath)).thenReturn(pathsInRoot);
+		when(fileSystem.listPath(subFolder)).thenReturn(pathsInSubFolder);
+
+		List<String> result = pathFinder.getAllFilePathsFromRootPath("rootPath");
+
+		assertEquals(3, result.size());
+	}
+
+	public void getUnsyncedPaths_noSyncedPathsInInput_returnsAllPaths() throws IOException {
 		List<String> result = pathFinder.getUnsyncedPaths(new ArrayList<String>());
 
-		assertEquals(result.size(), 5);
+		assertEquals(3, result.size());
 	}
 
-	public void getUnsyncedPaths_oneSyncedPathInInput_returnsAllPathsExceptTheAlreadySynced() {
-		List<String> inputContainingOnePath = Arrays.asList("path2");
+	public void getUnsyncedPaths_oneSyncedPathInInput_returnsAllPathsExceptTheAlreadySynced() throws IOException {
+		List<String> inputContainingOnePath = new ArrayList<String>();
+		inputContainingOnePath.add("rootPath/file2.csv");
 		List<String> result = pathFinder.getUnsyncedPaths(inputContainingOnePath);
 
-		assertEquals(4, result.size());
+		assertEquals(2, result.size());
 		assertEquals(true,
 				resultDoesNotContainPathToPathsInInput(inputContainingOnePath, result));
 	}
@@ -51,11 +94,12 @@ public class PathFinderTest {
 	 * @param resultPaths
 	 * @return
 	 */
-	private Object resultDoesNotContainPathToPathsInInput(
+	private boolean resultDoesNotContainPathToPathsInInput(
 			List<String> inputPaths, List<String> resultPaths) {
 		for (String path : inputPaths)
 			if (resultPaths.contains(path))
 				return false;
 		return true;
 	}
+
 }
