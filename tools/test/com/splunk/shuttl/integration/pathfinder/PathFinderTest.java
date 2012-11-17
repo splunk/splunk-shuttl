@@ -25,8 +25,8 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
 
 @Test(groups = { "fast-unit" })
 public class PathFinderTest {
@@ -41,9 +41,10 @@ public class PathFinderTest {
 		this.pathFinder = new PathFinder(pathResolver, fileSystem);
 
 		when(pathResolver.getIndexesHome()).thenReturn("rootPath");
-		when(fileSystem.listPath("rootPath")).thenReturn(
+		when(fileSystem.listPath("rootPath"))
+				.thenReturn(
 						asList("rootPath/file.csv", "rootPath/file2.csv",
-						"rootPath/file3.csv"));
+								"rootPath/file3.csv"));
 	}
 
 	@Test
@@ -59,10 +60,10 @@ public class PathFinderTest {
 	public void getAllFilePathsFromRootPath_complexTreeStructure_returnsAllFiles()
 			throws IOException {
 		String rootPath = "rootPath";
-		String subFolder = rootPath.concat("/subFolder");
-		List<String> pathsInRoot = asList(subFolder,
-				rootPath.concat("/file.csv"));
-		List<String> pathsInSubFolder = asList(subFolder.concat("/file.csv"),subFolder.concat("/file2.csv"));
+		String subFolder = rootPath + "/subFolder";
+		List<String> pathsInRoot = asList(subFolder, rootPath + "/file.csv");
+		List<String> pathsInSubFolder = asList(subFolder + "/file.csv", subFolder
+				+ "/file2.csv");
 
 		when(pathResolver.getIndexesHome()).thenReturn(rootPath);
 		when(fileSystem.listPath(rootPath)).thenReturn(pathsInRoot);
@@ -73,13 +74,15 @@ public class PathFinderTest {
 		assertEquals(3, result.size());
 	}
 
-	public void getUnsyncedPaths_noSyncedPathsInInput_returnsAllPaths() throws IOException {
+	public void getUnsyncedPaths_noSyncedPathsInInput_returnsAllPaths()
+			throws IOException {
 		List<String> result = pathFinder.getUnsyncedPaths(new ArrayList<String>());
 
 		assertEquals(3, result.size());
 	}
 
-	public void getUnsyncedPaths_oneSyncedPathInInput_returnsAllPathsExceptTheAlreadySynced() throws IOException {
+	public void getUnsyncedPaths_oneSyncedPathInInput_returnsAllPathsExceptTheAlreadySynced()
+			throws IOException {
 		List<String> inputContainingOnePath = new ArrayList<String>();
 		inputContainingOnePath.add("rootPath/file2.csv");
 		List<String> result = pathFinder.getUnsyncedPaths(inputContainingOnePath);

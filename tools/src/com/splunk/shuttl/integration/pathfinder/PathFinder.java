@@ -18,8 +18,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
 public class PathFinder {
 
 	private PathResolver pathResolver;
