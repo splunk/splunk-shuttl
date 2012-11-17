@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsConf;
@@ -217,6 +216,15 @@ public class PathResolverTest {
 		String tempPath = pathResolver.resolveTempPathForBucketMetadata(bucket,
 				metadataFile);
 		assertEquals(metadataFile.getName(), FilenameUtils.getName(tempPath));
+	}
+
+	public void getServerNamesHome_givenSetup_parentToIndexesPath() {
+		String indexesHome = pathResolver.getIndexesHome();
+		String indexesHomeParent = new File(indexesHome).getParentFile()
+				.getAbsolutePath();
+
+		String serversHome = pathResolver.getServerNamesHome();
+		assertEquals(indexesHomeParent, serversHome);
 	}
 
 }

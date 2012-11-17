@@ -57,10 +57,18 @@ public class PathResolver {
 	 * @return Path to archive the bucket
 	 */
 	public String resolveArchivePath(Bucket bucket) {
-		String archivePathForBucket = getArchivingPath() + SEPARATOR
-				+ bucket.getIndex() + SEPARATOR + bucket.getName() + SEPARATOR
-				+ bucket.getFormat();
+		String archivePathForBucket = getArchivingPathForConfiguredServer()
+				+ SEPARATOR + bucket.getIndex() + SEPARATOR + bucket.getName()
+				+ SEPARATOR + bucket.getFormat();
 		return archivePathForBucket;
+	}
+
+	/**
+	 * @return Path where all the server names can be listed.
+	 */
+	public String getServerNamesHome() {
+		return configuration.getArchiveDataPath() + SEPARATOR
+				+ configuration.getClusterName();
 	}
 
 	/**
@@ -69,10 +77,8 @@ public class PathResolver {
 	 * 
 	 * @return Archiving path that starts with "/"
 	 */
-	private String getArchivingPath() {
-		return configuration.getArchiveDataPath() + SEPARATOR
-				+ configuration.getClusterName() + SEPARATOR
-				+ configuration.getServerName();
+	private String getArchivingPathForConfiguredServer() {
+		return getServerNamesHome() + SEPARATOR + configuration.getServerName();
 	}
 
 	/**
@@ -80,7 +86,7 @@ public class PathResolver {
 	 *         you can list indexes.
 	 */
 	public String getIndexesHome() {
-		return getArchivingPath();
+		return getArchivingPathForConfiguredServer();
 	}
 
 	/**
