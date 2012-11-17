@@ -16,20 +16,21 @@ package com.splunk.shuttl.archiver.archive;
 
 import static org.testng.Assert.*;
 
+import java.io.File;
+
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.ArchiverMBeanNotRegisteredException;
-import com.splunk.shuttl.testutil.TUtilsConf;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 
 public class BucketFreezerProviderTest {
 
 	@Test(groups = { "end-to-end" })
-	@Parameters(value = { "splunk.home" })
+	@Parameters(value = { "splunk.home", "shuttl.conf.dir" })
 	public void getConfiguredBucketFreezer_givenRegisteredMBeans_notNull(
-			final String splunkHome) {
+			final String splunkHome, final String shuttlConfDir) {
 		final Runnable assertGettingNonNullInstance = new Runnable() {
 
 			@Override
@@ -45,7 +46,7 @@ public class BucketFreezerProviderTest {
 			@Override
 			public void run() {
 				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
-				TUtilsMBean.runWithRegisteredMBeans(TUtilsConf.getNullConfsDir(),
+				TUtilsMBean.runWithRegisteredMBeans(new File(shuttlConfDir),
 						assertGettingNonNullInstance);
 			}
 		});
