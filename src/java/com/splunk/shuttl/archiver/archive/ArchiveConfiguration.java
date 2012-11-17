@@ -115,7 +115,7 @@ public class ArchiveConfiguration {
 		String archiveDataPath = getChildToArchivingRoot(archivePath,
 				ARCHIVE_DATA_DIRECTORY_NAME);
 		String archiveTempPath = getChildToArchivingRoot(archivePath,
-				TEMPORARY_DATA_DIRECTORY_NAME);
+				TEMPORARY_DATA_DIRECTORY_NAME) + "/" + serverName;
 		return new ArchiveConfiguration(localArchiverDir, bucketFormats,
 				clusterName, serverName, bucketFormatPriority, archiveTempPath,
 				archiveDataPath, backendName);

@@ -18,7 +18,6 @@ import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -129,14 +128,12 @@ public class ArchiveConfigurationTest {
 		assertEquals(BucketFormat.UNKNOWN, priorityList.get(1));
 	}
 
-	public void getArchiveTempPath_givenArchivePath_pathIsAChildOfTheArchivePath() {
+	public void getArchiveTempPath_givenArchivePath_pathStartsWithTheArchivePath() {
 		String archivePath = "/archive/path";
 		when(mBean.getArchivePath()).thenReturn(archivePath);
 		String tempPath = createConfiguration().getArchiveTempPath();
 
-		String tmpDirectoryName = FilenameUtils.getName(tempPath);
-		String expected = archivePath + "/" + tmpDirectoryName;
-		assertEquals(expected, tempPath);
+		assertTrue(tempPath.startsWith(archivePath));
 	}
 
 	public void getArchiveTempPath_givenArchivePath_pathIsNotWithInArchiveDataPath() {
@@ -148,24 +145,20 @@ public class ArchiveConfigurationTest {
 		assertFalse(tempPath.contains(archivingRoot));
 	}
 
-	public void _givenArchivePath_archiveTempPathAndArchiveDataPathHasTheSameParent() {
-		when(mBean.getArchivePath()).thenReturn("/archive/path");
-		ArchiveConfiguration configuration = createConfiguration();
-		String archiveDataPath = configuration.getArchiveDataPath();
-		String archiveTempPath = configuration.getArchiveTempPath();
-
-		assertPathsHasSameParent(archiveDataPath, archiveTempPath);
-	}
-
-	private void assertPathsHasSameParent(String path1, String path2) {
-		assertEquals(new File(path1).getParent(), new File(path2).getParent());
+	public void getArchiveTempPath_givenConfiguredServerName_containsServerNameForGlobalyUniqueTempPath() {
+		String serverName = "some_server_name";
+		when(mBean.getServerName()).thenReturn(serverName);
+		String archiveTempPath = createConfiguration().getArchiveTempPath();
+		assertTrue(archiveTempPath.contains(serverName),
+				"archiveTempPath did not contain server name. Actual: "
+						+ archiveTempPath);
 	}
 
 	public void newWithServerName_serverName_newInstanceWithNewServerName() {
 		ArchiveConfiguration original = createConfiguration();
 		ArchiveConfiguration newConfig = original
 				.newConfigWithServerName("newServerName");
-		assertNotEquals(original, newConfig);
+		assertNotSame(original, newConfig);
 		assertNotEquals(original.getServerName(), newConfig.getServerName());
 	}
 
