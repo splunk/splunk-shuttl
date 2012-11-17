@@ -12,10 +12,10 @@ class RendersPort(splunk.rest.BaseRestHandler):
 
     def handle_GET(self):
         response = self.response
-        response.write(json.dumps({'shuttl_port' : self._getShuttlPort() }, indent=2))
+        response.write(json.dumps({'shuttl_port' : getShuttlPort() }, indent=2))
 
-    def _getShuttlPort(self):
-        xmldoc = minidom.parse(SHUTTL_CONF)
-        httpPortNode = xmldoc.getElementsByTagName('httpPort')[0]
-        return httpPortNode.childNodes[0].nodeValue
+def getShuttlPort():
+    xmldoc = minidom.parse(SHUTTL_CONF)
+    httpPortNode = xmldoc.getElementsByTagName('httpPort')[0]
+    return httpPortNode.childNodes[0].nodeValue
 

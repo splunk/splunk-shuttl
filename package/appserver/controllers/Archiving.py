@@ -11,6 +11,19 @@ import json
 import time
 import collections
 
+import os
+CONTROLLER_DIR = os.path.abspath(os.path.dirname(__file__))
+APPSERVER_DIR = os.path.abspath(os.path.join(CONTROLLER_DIR, '..'))
+APP_DIR = os.path.abspath(os.path.join(APPSERVER_DIR, '..'))
+BIN_DIR = os.path.abspath(os.path.join(APP_DIR, 'bin'))
+
+import sys
+sys.path.append(BIN_DIR)
+
+import shuttl_rest_handler as shuttl
+
+SHUTTL_PORT = shuttl.getShuttlPort()
+SHUTTL_URI = "http://localhost:" + SHUTTL_PORT
 
 DEBUG = False
 debugIndexes = ['test index 1', 'test index 2']
@@ -77,7 +90,7 @@ class Archiving(controllers.BaseController):
         errors = None
         indexes = []
         # may raise exception (ex. connection refused)
-        indexesResponse = splunk.rest.simpleRequest('http://localhost:9090/shuttl/rest/archiver/index/list');
+        indexesResponse = splunk.rest.simpleRequest(SHUTTL_URI + '/shuttl/rest/archiver/index/list');
 
         if DEBUG: 
             indexes = debugIndexes
@@ -100,11 +113,11 @@ class Archiving(controllers.BaseController):
     # Gives a list of buckets for a specific index as an html table
     @expose_page(must_login=True, methods=['POST'])
     def list_buckets(self, **params):
-        return self.list_buckets_at('http://localhost:9090/shuttl/rest/archiver/bucket/list', params)
+        return self.list_buckets_at(SHUTTL_URI + '/shuttl/rest/archiver/bucket/list', params)
 
     @expose_page(must_login=True, methods=['POST'])
     def list_thawed(self, **params):
-        return self.list_buckets_at('http://localhost:9090/shuttl/rest/archiver/thaw/list', params)
+        return self.list_buckets_at(SHUTTL_URI + '/shuttl/rest/archiver/thaw/list', params)
 
     def list_buckets_at(self, url, params):
 
@@ -138,12 +151,12 @@ class Archiving(controllers.BaseController):
     # Attempts to flush buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
     def flush(self, **params):
-        return self.bucket_action_at('http://localhost:9090/shuttl/rest/archiver/bucket/flush', params)
+        return self.bucket_action_at(SHUTTL_URI + '/shuttl/rest/archiver/bucket/flush', params)
 
     # Attempts to thaw buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
     def thaw(self, **params):
-        return self.bucket_action_at('http://localhost:9090/shuttl/rest/archiver/bucket/thaw', params)
+        return self.bucket_action_at(SHUTTL_URI + '/shuttl/rest/archiver/bucket/thaw', params)
         
     def bucket_action_at(self, url, params):
         errors = None
