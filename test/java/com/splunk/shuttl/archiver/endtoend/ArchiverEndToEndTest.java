@@ -16,7 +16,6 @@ package com.splunk.shuttl.archiver.endtoend;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -37,7 +36,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -229,12 +227,8 @@ public class ArchiverEndToEndTest {
 
 	private HttpPost getThawPostRequest(String index, Date earliest, Date latest) {
 		URI thawEndpoint = getArchiverEndpoint(ENDPOINT_BUCKET_THAW);
-		HttpPost httpPost = new HttpPost(thawEndpoint);
-		List<BasicNameValuePair> postParams = asList(nameValue("index", index),
-				nameValue("from", earliest.getTime()),
-				nameValue("to", latest.getTime()));
-		TUtilsHttp.setParamsToPostRequest(httpPost, postParams);
-		return httpPost;
+		return TUtilsHttp.createHttpPost(thawEndpoint, "index", index, "from",
+				(Long) earliest.getTime(), "to", (Long) latest.getTime());
 	}
 
 	private HttpResponse executeUriRequest(HttpUriRequest request) {
@@ -245,10 +239,6 @@ public class ArchiverEndToEndTest {
 					"Could not execute uri request: " + request, e);
 			return null;
 		}
-	}
-
-	private BasicNameValuePair nameValue(String name, Object index) {
-		return new BasicNameValuePair(name, index.toString());
 	}
 
 	private URI getArchiverEndpoint(String endpoint) {

@@ -15,6 +15,8 @@
 package com.splunk.shuttl.archiver.testutil;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -24,6 +26,27 @@ import org.apache.http.message.BasicNameValuePair;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 public class TUtilsHttp {
+
+	/**
+	 * @param endpoint
+	 * @param POST
+	 *          key values
+	 */
+	public static HttpPost createHttpPost(URI endpoint, Object... kvs) {
+		HttpPost httpPost = new HttpPost(endpoint);
+
+		List<BasicNameValuePair> postParams = new ArrayList<BasicNameValuePair>();
+		for (int i = 0; i < kvs.length; i += 2)
+			postParams.add(createNameValuePair(kvs[i], kvs[i + 1]));
+
+		TUtilsHttp.setParamsToPostRequest(httpPost, postParams);
+		return httpPost;
+	}
+
+	private static BasicNameValuePair createNameValuePair(Object name,
+			Object value) {
+		return new BasicNameValuePair(name.toString(), value.toString());
+	}
 
 	/**
 	 * Set data params to a post request.
