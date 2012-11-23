@@ -29,27 +29,31 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
  */
 public class BucketArchiverRunner implements Runnable {
 
+	public static interface BucketShuttler {
+		void shuttlBucket(LocalBucket bucket);
+	}
+
 	private final static Logger logger = Logger
 			.getLogger(BucketArchiverRunner.class);
 
-	private final BucketArchiver bucketArchiver;
+	private final BucketShuttler bucketShuttler;
 	private final LocalBucket bucket;
 	private final BucketLock bucketLock;
 
 	/**
-	 * @param bucketArchiver
-	 *          for archiving a bucket.
+	 * @param bucketCopier
+	 *          for copying a bucket.
 	 * @param bucket
 	 *          to archive.
 	 * @param bucketLock
 	 *          which is already locked.
 	 */
-	public BucketArchiverRunner(BucketArchiver bucketArchiver,
+	public BucketArchiverRunner(BucketShuttler bucketShuttler,
 			LocalBucket bucket, BucketLock bucketLock) {
 		if (!bucketLock.isLocked())
 			throw new NotLockedException("Bucket Lock has to be locked already"
 					+ " before archiving bucket");
-		this.bucketArchiver = bucketArchiver;
+		this.bucketShuttler = bucketShuttler;
 		this.bucket = bucket;
 		this.bucketLock = bucketLock;
 	}
@@ -76,7 +80,7 @@ public class BucketArchiverRunner implements Runnable {
 	private void archiveBucket() {
 		try {
 			logger.info(will("Archiving bucket", "bucket", bucket));
-			bucketArchiver.archiveBucket(bucket);
+			bucketShuttler.shuttlBucket(bucket);
 			logger.info(done("Archived bucket", "bucket", bucket));
 		} finally {
 			bucketLock.deleteLockFile();

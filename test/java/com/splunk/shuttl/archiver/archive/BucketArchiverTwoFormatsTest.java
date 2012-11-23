@@ -74,7 +74,12 @@ public class BucketArchiverTwoFormatsTest {
 		doThrow(new FailedToArchiveBucketException()).when(archiveBucketTransferer)
 				.transferBucketToArchive(exportedBucket1);
 
-		bucketArchiver.archiveBucket(bucket);
+		try {
+			bucketArchiver.archiveBucket(bucket);
+		} catch (RuntimeException e) {
+			// Do nothing.
+		}
+
 		verify(archiveBucketTransferer).transferBucketToArchive(exportedBucket2);
 	}
 
@@ -83,7 +88,11 @@ public class BucketArchiverTwoFormatsTest {
 		doThrow(new FailedToArchiveBucketException()).when(archiveBucketTransferer)
 				.transferBucketToArchive(exportedBucket1);
 
-		bucketArchiver.archiveBucket(bucket);
+		try {
+			bucketArchiver.archiveBucket(bucket);
+		} catch (RuntimeException e) {
+			// Do nothing.
+		}
 		verify(bucketDeleter).deleteBucket(exportedBucket1);
 		verify(bucketDeleter).deleteBucket(exportedBucket2);
 		verify(bucketDeleter, never()).deleteBucket(bucket);

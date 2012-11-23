@@ -35,22 +35,43 @@ import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.testutil.TUtilsHttp;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
-@Test(groups = { "end-to-end" }, enabled = false)
+@Test(groups = { "end-to-end" })
 public class CopyWithoutDeletionEndToEndTest {
 
-	@Parameters(value = { "shuttl.host", "shuttl.port", "shuttl.conf.dir" })
+	@Parameters(value = { "shuttl.host", "shuttl.port", "shuttl.conf.dir",
+			"splunk.home" })
 	public void _callingCopyRestEndpointWithBucket_copiesTheBucketToStorageWithoutDeletingOriginal(
-			String shuttlHost, String shuttlPort, String shuttlConfDir)
+			final String shuttlHost, final String shuttlPort,
+			final String shuttlConfDir, final String splunkHome)
 			throws ClientProtocolException, IOException {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				try {
+					runTestWithSplunkHomeSet(shuttlHost, shuttlPort, shuttlConfDir);
+				} catch (IOException e) {
+					TUtilsTestNG.failForException("Test got exception.", e);
+				}
+			}
+		});
+	}
+
+	private void runTestWithSplunkHomeSet(String shuttlHost, String shuttlPort,
+			String shuttlConfDir) throws IOException, ClientProtocolException {
 		final LocalBucket bucket = TUtilsBucket.createBucket();
 
 		HttpPost postRequest = createPostRequest(shuttlHost, shuttlPort, bucket);
 		HttpResponse httpResponse = new DefaultHttpClient().execute(postRequest);
 
-		assertTrue(300 > httpResponse.getStatusLine().getStatusCode());
+		int statusCode = httpResponse.getStatusLine().getStatusCode();
+		assertTrue(300 > statusCode,
+				"Http endpoint status code not less than 300. Was: " + statusCode);
 		assertTrue(bucket.getDirectory().exists());
 
 		TUtilsMBean.runWithRegisteredMBeans(new File(shuttlConfDir),

@@ -14,6 +14,8 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
+import java.util.List;
+
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
@@ -38,6 +40,14 @@ public class BucketArchiverFactory {
 	public static BucketArchiver createConfiguredArchiver() {
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 		return createWithConfig(config);
+	}
+
+	public static BucketCopier createCopierWithConfig(ArchiveConfiguration config) {
+		BucketCopierDependencies deps = getDependencies(config,
+				ArchiveFileSystemFactory.getWithConfiguration(config),
+				LocalFileSystemPaths.create(config));
+		return new BucketCopier(deps.exporter, deps.transferer, deps.formats,
+				deps.deleter);
 	}
 
 	/**
@@ -68,6 +78,16 @@ public class BucketArchiverFactory {
 	public static BucketArchiver createWithConfFileSystemAndCsvDirectory(
 			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem,
 			LocalFileSystemPaths localFileSystemPaths) {
+		BucketCopierDependencies deps = getDependencies(config, archiveFileSystem,
+				localFileSystemPaths);
+
+		return newBucketArchiver(deps.exporter, deps.transferer, deps.deleter,
+				deps.formats);
+	}
+
+	private static BucketCopierDependencies getDependencies(
+			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem,
+			LocalFileSystemPaths localFileSystemPaths) {
 		BucketToCsvFileExporter bucketToCsvFileExporter = BucketToCsvFileExporter
 				.create(localFileSystemPaths);
 		PathResolver pathResolver = new PathResolver(config);
@@ -77,11 +97,43 @@ public class BucketArchiverFactory {
 		TgzFormatExporter tgzFormatExporter = TgzFormatExporter
 				.create(CreatesBucketTgz.create(localFileSystemPaths));
 
-		return new BucketArchiver(BucketExportController.create(
-				CsvExporter.create(bucketToCsvFileExporter), tgzFormatExporter),
-				new ArchiveBucketTransferer(archiveFileSystem, pathResolver,
-						archiveBucketSize, new TransactionExecuter()),
-				BucketDeleter.create(), config.getArchiveFormats());
+		BucketExportController bucketExportController = BucketExportController
+				.create(CsvExporter.create(bucketToCsvFileExporter), tgzFormatExporter);
+		ArchiveBucketTransferer bucketTransferer = new ArchiveBucketTransferer(
+				archiveFileSystem, pathResolver, archiveBucketSize,
+				new TransactionExecuter());
+		BucketDeleter bucketDeleter = BucketDeleter.create();
+		List<BucketFormat> archiveFormats = config.getArchiveFormats();
+
+		BucketCopierDependencies deps = new BucketCopierDependencies(
+				bucketExportController, bucketTransferer, bucketDeleter, archiveFormats);
+		return deps;
+	}
+
+	private static BucketArchiver newBucketArchiver(
+			BucketExportController bucketExportController,
+			ArchiveBucketTransferer bucketTransferer, BucketDeleter bucketDeleter,
+			List<BucketFormat> archiveFormats) {
+		return new BucketArchiver(bucketExportController, bucketTransferer,
+				bucketDeleter, archiveFormats);
+	}
+
+	private static class BucketCopierDependencies {
+
+		public BucketExportController exporter;
+		public ArchiveBucketTransferer transferer;
+		public BucketDeleter deleter;
+		public List<BucketFormat> formats;
+
+		public BucketCopierDependencies(
+				BucketExportController bucketExportController,
+				ArchiveBucketTransferer bucketTransferer, BucketDeleter bucketDeleter,
+				List<BucketFormat> archiveFormats) {
+			this.exporter = bucketExportController;
+			this.transferer = bucketTransferer;
+			this.deleter = bucketDeleter;
+			this.formats = archiveFormats;
+		}
 
 	}
 }
