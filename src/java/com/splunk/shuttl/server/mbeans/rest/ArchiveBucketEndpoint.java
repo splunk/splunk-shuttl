@@ -15,7 +15,6 @@
 package com.splunk.shuttl.server.mbeans.rest;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
-import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
 
@@ -25,120 +24,82 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.log4j.Logger;
-
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.archive.BucketArchiver;
+import com.splunk.shuttl.archiver.archive.BucketShuttler;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
-import com.splunk.shuttl.archiver.archive.BucketShuttlerRunner;
-import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
-import com.splunk.shuttl.archiver.bucketlock.BucketLock;
 import com.splunk.shuttl.archiver.clustering.GetsServerNameForReplicatedBucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.BucketModifier;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.ConfigProvider;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.ShuttlProvider;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_ARCHIVER)
 public class ArchiveBucketEndpoint {
-
-	private static final org.apache.log4j.Logger logger = Logger
-			.getLogger(ArchiveBucketEndpoint.class);
 
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	public void archiveBucket(@FormParam("path") String path,
 			@FormParam("index") String index) {
-		verifyValidArguments(path, index);
-		logArchiveEndpoint(path, index);
-		try {
-			archiveBucketOnAnotherThread(index, path);
-		} catch (Throwable e) {
-			logger.error(did("Tried archiving a bucket", e, "To archive the bucket",
-					"index", index, "bucket_path", path));
-			throw new RuntimeException(e);
+		ShuttlBucketEndpointHelper.shuttlBucket(path, index,
+				new BucketArchiverProvider(),
+				new ConfigProviderForBothNormalAndReplicatedBuckets(),
+				new RenamesReplicatedBucketAsNormalBucket());
+	}
+
+	private static class BucketArchiverProvider implements ShuttlProvider {
+
+		@Override
+		public BucketShuttler createWithConfig(ArchiveConfiguration config) {
+			return BucketShuttlerFactory.createWithConfig(config);
 		}
 	}
 
-	private void verifyValidArguments(String path, String index) {
-		if (path == null) {
-			logger.error(happened("No path was provided."));
-			throw new IllegalArgumentException("path must be specified");
+	private static class ConfigProviderForBothNormalAndReplicatedBuckets
+			implements ConfigProvider {
+
+		@Override
+		public ArchiveConfiguration createWithBucket(LocalBucket bucket) {
+			return getConfigurationDependingOnBucketProperties(bucket);
 		}
-		if (index == null) {
-			logger.error(happened("No index was provided."));
-			throw new IllegalArgumentException("index must be specified");
+
+		private ArchiveConfiguration getConfigurationDependingOnBucketProperties(
+				LocalBucket bucket) {
+			ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
+			if (bucket.isReplicatedBucket())
+				return configWithChangedServerNameForReplicatedBucket(bucket, config);
+			else
+				return config;
+		}
+
+		private ArchiveConfiguration configWithChangedServerNameForReplicatedBucket(
+				LocalBucket bucket, ArchiveConfiguration configuration) {
+			String serverName = GetsServerNameForReplicatedBucket.create()
+					.getServerName(bucket);
+			return configuration.newConfigWithServerName(serverName);
 		}
 	}
 
-	private void logArchiveEndpoint(String path, String index) {
-		logMetricsAtEndpoint(ENDPOINT_BUCKET_ARCHIVER);
+	private static class RenamesReplicatedBucketAsNormalBucket implements
+			BucketModifier {
 
-		logger.info(happened("Received REST request to archive bucket", "endpoint",
-				ENDPOINT_BUCKET_ARCHIVER, "index", index, "path", path));
-	}
+		@Override
+		public LocalBucket modifyLocalBucket(LocalBucket bucket) {
+			return getNormalizedBucket(bucket);
+		}
 
-	private void logMetricsAtEndpoint(String endpoint) {
-		String logMessage = String.format(
-				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-				ENDPOINT_ARCHIVER, endpoint);
-		logger.info(logMessage);
-	}
+		private LocalBucket getNormalizedBucket(LocalBucket bucket) {
+			if (bucket.isReplicatedBucket())
+				return getBucketWithNormalBucketName(bucket);
+			else
+				return bucket;
+		}
 
-	private void archiveBucketOnAnotherThread(String index, String path) {
-
-		logger.info(will("Attempting to archive bucket", "index", index, "path",
-				path));
-		Runnable r = createBucketArchiverRunner(index, path);
-		new Thread(r).run();
-	}
-
-	private Runnable createBucketArchiverRunner(String index, String path) {
-		LocalBucket bucket = BucketFactory.createBucketWithIndexDirectoryAndFormat(
-				index, new File(path), BucketFormat.SPLUNK_BUCKET);
-		BucketLock bucketLock = new ArchiveBucketLock(bucket);
-		throwExceptionIfSharedLockCannotBeAcquired(bucketLock);
-
-		ArchiveConfiguration conf = getConfigurationDependingOnBucketProperties(bucket);
-		BucketArchiver bucketArchiver = BucketShuttlerFactory
-				.createWithConfig(conf);
-
-		bucket = getNormalizedBucket(bucket);
-		return new BucketShuttlerRunner(bucketArchiver, bucket, bucketLock);
-	}
-
-	private ArchiveConfiguration getConfigurationDependingOnBucketProperties(
-			LocalBucket bucket) {
-		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-		if (bucket.isReplicatedBucket())
-			return configWithChangedServerNameForReplicatedBucket(bucket, config);
-		else
-			return config;
-	}
-
-	private ArchiveConfiguration configWithChangedServerNameForReplicatedBucket(
-			LocalBucket bucket, ArchiveConfiguration configuration) {
-		String serverName = GetsServerNameForReplicatedBucket.create()
-				.getServerName(bucket);
-		return configuration.newConfigWithServerName(serverName);
-	}
-
-	private LocalBucket getNormalizedBucket(LocalBucket bucket) {
-		if (bucket.isReplicatedBucket())
-			return getBucketWithNormalBucketName(bucket);
-		else
-			return bucket;
-	}
-
-	private LocalBucket getBucketWithNormalBucketName(LocalBucket b) {
-		String normalizedBucketName = b.getName().replaceFirst("rb", "db");
-		return BucketFactory.createBucketWithIndexDirectoryBucketNameAndSize(
-				b.getIndex(), new File(b.getPath()), normalizedBucketName,
-				b.getFormat(), b.getSize());
-	}
-
-	private void throwExceptionIfSharedLockCannotBeAcquired(BucketLock bucketLock) {
-		if (!bucketLock.tryLockShared())
-			throw new IllegalStateException("We must ensure that the"
-					+ " bucket archiver has a " + "lock to the bucket it will transfer");
+		private LocalBucket getBucketWithNormalBucketName(LocalBucket b) {
+			String normalizedBucketName = b.getName().replaceFirst("rb", "db");
+			return BucketFactory.createBucketWithIndexDirectoryBucketNameAndSize(
+					b.getIndex(), new File(b.getPath()), normalizedBucketName,
+					b.getFormat(), b.getSize());
+		}
 	}
 }

@@ -15,9 +15,6 @@
 package com.splunk.shuttl.server.mbeans.rest;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
-import static com.splunk.shuttl.archiver.LogFormatter.*;
-
-import java.io.File;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -25,80 +22,47 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.log4j.Logger;
-
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
+import com.splunk.shuttl.archiver.archive.BucketShuttler;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
-import com.splunk.shuttl.archiver.archive.BucketShuttlerRunner;
-import com.splunk.shuttl.archiver.archive.BucketCopier;
-import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
-import com.splunk.shuttl.archiver.bucketlock.BucketLock;
-import com.splunk.shuttl.archiver.clustering.GetsServerNameForReplicatedBucket;
-import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.BucketModifier;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.ConfigProvider;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.ShuttlProvider;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_COPY)
 public class CopyBucketEndpoint {
-
-	private static final Logger logger = Logger
-			.getLogger(CopyBucketEndpoint.class);
 
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	public void copyBucket(@FormParam("path") String path,
 			@FormParam("index") String index) {
-		verifyPathAndIndex(path, index);
+		ShuttlBucketEndpointHelper.shuttlBucket(path, index,
+				new BucketCopierProvider(), new NormalSharedConfigProvider(),
+				new NoOpBucketModifier());
+	}
 
-		logger.info(happened("Received REST request to copy bucket", "endpoint",
-				ENDPOINT_BUCKET_COPY, "index", index, "path", path));
-		try {
-			logger.info(will("Attempting to archive bucket", "index", index, "path",
-					path));
-			LocalBucket bucket = BucketFactory
-					.createBucketWithIndexDirectoryAndFormat(index, new File(path),
-							BucketFormat.SPLUNK_BUCKET);
-			BucketLock bucketLock = new ArchiveBucketLock(bucket);
-			if (!bucketLock.tryLockShared())
-				throw new IllegalStateException("We must ensure that the"
-						+ " bucket archiver has a " + "lock to the bucket it will transfer");
-			ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-			if (bucket.isReplicatedBucket()) {
-				String serverName = GetsServerNameForReplicatedBucket.create()
-						.getServerName(bucket);
-				config = config.newConfigWithServerName(serverName);
-			}
+	private static class BucketCopierProvider implements ShuttlProvider {
 
-			BucketCopier bucketCopier = BucketShuttlerFactory
-					.createCopierWithConfig(config);
-
-			LocalBucket b;
-			if (bucket.isReplicatedBucket()) {
-				String normalizedBucketName = bucket.getName().replaceFirst("rb", "db");
-				b = BucketFactory.createBucketWithIndexDirectoryBucketNameAndSize(
-						bucket.getIndex(), new File(bucket.getPath()),
-						normalizedBucketName, bucket.getFormat(), bucket.getSize());
-			} else
-				b = bucket;
-
-			bucket = b;
-			Runnable r = new BucketShuttlerRunner(bucketCopier, bucket, bucketLock);
-			new Thread(r).run();
-		} catch (Throwable e) {
-			logger.error(did("Tried archiving a bucket", e, "To archive the bucket",
-					"index", index, "bucket_path", path));
-			throw new RuntimeException(e);
+		@Override
+		public BucketShuttler createWithConfig(ArchiveConfiguration config) {
+			return BucketShuttlerFactory.createCopierWithConfig(config);
 		}
 	}
 
-	private void verifyPathAndIndex(String path, String index) {
-		if (path == null) {
-			logger.error(happened("No path was provided."));
-			throw new IllegalArgumentException("path must be specified");
+	private static class NormalSharedConfigProvider implements ConfigProvider {
+
+		@Override
+		public ArchiveConfiguration createWithBucket(LocalBucket bucket) {
+			return ArchiveConfiguration.getSharedInstance();
 		}
-		if (index == null) {
-			logger.error(happened("No index was provided."));
-			throw new IllegalArgumentException("index must be specified");
+	}
+
+	private static class NoOpBucketModifier implements BucketModifier {
+
+		@Override
+		public LocalBucket modifyLocalBucket(LocalBucket bucket) {
+			return bucket;
 		}
 	}
 }
