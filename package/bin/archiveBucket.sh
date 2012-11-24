@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 # archiveBucket.sh - the Shuttl archive script to be called by Splunk
 #
