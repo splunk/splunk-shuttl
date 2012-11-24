@@ -32,7 +32,7 @@ import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
  * Construction code for creating BucketArchivers that archives in different
  * FileSystems.
  */
-public class BucketArchiverFactory {
+public class BucketShuttlerFactory {
 
 	/**
 	 * @return {@link BucketArchiver} as configured in .conf files.

@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
@@ -61,7 +61,7 @@ public class ThawFunctionalTest {
 		archiverData = createDirectory();
 		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
 				archiverData.getAbsolutePath());
-		bucketArchiver = BucketArchiverFactory
+		bucketArchiver = BucketShuttlerFactory
 				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
 						localFileSystemPaths);
 		thawDirectory = TUtilsFile.createDirectory();

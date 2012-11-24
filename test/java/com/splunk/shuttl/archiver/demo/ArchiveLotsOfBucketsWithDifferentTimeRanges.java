@@ -23,7 +23,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -40,7 +40,7 @@ public class ArchiveLotsOfBucketsWithDifferentTimeRanges {
 
 	@BeforeMethod
 	public void setUp() {
-		bucketArchiver = BucketArchiverFactory.createConfiguredArchiver();
+		bucketArchiver = BucketShuttlerFactory.createConfiguredArchiver();
 	}
 
 	@Parameters(value = { "shuttl.conf.dir" })

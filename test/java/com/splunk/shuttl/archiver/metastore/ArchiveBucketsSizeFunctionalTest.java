@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.PathResolver;
@@ -60,7 +60,7 @@ public class ArchiveBucketsSizeFunctionalTest {
 		archiveBucketSize = ArchiveBucketSize.create(pathResolver,
 				archiveFileSystem, localFileSystemPaths);
 		listsBucketsFiltered = ListsBucketsFilteredFactory.create(config);
-		bucketArchiver = BucketArchiverFactory
+		bucketArchiver = BucketShuttlerFactory
 				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
 						localFileSystemPaths);
 	}

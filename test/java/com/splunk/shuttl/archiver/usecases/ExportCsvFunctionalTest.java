@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
@@ -59,7 +59,7 @@ public class ExportCsvFunctionalTest {
 				.getLocalCsvArchiveConfigration();
 		ArchiveFileSystem localFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(csvConfig);
-		csvBucketArchiver = BucketArchiverFactory
+		csvBucketArchiver = BucketShuttlerFactory
 				.createWithConfFileSystemAndCsvDirectory(csvConfig, localFileSystem,
 						new LocalFileSystemPaths(archiverData.getAbsolutePath()));
 		PathResolver pathResolver = new PathResolver(csvConfig);

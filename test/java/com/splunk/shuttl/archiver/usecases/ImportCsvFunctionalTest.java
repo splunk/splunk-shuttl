@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
@@ -73,7 +73,7 @@ public class ImportCsvFunctionalTest {
 						localFileSystemPaths);
 
 		realBucket = TUtilsBucket.createRealBucket();
-		csvArchiver = BucketArchiverFactory.createWithConfAndLocalPaths(
+		csvArchiver = BucketShuttlerFactory.createWithConfAndLocalPaths(
 				localCsvArchiveConfigration, localFileSystemPaths);
 	}
 

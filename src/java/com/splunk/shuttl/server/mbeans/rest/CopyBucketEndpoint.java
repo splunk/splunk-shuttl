@@ -28,7 +28,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerRunner;
 import com.splunk.shuttl.archiver.archive.BucketCopier;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
@@ -69,7 +69,7 @@ public class CopyBucketEndpoint {
 				config = config.newConfigWithServerName(serverName);
 			}
 
-			BucketCopier bucketCopier = BucketArchiverFactory
+			BucketCopier bucketCopier = BucketShuttlerFactory
 					.createCopierWithConfig(config);
 
 			LocalBucket b;

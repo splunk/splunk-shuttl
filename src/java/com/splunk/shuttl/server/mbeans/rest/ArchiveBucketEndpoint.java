@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerRunner;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
@@ -99,7 +99,7 @@ public class ArchiveBucketEndpoint {
 		throwExceptionIfSharedLockCannotBeAcquired(bucketLock);
 
 		ArchiveConfiguration conf = getConfigurationDependingOnBucketProperties(bucket);
-		BucketArchiver bucketArchiver = BucketArchiverFactory
+		BucketArchiver bucketArchiver = BucketShuttlerFactory
 				.createWithConfig(conf);
 
 		bucket = getNormalizedBucket(bucket);

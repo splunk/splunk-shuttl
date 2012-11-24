@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.flush.Flusher;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
@@ -108,7 +108,7 @@ public class FlusherFunctionalTest {
 	}
 
 	private void archiveBuckets(LocalBucket b1, LocalBucket b2) {
-		BucketArchiver bucketArchiver = BucketArchiverFactory
+		BucketArchiver bucketArchiver = BucketShuttlerFactory
 				.createWithConfAndLocalPaths(config, localFileSystemPaths);
 
 		archiveBucket(b1, bucketArchiver);
