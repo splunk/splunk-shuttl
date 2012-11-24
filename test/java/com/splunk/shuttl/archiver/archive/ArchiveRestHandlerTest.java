@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
@@ -56,9 +57,6 @@ public class ArchiveRestHandlerTest {
 	@Test(groups = { "fast-unit" })
 	public void callRestToArchiveLocalBucket_givenBucket_executesRequestOnHttpClient()
 			throws ClientProtocolException, IOException {
-		int shuttlPort = 1234;
-		when(serverMBean.getHttpPort()).thenReturn(shuttlPort);
-
 		LocalBucket bucket = TUtilsBucket.createBucket();
 		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
 
@@ -71,6 +69,13 @@ public class ArchiveRestHandlerTest {
 		int shuttlPort = 1234;
 		when(serverMBean.getHttpPort()).thenReturn(shuttlPort);
 
+		URI uri = getExecutedHttpRequestsUri();
+		int requestPort = uri.getPort();
+		assertEquals(shuttlPort, requestPort);
+	}
+
+	private URI getExecutedHttpRequestsUri() throws IOException,
+			ClientProtocolException {
 		LocalBucket bucket = TUtilsBucket.createBucket();
 		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
 
@@ -78,8 +83,18 @@ public class ArchiveRestHandlerTest {
 				.forClass(HttpUriRequest.class);
 		verify(httpClient).execute(requestCaptor.capture());
 		HttpUriRequest captured = requestCaptor.getValue();
-		int requestPort = captured.getURI().getPort();
-		assertEquals(shuttlPort, requestPort);
+		return captured.getURI();
+	}
+
+	@Test(groups = { "fast-unit" })
+	public void callRestToArchiveLocalBucket_givenShuttlHost_requestHasShuttlHost()
+			throws ClientProtocolException, IOException {
+		String shuttlHost = "host";
+		when(serverMBean.getHttpHost()).thenReturn(shuttlHost);
+
+		URI uri = getExecutedHttpRequestsUri();
+		String requestHost = uri.getHost();
+		assertEquals(shuttlHost, requestHost);
 	}
 
 	@SuppressWarnings("unchecked")

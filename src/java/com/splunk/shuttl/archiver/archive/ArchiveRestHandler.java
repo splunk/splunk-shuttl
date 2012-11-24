@@ -84,8 +84,8 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	private HttpUriRequest createBucketArchiveRequest(LocalBucket bucket)
 			throws UnsupportedEncodingException {
 		// CONFIG configure the host and port with a general solution.
-		String requestString = "http://localhost:" + serverMBean.getHttpPort()
-				+ "/" + ShuttlConstants.ENDPOINT_CONTEXT
+		String requestString = "http://" + serverMBean.getHttpHost() + ":"
+				+ serverMBean.getHttpPort() + "/" + ShuttlConstants.ENDPOINT_CONTEXT
 				+ ShuttlConstants.ENDPOINT_ARCHIVER
 				+ ShuttlConstants.ENDPOINT_BUCKET_ARCHIVER;
 
