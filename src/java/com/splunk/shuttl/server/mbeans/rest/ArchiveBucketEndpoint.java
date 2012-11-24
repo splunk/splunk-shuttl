@@ -15,6 +15,7 @@
 package com.splunk.shuttl.server.mbeans.rest;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
+import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
 
@@ -23,6 +24,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketShuttler;
@@ -37,14 +40,22 @@ import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ShuttlProvider;
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_ARCHIVER)
 public class ArchiveBucketEndpoint {
 
+	private static Logger logger = Logger.getLogger(ArchiveBucketEndpoint.class);
+
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	public void archiveBucket(@FormParam("path") String path,
 			@FormParam("index") String index) {
-		ShuttlBucketEndpointHelper.shuttlBucket(path, index,
-				new BucketArchiverProvider(),
-				new ConfigProviderForBothNormalAndReplicatedBuckets(),
-				new RenamesReplicatedBucketAsNormalBucket());
+		try {
+			ShuttlBucketEndpointHelper.shuttlBucket(path, index,
+					new BucketArchiverProvider(),
+					new ConfigProviderForBothNormalAndReplicatedBuckets(),
+					new RenamesReplicatedBucketAsNormalBucket());
+		} catch (Throwable t) {
+			logger.error(did("Tried archiving bucket", t, "to archive the bucket",
+					"path", path, "index", index));
+			throw new RuntimeException(t);
+		}
 	}
 
 	private static class BucketArchiverProvider implements ShuttlProvider {
