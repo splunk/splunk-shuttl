@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
-import com.splunk.shuttl.archiver.archive.BucketArchiverRunner;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerRunner;
 import com.splunk.shuttl.archiver.archive.BucketCopier;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
@@ -82,7 +82,7 @@ public class CopyBucketEndpoint {
 				b = bucket;
 
 			bucket = b;
-			Runnable r = new BucketArchiverRunner(bucketCopier, bucket, bucketLock);
+			Runnable r = new BucketShuttlerRunner(bucketCopier, bucket, bucketLock);
 			new Thread(r).run();
 		} catch (Throwable e) {
 			logger.error(did("Tried archiving a bucket", e, "To archive the bucket",

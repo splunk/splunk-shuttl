@@ -19,15 +19,14 @@ import static org.mockito.Mockito.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.archive.BucketArchiverRunner.BucketShuttler;
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
 import com.splunk.shuttl.archiver.bucketlock.SimpleFileLock.NotLockedException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
 @Test(groups = { "fast-unit" })
-public class BucketArchiverRunnerTest {
+public class BucketShuttlerRunnerTest {
 
-	BucketArchiverRunner bucketArchiverRunner;
+	BucketShuttlerRunner bucketArchiverRunner;
 	BucketShuttler bucketShuttler;
 	LocalBucket bucket;
 	BucketLock bucketLock;
@@ -38,7 +37,7 @@ public class BucketArchiverRunnerTest {
 		bucket = mock(LocalBucket.class);
 		bucketLock = mock(BucketLock.class);
 		when(bucketLock.isLocked()).thenReturn(true);
-		bucketArchiverRunner = new BucketArchiverRunner(bucketShuttler, bucket,
+		bucketArchiverRunner = new BucketShuttlerRunner(bucketShuttler, bucket,
 				bucketLock);
 	}
 
@@ -46,7 +45,7 @@ public class BucketArchiverRunnerTest {
 	public void constructor_bucketLockIsNotLocked_throwNotLockedException() {
 		BucketLock bucketLock = mock(BucketLock.class);
 		when(bucketLock.isLocked()).thenReturn(false);
-		new BucketArchiverRunner(bucketShuttler, bucket, bucketLock);
+		new BucketShuttlerRunner(bucketShuttler, bucket, bucketLock);
 	}
 
 	@Test(groups = { "fast-unit" })

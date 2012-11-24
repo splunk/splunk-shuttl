@@ -17,7 +17,6 @@ package com.splunk.shuttl.archiver.archive;
 
 import java.util.List;
 
-import com.splunk.shuttl.archiver.archive.BucketArchiverRunner.BucketShuttler;
 import com.splunk.shuttl.archiver.importexport.BucketExportController;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 

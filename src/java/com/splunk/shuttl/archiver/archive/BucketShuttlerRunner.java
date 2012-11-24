@@ -23,32 +23,28 @@ import com.splunk.shuttl.archiver.bucketlock.SimpleFileLock.NotLockedException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
- * The {@link BucketArchiverRunner} makes sure that the bucket is locked,
+ * The {@link BucketShuttlerRunner} makes sure that the bucket is locked,
  * archived, deleted after successful archiving, unlocked and deletion of lock
  * file.
  */
-public class BucketArchiverRunner implements Runnable {
-
-	public static interface BucketShuttler {
-		void shuttlBucket(LocalBucket bucket);
-	}
+public class BucketShuttlerRunner implements Runnable {
 
 	private final static Logger logger = Logger
-			.getLogger(BucketArchiverRunner.class);
+			.getLogger(BucketShuttlerRunner.class);
 
 	private final BucketShuttler bucketShuttler;
 	private final LocalBucket bucket;
 	private final BucketLock bucketLock;
 
 	/**
-	 * @param bucketCopier
-	 *          for copying a bucket.
+	 * @param bucketShuttler
+	 *          for shuttling a bucket.
 	 * @param bucket
-	 *          to archive.
+	 *          to shuttl.
 	 * @param bucketLock
 	 *          which is already locked.
 	 */
-	public BucketArchiverRunner(BucketShuttler bucketShuttler,
+	public BucketShuttlerRunner(BucketShuttler bucketShuttler,
 			LocalBucket bucket, BucketLock bucketLock) {
 		if (!bucketLock.isLocked())
 			throw new NotLockedException("Bucket Lock has to be locked already"

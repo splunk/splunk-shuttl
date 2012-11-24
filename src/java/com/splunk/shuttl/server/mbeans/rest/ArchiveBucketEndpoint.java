@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
-import com.splunk.shuttl.archiver.archive.BucketArchiverRunner;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerRunner;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
@@ -103,7 +103,7 @@ public class ArchiveBucketEndpoint {
 				.createWithConfig(conf);
 
 		bucket = getNormalizedBucket(bucket);
-		return new BucketArchiverRunner(bucketArchiver, bucket, bucketLock);
+		return new BucketShuttlerRunner(bucketArchiver, bucket, bucketLock);
 	}
 
 	private ArchiveConfiguration getConfigurationDependingOnBucketProperties(

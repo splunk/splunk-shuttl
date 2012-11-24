@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.archive.BucketArchiverRunner.BucketShuttler;
 import com.splunk.shuttl.archiver.importexport.BucketExportController;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
