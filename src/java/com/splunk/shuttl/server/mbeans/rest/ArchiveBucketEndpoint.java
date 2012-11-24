@@ -30,9 +30,9 @@ import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.clustering.GetsServerNameForReplicatedBucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.BucketModifier;
-import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.ConfigProvider;
-import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.ShuttlProvider;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.BucketModifier;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ConfigProvider;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ShuttlProvider;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_ARCHIVER)
 public class ArchiveBucketEndpoint {

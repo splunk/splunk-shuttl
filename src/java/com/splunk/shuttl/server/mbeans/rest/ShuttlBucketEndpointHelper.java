@@ -14,96 +14,20 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans.rest;
 
-import static com.splunk.shuttl.ShuttlConstants.*;
-import static com.splunk.shuttl.archiver.LogFormatter.*;
-
-import java.io.File;
-
-import org.apache.log4j.Logger;
-
-import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.archive.BucketShuttler;
-import com.splunk.shuttl.archiver.archive.BucketShuttlerRunner;
-import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
-import com.splunk.shuttl.archiver.bucketlock.BucketLock;
 import com.splunk.shuttl.archiver.model.BucketFactory;
-import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.BucketModifier;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ConfigProvider;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ShuttlProvider;
 
 public class ShuttlBucketEndpointHelper {
-
-	private static final Logger logger = Logger
-			.getLogger(ShuttlBucketEndpointHelper.class);
-
-	public static interface ShuttlProvider {
-		BucketShuttler createWithConfig(ArchiveConfiguration config);
-	}
-
-	public static interface ConfigProvider {
-		ArchiveConfiguration createWithBucket(LocalBucket bucket);
-	}
-
-	public static interface BucketModifier {
-		LocalBucket modifyLocalBucket(LocalBucket bucket);
-	}
 
 	public static void shuttlBucket(String path, String index,
 			ShuttlProvider shuttlProvider, ConfigProvider configProvider,
 			BucketModifier bucketModifier) {
-		verifyPathAndIndex(path, index);
+		BucketFactory bucketFactory = new BucketFactory();
+		ShuttlBucketEndpoint shuttlBucketEndpoint = new ShuttlBucketEndpoint(
+				shuttlProvider, configProvider, bucketModifier, bucketFactory);
 
-		logEndpoint(path, index);
-		try {
-			LocalBucket bucket = createBucket(path, index);
-			BucketLock bucketLock = createBucketLock(bucket);
-
-			ArchiveConfiguration config = configProvider.createWithBucket(bucket);
-			BucketShuttler bucketShuttler = shuttlProvider.createWithConfig(config);
-
-			bucket = bucketModifier.modifyLocalBucket(bucket);
-
-			Runnable r = new BucketShuttlerRunner(bucketShuttler, bucket, bucketLock);
-			new Thread(r).run();
-		} catch (Throwable e) {
-			logAndThrowException(path, index, e);
-		}
-	}
-
-	private static void logAndThrowException(String path, String index,
-			Throwable e) {
-		logger.error(did("Tried archiving a bucket", e, "To archive the bucket",
-				"index", index, "bucket_path", path));
-		throw new RuntimeException(e);
-	}
-
-	private static void logEndpoint(String path, String index) {
-		logger.info(happened("Received REST request to copy bucket", "endpoint",
-				ENDPOINT_BUCKET_COPY, "index", index, "path", path));
-		logger.info(will("Attempting to archive bucket", "index", index, "path",
-				path));
-	}
-
-	private static LocalBucket createBucket(String path, String index) {
-		return BucketFactory.createBucketWithIndexDirectoryAndFormat(index,
-				new File(path), BucketFormat.SPLUNK_BUCKET);
-	}
-
-	private static BucketLock createBucketLock(LocalBucket bucket) {
-		BucketLock bucketLock = new ArchiveBucketLock(bucket);
-		if (!bucketLock.tryLockShared())
-			throw new IllegalStateException("We must ensure that the"
-					+ " bucket archiver has a " + "lock to the bucket it will transfer");
-		return bucketLock;
-	}
-
-	private static void verifyPathAndIndex(String path, String index) {
-		if (path == null) {
-			logger.error(happened("No path was provided."));
-			throw new IllegalArgumentException("path must be specified");
-		}
-		if (index == null) {
-			logger.error(happened("No index was provided."));
-			throw new IllegalArgumentException("index must be specified");
-		}
+		shuttlBucketEndpoint.shuttlBucket(path, index);
 	}
 }

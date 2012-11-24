@@ -26,9 +26,9 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketShuttler;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.BucketModifier;
-import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.ConfigProvider;
-import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpointHelper.ShuttlProvider;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.BucketModifier;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ConfigProvider;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ShuttlProvider;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_COPY)
 public class CopyBucketEndpoint {
