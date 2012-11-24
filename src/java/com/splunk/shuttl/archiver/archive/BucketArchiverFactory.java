@@ -46,6 +46,11 @@ public class BucketArchiverFactory {
 		BucketCopierDependencies deps = getDependencies(config,
 				ArchiveFileSystemFactory.getWithConfiguration(config),
 				LocalFileSystemPaths.create(config));
+		return newCopierWithDependencies(deps);
+	}
+
+	private static BucketCopier newCopierWithDependencies(
+			BucketCopierDependencies deps) {
 		return new BucketCopier(deps.exporter, deps.transferer, deps.formats,
 				deps.deleter);
 	}
@@ -81,8 +86,7 @@ public class BucketArchiverFactory {
 		BucketCopierDependencies deps = getDependencies(config, archiveFileSystem,
 				localFileSystemPaths);
 
-		return newBucketArchiver(deps.exporter, deps.transferer, deps.deleter,
-				deps.formats);
+		return new BucketArchiver(newCopierWithDependencies(deps), deps.deleter);
 	}
 
 	private static BucketCopierDependencies getDependencies(
@@ -108,14 +112,6 @@ public class BucketArchiverFactory {
 		BucketCopierDependencies deps = new BucketCopierDependencies(
 				bucketExportController, bucketTransferer, bucketDeleter, archiveFormats);
 		return deps;
-	}
-
-	private static BucketArchiver newBucketArchiver(
-			BucketExportController bucketExportController,
-			ArchiveBucketTransferer bucketTransferer, BucketDeleter bucketDeleter,
-			List<BucketFormat> archiveFormats) {
-		return new BucketArchiver(bucketExportController, bucketTransferer,
-				bucketDeleter, archiveFormats);
 	}
 
 	private static class BucketCopierDependencies {

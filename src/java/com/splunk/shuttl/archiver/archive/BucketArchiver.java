@@ -15,9 +15,6 @@
 
 package com.splunk.shuttl.archiver.archive;
 
-import java.util.List;
-
-import com.splunk.shuttl.archiver.importexport.BucketExportController;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
@@ -28,11 +25,8 @@ public class BucketArchiver implements BucketShuttler {
 	private final BucketDeleter bucketDeleter;
 	private final BucketCopier bucketCopier;
 
-	public BucketArchiver(BucketExportController exporter,
-			ArchiveBucketTransferer bucketTransferer, BucketDeleter bucketDeleter,
-			List<BucketFormat> bucketFormats) {
-		this.bucketCopier = new BucketCopier(exporter, bucketTransferer,
-				bucketFormats, bucketDeleter);
+	public BucketArchiver(BucketCopier bucketCopier, BucketDeleter bucketDeleter) {
+		this.bucketCopier = bucketCopier;
 		this.bucketDeleter = bucketDeleter;
 	}
 

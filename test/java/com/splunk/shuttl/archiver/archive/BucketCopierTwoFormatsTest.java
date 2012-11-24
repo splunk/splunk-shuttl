@@ -16,6 +16,7 @@ package com.splunk.shuttl.archiver.archive;
 
 import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
+import static org.testng.Assert.*;
 
 import java.util.List;
 
@@ -26,9 +27,9 @@ import com.splunk.shuttl.archiver.importexport.BucketExportController;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
 @Test(groups = { "fast-unit" })
-public class BucketArchiverTwoFormatsTest {
+public class BucketCopierTwoFormatsTest {
 
-	private BucketArchiver bucketArchiver;
+	private BucketCopier bucketCopier;
 	private BucketExportController exporter;
 	private ArchiveBucketTransferer archiveBucketTransferer;
 	private BucketDeleter bucketDeleter;
@@ -44,20 +45,19 @@ public class BucketArchiverTwoFormatsTest {
 		archiveBucketTransferer = mock(ArchiveBucketTransferer.class);
 		bucketDeleter = mock(BucketDeleter.class);
 		formats = asList(BucketFormat.SPLUNK_BUCKET, BucketFormat.CSV);
-		bucketArchiver = new BucketArchiver(exporter, archiveBucketTransferer,
-				bucketDeleter, formats);
+		bucketCopier = new BucketCopier(exporter, archiveBucketTransferer, formats,
+				bucketDeleter);
 
 		bucket = mock(LocalBucket.class);
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void archiveBucket_givenTwoFormats_archivesBothExportsAndDeletesOriginalBucket() {
+	public void copyBucket_givenTwoFormats_archivesBothExportsAndDeletesTheExportedBuckets() {
 		setUpTwoFormatsAndTwoExportedBuckets();
-		bucketArchiver.archiveBucket(bucket);
+		bucketCopier.copyBucket(bucket);
 
 		verify(archiveBucketTransferer).transferBucketToArchive(exportedBucket1);
 		verify(archiveBucketTransferer).transferBucketToArchive(exportedBucket2);
-		verify(bucketDeleter).deleteBucket(bucket);
 	}
 
 	private void setUpTwoFormatsAndTwoExportedBuckets() {
@@ -69,13 +69,12 @@ public class BucketArchiverTwoFormatsTest {
 				exportedBucket2);
 	}
 
-	public void archiveBucket_firstFormatFailsToArchive_stillArchivesTheSecondOne() {
+	public void copyBucket_firstFormatFailsToArchive_stillArchivesTheSecondOne() {
 		setUpTwoFormatsAndTwoExportedBuckets();
-		doThrow(new FailedToArchiveBucketException()).when(archiveBucketTransferer)
-				.transferBucketToArchive(exportedBucket1);
+		throwExceptionWhenTransferingBucket(exportedBucket1);
 
 		try {
-			bucketArchiver.archiveBucket(bucket);
+			bucketCopier.copyBucket(bucket);
 		} catch (RuntimeException e) {
 			// Do nothing.
 		}
@@ -83,30 +82,47 @@ public class BucketArchiverTwoFormatsTest {
 		verify(archiveBucketTransferer).transferBucketToArchive(exportedBucket2);
 	}
 
-	public void archiveBucket_firstFormatFailsSecondSucceeds_deletesBothExportsButNotOriginalBucket() {
-		setUpTwoFormatsAndTwoExportedBuckets();
+	private void throwExceptionWhenTransferingBucket(LocalBucket exportedBucket) {
 		doThrow(new FailedToArchiveBucketException()).when(archiveBucketTransferer)
-				.transferBucketToArchive(exportedBucket1);
+				.transferBucketToArchive(exportedBucket);
+	}
+
+	public void copyBucket_firstFormatFailsSecondSucceeds_stillDeletsBothExportedBuckets() {
+		setUpTwoFormatsAndTwoExportedBuckets();
+		throwExceptionWhenTransferingBucket(exportedBucket1);
 
 		try {
-			bucketArchiver.archiveBucket(bucket);
+			bucketCopier.copyBucket(bucket);
 		} catch (RuntimeException e) {
 			// Do nothing.
 		}
 		verify(bucketDeleter).deleteBucket(exportedBucket1);
 		verify(bucketDeleter).deleteBucket(exportedBucket2);
-		verify(bucketDeleter, never()).deleteBucket(bucket);
 	}
 
-	public void archiveBucket_firstFormatIsTheSameAsOriginalBucket_dontDeleteFirstBucketAfterArchiving() {
+	public void copyBucket_firstFormatIsTheSameAsOriginalBucket_dontDeleteOriginalBucket() {
 		when(exporter.exportBucket(bucket, formats.get(0))).thenReturn(bucket);
 		when(exporter.exportBucket(bucket, formats.get(1))).thenReturn(
 				exportedBucket2);
 
-		bucketArchiver.archiveBucket(bucket);
+		bucketCopier.copyBucket(bucket);
 
 		verify(bucketDeleter).deleteBucket(exportedBucket2);
-		verify(bucketDeleter, times(1)).deleteBucket(bucket);
+		verify(bucketDeleter, never()).deleteBucket(bucket);
 	}
 
+	public void copyBucket_bothCopiesFail_deletesBothExportsAndThrows() {
+		setUpTwoFormatsAndTwoExportedBuckets();
+		throwExceptionWhenTransferingBucket(exportedBucket1);
+		throwExceptionWhenTransferingBucket(exportedBucket2);
+
+		try {
+			bucketCopier.copyBucket(bucket);
+			fail("should have gotten exception");
+		} catch (RuntimeException e) {
+		}
+
+		verify(bucketDeleter).deleteBucket(exportedBucket1);
+		verify(bucketDeleter).deleteBucket(exportedBucket2);
+	}
 }
