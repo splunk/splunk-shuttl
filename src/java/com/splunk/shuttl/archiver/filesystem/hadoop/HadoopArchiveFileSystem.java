@@ -58,14 +58,16 @@ public class HadoopArchiveFileSystem implements ArchiveFileSystem,
 		if (hadoopFileSystem.exists(dst))
 			throw new FileOverwriteException();
 		hadoopFileSystem.delete(temp, true);
-		hadoopFileSystem.copyFromLocalFile(new Path(src.toURI()), temp);
+		hadoopFileSystem.copyFromLocalFile(new Path(src.getAbsoluteFile().toURI()),
+				temp);
 	}
 
 	private void getFile(Path src, File temp, File dst) throws IOException {
 		if (dst.exists())
 			throw new FileOverwriteException();
 		FileUtils.deleteDirectory(temp);
-		hadoopFileSystem.copyToLocalFile(src, new Path(temp.toURI()));
+		hadoopFileSystem.copyToLocalFile(src, new Path(temp.getAbsoluteFile()
+				.toURI()));
 	}
 
 	@Override

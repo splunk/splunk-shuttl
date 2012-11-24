@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -153,5 +154,21 @@ public class HadoopArchiveFileSystemTest {
 				file.getAbsolutePath());
 
 		assertFalse(file.exists());
+	}
+
+	public void putFile_givenRelativeSrcFile_putsFile() throws IOException {
+		File file = new File("relative-file");
+		assertTrue(file.createNewFile());
+		FileUtils.forceDeleteOnExit(file);
+
+		assertNotEquals(file.getAbsolutePath(), file.getPath());
+		File temp = createFilePath();
+		hadoopArchiveFileSystem.getFileTransferer().put(file.getPath(),
+				temp.getAbsolutePath(), createFilePath().getAbsolutePath());
+		assertTrue(temp.exists());
+	}
+
+	public void putFile_givenRelativeBucket_putsFile() {
+
 	}
 }
