@@ -32,7 +32,7 @@
 
 	<!-- hadoop properties -->
 	<property name="hadoop.utils" value="${contribdir}/hadoop-utils" />
-	<property name="hadoop.apache.org.hadoop.common.host" value="ftp://linux-files.com/apache/hadoop/common" />
+	<property name="hadoop.apache.org.hadoop.common.host" value="ftp://apache.mirrors.pair.com/hadoop/common" />
 	<property name="hadoop.download.name.extracted" value="hadoop" />
 	<property name="hadoop.download.name" value="hadoop.tar.gz" />
 	<property name="hadoop.download.dir" value="${contribdir}" />
