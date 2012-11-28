@@ -91,12 +91,18 @@ public class ArchiveBucketEndpoint {
 						.getServerName(bucket);
 				return configuration.newConfigWithServerName(serverName);
 			} catch (Exception e) {
-				logDeletionOfBucket(bucket, e);
+				logDeletionOfReplicatedBucket(bucket, e);
 				throw new RuntimeException(e);
 			}
 		}
 
-		private void logDeletionOfBucket(LocalBucket bucket, Exception e) {
+		private void logDeletionOfReplicatedBucket(LocalBucket bucket, Exception e) {
+			if (!bucket.isReplicatedBucket())
+				throw new IllegalStateException(
+						"About to delete replicated bucket. Bucket passed was"
+								+ " not a replicated bucket. Was: " + bucket
+								+ ". Will not delete bucket.");
+
 			String behaviorExplanation = "will delete bucket to free up space. "
 					+ "Shuttling replicated buckets will work again when network issues "
 					+ "have been fixed.";
