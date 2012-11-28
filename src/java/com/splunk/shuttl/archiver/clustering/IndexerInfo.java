@@ -60,7 +60,21 @@ public class IndexerInfo {
 		if (clusterPeer == null)
 			return null;
 		else
-			return new IndexerInfo(clusterPeer.getHost(), clusterPeer.getPort());
+			return createChecked(clusterPeer);
+	}
+
+	private static IndexerInfo createChecked(ClusterPeer clusterPeer) {
+		String host = clusterPeer.getHost();
+		Integer port = clusterPeer.getPort();
+		if (host == null || port == null)
+			throw new ClusterPeerException();
+		return new IndexerInfo(host, port);
+	}
+
+	public static class ClusterPeerException extends RuntimeException {
+
+		private static final long serialVersionUID = 1L;
+
 	}
 
 }

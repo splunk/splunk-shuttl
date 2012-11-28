@@ -42,7 +42,7 @@ public class ClusterPeersTest {
 		ClusterPeer clusterPeer = clusterPeers.get(slaveGuid);
 
 		assertNotNull(clusterPeer);
-		assertEquals(clusterPeer.getPort(), slavePort);
+		assertEquals((int) clusterPeer.getPort(), slavePort);
 		assertEquals(clusterPeer.getHost(), localHostIp);
 	}
 }

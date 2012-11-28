@@ -31,7 +31,7 @@ public class ClusterPeer extends Entity {
 		return getHostPortPair().split(":")[0];
 	}
 
-	public int getPort() {
+	public Integer getPort() {
 		return Integer.parseInt(getHostPortPair().split(":")[1]);
 	}
 
