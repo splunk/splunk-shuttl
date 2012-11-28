@@ -187,13 +187,15 @@ public class LogFormatterTest {
 	}
 
 	private String warnWithKeyValues(Object... keyValues) {
-		return warn("did", "happened", "result", keyValues);
+		return warn("warning", "happened", "result", keyValues);
 	}
 
 	public void warn_givenEmptyMessage_stringContainsNothingExceptTheStandardFormat() {
 		String result = warnWithKeyValues();
-		assertTrue(assertFailedMessageStart + result,
-				result.matches("did=\"did\" happened=\"happened\" result=\"result\""));
+		assertTrue(
+				assertFailedMessageStart + result,
+				result
+						.matches("warning=\"warning\" happened=\"happened\" result=\"result\""));
 	}
 
 	public void warn_givenDidHappenedAndResultsAsStrings_containsObjectToString() {
