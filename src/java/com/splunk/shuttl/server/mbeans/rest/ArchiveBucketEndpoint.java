@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
+import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.archive.BucketShuttler;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.clustering.GetsServerNameForReplicatedBucket;
@@ -85,9 +86,24 @@ public class ArchiveBucketEndpoint {
 
 		private ArchiveConfiguration configWithChangedServerNameForReplicatedBucket(
 				LocalBucket bucket, ArchiveConfiguration configuration) {
-			String serverName = GetsServerNameForReplicatedBucket.create()
-					.getServerName(bucket);
-			return configuration.newConfigWithServerName(serverName);
+			try {
+				String serverName = GetsServerNameForReplicatedBucket.create()
+						.getServerName(bucket);
+				return configuration.newConfigWithServerName(serverName);
+			} catch (Exception e) {
+				logDeletionOfBucket(bucket, e);
+				throw new RuntimeException(e);
+			}
+		}
+
+		private void logDeletionOfBucket(LocalBucket bucket, Exception e) {
+			String behaviorExplanation = "will delete bucket to free up space. "
+					+ "Shuttling replicated buckets will work again when network issues "
+					+ "have been fixed.";
+			BucketDeleter.create().deleteBucket(bucket);
+			logger.warn(warn(
+					"Tried getting configured server name from remote shuttl server", e,
+					behaviorExplanation, "bucket", bucket));
 		}
 	}
 
