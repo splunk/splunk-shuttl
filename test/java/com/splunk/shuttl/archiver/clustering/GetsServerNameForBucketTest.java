@@ -21,31 +21,36 @@ import static org.testng.Assert.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 @Test(groups = { "fast-unit" })
-public class GetsServerNameForReplicatedBucketTest {
+public class GetsServerNameForBucketTest {
 
-	private GetsServerNameForReplicatedBucket underTest;
+	private GetsServerNameForBucket underTest;
 	private ClusterMaster clusterMaster;
 	private Bucket replicatedBucket;
 	private CallsRemoteIndexer remoteIndexer;
+	private ArchiveConfiguration config;
 
 	@BeforeMethod
 	public void setUp() {
 		clusterMaster = mock(ClusterMaster.class);
 		remoteIndexer = mock(CallsRemoteIndexer.class);
-		underTest = new GetsServerNameForReplicatedBucket(clusterMaster,
-				remoteIndexer);
+		config = mock(ArchiveConfiguration.class);
+		underTest = new GetsServerNameForBucket(clusterMaster, remoteIndexer,
+				config);
 		replicatedBucket = mock(Bucket.class);
 		when(replicatedBucket.isReplicatedBucket()).thenReturn(true);
 	}
 
-	@Test(expectedExceptions = { IllegalArgumentException.class })
-	public void _nonReplicatedBucket_throws() {
+	public void _nonReplicatedBucket_returnsArchiveConfigsServerName() {
+		String expected = "serverName";
+		when(config.getServerName()).thenReturn(expected);
 		Bucket bucket = mock(Bucket.class);
 		when(bucket.isReplicatedBucket()).thenReturn(false);
-		underTest.getServerName(bucket);
+
+		assertEquals(underTest.getServerName(bucket), expected);
 	}
 
 	public void _replicatedBucket_asksClusterMasterForTheIndexerGUIDTheReplicatedBucketCameFrom() {

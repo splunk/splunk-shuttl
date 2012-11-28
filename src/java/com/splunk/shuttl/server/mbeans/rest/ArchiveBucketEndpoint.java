@@ -31,7 +31,7 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.archive.BucketShuttler;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
-import com.splunk.shuttl.archiver.clustering.GetsServerNameForReplicatedBucket;
+import com.splunk.shuttl.archiver.clustering.GetsServerNameForBucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.BucketModifier;
@@ -87,7 +87,7 @@ public class ArchiveBucketEndpoint {
 		private ArchiveConfiguration configWithChangedServerNameForReplicatedBucket(
 				LocalBucket bucket, ArchiveConfiguration configuration) {
 			try {
-				String serverName = GetsServerNameForReplicatedBucket.create()
+				String serverName = GetsServerNameForBucket.create(configuration)
 						.getServerName(bucket);
 				return configuration.newConfigWithServerName(serverName);
 			} catch (Exception e) {

@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.clustering;
 
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -23,23 +24,24 @@ import com.splunk.shuttl.archiver.model.Bucket;
  * prevent these buckets to get archived to different locations, and to do that,
  * we get the original indexers configured server name.
  */
-public class GetsServerNameForReplicatedBucket {
+public class GetsServerNameForBucket {
 
 	private final ClusterMaster clusterMaster;
-	private CallsRemoteIndexer remoteIndexer;
+	private final CallsRemoteIndexer remoteIndexer;
+	private final ArchiveConfiguration config;
 
-	public GetsServerNameForReplicatedBucket(ClusterMaster clusterMaster,
-			CallsRemoteIndexer remoteIndexer) {
+	public GetsServerNameForBucket(ClusterMaster clusterMaster,
+			CallsRemoteIndexer remoteIndexer, ArchiveConfiguration config) {
 		this.clusterMaster = clusterMaster;
 		this.remoteIndexer = remoteIndexer;
+		this.config = config;
 	}
 
 	public String getServerName(Bucket bucket) {
-		if (!bucket.isReplicatedBucket())
-			throw new IllegalArgumentException("Only gets server name "
-					+ "for replicated buckets.");
-		else
+		if (bucket.isReplicatedBucket())
 			return getServerNameForReplicatedBucket(bucket);
+		else
+			return config.getServerName();
 	}
 
 	private String getServerNameForReplicatedBucket(Bucket bucket) {
@@ -47,9 +49,9 @@ public class GetsServerNameForReplicatedBucket {
 		return remoteIndexer.getShuttlConfiguredServerName(indexerInfo);
 	}
 
-	public static GetsServerNameForReplicatedBucket create() {
-		return new GetsServerNameForReplicatedBucket(ClusterMaster.create(),
-				CallsRemoteIndexer.create());
+	public static GetsServerNameForBucket create(ArchiveConfiguration config) {
+		return new GetsServerNameForBucket(ClusterMaster.create(),
+				CallsRemoteIndexer.create(), config);
 	}
 
 }
