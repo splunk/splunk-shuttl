@@ -37,7 +37,7 @@ public class ClusterPeersProvider {
 		this.mBeanProxy = mBeanProxy;
 	}
 
-	public ClusterPeers getForMasterUri(URI masterUri) {
+	public ClusterPeers getClusterPeers(URI masterUri) {
 		Service service = new Service(masterUri.getHost(), masterUri.getPort());
 		service.login(mBeanProxy.getUsername(), mBeanProxy.getPassword());
 		return new ClusterPeers(service);

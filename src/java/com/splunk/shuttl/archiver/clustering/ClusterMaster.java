@@ -39,16 +39,57 @@ public class ClusterMaster {
 	 * Indexer host and port from a guid.
 	 */
 	public IndexerInfo indexerForGuid(String guid) {
-		URI clusterMasterUri = clusterConfig.getClusterMasterUri();
-		ClusterPeers clusterPeers = peersProvider.getForMasterUri(clusterMasterUri);
-		ClusterPeer clusterPeer = clusterPeers.get(guid);
+		URI clusterMasterUri = getClusterMasterUriChecked();
+		ClusterPeer clusterPeer = getClusterPeerChecked(guid, clusterMasterUri);
 		return IndexerInfo.create(clusterPeer);
+	}
+
+	private URI getClusterMasterUriChecked() {
+		URI clusterMasterUri = clusterConfig.getClusterMasterUri();
+		if (clusterMasterUri == null)
+			throwClusterConfigException();
+		return clusterMasterUri;
+	}
+
+	private void throwClusterConfigException() {
+		throw new ClusterConfigException(
+				"Could not get cluster master uri from splunk indexer: "
+						+ clusterConfig.getService().getHost());
+	}
+
+	private ClusterPeer getClusterPeerChecked(String guid, URI clusterMasterUri) {
+		ClusterPeers clusterPeers = peersProvider.getClusterPeers(clusterMasterUri);
+		ClusterPeer clusterPeer = clusterPeers.get(guid);
+		if (clusterPeer == null)
+			throwClusterPeersException(guid, clusterPeers);
+		return clusterPeer;
+	}
+
+	private void throwClusterPeersException(String guid, ClusterPeers clusterPeers) {
+		throw new ClusterPeersException("Could not find a cluster peer with guid: "
+				+ guid + ", at cluster master: " + clusterPeers.getService().getHost());
 	}
 
 	public static ClusterMaster create() {
 		return new ClusterMaster(new ClusterConfig(
 				SplunkSettingsFactory.getLoggedInSplunkService()),
 				ClusterPeersProvider.create());
+	}
+
+	public static class ClusterConfigException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+
+		public ClusterConfigException(String msg) {
+			super(msg);
+		}
+	}
+
+	public static class ClusterPeersException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+
+		public ClusterPeersException(String msg) {
+			super(msg);
+		}
 	}
 
 }

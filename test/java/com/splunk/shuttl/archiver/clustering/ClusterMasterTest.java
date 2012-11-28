@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.clustering;
 
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -25,6 +26,9 @@ import org.testng.annotations.Test;
 import com.splunk.ClusterConfig;
 import com.splunk.ClusterPeer;
 import com.splunk.ClusterPeers;
+import com.splunk.Service;
+import com.splunk.shuttl.archiver.clustering.ClusterMaster.ClusterConfigException;
+import com.splunk.shuttl.archiver.clustering.ClusterMaster.ClusterPeersException;
 
 @Test(groups = { "fast-unit" })
 public class ClusterMasterTest {
@@ -36,7 +40,7 @@ public class ClusterMasterTest {
 
 	@BeforeMethod
 	public void setUp() {
-		clusterConfig = mock(ClusterConfig.class);
+		clusterConfig = mock(ClusterConfig.class, RETURNS_MOCKS);
 		peersProvider = mock(ClusterPeersProvider.class, RETURNS_MOCKS);
 		clusterMaster = new ClusterMaster(clusterConfig, peersProvider);
 		guid = "guid";
@@ -49,7 +53,7 @@ public class ClusterMasterTest {
 
 		when(clusterConfig.getClusterMasterUri()).thenReturn(masterUri);
 		ClusterPeers clusterPeers = mock(ClusterPeers.class);
-		when(peersProvider.getForMasterUri(masterUri)).thenReturn(clusterPeers);
+		when(peersProvider.getClusterPeers(masterUri)).thenReturn(clusterPeers);
 		ClusterPeer clusterPeer = mock(ClusterPeer.class);
 		when(clusterPeers.get(guid)).thenReturn(clusterPeer);
 		when(clusterPeer.getHost()).thenReturn(host);
@@ -57,5 +61,33 @@ public class ClusterMasterTest {
 
 		IndexerInfo indexer = clusterMaster.indexerForGuid(guid);
 		assertEquals(indexer, new IndexerInfo(host, port));
+	}
+
+	@Test(expectedExceptions = { ClusterConfigException.class })
+	public void getIndexerForGuid_clusterConfigReturnsNull_throws() {
+		when(clusterConfig.getClusterMasterUri()).thenReturn(null);
+		clusterMaster.indexerForGuid(guid);
+	}
+
+	@Test(expectedExceptions = { ClusterPeersException.class })
+	public void getIndexerForGuid_clusterPeersReturnsNull_throws() {
+		stubNonNullClusterMasterUriToAvoidClusterConfigException();
+
+		ClusterPeers clusterPeers = mock(ClusterPeers.class);
+		stubSplunkServiceForExceptionMessage(clusterPeers);
+		when(peersProvider.getClusterPeers(any(URI.class)))
+				.thenReturn(clusterPeers);
+
+		when(clusterPeers.get(guid)).thenReturn(null);
+		clusterMaster.indexerForGuid(guid);
+	}
+
+	private void stubSplunkServiceForExceptionMessage(ClusterPeers clusterPeers) {
+		when(clusterPeers.getService()).thenReturn(mock(Service.class));
+	}
+
+	private void stubNonNullClusterMasterUriToAvoidClusterConfigException() {
+		when(clusterConfig.getClusterMasterUri()).thenReturn(
+				URI.create("valid:/uri"));
 	}
 }
