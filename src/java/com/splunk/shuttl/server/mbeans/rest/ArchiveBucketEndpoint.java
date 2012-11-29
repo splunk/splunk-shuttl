@@ -28,14 +28,11 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.archive.BucketShuttler;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
-import com.splunk.shuttl.archiver.clustering.GetsServerNameForBucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.BucketModifier;
-import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ConfigProvider;
 import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ShuttlProvider;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_ARCHIVER)
@@ -48,9 +45,10 @@ public class ArchiveBucketEndpoint {
 	public void archiveBucket(@FormParam("path") String path,
 			@FormParam("index") String index) {
 		try {
+			ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 			ShuttlBucketEndpointHelper.shuttlBucket(path, index,
 					new BucketArchiverProvider(),
-					new ConfigProviderForBothNormalAndReplicatedBuckets(),
+					ConfigProviderForBothNormalAndReplicatedBuckets.create(config),
 					new RenamesReplicatedBucketAsNormalBucket());
 		} catch (Throwable t) {
 			logger.error(did("Tried archiving bucket", t, "to archive the bucket",
@@ -64,52 +62,6 @@ public class ArchiveBucketEndpoint {
 		@Override
 		public BucketShuttler createWithConfig(ArchiveConfiguration config) {
 			return BucketShuttlerFactory.createWithConfig(config);
-		}
-	}
-
-	private static class ConfigProviderForBothNormalAndReplicatedBuckets
-			implements ConfigProvider {
-
-		@Override
-		public ArchiveConfiguration createWithBucket(LocalBucket bucket) {
-			return getConfigurationDependingOnBucketProperties(bucket);
-		}
-
-		private ArchiveConfiguration getConfigurationDependingOnBucketProperties(
-				LocalBucket bucket) {
-			ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
-			if (bucket.isReplicatedBucket())
-				return configWithChangedServerNameForReplicatedBucket(bucket, config);
-			else
-				return config;
-		}
-
-		private ArchiveConfiguration configWithChangedServerNameForReplicatedBucket(
-				LocalBucket bucket, ArchiveConfiguration configuration) {
-			try {
-				String serverName = GetsServerNameForBucket.create(configuration)
-						.getServerName(bucket);
-				return configuration.newConfigWithServerName(serverName);
-			} catch (Exception e) {
-				logDeletionOfReplicatedBucket(bucket, e);
-				throw new RuntimeException(e);
-			}
-		}
-
-		private void logDeletionOfReplicatedBucket(LocalBucket bucket, Exception e) {
-			if (!bucket.isReplicatedBucket())
-				throw new IllegalStateException(
-						"About to delete replicated bucket. Bucket passed was"
-								+ " not a replicated bucket. Was: " + bucket
-								+ ". Will not delete bucket.");
-
-			String behaviorExplanation = "will delete bucket to free up space. "
-					+ "Shuttling replicated buckets will work again when network issues "
-					+ "have been fixed.";
-			BucketDeleter.create().deleteBucket(bucket);
-			logger.warn(warn(
-					"Tried getting configured server name from remote shuttl server", e,
-					behaviorExplanation, "bucket", bucket));
 		}
 	}
 

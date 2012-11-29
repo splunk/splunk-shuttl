@@ -300,12 +300,12 @@ public class TUtilsBucket {
 		return removedIndex + newBucketIndex + "_" + guid;
 	}
 
-	public static Bucket createReplicatedBucket() {
+	public static LocalBucket createReplicatedBucket() {
 		return createReplicatedBucket(randomIndexName(), createDirectory(),
 				randomIndexName());
 	}
 
-	public static Bucket createReplicatedBucket(String guid) {
+	public static LocalBucket createReplicatedBucket(String guid) {
 		return createReplicatedBucket(randomIndexName(), createDirectory(), guid);
 	}
 }
