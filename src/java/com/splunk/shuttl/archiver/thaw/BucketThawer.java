@@ -152,10 +152,23 @@ public class BucketThawer {
 			Bucket thawedBucket = getsBucketsFromArchive.getBucketFromArchive(bucket);
 			successfulThawedBuckets.add(thawedBucket);
 		} catch (ThawTransferFailException e) {
+			logTransferException(bucket, e);
 			failedBuckets.add(new FailedBucket(bucket, e));
 		} catch (ImportThawedBucketFailException e) {
+			logImportException(bucket, e);
 			failedBuckets.add(new FailedBucket(bucket, e));
 		}
+	}
+
+	private void logTransferException(Bucket bucket, ThawTransferFailException e) {
+		logger.error(did("Tried to transfer bucket to thaw", e,
+				"Transfer to succeed", "bucket", bucket, "exception", e));
+	}
+
+	private void logImportException(Bucket bucket,
+			ImportThawedBucketFailException e) {
+		logger.error(did("Tried to import transfered bucket in thaw", e,
+				"To import bucket", "bucket", bucket, "exception", e));
 	}
 
 	/**
