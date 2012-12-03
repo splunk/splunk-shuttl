@@ -83,8 +83,19 @@ public class GlacierClient {
 		if (!dir.isDirectory())
 			throw new IllegalArgumentException("File needs to be a directory: " + dir);
 
+		doTheDownload(src, dir);
+	}
+
+	private void doTheDownload(String src, File dir) {
 		String filename = FilenameUtils.getName(src);
-		transferManager.download(vault, getArchiveId(src), new File(dir, filename));
+		File destinationFile = new File(dir, filename);
+		String archiveId = getArchiveId(src);
+
+		logger.info(will("Download archive from glacier", "destination",
+				destinationFile, "src", src, "to-dir", dir, "filename", filename));
+		transferManager.download(vault, archiveId, destinationFile);
+		logger.info(done("Downloaded archive from glacier", "destination",
+				destinationFile));
 	}
 
 	/**
