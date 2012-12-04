@@ -77,7 +77,6 @@ public class GlacierRoundtripFunctionalTest {
 	}
 
 	@Parameters(value = { "splunk.home" })
-	@Test(enabled = false)
 	public void _givenTgzConfig_archivesThenThawsBucketThatIsEqualToTheOriginalBucket(
 			final String splunkHome) throws IllegalIndexException {
 		ArchiveConfiguration tgzConfig = TUtilsFunctional

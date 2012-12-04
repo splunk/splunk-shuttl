@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.filesystem.glacier;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -28,11 +29,11 @@ import org.testng.annotations.Test;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.splunk.shuttl.archiver.archive.BucketDeleter;
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.filesystem.transaction.bucket.TransfersBuckets;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.archiver.model.RemoteBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -109,22 +110,30 @@ public class GlacierArchiveFileSystemTest {
 		inOrder.verifyNoMoreInteractions();
 	}
 
-	public void getBucket__getsBucketWithBucketsRemotePath() throws IOException {
-		RemoteBucket remoteBucket = TUtilsBucket.createRemoteBucket();
-		File temp = mock(File.class);
+	public void getBucket_bucket_getTheFileInTheBucketWhichIsTheGlacierArchiveByUsingTheExtensionToTheBucketFormat()
+			throws IOException {
+		Bucket tgzBucket = TUtilsBucket.createTgzBucket();
+
+		String bucketFileName = tgzBucket.getName()
+				+ BucketFormat.extensionOfFormat(tgzBucket.getFormat());
+
+		File temp = createDirectory();
+		File fileInBucketWhichIsTheGlacierArchive = new File(temp, bucketFileName);
 		File dst = mock(File.class);
-		glacierBucketTransferer.get(remoteBucket, temp, dst);
-		verify(glacierClient).downloadToDir(remoteBucket.getPath(), temp);
+		glacierBucketTransferer.get(tgzBucket, temp, dst);
+
+		verify(glacierClient).downloadArchiveToFile(eq(tgzBucket.getPath()),
+				eq(fileInBucketWhichIsTheGlacierArchive));
 		verifyZeroInteractions(glacierArchiveIdStore);
 	}
 
 	public void getBucket_archiveIdDoesNotExist_putsArchiveIdWithGlacierArchiveIdStore()
 			throws IOException {
-		Bucket remoteBucket = mock(Bucket.class);
-		when(remoteBucket.getPath()).thenReturn(dst);
-		File localTemp = mock(File.class);
+		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
+		String key = remoteBucket.getPath();
+		File localTemp = createDirectory();
 		File localDst = mock(File.class);
-		when(glacierClient.getArchiveId(dst)).thenThrow(
+		when(glacierClient.getArchiveId(key)).thenThrow(
 				new GlacierArchiveIdDoesNotExist("msg"));
 		String archiveId = "archiveId";
 		when(glacierArchiveIdStore.getArchiveId(remoteBucket))
@@ -132,9 +141,9 @@ public class GlacierArchiveFileSystemTest {
 
 		glacierBucketTransferer.get(remoteBucket, localTemp, localDst);
 		InOrder inOrder = inOrder(glacierClient, glacierArchiveIdStore);
-		inOrder.verify(glacierClient).getArchiveId(dst);
+		inOrder.verify(glacierClient).getArchiveId(key);
 		inOrder.verify(glacierArchiveIdStore).getArchiveId(remoteBucket);
-		inOrder.verify(glacierClient).putArchiveId(dst, archiveId);
+		inOrder.verify(glacierClient).putArchiveId(key, archiveId);
 	}
 
 	@Test(expectedExceptions = { GlacierArchivingException.class })
@@ -148,9 +157,9 @@ public class GlacierArchiveFileSystemTest {
 	@Test(expectedExceptions = { GlacierThawingException.class })
 	public void getBucket_glacierClientThrows_wrapsExceptionInGlacierThawingException()
 			throws IOException {
-		doThrow(RuntimeException.class).when(glacierClient).downloadToDir(
+		doThrow(RuntimeException.class).when(glacierClient).downloadArchiveToFile(
 				anyString(), any(File.class));
 		glacierBucketTransferer.get(TUtilsBucket.createRemoteBucket(),
-				mock(File.class), mock(File.class));
+				createDirectory(), mock(File.class));
 	}
 }

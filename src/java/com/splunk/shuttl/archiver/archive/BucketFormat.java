@@ -18,4 +18,11 @@ package com.splunk.shuttl.archiver.archive;
 public enum BucketFormat {
 	SPLUNK_BUCKET, UNKNOWN, CSV, SPLUNK_BUCKET_TGZ;
 
+	public static String extensionOfFormat(BucketFormat format) {
+		if (format.equals(CSV))
+			return ".csv";
+		else if (format.equals(SPLUNK_BUCKET_TGZ))
+			return ".tgz";
+		return "";
+	}
 }

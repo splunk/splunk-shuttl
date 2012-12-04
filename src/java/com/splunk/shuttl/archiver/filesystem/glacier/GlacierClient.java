@@ -21,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.AmazonClientException;
@@ -77,26 +76,25 @@ public class GlacierClient {
 	 * @throws GlacierArchiveIdDoesNotExist
 	 *           if the archiveId is not stored in memory.
 	 */
-	public void downloadToDir(String src, File dir) {
-		if (!dir.exists())
-			dir.mkdirs();
-		if (!dir.isDirectory())
-			throw new IllegalArgumentException("File needs to be a directory: " + dir);
+	public void downloadArchiveToFile(String key, File file) {
+		if (file.isDirectory())
+			throw new IllegalArgumentException("File cannot be a directory: " + file);
 
-		doTheDownload(src, dir);
+		makeFilesParentsExist(file);
+		doDownloadArchiveToFile(getArchiveId(key), file);
 	}
 
-	private void doTheDownload(String src, File dir) {
-		String filename = FilenameUtils.getName(src) + ".csv";
-		File destinationFile = new File(dir, filename);
-		String archiveId = getArchiveId(src);
-
-		logger.info(will("Download archive from glacier", "destination",
-				destinationFile, "src", src, "to-dir", dir, "filename", filename,
+	private void doDownloadArchiveToFile(String archiveId, File file) {
+		logger.info(will("Download archive from glacier", "destination", file,
 				"archiveId", archiveId));
-		transferManager.download(vault, archiveId, destinationFile);
-		logger.info(done("Downloaded archive from glacier", "destination",
-				destinationFile));
+		transferManager.download(vault, archiveId, file);
+		logger.info(done("Downloaded archive from glacier", "destination", file));
+	}
+
+	private void makeFilesParentsExist(File file) {
+		if (!file.exists())
+			file.mkdirs();
+		file.delete();
 	}
 
 	/**

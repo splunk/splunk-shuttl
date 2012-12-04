@@ -114,7 +114,9 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 			throws IOException {
 		String path = remoteBucket.getPath();
 		putArchiveIdIfNotPresent(remoteBucket, path);
-		downloadBucketToTemp(temp, path);
+		File bucketFileInGlacier = new File(temp, remoteBucket.getName()
+				+ BucketFormat.extensionOfFormat(remoteBucket.getFormat()));
+		downloadBucketFileFromGlacier(bucketFileInGlacier, path);
 	}
 
 	private void putArchiveIdIfNotPresent(Bucket remoteBucket, String path) {
@@ -128,9 +130,9 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 		}
 	}
 
-	private void downloadBucketToTemp(File temp, String path) {
+	private void downloadBucketFileFromGlacier(File file, String path) {
 		try {
-			glacierClient.downloadToDir(path, temp);
+			glacierClient.downloadArchiveToFile(path, file);
 		} catch (Exception e) {
 			throw new GlacierThawingException("Got exception when downloading "
 					+ "from glacier. Exception: " + e + ", Path: " + path);

@@ -15,7 +15,6 @@
 package com.splunk.shuttl.archiver.filesystem.glacier;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -24,7 +23,7 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
+import org.mockito.InOrder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -69,31 +68,43 @@ public class GlacierClientTest {
 		glacierClient.getArchiveId("/path/doesNotExist");
 	}
 
-	public void download_givenArchiveIdWithPath_getsTheArchive() {
-		String filename = "filename";
-		String path = "/path/to/" + filename;
+	public void download_givenArchiveIdWithKey_downloadsArchiveToFile() {
+		String path = "/some/key/";
 		String archiveId = "archiveId";
 		glacierClient.putArchiveId(path, archiveId);
-		File dir = createDirectory();
+		File file = createFile();
 
-		glacierClient.downloadToDir(path, dir);
-		verify(transferManager).download(eq(vault), eq(archiveId),
-				eq(new File(dir, filename + ".csv")));
+		glacierClient.downloadArchiveToFile(path, file);
+		verify(transferManager).download(vault, archiveId, file);
 	}
 
 	@Test(expectedExceptions = { IllegalArgumentException.class })
-	public void download_givenExistingFileAndNotDir_throws() {
-		glacierClient.downloadToDir(null, createFile());
+	public void download_givenExistingDir_throws() {
+		glacierClient.downloadArchiveToFile(null, createDirectory());
 	}
 
-	public void download_givenNotExistingFile_makesDirs() {
-		String path = "/path";
-		glacierClient.putArchiveId(path, "foo");
+	public void download_givenNotExistingFile_makesDirsUpToFile() {
+		String key = "/some/key";
+		glacierClient.putArchiveId(key, "foo");
 
-		File dir = createDirectory();
-		FileUtils.deleteQuietly(dir);
-		assertFalse(dir.exists());
-		glacierClient.downloadToDir(path, dir);
-		assertTrue(dir.exists());
+		File file = mock(File.class);
+		when(file.exists()).thenReturn(false);
+
+		glacierClient.downloadArchiveToFile(key, file);
+		InOrder inOrder = inOrder(file);
+		inOrder.verify(file).mkdirs();
+		inOrder.verify(file).delete();
+	}
+
+	public void download_givenExistingFile_deletesFile() {
+		String key = "/some/key";
+		glacierClient.putArchiveId(key, "foo");
+
+		File file = mock(File.class);
+		when(file.exists()).thenReturn(true);
+
+		glacierClient.downloadArchiveToFile(key, file);
+		verify(file).delete();
+		verify(file, never()).mkdirs();
 	}
 }
