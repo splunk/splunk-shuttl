@@ -62,7 +62,7 @@ public class ThawFunctionalTest {
 		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
 				archiverData.getAbsolutePath());
 		bucketArchiver = BucketShuttlerFactory
-				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+				.createWithConfFileSystemAndLocalPaths(config, archiveFileSystem,
 						localFileSystemPaths);
 		thawDirectory = TUtilsFile.createDirectory();
 

@@ -50,8 +50,8 @@ public class GlacierClient {
 		this(transferManager, vault, archiveIdCache);
 	}
 
-	/* for tests */GlacierClient(ArchiveTransferManager transferManager,
-			String vault, Map<String, String> archiveIds) {
+	public GlacierClient(ArchiveTransferManager transferManager, String vault,
+			Map<String, String> archiveIds) {
 		this.transferManager = transferManager;
 		this.vault = vault;
 		this.archiveIds = archiveIds;

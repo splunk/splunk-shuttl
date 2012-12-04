@@ -57,7 +57,7 @@ public class TwoFormatsFunctionalTest {
 		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
 		archiverData = createDirectory();
 		bucketArchiver = BucketShuttlerFactory
-				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+				.createWithConfFileSystemAndLocalPaths(config, archiveFileSystem,
 						new LocalFileSystemPaths(archiverData.getAbsolutePath()));
 		pathResolver = new PathResolver(config);
 	}

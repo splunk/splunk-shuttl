@@ -61,7 +61,7 @@ public class ArchiveBucketsSizeFunctionalTest {
 				archiveFileSystem, localFileSystemPaths);
 		listsBucketsFiltered = ListsBucketsFilteredFactory.create(config);
 		bucketArchiver = BucketShuttlerFactory
-				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+				.createWithConfFileSystemAndLocalPaths(config, archiveFileSystem,
 						localFileSystemPaths);
 	}
 

@@ -60,7 +60,7 @@ public class ExportCsvFunctionalTest {
 		ArchiveFileSystem localFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(csvConfig);
 		csvBucketArchiver = BucketShuttlerFactory
-				.createWithConfFileSystemAndCsvDirectory(csvConfig, localFileSystem,
+				.createWithConfFileSystemAndLocalPaths(csvConfig, localFileSystem,
 						new LocalFileSystemPaths(archiverData.getAbsolutePath()));
 		PathResolver pathResolver = new PathResolver(csvConfig);
 		ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(

@@ -52,7 +52,7 @@ public class ArchiverFunctionalTest {
 		config = getLocalFileSystemConfiguration();
 		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
 		bucketArchiver = BucketShuttlerFactory
-				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+				.createWithConfFileSystemAndLocalPaths(config, archiveFileSystem,
 						new LocalFileSystemPaths(archiverData.getAbsolutePath()));
 		pathResolver = new PathResolver(config);
 	}

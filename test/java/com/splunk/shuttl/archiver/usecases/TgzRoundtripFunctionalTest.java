@@ -31,8 +31,8 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
@@ -62,7 +62,7 @@ public class TgzRoundtripFunctionalTest {
 				.getWithConfiguration(tgzConf);
 
 		bucketArchiver = BucketShuttlerFactory
-				.createWithConfFileSystemAndCsvDirectory(tgzConf, localFileSystem,
+				.createWithConfFileSystemAndLocalPaths(tgzConf, localFileSystem,
 						localFileSystemPaths);
 	}
 
@@ -106,7 +106,7 @@ public class TgzRoundtripFunctionalTest {
 		bucketThawer.thawBuckets(bucket.getIndex(), bucket.getEarliest(),
 				bucket.getLatest());
 
-		List<Bucket> buckets = bucketThawer.getThawedBuckets();
+		List<LocalBucket> buckets = bucketThawer.getThawedBuckets();
 		assertEquals(1, buckets.size());
 		Bucket thawedBucket = buckets.get(0);
 		File thawedBucketDir = new File(thawedBucket.getPath());

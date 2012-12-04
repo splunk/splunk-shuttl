@@ -142,7 +142,7 @@ public class BucketThawerTest {
 		when(getsBucketsFromArchive.getBucketFromArchive(bucket2)).thenReturn(
 				thawedBucket2);
 		bucketThawer.thawBuckets(index, earliestTime, latestTime);
-		List<Bucket> thawedBuckets = bucketThawer.getThawedBuckets();
+		List<LocalBucket> thawedBuckets = bucketThawer.getThawedBuckets();
 		assertEquals(2, thawedBuckets.size());
 		assertTrue(thawedBuckets.contains(thawedBucket1));
 		assertTrue(thawedBuckets.contains(thawedBucket2));

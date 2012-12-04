@@ -28,6 +28,7 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Interacts with the archive to thaw buckets within the users needs, which is
@@ -40,7 +41,7 @@ public class BucketThawer {
 	private final ListsBucketsFiltered listsBucketsFiltered;
 	private final GetsBucketsFromArchive getsBucketsFromArchive;
 	private final ThawLocationProvider thawLocationProvider;
-	private final List<Bucket> successfulThawedBuckets;
+	private final List<LocalBucket> successfulThawedBuckets;
 	private final List<Bucket> skippedBuckets;
 	private final List<FailedBucket> failedBuckets;
 	private final BucketLocker thawBucketLocker;
@@ -75,7 +76,7 @@ public class BucketThawer {
 		this.thawLocationProvider = thawLocationProvider;
 		this.thawBucketLocker = thawBucketLocker;
 
-		this.successfulThawedBuckets = new ArrayList<Bucket>();
+		this.successfulThawedBuckets = new ArrayList<LocalBucket>();
 		this.skippedBuckets = new ArrayList<Bucket>();
 		this.failedBuckets = new ArrayList<FailedBucket>();
 	}
@@ -149,7 +150,8 @@ public class BucketThawer {
 
 	private void thawBucketFromArchive(Bucket bucket) {
 		try {
-			Bucket thawedBucket = getsBucketsFromArchive.getBucketFromArchive(bucket);
+			LocalBucket thawedBucket = getsBucketsFromArchive
+					.getBucketFromArchive(bucket);
 			successfulThawedBuckets.add(thawedBucket);
 		} catch (ThawTransferFailException e) {
 			logTransferException(bucket, e);
@@ -174,7 +176,7 @@ public class BucketThawer {
 	/**
 	 * @return buckets that succeeded to be thawed.
 	 */
-	public List<Bucket> getThawedBuckets() {
+	public List<LocalBucket> getThawedBuckets() {
 		return successfulThawedBuckets;
 	}
 

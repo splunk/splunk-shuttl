@@ -69,8 +69,7 @@ public class ImportCsvFunctionalTest {
 
 		csvThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(
-						localCsvArchiveConfigration, splunkSettings,
-						localFileSystemPaths);
+						localCsvArchiveConfigration, splunkSettings, localFileSystemPaths);
 
 		realBucket = TUtilsBucket.createRealBucket();
 		csvArchiver = BucketShuttlerFactory.createWithConfAndLocalPaths(
@@ -101,7 +100,7 @@ public class ImportCsvFunctionalTest {
 					final long sizeOfRealBucket) {
 				csvThawer.thawBuckets(realBucket.getIndex(), realBucket.getEarliest(),
 						realBucket.getLatest());
-				List<Bucket> thawedBuckets = csvThawer.getThawedBuckets();
+				List<LocalBucket> thawedBuckets = csvThawer.getThawedBuckets();
 
 				assertEquals(1, thawedBuckets.size());
 				Bucket thawedBucket = thawedBuckets.get(0);

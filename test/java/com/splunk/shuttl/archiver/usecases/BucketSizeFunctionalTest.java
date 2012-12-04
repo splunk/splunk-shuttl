@@ -110,7 +110,7 @@ public class BucketSizeFunctionalTest {
 		bucketThawer.thawBuckets(bucket.getIndex(), bucket.getEarliest(),
 				bucket.getLatest());
 
-		List<Bucket> thawedBuckets = bucketThawer.getThawedBuckets();
+		List<LocalBucket> thawedBuckets = bucketThawer.getThawedBuckets();
 		assertEquals(1, thawedBuckets.size());
 		Bucket thawedBucket = thawedBuckets.get(0);
 		assertEquals(bucket.getSize(), thawedBucket.getSize());

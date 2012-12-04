@@ -66,7 +66,7 @@ public class BucketShuttlerFactory {
 			ArchiveConfiguration config, LocalFileSystemPaths localFileSystemPaths) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
-		return createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+		return createWithConfFileSystemAndLocalPaths(config, archiveFileSystem,
 				localFileSystemPaths);
 	}
 
@@ -80,7 +80,7 @@ public class BucketShuttlerFactory {
 	 * @return a {@link BucketArchiver} to archive with the specified
 	 *         configuration.
 	 */
-	public static BucketArchiver createWithConfFileSystemAndCsvDirectory(
+	public static BucketArchiver createWithConfFileSystemAndLocalPaths(
 			ArchiveConfiguration config, ArchiveFileSystem archiveFileSystem,
 			LocalFileSystemPaths localFileSystemPaths) {
 		BucketCopierDependencies deps = getDependencies(config, archiveFileSystem,

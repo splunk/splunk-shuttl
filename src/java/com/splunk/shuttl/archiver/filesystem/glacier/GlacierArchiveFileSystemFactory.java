@@ -41,19 +41,26 @@ public class GlacierArchiveFileSystemFactory {
 	public static GlacierArchiveFileSystem create(
 			LocalFileSystemPaths localFileSystemPaths) {
 		AWSCredentialsImpl credentials = AWSCredentialsImpl.create();
-		GlacierClient glacierClient = GlacierClient.create(credentials);
-
+		GlacierClient client = GlacierClient.create(credentials);
 		ArchiveFileSystem s3 = S3ArchiveFileSystemFactory.createS3n();
+		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
+		return create(localFileSystemPaths, client, s3, config);
+	}
+
+	public static GlacierArchiveFileSystem create(
+			LocalFileSystemPaths localFileSystemPaths, GlacierClient glacierClient,
+			ArchiveFileSystem archiveMetaStore, ArchiveConfiguration config) {
 		TgzFormatExporter tgzFormatExporter = TgzFormatExporter
 				.create(CreatesBucketTgz.create(localFileSystemPaths));
 		Logger logger = Logger.getLogger(GlacierArchiveFileSystem.class);
 		BucketDeleter bucketDeleter = BucketDeleter.create();
 
-		MetadataStore metadataStore = MetadataStore.create(
-				ArchiveConfiguration.getSharedInstance(), s3, localFileSystemPaths);
+		MetadataStore metadataStore = MetadataStore.create(config,
+				archiveMetaStore, localFileSystemPaths);
 
-		return new GlacierArchiveFileSystem(s3, glacierClient, tgzFormatExporter,
-				logger, bucketDeleter, new GlacierArchiveIdStore(metadataStore));
+		return new GlacierArchiveFileSystem(archiveMetaStore, glacierClient,
+				tgzFormatExporter, logger, bucketDeleter, new GlacierArchiveIdStore(
+						metadataStore));
 	}
 
 	@SuppressWarnings("unused")
