@@ -87,12 +87,13 @@ public class GlacierClient {
 	}
 
 	private void doTheDownload(String src, File dir) {
-		String filename = FilenameUtils.getName(src);
+		String filename = FilenameUtils.getName(src) + ".csv";
 		File destinationFile = new File(dir, filename);
 		String archiveId = getArchiveId(src);
 
 		logger.info(will("Download archive from glacier", "destination",
-				destinationFile, "src", src, "to-dir", dir, "filename", filename));
+				destinationFile, "src", src, "to-dir", dir, "filename", filename,
+				"archiveId", archiveId));
 		transferManager.download(vault, archiveId, destinationFile);
 		logger.info(done("Downloaded archive from glacier", "destination",
 				destinationFile));

@@ -70,7 +70,7 @@ public class GlacierClientTest {
 	}
 
 	public void download_givenArchiveIdWithPath_getsTheArchive() {
-		String filename = "filename.ext";
+		String filename = "filename";
 		String path = "/path/to/" + filename;
 		String archiveId = "archiveId";
 		glacierClient.putArchiveId(path, archiveId);
@@ -78,7 +78,7 @@ public class GlacierClientTest {
 
 		glacierClient.downloadToDir(path, dir);
 		verify(transferManager).download(eq(vault), eq(archiveId),
-				eq(new File(dir, filename)));
+				eq(new File(dir, filename + ".csv")));
 	}
 
 	@Test(expectedExceptions = { IllegalArgumentException.class })

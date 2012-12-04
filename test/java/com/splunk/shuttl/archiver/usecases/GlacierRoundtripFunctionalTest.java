@@ -15,6 +15,7 @@
 package com.splunk.shuttl.archiver.usecases;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static java.util.Arrays.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -23,13 +24,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
@@ -43,37 +44,15 @@ import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
-@Test(groups = { "end-to-end" }, enabled = false)
+@Test(groups = { "end-to-end" })
 public class GlacierRoundtripFunctionalTest {
 
 	private BucketArchiver bucketArchiver;
 	private BucketThawer bucketThawer;
-
-	@BeforeMethod
-	public void setUp() throws IllegalIndexException {
-		GlacierClient client = new GlacierClient(new FakeArchiveTransferManager(
-				createDirectory()), "vault", new HashMap<String, String>());
-		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
-				createDirectory());
-		ArchiveConfiguration csvConfig = TUtilsFunctional
-				.getLocalCsvArchiveConfigration();
-		GlacierArchiveFileSystem glacierArchive = getGlacierArchiveFileSystem(
-				client, localFileSystemPaths, csvConfig);
-
-		bucketArchiver = BucketShuttlerFactory
-				.createWithConfFileSystemAndLocalPaths(csvConfig, glacierArchive,
-						localFileSystemPaths);
-
-		SplunkSettings splunkSettings = mock(SplunkSettings.class);
-		File thawLocation = createDirectory();
-		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawLocation);
-
-		bucketThawer = BucketThawerFactory.create(csvConfig, splunkSettings,
-				localFileSystemPaths, glacierArchive);
-	}
 
 	/**
 	 * Exists to hide the "localArchiveFileSystem" from the other construction
@@ -89,22 +68,87 @@ public class GlacierRoundtripFunctionalTest {
 	}
 
 	@Parameters(value = { "splunk.home" })
-	public void _givenRealBucket_archivesThenThawsBucketThatIsEqualToTheOriginalBucket(
-			String splunkHome) {
-		LocalBucket realBucket = TUtilsBucket.createRealBucket();
-		TUtilsFunctional.archiveBucket(realBucket, bucketArchiver, splunkHome);
-		bucketThawer.thawBuckets(realBucket.getIndex(), realBucket.getEarliest(),
-				realBucket.getLatest());
+	public void _givenCsvConfig_archivesThenThawsBucketThatIsEqualToTheOriginalBucket(
+			final String splunkHome) throws IllegalIndexException {
+		ArchiveConfiguration csvConfig = TUtilsFunctional
+				.getLocalCsvArchiveConfigration();
+		assertArchiveThenThawedBucketIsImportedFromConfigsFormat(csvConfig,
+				splunkHome);
+	}
 
+	@Parameters(value = { "splunk.home" })
+	@Test(enabled = false)
+	public void _givenTgzConfig_archivesThenThawsBucketThatIsEqualToTheOriginalBucket(
+			final String splunkHome) throws IllegalIndexException {
+		ArchiveConfiguration tgzConfig = TUtilsFunctional
+				.getLocalConfigurationThatArchivesFormats(asList(BucketFormat.SPLUNK_BUCKET_TGZ));
+		assertArchiveThenThawedBucketIsImportedFromConfigsFormat(tgzConfig,
+				splunkHome);
+	}
+
+	private void assertArchiveThenThawedBucketIsImportedFromConfigsFormat(
+			ArchiveConfiguration config, final String splunkHome)
+			throws IllegalIndexException {
+
+		setup(config);
+		final LocalBucket realBucketThatGotThawed = archiveAndThawBucket(splunkHome);
+		assertBucketWasSuccessfullyThawedAndImported(realBucketThatGotThawed);
+	}
+
+	private void setup(ArchiveConfiguration config) throws IllegalIndexException {
+		GlacierClient client = new GlacierClient(new FakeArchiveTransferManager(
+				createDirectory()), "vault", new HashMap<String, String>());
+		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
+				createDirectory());
+
+		GlacierArchiveFileSystem glacierArchive = getGlacierArchiveFileSystem(
+				client, localFileSystemPaths, config);
+
+		bucketArchiver = BucketShuttlerFactory
+				.createWithConfFileSystemAndLocalPaths(config, glacierArchive,
+						localFileSystemPaths);
+
+		SplunkSettings splunkSettings = mock(SplunkSettings.class);
+		File thawLocation = createDirectory();
+		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawLocation);
+
+		bucketThawer = BucketThawerFactory.create(config, splunkSettings,
+				localFileSystemPaths, glacierArchive);
+	}
+
+	private LocalBucket archiveAndThawBucket(final String splunkHome) {
+		final LocalBucket realBucket = TUtilsBucket.createRealBucket();
+		TUtilsFunctional.archiveBucket(realBucket, bucketArchiver, splunkHome);
+
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				bucketThawer.thawBuckets(realBucket.getIndex(),
+						realBucket.getEarliest(), realBucket.getLatest());
+			}
+		});
+		return realBucket;
+	}
+
+	private void assertBucketWasSuccessfullyThawedAndImported(
+			final LocalBucket realBucketThatGotThawed) {
 		assertTrue(bucketThawer.getFailedBuckets().isEmpty());
 		assertTrue(bucketThawer.getSkippedBuckets().isEmpty());
 
 		List<LocalBucket> thawedBuckets = bucketThawer.getThawedBuckets();
 		assertEquals(1, thawedBuckets.size());
+
 		LocalBucket thawedBucket = thawedBuckets.get(0);
-		TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(realBucket,
-				thawedBucket);
-		TUtilsTestNG.assertDirectoriesAreCopies(realBucket.getDirectory(),
-				thawedBucket.getDirectory());
+		TUtilsTestNG.assertBucketsGotSameIndexFormatAndName(
+				realBucketThatGotThawed, thawedBucket);
+		assertThawedBucketHasMoreThanACsvFile(thawedBucket);
+	}
+
+	private void assertThawedBucketHasMoreThanACsvFile(LocalBucket bucket) {
+		int possibleHiddenFiles = 4;
+		int filesInBucketDir = bucket.getDirectory().listFiles().length;
+		assertTrue(filesInBucketDir > 1 + possibleHiddenFiles);
 	}
 }

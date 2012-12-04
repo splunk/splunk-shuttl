@@ -41,7 +41,8 @@ public class GetsBucketsFromArchive {
 	 * @param bucketSizeResolver
 	 */
 	public GetsBucketsFromArchive(ThawBucketTransferer thawBucketTransferer,
-			BucketImportController bucketImportController, BucketSizeResolver bucketSizeResolver) {
+			BucketImportController bucketImportController,
+			BucketSizeResolver bucketSizeResolver) {
 		this.thawBucketTransferer = thawBucketTransferer;
 		this.bucketImportController = bucketImportController;
 		this.bucketSizeResolver = bucketSizeResolver;
@@ -82,7 +83,7 @@ public class GetsBucketsFromArchive {
 		try {
 			return bucketImportController.restoreToSplunkBucketFormat(thawedBucket);
 		} catch (Exception e) {
-			throw new ImportThawedBucketFailException(thawedBucket);
+			throw new ImportThawedBucketFailException(e);
 		}
 	}
 

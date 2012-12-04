@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
  * Exception for when importing a thawed bucket fails.
@@ -23,20 +22,11 @@ public class ImportThawedBucketFailException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Bucket thawedBucket;
-
 	/**
 	 * @param thawedBucket
 	 */
-	public ImportThawedBucketFailException(Bucket thawedBucket) {
-		this.thawedBucket = thawedBucket;
-	}
-
-	/**
-	 * @return the thawedBucket that failed to be imported.
-	 */
-	public Bucket getThawedBucket() {
-		return thawedBucket;
+	public ImportThawedBucketFailException(Exception e) {
+		super(e);
 	}
 
 }
