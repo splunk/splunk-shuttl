@@ -42,6 +42,10 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 @Test(groups = { "end-to-end" })
 public class CopyWithoutDeletionEndToEndTest {
 
+	private static interface CopiesBucket {
+		void copyBucket(LocalBucket bucket);
+	}
+
 	@Parameters(value = { "shuttl.host", "shuttl.port", "shuttl.conf.dir",
 			"splunk.home" })
 	public void _callingCopyRestEndpointWithBucket_copiesTheBucketToStorageWithoutDeletingOriginal(
@@ -53,56 +57,94 @@ public class CopyWithoutDeletionEndToEndTest {
 			@Override
 			public void run() {
 				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
-				try {
-					runTestWithSplunkHomeSet(shuttlHost, shuttlPort, shuttlConfDir);
-				} catch (IOException e) {
-					TUtilsTestNG.failForException("Test got exception.", e);
-				}
+				CopyByCallingRest copyByCallingRest = new CopyByCallingRest(shuttlHost,
+						shuttlPort);
+				runTestWithSplunkHomeSet(shuttlConfDir, copyByCallingRest);
 			}
 		});
 	}
 
-	private void runTestWithSplunkHomeSet(String shuttlHost, String shuttlPort,
-			String shuttlConfDir) throws IOException, ClientProtocolException {
-		final LocalBucket bucket = TUtilsBucket.createBucket();
+	private static class CopyByCallingRest implements CopiesBucket {
 
-		HttpPost postRequest = createPostRequest(shuttlHost, shuttlPort, bucket);
-		HttpResponse httpResponse = new DefaultHttpClient().execute(postRequest);
+		private String shuttlHost;
+		private String shuttlPort;
 
-		int statusCode = httpResponse.getStatusLine().getStatusCode();
-		assertTrue(300 > statusCode,
-				"Http endpoint status code not less than 300. Was: " + statusCode);
-		assertTrue(bucket.getDirectory().exists());
+		public CopyByCallingRest(String shuttlHost, String shuttlPort) {
+			this.shuttlHost = shuttlHost;
+			this.shuttlPort = shuttlPort;
+		}
 
-		TUtilsMBean.runWithRegisteredMBeans(new File(shuttlConfDir),
-				new Runnable() {
+		@Override
+		public void copyBucket(LocalBucket bucket) {
+			try {
+				copyBucketViaRestCall(shuttlHost, shuttlPort, bucket);
+			} catch (Exception e) {
+				TUtilsTestNG.failForException("Got exception when copying bucket.", e);
+			}
+		}
 
-					@Override
-					public void run() {
-						ArchiveConfiguration config = ArchiveConfiguration
-								.createConfigurationFromMBean();
-						ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
-								.getWithConfiguration(config);
-						String bucketArchivePath = new PathResolver(config)
-								.resolveArchivePath(bucket);
-						try {
-							assertTrue(fileSystem.exists(bucketArchivePath));
-						} catch (IOException e) {
-							TUtilsTestNG.failForException(
-									"Checking for existing bucket path throwed.", e);
-						}
-					}
-				});
+		private void copyBucketViaRestCall(String shuttlHost, String shuttlPort,
+				final LocalBucket bucket) throws IOException, ClientProtocolException {
+			HttpPost copyBucketRequest = createCopyBucketPostRequest(shuttlHost,
+					shuttlPort, bucket);
+			HttpResponse httpResponse = new DefaultHttpClient()
+					.execute(copyBucketRequest);
+
+			int statusCode = httpResponse.getStatusLine().getStatusCode();
+			assertTrue(300 > statusCode,
+					"Http endpoint status code not less than 300. Was: " + statusCode);
+		}
+
+		private HttpPost createCopyBucketPostRequest(String shuttlHost,
+				String shuttlPort, LocalBucket bucket) {
+			URI copyBucketEndpoint = URI.create("http://" + shuttlHost + ":"
+					+ shuttlPort + "/" + ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER
+					+ ENDPOINT_BUCKET_COPY);
+			HttpPost postRequest = TUtilsHttp.createHttpPost(copyBucketEndpoint,
+					"path", bucket.getDirectory().getAbsolutePath(), "index",
+					bucket.getIndex());
+			return postRequest;
+		}
 	}
 
-	private HttpPost createPostRequest(String shuttlHost, String shuttlPort,
-			LocalBucket bucket) {
-		URI copyBucketEndpoint = URI.create("http://" + shuttlHost + ":"
-				+ shuttlPort + "/" + ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER
-				+ ENDPOINT_BUCKET_COPY);
-		HttpPost postRequest = TUtilsHttp.createHttpPost(copyBucketEndpoint,
-				"path", bucket.getDirectory().getAbsolutePath(), "index",
-				bucket.getIndex());
-		return postRequest;
+	private void runTestWithSplunkHomeSet(String shuttlConfDir,
+			CopiesBucket bucketCopier) {
+		final LocalBucket bucket = TUtilsBucket.createBucket();
+		bucketCopier.copyBucket(bucket);
+		assertTrue(bucket.getDirectory().exists());
+
+		assertBucketWasCopied(shuttlConfDir, bucket);
+	}
+
+	private void assertBucketWasCopied(String shuttlConfDir,
+			final LocalBucket bucket) {
+		TUtilsMBean.runWithRegisteredMBeans(new File(shuttlConfDir),
+				new AssertBucketWasCopiedToArchiveFileSystem(bucket));
+	}
+
+	private static class AssertBucketWasCopiedToArchiveFileSystem implements
+			Runnable {
+		private final LocalBucket bucket;
+
+		public AssertBucketWasCopiedToArchiveFileSystem(LocalBucket bucket) {
+			this.bucket = bucket;
+		}
+
+		@Override
+		public void run() {
+			ArchiveConfiguration config = ArchiveConfiguration
+					.createConfigurationFromMBean();
+			ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
+					.getWithConfiguration(config);
+			PathResolver pathResolver = new PathResolver(config);
+
+			try {
+				String bucketArchivePath = pathResolver.resolveArchivePath(bucket);
+				assertTrue(fileSystem.exists(bucketArchivePath));
+			} catch (IOException e) {
+				TUtilsTestNG.failForException(
+						"Checking for existing bucket path throwed.", e);
+			}
+		}
 	}
 }
