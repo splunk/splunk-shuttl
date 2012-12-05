@@ -15,11 +15,16 @@
 package com.splunk.shuttl.archiver.endtoend;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static java.util.Arrays.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -29,9 +34,10 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.PathResolver;
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
+import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.testutil.TUtilsHttp;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -44,24 +50,6 @@ public class CopyWithoutDeletionEndToEndTest {
 
 	private static interface CopiesBucket {
 		void copyBucket(LocalBucket bucket);
-	}
-
-	@Parameters(value = { "shuttl.host", "shuttl.port", "shuttl.conf.dir",
-			"splunk.home" })
-	public void _callingCopyRestEndpointWithBucket_copiesTheBucketToStorageWithoutDeletingOriginal(
-			final String shuttlHost, final String shuttlPort,
-			final String shuttlConfDir, final String splunkHome)
-			throws ClientProtocolException, IOException {
-		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
-
-			@Override
-			public void run() {
-				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
-				CopyByCallingRest copyByCallingRest = new CopyByCallingRest(shuttlHost,
-						shuttlPort);
-				runTestWithSplunkHomeSet(shuttlConfDir, copyByCallingRest);
-			}
-		});
 	}
 
 	private static class CopyByCallingRest implements CopiesBucket {
@@ -107,9 +95,105 @@ public class CopyWithoutDeletionEndToEndTest {
 		}
 	}
 
-	private void runTestWithSplunkHomeSet(String shuttlConfDir,
+	@Parameters(value = { "shuttl.host", "shuttl.port", "shuttl.conf.dir",
+			"splunk.home" })
+	public void _callingCopyRestEndpointWithBucket_copiesTheBucketToStorageWithoutDeletingOriginal(
+			final String shuttlHost, final String shuttlPort,
+			final String shuttlConfDir, final String splunkHome) {
+
+		CopyByCallingRest copyByCallingRest = new CopyByCallingRest(shuttlHost,
+				shuttlPort);
+		runTestWithSplunkHomeSet(shuttlConfDir, splunkHome, copyByCallingRest);
+	}
+
+	@Parameters(value = { "shuttl.conf.dir", "splunk.home" })
+	@Test(enabled = false)
+	public void _callingCopyScriptWithBucket_copiesTheBucketToStorageWithoutDeletingOriginal(
+			String shuttlConfDir, String splunkHome) {
+
+		CopiesBucket copyWithCopyScript = new CopyByCallingCopyScript(splunkHome);
+		runTestWithSplunkHomeSet(shuttlConfDir, splunkHome, copyWithCopyScript);
+	}
+
+	private void runTestWithSplunkHomeSet(final String shuttlConfDir,
+			final String splunkHome, final CopiesBucket copiesBucket) {
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+			@Override
+			public void run() {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				doRunTestWithSplunkHomeSet(shuttlConfDir, copiesBucket);
+			}
+		});
+	}
+
+	private static class CopyByCallingCopyScript implements CopiesBucket {
+
+		private String splunkHome;
+
+		public CopyByCallingCopyScript(String splunkHome) {
+			this.splunkHome = splunkHome;
+		}
+
+		@Override
+		public void copyBucket(LocalBucket bucket) {
+			File copyScript = getCopyScript();
+			File directoryToMoveBucketTo = createDirectory();
+
+			executeCopyScript(bucket, copyScript, directoryToMoveBucketTo);
+			assertThatTheOriginalBucketWasMovedByTheScript(bucket,
+					directoryToMoveBucketTo);
+
+			moveOriginalBucketBackToItsFirstLocation(directoryToMoveBucketTo, bucket);
+		}
+
+		private void executeCopyScript(LocalBucket bucket, File copyScript,
+				File directoryToMoveBucketTo) {
+			ShellExecutor shellExecutor = ShellExecutor.getInstance();
+			Map<String, String> env = new HashMap<String, String>();
+			env.put("SPLUNK_HOME", splunkHome);
+			List<String> command = createCommand(bucket, copyScript,
+					directoryToMoveBucketTo);
+			int exit = shellExecutor.executeCommand(env, command);
+			System.out.println(shellExecutor.getStdErr());
+			assertEquals(exit, 0);
+		}
+
+		private List<String> createCommand(LocalBucket bucket, File copyScript,
+				File directoryToMoveBucketTo) {
+			String scriptPath = copyScript.getAbsolutePath();
+			String bucketPath = bucket.getDirectory().getAbsolutePath();
+			String dirPath = directoryToMoveBucketTo.getAbsolutePath();
+			return asList(scriptPath, bucketPath, dirPath);
+		}
+
+		private File getCopyScript() {
+			String copyScriptPath = splunkHome + "/etc/apps/shuttl/bin/copyBucket.sh";
+			File copyScript = new File(copyScriptPath);
+			assertTrue(copyScript.exists());
+			assertTrue(copyScript.canExecute());
+			return copyScript;
+		}
+
+		private void assertThatTheOriginalBucketWasMovedByTheScript(
+				LocalBucket bucket, File directoryToMoveBucketTo) {
+			assertFalse(bucket.getDirectory().exists());
+			File[] filesInNewDir = directoryToMoveBucketTo.listFiles();
+			assertEquals(filesInNewDir.length, 1);
+			File movedBucket = filesInNewDir[0];
+			File aRealBucket = TUtilsBucket.createRealBucket().getDirectory();
+			TUtilsTestNG.assertDirectoriesAreCopies(movedBucket, aRealBucket);
+		}
+
+		private void moveOriginalBucketBackToItsFirstLocation(
+				File directoryToMoveBucketTo, LocalBucket bucket) {
+			directoryToMoveBucketTo.renameTo(bucket.getDirectory());
+		}
+	}
+
+	private void doRunTestWithSplunkHomeSet(String shuttlConfDir,
 			CopiesBucket bucketCopier) {
-		final LocalBucket bucket = TUtilsBucket.createBucket();
+		final LocalBucket bucket = TUtilsBucket.createRealBucket();
 		bucketCopier.copyBucket(bucket);
 		assertTrue(bucket.getDirectory().exists());
 
@@ -119,14 +203,15 @@ public class CopyWithoutDeletionEndToEndTest {
 	private void assertBucketWasCopied(String shuttlConfDir,
 			final LocalBucket bucket) {
 		TUtilsMBean.runWithRegisteredMBeans(new File(shuttlConfDir),
-				new AssertBucketWasCopiedToArchiveFileSystem(bucket));
+				new AssertBucketWasCopiedToArchiveFileSystem_withTeardown(bucket));
 	}
 
-	private static class AssertBucketWasCopiedToArchiveFileSystem implements
-			Runnable {
+	private static class AssertBucketWasCopiedToArchiveFileSystem_withTeardown
+			implements Runnable {
 		private final LocalBucket bucket;
 
-		public AssertBucketWasCopiedToArchiveFileSystem(LocalBucket bucket) {
+		public AssertBucketWasCopiedToArchiveFileSystem_withTeardown(
+				LocalBucket bucket) {
 			this.bucket = bucket;
 		}
 
@@ -134,16 +219,18 @@ public class CopyWithoutDeletionEndToEndTest {
 		public void run() {
 			ArchiveConfiguration config = ArchiveConfiguration
 					.createConfigurationFromMBean();
-			ArchiveFileSystem fileSystem = ArchiveFileSystemFactory
+			HadoopArchiveFileSystem fileSystem = (HadoopArchiveFileSystem) ArchiveFileSystemFactory
 					.getWithConfiguration(config);
 			PathResolver pathResolver = new PathResolver(config);
 
+			String bucketArchivePath = pathResolver.resolveArchivePath(bucket);
 			try {
-				String bucketArchivePath = pathResolver.resolveArchivePath(bucket);
 				assertTrue(fileSystem.exists(bucketArchivePath));
 			} catch (IOException e) {
 				TUtilsTestNG.failForException(
 						"Checking for existing bucket path throwed.", e);
+			} finally {
+				fileSystem.deletePath(bucketArchivePath);
 			}
 		}
 	}

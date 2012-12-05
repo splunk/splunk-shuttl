@@ -21,7 +21,7 @@
 
 	<test name="end-to-end" preserve-order="true" enabled="true">
 		<classes>
-			<class name="com.splunk.shuttl.archiver.usecases.GlacierRoundtripFunctionalTest" />
+			<class name="com.splunk.shuttl.archiver.endtoend.CopyWithoutDeletionEndToEndTest" />
 		</classes>
 	</test> <!-- Test -->
 

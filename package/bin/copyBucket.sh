@@ -5,8 +5,10 @@ set -u
 
 cd $SPLUNK_HOME/etc/apps/shuttl/bin
 
-bucket="$2"
-cold_path_destination="$3"
+bucket="$1"
+cold_path_destination="$2"
+
+mv $bucket $cold_path_destination
 
 source java_executable.env
-exec $JAVA -cp ./*:../lib/* com.splunk.shuttl.archiver.copy.CopiesBuckets "$bucket" "$cold_path_destination"
+exec $JAVA -cp ./*:../lib/* com.splunk.shuttl.archiver.copy.CopiesBuckets "$cold_path_destination"

@@ -18,7 +18,6 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,6 @@ public class ShellExecutor {
 	private Process runCommand(List<String> command, Map<String, String> env) {
 		try {
 			String[] keyValues = getKeyValuesFromEnv(env);
-			System.out.println(Arrays.toString(keyValues));
 			return runtime.exec(command.toArray(new String[] {}), keyValues);
 		} catch (IOException e) {
 			logger.error(did("Executed a command with runtime", e,
@@ -97,6 +95,14 @@ public class ShellExecutor {
 	public List<String> getStdOut() {
 		try {
 			return IOUtils.readLines(process.getInputStream());
+		} catch (IOException e) {
+			return Collections.emptyList();
+		}
+	}
+
+	public List<String> getStdErr() {
+		try {
+			return IOUtils.readLines(process.getErrorStream());
 		} catch (IOException e) {
 			return Collections.emptyList();
 		}

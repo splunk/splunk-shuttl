@@ -14,12 +14,17 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.copy;
 
+import java.util.Arrays;
+
+import org.apache.log4j.Logger;
+
 /**
  * Calls the REST endpoint for copying buckets, after have locked the bucket.
  */
 public class CopiesBuckets {
 
 	public static void main(String[] args) {
-		throw new RuntimeException();
+		Logger.getLogger(CopiesBuckets.class).info(
+				"Main called with args: " + Arrays.toString(args));
 	}
 }
