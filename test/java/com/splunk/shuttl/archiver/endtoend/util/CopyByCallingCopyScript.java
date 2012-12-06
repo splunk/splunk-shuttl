@@ -44,32 +44,32 @@ public class CopyByCallingCopyScript implements CopiesBucket {
 	@Override
 	public void copyBucket(LocalBucket bucket) {
 		File copyScript = getCopyScript();
-		File directoryToMoveBucketTo = createDirectory();
+		File movedBucketDirectory = createDirectoryInParent(createDirectory(),
+				bucket.getName());
+		movedBucketDirectory.delete();
 
-		executeCopyScript(bucket, copyScript, directoryToMoveBucketTo);
-		assertThatTheOriginalBucketWasMovedByTheScript(bucket,
-				directoryToMoveBucketTo);
+		executeCopyScript(bucket, copyScript, movedBucketDirectory);
+		assertThatTheOriginalBucketWasMovedByTheScript(bucket, movedBucketDirectory);
 
-		moveOriginalBucketBackToItsFirstLocation(directoryToMoveBucketTo, bucket);
+		moveOriginalBucketBackToItsFirstLocation(movedBucketDirectory, bucket);
 	}
 
 	private void executeCopyScript(LocalBucket bucket, File copyScript,
-			File directoryToMoveBucketTo) {
+			File movedBucketDirectory) {
 		ShellExecutor shellExecutor = ShellExecutor.getInstance();
 		Map<String, String> env = new HashMap<String, String>();
-		env.put("SPLUNK_HOME", splunkHome);
+		env.put("SPLUNK_HOME", new File(splunkHome).getAbsolutePath());
 		List<String> command = createCommand(bucket, copyScript,
-				directoryToMoveBucketTo);
+				movedBucketDirectory);
 		int exit = shellExecutor.executeCommand(env, command);
-		System.out.println(shellExecutor.getStdErr());
 		assertEquals(exit, 0);
 	}
 
 	private List<String> createCommand(LocalBucket bucket, File copyScript,
-			File directoryToMoveBucketTo) {
+			File movedBucketDirectory) {
 		String scriptPath = copyScript.getAbsolutePath();
 		String bucketPath = bucket.getDirectory().getAbsolutePath();
-		String dirPath = directoryToMoveBucketTo.getAbsolutePath();
+		String dirPath = movedBucketDirectory.getAbsolutePath();
 		return asList(scriptPath, bucketPath, dirPath);
 	}
 
@@ -82,13 +82,10 @@ public class CopyByCallingCopyScript implements CopiesBucket {
 	}
 
 	private void assertThatTheOriginalBucketWasMovedByTheScript(
-			LocalBucket bucket, File directoryToMoveBucketTo) {
+			LocalBucket bucket, File movedBucketDirectory) {
 		assertFalse(bucket.getDirectory().exists());
-		File[] filesInNewDir = directoryToMoveBucketTo.listFiles();
-		assertEquals(filesInNewDir.length, 1);
-		File movedBucket = filesInNewDir[0];
 		File aRealBucket = TUtilsBucket.createRealBucket().getDirectory();
-		TUtilsTestNG.assertDirectoriesAreCopies(movedBucket, aRealBucket);
+		TUtilsTestNG.assertDirectoriesAreCopies(movedBucketDirectory, aRealBucket);
 	}
 
 	private void moveOriginalBucketBackToItsFirstLocation(

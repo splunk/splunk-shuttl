@@ -50,11 +50,11 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.archiver.testutil.TUtilsHttp;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.SplunkSettings;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
+import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsDate;
 import com.splunk.shuttl.testutil.TUtilsFile;
@@ -227,7 +227,7 @@ public class ArchiverEndToEndTest {
 
 	private HttpPost getThawPostRequest(String index, Date earliest, Date latest) {
 		URI thawEndpoint = getArchiverEndpoint(ENDPOINT_BUCKET_THAW);
-		return TUtilsHttp.createHttpPost(thawEndpoint, "index", index, "from",
+		return EndpointUtils.createHttpPost(thawEndpoint, "index", index, "from",
 				(Long) earliest.getTime(), "to", (Long) latest.getTime());
 	}
 

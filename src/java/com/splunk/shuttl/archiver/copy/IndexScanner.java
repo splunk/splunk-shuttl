@@ -14,17 +14,12 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.copy;
 
-import java.util.Arrays;
+import java.io.File;
 
-import org.apache.log4j.Logger;
+public class IndexScanner {
 
-/**
- * Calls the REST endpoint for copying buckets, after have locked the bucket.
- */
-public class CopiesBuckets {
-
-	public static void main(String[] args) {
-		Logger.getLogger(CopiesBuckets.class).info(
-				"Main called with args: " + Arrays.toString(args));
+	public static String getIndexNameByBucketPath(File bucketDir) {
+		throw new UnsupportedOperationException();
 	}
+
 }

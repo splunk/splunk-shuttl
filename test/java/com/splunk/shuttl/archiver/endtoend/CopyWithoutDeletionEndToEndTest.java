@@ -105,7 +105,8 @@ public class CopyWithoutDeletionEndToEndTest {
 
 			String bucketArchivePath = pathResolver.resolveArchivePath(bucket);
 			try {
-				assertTrue(fileSystem.exists(bucketArchivePath));
+				assertTrue(fileSystem.exists(bucketArchivePath),
+						"BucketArchivePath did not exist: " + bucketArchivePath);
 			} catch (IOException e) {
 				TUtilsTestNG.failForException(
 						"Checking for existing bucket path throwed.", e);

@@ -37,7 +37,7 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.archiver.testutil.TUtilsHttp;
+import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -138,7 +138,7 @@ public class ClusterReplicatedBucketArchivingTest {
 				+ ShuttlConstants.ENDPOINT_BUCKET_ARCHIVER);
 		List<BasicNameValuePair> postParams = asList(new BasicNameValuePair(
 				"index", index), new BasicNameValuePair("path", bucketPath));
-		TUtilsHttp.setParamsToPostRequest(httpPost, postParams);
+		EndpointUtils.setParamsToPostRequest(httpPost, postParams);
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpResponse response = httpClient.execute(httpPost);
 

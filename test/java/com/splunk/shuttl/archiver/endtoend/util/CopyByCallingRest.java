@@ -14,11 +14,9 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.endtoend.util;
 
-import static com.splunk.shuttl.ShuttlConstants.*;
 import static org.testng.Assert.*;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -28,7 +26,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import com.splunk.shuttl.archiver.endtoend.CopyWithoutDeletionEndToEndTest;
 import com.splunk.shuttl.archiver.endtoend.CopyWithoutDeletionEndToEndTest.CopiesBucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.archiver.testutil.TUtilsHttp;
+import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 /**
@@ -55,8 +53,8 @@ public class CopyByCallingRest implements CopiesBucket {
 
 	private void copyBucketViaRestCall(String shuttlHost, String shuttlPort,
 			final LocalBucket bucket) throws IOException, ClientProtocolException {
-		HttpPost copyBucketRequest = createCopyBucketPostRequest(shuttlHost,
-				shuttlPort, bucket);
+		HttpPost copyBucketRequest = EndpointUtils.createCopyBucketPostRequest(
+				shuttlHost, Integer.parseInt(shuttlPort), bucket);
 		HttpResponse httpResponse = new DefaultHttpClient()
 				.execute(copyBucketRequest);
 
@@ -65,14 +63,4 @@ public class CopyByCallingRest implements CopiesBucket {
 				"Http endpoint status code not less than 300. Was: " + statusCode);
 	}
 
-	private HttpPost createCopyBucketPostRequest(String shuttlHost,
-			String shuttlPort, LocalBucket bucket) {
-		URI copyBucketEndpoint = URI.create("http://" + shuttlHost + ":"
-				+ shuttlPort + "/" + ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER
-				+ ENDPOINT_BUCKET_COPY);
-		HttpPost postRequest = TUtilsHttp.createHttpPost(copyBucketEndpoint,
-				"path", bucket.getDirectory().getAbsolutePath(), "index",
-				bucket.getIndex());
-		return postRequest;
-	}
 }

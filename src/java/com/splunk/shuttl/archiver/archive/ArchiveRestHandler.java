@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-import javax.management.InstanceNotFoundException;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -44,7 +42,6 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.rest.ListBucketsEndpoint;
-import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
 /**
  * Handling all the calls and returns to and from {@link ListBucketsEndpoint}
@@ -192,20 +189,10 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 
 	public static ArchiveRestHandler create() {
 		Logger logger = Logger.getLogger(ArchiveRestHandler.class);
-		ShuttlServerMBean serverMBean = getServerMBean(logger);
+		ShuttlServerMBean serverMBean = ShuttlServer
+				.getRegisteredServerMBean(logger);
 
 		return new ArchiveRestHandler(new DefaultHttpClient(), logger, serverMBean);
 	}
 
-	private static ShuttlServerMBean getServerMBean(Logger logger) {
-		RegistersMBeans.create().registerMBean(ShuttlServer.OBJECT_NAME,
-				new ShuttlServer());
-		try {
-			return ShuttlServer.getMBeanProxy();
-		} catch (InstanceNotFoundException e) {
-			logger.error(did("Created a ShuttlServerMBean proxy", e,
-					"To get the instance without exception"));
-			throw new RuntimeException(e);
-		}
-	}
 }
