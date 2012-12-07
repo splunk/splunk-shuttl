@@ -17,19 +17,23 @@ package com.splunk.shuttl.archiver.copy;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 
+import com.splunk.Service;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
+import com.splunk.shuttl.server.mbeans.JMXSplunk;
+import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
+import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
 /**
  * Calls the REST endpoint for copying buckets, after have locked the bucket.
@@ -63,10 +67,26 @@ public class CallCopyBucketEndpoint {
 	public static void main(String[] args) throws FileNotFoundException,
 			FileNotDirectoryException {
 		File bucketDir = new File(args[0]);
-		LocalBucket bucket = new LocalBucket(bucketDir,
-				IndexScanner.getIndexNameByBucketPath(bucketDir),
+
+		String indexName = getIndexNameForBucketDir(bucketDir);
+		LocalBucket bucket = new LocalBucket(bucketDir, indexName,
 				BucketFormat.SPLUNK_BUCKET);
 
+		callCopyBucketEndpointWithBucket(bucket);
+	}
+
+	private static String getIndexNameForBucketDir(File bucketDir) {
+		Service splunkService = getSplunkService();
+		return IndexScanner.getIndexNameByBucketPath(bucketDir, splunkService);
+	}
+
+	private static Service getSplunkService() {
+		RegistersMBeans.create().registerMBean(JMXSplunkMBean.OBJECT_NAME,
+				new JMXSplunk());
+		return SplunkSettingsFactory.getLoggedInSplunkService();
+	}
+
+	private static void callCopyBucketEndpointWithBucket(LocalBucket bucket) {
 		ShuttlServerMBean serverMBean = ShuttlServer
 				.getRegisteredServerMBean(logger);
 
@@ -74,9 +94,5 @@ public class CallCopyBucketEndpoint {
 				new DefaultHttpClient(), serverMBean);
 
 		callCopyBucketEndpoint.call(bucket);
-
-		Logger.getLogger(CallCopyBucketEndpoint.class).info(
-				"Main called with args: " + Arrays.toString(args));
 	}
-
 }

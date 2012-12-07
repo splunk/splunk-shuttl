@@ -23,11 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.splunk.Index;
+import com.splunk.Service;
 import com.splunk.shuttl.archiver.endtoend.CopyWithoutDeletionEndToEndTest;
 import com.splunk.shuttl.archiver.endtoend.CopyWithoutDeletionEndToEndTest.CopiesBucket;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 /**
@@ -43,8 +45,13 @@ public class CopyByCallingCopyScript implements CopiesBucket {
 
 	@Override
 	public void copyBucket(LocalBucket bucket) {
+		Service splunkService = SplunkSettingsFactory.getLoggedInSplunkService();
+		Index index = splunkService.getIndexes().get(bucket.getIndex());
+		File indexColdDir = new File(index.getColdPathExpanded());
+		assertTrue(indexColdDir.exists());
+
 		File copyScript = getCopyScript();
-		File movedBucketDirectory = createDirectoryInParent(createDirectory(),
+		File movedBucketDirectory = createDirectoryInParent(indexColdDir,
 				bucket.getName());
 		movedBucketDirectory.delete();
 
@@ -84,8 +91,20 @@ public class CopyByCallingCopyScript implements CopiesBucket {
 	private void assertThatTheOriginalBucketWasMovedByTheScript(
 			LocalBucket bucket, File movedBucketDirectory) {
 		assertFalse(bucket.getDirectory().exists());
-		File aRealBucket = TUtilsBucket.createRealBucket().getDirectory();
-		TUtilsTestNG.assertDirectoriesAreCopies(movedBucketDirectory, aRealBucket);
+		LocalBucket movedBucket = createBucketFromDirectory(bucket,
+				movedBucketDirectory);
+		TUtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket, movedBucket);
+	}
+
+	private LocalBucket createBucketFromDirectory(LocalBucket bucket,
+			File movedBucketDirectory) {
+		try {
+			return new LocalBucket(movedBucketDirectory, bucket.getIndex(),
+					bucket.getFormat());
+		} catch (Exception e) {
+			TUtilsTestNG.failForException("Could not create bucket", e);
+			return null;
+		}
 	}
 
 	private void moveOriginalBucketBackToItsFirstLocation(
