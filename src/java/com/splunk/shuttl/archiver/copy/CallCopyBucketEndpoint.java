@@ -14,9 +14,12 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.copy;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -60,19 +63,27 @@ public class CallCopyBucketEndpoint {
 		try {
 			httpClient.execute(copyBucketRequest);
 		} catch (IOException e) {
+			logger.error(did("Called copy bucket endpoint", e,
+					"to execute without failure", "bucket", bucket));
 			throw new RuntimeException(e);
 		}
 	}
 
 	public static void main(String[] args) throws FileNotFoundException,
 			FileNotDirectoryException {
-		File bucketDir = new File(args[0]);
+		try {
+			File bucketDir = new File(args[0]);
 
-		String indexName = getIndexNameForBucketDir(bucketDir);
-		LocalBucket bucket = new LocalBucket(bucketDir, indexName,
-				BucketFormat.SPLUNK_BUCKET);
+			String indexName = getIndexNameForBucketDir(bucketDir);
+			LocalBucket bucket = new LocalBucket(bucketDir, indexName,
+					BucketFormat.SPLUNK_BUCKET);
 
-		callCopyBucketEndpointWithBucket(bucket);
+			callCopyBucketEndpointWithBucket(bucket);
+		} catch (Throwable t) {
+			logger.error(did("Called main entry point for copying bucket", t,
+					"to eventually call copy bucket REST endpoint", "main_args",
+					Arrays.toString(args)));
+		}
 	}
 
 	private static String getIndexNameForBucketDir(File bucketDir) {
