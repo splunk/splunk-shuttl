@@ -15,11 +15,39 @@
 package com.splunk.shuttl.archiver.copy;
 
 import java.io.File;
+import java.util.Map;
 
 public class IndexScanner {
+
+	private IndexPaths indexPaths;
+
+	public IndexScanner(IndexPaths indexPaths) {
+		this.indexPaths = indexPaths;
+	}
+
+	/**
+	 * @return index of the path to a bucket.
+	 * @throws {@link UnknownIndexPathException} if an index could not be found.
+	 */
+	public String getIndex(File bucketPath) {
+		Map<String, String> paths = indexPaths.getIndexPaths();
+		String bucketsParent = bucketPath.getParent();
+		if (paths.containsKey(bucketsParent))
+			return paths.get(bucketsParent);
+		else
+			throw new UnknownIndexPathException(bucketPath);
+	}
 
 	public static String getIndexNameByBucketPath(File bucketDir) {
 		throw new UnsupportedOperationException();
 	}
 
+	public static class UnknownIndexPathException extends RuntimeException {
+
+		private static final long serialVersionUID = 1L;
+
+		public UnknownIndexPathException(File bucketPath) {
+			super("Unknown index with bucket path: " + bucketPath.getAbsolutePath());
+		}
+	}
 }
