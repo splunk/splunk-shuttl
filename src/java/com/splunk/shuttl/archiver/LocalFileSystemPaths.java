@@ -51,6 +51,8 @@ public class LocalFileSystemPaths {
 
 	final String METADATA_TRANSFERS_NAME = "metadata-transfers-dir";
 
+	final String COPY_RECEIPTS_NAME = "copy-receipts-dir";
+
 	private final String archiverDirectoryPath;
 
 	public LocalFileSystemPaths(File directory) {
@@ -169,6 +171,10 @@ public class LocalFileSystemPaths {
 	public File getMetadataTransfersDirectory(Bucket bucket) {
 		return createBucketUniqueDirUnderArchiverDir(METADATA_TRANSFERS_NAME,
 				bucket);
+	}
+
+	public File getCopyBucketReceiptsDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(COPY_RECEIPTS_NAME, bucket);
 	}
 
 	public static LocalFileSystemPaths create() {

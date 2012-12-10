@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -46,13 +48,15 @@ public class CallCopyBucketEndpoint {
 	private static final Logger logger = Logger
 			.getLogger(CallCopyBucketEndpoint.class);
 
-	private HttpClient httpClient;
-	private ShuttlServerMBean shuttlMBean;
+	private final HttpClient httpClient;
+	private final ShuttlServerMBean shuttlMBean;
+	private final ResponseHandler responseHandler;
 
 	public CallCopyBucketEndpoint(HttpClient httpClient,
-			ShuttlServerMBean shuttlMBean) {
+			ShuttlServerMBean shuttlMBean, ResponseHandler responseHandler) {
 		this.httpClient = httpClient;
 		this.shuttlMBean = shuttlMBean;
+		this.responseHandler = responseHandler;
 	}
 
 	public void call(LocalBucket bucket) {
@@ -61,29 +65,67 @@ public class CallCopyBucketEndpoint {
 		HttpPost copyBucketRequest = EndpointUtils.createCopyBucketPostRequest(
 				host, port, bucket);
 		try {
-			httpClient.execute(copyBucketRequest);
+			HttpResponse response = httpClient.execute(copyBucketRequest);
+			responseHandler.throwIfResponseWasNot2xx(bucket, response);
 		} catch (IOException e) {
 			logger.error(did("Called copy bucket endpoint", e,
 					"to execute without failure", "bucket", bucket));
-			throw new RuntimeException(e);
+			throw new NonSuccessfulBucketCopy(e);
 		}
+	}
+
+	public static class ResponseHandler {
+
+		public void throwIfResponseWasNot2xx(LocalBucket bucket,
+				HttpResponse response) {
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (!isHttpOkStatus(statusCode)) {
+				logger
+						.warn(warn("Http status was not 2xx", "was: " + statusCode,
+								"will throw exception", "bucket", bucket, "http_status",
+								statusCode));
+				throw new NonSuccessfulBucketCopy(response.getStatusLine());
+			}
+		}
+
+		private boolean isHttpOkStatus(int statusCode) {
+			return statusCode >= 200 && statusCode < 300;
+		}
+
+	}
+
+	public static class NonSuccessfulBucketCopy extends RuntimeException {
+
+		public NonSuccessfulBucketCopy(IOException e) {
+			super(e);
+		}
+
+		public NonSuccessfulBucketCopy(StatusLine statusLine) {
+			super("Got non OK http status: " + statusLine.getStatusCode());
+		}
+
+		private static final long serialVersionUID = 1L;
+
 	}
 
 	public static void main(String[] args) throws FileNotFoundException,
 			FileNotDirectoryException {
 		try {
 			File bucketDir = new File(args[0]);
-
-			String indexName = getIndexNameForBucketDir(bucketDir);
-			LocalBucket bucket = new LocalBucket(bucketDir, indexName,
-					BucketFormat.SPLUNK_BUCKET);
-
-			callCopyBucketEndpointWithBucket(bucket);
+			execute(bucketDir);
 		} catch (Throwable t) {
 			logger.error(did("Called main entry point for copying bucket", t,
 					"to eventually call copy bucket REST endpoint", "main_args",
 					Arrays.toString(args)));
 		}
+	}
+
+	private static void execute(File bucketDir) throws FileNotFoundException {
+		String indexName = getIndexNameForBucketDir(bucketDir);
+		LocalBucket bucket = new LocalBucket(bucketDir, indexName,
+				BucketFormat.SPLUNK_BUCKET);
+
+		callCopyBucketEndpointWithBucket(bucket);
 	}
 
 	private static String getIndexNameForBucketDir(File bucketDir) {
@@ -101,9 +143,14 @@ public class CallCopyBucketEndpoint {
 		ShuttlServerMBean serverMBean = ShuttlServer
 				.getRegisteredServerMBean(logger);
 
-		CallCopyBucketEndpoint callCopyBucketEndpoint = new CallCopyBucketEndpoint(
-				new DefaultHttpClient(), serverMBean);
+		CallCopyBucketEndpoint callCopyBucketEndpoint = CallCopyBucketEndpoint
+				.create(serverMBean);
 
 		callCopyBucketEndpoint.call(bucket);
+	}
+
+	private static CallCopyBucketEndpoint create(ShuttlServerMBean serverMBean) {
+		return new CallCopyBucketEndpoint(new DefaultHttpClient(), serverMBean,
+				new ResponseHandler());
 	}
 }

@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.copy;
 
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -23,10 +24,13 @@ import java.net.URI;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.mockito.ArgumentCaptor;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.copy.CallCopyBucketEndpoint.NonSuccessfulBucketCopy;
+import com.splunk.shuttl.archiver.copy.CallCopyBucketEndpoint.ResponseHandler;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -37,16 +41,19 @@ public class CallCopyBucketEndpointTest {
 	private HttpClient httpClient;
 	private ShuttlServer shuttlMBean;
 	private CallCopyBucketEndpoint copyBucketEndpoint;
+	private ResponseHandler noOp;
 
 	@BeforeMethod
 	public void setUp() {
-		httpClient = mock(HttpClient.class);
+		httpClient = mock(HttpClient.class, RETURNS_DEEP_STUBS);
 		shuttlMBean = mock(ShuttlServer.class);
+		noOp = mock(ResponseHandler.class);
 
-		copyBucketEndpoint = new CallCopyBucketEndpoint(httpClient, shuttlMBean);
+		copyBucketEndpoint = new CallCopyBucketEndpoint(httpClient, shuttlMBean,
+				noOp);
 	}
 
-	public void _givenBucket_callsCopyBucketEndpointWithClientAndConfiguration()
+	public void _givenBucket_callsCopyBucketEndpointWithClientAndConfigurationWithSuccess()
 			throws IOException {
 		String host = "host";
 		when(shuttlMBean.getHttpHost()).thenReturn(host);
@@ -60,11 +67,6 @@ public class CallCopyBucketEndpointTest {
 		URI capturedUri = capturedRequest.getURI();
 		assertEquals(host, capturedUri.getHost());
 		assertEquals(capturedUri.getPort(), port);
-		// HttpParams caputredParams = capturedRequest.getParams();
-		// String index = caputredParams.getParameter("index").toString();
-		// assertEquals(index, bucket.getIndex());
-		// String path = caputredParams.getParameter("path").toString();
-		// assertEquals(path, bucket.getDirectory().getAbsolutePath());
 	}
 
 	private HttpPost getHttpClientsExecutedRequest() throws IOException,
@@ -73,5 +75,25 @@ public class CallCopyBucketEndpointTest {
 				.forClass(HttpPost.class);
 		verify(httpClient).execute(requestCaptor.capture());
 		return requestCaptor.getValue();
+	}
+
+	@Test(expectedExceptions = { NonSuccessfulBucketCopy.class })
+	public void _givenCopyRequestNot200Status_throws() throws IOException {
+		copyBucketEndpoint = new CallCopyBucketEndpoint(httpClient, shuttlMBean,
+				new ResponseHandler());
+
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		when(
+				httpClient.execute(any(HttpUriRequest.class)).getStatusLine()
+						.getStatusCode()).thenReturn(500);
+		copyBucketEndpoint.call(bucket);
+	}
+
+	@Test(expectedExceptions = { NonSuccessfulBucketCopy.class })
+	public void _givenCopyRequestThrows_throws() throws IOException {
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		when(httpClient.execute(any(HttpUriRequest.class))).thenThrow(
+				new IOException());
+		copyBucketEndpoint.call(bucket);
 	}
 }

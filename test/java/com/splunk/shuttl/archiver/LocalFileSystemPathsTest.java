@@ -167,4 +167,9 @@ public class LocalFileSystemPathsTest {
 	public void create_withNoArchiverMBeanRegistration_throwsRuntimeException() {
 		LocalFileSystemPaths.create();
 	}
+
+	public void getCopyBucketReceiptsDirectory_bucket_uniquePerBucket() {
+		assertBucketUniquePathInsideArchiverDirectory(localFileSystemPaths
+				.getCopyBucketReceiptsDirectory(bucket));
+	}
 }
