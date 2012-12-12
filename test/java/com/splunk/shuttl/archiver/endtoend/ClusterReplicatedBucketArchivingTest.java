@@ -46,16 +46,36 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 @Test(groups = { "cluster-test" })
 public class ClusterReplicatedBucketArchivingTest {
 
-	private String index;
+	private String index = "shuttl";
+
+	public interface ReplicatedBucketProvider {
+
+		LocalBucket create(String coldPathExpanded, String slave1Guid);
+	}
+
+	public interface ArchivePathAsserter {
+		void assertStateOfArchivePathOnFileSystem(String archivePath,
+				ArchiveFileSystem archiveFileSystem) throws IOException;
+	}
 
 	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.port",
 			"cluster.slave2.host", "cluster.slave2.port",
 			"cluster.slave2.shuttl.port", "splunk.username", "splunk.password",
 			"cluster.slave2.splunk.home" })
-	public void test(String slave1Host, String slave1Port, String slave2Host,
+	public void _givenReplicatedBucket_archivesBucketFromSlave2LookingLikeItCameFromSlave1(
+			String slave1Host, String slave1Port, String slave2Host,
 			String slave2Port, String slave2ShuttlPort, String splunkUser,
 			String splunkPass, final String splunkHome) {
-		index = "shuttl";
+		runClusterArchivingTest(slave1Host, slave1Port, slave2Host, slave2Port,
+				slave2ShuttlPort, splunkUser, splunkPass, splunkHome,
+				new FullReplicatedBucketProvider(index), new AssertsArchivePathExists());
+	}
+
+	private void runClusterArchivingTest(String slave1Host, String slave1Port,
+			String slave2Host, String slave2Port, String slave2ShuttlPort,
+			String splunkUser, String splunkPass, final String splunkHome,
+			ReplicatedBucketProvider replicatedBucketProvider,
+			final ArchivePathAsserter archivePathAsserter) {
 		Service slave1 = getLoggedInService(slave1Host, slave1Port, splunkUser,
 				splunkPass);
 		Service slave2 = getLoggedInService(slave2Host, slave2Port, splunkUser,
@@ -67,8 +87,8 @@ public class ClusterReplicatedBucketArchivingTest {
 
 		String slave1Guid = slave1.getInfo().getGuid();
 
-		final LocalBucket rb = TUtilsBucket.createReplicatedBucket(index, new File(
-				coldPathExpanded), slave1Guid);
+		final LocalBucket rb = replicatedBucketProvider.create(coldPathExpanded,
+				slave1Guid);
 
 		try {
 			callSlave2ArchiveBucketEndpoint(index, rb.getDirectory()
@@ -87,16 +107,46 @@ public class ClusterReplicatedBucketArchivingTest {
 			public void run() {
 				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
 				TUtilsMBean.runWithRegisteredMBeans(slave1ShuttlConfDir,
-						new AssertBucketWasArchived(rb));
+						new AssertBucketWasArchived(rb, archivePathAsserter));
 			}
 		});
 	}
 
-	private static class AssertBucketWasArchived implements Runnable {
-		private LocalBucket replicatedBucket;
+	public static class FullReplicatedBucketProvider implements
+			ReplicatedBucketProvider {
 
-		public AssertBucketWasArchived(LocalBucket rb) {
+		private final String index;
+
+		public FullReplicatedBucketProvider(String index) {
+			this.index = index;
+		}
+
+		@Override
+		public LocalBucket create(String coldPathExpanded, String slave1Guid) {
+			return TUtilsBucket.createReplicatedBucket(index, new File(
+					coldPathExpanded), slave1Guid);
+		}
+	}
+
+	public static class AssertsArchivePathExists implements ArchivePathAsserter {
+
+		@Override
+		public void assertStateOfArchivePathOnFileSystem(String archivePath,
+				ArchiveFileSystem archiveFileSystem) throws IOException {
+			assertTrue(archiveFileSystem.exists(archivePath),
+					"archiveFileSystem.exists(archivePath) was false, with archivePath: "
+							+ archivePath);
+		}
+	}
+
+	private static class AssertBucketWasArchived implements Runnable {
+		private final LocalBucket replicatedBucket;
+		private final ArchivePathAsserter archivePathAsserter;
+
+		public AssertBucketWasArchived(LocalBucket rb,
+				ArchivePathAsserter archivePathAsserter) {
 			this.replicatedBucket = rb;
+			this.archivePathAsserter = archivePathAsserter;
 		}
 
 		@Override
@@ -113,9 +163,8 @@ public class ClusterReplicatedBucketArchivingTest {
 			ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 					.getWithConfiguration(config);
 			try {
-				assertTrue(archiveFileSystem.exists(archivePath),
-						"archiveFileSystem.exists(archivePath) was false, with archivePath: "
-								+ archivePath);
+				archivePathAsserter.assertStateOfArchivePathOnFileSystem(archivePath,
+						archiveFileSystem);
 			} catch (IOException e) {
 				TUtilsTestNG.failForException("Path did not exist: " + archivePath, e);
 			}
