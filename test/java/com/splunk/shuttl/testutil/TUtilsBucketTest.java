@@ -252,7 +252,7 @@ public class TUtilsBucketTest {
 	public void createReplicatedBucket_guid_endsWith_guid() {
 		Bucket b = TUtilsBucket.createReplicatedBucket("foo", createDirectory(),
 				"baz");
-		assertTrue(b.getName().endsWith("_baz"));
+		assertEquals(b.getGuid(), "baz");
 	}
 
 	public void createReplicatedBucket_index_hasThatIndex() {
@@ -272,5 +272,32 @@ public class TUtilsBucketTest {
 		int idx = newName.lastIndexOf(newIndex + "");
 		String removedLastPart = newName.substring(0, idx);
 		assertTrue(bucket.getName().startsWith(removedLastPart));
+	}
+
+	@Test(groups = { "slow-unit" })
+	public void createRealReplicatedBucket_parameters_hasParameterProperties() {
+		File parent = createDirectory();
+		LocalBucket bucket = TUtilsBucket.createRealReplicatedBucket("theIndex",
+				parent, "theGuid");
+		assertEquals("theIndex", bucket.getIndex());
+		assertEquals(parent.getAbsolutePath(), bucket.getDirectory()
+				.getParentFile().getAbsolutePath());
+		assertEquals(bucket.getGuid(), "theGuid");
+	}
+
+	@Test(groups = { "slow-unit" })
+	public void createRealReplicatedBucket__isACopyOfARealBucket() {
+		LocalBucket realBucket = TUtilsBucket.createRealBucket();
+		LocalBucket replicated = TUtilsBucket.createRealReplicatedBucket("foo",
+				createDirectory(), "baz");
+		TUtilsTestNG.assertDirectoriesAreCopies(realBucket.getDirectory(),
+				replicated.getDirectory());
+	}
+
+	@Test(groups = { "slow-unit" })
+	public void createRealReplicatedBucket__isReplicatedBucket() {
+		LocalBucket rb = TUtilsBucket.createRealReplicatedBucket("foo",
+				createDirectory(), "guid");
+		assertTrue(rb.isReplicatedBucket());
 	}
 }

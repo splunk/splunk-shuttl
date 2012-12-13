@@ -16,6 +16,7 @@
 package com.splunk.shuttl.testutil;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -277,6 +278,23 @@ public class TUtilsBucket {
 				BucketFormat.SPLUNK_BUCKET_TGZ);
 	}
 
+	public static LocalBucket createRealReplicatedBucket(String index,
+			File parent, String guid) {
+		LocalBucket realBucket = TUtilsBucket.createRealBucket();
+		String replicatedBucketName = replicatedBucketName(realBucket, guid);
+		File bucketDir = realBucket.getDirectory();
+		File renamedDir = new File(parent, replicatedBucketName);
+		int filesInBucket = bucketDir.listFiles().length;
+		assertTrue(bucketDir.renameTo(renamedDir));
+		assertEquals(filesInBucket, renamedDir.listFiles().length);
+		try {
+			return new LocalBucket(renamedDir, index, realBucket.getFormat());
+		} catch (Exception e) {
+			TUtilsTestNG.failForException("Could not create bucket", e);
+			return null;
+		}
+	}
+
 	/**
 	 * @return bucket that has the bucket name of a bucket created with Splunk
 	 *         clustering bucket replication.
@@ -284,12 +302,16 @@ public class TUtilsBucket {
 	public static LocalBucket createReplicatedBucket(String index, File parent,
 			String guid) {
 		Bucket bucket = createBucket();
-		String replicatedBucketName = bucket.getName().replaceFirst("db", "rb");
-		String finalBucketName = replaceEverythingAfterEarliestTimeWithIndexAndGuid(
-				replicatedBucketName, new Random().nextLong(), guid);
+		String finalBucketName = replicatedBucketName(bucket, guid);
 
 		File dir = createDirectoryInParent(parent, finalBucketName);
 		return createBucketWithIndexInDirectory(index, dir);
+	}
+
+	private static String replicatedBucketName(Bucket bucket, String guid) {
+		String replicatedBucketName = bucket.getName().replaceFirst("db", "rb");
+		return replaceEverythingAfterEarliestTimeWithIndexAndGuid(
+				replicatedBucketName, Math.abs(new Random().nextLong()), guid);
 	}
 
 	public static String replaceEverythingAfterEarliestTimeWithIndexAndGuid(

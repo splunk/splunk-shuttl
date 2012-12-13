@@ -32,13 +32,16 @@ import org.testng.annotations.Test;
 import com.splunk.Service;
 import com.splunk.shuttl.ShuttlConstants;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
+import com.splunk.shuttl.archiver.endtoend.util.RawdataClusterArchivingTestHelpers.AssertsArchivePathDoesNotExist;
+import com.splunk.shuttl.archiver.endtoend.util.RawdataClusterArchivingTestHelpers.RawdataOnlyReplicatedBucketProvider;
+import com.splunk.shuttl.archiver.endtoend.util.ReplicatedClusterArchivingTestHelpers.AssertsArchivePathExists;
+import com.splunk.shuttl.archiver.endtoend.util.ReplicatedClusterArchivingTestHelpers.FullReplicatedBucketProvider;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
-import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
@@ -49,7 +52,6 @@ public class ClusterReplicatedBucketArchivingTest {
 	private String index = "shuttl";
 
 	public interface ReplicatedBucketProvider {
-
 		LocalBucket create(String coldPathExpanded, String slave1Guid);
 	}
 
@@ -69,6 +71,22 @@ public class ClusterReplicatedBucketArchivingTest {
 		runClusterArchivingTest(slave1Host, slave1Port, slave2Host, slave2Port,
 				slave2ShuttlPort, splunkUser, splunkPass, splunkHome,
 				new FullReplicatedBucketProvider(index), new AssertsArchivePathExists());
+	}
+
+	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.port",
+			"cluster.slave2.host", "cluster.slave2.port",
+			"cluster.slave2.shuttl.port", "splunk.username", "splunk.password",
+			"cluster.slave2.splunk.home" })
+	@Test(enabled = false)
+	public void _givenBucketWithOnlyRawdata_ignoresBucketAndDoesNotArchiveBucket(
+			String slave1Host, String slave1Port, String slave2Host,
+			String slave2Port, String slave2ShuttlPort, String splunkUser,
+			String splunkPass, final String splunkHome) {
+		runClusterArchivingTest(slave1Host, slave1Port, slave2Host, slave2Port,
+				slave2ShuttlPort, splunkUser, splunkPass, splunkHome,
+				new RawdataOnlyReplicatedBucketProvider(
+						new FullReplicatedBucketProvider(index)),
+				new AssertsArchivePathDoesNotExist());
 	}
 
 	private void runClusterArchivingTest(String slave1Host, String slave1Port,
@@ -110,33 +128,6 @@ public class ClusterReplicatedBucketArchivingTest {
 						new AssertBucketWasArchived(rb, archivePathAsserter));
 			}
 		});
-	}
-
-	public static class FullReplicatedBucketProvider implements
-			ReplicatedBucketProvider {
-
-		private final String index;
-
-		public FullReplicatedBucketProvider(String index) {
-			this.index = index;
-		}
-
-		@Override
-		public LocalBucket create(String coldPathExpanded, String slave1Guid) {
-			return TUtilsBucket.createReplicatedBucket(index, new File(
-					coldPathExpanded), slave1Guid);
-		}
-	}
-
-	public static class AssertsArchivePathExists implements ArchivePathAsserter {
-
-		@Override
-		public void assertStateOfArchivePathOnFileSystem(String archivePath,
-				ArchiveFileSystem archiveFileSystem) throws IOException {
-			assertTrue(archiveFileSystem.exists(archivePath),
-					"archiveFileSystem.exists(archivePath) was false, with archivePath: "
-							+ archivePath);
-		}
 	}
 
 	private static class AssertBucketWasArchived implements Runnable {
