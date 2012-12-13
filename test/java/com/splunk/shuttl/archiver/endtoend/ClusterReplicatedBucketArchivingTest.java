@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
@@ -77,7 +78,6 @@ public class ClusterReplicatedBucketArchivingTest {
 			"cluster.slave2.host", "cluster.slave2.port",
 			"cluster.slave2.shuttl.port", "splunk.username", "splunk.password",
 			"cluster.slave2.splunk.home" })
-	@Test(enabled = false)
 	public void _givenBucketWithOnlyRawdata_ignoresBucketAndDoesNotArchiveBucket(
 			String slave1Host, String slave1Port, String slave2Host,
 			String slave2Port, String slave2ShuttlPort, String splunkUser,
@@ -111,23 +111,25 @@ public class ClusterReplicatedBucketArchivingTest {
 		try {
 			callSlave2ArchiveBucketEndpoint(index, rb.getDirectory()
 					.getAbsolutePath(), slave2Host, slave2ShuttlPort);
+
+			String slave1SplunkHome = slave1.getSettings().getSplunkHome();
+			final File slave1ShuttlConfDir = new File(slave1SplunkHome
+					+ "/etc/apps/shuttl/conf");
+			TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
+
+				@Override
+				public void run() {
+					TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+					TUtilsMBean.runWithRegisteredMBeans(slave1ShuttlConfDir,
+							new AssertBucketWasArchived(rb, archivePathAsserter));
+				}
+			});
 		} catch (IOException e1) {
 			TUtilsTestNG.failForException(
 					"failed when calling archive bucket endpoint", e1);
+		} finally {
+			FileUtils.deleteQuietly(rb.getDirectory());
 		}
-
-		String slave1SplunkHome = slave1.getSettings().getSplunkHome();
-		final File slave1ShuttlConfDir = new File(slave1SplunkHome
-				+ "/etc/apps/shuttl/conf");
-		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
-
-			@Override
-			public void run() {
-				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
-				TUtilsMBean.runWithRegisteredMBeans(slave1ShuttlConfDir,
-						new AssertBucketWasArchived(rb, archivePathAsserter));
-			}
-		});
 	}
 
 	private static class AssertBucketWasArchived implements Runnable {

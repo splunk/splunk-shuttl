@@ -52,7 +52,7 @@ public class RawdataClusterArchivingTestHelpers {
 			assertFalse(filesExceptRawdataAndDotFiles.length == 0);
 			System.out.println(Arrays.toString(filesExceptRawdataAndDotFiles));
 			for (File f : filesExceptRawdataAndDotFiles)
-				assertTrue(f.delete());
+				assertTrue(f.delete(), "Could not delete: " + f.getAbsolutePath());
 			System.out.println(Arrays.toString(fullReplicatedBucket.getDirectory()
 					.listFiles()));
 		}
@@ -65,7 +65,7 @@ public class RawdataClusterArchivingTestHelpers {
 						@Override
 						public boolean accept(File f) {
 							if (isRawdataOrDotFile(f.getName()))
-								return true;
+								return false;
 							else
 								return true;
 						}
