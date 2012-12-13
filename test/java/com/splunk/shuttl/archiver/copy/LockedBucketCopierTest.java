@@ -21,25 +21,30 @@ import org.mockito.InOrder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
-public class CopyBucketEntryPointTest {
+public class LockedBucketCopierTest {
 
-	private CopyBucketEntryPoint copyBucketEntryPoint;
+	private LockedBucketCopier copyBucketEntryPoint;
 	private CallCopyBucketEndpoint endpoint;
 	private CopyBucketReceipts receipts;
+	private BucketLocker bucketLocker;
 
 	@BeforeMethod
 	public void setUp() {
+		bucketLocker = mock(BucketLocker.class, RETURNS_DEEP_STUBS);
 		endpoint = mock(CallCopyBucketEndpoint.class);
 		receipts = mock(CopyBucketReceipts.class);
-		copyBucketEntryPoint = new CopyBucketEntryPoint(endpoint, receipts);
+		copyBucketEntryPoint = new LockedBucketCopier(bucketLocker, endpoint,
+				receipts);
 	}
 
-	public void copyBucket_givenBucket_createsReceiptAfterSuccessfulBucketCopy() {
+	public void copyBucket_givenBucketLock_createsReceiptAfterSuccessfulBucketCopy() {
 		LocalBucket bucket = TUtilsBucket.createBucket();
+		stubGettingBucketLock(bucket);
 		copyBucketEntryPoint.copyBucket(bucket);
 
 		InOrder inOrder = inOrder(endpoint, receipts);
@@ -47,15 +52,26 @@ public class CopyBucketEntryPointTest {
 		inOrder.verify(receipts).createReceipt(bucket);
 	}
 
+	private void stubGettingBucketLock(LocalBucket bucket) {
+		when(bucketLocker.getLockForBucket(bucket).isLocked()).thenReturn(true);
+	}
+
 	public void copyBucket_endpointCallThrows_doesNotCreateReceipt() {
 		LocalBucket bucket = mock(LocalBucket.class);
 		doThrow(RuntimeException.class).when(endpoint).call(bucket);
-
+		stubGettingBucketLock(bucket);
 		try {
 			copyBucketEntryPoint.copyBucket(bucket);
 			fail();
 		} catch (RuntimeException e) {
 		}
 		verify(receipts, never()).createReceipt(bucket);
+	}
+
+	public void copyBucket_notGivenBucketLock_doesNothingWithDependencies() {
+		LocalBucket bucket = mock(LocalBucket.class);
+		when(bucketLocker.getLockForBucket(bucket).isLocked()).thenReturn(false);
+		copyBucketEntryPoint.copyBucket(bucket);
+		verifyZeroInteractions(endpoint, receipts);
 	}
 }

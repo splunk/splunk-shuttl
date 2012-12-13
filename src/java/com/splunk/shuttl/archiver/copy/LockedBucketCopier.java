@@ -14,26 +14,39 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.copy;
 
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Controls what happens when copying a bucket.
  */
-public class CopyBucketEntryPoint {
+public class LockedBucketCopier {
 
 	private final CallCopyBucketEndpoint endpoint;
 	private final CopyBucketReceipts receipts;
+	private BucketLocker bucketLocker;
 
-	public CopyBucketEntryPoint(CallCopyBucketEndpoint endpoint,
-			CopyBucketReceipts receipts) {
+	public LockedBucketCopier(BucketLocker bucketLocker,
+			CallCopyBucketEndpoint endpoint, CopyBucketReceipts receipts) {
+		this.bucketLocker = bucketLocker;
 		this.endpoint = endpoint;
 		this.receipts = receipts;
 	}
 
 	/**
-	 * @param bucket
+	 * Locks and copies a bucket. Then copies all the buckets that has not
+	 * successfully been copied.
 	 */
 	public void copyBucket(LocalBucket bucket) {
+		if (acquiredLockForBucket(bucket))
+			doCopyBucket(bucket);
+	}
+
+	private boolean acquiredLockForBucket(LocalBucket bucket) {
+		return bucketLocker.getLockForBucket(bucket).isLocked();
+	}
+
+	private void doCopyBucket(LocalBucket bucket) {
 		endpoint.call(bucket);
 		receipts.createReceipt(bucket);
 	}

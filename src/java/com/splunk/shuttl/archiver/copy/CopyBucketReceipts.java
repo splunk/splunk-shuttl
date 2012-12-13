@@ -21,7 +21,7 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.util.UtilsFile;
 
 /**
- *
+ * Managing receipts for bucket that has been copied.
  */
 public class CopyBucketReceipts {
 
@@ -41,6 +41,13 @@ public class CopyBucketReceipts {
 		File receipt = new File(receiptsDirectory, "copy-receipt.file");
 		UtilsFile.touch(receipt);
 		return receipt;
+	}
+
+	/**
+	 * @return true if receipt has been created for bucket.
+	 */
+	public boolean hasReceipt(LocalBucket b) {
+		throw new UnsupportedOperationException();
 	}
 
 }
