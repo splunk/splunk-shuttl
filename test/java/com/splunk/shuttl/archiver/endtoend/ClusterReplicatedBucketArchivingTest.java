@@ -111,6 +111,7 @@ public class ClusterReplicatedBucketArchivingTest {
 		try {
 			callSlave2ArchiveBucketEndpoint(index, rb.getDirectory()
 					.getAbsolutePath(), slave2Host, slave2ShuttlPort);
+			assertFalse(rb.getDirectory().exists());
 
 			String slave1SplunkHome = slave1.getSettings().getSplunkHome();
 			final File slave1ShuttlConfDir = new File(slave1SplunkHome

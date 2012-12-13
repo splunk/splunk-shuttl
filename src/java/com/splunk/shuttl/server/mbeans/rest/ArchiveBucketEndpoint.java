@@ -20,6 +20,7 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -27,6 +28,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
@@ -52,8 +54,11 @@ public class ArchiveBucketEndpoint {
 			ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 
 			if (isPathReplicatedBucketWithRawdataOnly(path)) {
-				deletePath(path);
-				logReason(path, index);
+				try {
+					deletePath(path, index);
+				} catch (IOException e) {
+					logDeleteException(path, index, e);
+				}
 			} else {
 				ShuttlBucketEndpointHelper.shuttlBucket(path, index,
 						new BucketArchiverProvider(),
@@ -65,17 +70,6 @@ public class ArchiveBucketEndpoint {
 					"path", path, "index", index));
 			throw new RuntimeException(t);
 		}
-	}
-
-	private void logReason(String path, String index) {
-		logger.warn(warn(
-				"Tried shuttling a replicted bucket that only contained rawdata",
-				"Will not Shuttl this bucket, because Shuttl does not support rawdata only"
-						+ " buckets.",
-				"Deleted bucket. But don't worry, searchable copies and the "
-						+ "original bucket will still be Shuttled, by the other indexers. "
-						+ "You have Shuttl installed at all indexers, don't you?",
-				"bucket_path", path, "index", index));
 	}
 
 	private boolean isPathReplicatedBucketWithRawdataOnly(String path)
@@ -106,8 +100,29 @@ public class ArchiveBucketEndpoint {
 		});
 	}
 
-	private void deletePath(String path) {
-		new File(path).delete();
+	private void deletePath(String path, String index) throws IOException {
+		logReason(path, index);
+		FileUtils.deleteDirectory(new File(path));
+	}
+
+	private void logReason(String path, String index) {
+		logger.warn(warn(
+				"Tried shuttling a replicted bucket that only contained rawdata",
+				"Will not Shuttl this bucket, because Shuttl does not support rawdata only"
+						+ " buckets.",
+				"Will delete bucket. But don't worry, searchable copies and the "
+						+ "original bucket will still be Shuttled, by the other indexers. "
+						+ "You have Shuttl installed at all indexers, don't you?",
+				"bucket_path", path, "index", index));
+	}
+
+	private void logDeleteException(String path, String index, IOException e) {
+		logger
+				.error(did(
+						"Tried deleting bucket path",
+						e,
+						"To delete it. It will be deleted next retry, unless an Exception is thrown",
+						"bucket_path", path, "index", index));
 	}
 
 	private static class BucketArchiverProvider implements ShuttlProvider {
