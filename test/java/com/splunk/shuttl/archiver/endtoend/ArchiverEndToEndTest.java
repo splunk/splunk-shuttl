@@ -105,7 +105,7 @@ public class ArchiverEndToEndTest {
 
 	public static class ArchiveWithArchivingScript implements ArchivesBucket {
 
-		private static final String SCRIPT_NAME = "archiveBucket.sh";
+		private static final String SCRIPT_NAME = "coldToFrozenScript.sh";
 		private final String splunkHome;
 		private final File script;
 
