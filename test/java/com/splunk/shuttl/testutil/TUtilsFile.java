@@ -37,11 +37,11 @@ import org.testng.AssertJUnit;
  */
 public class TUtilsFile {
 
-	public static File createFileIn(File parent, String child) {
+	private static File createFileIn(File parent, String child) {
 		return createFileIn(parent.getAbsolutePath(), child);
 	}
 
-	public static File createFileIn(String parent, String child) {
+	private static File createFileIn(String parent, String child) {
 		return new File(parent, child);
 	}
 

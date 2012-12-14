@@ -53,8 +53,9 @@ public class ColdBucketInteratorTest {
 		String coldPath = stubSplunkIndexColdPath(index);
 		Iterable<LocalBucket> buckets = asList(mock(LocalBucket.class));
 
-		when(bucketIteratorFactory.iteratorInDirectory(eq(new File(coldPath))))
-				.thenReturn(buckets);
+		when(
+				bucketIteratorFactory.iteratorInDirectory(eq(new File(coldPath)),
+						eq(index))).thenReturn(buckets);
 		Iterable<LocalBucket> actualBuckets = coldBucketInterator
 				.coldBucketsAtIndex(index);
 

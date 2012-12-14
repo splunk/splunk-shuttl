@@ -42,7 +42,8 @@ public class ColdBucketInterator {
 	public Iterable<LocalBucket> coldBucketsAtIndex(String indexName) {
 		Index splunkIndex = getSplunkIndexByName(indexName);
 		String coldPath = splunkIndex.getColdPathExpanded();
-		return bucketIteratorFactory.iteratorInDirectory(new File(coldPath));
+		return bucketIteratorFactory.iteratorInDirectory(new File(coldPath),
+				indexName);
 	}
 
 	private Index getSplunkIndexByName(String indexName) {
