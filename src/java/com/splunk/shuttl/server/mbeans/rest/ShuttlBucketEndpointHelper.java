@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans.rest;
 
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.BucketModifier;
 import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ConfigProvider;
@@ -23,10 +24,11 @@ public class ShuttlBucketEndpointHelper {
 
 	public static void shuttlBucket(String path, String index,
 			ShuttlProvider shuttlProvider, ConfigProvider configProvider,
-			BucketModifier bucketModifier) {
+			BucketModifier bucketModifier, BucketLocker bucketLocker) {
 		BucketFactory bucketFactory = new BucketFactory();
 		ShuttlBucketEndpoint shuttlBucketEndpoint = new ShuttlBucketEndpoint(
-				shuttlProvider, configProvider, bucketModifier, bucketFactory);
+				shuttlProvider, configProvider, bucketModifier, bucketFactory,
+				bucketLocker);
 
 		shuttlBucketEndpoint.shuttlBucket(path, index);
 	}

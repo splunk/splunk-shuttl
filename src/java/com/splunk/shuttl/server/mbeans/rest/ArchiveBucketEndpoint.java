@@ -35,6 +35,7 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.BucketShuttler;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
+import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -63,7 +64,8 @@ public class ArchiveBucketEndpoint {
 				ShuttlBucketEndpointHelper.shuttlBucket(path, index,
 						new BucketArchiverProvider(),
 						ConfigProviderForBothNormalAndReplicatedBuckets.create(config),
-						new RenamesReplicatedBucketAsNormalBucket());
+						new RenamesReplicatedBucketAsNormalBucket(),
+						new ArchiveBucketLocker());
 			}
 		} catch (Throwable t) {
 			logger.error(did("Tried archiving bucket", t, "to archive the bucket",

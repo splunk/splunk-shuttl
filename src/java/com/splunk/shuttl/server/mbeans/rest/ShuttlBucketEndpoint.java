@@ -24,8 +24,8 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.BucketShuttler;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerRunner;
-import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
@@ -50,14 +50,16 @@ public class ShuttlBucketEndpoint {
 	private ConfigProvider configProvider;
 	private BucketModifier bucketModifier;
 	private BucketFactory bucketFactory;
+	private BucketLocker bucketLocker;
 
 	public ShuttlBucketEndpoint(ShuttlProvider shuttlProvider,
 			ConfigProvider configProvider, BucketModifier bucketModifier,
-			BucketFactory bucketFactory) {
+			BucketFactory bucketFactory, BucketLocker bucketLocker) {
 		this.shuttlProvider = shuttlProvider;
 		this.configProvider = configProvider;
 		this.bucketModifier = bucketModifier;
 		this.bucketFactory = bucketFactory;
+		this.bucketLocker = bucketLocker;
 	}
 
 	public void shuttlBucket(String path, String index) {
@@ -109,7 +111,7 @@ public class ShuttlBucketEndpoint {
 	}
 
 	private BucketLock createBucketLock(LocalBucket bucket) {
-		BucketLock bucketLock = new ArchiveBucketLock(bucket);
+		BucketLock bucketLock = bucketLocker.getLockForBucket(bucket);
 		if (!bucketLock.tryLockShared())
 			throw new IllegalStateException("We must ensure that the"
 					+ " bucket archiver has a " + "lock to the bucket it will transfer");
