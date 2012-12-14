@@ -38,7 +38,6 @@ public class BucketThawer {
 
 	private final ListsBucketsFiltered listsBucketsFiltered;
 	private final GetsBucketsFromArchive getsBucketsFromArchive;
-	private final ThawLocationProvider thawLocationProvider;
 	private final List<LocalBucket> successfulThawedBuckets;
 	private final List<Bucket> skippedBuckets;
 	private final List<FailedBucket> failedBuckets;
@@ -70,11 +69,10 @@ public class BucketThawer {
 	 */
 	public BucketThawer(ListsBucketsFiltered listsBucketsFiltered,
 			GetsBucketsFromArchive getsBucketsFromArchive,
-			ThawLocationProvider thawLocationProvider, BucketLocker thawBucketLocker) {
+			LocalBucketStorage localBuckets, BucketLocker thawBucketLocker) {
 		this.listsBucketsFiltered = listsBucketsFiltered;
 		this.getsBucketsFromArchive = getsBucketsFromArchive;
-		this.localBuckets = new LocalBucketStorage(thawLocationProvider);
-		this.thawLocationProvider = thawLocationProvider;
+		this.localBuckets = localBuckets;
 		this.thawBucketLocker = thawBucketLocker;
 
 		this.successfulThawedBuckets = new ArrayList<LocalBucket>();

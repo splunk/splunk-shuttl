@@ -47,17 +47,17 @@ public class BucketThawerTest {
 	private Date earliestTime;
 	private Date latestTime;
 	private Bucket bucket;
-	private ThawLocationProvider thawLocationProvider;
+	private LocalBucketStorage localBuckets;
 	private BucketLocker thawBucketLocker;
 
 	@BeforeMethod
 	public void setUp() {
 		listsBucketsFiltered = mock(ListsBucketsFiltered.class);
 		getsBucketsFromArchive = mock(GetsBucketsFromArchive.class);
-		thawLocationProvider = mock(ThawLocationProvider.class);
+		localBuckets = mock(LocalBucketStorage.class);
 		thawBucketLocker = new BucketLockerInTestDir(createDirectory());
 		bucketThawer = new BucketThawer(listsBucketsFiltered,
-				getsBucketsFromArchive, thawLocationProvider, thawBucketLocker);
+				getsBucketsFromArchive, localBuckets, thawBucketLocker);
 
 		index = "foo";
 		earliestTime = new Date();
@@ -89,11 +89,10 @@ public class BucketThawerTest {
 				archivedBucketWithinTimeRange2);
 	}
 
-	public void thawBuckets_bucketAlreadyThawedToThawLocation_doesNotThawBucketAgain()
+	public void thawBuckets_bucketAlreadyExistsInLocalStorage_doesNotThawBucketAgain()
 			throws IOException {
 		LocalBucket thawedBucket = TUtilsBucket.createBucket();
-		when(thawLocationProvider.getLocationInThawForBucket(thawedBucket))
-				.thenReturn(thawedBucket.getDirectory());
+		when(localBuckets.hasBucket(thawedBucket)).thenReturn(true);
 		when(
 				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
 						latestTime)).thenReturn(asList((Bucket) thawedBucket));
@@ -105,8 +104,7 @@ public class BucketThawerTest {
 
 	public void thawBuckets_thawLocationProviderThrowsException_failBucketAndDoNotTransfer()
 			throws IOException {
-		doThrow(new IOException()).when(thawLocationProvider)
-				.getLocationInThawForBucket(bucket);
+		when(localBuckets.hasBucket(bucket)).thenThrow(new RuntimeException());
 		when(
 				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
 						latestTime)).thenReturn(asList(bucket));

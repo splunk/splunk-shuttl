@@ -71,7 +71,8 @@ public class BucketThawerFactory {
 				thawBucketTransferer, BucketImportController.create(),
 				bucketSizeResolver);
 		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive,
-				thawLocationProvider, new ThawBucketLocker(localFileSystemPaths));
+				new LocalBucketStorage(thawLocationProvider), new ThawBucketLocker(
+						localFileSystemPaths));
 	}
 
 	private static ThawBucketTransferer getThawBucketTransferer(
