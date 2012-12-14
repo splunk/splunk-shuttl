@@ -16,8 +16,6 @@ package com.splunk.shuttl.archiver.usecases;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static java.util.Arrays.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import java.util.HashMap;
@@ -42,6 +40,7 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
+import com.splunk.shuttl.archiver.usecases.util.FakeSplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
@@ -106,8 +105,7 @@ public class GlacierRoundtripFunctionalTest {
 				.createWithConfFileSystemAndLocalPaths(config, glacierArchive,
 						localFileSystemPaths);
 
-		SplunkIndexesLayer splunkIndexesLayer = mock(SplunkIndexesLayer.class);
-		when(splunkIndexesLayer.getThawLocation(anyString())).thenReturn(
+		SplunkIndexesLayer splunkIndexesLayer = new FakeSplunkIndexesLayer(
 				createDirectory());
 
 		bucketThawer = BucketThawerFactory.create(config, splunkIndexesLayer,

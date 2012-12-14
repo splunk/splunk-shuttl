@@ -17,7 +17,6 @@ package com.splunk.shuttl.archiver.usecases;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static com.splunk.shuttl.testutil.TUtilsFunctional.*;
 import static java.util.Arrays.*;
-import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
@@ -42,6 +41,7 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
+import com.splunk.shuttl.archiver.usecases.util.FakeSplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "functional" })
@@ -96,9 +96,7 @@ public class TgzRoundtripFunctionalTest {
 		File thawDir = createDirectory();
 
 		Bucket bucket = getTgzBucketArchived();
-		SplunkIndexesLayer splunkIndexesLayer = mock(SplunkIndexesLayer.class);
-		when(splunkIndexesLayer.getThawLocation(bucket.getIndex())).thenReturn(
-				thawDir);
+		SplunkIndexesLayer splunkIndexesLayer = new FakeSplunkIndexesLayer(thawDir);
 
 		BucketThawer bucketThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(tgzConf,

@@ -15,8 +15,6 @@
 package com.splunk.shuttl.archiver.usecases;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -43,6 +41,7 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
+import com.splunk.shuttl.archiver.usecases.util.FakeSplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
@@ -64,10 +63,9 @@ public class BucketSizeFunctionalTest {
 				archiverData.getAbsolutePath());
 		bucketArchiver = BucketShuttlerFactory.createWithConfAndLocalPaths(config,
 				localFileSystemPaths);
-		SplunkIndexesLayer SplunkIndexesLayer = mock(SplunkIndexesLayer.class);
-		thawLocation = createDirectory();
-		when(SplunkIndexesLayer.getThawLocation(anyString())).thenReturn(
+		SplunkIndexesLayer SplunkIndexesLayer = new FakeSplunkIndexesLayer(
 				thawLocation);
+		thawLocation = createDirectory();
 
 		bucketThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
