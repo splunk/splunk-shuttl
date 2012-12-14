@@ -1196,10 +1196,10 @@
 		<fail unless="manual.test.archiver.conf.name" message="Property manual.test.archiver.conf.name must be set before calling manual-test-setup to know which config to configure shuttl with." />
 		<antcall>
 			<target name="splunk-unpack-if-not-extracted" />
+			<target name="splunk-set-splunkd-port-and-password" />
 			<target name="install-shuttl-splunk-app" />
 			<target name="manual-test-configure-shuttl-archiver-conf" />
 			<target name="manual-test-create-fast-rolling-index" />
-			<target name="splunk-set-splunkd-port" />
 			<target name="enable-shuttl-splunk-app" />
 		</antcall>
 	</target>
