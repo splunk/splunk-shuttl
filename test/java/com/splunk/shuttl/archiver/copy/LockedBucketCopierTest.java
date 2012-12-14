@@ -58,11 +58,7 @@ public class LockedBucketCopierTest {
 
 	public void copyBucket_endpointCallThrows_doesNotCreateReceipt() {
 		doThrow(RuntimeException.class).when(endpoint).call(bucket);
-		try {
-			copyBucketEntryPoint.copyBucket(bucket);
-			fail();
-		} catch (RuntimeException e) {
-		}
+		copyBucketEntryPoint.copyBucket(bucket);
 		verify(receipts, never()).createReceipt(bucket);
 	}
 
