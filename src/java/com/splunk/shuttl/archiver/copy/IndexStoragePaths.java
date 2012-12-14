@@ -1,4 +1,3 @@
-// Copyright (C) 2011 Splunk Inc.
 //
 // Splunk Inc. licenses this file
 // to you under the Apache License, Version 2.0 (the
@@ -14,8 +13,11 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.copy;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.splunk.EntityCollection;
@@ -38,14 +40,19 @@ public class IndexStoragePaths {
 	 * @return a mapping between hot/warm db and cold db paths to index name.
 	 */
 	public Map<String, String> getIndexPaths() {
+		return mapIndexesPathsWithIndexName(getIndexesChecked());
+	}
+
+	private Map<String, Index> getIndexesChecked() {
 		EntityCollection<Index> indexes = service.getIndexes();
-		if (indexes != null && !indexes.isEmpty())
-			return mapIndexesPathsWithIndexName(indexes);
-		return Collections.emptyMap();
+		if (indexes == null || indexes.isEmpty()) {
+			return Collections.emptyMap();
+		} else
+			return indexes;
 	}
 
 	private Map<String, String> mapIndexesPathsWithIndexName(
-			EntityCollection<Index> indexes) {
+			Map<String, Index> indexes) {
 		HashMap<String, String> paths = new HashMap<String, String>();
 		for (String key : indexes.keySet())
 			mapHomeAndColdPathToIndexName(paths, indexes.get(key));
@@ -62,5 +69,30 @@ public class IndexStoragePaths {
 			String path) {
 		if (path != null)
 			paths.put(path, index.getName());
+	}
+
+	/**
+	 * @return list of paths to where buckets are stored. Namely db, colddb and
+	 *         thaweddb.
+	 */
+	public List<File> getDbPathsForIndex(String indexName) {
+		Map<String, Index> indexes = getIndexesChecked();
+		if (indexes.containsKey(indexName))
+			return listWithDbPaths(indexes.get(indexName));
+		else
+			return Collections.emptyList();
+	}
+
+	private List<File> listWithDbPaths(Index index) {
+		List<File> paths = new ArrayList<File>();
+		addPathIfNotNull(paths, index.getHomePathExpanded());
+		addPathIfNotNull(paths, index.getColdPathExpanded());
+		addPathIfNotNull(paths, index.getThawedPathExpanded());
+		return paths;
+	}
+
+	private void addPathIfNotNull(List<File> paths, String path) {
+		if (path != null)
+			paths.add(new File(path));
 	}
 }

@@ -21,6 +21,7 @@ import static org.testng.Assert.*;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
@@ -32,6 +33,7 @@ import com.splunk.Index;
 import com.splunk.Service;
 
 @Test(groups = { "fast-unit" })
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class IndexStoragePathsTest {
 
 	private IndexStoragePaths indexPaths;
@@ -60,19 +62,21 @@ public class IndexStoragePathsTest {
 		assertGetIndexPathsReturnsEmptyMap();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void getIndexPaths_indexesCollectionIsEmpty_emptyMap() {
-		EntityCollection indexes = mock(EntityCollection.class);
-		when(service.getIndexes()).thenReturn(indexes);
+		EntityCollection indexes = getMockedIndexesCollection();
 		when(indexes.isEmpty()).thenReturn(true);
 		assertGetIndexPathsReturnsEmptyMap();
 		verify(indexes).isEmpty();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void getIndexPaths_indexWithColdPath_mapWithColdPathToIndexName() {
+	private EntityCollection getMockedIndexesCollection() {
 		EntityCollection indexes = mock(EntityCollection.class);
 		when(service.getIndexes()).thenReturn(indexes);
+		return indexes;
+	}
+
+	public void getIndexPaths_indexWithColdPath_mapWithColdPathToIndexName() {
+		EntityCollection indexes = getMockedIndexesCollection();
 		Index index = mock(Index.class);
 		String indexName = setupIndexInIndexes(indexes, index);
 		File coldDbPath = createFilePath();
@@ -81,10 +85,10 @@ public class IndexStoragePathsTest {
 		assertPathIsMappedToIndexName(coldDbPath, indexName);
 	}
 
-	@SuppressWarnings("rawtypes")
 	private String setupIndexInIndexes(EntityCollection indexes, Index index) {
 		String indexName = "index";
 		when(indexes.keySet()).thenReturn(Sets.newHashSet(indexName));
+		when(indexes.containsKey(indexName)).thenReturn(true);
 		when(indexes.get(indexName)).thenReturn(index);
 		when(index.getName()).thenReturn(indexName);
 		return indexName;
@@ -97,15 +101,53 @@ public class IndexStoragePathsTest {
 		assertEquals(paths, expected);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void getIndexPaths_indexWithHomePath_mapWithHomePathToIndexName() {
-		EntityCollection indexes = mock(EntityCollection.class);
-		when(service.getIndexes()).thenReturn(indexes);
+		EntityCollection indexes = getMockedIndexesCollection();
 		Index index = mock(Index.class);
 		String indexName = setupIndexInIndexes(indexes, index);
 		File homeDbPath = createFilePath();
 		when(index.getHomePathExpanded()).thenReturn(homeDbPath.getAbsolutePath());
 
 		assertPathIsMappedToIndexName(homeDbPath, indexName);
+	}
+
+	public void getDbPathsForIndex_doesNotContainIndex_emptyList() {
+		EntityCollection indexes = getMockedIndexesCollection();
+		when(indexes.isEmpty()).thenReturn(true);
+		List<File> paths = indexPaths.getDbPathsForIndex("some-index");
+		assertEquals(paths, Collections.emptyList());
+	}
+
+	public void getDbPathsForIndex_indexWithHomePath_listContainingHomePath() {
+		Index index = mock(Index.class);
+		File homePath = createFilePath();
+		when(index.getHomePathExpanded()).thenReturn(homePath.getAbsolutePath());
+
+		assert_getDbPathsForIndex_containsDbPath(index, homePath);
+	}
+
+	private void assert_getDbPathsForIndex_containsDbPath(Index index, File dbPath) {
+		EntityCollection indexes = getMockedIndexesCollection();
+		String indexName = setupIndexInIndexes(indexes, index);
+
+		List<File> paths = indexPaths.getDbPathsForIndex(indexName);
+		assertEquals(paths.size(), 1);
+		assertEquals(paths.get(0).getAbsolutePath(), dbPath.getAbsolutePath());
+	}
+
+	public void getDbPathsForIndex_indexWithColdPath_listContainingColdPath() {
+		Index index = mock(Index.class);
+		File coldPath = createFilePath();
+		when(index.getColdPathExpanded()).thenReturn(coldPath.getAbsolutePath());
+
+		assert_getDbPathsForIndex_containsDbPath(index, coldPath);
+	}
+
+	public void getDbPathsForIndex_indexWithThawPath_listContainingThawPath() {
+		Index index = mock(Index.class);
+		File thawPath = createFilePath();
+		when(index.getThawedPathExpanded()).thenReturn(thawPath.getAbsolutePath());
+
+		assert_getDbPathsForIndex_containsDbPath(index, thawPath);
 	}
 }
