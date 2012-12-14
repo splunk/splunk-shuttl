@@ -16,8 +16,6 @@ package com.splunk.shuttl.archiver.thaw;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +44,8 @@ public class BucketThawer {
 	private final List<FailedBucket> failedBuckets;
 	private final BucketLocker thawBucketLocker;
 
+	private LocalBucketStorage localBuckets;
+
 	public static class FailedBucket {
 
 		public final Bucket bucket;
@@ -73,6 +73,7 @@ public class BucketThawer {
 			ThawLocationProvider thawLocationProvider, BucketLocker thawBucketLocker) {
 		this.listsBucketsFiltered = listsBucketsFiltered;
 		this.getsBucketsFromArchive = getsBucketsFromArchive;
+		this.localBuckets = new LocalBucketStorage(thawLocationProvider);
 		this.thawLocationProvider = thawLocationProvider;
 		this.thawBucketLocker = thawBucketLocker;
 
@@ -96,14 +97,14 @@ public class BucketThawer {
 				latestTime);
 		for (Bucket bucket : bucketsToThaw)
 			try {
-				if (!isBucketAlreadyThawed(bucket)) {
+				if (!localBuckets.hasBucket(bucket)) {
 					thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
 							new ThawBucketFromArchive());
 				} else {
 					skippedBuckets.add(bucket);
 				}
-			} catch (IOException e) {
-				logIOExceptionFromCheckingIfBucketWasThawed(bucket, e);
+			} catch (Exception e) {
+				logExceptionFromCheckingIfBucketWasThawed(bucket, e);
 				failedBuckets.add(new FailedBucket(bucket, e));
 			}
 	}
@@ -118,13 +119,8 @@ public class BucketThawer {
 		}
 	}
 
-	private boolean isBucketAlreadyThawed(Bucket bucket) throws IOException {
-		File thawLocation = thawLocationProvider.getLocationInThawForBucket(bucket);
-		return thawLocation != null && thawLocation.exists();
-	}
-
-	private void logIOExceptionFromCheckingIfBucketWasThawed(Bucket bucket,
-			IOException e) {
+	private void logExceptionFromCheckingIfBucketWasThawed(Bucket bucket,
+			Exception e) {
 		logger.error(did("Tried thawing bucket", e, "To thaw bucket unless it "
 				+ "was already thawed.", "bucket", bucket, "exception", e));
 	}
