@@ -15,8 +15,8 @@
 package com.splunk.shuttl.archiver.thaw;
 
 import java.io.File;
-import java.io.IOException;
 
+import com.splunk.shuttl.archiver.copy.IndexStoragePaths;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -24,27 +24,20 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class LocalBucketStorage {
 
-	private final ThawLocationProvider thawLocationProvider;
+	private final IndexStoragePaths indexStoragePaths;
 
-	/**
-	 * @param thawLocationProvider
-	 */
-	public LocalBucketStorage(ThawLocationProvider thawLocationProvider) {
-		this.thawLocationProvider = thawLocationProvider;
+	public LocalBucketStorage(IndexStoragePaths indexStoragePaths) {
+		this.indexStoragePaths = indexStoragePaths;
 	}
 
 	/**
-	 * @param bucket
-	 * @return
+	 * @return true if bucket exists locally within the buckets index
 	 */
 	public boolean hasBucket(Bucket bucket) {
-		try {
-			File thawLocation = thawLocationProvider
-					.getLocationInThawForBucket(bucket);
-			return thawLocation != null && thawLocation.exists();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		for (File dbPath : indexStoragePaths.getDbPathsForIndex(bucket.getIndex()))
+			if (new File(dbPath, bucket.getName()).exists())
+				return true;
+		return false;
 	}
 
 }

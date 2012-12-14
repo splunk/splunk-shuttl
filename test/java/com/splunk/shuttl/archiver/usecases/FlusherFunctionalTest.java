@@ -39,7 +39,7 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsDate;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
@@ -47,7 +47,7 @@ import com.splunk.shuttl.testutil.TUtilsFunctional;
 @Test(groups = { "functional" })
 public class FlusherFunctionalTest {
 
-	private SplunkSettings splunkSettings;
+	private SplunkIndexesLayer splunkIndexesLayer;
 	private LocalFileSystemPaths localFileSystemPaths;
 	private ArchiveConfiguration config;
 	private String index;
@@ -62,9 +62,9 @@ public class FlusherFunctionalTest {
 		tmp = createDirectory();
 		localFileSystemPaths = new LocalFileSystemPaths(tmp.getAbsolutePath());
 
-		splunkSettings = mock(SplunkSettings.class);
+		splunkIndexesLayer = mock(SplunkIndexesLayer.class);
 		thawDir = createDirectory();
-		when(splunkSettings.getThawLocation(index)).thenReturn(thawDir);
+		when(splunkIndexesLayer.getThawLocation(index)).thenReturn(thawDir);
 	}
 
 	@AfterMethod
@@ -88,7 +88,7 @@ public class FlusherFunctionalTest {
 
 		assertArchivingAndThawingWasSuccessful(b1, b2);
 
-		Flusher flusher = new Flusher(splunkSettings,
+		Flusher flusher = new Flusher(splunkIndexesLayer,
 				ArchivedIndexesListerFactory.create(config));
 		flusher.flush(index, later, later);
 
@@ -102,7 +102,7 @@ public class FlusherFunctionalTest {
 	private void thawBuckets(Date early, Date later) {
 		BucketThawer bucketThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
-						splunkSettings, localFileSystemPaths);
+						splunkIndexesLayer, localFileSystemPaths);
 
 		bucketThawer.thawBuckets(index, early, later);
 	}

@@ -41,7 +41,7 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "functional" })
@@ -96,12 +96,13 @@ public class TgzRoundtripFunctionalTest {
 		File thawDir = createDirectory();
 
 		Bucket bucket = getTgzBucketArchived();
-		SplunkSettings splunkSettings = mock(SplunkSettings.class);
-		when(splunkSettings.getThawLocation(bucket.getIndex())).thenReturn(thawDir);
+		SplunkIndexesLayer splunkIndexesLayer = mock(SplunkIndexesLayer.class);
+		when(splunkIndexesLayer.getThawLocation(bucket.getIndex())).thenReturn(
+				thawDir);
 
 		BucketThawer bucketThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(tgzConf,
-						splunkSettings, localFileSystemPaths);
+						splunkIndexesLayer, localFileSystemPaths);
 
 		bucketThawer.thawBuckets(bucket.getIndex(), bucket.getEarliest(),
 				bucket.getLatest());

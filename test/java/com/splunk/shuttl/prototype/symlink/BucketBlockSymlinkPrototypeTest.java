@@ -39,7 +39,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.testutil.SplunkServiceParameters;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFile;
@@ -166,10 +166,10 @@ public class BucketBlockSymlinkPrototypeTest {
 	private File getShuttlThawLocation(String splunkUsername,
 			String splunkPassword, String splunkHost, String splunkPort)
 			throws IllegalIndexException {
-		SplunkSettings splunkSettings = new SplunkSettings(
+		SplunkIndexesLayer splunkIndexesLayer = new SplunkIndexesLayer(
 				new SplunkServiceParameters(splunkUsername, splunkPassword, splunkHost,
 						splunkPort).getLoggedInService());
-		return splunkSettings.getThawLocation("shuttl");
+		return splunkIndexesLayer.getThawLocation("shuttl");
 	}
 
 }

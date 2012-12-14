@@ -27,9 +27,9 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.testutil.TUtilsMockito;
 
 @Test(groups = { "fast-unit" })
-public class SplunkSettingsTest {
+public class SplunkIndexesLayerTest {
 
-	SplunkSettings splunkSettings;
+	SplunkIndexesLayer splunkSettings;
 	Service splunkService;
 	private String indexName;
 	private String thawLocationPath;
@@ -40,7 +40,7 @@ public class SplunkSettingsTest {
 		thawLocationPath = "/path/to/thaw";
 		splunkService = TUtilsMockito.createSplunkServiceReturningThawPathForIndex(
 				indexName, thawLocationPath);
-		splunkSettings = new SplunkSettings(splunkService);
+		splunkSettings = new SplunkIndexesLayer(splunkService);
 	}
 
 	@Test(groups = { "fast-unit" })

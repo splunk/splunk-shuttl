@@ -16,6 +16,7 @@ package com.splunk.shuttl.archiver.thaw;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
+import com.splunk.shuttl.archiver.copy.IndexStoragePaths;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.PathResolver;
@@ -35,29 +36,31 @@ public class BucketThawerFactory {
 	 * Default {@link BucketThawer} as configured with .conf files.
 	 */
 	public static BucketThawer createDefaultThawer() {
-		SplunkSettings splunkSettings = SplunkSettingsFactory.create();
+		SplunkIndexesLayer splunkIndexesLayer = SplunkSettingsFactory.create();
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 		return createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
-				splunkSettings, LocalFileSystemPaths.create());
+				splunkIndexesLayer, LocalFileSystemPaths.create());
 	}
 
 	/**
 	 * Factory method for testability.
 	 */
 	public static BucketThawer createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(
-			ArchiveConfiguration configuration, SplunkSettings splunkSettings,
+			ArchiveConfiguration configuration,
+			SplunkIndexesLayer splunkIndexesLayer,
 			LocalFileSystemPaths localFileSystemPaths) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(configuration);
-		return create(configuration, splunkSettings, localFileSystemPaths,
+		return create(configuration, splunkIndexesLayer, localFileSystemPaths,
 				archiveFileSystem);
 	}
 
 	public static BucketThawer create(ArchiveConfiguration configuration,
-			SplunkSettings splunkSettings, LocalFileSystemPaths localFileSystemPaths,
+			SplunkIndexesLayer splunkIndexesLayer,
+			LocalFileSystemPaths localFileSystemPaths,
 			ArchiveFileSystem archiveFileSystem) {
 		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
-				splunkSettings, localFileSystemPaths);
+				splunkIndexesLayer, localFileSystemPaths);
 
 		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
 				archiveFileSystem, thawLocationProvider);
@@ -71,8 +74,8 @@ public class BucketThawerFactory {
 				thawBucketTransferer, BucketImportController.create(),
 				bucketSizeResolver);
 		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive,
-				new LocalBucketStorage(thawLocationProvider), new ThawBucketLocker(
-						localFileSystemPaths));
+				new LocalBucketStorage(new IndexStoragePaths(splunkIndexesLayer)),
+				new ThawBucketLocker(localFileSystemPaths));
 	}
 
 	private static ThawBucketTransferer getThawBucketTransferer(

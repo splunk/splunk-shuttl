@@ -194,7 +194,7 @@ public class TUtilsBucket {
 	/**
 	 * Creates test bucket with specified name and random index.
 	 */
-	public static Bucket createBucketWithName(String name) {
+	public static LocalBucket createBucketWithName(String name) {
 		return createBucketWithIndexAndName(randomIndexName(), name);
 	}
 

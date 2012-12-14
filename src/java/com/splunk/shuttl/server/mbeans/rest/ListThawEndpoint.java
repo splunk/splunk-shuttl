@@ -32,7 +32,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_THAW_LIST)
@@ -62,11 +62,11 @@ public class ListThawEndpoint {
 
 	private List<Bucket> filteredBucketsInThaw(List<String> indexes,
 			Date earliest, Date latest) throws IllegalIndexException {
-		SplunkSettings splunkSettings = SplunkSettingsFactory.create();
+		SplunkIndexesLayer splunkIndexesLayer = SplunkSettingsFactory.create();
 		List<Bucket> filteredBuckets = new java.util.ArrayList<Bucket>();
 		for (String index : indexes) {
 			List<LocalBucket> buckets = ThawedBuckets.getBucketsFromThawLocation(
-					index, splunkSettings.getThawLocation(index));
+					index, splunkIndexesLayer.getThawLocation(index));
 			filteredBuckets.addAll(BucketFilter.filterBuckets(buckets, earliest,
 					latest));
 		}

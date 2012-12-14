@@ -39,7 +39,7 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
@@ -59,9 +59,10 @@ public class ImportCsvFunctionalTest {
 	public void setUp() throws IllegalIndexException {
 		localCsvArchiveConfigration = TUtilsFunctional
 				.getLocalCsvArchiveConfigration();
-		SplunkSettings splunkSettings = mock(SplunkSettings.class);
+		SplunkIndexesLayer splunkIndexesLayer = mock(SplunkIndexesLayer.class);
 		thawDirectory = createDirectory();
-		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawDirectory);
+		when(splunkIndexesLayer.getThawLocation(anyString())).thenReturn(
+				thawDirectory);
 
 		archiverData = createDirectory();
 		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
@@ -69,7 +70,8 @@ public class ImportCsvFunctionalTest {
 
 		csvThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(
-						localCsvArchiveConfigration, splunkSettings, localFileSystemPaths);
+						localCsvArchiveConfigration, splunkIndexesLayer,
+						localFileSystemPaths);
 
 		realBucket = TUtilsBucket.createRealBucket();
 		csvArchiver = BucketShuttlerFactory.createWithConfAndLocalPaths(

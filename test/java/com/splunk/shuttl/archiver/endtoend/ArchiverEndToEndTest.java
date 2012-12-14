@@ -55,7 +55,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
@@ -141,7 +141,7 @@ public class ArchiverEndToEndTest {
 
 	File tempDirectory;
 	BucketThawer bucketThawer;
-	SplunkSettings splunkSettings;
+	SplunkIndexesLayer splunkIndexesLayer;
 	String thawIndex;
 	File thawDirectoryLocation;
 	Path tmpPath;
@@ -223,10 +223,10 @@ public class ArchiverEndToEndTest {
 		Service service = new Service(splunkHost, Integer.parseInt(splunkPort));
 		service.login(splunkUserName, splunkPw);
 		assertTrue(service.getIndexes().containsKey(thawIndex));
-		splunkSettings = new SplunkSettings(service);
+		splunkIndexesLayer = new SplunkIndexesLayer(service);
 
 		try {
-			thawDirectoryLocation = splunkSettings.getThawLocation(thawIndex);
+			thawDirectoryLocation = splunkIndexesLayer.getThawLocation(thawIndex);
 			thawDirectoryLocation.mkdirs();
 		} catch (IllegalIndexException e) {
 			TUtilsTestNG.failForException("IllegalIndexException in test", e);

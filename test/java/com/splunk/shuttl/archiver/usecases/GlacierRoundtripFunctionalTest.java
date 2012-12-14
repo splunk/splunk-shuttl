@@ -20,7 +20,6 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -42,7 +41,7 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
@@ -107,11 +106,11 @@ public class GlacierRoundtripFunctionalTest {
 				.createWithConfFileSystemAndLocalPaths(config, glacierArchive,
 						localFileSystemPaths);
 
-		SplunkSettings splunkSettings = mock(SplunkSettings.class);
-		File thawLocation = createDirectory();
-		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawLocation);
+		SplunkIndexesLayer splunkIndexesLayer = mock(SplunkIndexesLayer.class);
+		when(splunkIndexesLayer.getThawLocation(anyString())).thenReturn(
+				createDirectory());
 
-		bucketThawer = BucketThawerFactory.create(config, splunkSettings,
+		bucketThawer = BucketThawerFactory.create(config, splunkIndexesLayer,
 				localFileSystemPaths, glacierArchive);
 	}
 

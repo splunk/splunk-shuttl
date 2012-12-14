@@ -37,7 +37,7 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsDate;
 import com.splunk.shuttl.testutil.TUtilsFile;
@@ -66,12 +66,13 @@ public class ThawFunctionalTest {
 						localFileSystemPaths);
 		thawDirectory = TUtilsFile.createDirectory();
 
-		SplunkSettings splunkSettings = mock(SplunkSettings.class);
-		when(splunkSettings.getThawLocation(thawIndex)).thenReturn(thawDirectory);
+		SplunkIndexesLayer splunkIndexesLayer = mock(SplunkIndexesLayer.class);
+		when(splunkIndexesLayer.getThawLocation(thawIndex)).thenReturn(
+				thawDirectory);
 
 		bucketThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
-						splunkSettings, localFileSystemPaths);
+						splunkIndexesLayer, localFileSystemPaths);
 	}
 
 	@AfterMethod

@@ -19,11 +19,11 @@ import com.splunk.Service;
 public class SplunkSettingsFactory {
 
 	/**
-	 * @return configured {@link SplunkSettings}
+	 * @return configured {@link SplunkIndexesLayer}
 	 */
-	public static SplunkSettings create() {
+	public static SplunkIndexesLayer create() {
 		Service splunkService = getLoggedInSplunkService();
-		return new SplunkSettings(splunkService);
+		return new SplunkIndexesLayer(splunkService);
 	}
 
 	public static Service getLoggedInSplunkService() {

@@ -17,6 +17,8 @@ package com.splunk.shuttl.archiver.thaw;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -27,16 +29,28 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 /**
  * Gets settings from the configured Splunk.
  */
-public class SplunkSettings {
+public class SplunkIndexesLayer {
 
 	private final Service splunkService;
-	private static final Logger logger = Logger.getLogger(SplunkSettings.class);
+	private static final Logger logger = Logger
+			.getLogger(SplunkIndexesLayer.class);
 
 	/**
 	 * @param splunkService
 	 */
-	public SplunkSettings(Service splunkService) {
+	public SplunkIndexesLayer(Service splunkService) {
 		this.splunkService = splunkService;
+	}
+
+	/**
+	 * @return index name mapped to a Splunk index.
+	 */
+	public Map<String, Index> getIndexes() {
+		Map<String, Index> indexes = splunkService.getIndexes();
+		if (indexes == null || indexes.isEmpty()) {
+			return Collections.emptyMap();
+		} else
+			return indexes;
 	}
 
 	/**
@@ -45,7 +59,7 @@ public class SplunkSettings {
 	 *           if index does not exist in splunk
 	 */
 	public File getThawLocation(String index) throws IllegalIndexException {
-		Index splunkIndex = splunkService.getIndexes().get(index);
+		Index splunkIndex = getIndexes().get(index);
 		if (splunkIndex == null)
 			throwAndLogNonExistingSplunkIndex(index);
 

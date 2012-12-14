@@ -27,22 +27,19 @@ import java.util.Map;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.Sets;
-import com.splunk.EntityCollection;
 import com.splunk.Index;
-import com.splunk.Service;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 
 @Test(groups = { "fast-unit" })
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class IndexStoragePathsTest {
 
 	private IndexStoragePaths indexPaths;
-	private Service service;
+	private SplunkIndexesLayer indexesLayer;
 
 	@BeforeMethod
 	public void setUp() {
-		service = mock(Service.class);
-		indexPaths = new IndexStoragePaths(service);
+		indexesLayer = mock(SplunkIndexesLayer.class);
+		indexPaths = new IndexStoragePaths(indexesLayer);
 	}
 
 	private void assertGetIndexPathsReturnsEmptyMap() {
@@ -57,26 +54,20 @@ public class IndexStoragePathsTest {
 		assertEquals(paths, expected);
 	}
 
-	public void getIndexPaths_serviceGetIndexesIsNull_emptyMap() {
-		when(service.getIndexes()).thenReturn(null);
-		assertGetIndexPathsReturnsEmptyMap();
-	}
-
 	public void getIndexPaths_indexesCollectionIsEmpty_emptyMap() {
-		EntityCollection indexes = getMockedIndexesCollection();
-		when(indexes.isEmpty()).thenReturn(true);
+		Map<String, Index> indexes = stubIndexesMap();
+		assertTrue(indexes.isEmpty());
 		assertGetIndexPathsReturnsEmptyMap();
-		verify(indexes).isEmpty();
 	}
 
-	private EntityCollection getMockedIndexesCollection() {
-		EntityCollection indexes = mock(EntityCollection.class);
-		when(service.getIndexes()).thenReturn(indexes);
+	private Map<String, Index> stubIndexesMap() {
+		Map<String, Index> indexes = new HashMap<String, Index>();
+		when(indexesLayer.getIndexes()).thenReturn(indexes);
 		return indexes;
 	}
 
 	public void getIndexPaths_indexWithColdPath_mapWithColdPathToIndexName() {
-		EntityCollection indexes = getMockedIndexesCollection();
+		Map<String, Index> indexes = stubIndexesMap();
 		Index index = mock(Index.class);
 		String indexName = setupIndexInIndexes(indexes, index);
 		File coldDbPath = createFilePath();
@@ -85,24 +76,22 @@ public class IndexStoragePathsTest {
 		assertPathIsMappedToIndexName(coldDbPath, indexName);
 	}
 
-	private String setupIndexInIndexes(EntityCollection indexes, Index index) {
+	private String setupIndexInIndexes(Map<String, Index> indexes, Index index) {
 		String indexName = "index";
-		when(indexes.keySet()).thenReturn(Sets.newHashSet(indexName));
-		when(indexes.containsKey(indexName)).thenReturn(true);
-		when(indexes.get(indexName)).thenReturn(index);
 		when(index.getName()).thenReturn(indexName);
+		indexes.put(indexName, index);
 		return indexName;
 	}
 
-	private void assertPathIsMappedToIndexName(File coldDbPath, String indexName) {
+	private void assertPathIsMappedToIndexName(File dbPath, String indexName) {
 		Map<String, String> paths = indexPaths.getIndexPaths();
 		Map<String, String> expected = new HashMap<String, String>();
-		expected.put(coldDbPath.getAbsolutePath(), indexName);
+		expected.put(dbPath.getAbsolutePath(), indexName);
 		assertEquals(paths, expected);
 	}
 
 	public void getIndexPaths_indexWithHomePath_mapWithHomePathToIndexName() {
-		EntityCollection indexes = getMockedIndexesCollection();
+		Map<String, Index> indexes = stubIndexesMap();
 		Index index = mock(Index.class);
 		String indexName = setupIndexInIndexes(indexes, index);
 		File homeDbPath = createFilePath();
@@ -112,8 +101,7 @@ public class IndexStoragePathsTest {
 	}
 
 	public void getDbPathsForIndex_doesNotContainIndex_emptyList() {
-		EntityCollection indexes = getMockedIndexesCollection();
-		when(indexes.isEmpty()).thenReturn(true);
+		stubIndexesMap();
 		List<File> paths = indexPaths.getDbPathsForIndex("some-index");
 		assertEquals(paths, Collections.emptyList());
 	}
@@ -127,7 +115,7 @@ public class IndexStoragePathsTest {
 	}
 
 	private void assert_getDbPathsForIndex_containsDbPath(Index index, File dbPath) {
-		EntityCollection indexes = getMockedIndexesCollection();
+		Map<String, Index> indexes = stubIndexesMap();
 		String indexName = setupIndexInIndexes(indexes, index);
 
 		List<File> paths = indexPaths.getDbPathsForIndex(indexName);

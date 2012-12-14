@@ -18,6 +18,7 @@ import java.io.File;
 import java.util.Map;
 
 import com.splunk.Service;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 
 public class IndexScanner {
 
@@ -42,7 +43,8 @@ public class IndexScanner {
 
 	public static String getIndexNameByBucketPath(File bucketDir,
 			Service splunkService) {
-		return new IndexScanner(new IndexStoragePaths(splunkService)).getIndex(bucketDir);
+		return new IndexScanner(new IndexStoragePaths(new SplunkIndexesLayer(
+				splunkService))).getIndex(bucketDir);
 	}
 
 	public static class UnknownIndexPathException extends RuntimeException {

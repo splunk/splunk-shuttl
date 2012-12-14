@@ -29,18 +29,18 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class ThawLocationProvider {
 
-	private final SplunkSettings splunkSettings;
+	private final SplunkIndexesLayer splunkIndexesLayer;
 	private final LocalFileSystemPaths localFileSystemPaths;
 
 	/**
-	 * @param splunkSettings
+	 * @param splunkIndexesLayer
 	 *          for looking up the thaw directory.
 	 * @param localFileSystemPaths
 	 *          thaw buckets live while they are transfered.
 	 */
-	public ThawLocationProvider(SplunkSettings splunkSettings,
+	public ThawLocationProvider(SplunkIndexesLayer splunkIndexesLayer,
 			LocalFileSystemPaths localFileSystemPaths) {
-		this.splunkSettings = splunkSettings;
+		this.splunkIndexesLayer = splunkIndexesLayer;
 		this.localFileSystemPaths = localFileSystemPaths;
 	}
 
@@ -51,7 +51,7 @@ public class ThawLocationProvider {
 	 *           if that location can not be found.
 	 */
 	public File getLocationInThawForBucket(Bucket bucket) throws IOException {
-		File thawLocation = splunkSettings.getThawLocation(bucket.getIndex());
+		File thawLocation = splunkIndexesLayer.getThawLocation(bucket.getIndex());
 		return new File(thawLocation, bucket.getName());
 	}
 

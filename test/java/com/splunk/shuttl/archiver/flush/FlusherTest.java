@@ -29,7 +29,7 @@ import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsDate;
 
@@ -39,18 +39,18 @@ public class FlusherTest {
 	private Flusher flusher;
 	private String index;
 	private File thawDir;
-	private SplunkSettings splunkSettings;
+	private SplunkIndexesLayer splunkIndexesLayer;
 	private ArchivedIndexesLister indexesLister;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
-		splunkSettings = mock(SplunkSettings.class);
+		splunkIndexesLayer = mock(SplunkIndexesLayer.class);
 		indexesLister = mock(ArchivedIndexesLister.class);
 		thawDir = createDirectory();
 		index = "index";
-		when(splunkSettings.getThawLocation(index)).thenReturn(thawDir);
+		when(splunkIndexesLayer.getThawLocation(index)).thenReturn(thawDir);
 		when(indexesLister.listIndexes()).thenReturn(asList(index));
-		flusher = new Flusher(splunkSettings, indexesLister);
+		flusher = new Flusher(splunkIndexesLayer, indexesLister);
 	}
 
 	public void _emptyThawDirectory_flushesNothing() throws IllegalIndexException {
@@ -63,7 +63,7 @@ public class FlusherTest {
 			throws IllegalIndexException {
 		File dir = createDirectory();
 		assertTrue(dir.delete());
-		when(splunkSettings.getThawLocation(index)).thenReturn(dir);
+		when(splunkIndexesLayer.getThawLocation(index)).thenReturn(dir);
 		flusher.flush(index, new Date(), new Date());
 		assertTrue(flusher.getFlushedBuckets().isEmpty());
 	}
@@ -95,8 +95,7 @@ public class FlusherTest {
 		LocalBucket b1 = TUtilsBucket.createBucketInDirectoryWithIndex(thawDir,
 				index);
 		LocalBucket b2 = TUtilsBucket.createBucketInDirectoryWithTimesAndIndex(
-				thawDir,
-				b1.getEarliest(), b1.getLatest(), index);
+				thawDir, b1.getEarliest(), b1.getLatest(), index);
 		flusher.flush(index, b1.getEarliest(), b1.getLatest());
 		assertFalse(b1.getDirectory().exists());
 		assertFalse(b2.getDirectory().exists());

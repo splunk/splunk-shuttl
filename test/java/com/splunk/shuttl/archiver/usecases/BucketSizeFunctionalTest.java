@@ -42,7 +42,7 @@ import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
@@ -64,13 +64,14 @@ public class BucketSizeFunctionalTest {
 				archiverData.getAbsolutePath());
 		bucketArchiver = BucketShuttlerFactory.createWithConfAndLocalPaths(config,
 				localFileSystemPaths);
-		SplunkSettings splunkSettings = mock(SplunkSettings.class);
+		SplunkIndexesLayer SplunkIndexesLayer = mock(SplunkIndexesLayer.class);
 		thawLocation = createDirectory();
-		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawLocation);
+		when(SplunkIndexesLayer.getThawLocation(anyString())).thenReturn(
+				thawLocation);
 
 		bucketThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
-						splunkSettings, localFileSystemPaths);
+						SplunkIndexesLayer, localFileSystemPaths);
 
 		PathResolver pathResolver = new PathResolver(config);
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory

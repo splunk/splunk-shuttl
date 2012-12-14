@@ -20,9 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.splunk.EntityCollection;
 import com.splunk.Index;
-import com.splunk.Service;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 
 /**
  * Paths where indexes store buckets. Cold path and home path (hot, warm, cold
@@ -30,42 +29,34 @@ import com.splunk.Service;
  */
 public class IndexStoragePaths {
 
-	private final Service service;
+	private final SplunkIndexesLayer splunkIndexesLayer;
 
-	public IndexStoragePaths(Service service) {
-		this.service = service;
+	public IndexStoragePaths(SplunkIndexesLayer splunkIndexesLayer) {
+		this.splunkIndexesLayer = splunkIndexesLayer;
 	}
 
 	/**
 	 * @return a mapping between hot/warm db and cold db paths to index name.
 	 */
 	public Map<String, String> getIndexPaths() {
-		return mapIndexesPathsWithIndexName(getIndexesChecked());
-	}
-
-	private Map<String, Index> getIndexesChecked() {
-		EntityCollection<Index> indexes = service.getIndexes();
-		if (indexes == null || indexes.isEmpty()) {
-			return Collections.emptyMap();
-		} else
-			return indexes;
+		return mapIndexesPathsWithIndexName(splunkIndexesLayer.getIndexes());
 	}
 
 	private Map<String, String> mapIndexesPathsWithIndexName(
 			Map<String, Index> indexes) {
-		HashMap<String, String> paths = new HashMap<String, String>();
+		Map<String, String> paths = new HashMap<String, String>();
 		for (String key : indexes.keySet())
 			mapHomeAndColdPathToIndexName(paths, indexes.get(key));
 		return paths;
 	}
 
-	private void mapHomeAndColdPathToIndexName(HashMap<String, String> paths,
+	private void mapHomeAndColdPathToIndexName(Map<String, String> paths,
 			Index index) {
 		mapPathToIndex(paths, index, index.getColdPathExpanded());
 		mapPathToIndex(paths, index, index.getHomePathExpanded());
 	}
 
-	private void mapPathToIndex(HashMap<String, String> paths, Index index,
+	private void mapPathToIndex(Map<String, String> paths, Index index,
 			String path) {
 		if (path != null)
 			paths.put(path, index.getName());
@@ -76,7 +67,7 @@ public class IndexStoragePaths {
 	 *         thaweddb.
 	 */
 	public List<File> getDbPathsForIndex(String indexName) {
-		Map<String, Index> indexes = getIndexesChecked();
+		Map<String, Index> indexes = splunkIndexesLayer.getIndexes();
 		if (indexes.containsKey(indexName))
 			return listWithDbPaths(indexes.get(indexName));
 		else

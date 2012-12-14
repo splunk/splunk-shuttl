@@ -26,7 +26,7 @@ import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
 
 /**
@@ -34,17 +34,17 @@ import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
  */
 public class Flusher {
 
-	private final SplunkSettings splunkSettings;
+	private final SplunkIndexesLayer splunkIndexesLayer;
 	private ArrayList<Bucket> flushedBuckets;
 	private ArchivedIndexesLister indexesLister;
 
 	/**
-	 * @param splunkSettings
+	 * @param splunkIndexesLayer
 	 * @param indexesLister
 	 */
-	public Flusher(SplunkSettings splunkSettings,
+	public Flusher(SplunkIndexesLayer splunkIndexesLayer,
 			ArchivedIndexesLister indexesLister) {
-		this.splunkSettings = splunkSettings;
+		this.splunkIndexesLayer = splunkIndexesLayer;
 		this.indexesLister = indexesLister;
 		this.flushedBuckets = new ArrayList<Bucket>();
 	}
@@ -75,7 +75,7 @@ public class Flusher {
 
 	private void doFlush(String index, Date earliest, Date latest)
 			throws FileNotDirectoryException, IOException {
-		File thawLocation = splunkSettings.getThawLocation(index);
+		File thawLocation = splunkIndexesLayer.getThawLocation(index);
 		List<LocalBucket> buckets = ThawedBuckets.getBucketsFromThawLocation(index,
 				thawLocation);
 		List<LocalBucket> bucketsToFlush = filterByTimeRange(earliest, latest,

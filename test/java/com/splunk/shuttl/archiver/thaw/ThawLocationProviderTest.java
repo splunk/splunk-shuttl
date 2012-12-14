@@ -33,7 +33,7 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 public class ThawLocationProviderTest {
 
 	ThawLocationProvider thawLocationProvider;
-	SplunkSettings splunkSettings;
+	SplunkIndexesLayer splunkSettings;
 	Bucket bucket;
 	File thawLocation;
 	LocalFileSystemPaths localFileSystemPaths;
@@ -41,7 +41,7 @@ public class ThawLocationProviderTest {
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
 		bucket = TUtilsBucket.createBucket();
-		splunkSettings = mock(SplunkSettings.class);
+		splunkSettings = mock(SplunkIndexesLayer.class);
 		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
 		thawLocationProvider = new ThawLocationProvider(splunkSettings,
 				localFileSystemPaths);
