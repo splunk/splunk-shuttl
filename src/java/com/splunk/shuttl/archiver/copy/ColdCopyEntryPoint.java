@@ -23,9 +23,9 @@ import java.util.Arrays;
 import org.apache.log4j.Logger;
 
 import com.splunk.Service;
-import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.archive.RegistersArchiverMBean;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
-import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
 import com.splunk.shuttl.server.mbeans.JMXSplunk;
 import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
@@ -52,10 +52,8 @@ public class ColdCopyEntryPoint {
 
 	private static void execute(File bucketDir) throws FileNotFoundException {
 		String indexName = getIndexNameForBucketDir(bucketDir);
-		LocalBucket bucket = new LocalBucket(bucketDir, indexName,
-				BucketFormat.SPLUNK_BUCKET);
 
-		callCopyBucketEndpointWithBucket(bucket);
+		callCopyBucketEndpointWithBucket(indexName);
 	}
 
 	private static String getIndexNameForBucketDir(File bucketDir) {
@@ -69,14 +67,28 @@ public class ColdCopyEntryPoint {
 		return SplunkSettingsFactory.getLoggedInSplunkService();
 	}
 
-	private static void callCopyBucketEndpointWithBucket(LocalBucket bucket) {
+	private static void callCopyBucketEndpointWithBucket(String indexName) {
 		ShuttlServerMBean serverMBean = ShuttlServer
 				.getRegisteredServerMBean(logger);
+		RegistersArchiverMBean.create().register();
 
-		CallCopyBucketEndpoint callCopyBucketEndpoint = CallCopyBucketEndpoint
-				.create(serverMBean);
+		ColdBucketCopier coldBucketCopier = createColdBucketCopier(serverMBean);
 
-		callCopyBucketEndpoint.call(bucket);
+		coldBucketCopier.tryCopyingColdBuckets(indexName);
 	}
 
+	private static ColdBucketCopier createColdBucketCopier(
+			ShuttlServerMBean serverMBean) {
+		CallCopyBucketEndpoint callCopyBucketEndpoint = CallCopyBucketEndpoint
+				.create(serverMBean);
+		LocalFileSystemPaths fileSystemPaths = LocalFileSystemPaths.create();
+
+		CopyBucketReceipts receipts = new CopyBucketReceipts(fileSystemPaths);
+		ColdBucketCopier coldBucketCopier = new ColdBucketCopier(
+				new ColdBucketInterator(getSplunkService(), new BucketIteratorFactory()),
+				receipts, new LockedBucketCopier(new CopyBucketLocker(fileSystemPaths),
+						callCopyBucketEndpoint, receipts));
+
+		return coldBucketCopier;
+	}
 }

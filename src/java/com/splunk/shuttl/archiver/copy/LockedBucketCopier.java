@@ -14,13 +14,21 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.copy;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
+import org.apache.log4j.Logger;
+
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
+import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Controls what happens when copying a bucket.
  */
 public class LockedBucketCopier {
+
+	private static Logger logger = Logger.getLogger(LockedBucketCopier.class);
 
 	private final CallCopyBucketEndpoint endpoint;
 	private final CopyBucketReceipts receipts;
@@ -38,17 +46,25 @@ public class LockedBucketCopier {
 	 * successfully been copied.
 	 */
 	public void copyBucket(LocalBucket bucket) {
-		if (acquiredLockForBucket(bucket))
-			doCopyBucket(bucket);
+		bucketLocker.callBucketHandlerUnderSharedLock(bucket,
+				new CopyBucketUnderLock());
 	}
 
-	private boolean acquiredLockForBucket(LocalBucket bucket) {
-		return bucketLocker.getLockForBucket(bucket).isLocked();
-	}
+	private class CopyBucketUnderLock implements SharedLockBucketHandler {
 
-	private void doCopyBucket(LocalBucket bucket) {
-		endpoint.call(bucket);
-		receipts.createReceipt(bucket);
-	}
+		@Override
+		public void handleSharedLockedBucket(Bucket bucket) {
+			logger.info(will("call copy bucket endpoint", "bucket", bucket));
+			LocalBucket localBucket = (LocalBucket) bucket;
+			endpoint.call(localBucket);
+			logger.info(done("calling copy bucket endpoint"));
+			receipts.createReceipt(localBucket);
+		}
 
+		@Override
+		public void bucketWasLocked(Bucket bucket) {
+
+		}
+
+	}
 }

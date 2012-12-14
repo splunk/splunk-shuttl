@@ -27,7 +27,6 @@ import com.splunk.shuttl.archiver.LogFormatter;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.ShuttlMBeanException;
@@ -91,7 +90,7 @@ public class BucketFreezer {
 
 	private void moveAndArchiveBucket(String indexName, String path)
 			throws FileNotFoundException, FileNotDirectoryException {
-		Bucket bucket = new LocalBucket(new File(path), indexName,
+		LocalBucket bucket = new LocalBucket(new File(path), indexName,
 				BucketFormat.SPLUNK_BUCKET);
 
 		bucketLocker.callBucketHandlerUnderSharedLock(bucket,

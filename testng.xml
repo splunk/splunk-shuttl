@@ -20,13 +20,13 @@
 	<parameter name="cluster.slave2.shuttl.port" value="7092" />
 	
 
-	<test name="end-to-end" preserve-order="true" enabled="false">
+	<test name="end-to-end" preserve-order="true" enabled="true">
 		<classes>
 			<class name="com.splunk.shuttl.archiver.endtoend.CopyWithoutDeletionEndToEndTest" />
 		</classes>
 	</test> <!-- Test -->
 
-	<test name="cluster-test" preserve-order="true" enabled="true">
+	<test name="cluster-test" preserve-order="true" enabled="false">
 		<classes>
 			<class name="com.splunk.ClusterConfigTest" />
 			<class name="com.splunk.ClusterPeersTest" />

@@ -53,6 +53,8 @@ public class LocalFileSystemPaths {
 
 	final String COPY_RECEIPTS_NAME = "copy-receipts-dir";
 
+	final String COPY_LOCKS_NAME = "copy-locks-dir";
+
 	private final String archiverDirectoryPath;
 
 	public LocalFileSystemPaths(File directory) {
@@ -175,6 +177,10 @@ public class LocalFileSystemPaths {
 
 	public File getCopyBucketReceiptsDirectory(Bucket bucket) {
 		return createBucketUniqueDirUnderArchiverDir(COPY_RECEIPTS_NAME, bucket);
+	}
+
+	public File getCopyLocksDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(COPY_LOCKS_NAME, bucket);
 	}
 
 	public static LocalFileSystemPaths create() {

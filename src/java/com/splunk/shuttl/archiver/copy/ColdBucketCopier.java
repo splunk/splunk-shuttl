@@ -14,6 +14,10 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.copy;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
+import org.apache.log4j.Logger;
+
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
@@ -21,6 +25,8 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
  * directory of a bucket that was just copied.
  */
 public class ColdBucketCopier {
+
+	private static final Logger logger = Logger.getLogger(ColdBucketCopier.class);
 
 	private final ColdBucketInterator bucketInterator;
 	private final CopyBucketReceipts receipts;
@@ -43,7 +49,10 @@ public class ColdBucketCopier {
 	}
 
 	void copyColdBucket(LocalBucket b) {
-		if (!receipts.hasReceipt(b))
+		if (!receipts.hasReceipt(b)) {
+			logger.info(will("Copy bucket because it did not have a copy receipt",
+					"bucket", b));
 			lockedCopier.copyBucket(b);
+		}
 	}
 }
