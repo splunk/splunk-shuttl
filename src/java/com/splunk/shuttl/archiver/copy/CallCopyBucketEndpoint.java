@@ -26,6 +26,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.archiver.util.UtilsHttp;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 
@@ -53,13 +54,16 @@ public class CallCopyBucketEndpoint {
 		int port = shuttlMBean.getHttpPort();
 		HttpPost copyBucketRequest = EndpointUtils.createCopyBucketPostRequest(
 				host, port, bucket);
+		HttpResponse response = null;
 		try {
-			HttpResponse response = httpClient.execute(copyBucketRequest);
+			response = httpClient.execute(copyBucketRequest);
 			responseHandler.throwIfResponseWasNot2xx(bucket, response);
 		} catch (IOException e) {
 			logger.error(did("Called copy bucket endpoint", e,
 					"to execute without failure", "bucket", bucket));
 			throw new NonSuccessfulBucketCopy(e);
+		} finally {
+			UtilsHttp.consumeResponse(response);
 		}
 	}
 

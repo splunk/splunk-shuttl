@@ -39,6 +39,7 @@ import com.splunk.shuttl.ShuttlConstants;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.archiver.util.UtilsHttp;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.rest.ListBucketsEndpoint;
@@ -73,8 +74,7 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		} catch (IOException e) {
 			logIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
 		} finally {
-			if (response != null)
-				consumeResponseHandlingErrors(response);
+			UtilsHttp.consumeResponse(response);
 		}
 	}
 
@@ -151,16 +151,6 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		logger.error(did("Sent archive bucket request", "got IOException",
 				"request to succeed", "exception", e, "bucket_name", bucket.getName(),
 				"cause", e.getCause()));
-	}
-
-	private void consumeResponseHandlingErrors(HttpResponse response) {
-		try {
-			EntityUtils.consume(response.getEntity());
-		} catch (IOException e) {
-			logger.error(did(
-					"Tried to consume http response of archive bucket request", e,
-					"no exception", "response", response));
-		}
 	}
 
 	/*
