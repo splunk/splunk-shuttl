@@ -57,7 +57,7 @@ public class LockedBucketCopier {
 			logger.info(will("call copy bucket endpoint", "bucket", bucket));
 			LocalBucket localBucket = (LocalBucket) bucket;
 			endpoint.call(localBucket);
-			logger.info(done("calling copy bucket endpoint"));
+			logger.info(done("calling copy bucket endpoint", "bucket", bucket));
 			receipts.createReceipt(localBucket);
 		}
 
