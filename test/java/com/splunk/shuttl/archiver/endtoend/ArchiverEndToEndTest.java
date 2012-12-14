@@ -16,6 +16,7 @@ package com.splunk.shuttl.archiver.endtoend;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
@@ -23,7 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.InstanceNotFoundException;
 
@@ -47,6 +50,7 @@ import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
+import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -99,6 +103,42 @@ public class ArchiverEndToEndTest {
 		}
 	}
 
+	public static class ArchiveWithArchivingScript implements ArchivesBucket {
+
+		private static final String SCRIPT_NAME = "archiveBucket.sh";
+		private final String splunkHome;
+		private final File script;
+
+		public ArchiveWithArchivingScript(String splunkHome) {
+			this.splunkHome = new File(splunkHome).getAbsolutePath();
+			this.script = new File(splunkHome + "/etc/apps/shuttl/bin/" + SCRIPT_NAME);
+		}
+
+		@Override
+		public void archiveBucket(LocalBucket bucket) {
+			executeArchiveScript(bucket);
+		}
+
+		private void executeArchiveScript(LocalBucket bucket) {
+			ShellExecutor shellExecutor = ShellExecutor.getInstance();
+			Map<String, String> env = getSplunkHomeEnvironment();
+			List<String> command = createCommand(bucket);
+			int exit = shellExecutor.executeCommand(env, command);
+			assertEquals(0, exit);
+		}
+
+		private Map<String, String> getSplunkHomeEnvironment() {
+			Map<String, String> env = new HashMap<String, String>();
+			env.put("SPLUNK_HOME", splunkHome);
+			return env;
+		}
+
+		private List<String> createCommand(LocalBucket bucket) {
+			return asList(script.getAbsolutePath(), bucket.getIndex(),
+					bucket.getPath());
+		}
+	}
+
 	File tempDirectory;
 	BucketThawer bucketThawer;
 	SplunkSettings splunkSettings;
@@ -122,6 +162,21 @@ public class ArchiverEndToEndTest {
 		arcnkveBucketAndThawItBack_(splunkUserName, splunkPw, splunkHost,
 				splunkPort, hadoopHost, hadoopPort, shuttlHost, shuttlPort,
 				shuttlConfDirPath, new ArchiveWithBucketFreezer());
+	}
+
+	@Parameters(value = { "splunk.username", "splunk.password", "splunk.host",
+			"splunk.mgmtport", "hadoop.host", "hadoop.port", "shuttl.host",
+			"shuttl.port", "shuttl.conf.dir", "splunk.home" })
+	@Test(groups = { "end-to-end" })
+	public void _givenArchiveScript_archiveBucketAndThawItBack(
+			final String splunkUserName, final String splunkPw,
+			final String splunkHost, final String splunkPort,
+			final String hadoopHost, final String hadoopPort,
+			final String shuttlHost, final String shuttlPort,
+			String shuttlConfDirPath, String splunkHome) throws Exception {
+		arcnkveBucketAndThawItBack_(splunkUserName, splunkPw, splunkHost,
+				splunkPort, hadoopHost, hadoopPort, shuttlHost, shuttlPort,
+				shuttlConfDirPath, new ArchiveWithArchivingScript(splunkHome));
 	}
 
 	private void arcnkveBucketAndThawItBack_(final String splunkUserName,
