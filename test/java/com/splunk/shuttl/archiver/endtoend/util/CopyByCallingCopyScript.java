@@ -81,7 +81,8 @@ public class CopyByCallingCopyScript implements CopiesBucket {
 	}
 
 	private File getCopyScript() {
-		String copyScriptPath = splunkHome + "/etc/apps/shuttl/bin/copyBucket.sh";
+		String copyScriptPath = splunkHome
+				+ "/etc/apps/shuttl/bin/warmToColdScript.sh";
 		File copyScript = new File(copyScriptPath);
 		assertTrue(copyScript.exists());
 		assertTrue(copyScript.canExecute());
