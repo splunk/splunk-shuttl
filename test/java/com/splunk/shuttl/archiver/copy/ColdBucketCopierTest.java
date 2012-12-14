@@ -21,6 +21,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class ColdBucketCopierTest {
@@ -51,15 +52,21 @@ public class ColdBucketCopierTest {
 		verify(receipts).hasReceipt(localBucket);
 	}
 
-	public void copyColdBucket_givenBucketWithoutReceipt_callsColdBucketCopier() {
+	public void copyColdBucket_givenBucketWithoutReceipt_callsLockedCopier() {
 		when(receipts.hasReceipt(localBucket)).thenReturn(false);
 		coldBucketCopier.copyColdBucket(localBucket);
 		verify(lockedCopier).copyBucket(localBucket);
 	}
 
-	public void copyColdBucket_givenBucketWithReceipt_doesNothing() {
+	public void copyColdBucket_givenBucketWithReceipt_doesNotCopyBucket() {
 		when(receipts.hasReceipt(localBucket)).thenReturn(true);
 		coldBucketCopier.copyColdBucket(localBucket);
+		verifyZeroInteractions(lockedCopier);
+	}
+
+	public void copyColdBucket_givenReplicatedBucket_doesNotCopyBucket() {
+		LocalBucket replicatedBucket = TUtilsBucket.createReplicatedBucket();
+		coldBucketCopier.copyColdBucket(replicatedBucket);
 		verifyZeroInteractions(lockedCopier);
 	}
 }

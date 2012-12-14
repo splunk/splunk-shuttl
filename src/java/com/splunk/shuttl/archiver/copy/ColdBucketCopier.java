@@ -14,8 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.copy;
 
-import static com.splunk.shuttl.archiver.LogFormatter.*;
-
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -49,10 +47,7 @@ public class ColdBucketCopier {
 	}
 
 	void copyColdBucket(LocalBucket b) {
-		if (!receipts.hasReceipt(b)) {
-			logger.info(will("Copy bucket because it did not have a copy receipt",
-					"bucket", b));
+		if (!b.isReplicatedBucket() && !receipts.hasReceipt(b))
 			lockedCopier.copyBucket(b);
-		}
 	}
 }
