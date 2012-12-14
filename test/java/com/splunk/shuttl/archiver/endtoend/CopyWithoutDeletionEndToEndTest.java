@@ -31,7 +31,7 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
 import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -80,7 +80,7 @@ public class CopyWithoutDeletionEndToEndTest {
 
 					@Override
 					public void run() {
-						Service service = SplunkSettingsFactory.getLoggedInSplunkService();
+						Service service = SplunkIndexedLayerFactory.getLoggedInSplunkService();
 						String index = "shuttl";
 						assertTrue(service.getIndexes().containsKey(index));
 						LocalBucket bucket = TUtilsBucket.createBucketInDirectoryWithIndex(

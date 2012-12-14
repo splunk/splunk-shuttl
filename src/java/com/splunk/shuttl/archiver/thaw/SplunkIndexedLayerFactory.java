@@ -16,7 +16,7 @@ package com.splunk.shuttl.archiver.thaw;
 
 import com.splunk.Service;
 
-public class SplunkSettingsFactory {
+public class SplunkIndexedLayerFactory {
 
 	/**
 	 * @return configured {@link SplunkIndexesLayer}

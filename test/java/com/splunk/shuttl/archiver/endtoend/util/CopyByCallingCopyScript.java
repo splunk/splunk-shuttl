@@ -29,7 +29,7 @@ import com.splunk.shuttl.archiver.endtoend.CopyWithoutDeletionEndToEndTest;
 import com.splunk.shuttl.archiver.endtoend.CopyWithoutDeletionEndToEndTest.CopiesBucket;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.LocalBucket;
-import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 /**
@@ -45,7 +45,7 @@ public class CopyByCallingCopyScript implements CopiesBucket {
 
 	@Override
 	public void copyBucket(LocalBucket bucket) {
-		Service splunkService = SplunkSettingsFactory.getLoggedInSplunkService();
+		Service splunkService = SplunkIndexedLayerFactory.getLoggedInSplunkService();
 		Index index = splunkService.getIndexes().get(bucket.getIndex());
 		File indexColdDir = new File(index.getColdPathExpanded());
 		assertTrue(indexColdDir.exists());

@@ -26,7 +26,7 @@ import com.splunk.Service;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.RegistersArchiverMBean;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
-import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
 import com.splunk.shuttl.server.mbeans.JMXSplunk;
 import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
@@ -64,7 +64,7 @@ public class ColdCopyEntryPoint {
 	private static Service getSplunkService() {
 		RegistersMBeans.create().registerMBean(JMXSplunkMBean.OBJECT_NAME,
 				new JMXSplunk());
-		return SplunkSettingsFactory.getLoggedInSplunkService();
+		return SplunkIndexedLayerFactory.getLoggedInSplunkService();
 	}
 
 	private static void callCopyBucketEndpointWithBucket(String indexName) {

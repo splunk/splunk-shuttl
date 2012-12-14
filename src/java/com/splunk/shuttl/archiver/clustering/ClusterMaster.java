@@ -19,7 +19,7 @@ import java.net.URI;
 import com.splunk.ClusterConfig;
 import com.splunk.ClusterPeer;
 import com.splunk.ClusterPeers;
-import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
 
 /**
  * Handles all communication to the ClusterMaster.
@@ -72,7 +72,7 @@ public class ClusterMaster {
 
 	public static ClusterMaster create() {
 		return new ClusterMaster(new ClusterConfig(
-				SplunkSettingsFactory.getLoggedInSplunkService()),
+				SplunkIndexedLayerFactory.getLoggedInSplunkService()),
 				ClusterPeersProvider.create());
 	}
 

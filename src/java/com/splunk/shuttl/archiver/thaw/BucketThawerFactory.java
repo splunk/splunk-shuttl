@@ -36,7 +36,7 @@ public class BucketThawerFactory {
 	 * Default {@link BucketThawer} as configured with .conf files.
 	 */
 	public static BucketThawer createDefaultThawer() {
-		SplunkIndexesLayer splunkIndexesLayer = SplunkSettingsFactory.create();
+		SplunkIndexesLayer splunkIndexesLayer = SplunkIndexedLayerFactory.create();
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 		return createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
 				splunkIndexesLayer, LocalFileSystemPaths.create());
