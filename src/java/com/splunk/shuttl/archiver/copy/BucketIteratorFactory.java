@@ -12,21 +12,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.model;
+package com.splunk.shuttl.archiver.copy;
 
+import java.io.File;
 
-/**
- * Thrown when trying to access an index that does not exist.
- */
-public class IllegalIndexException extends RuntimeException {
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
-	public IllegalIndexException(String message) {
-		super(message);
-	}
+public class BucketIteratorFactory {
 
 	/**
-	 * Default version UID
+	 * @return iterator over buckets in a directory.
 	 */
-	private static final long serialVersionUID = 1L;
+	public Iterable<LocalBucket> iteratorInDirectory(File eq) {
+		throw new UnsupportedOperationException();
+	}
 
 }

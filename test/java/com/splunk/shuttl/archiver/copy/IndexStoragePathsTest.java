@@ -32,15 +32,15 @@ import com.splunk.Index;
 import com.splunk.Service;
 
 @Test(groups = { "fast-unit" })
-public class IndexPathsTest {
+public class IndexStoragePathsTest {
 
-	private IndexPaths indexPaths;
+	private IndexStoragePaths indexPaths;
 	private Service service;
 
 	@BeforeMethod
 	public void setUp() {
 		service = mock(Service.class);
-		indexPaths = new IndexPaths(service);
+		indexPaths = new IndexStoragePaths(service);
 	}
 
 	private void assertGetIndexPathsReturnsEmptyMap() {

@@ -21,9 +21,9 @@ import com.splunk.Service;
 
 public class IndexScanner {
 
-	private IndexPaths indexPaths;
+	private IndexStoragePaths indexPaths;
 
-	public IndexScanner(IndexPaths indexPaths) {
+	public IndexScanner(IndexStoragePaths indexPaths) {
 		this.indexPaths = indexPaths;
 	}
 
@@ -42,7 +42,7 @@ public class IndexScanner {
 
 	public static String getIndexNameByBucketPath(File bucketDir,
 			Service splunkService) {
-		return new IndexScanner(new IndexPaths(splunkService)).getIndex(bucketDir);
+		return new IndexScanner(new IndexStoragePaths(splunkService)).getIndex(bucketDir);
 	}
 
 	public static class UnknownIndexPathException extends RuntimeException {

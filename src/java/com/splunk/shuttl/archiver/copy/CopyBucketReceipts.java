@@ -36,18 +36,22 @@ public class CopyBucketReceipts {
 	 *         archive file system.
 	 */
 	public File createReceipt(LocalBucket bucket) {
-		File receiptsDirectory = fileSystemPaths
-				.getCopyBucketReceiptsDirectory(bucket);
-		File receipt = new File(receiptsDirectory, "copy-receipt.file");
+		File receipt = getReceiptFileForBucket(bucket);
 		UtilsFile.touch(receipt);
 		return receipt;
+	}
+
+	private File getReceiptFileForBucket(LocalBucket bucket) {
+		File receiptsDirectory = fileSystemPaths
+				.getCopyBucketReceiptsDirectory(bucket);
+		return new File(receiptsDirectory, "copy-receipt.file");
 	}
 
 	/**
 	 * @return true if receipt has been created for bucket.
 	 */
 	public boolean hasReceipt(LocalBucket b) {
-		throw new UnsupportedOperationException();
+		return getReceiptFileForBucket(b).exists();
 	}
 
 }

@@ -14,8 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.copy;
 
-import java.util.List;
-
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
@@ -24,19 +22,28 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
  */
 public class ColdBucketCopier {
 
+	private final ColdBucketInterator bucketInterator;
+	private final CopyBucketReceipts receipts;
+	private final LockedBucketCopier lockedCopier;
+
+	public ColdBucketCopier(ColdBucketInterator bucketInterator,
+			CopyBucketReceipts receipts, LockedBucketCopier lockedCopier) {
+		this.bucketInterator = bucketInterator;
+		this.receipts = receipts;
+		this.lockedCopier = lockedCopier;
+	}
+
 	/**
 	 * Copies buckets that is in the cold directory that hasn't been copied
 	 * already.
 	 */
 	public void tryCopyingColdBuckets(String index) {
-		// for (LocalBucket b : bucketsInColdDirectory())
-		// if (!receipts.hasReceipt(b))
-		// endpoint.call(b);
-		throw new UnsupportedOperationException();
+		for (LocalBucket b : bucketInterator.coldBucketsAtIndex(index))
+			copyColdBucket(b);
 	}
 
-	private List<LocalBucket> bucketsInColdDirectory() {
-		return null;
+	void copyColdBucket(LocalBucket b) {
+		if (!receipts.hasReceipt(b))
+			lockedCopier.copyBucket(b);
 	}
-
 }

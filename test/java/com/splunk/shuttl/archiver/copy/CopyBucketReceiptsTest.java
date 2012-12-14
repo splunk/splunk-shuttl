@@ -31,24 +31,34 @@ public class CopyBucketReceiptsTest {
 
 	private CopyBucketReceipts bucketReceipts;
 	private LocalFileSystemPaths fileSystemPaths;
+	private LocalBucket bucket;
 
 	@BeforeMethod
 	public void setUp() {
 		fileSystemPaths = new LocalFileSystemPaths(createDirectory());
 		bucketReceipts = new CopyBucketReceipts(fileSystemPaths);
+		bucket = TUtilsBucket.createBucket();
 	}
 
 	public void createReceipt_bucket_receiptExists() {
-		File receipt = bucketReceipts.createReceipt(TUtilsBucket.createBucket());
+		File receipt = bucketReceipts.createReceipt(bucket);
 		assertTrue(receipt.exists());
 	}
 
 	public void createReceipt_givenBucket_getsReceiptInReceiptDirectory() {
-		LocalBucket bucket = TUtilsBucket.createBucket();
 		File receipt = bucketReceipts.createReceipt(bucket);
 		File expectedReceiptParent = fileSystemPaths
 				.getCopyBucketReceiptsDirectory(bucket);
 		assertEquals(receipt.getParentFile().getAbsolutePath(),
 				expectedReceiptParent.getAbsolutePath());
+	}
+
+	public void hasReceipt_notCreatedReceipt_false() {
+		assertFalse(bucketReceipts.hasReceipt(bucket));
+	}
+
+	public void hasReceipt_createdReceipt_true() {
+		bucketReceipts.createReceipt(bucket);
+		assertTrue(bucketReceipts.hasReceipt(bucket));
 	}
 }

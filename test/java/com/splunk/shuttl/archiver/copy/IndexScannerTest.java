@@ -32,11 +32,11 @@ import com.splunk.shuttl.archiver.copy.IndexScanner.UnknownIndexPathException;
 public class IndexScannerTest {
 
 	private IndexScanner indexScanner;
-	private IndexPaths indexPaths;
+	private IndexStoragePaths indexPaths;
 
 	@BeforeMethod
 	public void setUp() {
-		indexPaths = mock(IndexPaths.class);
+		indexPaths = mock(IndexStoragePaths.class);
 		indexScanner = new IndexScanner(indexPaths);
 	}
 

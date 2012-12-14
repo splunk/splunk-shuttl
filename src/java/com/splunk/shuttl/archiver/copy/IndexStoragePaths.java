@@ -22,11 +22,15 @@ import com.splunk.EntityCollection;
 import com.splunk.Index;
 import com.splunk.Service;
 
-public class IndexPaths {
+/**
+ * Paths where indexes store buckets. Cold path and home path (hot, warm, cold
+ * buckets).
+ */
+public class IndexStoragePaths {
 
 	private final Service service;
 
-	public IndexPaths(Service service) {
+	public IndexStoragePaths(Service service) {
 		this.service = service;
 	}
 
