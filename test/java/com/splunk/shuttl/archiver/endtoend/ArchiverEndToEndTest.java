@@ -64,8 +64,42 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 public class ArchiverEndToEndTest {
 
+	public interface ArchivesBucket {
+		void archiveBucket(LocalBucket bucket);
+	}
+
+	public static class ArchiveWithBucketFreezer implements ArchivesBucket {
+
+		@Override
+		public void archiveBucket(LocalBucket bucket) {
+			try {
+				getSuccessfulBucketFreezer().freezeBucket(bucket.getIndex(),
+						bucket.getDirectory().getAbsolutePath());
+			} catch (InstanceNotFoundException e) {
+				TUtilsTestNG.failForException("", e);
+			}
+		}
+
+		private BucketFreezer getSuccessfulBucketFreezer()
+				throws InstanceNotFoundException {
+			File tempDirectory = createDirectory();
+
+			File movedBucketsLocation = createDirectoryInParent(tempDirectory,
+					ArchiverEndToEndTest.class.getName() + "-safeBuckets");
+			IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
+					.create(movedBucketsLocation);
+			BucketLocker bucketLocker = new BucketLockerInTestDir(
+					createDirectoryInParent(tempDirectory, "bucketlocks"));
+			ShuttlServerMBean serverMBean = ShuttlServer.getMBeanProxy();
+			ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
+					new DefaultHttpClient(), serverMBean);
+
+			return new BucketFreezer(bucketMover, bucketLocker, archiveRestHandler,
+					mock(FailedBucketsArchiver.class));
+		}
+	}
+
 	File tempDirectory;
-	BucketFreezer successfulBucketFreezer;
 	BucketThawer bucketThawer;
 	SplunkSettings splunkSettings;
 	String thawIndex;
@@ -79,11 +113,22 @@ public class ArchiverEndToEndTest {
 			"splunk.mgmtport", "hadoop.host", "hadoop.port", "shuttl.host",
 			"shuttl.port", "shuttl.conf.dir" })
 	@Test(groups = { "end-to-end" })
-	public void archiveBucketAndThawItBack(final String splunkUserName,
-			final String splunkPw, final String splunkHost, final String splunkPort,
+	public void _givenBucketFreezerInstance_archiveBucketAndThawItBack(
+			final String splunkUserName, final String splunkPw,
+			final String splunkHost, final String splunkPort,
 			final String hadoopHost, final String hadoopPort,
 			final String shuttlHost, final String shuttlPort, String shuttlConfDirPath)
 			throws Exception {
+		arcnkveBucketAndThawItBack_(splunkUserName, splunkPw, splunkHost,
+				splunkPort, hadoopHost, hadoopPort, shuttlHost, shuttlPort,
+				shuttlConfDirPath, new ArchiveWithBucketFreezer());
+	}
+
+	private void arcnkveBucketAndThawItBack_(final String splunkUserName,
+			final String splunkPw, final String splunkHost, final String splunkPort,
+			final String hadoopHost, final String hadoopPort,
+			final String shuttlHost, final String shuttlPort,
+			String shuttlConfDirPath, final ArchivesBucket archivesBucket) {
 		File confsDir = new File(shuttlConfDirPath);
 		TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
 
@@ -101,7 +146,7 @@ public class ArchiverEndToEndTest {
 				try {
 					setUp(splunkUserName, splunkPw, splunkHost, splunkPort, shuttlHost,
 							shuttlPort);
-					archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket();
+					archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket(archivesBucket);
 				} catch (Exception e) {
 					TUtilsTestNG.failForException("Test got exception", e);
 				} finally {
@@ -119,7 +164,6 @@ public class ArchiverEndToEndTest {
 		archiveConfiguration = ArchiveConfiguration.getSharedInstance();
 		thawIndex = "shuttl";
 		tempDirectory = createDirectory();
-		successfulBucketFreezer = getSuccessfulBucketFreezer();
 
 		Service service = new Service(splunkHost, Integer.parseInt(splunkPort));
 		service.login(splunkUserName, splunkPw);
@@ -134,24 +178,8 @@ public class ArchiverEndToEndTest {
 		}
 	}
 
-	private BucketFreezer getSuccessfulBucketFreezer()
-			throws InstanceNotFoundException {
-		File movedBucketsLocation = createDirectoryInParent(tempDirectory,
-				ArchiverEndToEndTest.class.getName() + "-safeBuckets");
-		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
-				.create(movedBucketsLocation);
-		BucketLocker bucketLocker = new BucketLockerInTestDir(
-				createDirectoryInParent(tempDirectory, "bucketlocks"));
-		ShuttlServerMBean serverMBean = ShuttlServer.getMBeanProxy();
-		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-				new DefaultHttpClient(), serverMBean);
-
-		return new BucketFreezer(bucketMover, bucketLocker, archiveRestHandler,
-				mock(FailedBucketsArchiver.class));
-	}
-
-	private void archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket()
-			throws Exception {
+	private void archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket(
+			ArchivesBucket archivesBucket) throws Exception {
 		Date earliest = TUtilsDate.getNowWithoutMillis();
 		Date latest = TUtilsDate.getLaterDate(earliest);
 
@@ -160,8 +188,7 @@ public class ArchiverEndToEndTest {
 		assertEquals(earliest, bucketToFreeze.getEarliest());
 		assertEquals(latest, bucketToFreeze.getLatest());
 
-		successfulBucketFreezer.freezeBucket(bucketToFreeze.getIndex(),
-				bucketToFreeze.getDirectory().getAbsolutePath());
+		archivesBucket.archiveBucket(bucketToFreeze);
 
 		verifyFreezeByListingBucketInArchive(bucketToFreeze);
 
