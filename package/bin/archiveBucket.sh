@@ -31,6 +31,9 @@
 # limitations under the License.
 #
 
+echo "WARNING: This script (archiveBucket.sh) is now deprecated. \
+    Use coldToFrozenScript.sh instead"
+
 set -e
 set -u
 
