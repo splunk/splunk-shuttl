@@ -41,7 +41,8 @@ Prerequisites
 
 ### Splunk
 
-Currently the Splunk version used is 4.3.3
+Currently the Splunk version used is 5.0.1.
+Shuttl has support for Splunk Clustering.
 
 You can download it [Splunk][splunk-download].  And see the [Splunk documentation][] for instructions on installing and more.
 
@@ -159,7 +160,7 @@ Note, the directory that the data will be archived to is
 
 ### Splunk Index Configuration
 
-In addition, you need to configure Splunk to call the archiver script (set coldToFrozenScript) for each index that is being archived. You can do this by creating an indexes.conf file in $SPLUNK_HOME/etc/apps/shuttl/local with the appropriate config stanzas. An example is as follows:
+In addition, you need to configure Splunk to call the archiver script (setting the coldToFrozenScript and/or warmToColdScript) for each index that is being archived. You can do this by creating an indexes.conf file in $SPLUNK_HOME/etc/apps/shuttl/local with the appropriate config stanzas. An example is as follows:
 
 
 	[mytest]
@@ -169,32 +170,13 @@ In addition, you need to configure Splunk to call the archiver script (set coldT
 	rotatePeriodInSecs = 10
 	frozenTimePeriodInSecs = 120
 	maxWarmDBCount = 1
-	coldToFrozenScript = $SPLUNK_HOME/etc/apps/shuttl/bin/archiveBucket.sh mytest
-
-Note: Note the repeat of "mytest" as an argument to the coldToFrozenScript. This should always match the index name.
+	warmToColdScript = $SPLUNK_HOME/etc/apps/shuttl/bin/warmToColdScript.sh
+	coldToFrozenScript = $SPLUNK_HOME/etc/apps/shuttl/bin/coldToFrozenScript.sh
 
 WARNING: the settings rotatePeriodInSecs, frozenTimePeriodInSecs, maxWarmDBCount are there only for testing to verify that data can be successfully transfered by inducing rapid bucket rolling. Don't use in production. See [Set a retirement and archiving policy](http://docs.splunk.com/Documentation/Splunk/latest/admin/Setaretirementandarchivingpolicy) and [Indexes.conf](http://docs.splunk.com/Documentation/Splunk/4.3.3/admin/Indexesconf) documentation to suit your test and deployment needs. Expected usage in production is that maxDataSize correspond to a HDFS block or larger (splunk default is 750mb), and maxHotIdleSecs should be set to 86400 for buckets approximately 24hrs worth of data.
 
 Other developer notes
 ---------------------
-
-### Running tests against your own Splunk and/or Hadoop
-
-Warning: All of your Splunk indexes is cleared if you do this
-
-Assertions: The tests assert that your Hadoop namenode has been formatted
-
-How to do it:
-
-Set `SPLUNK_HOME` and/or `HADOOP_HOME` environment variables
-
-In your `build.properties`, set the properties `defined.means.running.on.self.defined.splunk.home` and/or `defined.means.running.on.self.defined.hadoop.home` to any value
-
-Now run:
-
-	$ `ant test-all`
-
-The script will now use your own environment variables to run the tests. You don't have to run with both properties defined. You can run with either one
 
 ### Specifying which Hadoop version to run tests with
 
