@@ -48,4 +48,4 @@ index=$1
 bucket=$2
 
 source java_executable.env
-exec $JAVA -cp ./*:../lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $index $bucket
+exec $JAVA -cp ./*:../lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $bucket
