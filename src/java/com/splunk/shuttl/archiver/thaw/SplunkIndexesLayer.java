@@ -59,11 +59,15 @@ public class SplunkIndexesLayer {
 	 *           if index does not exist in splunk
 	 */
 	public File getThawLocation(String index) throws IllegalIndexException {
+		Index splunkIndex = getIndexChecked(index);
+		return new File(splunkIndex.getThawedPathExpanded());
+	}
+
+	private Index getIndexChecked(String index) {
 		Index splunkIndex = getIndexes().get(index);
 		if (splunkIndex == null)
 			throwAndLogNonExistingSplunkIndex(index);
-
-		return new File(splunkIndex.getThawedPathExpanded());
+		return splunkIndex;
 	}
 
 	private void throwAndLogNonExistingSplunkIndex(String index)
@@ -73,5 +77,12 @@ public class SplunkIndexesLayer {
 				splunkService.getHost()));
 		throw new IllegalIndexException("Index " + index
 				+ " does not exist in splunk");
+	}
+
+	/**
+	 * @return colddb location for specified index
+	 */
+	public File getColdLocation(String index) {
+		return new File(getIndexChecked(index).getColdPathExpanded());
 	}
 }

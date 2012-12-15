@@ -19,7 +19,6 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
@@ -27,6 +26,7 @@ import com.splunk.shuttl.archiver.LogFormatter;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
+import com.splunk.shuttl.archiver.copy.EntryPointUtil;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.ShuttlMBeanException;
@@ -114,26 +114,8 @@ public class BucketFreezer {
 	/* package-private */static void runMainWithDependencies(Runtime runtime,
 			BucketFreezerProvider bucketFreezerProvider,
 			RegistersArchiverMBean registersArchiverMBean, String... args) {
-		if (args.length != 2) {
-			logIncorrectArguments(args);
-			runtime.exit(EXIT_INCORRECT_ARGUMENTS);
-		} else {
-			archiveBucketWhileRegisteringMBean(runtime, bucketFreezerProvider,
-					registersArchiverMBean, args);
-		}
-	}
-
-	private static void logIncorrectArguments(String[] args) {
-		logger.error(did("Attempted to archive bucket", "insufficient arguments",
-				"both index name and path", "nr_args", args.length, "args",
-				Arrays.toString(args)));
-	}
-
-	private static void archiveBucketWhileRegisteringMBean(Runtime runtime,
-			BucketFreezerProvider bucketFreezerProvider,
-			RegistersArchiverMBean registersArchiverMBean, String... args) {
-		String index = args[0];
-		String path = args[1];
+		String path = args[0];
+		String index = EntryPointUtil.getIndexNameForBucketDir(new File(path));
 
 		logger.info(will("Attempting to archive bucket", "index", index, "path",
 				path));

@@ -60,7 +60,6 @@ import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 import com.splunk.shuttl.testutil.TUtilsBucket;
-import com.splunk.shuttl.testutil.TUtilsDate;
 import com.splunk.shuttl.testutil.TUtilsFile;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -134,8 +133,7 @@ public class ArchiverEndToEndTest {
 		}
 
 		private List<String> createCommand(LocalBucket bucket) {
-			return asList(script.getAbsolutePath(), bucket.getIndex(),
-					bucket.getPath());
+			return asList(script.getAbsolutePath(), bucket.getPath());
 		}
 	}
 
@@ -235,11 +233,12 @@ public class ArchiverEndToEndTest {
 
 	private void archiveBucketAndThawItBack_assertThawedBucketHasSameNameAsFrozenBucket(
 			ArchivesBucket archivesBucket) throws Exception {
-		Date earliest = TUtilsDate.getNowWithoutMillis();
-		Date latest = TUtilsDate.getLaterDate(earliest);
+		LocalBucket bucketToFreeze = TUtilsBucket.createBucketInDirectoryWithIndex(
+				splunkIndexesLayer.getColdLocation(thawIndex), thawIndex);
 
-		LocalBucket bucketToFreeze = TUtilsBucket
-				.createBucketWithIndexAndTimeRange(thawIndex, earliest, latest);
+		Date earliest = bucketToFreeze.getEarliest();
+		Date latest = bucketToFreeze.getLatest();
+
 		assertEquals(earliest, bucketToFreeze.getEarliest());
 		assertEquals(latest, bucketToFreeze.getLatest());
 

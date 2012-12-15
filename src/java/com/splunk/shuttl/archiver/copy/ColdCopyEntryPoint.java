@@ -22,16 +22,11 @@ import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.Service;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.RegistersArchiverMBean;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
-import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
-import com.splunk.shuttl.server.mbeans.JMXSplunk;
-import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
-import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
 public class ColdCopyEntryPoint {
 
@@ -51,20 +46,9 @@ public class ColdCopyEntryPoint {
 	}
 
 	private static void execute(File bucketDir) throws FileNotFoundException {
-		String indexName = getIndexNameForBucketDir(bucketDir);
+		String indexName = EntryPointUtil.getIndexNameForBucketDir(bucketDir);
 
 		callCopyBucketEndpointWithBucket(indexName);
-	}
-
-	private static String getIndexNameForBucketDir(File bucketDir) {
-		Service splunkService = getSplunkService();
-		return IndexScanner.getIndexNameByBucketPath(bucketDir, splunkService);
-	}
-
-	private static Service getSplunkService() {
-		RegistersMBeans.create().registerMBean(JMXSplunkMBean.OBJECT_NAME,
-				new JMXSplunk());
-		return SplunkIndexedLayerFactory.getLoggedInSplunkService();
 	}
 
 	private static void callCopyBucketEndpointWithBucket(String indexName) {
@@ -85,9 +69,10 @@ public class ColdCopyEntryPoint {
 
 		CopyBucketReceipts receipts = new CopyBucketReceipts(fileSystemPaths);
 		ColdBucketCopier coldBucketCopier = new ColdBucketCopier(
-				new ColdBucketInterator(getSplunkService(), new BucketIteratorFactory()),
-				receipts, new LockedBucketCopier(new CopyBucketLocker(fileSystemPaths),
-						callCopyBucketEndpoint, receipts));
+				new ColdBucketInterator(EntryPointUtil.getSplunkService(),
+						new BucketIteratorFactory()), receipts, new LockedBucketCopier(
+						new CopyBucketLocker(fileSystemPaths), callCopyBucketEndpoint,
+						receipts));
 
 		return coldBucketCopier;
 	}

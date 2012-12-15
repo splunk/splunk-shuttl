@@ -1,18 +1,14 @@
 #!/bin/bash
 
-# archiveBucket.sh - the Shuttl archive script to be called by Splunk
+# coldToFrozenScript.sh - the Shuttl archive script to be called by Splunk
 #
-# Note, Splunk (4.3) will only pass in one parameter (the last one), 
-# so in the conf file is where you should specify the second parameter.
-#
-# ex.
+# Example configuration (indexes.conf)
 #
 #  [archiver-test-index]
 #  homePath   = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/db
 #  coldPath   = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/colddb
 #  thawedPath = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/thaweddb
-#  coldToFrozenScript = $SPLUNK_HOME/etc/apps/shep/bin/archiveBucket.sh archiver-test-index
-
+#  coldToFrozenScript = $SPLUNK_HOME/etc/apps/shep/bin/coldToFrozenScript.sh
 #
 #
 # Copyright (C) 2011 Splunk Inc.
@@ -39,13 +35,12 @@ set -u
 
 cd $SPLUNK_HOME/etc/apps/shuttl/bin
 
-if [ $# -lt 2 ]; then
-    echo 1>&2 "usage: $0 <index> <bucket>"
+if [ $# -lt 1 ]; then
+    echo 1>&2 "usage: $0 <bucket>"
     exit 1
 fi
 
-index=$1
-bucket=$2
+bucket=$1
 
 source java_executable.env
-exec $JAVA -cp ./*:../lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $index $bucket
+exec $JAVA -cp ./*:../lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $bucket
