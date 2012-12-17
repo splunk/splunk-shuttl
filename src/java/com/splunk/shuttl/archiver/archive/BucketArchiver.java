@@ -15,66 +15,28 @@
 
 package com.splunk.shuttl.archiver.archive;
 
-import java.util.List;
-
-import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.importexport.BucketExporter;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Archives buckets the way that it is configured to archive them.
  */
-public class BucketArchiver {
+public class BucketArchiver implements BucketShuttler {
 
-	private final BucketExporter bucketExporter;
-	private final ArchiveBucketTransferer archiveBucketTransferer;
 	private final BucketDeleter bucketDeleter;
-	private final List<BucketFormat> bucketFormats;
+	private final BucketCopier bucketCopier;
 
-	/**
-	 * Constructor following dependency injection pattern, makes it easier to
-	 * test.<br/>
-	 * Use {@link BucketArchiverFactory} for creating a {@link BucketArchiver}.
-	 * 
-	 * @param exporter
-	 *          to export the bucket
-	 * @param archiveBucketTransferer
-	 *          to transfer the bucket to an {@link ArchiveFileSystem}
-	 * @param bucketDeleter
-	 *          that deletesBuckets that has been archived.
-	 * @param bucketFormats
-	 *          the formats to archive the bucket in.
-	 */
-	public BucketArchiver(BucketExporter exporter,
-			ArchiveBucketTransferer archiveBucketTransferer,
-			BucketDeleter bucketDeleter, List<BucketFormat> bucketFormats) {
-		this.bucketExporter = exporter;
-		this.archiveBucketTransferer = archiveBucketTransferer;
+	public BucketArchiver(BucketCopier bucketCopier, BucketDeleter bucketDeleter) {
+		this.bucketCopier = bucketCopier;
 		this.bucketDeleter = bucketDeleter;
-		this.bucketFormats = bucketFormats;
 	}
 
-	public void archiveBucket(Bucket bucket) {
-		boolean successfullyArchivedAllFormats = true;
-		for (BucketFormat format : bucketFormats)
-			if (!archiveBucketTransferer.isArchived(bucket, format))
-				if (!isSuccessfulArchiving(bucket, format))
-					successfullyArchivedAllFormats = false;
-
-		if (successfullyArchivedAllFormats)
-			bucketDeleter.deleteBucket(bucket);
+	public void archiveBucket(LocalBucket bucket) {
+		bucketCopier.copyBucket(bucket);
+		bucketDeleter.deleteBucket(bucket);
 	}
 
-	private boolean isSuccessfulArchiving(Bucket bucket, BucketFormat format) {
-		Bucket exportedBucket = bucketExporter.exportBucket(bucket, format);
-		try {
-			archiveBucketTransferer.transferBucketToArchive(exportedBucket);
-			return true;
-		} catch (FailedToArchiveBucketException e) {
-			return false;
-		} finally {
-			if (!bucket.equals(exportedBucket))
-				bucketDeleter.deleteBucket(exportedBucket);
-		}
+	@Override
+	public void shuttlBucket(LocalBucket bucket) {
+		archiveBucket(bucket);
 	}
 }

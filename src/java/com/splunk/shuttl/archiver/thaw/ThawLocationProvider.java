@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -28,19 +29,19 @@ import com.splunk.shuttl.archiver.model.Bucket;
  */
 public class ThawLocationProvider {
 
-	private final SplunkSettings splunkSettings;
-	private final File transferLocation;
+	private final SplunkIndexesLayer splunkIndexesLayer;
+	private final LocalFileSystemPaths localFileSystemPaths;
 
 	/**
-	 * @param splunkSettings
+	 * @param splunkIndexesLayer
 	 *          for looking up the thaw directory.
-	 * @param transferLocation
+	 * @param localFileSystemPaths
 	 *          thaw buckets live while they are transfered.
 	 */
-	public ThawLocationProvider(SplunkSettings splunkSettings,
-			File transferLocation) {
-		this.splunkSettings = splunkSettings;
-		this.transferLocation = transferLocation;
+	public ThawLocationProvider(SplunkIndexesLayer splunkIndexesLayer,
+			LocalFileSystemPaths localFileSystemPaths) {
+		this.splunkIndexesLayer = splunkIndexesLayer;
+		this.localFileSystemPaths = localFileSystemPaths;
 	}
 
 	/**
@@ -50,7 +51,7 @@ public class ThawLocationProvider {
 	 *           if that location can not be found.
 	 */
 	public File getLocationInThawForBucket(Bucket bucket) throws IOException {
-		File thawLocation = splunkSettings.getThawLocation(bucket.getIndex());
+		File thawLocation = splunkIndexesLayer.getThawLocation(bucket.getIndex());
 		return new File(thawLocation, bucket.getName());
 	}
 
@@ -60,7 +61,8 @@ public class ThawLocationProvider {
 	 * @return non existing local where the bucket can be transfered.
 	 */
 	public File getThawTransferLocation(Bucket bucket) {
-		File file = new File(transferLocation, bucket.getName());
+		File transferDir = localFileSystemPaths.getThawTransfersDirectory(bucket);
+		File file = new File(transferDir, bucket.getName());
 		if (file.exists())
 			deleteFile(file);
 		return file;

@@ -23,34 +23,40 @@ import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
+import com.splunk.shuttl.archiver.filesystem.glacier.GlacierArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.hadoop.HadoopArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.s3.S3ArchiveFileSystemFactory;
 
 /**
  * Factory for getting an {@link ArchiveFileSystem}
  */
 public class ArchiveFileSystemFactory {
 
+	public static final String LOCAL_FILESYSTEM_BACKEND_NAME = "local";
 	private static final Logger logger = Logger
 			.getLogger(ArchiveFileSystemFactory.class);
-	private static final Set<String> supportedUriSchemas;
+	private static final Set<String> supportedBackends;
 
 	static {
-		supportedUriSchemas = new HashSet<String>();
-		supportedUriSchemas.add("file");
-		supportedUriSchemas.add("hdfs");
-		supportedUriSchemas.add("s3");
-		supportedUriSchemas.add("s3n");
+		supportedBackends = new HashSet<String>();
+		supportedBackends.add(LOCAL_FILESYSTEM_BACKEND_NAME);
+		supportedBackends.add("hdfs");
+		supportedBackends.add("s3");
+		supportedBackends.add("s3n");
+		supportedBackends.add("glacier");
 	}
 
 	/**
 	 * @return true if {@link ArchiveFileSystemFactory} can create an
 	 *         {@link ArchiveFileSystem} from that URI.
 	 */
-	public static boolean isSupportedUri(URI create) {
-		return supportedUriSchemas.contains(create.getScheme());
+	public static boolean isSupportedBackend(String backend) {
+		return supportedBackends.contains(backend);
 	}
 
 	/**
@@ -69,7 +75,8 @@ public class ArchiveFileSystemFactory {
 	 */
 	public static ArchiveFileSystem getWithConfiguration(
 			ArchiveConfiguration config) {
-		return getForUriToTmpDir(config.getTmpDirectory());
+		return getByNameAndLocalFileSystemPaths(config.getBackendName(),
+				LocalFileSystemPaths.create(config));
 	}
 
 	/**
@@ -80,26 +87,31 @@ public class ArchiveFileSystemFactory {
 	 * 
 	 * @return
 	 */
-	public static ArchiveFileSystem getForUriToTmpDir(URI uri) {
-		if (!supportedUriSchemas.contains(uri.getScheme()))
-			throw new UnsupportedUriException("Supported Uri schemas are: "
-					+ supportedUriSchemas);
+	public static ArchiveFileSystem getByNameAndLocalFileSystemPaths(
+			String backend, LocalFileSystemPaths localFileSystemPaths) {
+		if (!supportedBackends.contains(backend))
+			throw new UnsupportedBackendException("Supported backends are: "
+					+ supportedBackends + ", backend was: " + backend);
 		else
-			return supportedArchiveFileSystem(uri);
+			return supportedArchiveFileSystem(backend, localFileSystemPaths);
 	}
 
-	private static ArchiveFileSystem supportedArchiveFileSystem(URI uri) {
-		if (uri.getScheme().equals("file") || uri.getScheme().equals("hdfs")
-				|| uri.getScheme().equals("s3") || uri.getScheme().equals("s3n"))
-			return createHadoopFileSystem(uri);
-
-		throw new IllegalStateException(
-				"Supported URI schemas should return a ArchiveFileSystem.");
-	}
-
-	private static ArchiveFileSystem createHadoopFileSystem(URI uri) {
-		FileSystem hadoopFs = getHadoopFileSystemSafe(uri);
-		return new HadoopFileSystemArchive(hadoopFs, new Path(uri.getPath()));
+	private static ArchiveFileSystem supportedArchiveFileSystem(String backend,
+			LocalFileSystemPaths localFileSystemPaths) {
+		if (backend.equals(LOCAL_FILESYSTEM_BACKEND_NAME))
+			return new HadoopArchiveFileSystem(
+					getHadoopFileSystemSafe(URI.create("file:/")));
+		else if (backend.equals("hdfs"))
+			return HadoopArchiveFileSystemFactory.create();
+		else if (backend.equals("s3"))
+			return S3ArchiveFileSystemFactory.createS3();
+		else if (backend.equals("s3n"))
+			return S3ArchiveFileSystemFactory.createS3n();
+		else if (backend.equals("glacier"))
+			return GlacierArchiveFileSystemFactory.create(localFileSystemPaths);
+		else
+			throw new IllegalStateException(
+					"Supported URI schemas should return a ArchiveFileSystem.");
 	}
 
 	private static FileSystem getHadoopFileSystemSafe(URI uri) {

@@ -14,6 +14,9 @@ curl http://loripsum.net/api/1000/verylong > $splunk_home/loremIpsum.txt
 
 while true
 do
-  $splunk_home/bin/splunk add oneshot $splunk_home/loremIpsum.txt -index archiver-test-index
+  $splunk_home/bin/splunk \
+      add oneshot $splunk_home/loremIpsum.txt \
+      -index archiver-test-index \
+      -auth admin:changed
   sleep 5
 done

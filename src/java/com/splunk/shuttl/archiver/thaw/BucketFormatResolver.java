@@ -17,18 +17,18 @@ package com.splunk.shuttl.archiver.thaw;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.util.UtilsURI;
+import com.splunk.shuttl.archiver.model.RemoteBucket;
 
 /**
  * Uses {@link ArchiveFileSystem} and {@link PathResolver} to list available
@@ -75,22 +75,23 @@ public class BucketFormatResolver {
 		List<BucketFormat> availableFormats = getAvailableFormatsForBucket(bucket);
 		BucketFormat chosenFormat = bucketFormatChooser
 				.chooseBucketFormat(availableFormats);
-		URI uriToBucketWithChosenBucket = pathResolver.resolveArchivedBucketURI(
-				bucket.getIndex(), bucket.getName(), chosenFormat);
+		String pathToBucketWithChosenBucket = pathResolver
+				.resolveArchivedBucketPath(bucket.getIndex(), bucket.getName(),
+						chosenFormat);
 		return createBucketWithErrorHandling(bucket, chosenFormat,
-				uriToBucketWithChosenBucket);
+				pathToBucketWithChosenBucket);
 	}
 
 	private List<BucketFormat> getAvailableFormatsForBucket(Bucket bucket) {
-		URI formatsHomeForBucket = pathResolver.getFormatsHome(bucket.getIndex(),
-				bucket.getName());
-		List<URI> archivedFormats = listArchivedFormatsWithErrorHandling(
+		String formatsHomeForBucket = pathResolver.getFormatsHome(
+				bucket.getIndex(), bucket.getName());
+		List<String> archivedFormats = listArchivedFormatsWithErrorHandling(
 				formatsHomeForBucket, bucket);
 		return getBucketFormats(archivedFormats);
 	}
 
-	private List<URI> listArchivedFormatsWithErrorHandling(
-			URI formatsHomeForBucket, Bucket bucket) {
+	private List<String> listArchivedFormatsWithErrorHandling(
+			String formatsHomeForBucket, Bucket bucket) {
 		try {
 			return archiveFileSystem.listPath(formatsHomeForBucket);
 		} catch (IOException e) {
@@ -101,26 +102,18 @@ public class BucketFormatResolver {
 		}
 	}
 
-	private List<BucketFormat> getBucketFormats(List<URI> formatUris) {
+	private List<BucketFormat> getBucketFormats(List<String> formatPaths) {
 		List<BucketFormat> formats = new ArrayList<BucketFormat>();
-		for (URI uri : formatUris) {
-			String formatName = UtilsURI
-					.getFileNameWithTrimmedEndingFileSeparator(uri);
+		for (String path : formatPaths) {
+			String formatName = FilenameUtils.getName(path);
 			formats.add(BucketFormat.valueOf(formatName));
 		}
 		return formats;
 	}
 
 	private Bucket createBucketWithErrorHandling(Bucket bucket,
-			BucketFormat chosenFormat, URI uriToBucketWithChosenBucket) {
-		try {
-			return new Bucket(uriToBucketWithChosenBucket, bucket.getIndex(),
-					bucket.getName(), chosenFormat);
-		} catch (IOException e) {
-			logger.debug(did("Created bucket with format", e,
-					"To create bucket from another bucket, only changing the format.",
-					"bucket", bucket, "bucket_format", chosenFormat, "exception", e));
-			throw new RuntimeException(e);
-		}
+			BucketFormat chosenFormat, String pathToBucketWithChosenBucket) {
+		return new RemoteBucket(pathToBucketWithChosenBucket, bucket.getIndex(),
+				bucket.getName(), chosenFormat);
 	}
 }

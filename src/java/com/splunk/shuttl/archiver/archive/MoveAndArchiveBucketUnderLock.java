@@ -17,6 +17,7 @@ package com.splunk.shuttl.archiver.archive;
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Moves the bucket with the {@link IndexPreservingBucketMover} and archives it
@@ -49,16 +50,16 @@ public class MoveAndArchiveBucketUnderLock implements SharedLockBucketHandler {
 	 */
 	@Override
 	public void handleSharedLockedBucket(Bucket bucket) {
-		moveThenArchiveBucket(bucket);
+		moveThenArchiveBucket((LocalBucket) bucket);
 	}
 
 	/**
 	 * @param bucket
 	 *          to move and archive
 	 */
-	public void moveThenArchiveBucket(Bucket bucket) {
-		Bucket movedBucket = bucketMover.moveBucket(bucket);
-		archiveRestHandler.callRestToArchiveBucket(movedBucket);
+	public void moveThenArchiveBucket(LocalBucket bucket) {
+		LocalBucket movedBucket = bucketMover.moveBucket(bucket);
+		archiveRestHandler.callRestToArchiveLocalBucket(movedBucket);
 	}
 
 	/*

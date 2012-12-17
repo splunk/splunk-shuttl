@@ -14,22 +14,13 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
-import static com.splunk.shuttl.archiver.LogFormatter.*;
-
-import java.io.IOException;
-
-import org.apache.log4j.Logger;
-
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
  * Resolves sizes for buckets that has been thawed.
  */
 public class BucketSizeResolver {
-
-	private static final Logger logger = Logger
-			.getLogger(BucketSizeResolver.class);
 
 	private final ArchiveBucketSize archiveBucketSize;
 
@@ -46,27 +37,9 @@ public class BucketSizeResolver {
 	 *          that needs size to be resolved from the archive.
 	 */
 	public Bucket resolveBucketSize(Bucket bucket) {
-		return createBucketWithSize(bucket);
+		Long size = archiveBucketSize.readBucketSize(bucket);
+		return new Bucket(bucket.getPath(), bucket.getIndex(), bucket.getName(),
+				bucket.getFormat(), size);
 	}
 
-	private Bucket createBucketWithSize(Bucket bucket) {
-		long size = archiveBucketSize.getSize(bucket);
-		return createBucketWithErrorHandling(bucket, size);
-	}
-
-	private Bucket createBucketWithErrorHandling(Bucket bucket, long size) {
-		try {
-			return new Bucket(bucket.getURI(), bucket.getIndex(), bucket.getName(),
-					bucket.getFormat(), size);
-		} catch (IOException e) {
-			logIOException(bucket, size, e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void logIOException(Bucket bucket, long size, IOException e) {
-		logger.error(did("Tried creating " + "bucket with size", e,
-				"To create a bucket from " + "an existing bucket object"
-						+ " keeping everything but size.", "bucket", bucket, "size", size));
-	}
 }

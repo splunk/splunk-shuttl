@@ -30,6 +30,7 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
@@ -37,6 +38,10 @@ import org.apache.log4j.Logger;
 import com.splunk.shuttl.ShuttlConstants;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.archiver.util.UtilsHttp;
+import com.splunk.shuttl.server.mbeans.ShuttlServer;
+import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.rest.ListBucketsEndpoint;
 
 /**
@@ -46,17 +51,20 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 
 	private final HttpClient httpClient;
 	private final Logger logger;
+	private ShuttlServerMBean serverMBean;
 
-	public ArchiveRestHandler(HttpClient httpClient) {
-		this(httpClient, Logger.getLogger(ArchiveRestHandler.class));
+	public ArchiveRestHandler(HttpClient httpClient, ShuttlServerMBean mbean) {
+		this(httpClient, Logger.getLogger(ArchiveRestHandler.class), mbean);
 	}
 
-	public ArchiveRestHandler(HttpClient httpClient, Logger logger) {
+	public ArchiveRestHandler(HttpClient httpClient, Logger logger,
+			ShuttlServerMBean serverMBean) {
 		this.httpClient = httpClient;
 		this.logger = logger;
+		this.serverMBean = serverMBean;
 	}
 
-	public void callRestToArchiveBucket(Bucket bucket) {
+	public void callRestToArchiveLocalBucket(LocalBucket bucket) {
 		HttpResponse response = null;
 		try {
 			HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
@@ -66,16 +74,16 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		} catch (IOException e) {
 			logIOExceptionGenereratedByDoingArchiveBucketRequest(e, bucket);
 		} finally {
-			if (response != null)
-				consumeResponseHandlingErrors(response);
+			UtilsHttp.consumeResponse(response);
 		}
 	}
 
-	private static HttpUriRequest createBucketArchiveRequest(Bucket bucket)
+	private HttpUriRequest createBucketArchiveRequest(LocalBucket bucket)
 			throws UnsupportedEncodingException {
 		// CONFIG configure the host and port with a general solution.
-		String requestString = "http://localhost:9090/"
-				+ ShuttlConstants.ENDPOINT_CONTEXT + ShuttlConstants.ENDPOINT_ARCHIVER
+		String requestString = "http://" + serverMBean.getHttpHost() + ":"
+				+ serverMBean.getHttpPort() + "/" + ShuttlConstants.ENDPOINT_CONTEXT
+				+ ShuttlConstants.ENDPOINT_ARCHIVER
 				+ ShuttlConstants.ENDPOINT_BUCKET_ARCHIVER;
 
 		HttpPost request = new HttpPost(requestString);
@@ -145,16 +153,6 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 				"cause", e.getCause()));
 	}
 
-	private void consumeResponseHandlingErrors(HttpResponse response) {
-		try {
-			EntityUtils.consume(response.getEntity());
-		} catch (IOException e) {
-			logger.error(did(
-					"Tried to consume http response of archive bucket request", e,
-					"no exception", "response", response));
-		}
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -164,7 +162,7 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	 */
 	@Override
 	public void handleSharedLockedBucket(Bucket bucket) {
-		callRestToArchiveBucket(bucket);
+		callRestToArchiveLocalBucket((LocalBucket) bucket);
 	}
 
 	/*
@@ -177,6 +175,14 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	@Override
 	public void bucketWasLocked(Bucket bucket) {
 		// Do nothing.
+	}
+
+	public static ArchiveRestHandler create() {
+		Logger logger = Logger.getLogger(ArchiveRestHandler.class);
+		ShuttlServerMBean serverMBean = ShuttlServer
+				.getRegisteredServerMBean(logger);
+
+		return new ArchiveRestHandler(new DefaultHttpClient(), logger, serverMBean);
 	}
 
 }

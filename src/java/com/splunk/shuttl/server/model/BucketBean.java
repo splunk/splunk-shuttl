@@ -146,7 +146,7 @@ public class BucketBean {
 		String size = FileUtils.byteCountToDisplaySize(bucket.getSize() == null ? 0
 				: bucket.getSize());
 		return new BucketBean(bucket.getFormat().name(), bucket.getIndex(),
-				bucket.getName(), bucket.getURI().toString(),
+				bucket.getName(), bucket.getPath(),
 				stringFromDate(bucket.getEarliest()),
 				stringFromDate(bucket.getLatest()), size);
 	}

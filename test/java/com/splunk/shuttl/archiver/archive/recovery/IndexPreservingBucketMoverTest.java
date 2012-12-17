@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
@@ -96,8 +97,8 @@ public class IndexPreservingBucketMoverTest {
 
 	public void getMovedBuckets_givenTwoBucketsWithSameIndexInMoveLocation_listWithTheTwoBuckets() {
 		String index = "a";
-		Bucket movedBucket = createBucketInMoveLocationWithIndexPreserved(index);
-		Bucket movedBucketSameIndex = TUtilsBucket
+		LocalBucket movedBucket = createBucketInMoveLocationWithIndexPreserved(index);
+		LocalBucket movedBucketSameIndex = TUtilsBucket
 				.createBucketInDirectoryWithIndex(movedBucket.getDirectory()
 						.getParentFile(), index);
 
@@ -113,31 +114,31 @@ public class IndexPreservingBucketMoverTest {
 	}
 
 	public void moveBucket_givenBucket_movedBucketExistsAfterMove() {
-		Bucket bucketToMove = TUtilsBucket.createBucket();
+		LocalBucket bucketToMove = TUtilsBucket.createBucket();
 
-		Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
+		LocalBucket movedBucket = bucketMover.moveBucket(bucketToMove);
 		assertTrue(movedBucket.getDirectory().exists());
 	}
 
 	public void moveBucket_givenBucket_movedBucketsParentHasTheIndexName() {
 		assertTrue(isDirectoryEmpty(moveBucketLocation));
-		Bucket bucketToMove = TUtilsBucket.createBucket();
+		LocalBucket bucketToMove = TUtilsBucket.createBucket();
 
-		Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
+		LocalBucket movedBucket = bucketMover.moveBucket(bucketToMove);
 		assertEquals(movedBucket.getIndex(), movedBucket.getDirectory()
 				.getParentFile().getName());
 	}
 
 	public void moveBucket_givenBucket_movesBucketsGrandParentIsTheMoveBucketLocation() {
-		Bucket bucketToMove = TUtilsBucket.createBucket();
+		LocalBucket bucketToMove = TUtilsBucket.createBucket();
 
-		Bucket movedBucket = bucketMover.moveBucket(bucketToMove);
+		LocalBucket movedBucket = bucketMover.moveBucket(bucketToMove);
 		assertEquals(moveBucketLocation.getAbsolutePath(), movedBucket
 				.getDirectory().getParentFile().getParentFile().getAbsolutePath());
 	}
 
 	public void getMovedBuckets_afterSuccessfullyMovedABucketUsingMoveBucket_getBucketThatMoved() {
-		Bucket bucketToMove = TUtilsBucket.createBucket();
+		LocalBucket bucketToMove = TUtilsBucket.createBucket();
 		bucketMover.moveBucket(bucketToMove);
 
 		List<Bucket> movedBucket = bucketMover.getMovedBuckets();
@@ -163,7 +164,7 @@ public class IndexPreservingBucketMoverTest {
 		assertTrue(movedBuckets.isEmpty());
 	}
 
-	private Bucket createBucketInMoveLocationWithIndexPreserved(String index) {
+	private LocalBucket createBucketInMoveLocationWithIndexPreserved(String index) {
 		File directoryRepresentingIndex = TUtilsFile.createDirectoryInParent(
 				moveBucketLocation, index);
 		return TUtilsBucket.createBucketInDirectoryWithIndex(

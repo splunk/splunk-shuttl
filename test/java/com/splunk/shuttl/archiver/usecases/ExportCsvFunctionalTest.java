@@ -29,14 +29,15 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.listers.ArchiveBucketsLister;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketFormatChooser;
 import com.splunk.shuttl.archiver.thaw.BucketFormatResolver;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -48,7 +49,7 @@ public class ExportCsvFunctionalTest {
 	private BucketArchiver csvBucketArchiver;
 	private ArchiveBucketsLister bucketsLister;
 	private BucketFormatResolver bucketFormatResolver;
-	private Bucket bucket;
+	private LocalBucket bucket;
 	private File archiverData;
 
 	@BeforeMethod
@@ -58,8 +59,8 @@ public class ExportCsvFunctionalTest {
 				.getLocalCsvArchiveConfigration();
 		ArchiveFileSystem localFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(csvConfig);
-		csvBucketArchiver = BucketArchiverFactory
-				.createWithConfFileSystemAndCsvDirectory(csvConfig, localFileSystem,
+		csvBucketArchiver = BucketShuttlerFactory
+				.createWithConfFileSystemAndLocalPaths(csvConfig, localFileSystem,
 						new LocalFileSystemPaths(archiverData.getAbsolutePath()));
 		PathResolver pathResolver = new PathResolver(csvConfig);
 		ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(

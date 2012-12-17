@@ -17,15 +17,14 @@ package com.splunk.shuttl.archiver.listers;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
 
 /**
  * Lists indexes in an {@link ArchiveFileSystem}
@@ -54,15 +53,15 @@ public class ArchivedIndexesLister {
 	 *         {@link ArchiveFileSystem}
 	 */
 	public List<String> listIndexes() {
-		URI indexesHome = pathResolver.getIndexesHome();
-		List<URI> indexUris = listIndexesUrisOnArchiveFileSystem(indexesHome);
+		String indexesHome = pathResolver.getIndexesHome();
+		List<String> indexPaths = listIndexesPathsOnArchiveFileSystem(indexesHome);
 		List<String> indexes = new ArrayList<String>();
-		for (URI uri : indexUris)
-			indexes.add(FilenameUtils.getName(uri.getPath()));
+		for (String path : indexPaths)
+			indexes.add(FilenameUtils.getName(path));
 		return indexes;
 	}
 
-	private List<URI> listIndexesUrisOnArchiveFileSystem(URI indexesHome) {
+	private List<String> listIndexesPathsOnArchiveFileSystem(String indexesHome) {
 		try {
 			return fileSystem.listPath(indexesHome);
 		} catch (IOException e) {

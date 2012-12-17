@@ -16,8 +16,6 @@ package com.splunk.shuttl.archiver.thaw;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +26,7 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Interacts with the archive to thaw buckets within the users needs, which is
@@ -39,11 +38,12 @@ public class BucketThawer {
 
 	private final ListsBucketsFiltered listsBucketsFiltered;
 	private final GetsBucketsFromArchive getsBucketsFromArchive;
-	private final ThawLocationProvider thawLocationProvider;
-	private final List<Bucket> successfulThawedBuckets;
+	private final List<LocalBucket> successfulThawedBuckets;
 	private final List<Bucket> skippedBuckets;
 	private final List<FailedBucket> failedBuckets;
 	private final BucketLocker thawBucketLocker;
+
+	private LocalBucketStorage localBuckets;
 
 	public static class FailedBucket {
 
@@ -69,13 +69,13 @@ public class BucketThawer {
 	 */
 	public BucketThawer(ListsBucketsFiltered listsBucketsFiltered,
 			GetsBucketsFromArchive getsBucketsFromArchive,
-			ThawLocationProvider thawLocationProvider, BucketLocker thawBucketLocker) {
+			LocalBucketStorage localBuckets, BucketLocker thawBucketLocker) {
 		this.listsBucketsFiltered = listsBucketsFiltered;
 		this.getsBucketsFromArchive = getsBucketsFromArchive;
-		this.thawLocationProvider = thawLocationProvider;
+		this.localBuckets = localBuckets;
 		this.thawBucketLocker = thawBucketLocker;
 
-		this.successfulThawedBuckets = new ArrayList<Bucket>();
+		this.successfulThawedBuckets = new ArrayList<LocalBucket>();
 		this.skippedBuckets = new ArrayList<Bucket>();
 		this.failedBuckets = new ArrayList<FailedBucket>();
 	}
@@ -95,14 +95,14 @@ public class BucketThawer {
 				latestTime);
 		for (Bucket bucket : bucketsToThaw)
 			try {
-				if (!isBucketAlreadyThawed(bucket)) {
+				if (!localBuckets.hasBucket(bucket)) {
 					thawBucketLocker.callBucketHandlerUnderSharedLock(bucket,
 							new ThawBucketFromArchive());
 				} else {
 					skippedBuckets.add(bucket);
 				}
-			} catch (IOException e) {
-				logIOExceptionFromCheckingIfBucketWasThawed(bucket, e);
+			} catch (Exception e) {
+				logExceptionFromCheckingIfBucketWasThawed(bucket, e);
 				failedBuckets.add(new FailedBucket(bucket, e));
 			}
 	}
@@ -117,13 +117,8 @@ public class BucketThawer {
 		}
 	}
 
-	private boolean isBucketAlreadyThawed(Bucket bucket) throws IOException {
-		File thawLocation = thawLocationProvider.getLocationInThawForBucket(bucket);
-		return thawLocation != null && thawLocation.exists();
-	}
-
-	private void logIOExceptionFromCheckingIfBucketWasThawed(Bucket bucket,
-			IOException e) {
+	private void logExceptionFromCheckingIfBucketWasThawed(Bucket bucket,
+			Exception e) {
 		logger.error(did("Tried thawing bucket", e, "To thaw bucket unless it "
 				+ "was already thawed.", "bucket", bucket, "exception", e));
 	}
@@ -149,19 +144,33 @@ public class BucketThawer {
 
 	private void thawBucketFromArchive(Bucket bucket) {
 		try {
-			Bucket thawedBucket = getsBucketsFromArchive.getBucketFromArchive(bucket);
+			LocalBucket thawedBucket = getsBucketsFromArchive
+					.getBucketFromArchive(bucket);
 			successfulThawedBuckets.add(thawedBucket);
 		} catch (ThawTransferFailException e) {
+			logTransferException(bucket, e);
 			failedBuckets.add(new FailedBucket(bucket, e));
 		} catch (ImportThawedBucketFailException e) {
+			logImportException(bucket, e);
 			failedBuckets.add(new FailedBucket(bucket, e));
 		}
+	}
+
+	private void logTransferException(Bucket bucket, ThawTransferFailException e) {
+		logger.error(did("Tried to transfer bucket to thaw", e,
+				"Transfer to succeed", "bucket", bucket, "exception", e));
+	}
+
+	private void logImportException(Bucket bucket,
+			ImportThawedBucketFailException e) {
+		logger.error(did("Tried to import transfered bucket in thaw", e,
+				"To import bucket", "bucket", bucket, "exception", e));
 	}
 
 	/**
 	 * @return buckets that succeeded to be thawed.
 	 */
-	public List<Bucket> getThawedBuckets() {
+	public List<LocalBucket> getThawedBuckets() {
 		return successfulThawedBuckets;
 	}
 

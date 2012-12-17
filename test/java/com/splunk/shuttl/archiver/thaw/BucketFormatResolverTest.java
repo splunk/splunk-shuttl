@@ -19,7 +19,6 @@ import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,8 +26,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -44,7 +43,7 @@ public class BucketFormatResolverTest {
 
 	@BeforeMethod
 	public void setUp() {
-		mockedBucketsList = Arrays.asList(createBucketWithMockedURI());
+		mockedBucketsList = Arrays.asList(mock(Bucket.class));
 
 		pathResolver = mock(PathResolver.class);
 		archiveFileSystem = mock(ArchiveFileSystem.class);
@@ -53,42 +52,35 @@ public class BucketFormatResolverTest {
 				archiveFileSystem, bucketFormatChooser);
 	}
 
-	private Bucket createBucketWithMockedURI() {
-		Bucket bucketWithMockedURI = mock(Bucket.class);
-		URI uri = URI.create("valid:/uri");
-		when(bucketWithMockedURI.getURI()).thenReturn(uri);
-		return bucketWithMockedURI;
-	}
-
 	@Test(groups = { "fast-unit" })
 	public void resolveBucketsFormats_givenFormatsHomeForBucket_listFormatsHomeInArchiveFileSystem()
 			throws IOException {
-		URI formatsHome = URI.create("valid:/uri");
+		String formatsHome = "/path/to/format";
 		when(pathResolver.getFormatsHome(anyString(), anyString())).thenReturn(
 				formatsHome);
 		bucketFormatResolver.resolveBucketsFormats(mockedBucketsList);
 		verify(archiveFileSystem).listPath(formatsHome);
 	}
 
-	public void resolveBucketsFormats_givenFormatUris_directoryNameIsFormat()
+	public void resolveBucketsFormats_givenFormatPaths_directoryNameIsFormat()
 			throws IOException {
 		BucketFormat format = BucketFormat.SPLUNK_BUCKET;
-		URI formatURI = URI.create("valid:/uri/" + format);
-		when(archiveFileSystem.listPath(any(URI.class))).thenReturn(
-				Arrays.asList(formatURI));
+		String formatPath = "/path/" + format;
+		when(archiveFileSystem.listPath(anyString())).thenReturn(
+				Arrays.asList(formatPath));
 		bucketFormatResolver.resolveBucketsFormats(mockedBucketsList);
 		verify(bucketFormatChooser).chooseBucketFormat(Arrays.asList(format));
 	}
 
 	@SuppressWarnings("unchecked")
-	public void resolveBucketsFormats_givenChosenFormat_resolvingUriForBucketWithFormat() {
+	public void resolveBucketsFormats_givenChosenFormat_resolvingPathForBucketWithFormat() {
 		Bucket bucket = TUtilsBucket.createBucket();
 		BucketFormat format = BucketFormat.SPLUNK_BUCKET;
 		when(bucketFormatChooser.chooseBucketFormat(anyList())).thenReturn(format);
 
 		bucketFormatResolver.resolveBucketsFormats(Arrays.asList(bucket));
 
-		verify(pathResolver).resolveArchivedBucketURI(bucket.getIndex(),
+		verify(pathResolver).resolveArchivedBucketPath(bucket.getIndex(),
 				bucket.getName(), format);
 	}
 
@@ -107,15 +99,15 @@ public class BucketFormatResolverTest {
 		assertEquals(bucket.getName(), bucketsWithFormat.get(0).getName());
 	}
 
-	public void resolveBucketsFormats_givenUriToBucketWithResolvedFormat_bucketWithUri() {
-		URI uri = URI.create("valid:/uri/to/bucket/with/new/format");
+	public void resolveBucketsFormats_givenPathToBucketWithResolvedFormat_bucketWithPath() {
+		String path = "/path/to/bucket/with/new/format";
 		when(
-				pathResolver.resolveArchivedBucketURI(anyString(), anyString(),
-						any(BucketFormat.class))).thenReturn(uri);
+				pathResolver.resolveArchivedBucketPath(anyString(), anyString(),
+						any(BucketFormat.class))).thenReturn(path);
 
 		List<Bucket> bucketsWithFormat = bucketFormatResolver
 				.resolveBucketsFormats(mockedBucketsList);
 		assertEquals(1, bucketsWithFormat.size());
-		assertEquals(uri, bucketsWithFormat.get(0).getURI());
+		assertEquals(path, bucketsWithFormat.get(0).getPath());
 	}
 }

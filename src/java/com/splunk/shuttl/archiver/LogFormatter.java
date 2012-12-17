@@ -75,7 +75,7 @@ public class LogFormatter {
 	 */
 	public static String warn(Object did, Object happened, Object result,
 			Object... keyValues) {
-		return combineAdditionalKeyValues(keyValues, "did", did, "happened",
+		return combineAdditionalKeyValues(keyValues, "warning", did, "happened",
 				happened, "result", result);
 	}
 

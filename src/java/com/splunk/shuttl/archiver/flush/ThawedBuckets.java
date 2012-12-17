@@ -19,14 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 public class ThawedBuckets {
 
-	public static List<Bucket> getBucketsFromThawLocation(String index,
+	public static List<LocalBucket> getBucketsFromThawLocation(String index,
 			File thawLocation) {
-		List<Bucket> buckets = new ArrayList<Bucket>();
+		List<LocalBucket> buckets = new ArrayList<LocalBucket>();
 		File[] files = thawLocation.listFiles();
 		if (files != null)
 			for (File f : files)

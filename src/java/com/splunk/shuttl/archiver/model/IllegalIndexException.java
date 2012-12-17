@@ -14,12 +14,11 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.model;
 
-import java.io.IOException;
 
 /**
  * Thrown when trying to access an index that does not exist.
  */
-public class IllegalIndexException extends IOException {
+public class IllegalIndexException extends RuntimeException {
 
 	public IllegalIndexException(String message) {
 		super(message);

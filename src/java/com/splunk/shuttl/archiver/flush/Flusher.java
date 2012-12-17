@@ -23,27 +23,28 @@ import java.util.List;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
-import com.splunk.shuttl.archiver.model.IllegalBucketNameException;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
+import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
 
 /**
  * Removes aka flushes, buckets in an index for a time range.
  */
 public class Flusher {
 
-	private final SplunkSettings splunkSettings;
+	private final SplunkIndexesLayer splunkIndexesLayer;
 	private ArrayList<Bucket> flushedBuckets;
 	private ArchivedIndexesLister indexesLister;
 
 	/**
-	 * @param splunkSettings
+	 * @param splunkIndexesLayer
 	 * @param indexesLister
 	 */
-	public Flusher(SplunkSettings splunkSettings,
+	public Flusher(SplunkIndexesLayer splunkIndexesLayer,
 			ArchivedIndexesLister indexesLister) {
-		this.splunkSettings = splunkSettings;
+		this.splunkIndexesLayer = splunkIndexesLayer;
 		this.indexesLister = indexesLister;
 		this.flushedBuckets = new ArrayList<Bucket>();
 	}
@@ -74,25 +75,26 @@ public class Flusher {
 
 	private void doFlush(String index, Date earliest, Date latest)
 			throws FileNotDirectoryException, IOException {
-		File thawLocation = splunkSettings.getThawLocation(index);
-		List<Bucket> buckets = ThawedBuckets.getBucketsFromThawLocation(index,
+		File thawLocation = splunkIndexesLayer.getThawLocation(index);
+		List<LocalBucket> buckets = ThawedBuckets.getBucketsFromThawLocation(index,
 				thawLocation);
-		List<Bucket> bucketsToFlush = filterByTimeRange(earliest, latest, buckets);
-		for (Bucket b : bucketsToFlush) {
+		List<LocalBucket> bucketsToFlush = filterByTimeRange(earliest, latest,
+				buckets);
+		for (LocalBucket b : bucketsToFlush) {
 			b.deleteBucket();
 			flushedBuckets.add(b);
 		}
 	}
 
-	private List<Bucket> filterByTimeRange(Date earliest, Date latest,
-			List<Bucket> buckets) {
-		List<Bucket> filtered = new ArrayList<Bucket>();
-		for (Bucket b : buckets) {
+	private List<LocalBucket> filterByTimeRange(Date earliest, Date latest,
+			List<LocalBucket> buckets) {
+		List<LocalBucket> filtered = new ArrayList<LocalBucket>();
+		for (LocalBucket b : buckets) {
 			try {
 				if (BucketFilter.isBucketWithinTimeRange(b, earliest, latest)) {
 					filtered.add(b);
 				}
-			} catch (IllegalBucketNameException e) {
+			} catch (IllegalRegexGroupException e) {
 				// Do nothing.
 			}
 		}

@@ -35,21 +35,32 @@ import com.splunk.shuttl.testutil.TUtilsString;
 @Test(groups = { "fast-unit" })
 public class ShuttlArchiverMBeanTest {
 	ShuttlArchiver archiverMBean;
+	private String clusterName;
+	private String serverName;
+	private String backendName;
+	private String archivePath;
 
 	@BeforeMethod(groups = { "fast-unit" })
 	public void createMBean() throws Exception {
 		File confFile = getTempFile();
-		System.out.println("ShuttlArchiverMBeanTest - running "
-				+ confFile.getPath());
 		archiverMBean = ShuttlArchiver.createWithConfFile(confFile);
+		clusterName = "cluster_name";
+		serverName = "server_name";
+		backendName = "backend";
+		archivePath = "/archive_path";
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void setArchiverRoot_archiverRootIsSet_gotArchiverRoot() {
-		String archiverRoot = "/test_archive_root";
-		assertNotEquals(archiverMBean.getArchiverRootURI(), archiverRoot);
-		archiverMBean.setArchiverRootURI(archiverRoot);
-		assertEquals(archiverMBean.getArchiverRootURI(), archiverRoot);
+	public void setBackendName_backendNameIsSet_gotBackendName() {
+		assertNotEquals(archiverMBean.getBackendName(), backendName);
+		archiverMBean.setBackendName(backendName);
+		assertEquals(archiverMBean.getBackendName(), backendName);
+	}
+
+	public void setArchivePath_archivePathIsSet_gotArchivePath() {
+		assertNotEquals(archiverMBean.getArchivePath(), archivePath);
+		archiverMBean.setArchivePath(archivePath);
+		assertEquals(archiverMBean.getArchivePath(), archivePath);
 	}
 
 	public void setArchiveFormat_archiveFormatIsSet_gotArchiveFormat() {
@@ -60,14 +71,12 @@ public class ShuttlArchiverMBeanTest {
 	}
 
 	public void setClusterName_clusterNameIsSet_gotClusterName() {
-		String clusterName = "test_cluster_name";
 		assertNotEquals(archiverMBean.getClusterName(), clusterName);
 		archiverMBean.setClusterName(clusterName);
 		assertEquals(archiverMBean.getClusterName(), clusterName);
 	}
 
 	public void setServerName_serverNameIsSet_gotCluserName() {
-		String serverName = "test_server_name";
 		assertNotEquals(archiverMBean.getServerName(), serverName);
 		archiverMBean.setServerName(serverName);
 		assertEquals(archiverMBean.getServerName(), serverName);
@@ -84,27 +93,25 @@ public class ShuttlArchiverMBeanTest {
 
 	public void save_configured_producesCorrectXML() throws Exception {
 		List<String> archiveFormats = asList("SPLUNK_BUCKET", "CSV");
-		String clusterName = "some_cluster_name";
-		String serverName = "some_server_name";
-		String archiverRootURI = "hdfs://localhost:1234";
 		String expectedConfigFile = TUtilsMBean.XML_HEADER
 				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">\n"
 				+ "<archiveFormats>\n"
 				+ "<archiveFormat>SPLUNK_BUCKET</archiveFormat>\n"
 				+ "<archiveFormat>CSV</archiveFormat>\n" + "</archiveFormats>\n"
 				+ "<clusterName>" + clusterName + "</clusterName>\n" + "<serverName>"
-				+ serverName + "</serverName>\n" + "<archiverRootURI>"
-				+ archiverRootURI + "</archiverRootURI>\n" + "<bucketFormatPriority>"
+				+ serverName + "</serverName>\n" + "<bucketFormatPriority>"
 				+ "SPLUNK_BUCKET" + "</bucketFormatPriority>\n"
 				+ "<bucketFormatPriority>" + "CSV" + "</bucketFormatPriority>\n"
-				+ "</ns2:archiverConf>\n";
+				+ "<backendName>" + backendName + "</backendName>\n" + "<archivePath>"
+				+ archivePath + "</archivePath>\n" + "</ns2:archiverConf>\n";
 
 		File file = getTempFile();
 		archiverMBean = ShuttlArchiver.createWithConfFile(file);
 		archiverMBean.setArchiveFormats(archiveFormats);
 		archiverMBean.setClusterName(clusterName);
 		archiverMBean.setServerName(serverName);
-		archiverMBean.setArchiverRootURI(archiverRootURI);
+		archiverMBean.setBackendName(backendName);
+		archiverMBean.setArchivePath(archivePath);
 		archiverMBean.setBucketFormatPriority(archiveFormats);
 		archiverMBean.save();
 
@@ -113,10 +120,6 @@ public class ShuttlArchiverMBeanTest {
 	}
 
 	public void load_preconfiguredFile_givesCorrectValues() throws Exception {
-		List<String> archiveFormats = asList("SPLUNK_BUCKET", "CSV");
-		String clusterName = "some_cluster_name";
-		String serverName = "some_server_name";
-		String archiverRootURI = "hdfs://localhost:1234";
 		String configFilePreset = TUtilsMBean.XML_HEADER
 				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">\n"
 				+ "<archiveFormats>\n"
@@ -124,10 +127,12 @@ public class ShuttlArchiverMBeanTest {
 				+ "<archiveFormat>CSV</archiveFormat>\n" + "</archiveFormats>\n"
 				+ "<clusterName>" + clusterName + "</clusterName>\n"
 				+ "    <serverName>" + serverName + "</serverName>\n"
-				+ "    <archiverRootURI>" + archiverRootURI + "</archiverRootURI>\n"
+				+ "    <backendName>" + backendName + "</backendName>\n"
+				+ "    <archivePath>" + archivePath + "</archivePath>\n"
 				+ "    <bucketFormatPriority>" + "SPLUNK_BUCKET"
 				+ "</bucketFormatPriority>\n" + "</ns2:archiverConf>";
 
+		List<String> archiveFormats = asList("SPLUNK_BUCKET", "CSV");
 		File file = createFile();
 		file.deleteOnExit();
 		FileUtils.writeStringToFile(file, configFilePreset);
@@ -135,11 +140,11 @@ public class ShuttlArchiverMBeanTest {
 		assertEquals(archiverMBean.getArchiveFormats(), archiveFormats);
 		assertEquals(archiverMBean.getClusterName(), clusterName);
 		assertEquals(archiverMBean.getServerName(), serverName);
-		assertEquals(archiverMBean.getArchiverRootURI(), archiverRootURI);
+		assertEquals(archiverMBean.getBackendName(), backendName);
+		assertEquals(archiverMBean.getArchivePath(), archivePath);
 	}
 
 	private File getTempFile() throws Exception {
 		return TUtilsMBean.createEmptyConfInNamespace("archiverConf");
 	}
-
 }

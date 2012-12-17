@@ -119,6 +119,7 @@ public class TUtilsTestNG {
 		assertTrue(dir1.exists());
 		assertTrue(dir2.exists());
 		assertEquals(dir1.listFiles().length, dir2.listFiles().length);
+		assertEquals(dir1.listFiles().length, dir2.listFiles().length);
 		assertEquals(sizeOfDir(dir1), sizeOfDir(dir2));
 		assertFalse(dir1.getAbsolutePath().equals(dir2.getAbsolutePath()));
 	}

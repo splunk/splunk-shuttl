@@ -49,7 +49,8 @@ public class BucketFilter {
 		return BucketFilter.filterBuckets(buckets, earliest, latest);
 	}
 
-	public static List<Bucket> filterBuckets(List<Bucket> buckets, Date earliest,
+	public static List<Bucket> filterBuckets(List<? extends Bucket> buckets,
+			Date earliest,
 			Date latest) {
 		if (earliest.after(latest))
 			return emptyListWithLogWarning(earliest, latest);
@@ -58,7 +59,7 @@ public class BucketFilter {
 	}
 
 	private static List<Bucket> filterBucketsWithinTimeRange(
-			List<Bucket> buckets, Date earliest, Date latest) {
+			List<? extends Bucket> buckets, Date earliest, Date latest) {
 		ArrayList<Bucket> filteredBuckets = new ArrayList<Bucket>();
 		for (Bucket bucket : buckets)
 			if (isBucketWithinTimeRange(bucket, earliest, latest))

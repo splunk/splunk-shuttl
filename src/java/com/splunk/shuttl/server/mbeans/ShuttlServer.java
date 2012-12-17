@@ -14,8 +14,16 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.io.File;
 
+import javax.management.InstanceNotFoundException;
+
+import org.apache.log4j.Logger;
+
+import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
+import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 import com.splunk.shuttl.server.model.ServerConf;
 
 /**
@@ -25,6 +33,8 @@ import com.splunk.shuttl.server.model.ServerConf;
  */
 public class ShuttlServer extends MBeanBase<ServerConf> implements
 		ShuttlServerMBean {
+
+	public static final String OBJECT_NAME = "com.splunk.shuttl.mbeans:type=Server";
 
 	private ServerConf conf;
 
@@ -82,5 +92,23 @@ public class ShuttlServer extends MBeanBase<ServerConf> implements
 	@Override
 	protected void setConfObject(ServerConf conf) {
 		this.conf = conf;
+	}
+
+	public static ShuttlServerMBean getMBeanProxy()
+			throws InstanceNotFoundException {
+		return MBeanUtils.getMBeanInstance(ShuttlServer.OBJECT_NAME,
+				ShuttlServerMBean.class);
+	}
+
+	public static ShuttlServerMBean getRegisteredServerMBean(Logger logger) {
+		RegistersMBeans.create().registerMBean(ShuttlServer.OBJECT_NAME,
+				new ShuttlServer());
+		try {
+			return ShuttlServer.getMBeanProxy();
+		} catch (InstanceNotFoundException e) {
+			logger.error(did("Created a ShuttlServerMBean proxy", e,
+					"To get the instance without exception"));
+			throw new RuntimeException(e);
+		}
 	}
 }

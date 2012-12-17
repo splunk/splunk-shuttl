@@ -16,13 +16,15 @@ package com.splunk.shuttl.archiver.thaw;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
-import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
+import com.splunk.shuttl.archiver.copy.IndexStoragePaths;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.importexport.BucketImporter;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
+import com.splunk.shuttl.archiver.importexport.BucketImportController;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 
 /**
@@ -34,42 +36,54 @@ public class BucketThawerFactory {
 	 * Default {@link BucketThawer} as configured with .conf files.
 	 */
 	public static BucketThawer createDefaultThawer() {
-		SplunkSettings splunkSettings = SplunkSettingsFactory.create();
+		SplunkIndexesLayer splunkIndexesLayer = SplunkIndexedLayerFactory.create();
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 		return createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
-				splunkSettings, LocalFileSystemPaths.create());
+				splunkIndexesLayer, LocalFileSystemPaths.create());
 	}
 
 	/**
 	 * Factory method for testability.
 	 */
 	public static BucketThawer createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(
-			ArchiveConfiguration configuration, SplunkSettings splunkSettings,
+			ArchiveConfiguration configuration,
+			SplunkIndexesLayer splunkIndexesLayer,
 			LocalFileSystemPaths localFileSystemPaths) {
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(configuration);
-		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(splunkSettings, localFileSystemPaths.getThawTransfersDirectory());
+		return create(configuration, splunkIndexesLayer, localFileSystemPaths,
+				archiveFileSystem);
+	}
+
+	public static BucketThawer create(ArchiveConfiguration configuration,
+			SplunkIndexesLayer splunkIndexesLayer,
+			LocalFileSystemPaths localFileSystemPaths,
+			ArchiveFileSystem archiveFileSystem) {
+		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
+				splunkIndexesLayer, localFileSystemPaths);
 
 		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
 				archiveFileSystem, thawLocationProvider);
 		ListsBucketsFiltered listsBucketsFiltered = ListsBucketsFilteredFactory
 				.create(configuration);
-		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
-				localFileSystemPaths);
+		PathResolver pathResolver = new PathResolver(configuration);
 		BucketSizeResolver bucketSizeResolver = new BucketSizeResolver(
-				ArchiveBucketSize.create(configuration, bucketSizeIO));
+				ArchiveBucketSize.create(pathResolver, archiveFileSystem,
+						localFileSystemPaths));
 		GetsBucketsFromArchive getsBucketsFromArchive = new GetsBucketsFromArchive(
-				thawBucketTransferer, BucketImporter.create(), bucketSizeResolver);
+				thawBucketTransferer, BucketImportController.create(),
+				bucketSizeResolver);
 		return new BucketThawer(listsBucketsFiltered, getsBucketsFromArchive,
-				thawLocationProvider, new ThawBucketLocker(
-						localFileSystemPaths.getThawLocksDirectory()));
+				new LocalBucketStorage(new IndexStoragePaths(splunkIndexesLayer)),
+				new ThawBucketLocker(localFileSystemPaths));
 	}
 
 	private static ThawBucketTransferer getThawBucketTransferer(
 			ArchiveFileSystem archiveFileSystem,
 			ThawLocationProvider thawLocationProvider) {
 		ThawBucketTransferer thawBucketTransferer = new ThawBucketTransferer(
-				thawLocationProvider, archiveFileSystem, new BucketFactory());
+				thawLocationProvider, archiveFileSystem, new BucketFactory(),
+				new TransactionExecuter());
 		return thawBucketTransferer;
 	}
 }

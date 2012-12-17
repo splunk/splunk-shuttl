@@ -20,7 +20,7 @@ import static org.testng.AssertJUnit.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -44,7 +44,7 @@ public class BucketSizeResolverTest {
 
 	public void resolveBucketsSizes_givenBucketWithoutSize_createsBucketWithSize() {
 		Bucket remoteBucket = TUtilsBucket.createRemoteBucket();
-		when(archiveBucketSize.getSize(remoteBucket)).thenReturn(4L);
+		when(archiveBucketSize.readBucketSize(remoteBucket)).thenReturn(4L);
 
 		Bucket bucketWithSize = bucketSizeResolver.resolveBucketSize(remoteBucket);
 		assertEquals(4, (long) bucketWithSize.getSize());
@@ -57,7 +57,7 @@ public class BucketSizeResolverTest {
 		assertEquals(bucketWithoutSize.getName(), sizedBucket.getName());
 		assertEquals(bucketWithoutSize.getEarliest(), sizedBucket.getEarliest());
 		assertEquals(bucketWithoutSize.getLatest(), sizedBucket.getLatest());
-		assertEquals(bucketWithoutSize.getURI(), sizedBucket.getURI());
+		assertEquals(bucketWithoutSize.getPath(), sizedBucket.getPath());
 		assertFalse(bucketWithoutSize.getSize() == sizedBucket.getSize());
 	}
 }

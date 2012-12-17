@@ -30,7 +30,7 @@ import org.apache.hadoop.fs.FileSystem;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Util methods for functional archiver tests
@@ -91,7 +91,7 @@ public class TUtilsFunctional {
 	 * Archives bucket given a bucket and a bucketArchiver. Method exists to void
 	 * duplication between tests that archives buckets.
 	 */
-	public static void archiveBucket(final Bucket bucket,
+	public static void archiveBucket(final LocalBucket bucket,
 			final BucketArchiver bucketArchiver) {
 		archiveBucket(bucket, bucketArchiver, "");
 	}
@@ -100,7 +100,7 @@ public class TUtilsFunctional {
 	 * Archives bucket given splunkHome, bucket and a bucketArchiver. Method
 	 * exists to void duplication between tests that archives buckets.
 	 */
-	public static void archiveBucket(final Bucket bucket,
+	public static void archiveBucket(final LocalBucket bucket,
 			final BucketArchiver bucketArchiver, final String splunkHome) {
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
@@ -118,8 +118,8 @@ public class TUtilsFunctional {
 	 * archive on the local file system.
 	 */
 	public static void tearDownLocalConfig(ArchiveConfiguration config) {
-		FileUtils.deleteQuietly(new File(config.getArchivingRoot()));
-		FileUtils.deleteQuietly(new File(config.getTmpDirectory()));
+		FileUtils.deleteQuietly(new File(config.getArchiveDataPath()));
+		FileUtils.deleteQuietly(new File(config.getArchiveTempPath()));
 	}
 
 	/**
@@ -132,9 +132,9 @@ public class TUtilsFunctional {
 	public static ArchiveConfiguration getLocalConfigurationThatArchivesFormats(
 			List<BucketFormat> bucketFormats) {
 		String archivePath = createDirectory().getAbsolutePath();
-		URI archivingRoot = URI.create("file:" + archivePath);
-		return ArchiveConfiguration.createSafeConfiguration(archivingRoot,
-				bucketFormats, "clusterName", "serverName", bucketFormats);
+		return ArchiveConfiguration.createSafeConfiguration("localArchiverDir",
+				archivePath, bucketFormats, "clusterName", "serverName", bucketFormats,
+				"local");
 	}
 
 }

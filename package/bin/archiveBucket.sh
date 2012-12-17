@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 # archiveBucket.sh - the Shuttl archive script to be called by Splunk
 #
@@ -31,6 +31,9 @@
 # limitations under the License.
 #
 
+echo "WARNING: This script (archiveBucket.sh) is now deprecated. \
+    Use coldToFrozenScript.sh instead"
+
 set -e
 set -u
 
@@ -47,4 +50,5 @@ fi
 index=$1
 bucket=$2
 
-exec -a splunk-bucket-freezer $JAVA_HOME/bin/java -cp ./*:../lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $index $bucket
+source java_executable.env
+exec $JAVA -cp ./*:../lib/* com.splunk.shuttl.archiver.archive.BucketFreezer $bucket

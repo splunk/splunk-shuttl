@@ -16,23 +16,26 @@
 package com.splunk.shuttl.testutil;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Date;
+import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.testng.AssertJUnit;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.importexport.BucketExporterIntegrationTest;
-import com.splunk.shuttl.archiver.importexport.csv.CsvBucketCreator;
+import com.splunk.shuttl.archiver.importexport.BucketExportControllerIntegrationTest;
+import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.BucketName;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.archiver.model.RemoteBucket;
 import com.splunk.shuttl.archiver.util.UtilsBucket;
 
 /**
@@ -40,16 +43,18 @@ import com.splunk.shuttl.archiver.util.UtilsBucket;
  */
 public class TUtilsBucket {
 
-	/* package-private */static final URL REAL_BUCKET_URL = BucketExporterIntegrationTest.class
+	/* package-private */static final URL REAL_BUCKET_URL = BucketExportControllerIntegrationTest.class
 			.getResource("/splunk-buckets/SPLUNK_BUCKET/db_1336330530_1336330530_0");
-	/* package-private */static final URL REAL_CSV_BUCKET_URL = BucketExporterIntegrationTest.class
+	/* package-private */static final URL REAL_CSV_BUCKET_URL = BucketExportControllerIntegrationTest.class
 			.getResource("/splunk-buckets/CSV/db_1336330530_1336330530_0");
+	/* package-private */static final URL REAL_SPLUNK_BUCKET_TGZ_URL = BucketExportControllerIntegrationTest.class
+			.getResource("/splunk-buckets/SPLUNK_BUCKET_TGZ/db_1336330530_1336330530_0");
 
 	/**
 	 * @return A bucket with random bucket and index names.
 	 * @see #createTestBucketWithName(String, String)
 	 */
-	public static Bucket createBucket() {
+	public static LocalBucket createBucket() {
 		return createBucketWithIndexAndName(randomIndexName(), randomBucketName());
 
 	}
@@ -68,25 +73,27 @@ public class TUtilsBucket {
 	/**
 	 * @return A bucket with specified index and bucket names.
 	 */
-	public static Bucket createBucketWithIndexAndName(String index,
+	public static LocalBucket createBucketWithIndexAndName(String index,
 			String bucketName) {
 		File bucketDir = createFileFormatedAsBucket(bucketName);
 		return createBucketWithIndexInDirectory(index, bucketDir);
 	}
 
-	private static Bucket createBucketWithIndexInDirectory(String index,
+	private static LocalBucket createBucketWithIndexInDirectory(String index,
 			File bucketDir) {
-		Bucket testBucket = null;
+		return createBucketWithIndexInDirectoryAndFormat(index, bucketDir,
+				BucketFormat.SPLUNK_BUCKET);
+	}
+
+	private static LocalBucket createBucketWithIndexInDirectoryAndFormat(
+			String index, File bucketDir, BucketFormat format) {
 		try {
-			testBucket = new Bucket(index, bucketDir, BucketFormat.SPLUNK_BUCKET);
+			return new LocalBucket(bucketDir, index, format);
 		} catch (Exception e) {
 			TUtilsTestNG.failForException("Couldn't create a test bucket", e);
 			throw new RuntimeException(
 					"There was a UtilsTestNG.failForException() method call above me that stoped me from happening. Where did it go?");
 		}
-		AssertJUnit.assertNotNull(testBucket);
-
-		return testBucket;
 	}
 
 	/**
@@ -109,7 +116,7 @@ public class TUtilsBucket {
 	 *          directory to create bucket in.
 	 * @return bucket created in parent.
 	 */
-	public static Bucket createBucketInDirectory(File parent) {
+	public static LocalBucket createBucketInDirectory(File parent) {
 		return createBucketInDirectoryWithIndex(parent, randomIndexName());
 	}
 
@@ -118,7 +125,7 @@ public class TUtilsBucket {
 	 *          directory to create bucket in.
 	 * @return bucket created in parent.
 	 */
-	public static Bucket createBucketInDirectoryWithIndex(File parent,
+	public static LocalBucket createBucketInDirectoryWithIndex(File parent,
 			String index) {
 		File bucketDir = createFileFormatedAsBucketInDirectory(parent);
 		return createBucketWithIndexInDirectory(index, bucketDir);
@@ -143,7 +150,7 @@ public class TUtilsBucket {
 	/**
 	 * Creates test bucket with earliest and latest times in its name.
 	 */
-	public static Bucket createBucketWithTimes(Date earliest, Date latest) {
+	public static LocalBucket createBucketWithTimes(Date earliest, Date latest) {
 		return createBucketWithIndexAndTimeRange(randomIndexName(), earliest,
 				latest);
 	}
@@ -151,7 +158,7 @@ public class TUtilsBucket {
 	/**
 	 * Creates test bucket with earliest and latest times in its name and index.
 	 */
-	public static Bucket createBucketWithIndexAndTimeRange(String index,
+	public static LocalBucket createBucketWithIndexAndTimeRange(String index,
 			Date earliest, Date latest) {
 		String name = getNameWithEarliestAndLatestTime(earliest, latest);
 		return createBucketWithIndexAndName(index, name);
@@ -170,14 +177,14 @@ public class TUtilsBucket {
 	/**
 	 * Creates test bucket with earliest and latest time in a directory.
 	 */
-	public static Bucket createBucketInDirectoryWithTimes(File parent,
+	public static LocalBucket createBucketInDirectoryWithTimes(File parent,
 			Date earliest, Date latest) {
 		return createBucketInDirectoryWithTimesAndIndex(parent, earliest, latest,
 				randomIndexName());
 	}
 
-	public static Bucket createBucketInDirectoryWithTimesAndIndex(File parent,
-			Date earliest, Date latest, String index) {
+	public static LocalBucket createBucketInDirectoryWithTimesAndIndex(
+			File parent, Date earliest, Date latest, String index) {
 		String bucketName = getNameWithEarliestAndLatestTime(earliest, latest);
 		File bucketDir = createFileFormatedAsBucketInDirectoryWithName(parent,
 				bucketName);
@@ -187,28 +194,35 @@ public class TUtilsBucket {
 	/**
 	 * Creates test bucket with specified name and random index.
 	 */
-	public static Bucket createBucketWithName(String name) {
+	public static LocalBucket createBucketWithName(String name) {
 		return createBucketWithIndexAndName(randomIndexName(), name);
 	}
 
 	/**
 	 * @return bucket with real splunk bucket data in it.
 	 */
-	public static Bucket createRealBucket() {
+	public static LocalBucket createRealBucket() {
 		return copyBucketWithUrl(REAL_BUCKET_URL);
 	}
 
 	/**
 	 * @return create csv bucket with real splunk data.
 	 */
-	public static Bucket createRealCsvBucket() {
-		Bucket realCsvBucketCopy = copyBucketWithUrl(REAL_CSV_BUCKET_URL);
+	public static LocalBucket createRealCsvBucket() {
+		LocalBucket realCsvBucketCopy = copyBucketWithUrl(REAL_CSV_BUCKET_URL);
 		File csvFile = UtilsBucket.getCsvFile(realCsvBucketCopy);
-		CsvBucketCreator csvBucketCreator = new CsvBucketCreator();
-		return csvBucketCreator.createBucketWithCsvFile(csvFile, realCsvBucketCopy);
+		BucketFileCreator bucketFileCreator = BucketFileCreator.createForCsv();
+		return bucketFileCreator.createBucketWithFile(csvFile, realCsvBucketCopy);
 	}
 
-	private static Bucket copyBucketWithUrl(URL bucketUrl) {
+	public static LocalBucket createRealSplunkBucketTgz() {
+		LocalBucket realTgzBucketCopy = copyBucketWithUrl(REAL_SPLUNK_BUCKET_TGZ_URL);
+		File tgzFile = UtilsBucket.getTgzFile(realTgzBucketCopy);
+		return BucketFileCreator.createForTgz().createBucketWithFile(tgzFile,
+				realTgzBucketCopy);
+	}
+
+	private static LocalBucket copyBucketWithUrl(URL bucketUrl) {
 		try {
 			return createTempCopyOfBucketFromDirectory(new File(bucketUrl.toURI()));
 		} catch (Exception e) {
@@ -217,12 +231,13 @@ public class TUtilsBucket {
 		}
 	}
 
-	private static Bucket createTempCopyOfBucketFromDirectory(File realBucketDir)
-			throws FileNotFoundException, FileNotDirectoryException {
+	private static LocalBucket createTempCopyOfBucketFromDirectory(
+			File realBucketDir) throws FileNotFoundException,
+			FileNotDirectoryException {
 		File copyBucketDir = createDirectoryInParent(createDirectory(),
 				realBucketDir.getName());
 		copyDirectory(realBucketDir, copyBucketDir);
-		return new Bucket("index", copyBucketDir, BucketFormat.SPLUNK_BUCKET);
+		return new LocalBucket(copyBucketDir, "index", BucketFormat.SPLUNK_BUCKET);
 	}
 
 	private static void copyDirectory(File from, File to) {
@@ -238,14 +253,81 @@ public class TUtilsBucket {
 	 * @return {@link Bucket} that is "fake-remote". It's not really archived some
 	 *         where, but the object represents a bucket that is remote.
 	 */
-	public static Bucket createRemoteBucket() {
+	public static RemoteBucket createRemoteBucket() {
 		try {
-			return new Bucket(URI.create("remote:/uri"), "itHasAnIndex",
+			return new RemoteBucket("/path", "itHasAnIndex",
 					getNameWithEarliestAndLatestTime(new Date(), new Date()),
 					BucketFormat.SPLUNK_BUCKET);
 		} catch (Exception e) {
 			TUtilsTestNG.failForException("Could not create remote bucket", e);
 			return null;
 		}
+	}
+
+	/**
+	 * @return {@link Bucket} with a tgz format
+	 */
+	public static LocalBucket createTgzBucket() {
+		File bucketDir = createDirectory();
+		try {
+			new File(bucketDir, randomBucketName() + ".tgz").createNewFile();
+		} catch (IOException e) {
+			TUtilsTestNG.failForException("Could not create tgz file.", e);
+		}
+		return createBucketWithIndexInDirectoryAndFormat("index", bucketDir,
+				BucketFormat.SPLUNK_BUCKET_TGZ);
+	}
+
+	public static LocalBucket createRealReplicatedBucket(String index,
+			File parent, String guid) {
+		LocalBucket realBucket = TUtilsBucket.createRealBucket();
+		String replicatedBucketName = replicatedBucketName(realBucket, guid);
+		File bucketDir = realBucket.getDirectory();
+		File renamedDir = new File(parent, replicatedBucketName);
+		int filesInBucket = bucketDir.listFiles().length;
+		assertTrue(bucketDir.renameTo(renamedDir));
+		assertEquals(filesInBucket, renamedDir.listFiles().length);
+		try {
+			return new LocalBucket(renamedDir, index, realBucket.getFormat());
+		} catch (Exception e) {
+			TUtilsTestNG.failForException("Could not create bucket", e);
+			return null;
+		}
+	}
+
+	/**
+	 * @return bucket that has the bucket name of a bucket created with Splunk
+	 *         clustering bucket replication.
+	 */
+	public static LocalBucket createReplicatedBucket(String index, File parent,
+			String guid) {
+		Bucket bucket = createBucket();
+		String finalBucketName = replicatedBucketName(bucket, guid);
+
+		File dir = createDirectoryInParent(parent, finalBucketName);
+		return createBucketWithIndexInDirectory(index, dir);
+	}
+
+	private static String replicatedBucketName(Bucket bucket, String guid) {
+		String replicatedBucketName = bucket.getName().replaceFirst("db", "rb");
+		return replaceEverythingAfterEarliestTimeWithIndexAndGuid(
+				replicatedBucketName, Math.abs(new Random().nextLong()), guid);
+	}
+
+	public static String replaceEverythingAfterEarliestTimeWithIndexAndGuid(
+			String bucketName, long newBucketIndex, String guid) {
+		String bucketIndex = new BucketName(bucketName).getIndex();
+		int idx = bucketName.lastIndexOf(bucketIndex);
+		String removedIndex = bucketName.substring(0, idx);
+		return removedIndex + newBucketIndex + "_" + guid;
+	}
+
+	public static LocalBucket createReplicatedBucket() {
+		return createReplicatedBucket(randomIndexName(), createDirectory(),
+				randomIndexName());
+	}
+
+	public static LocalBucket createReplicatedBucket(String guid) {
+		return createReplicatedBucket(randomIndexName(), createDirectory(), guid);
 	}
 }

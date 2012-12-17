@@ -32,14 +32,13 @@ import org.eclipse.jetty.util.ajax.JSON;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
-import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
-import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketSizeResolver;
 
@@ -116,10 +115,8 @@ public class ListBucketsEndpoint {
 		ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
-		BucketSizeIO bucketSizeIO = new BucketSizeIO(archiveFileSystem,
-				LocalFileSystemPaths.create());
-		return new BucketSizeResolver(
-				ArchiveBucketSize.create(config, bucketSizeIO));
+		LocalFileSystemPaths localFileSystemPaths = LocalFileSystemPaths.create();
+		return new BucketSizeResolver(ArchiveBucketSize.create(new PathResolver(
+				config), archiveFileSystem, localFileSystemPaths));
 	}
-
 }

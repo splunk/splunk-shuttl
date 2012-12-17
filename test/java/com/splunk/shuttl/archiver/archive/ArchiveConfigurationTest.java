@@ -16,9 +16,8 @@ package com.splunk.shuttl.archiver.archive;
 
 import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
-import static org.testng.AssertJUnit.*;
+import static org.testng.Assert.*;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,18 +57,20 @@ public class ArchiveConfigurationTest {
 				.getArchiveFormats());
 	}
 
-	public void getArchivingRoot_givenNullUri_null() {
-		when(mBean.getArchiverRootURI()).thenReturn(null);
-		assertNull(createConfiguration().getArchivingRoot());
+	public void getArchiveDataPath_givenPathInMBean_childToThePath() {
+		String path = "/archive/path";
+		when(mBean.getArchivePath()).thenReturn(path);
+		String actualPath = createConfiguration().getArchiveDataPath();
+		String childName = FilenameUtils.getName(actualPath);
+		String expectedPath = path + "/" + childName;
+		assertEquals(expectedPath, actualPath);
 	}
 
-	public void getArchivingRoot_givenUriInMBean_childToTheUri() {
-		String uriString = "valid:/uri";
-		when(mBean.getArchiverRootURI()).thenReturn(uriString);
-		URI actualUri = createConfiguration().getArchivingRoot();
-		String childName = FilenameUtils.getName(actualUri.getPath());
-		URI expectedUri = URI.create(uriString + "/" + childName);
-		assertEquals(expectedUri, actualUri);
+	public void getBackendName_stubbedMBeanBackendName_sameAsInMBean() {
+		String expected = "backend";
+		when(mBean.getBackendName()).thenReturn(expected);
+		String actual = createConfiguration().getBackendName();
+		assertEquals(expected, actual);
 	}
 
 	public void getClusterName_stubbedMBeanClusterName_sameAsInMBean() {
@@ -83,6 +84,13 @@ public class ArchiveConfigurationTest {
 		String expected = "serverName";
 		when(mBean.getServerName()).thenReturn(expected);
 		String actual = createConfiguration().getServerName();
+		assertEquals(expected, actual);
+	}
+
+	public void getLocalArchiverDir_stubbedMBeanLocalArchiverDir_sameAsInMBean() {
+		String expected = "localArchiverDir";
+		when(mBean.getLocalArchiverDir()).thenReturn(expected);
+		String actual = createConfiguration().getLocalArchiverDir();
 		assertEquals(expected, actual);
 	}
 
@@ -120,28 +128,59 @@ public class ArchiveConfigurationTest {
 		assertEquals(BucketFormat.UNKNOWN, priorityList.get(1));
 	}
 
-	public void getTmpDirectory_givenNullArchivingRoot_null() {
-		when(mBean.getArchiverRootURI()).thenReturn(null);
-		assertNull(createConfiguration().getTmpDirectory());
+	public void getArchiveTempPath_givenArchivePath_pathStartsWithTheArchivePath() {
+		String archivePath = "/archive/path";
+		when(mBean.getArchivePath()).thenReturn(archivePath);
+		String tempPath = createConfiguration().getArchiveTempPath();
+
+		assertTrue(tempPath.startsWith(archivePath));
 	}
 
-	public void getTmpDirectory_givenArchiverRootUri_pathIsAChildOfTheArchivingRootURI() {
-		String archiverRoot = "valid:/uri/archiver/data";
-		when(mBean.getArchiverRootURI()).thenReturn(archiverRoot);
-		URI tmpDirectory = createConfiguration().getTmpDirectory();
-
-		String tmpDirectoryName = FilenameUtils.getName(tmpDirectory.getPath());
-		URI expected = URI.create(archiverRoot + "/" + tmpDirectoryName);
-		assertEquals(expected, tmpDirectory);
-	}
-
-	public void getTmpDirectory_givenArchiverRootUri_pathIsNotWithingetArchiverRoot() {
-		when(mBean.getArchiverRootURI()).thenReturn("valid:/uri/archiver/data");
+	public void getArchiveTempPath_givenArchivePath_pathIsNotWithInArchiveDataPath() {
+		when(mBean.getArchivePath()).thenReturn("/archive/path");
 		ArchiveConfiguration configuration = createConfiguration();
-		URI archivingRoot = configuration.getArchivingRoot();
-		URI tmpDirectory = configuration.getTmpDirectory();
+		String archivingRoot = configuration.getArchiveDataPath();
+		String tempPath = configuration.getArchiveTempPath();
 
-		assertFalse(tmpDirectory.getPath().contains(archivingRoot.getPath()));
+		assertFalse(tempPath.contains(archivingRoot));
 	}
 
+	public void getArchiveTempPath_givenConfiguredServerName_containsServerNameForGlobalyUniqueTempPath() {
+		String serverName = "some_server_name";
+		when(mBean.getServerName()).thenReturn(serverName);
+		String archiveTempPath = createConfiguration().getArchiveTempPath();
+		assertTrue(archiveTempPath.contains(serverName),
+				"archiveTempPath did not contain server name. Actual: "
+						+ archiveTempPath);
+	}
+
+	public void newWithServerName_serverName_newInstanceWithNewServerName() {
+		ArchiveConfiguration original = createConfiguration();
+		ArchiveConfiguration newConfig = original
+				.newConfigWithServerName("newServerName");
+		assertNotSame(original, newConfig);
+		assertNotEquals(original.getServerName(), newConfig.getServerName());
+	}
+
+	public void newWithServerName_configHasAllValues_allValuesOtherThanServerNameAreTheSame() {
+		List<BucketFormat> list = asList(BucketFormat.UNKNOWN);
+		ArchiveConfiguration originalConf = new ArchiveConfiguration("a", list,
+				"c", "d", list, "f", "g", "h");
+		ArchiveConfiguration newConf = originalConf
+				.newConfigWithServerName("newServerName");
+
+		assertEquals(originalConf.getArchiveDataPath(),
+				newConf.getArchiveDataPath());
+		assertEquals(originalConf.getArchiveFormats(), newConf.getArchiveFormats());
+		assertEquals(originalConf.getArchiveTempPath(),
+				newConf.getArchiveTempPath());
+		assertEquals(originalConf.getBackendName(), newConf.getBackendName());
+		assertEquals(originalConf.getBucketFormatPriority(),
+				newConf.getBucketFormatPriority());
+		assertEquals(originalConf.getClusterName(), newConf.getClusterName());
+		assertEquals(originalConf.getLocalArchiverDir(),
+				newConf.getLocalArchiverDir());
+
+		assertNotEquals(originalConf.getServerName(), newConf.getServerName());
+	}
 }

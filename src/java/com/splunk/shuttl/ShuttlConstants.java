@@ -37,6 +37,7 @@ public final class ShuttlConstants {
 	public static final String ENDPOINT_FORWARDER = "/forwarder";
 	public static final String ENDPOINT_SINK_PREFIX = "/sinkprefix";
 	public static final String ENDPOINT_BUCKET_ARCHIVER = "/bucket/archive";
+	public static final String ENDPOINT_BUCKET_COPY = "/bucket/copy";
 	public static final String ENDPOINT_BUCKET_THAW = "/bucket/thaw";
 	public static final String ENDPOINT_BUCKET_FLUSH = "/bucket/flush";
 	public static final String ENDPOINT_THAW_LIST = "/thaw/list";
@@ -47,6 +48,8 @@ public final class ShuttlConstants {
 	public static final String ENDPOINT_EXPORT_SRVC_STATUS = "/exportservicestatus";
 	public static final String ATT_DEF_HADOOP_CLUSTER_HOST = "DefHadoopClusterHost";
 	public static final String ATT_DEF_HADOOP_CLUSTER_PORT = "DefHadoopClusterPort";
+	public static final String ENDPOINT_SHUTTL_CONFIGURATION = "/config";
+	public static final String ENDPOINT_CONFIG_SERVERNAME = "/server_name";
 
 	// Splunk field names
 	public static final String SPLUNK_EVENT_FIELD_RAW = "_raw";

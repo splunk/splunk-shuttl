@@ -35,7 +35,10 @@ public class UtilsURI {
 	 * </pre>
 	 */
 	public static String getPathByTrimmingEndingFileSeparator(URI uri) {
-		String path = uri.getPath();
+		return getPathByTrimmingEndingFileSeparator(uri.getPath());
+	}
+
+	public static String getPathByTrimmingEndingFileSeparator(String path) {
 		if (path.endsWith(File.separator))
 			return path.substring(0, path.length() - 1);
 		else
@@ -55,6 +58,13 @@ public class UtilsURI {
 	public static String getFileNameWithTrimmedEndingFileSeparator(URI uri) {
 		String path = getPathByTrimmingEndingFileSeparator(uri);
 		return FilenameUtils.getName(path);
+	}
+
+	/**
+	 * @return if the scheme of the uri is file://
+	 */
+	public static boolean isLocal(URI uri) {
+		return uri.getScheme().equals("file");
 	}
 
 }

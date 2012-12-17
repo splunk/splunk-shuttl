@@ -34,7 +34,7 @@ import com.splunk.shuttl.archiver.flush.Flusher;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
-import com.splunk.shuttl.archiver.thaw.SplunkSettingsFactory;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
 import com.splunk.shuttl.server.model.BucketBean;
 
 /**
@@ -57,7 +57,7 @@ public class FlushEndpoint {
 		Date toDate = RestUtil.getValidToDate(to);
 
 		List<Exception> errors = new ArrayList<Exception>();
-		Flusher flusher = new Flusher(SplunkSettingsFactory.create(),
+		Flusher flusher = new Flusher(SplunkIndexedLayerFactory.create(),
 				ArchivedIndexesListerFactory.create());
 
 		List<String> indexes;

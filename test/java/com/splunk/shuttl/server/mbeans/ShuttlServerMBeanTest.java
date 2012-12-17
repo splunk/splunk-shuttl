@@ -39,8 +39,6 @@ public class ShuttlServerMBeanTest {
 	public void createMBean() throws Exception {
 		try {
 			File confFile = TUtilsMBean.createEmptyConfInNamespace("serverConf");
-			System.out.println("ShuttlServerMBeanTest - running "
-					+ confFile.getPath());
 			this.serverMBean = new ShuttlServer(confFile.getPath());
 			this.serverMBean.setHttpHost(TESTHOST);
 			this.serverMBean.setHttpPort(TESTPORT);

@@ -15,44 +15,12 @@
 package com.splunk.shuttl.archiver.importexport;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.importexport.csv.CsvImporter;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
- * Restores a {@link Bucket} that's in any {@link BucketFormat} to
- * {@link BucketFormat#SPLUNK_BUCKET}.
+ * Imports buckets from some format to {@link BucketFormat#SPLUNK_BUCKET}.
  */
-public class BucketImporter {
+public interface BucketImporter {
 
-	private final CsvImporter csvImporter;
-
-	/**
-	 * @param csvImporter
-	 *          to import buckets from CSV to SPLUNK_BUCKET.
-	 */
-	public BucketImporter(CsvImporter csvImporter) {
-		this.csvImporter = csvImporter;
-	}
-
-	/**
-	 * @param bucket
-	 *          to restore to {@link BucketFormat#SPLUNK_BUCKET}.
-	 * @return bucket in {@link BucketFormat#SPLUNK_BUCKET}
-	 */
-	public Bucket restoreToSplunkBucketFormat(Bucket bucket) {
-		if (bucket.getFormat().equals(BucketFormat.SPLUNK_BUCKET))
-			return bucket;
-		else if (bucket.getFormat().equals(BucketFormat.CSV))
-			return csvImporter.importBucketFromCsv(bucket);
-		else
-			throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * Convenience method for creating an instance.
-	 */
-	public static BucketImporter create() {
-		return new BucketImporter(CsvImporter.create());
-	}
-
+	LocalBucket importBucket(LocalBucket b);
 }

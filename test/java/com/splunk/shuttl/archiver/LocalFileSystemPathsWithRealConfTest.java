@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 
 @Test(groups = { "end-to-end" })
@@ -65,6 +66,25 @@ public class LocalFileSystemPathsWithRealConfTest {
 				assertFalse(archiverDirWithMBeanConf.exists());
 				assertTrue(archiverDirWithMBeanConf.mkdirs());
 				assertTrue(archiverDirWithMBeanConf.exists());
+			}
+		});
+	}
+
+	@Test(groups = { "end-to-end" })
+	@Parameters(value = { "shuttl.conf.dir" })
+	public void create_withMBeanRegistered_creatingWithConfigOrMBeanAreEqual(
+			String shuttlConfsDirPath) throws IOException {
+		File confsDir = new File(shuttlConfsDirPath);
+		TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
+
+			@Override
+			public void run() {
+				LocalFileSystemPaths create = LocalFileSystemPaths.create();
+				LocalFileSystemPaths createWithConfig = LocalFileSystemPaths
+						.create(ArchiveConfiguration.getSharedInstance());
+				archiverDirWithMBeanConf = create.getArchiverDirectory();
+				assertEquals(create.getArchiverDirectory().getAbsolutePath(),
+						createWithConfig.getArchiverDirectory().getAbsolutePath());
 			}
 		});
 	}

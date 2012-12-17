@@ -37,8 +37,8 @@ public class BucketFactory {
 	 * {@link BucketFactory#createWithIndexAndDirectory(String, File)}, which
 	 * makes it mockable and testable.
 	 */
-	public Bucket createWithIndexDirectoryAndFormat(String index, File bucketFile,
-			BucketFormat format) {
+	public LocalBucket createWithIndexDirectoryAndFormat(String index,
+			File bucketFile, BucketFormat format) {
 		return BucketFactory.createBucketWithIndexDirectoryAndFormat(index,
 				bucketFile, format);
 	}
@@ -48,10 +48,10 @@ public class BucketFactory {
 	 *         creating bucket with {@link BucketFormat#SPLUNK_BUCKET}, since the
 	 *         format can be decided from the directory.
 	 */
-	public static Bucket createBucketWithIndexDirectoryAndFormat(String index,
-			File bucketFile, BucketFormat format) {
+	public static LocalBucket createBucketWithIndexDirectoryAndFormat(
+			String index, File bucketFile, BucketFormat format) {
 		try {
-			return new Bucket(index, bucketFile, format);
+			return new LocalBucket(bucketFile, index, format);
 		} catch (FileNotFoundException e) {
 			logFileNotFoundException(bucketFile, e);
 			throw new RuntimeException(e);
@@ -79,8 +79,8 @@ public class BucketFactory {
 	 * {@link BucketFactory#createBucketWithIndexDirectoryAndSize}, which makes it
 	 * mockable and testable.
 	 */
-	public Bucket createWithIndexDirectoryAndSize(String index, File bucketFile,
-			BucketFormat format, Long size) {
+	public LocalBucket createWithIndexDirectoryAndSize(String index,
+			File bucketFile, BucketFormat format, Long size) {
 		return createBucketWithIndexDirectoryAndSize(index, bucketFile, format,
 				size);
 	}
@@ -88,10 +88,20 @@ public class BucketFactory {
 	/**
 	 * Creates a bucket with index, directory and size.
 	 */
-	public static Bucket createBucketWithIndexDirectoryAndSize(String index,
+	public static LocalBucket createBucketWithIndexDirectoryAndSize(String index,
 			File bucketFile, BucketFormat format, Long size) {
+		return createBucketWithIndexDirectoryBucketNameAndSize(index, bucketFile,
+				bucketFile.getName(), format, size);
+	}
+
+	/**
+	 * Creates a bucket with index, directory and size.
+	 */
+	public static LocalBucket createBucketWithIndexDirectoryBucketNameAndSize(
+			String index, File bucketFile, String bucketName, BucketFormat format,
+			Long size) {
 		try {
-			return new Bucket(index, bucketFile, format, size);
+			return new LocalBucket(bucketFile, index, bucketName, format, size);
 		} catch (FileNotFoundException e) {
 			logFileNotFoundException(bucketFile, e);
 			throw new RuntimeException(e);

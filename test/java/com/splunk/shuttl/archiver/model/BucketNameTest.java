@@ -19,6 +19,9 @@ import static org.testng.Assert.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.model.BucketName.IllegalBucketNameException;
+import com.splunk.shuttl.archiver.util.IllegalRegexGroupException;
+
 @Test(groups = { "fast-unit" })
 public class BucketNameTest {
 
@@ -26,8 +29,10 @@ public class BucketNameTest {
 	long earliest;
 	long latest;
 	String index;
+	String guid;
 
 	private BucketName bucketName = null;
+	private String separator;
 
 	@BeforeMethod
 	public void setUp() {
@@ -35,18 +40,20 @@ public class BucketNameTest {
 		earliest = 12345678;
 		latest = earliest + 100;
 		index = "index-1";
+		guid = "guid";
 		bucketName = null; // To avoid boiler plate BucketName for every test.
+
+		separator = "_";
 	}
 
 	private BucketName getBucketName() {
-		return getBucketName(db, earliest, latest, index);
+		return getBucketName(db, earliest, latest, index, guid);
 	}
 
 	private BucketName getBucketName(Object db, Object earliest, Object latest,
-			Object index) {
-		String separator = "_";
+			Object index, Object guid) {
 		return new BucketName(db + separator + latest + separator + earliest
-				+ separator + index);
+				+ separator + index + separator + guid);
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -60,75 +67,92 @@ public class BucketNameTest {
 
 	public void getDB_givenDBWithNumber_returnGivenDB() {
 		String dbWithNumber = "db1";
-		bucketName = getBucketName(dbWithNumber, earliest, latest, index);
+		bucketName = getBucketName(dbWithNumber, earliest, latest, index, guid);
 		assertEquals(dbWithNumber, bucketName.getDB());
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getDB_givenEmptyDB_throwIllegalBucketNameException() {
-		bucketName = getBucketName("", earliest, latest, index);
+		bucketName = getBucketName("", earliest, latest, index, guid);
 		bucketName.getDB();
 	}
 
 	@Test(expectedExceptions = { IllegalBucketNameException.class })
 	public void getDB_givenDBWithUnderscores_throwIllegalBucketNameException() {
 		String db = "d_b";
-		bucketName = getBucketName(db, earliest, latest, index);
+		bucketName = getBucketName(db, earliest, latest, index, guid);
 		assertEquals(db, bucketName.getDB());
 	}
 
 	public void getEarliest_given0EarliestTime_0() {
-		bucketName = getBucketName(db, 0, latest, index);
+		bucketName = getBucketName(db, 0, latest, index, guid);
 		assertEquals(0, bucketName.getEarliest());
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getEarliest_givenLettersInsteadOfNumbersForEarliest_throwIllegalBucketNameException() {
-		bucketName = getBucketName(db, "lettersInsteadOfNumbers", latest, index);
+		bucketName = getBucketName(db, "lettersInsteadOfNumbers", latest, index,
+				guid);
 		bucketName.getEarliest();
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getEarliest_givenEmptyEarliest_throwIllegalBucketNameException() {
-		getBucketName(db, "", latest, index).getEarliest();
+		getBucketName(db, "", latest, index, guid).getEarliest();
 	}
 
 	public void getLatest_given0LatestTime_0() {
-		bucketName = getBucketName(db, earliest, 0, index);
+		bucketName = getBucketName(db, earliest, 0, index, guid);
 		assertEquals(0, bucketName.getLatest());
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getLatest_givenLettersForLatest_throwIllegalBucketNameException() {
-		bucketName = getBucketName(db, earliest, "lettersInsteadOfNumbers", index);
+		bucketName = getBucketName(db, earliest, "lettersInsteadOfNumbers", index,
+				guid);
 		bucketName.getLatest();
 	}
 
-	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
 	public void getLatest_givenEmptyLatest_throwIllegalBucketNameException() {
-		getBucketName(db, earliest, "", index).getLatest();
+		getBucketName(db, earliest, "", index, guid).getLatest();
 	}
 
 	public void getIndex_givenDashesLettersAndNumbers_validIndex() {
 		String index = "index-1332222208803";
-		bucketName = getBucketName(db, earliest, latest, index);
+		bucketName = getBucketName(db, earliest, latest, index, guid);
 		assertEquals(index, bucketName.getIndex());
+	}
+
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
+	public void getIndex_givenEmptyIndex_throwIllegalBucketNameException() {
+		getBucketName(db, earliest, latest, "", guid).getIndex();
 	}
 
 	@Test(expectedExceptions = { IllegalBucketNameException.class })
-	public void getIndex_givenEmptyIndex_throwIllegalBucketNameException() {
-		getBucketName(db, earliest, latest, "").getIndex();
-	}
-
-	public void getIndex_givenIndexWithUnderscores_index() {
+	public void getIndex_givenIndexWithUnderscores_throws() {
 		String index = "_index_with_underscores_";
-		bucketName = getBucketName(db, earliest, latest, index);
-		assertEquals(index, bucketName.getIndex());
+		bucketName = getBucketName(db, earliest, latest, index, guid);
+		bucketName.getIndex();
 	}
 
 	public void getName_givenNameForString_returnString() {
-		String name = "thisIsSomeString";
+		String name = "this_string_is_legal";
 		BucketName bucketName = new BucketName(name);
 		assertEquals(name, bucketName.getName());
+	}
+
+	public void getGuid_givenGuid_returnGuid() {
+		BucketName bucketName = getBucketName(db, earliest, latest, index, guid);
+		assertEquals(guid, bucketName.getGuid());
+	}
+
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
+	public void getGuid_bucketNameWithoutGuid_throws() {
+		getBucketName(db, earliest, latest, index, "").getGuid();
+	}
+
+	public void constructor_null_doesNothing() {
+		new BucketName(null);
 	}
 }

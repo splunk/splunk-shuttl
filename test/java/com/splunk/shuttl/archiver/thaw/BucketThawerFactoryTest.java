@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 
 public class BucketThawerFactoryTest {
@@ -34,15 +35,22 @@ public class BucketThawerFactoryTest {
 	}
 
 	@Test(groups = { "end-to-end" })
-	@Parameters(value = { "shuttl.conf.dir" })
+	@Parameters(value = { "shuttl.conf.dir", "splunk.home" })
 	public void createDefaultThawer_realConfigurationWithSplunk_notNull(
-			String shuttlConfsDirPath) throws Exception {
-		File confsDir = new File(shuttlConfsDirPath);
-		TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
+			String shuttlConfsDirPath, final String splunkHome) throws Exception {
+		final File confsDir = new File(shuttlConfsDirPath);
+		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 			@Override
 			public void run() {
-				assertNotNull(BucketThawerFactory.createDefaultThawer());
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				TUtilsMBean.runWithRegisteredMBeans(confsDir, new Runnable() {
+
+					@Override
+					public void run() {
+						assertNotNull(BucketThawerFactory.createDefaultThawer());
+					}
+				});
 			}
 		});
 	}

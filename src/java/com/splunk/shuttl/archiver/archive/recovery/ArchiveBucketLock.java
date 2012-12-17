@@ -24,7 +24,8 @@ import com.splunk.shuttl.archiver.model.Bucket;
 public class ArchiveBucketLock extends BucketLock {
 
 	public ArchiveBucketLock(Bucket bucket) {
-		super(bucket, LocalFileSystemPaths.create().getArchiveLocksDirectory());
+		super(bucket, LocalFileSystemPaths.create()
+				.getArchiveLocksDirectory(bucket));
 	}
 
 }

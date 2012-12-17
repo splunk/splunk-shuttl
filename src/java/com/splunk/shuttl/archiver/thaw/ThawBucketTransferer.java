@@ -15,13 +15,15 @@
 package com.splunk.shuttl.archiver.thaw;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
-import com.splunk.shuttl.archiver.filesystem.FileOverwriteException;
+import com.splunk.shuttl.archiver.filesystem.transaction.Transaction;
+import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
+import com.splunk.shuttl.archiver.filesystem.transaction.bucket.GetBucketTransaction;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Transfers bucket to thaw.
@@ -31,12 +33,15 @@ public class ThawBucketTransferer {
 	private final ThawLocationProvider thawLocationProvider;
 	private final ArchiveFileSystem archiveFileSystem;
 	private final BucketFactory bucketFactory;
+	private TransactionExecuter transactionExecuter;
 
 	public ThawBucketTransferer(ThawLocationProvider thawLocationProvider,
-			ArchiveFileSystem archiveFileSystem, BucketFactory bucketFactory) {
+			ArchiveFileSystem archiveFileSystem, BucketFactory bucketFactory,
+			TransactionExecuter transactionExecuter) {
 		this.thawLocationProvider = thawLocationProvider;
 		this.archiveFileSystem = archiveFileSystem;
 		this.bucketFactory = bucketFactory;
+		this.transactionExecuter = transactionExecuter;
 	}
 
 	/**
@@ -44,27 +49,15 @@ public class ThawBucketTransferer {
 	 * 
 	 * @return the transferred bucket.
 	 */
-	public Bucket transferBucketToThaw(Bucket bucket) throws IOException {
-		File thawTransferLocation = thawBucketToTransferLocation(bucket);
-		File bucketsThawLocation = moveTransferedBucketToThawLocation(bucket,
-				thawTransferLocation);
+	public LocalBucket transferBucketToThaw(Bucket bucket) throws IOException {
+		File temp = thawLocationProvider.getThawTransferLocation(bucket);
+		File dst = thawLocationProvider.getLocationInThawForBucket(bucket);
+		Transaction getBucketTransaction = GetBucketTransaction.create(
+				archiveFileSystem, bucket, temp.getAbsolutePath(),
+				dst.getAbsolutePath());
+		transactionExecuter.execute(getBucketTransaction);
+
 		return bucketFactory.createWithIndexDirectoryAndSize(bucket.getIndex(),
-				bucketsThawLocation, bucket.getFormat(), bucket.getSize());
-	}
-
-	private File thawBucketToTransferLocation(Bucket bucket)
-			throws FileNotFoundException, FileOverwriteException, IOException {
-		File thawTransferLocation = thawLocationProvider
-				.getThawTransferLocation(bucket);
-		archiveFileSystem.getFile(thawTransferLocation, bucket.getURI());
-		return thawTransferLocation;
-	}
-
-	private File moveTransferedBucketToThawLocation(Bucket bucket,
-			File thawTransferLocation) throws IOException {
-		File bucketsThawLocation = thawLocationProvider
-				.getLocationInThawForBucket(bucket);
-		thawTransferLocation.renameTo(bucketsThawLocation);
-		return bucketsThawLocation;
+				dst, bucket.getFormat(), bucket.getSize());
 	}
 }

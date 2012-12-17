@@ -17,7 +17,6 @@ package com.splunk.shuttl.testutil;
 import static org.testng.AssertJUnit.*;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.testng.annotations.Test;
 
@@ -27,7 +26,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 @Test(groups = { "fast-unit" })
 public class TUtilsTestNGTest {
 
-	URI uri = URI.create("remote:/valid/uri");
+	String path = "/valid/path";
 	String index = "index";
 	String name = "name";
 	BucketFormat format = BucketFormat.UNKNOWN;
@@ -42,29 +41,29 @@ public class TUtilsTestNGTest {
 	@Test(groups = { "fast-unit" })
 	public void isBucketEqualOnIndexFormatAndName_equallyCreatedBuckets_true()
 			throws IOException {
-		bucket1 = new Bucket(uri, index, name, format);
-		bucket2 = new Bucket(uri, index, name, format);
+		bucket1 = new Bucket(path, index, name, format);
+		bucket2 = new Bucket(path, index, name, format);
 		isBucketEqualTest();
 	}
 
 	public void isBucketEqualOnIndexFormatAndName_indexNull_true()
 			throws IOException {
-		bucket1 = new Bucket(uri, null, name, format);
-		bucket2 = new Bucket(uri, null, name, format);
+		bucket1 = new Bucket(path, null, name, format);
+		bucket2 = new Bucket(path, null, name, format);
 		isBucketEqualTest();
 	}
 
 	public void isBucketEqualOnIndexFormatAndName_nameNull_true()
 			throws IOException {
-		bucket1 = new Bucket(uri, index, null, format);
-		bucket2 = new Bucket(uri, index, null, format);
+		bucket1 = new Bucket(path, index, null, format);
+		bucket2 = new Bucket(path, index, null, format);
 		isBucketEqualTest();
 	}
 
 	public void isBucketEqualOnIndexFormatAndName_formatNull_true()
 			throws IOException {
-		bucket1 = new Bucket(uri, index, name, null);
-		bucket2 = new Bucket(uri, index, name, null);
+		bucket1 = new Bucket(path, index, name, null);
+		bucket2 = new Bucket(path, index, name, null);
 		isBucketEqualTest();
 	}
 
@@ -75,31 +74,31 @@ public class TUtilsTestNGTest {
 
 	public void isBucketEqualOnIndexFormatAndName_oneIndexNull_false()
 			throws IOException {
-		bucket1 = new Bucket(uri, null, name, format);
-		bucket2 = new Bucket(uri, index, name, format);
+		bucket1 = new Bucket(path, null, name, format);
+		bucket2 = new Bucket(path, index, name, format);
 		isBucketDifferentTest();
-		bucket1 = new Bucket(uri, index, name, format);
-		bucket2 = new Bucket(uri, null, name, format);
+		bucket1 = new Bucket(path, index, name, format);
+		bucket2 = new Bucket(path, null, name, format);
 		isBucketDifferentTest();
 	}
 
 	public void isBucketEqualOnIndexFormatAndName_oneNameNull_false()
 			throws IOException {
-		bucket1 = new Bucket(uri, index, null, format);
-		bucket2 = new Bucket(uri, index, name, format);
+		bucket1 = new Bucket(path, index, null, format);
+		bucket2 = new Bucket(path, index, name, format);
 		isBucketDifferentTest();
-		bucket1 = new Bucket(uri, index, name, format);
-		bucket2 = new Bucket(uri, index, null, format);
+		bucket1 = new Bucket(path, index, name, format);
+		bucket2 = new Bucket(path, index, null, format);
 		isBucketDifferentTest();
 	}
 
 	public void isBucketEqualOnIndexFormatAndName_oneFormatNull_false()
 			throws IOException {
-		bucket1 = new Bucket(uri, index, name, null);
-		bucket2 = new Bucket(uri, index, name, format);
+		bucket1 = new Bucket(path, index, name, null);
+		bucket2 = new Bucket(path, index, name, format);
 		isBucketDifferentTest();
-		bucket1 = new Bucket(uri, index, name, format);
-		bucket2 = new Bucket(uri, index, name, null);
+		bucket1 = new Bucket(path, index, name, format);
+		bucket2 = new Bucket(path, index, name, null);
 		isBucketDifferentTest();
 	}
 

@@ -16,7 +16,6 @@ package com.splunk.shuttl.archiver.usecases;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static com.splunk.shuttl.testutil.TUtilsFunctional.*;
-import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -30,14 +29,15 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
+import com.splunk.shuttl.archiver.usecases.util.FakeSplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsDate;
 import com.splunk.shuttl.testutil.TUtilsFile;
@@ -61,17 +61,17 @@ public class ThawFunctionalTest {
 		archiverData = createDirectory();
 		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
 				archiverData.getAbsolutePath());
-		bucketArchiver = BucketArchiverFactory
-				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+		bucketArchiver = BucketShuttlerFactory
+				.createWithConfFileSystemAndLocalPaths(config, archiveFileSystem,
 						localFileSystemPaths);
 		thawDirectory = TUtilsFile.createDirectory();
 
-		SplunkSettings splunkSettings = mock(SplunkSettings.class);
-		when(splunkSettings.getThawLocation(thawIndex)).thenReturn(thawDirectory);
+		SplunkIndexesLayer splunkIndexesLayer = new FakeSplunkIndexesLayer(
+				thawDirectory);
 
 		bucketThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
-						splunkSettings, localFileSystemPaths);
+						splunkIndexesLayer, localFileSystemPaths);
 	}
 
 	@AfterMethod
@@ -84,8 +84,8 @@ public class ThawFunctionalTest {
 	public void Thawer_givenOneArchivedBucket_thawArchivedBucket() {
 		Date earliest = TUtilsDate.getNowWithoutMillis();
 		Date latest = earliest;
-		Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(thawIndex,
-				earliest, latest);
+		LocalBucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
+				thawIndex, earliest, latest);
 		archiveBucket(bucket, bucketArchiver);
 
 		assertTrue(isDirectoryEmpty(thawDirectory));
@@ -105,8 +105,8 @@ public class ThawFunctionalTest {
 		for (int i = 0; i < 3; i++) {
 			Date early = new Date(earliest.getTime() + i * HUNDRED_SECONDS);
 			Date later = new Date(early.getTime() + SECOND);
-			Bucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(thawIndex,
-					early, later);
+			LocalBucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
+					thawIndex, early, later);
 			archiveBucket(bucket, bucketArchiver);
 			assertFalse(bucket.getDirectory().exists());
 		}

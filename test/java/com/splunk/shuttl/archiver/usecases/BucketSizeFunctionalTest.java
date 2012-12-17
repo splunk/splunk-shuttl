@@ -15,8 +15,6 @@
 package com.splunk.shuttl.archiver.usecases;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -30,19 +28,20 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
-import com.splunk.shuttl.archiver.archive.PathResolver;
-import com.splunk.shuttl.archiver.bucketsize.ArchiveBucketSize;
-import com.splunk.shuttl.archiver.bucketsize.BucketSizeIO;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
+import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
+import com.splunk.shuttl.archiver.usecases.util.FakeSplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 
@@ -62,22 +61,21 @@ public class BucketSizeFunctionalTest {
 		archiverData = createDirectory();
 		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
 				archiverData.getAbsolutePath());
-		bucketArchiver = BucketArchiverFactory.createWithConfiguration(config,
+		bucketArchiver = BucketShuttlerFactory.createWithConfAndLocalPaths(config,
 				localFileSystemPaths);
-		SplunkSettings splunkSettings = mock(SplunkSettings.class);
+		SplunkIndexesLayer SplunkIndexesLayer = new FakeSplunkIndexesLayer(
+				thawLocation);
 		thawLocation = createDirectory();
-		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawLocation);
 
 		bucketThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(config,
-						splunkSettings, localFileSystemPaths);
+						SplunkIndexesLayer, localFileSystemPaths);
 
 		PathResolver pathResolver = new PathResolver(config);
 		ArchiveFileSystem archiveFileSystem = ArchiveFileSystemFactory
 				.getWithConfiguration(config);
 		archiveBucketSize = ArchiveBucketSize.create(pathResolver,
-				archiveFileSystem, new BucketSizeIO(archiveFileSystem,
-						localFileSystemPaths));
+				archiveFileSystem, localFileSystemPaths);
 	}
 
 	@AfterMethod
@@ -88,7 +86,7 @@ public class BucketSizeFunctionalTest {
 	}
 
 	public void BucketSize_archiveBucket_remoteBucketHasSameSizeAsBeforeArchiving() {
-		Bucket bucket = TUtilsBucket.createRealBucket();
+		LocalBucket bucket = TUtilsBucket.createRealBucket();
 		long bucketSize = bucket.getSize();
 
 		TUtilsFunctional.archiveBucket(bucket, bucketArchiver);
@@ -100,17 +98,18 @@ public class BucketSizeFunctionalTest {
 
 		assertEquals(1, listBucketsInIndex.size());
 		Bucket bucketInArchive = listBucketsInIndex.get(0);
-		assertEquals(bucketSize, archiveBucketSize.getSize(bucketInArchive));
+		assertEquals(bucketSize,
+				(long) archiveBucketSize.readBucketSize(bucketInArchive));
 	}
 
 	public void BucketSize_bucketRoundTrip_bucketGetSizeShouldBeTheSameBeforeArchiveAndAfterThaw() {
-		Bucket bucket = TUtilsBucket.createRealBucket();
+		LocalBucket bucket = TUtilsBucket.createRealBucket();
 
 		TUtilsFunctional.archiveBucket(bucket, bucketArchiver);
 		bucketThawer.thawBuckets(bucket.getIndex(), bucket.getEarliest(),
 				bucket.getLatest());
 
-		List<Bucket> thawedBuckets = bucketThawer.getThawedBuckets();
+		List<LocalBucket> thawedBuckets = bucketThawer.getThawedBuckets();
 		assertEquals(1, thawedBuckets.size());
 		Bucket thawedBucket = thawedBuckets.get(0);
 		assertEquals(bucket.getSize(), thawedBucket.getSize());

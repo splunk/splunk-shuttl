@@ -18,6 +18,9 @@ import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -25,78 +28,133 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
-import com.splunk.shuttl.archiver.archive.BucketArchiverRunner;
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLock;
-import com.splunk.shuttl.archiver.bucketlock.BucketLock;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.archive.BucketShuttler;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
+import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.BucketModifier;
+import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ShuttlProvider;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_ARCHIVER)
 public class ArchiveBucketEndpoint {
 
-	private static final org.apache.log4j.Logger logger = Logger
-			.getLogger(ArchiveBucketEndpoint.class);
+	private static Logger logger = Logger.getLogger(ArchiveBucketEndpoint.class);
 
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	public void archiveBucket(@FormParam("path") String path,
 			@FormParam("index") String index) {
-		verifyValidArguments(path, index);
-		logArchiveEndpoint(path, index);
-		archiveBucketOnAnotherThread(index, path);
-	}
+		try {
+			ArchiveConfiguration config = ArchiveConfiguration.getSharedInstance();
 
-	private void verifyValidArguments(String path, String index) {
-		if (path == null) {
-			logger.error(happened("No path was provided."));
-			throw new IllegalArgumentException("path must be specified");
+			if (isPathReplicatedBucketWithRawdataOnly(path)) {
+				try {
+					deletePath(path, index);
+				} catch (IOException e) {
+					logDeleteException(path, index, e);
+				}
+			} else {
+				ShuttlBucketEndpointHelper.shuttlBucket(path, index,
+						new BucketArchiverProvider(),
+						ConfigProviderForBothNormalAndReplicatedBuckets.create(config),
+						new RenamesReplicatedBucketAsNormalBucket(),
+						new ArchiveBucketLocker());
+			}
+		} catch (Throwable t) {
+			logger.error(did("Tried archiving bucket", t, "to archive the bucket",
+					"path", path, "index", index));
+			throw new RuntimeException(t);
 		}
-		if (index == null) {
-			logger.error(happened("No index was provided."));
-			throw new IllegalArgumentException("index must be specified");
+	}
+
+	private boolean isPathReplicatedBucketWithRawdataOnly(String path)
+			throws FileNotFoundException, FileNotDirectoryException {
+		LocalBucket localBucket = new LocalBucket(new File(path), "doesNotMatter",
+				BucketFormat.UNKNOWN);
+
+		if (localBucket.isReplicatedBucket())
+			if (listFilesThatAreNotRawdataDirNorDotFiles(localBucket).length == 0)
+				return true;
+		return false;
+	}
+
+	private File[] listFilesThatAreNotRawdataDirNorDotFiles(
+			LocalBucket localBucket) {
+		return localBucket.getDirectory().listFiles(new FileFilter() {
+
+			@Override
+			public boolean accept(File f) {
+				if (isRawdataOrDotFile(f.getName()))
+					return false;
+				return true;
+			}
+
+			private boolean isRawdataOrDotFile(String fileName) {
+				return fileName.equals("rawdata") || fileName.startsWith(".");
+			}
+		});
+	}
+
+	private void deletePath(String path, String index) throws IOException {
+		logReason(path, index);
+		FileUtils.deleteDirectory(new File(path));
+	}
+
+	private void logReason(String path, String index) {
+		logger.warn(warn(
+				"Tried shuttling a replicted bucket that only contained rawdata",
+				"Will not Shuttl this bucket, because Shuttl does not support rawdata only"
+						+ " buckets.",
+				"Will delete bucket. But don't worry, searchable copies and the "
+						+ "original bucket will still be Shuttled, by the other indexers. "
+						+ "You have Shuttl installed at all indexers, don't you?",
+				"bucket_path", path, "index", index));
+	}
+
+	private void logDeleteException(String path, String index, IOException e) {
+		logger
+				.error(did(
+						"Tried deleting bucket path",
+						e,
+						"To delete it. It will be deleted next retry, unless an Exception is thrown",
+						"bucket_path", path, "index", index));
+	}
+
+	private static class BucketArchiverProvider implements ShuttlProvider {
+
+		@Override
+		public BucketShuttler createWithConfig(ArchiveConfiguration config) {
+			return BucketShuttlerFactory.createWithConfig(config);
 		}
 	}
 
-	private void logArchiveEndpoint(String path, String index) {
-		logMetricsAtEndpoint(ENDPOINT_BUCKET_ARCHIVER);
+	private static class RenamesReplicatedBucketAsNormalBucket implements
+			BucketModifier {
 
-		logger.info(happened("Received REST request to archive bucket", "endpoint",
-				ENDPOINT_BUCKET_ARCHIVER, "index", index, "path", path));
-	}
+		@Override
+		public LocalBucket modifyLocalBucket(LocalBucket bucket) {
+			return getNormalizedBucket(bucket);
+		}
 
-	private void logMetricsAtEndpoint(String endpoint) {
-		String logMessage = String.format(
-				" Metrics - group=REST series=%s%s%s call=1", ENDPOINT_CONTEXT,
-				ENDPOINT_ARCHIVER, endpoint);
-		logger.info(logMessage);
-	}
+		private LocalBucket getNormalizedBucket(LocalBucket bucket) {
+			if (bucket.isReplicatedBucket())
+				return getBucketWithNormalBucketName(bucket);
+			else
+				return bucket;
+		}
 
-	private void archiveBucketOnAnotherThread(String index, String path) {
-
-		logger.info(will("Attempting to archive bucket", "index", index, "path",
-				path));
-		Runnable r = createBucketArchiverRunner(index, path);
-		new Thread(r).run();
-	}
-
-	private Runnable createBucketArchiverRunner(String index, String path) {
-		BucketArchiver bucketArchiver = BucketArchiverFactory
-				.createConfiguredArchiver();
-		Bucket bucket = BucketFactory.createBucketWithIndexDirectoryAndFormat(
-				index, new File(path), BucketFormat.SPLUNK_BUCKET);
-		BucketLock bucketLock = new ArchiveBucketLock(bucket);
-		throwExceptionIfSharedLockCannotBeAcquired(bucketLock);
-		return new BucketArchiverRunner(bucketArchiver, bucket, bucketLock);
-	}
-
-	private void throwExceptionIfSharedLockCannotBeAcquired(BucketLock bucketLock) {
-		if (!bucketLock.tryLockShared())
-			throw new IllegalStateException("We must ensure that the"
-					+ " bucket archiver has a " + "lock to the bucket it will transfer");
+		private LocalBucket getBucketWithNormalBucketName(LocalBucket b) {
+			String normalizedBucketName = b.getName().replaceFirst("rb", "db");
+			return BucketFactory.createBucketWithIndexDirectoryBucketNameAndSize(
+					b.getIndex(), new File(b.getPath()), normalizedBucketName,
+					b.getFormat(), b.getSize());
+		}
 	}
 }

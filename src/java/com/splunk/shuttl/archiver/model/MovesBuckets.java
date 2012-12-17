@@ -37,7 +37,8 @@ public class MovesBuckets {
 	 * @throws FileNotDirectoryException
 	 *           when the destination is not a directory.
 	 */
-	public static Bucket moveBucket(Bucket bucket, File destinationDirectory) {
+	public static LocalBucket moveBucket(LocalBucket bucket,
+			File destinationDirectory) {
 		verifyValidityOfDestination(destinationDirectory);
 		logger.debug(will("Attempting to move bucket", "bucket", bucket,
 				"destination", destinationDirectory));

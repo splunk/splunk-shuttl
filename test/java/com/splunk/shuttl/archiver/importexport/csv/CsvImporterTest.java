@@ -32,6 +32,7 @@ import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.importexport.csv.splunk.SplunkImportTool;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.BucketFactory;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.util.UtilsBucket;
 import com.splunk.shuttl.archiver.util.UtilsList;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -58,7 +59,7 @@ public class CsvImporterTest {
 
 	@Test(groups = { "fast-unit" })
 	public void _givenCsvBucket_callsSplunkImportToolWithCsvFile() {
-		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
+		LocalBucket csvBucket = TUtilsBucket.createRealCsvBucket();
 		List<String> importTooExecutable = asList("path/to/importtool");
 		when(splunkImportTool.getExecutableCommand()).thenReturn(
 				importTooExecutable);
@@ -72,14 +73,14 @@ public class CsvImporterTest {
 		List<String> command = UtilsList.join(importTooExecutable,
 				asList(arguments));
 
-		csvImporter.importBucketFromCsv(csvBucket);
+		csvImporter.importBucket(csvBucket);
 
 		verify(shellExecutor).executeCommand(emptyMap, command);
 	}
 
 	@SuppressWarnings("unchecked")
 	public void _givenSuccessfulImportAndBucketCreation_removeCsvFile() {
-		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
+		LocalBucket csvBucket = TUtilsBucket.createRealCsvBucket();
 		File csvFile = UtilsBucket.getCsvFile(csvBucket);
 		assertTrue(csvFile.exists());
 		when(shellExecutor.executeCommand(anyMap(), anyList())).thenReturn(0);
@@ -88,25 +89,25 @@ public class CsvImporterTest {
 						any(File.class), any(BucketFormat.class))).thenReturn(
 				TUtilsBucket.createBucket());
 
-		Bucket importedBucket = csvImporter.importBucketFromCsv(csvBucket);
+		Bucket importedBucket = csvImporter.importBucket(csvBucket);
 		assertNotNull(importedBucket);
 		assertFalse(csvFile.exists());
 	}
 
 	@SuppressWarnings("unchecked")
 	public void _givenUnsuccessfulImport_dontRemoveCsvFile() {
-		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
+		LocalBucket csvBucket = TUtilsBucket.createRealCsvBucket();
 		File csvFile = UtilsBucket.getCsvFile(csvBucket);
 		when(shellExecutor.executeCommand(anyMap(), anyList())).thenReturn(1);
 
 		assertTrue(csvFile.exists());
-		csvImporter.importBucketFromCsv(csvBucket);
+		csvImporter.importBucket(csvBucket);
 		assertTrue(csvFile.exists());
 	}
 
 	@SuppressWarnings("unchecked")
 	public void _givenUnsuccessfulBucketCreation_dontRemoveCsvFile() {
-		Bucket csvBucket = TUtilsBucket.createRealCsvBucket();
+		LocalBucket csvBucket = TUtilsBucket.createRealCsvBucket();
 		File csvFile = UtilsBucket.getCsvFile(csvBucket);
 
 		when(
@@ -114,7 +115,7 @@ public class CsvImporterTest {
 						any(File.class), any(BucketFormat.class))).thenThrow(
 				RuntimeException.class);
 		try {
-			csvImporter.importBucketFromCsv(csvBucket);
+			csvImporter.importBucket(csvBucket);
 			fail();
 		} catch (Exception e) {
 			// Expected
@@ -124,8 +125,8 @@ public class CsvImporterTest {
 
 	@Test(expectedExceptions = { IllegalArgumentException.class })
 	public void _bucketNotInCsvFormat_throwsIllegalArgumentException() {
-		Bucket nonCsvBucket = TUtilsBucket.createBucket();
+		LocalBucket nonCsvBucket = TUtilsBucket.createBucket();
 		assertNotEquals(BucketFormat.CSV, nonCsvBucket.getFormat());
-		csvImporter.importBucketFromCsv(nonCsvBucket);
+		csvImporter.importBucket(nonCsvBucket);
 	}
 }

@@ -14,13 +14,11 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import com.splunk.shuttl.archiver.ArchiverMBeanNotRegisteredException;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
-import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 
 /**
@@ -39,13 +37,12 @@ public class BucketFreezerProvider {
 	 *           if archiver MBean is not registered.
 	 */
 	public BucketFreezer getConfiguredBucketFreezer() {
-		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover.create(LocalFileSystemPaths.create()
-				.getSafeDirectory());
+		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
+				.create(LocalFileSystemPaths.create().getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
 				bucketMover, bucketLocker);
-		ArchiveRestHandler archiveRestHandler = new ArchiveRestHandler(
-				new DefaultHttpClient());
+		ArchiveRestHandler archiveRestHandler = ArchiveRestHandler.create();
 
 		return new BucketFreezer(bucketMover, bucketLocker, archiveRestHandler,
 				failedBucketsArchiver);

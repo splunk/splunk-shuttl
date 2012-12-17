@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
+import com.splunk.shuttl.server.mbeans.ShuttlServer;
+import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
 
 @Test(groups = { "fast-unit" })
@@ -62,7 +64,10 @@ public class TUtilsMbeanTest {
 					ShuttlArchiverMBean.OBJECT_NAME, ShuttlArchiverMBean.class);
 			JMXSplunkMBean splunkMBean = MBeanUtils.getMBeanInstance(
 					JMXSplunkMBean.OBJECT_NAME, JMXSplunkMBean.class);
-			return archiverMBean != null && splunkMBean != null;
+			ShuttlServerMBean serverMBean = MBeanUtils.getMBeanInstance(
+					ShuttlServer.OBJECT_NAME, ShuttlServerMBean.class);
+			return archiverMBean != null && splunkMBean != null
+					&& serverMBean != null;
 		} catch (InstanceNotFoundException e) {
 			return false;
 		}

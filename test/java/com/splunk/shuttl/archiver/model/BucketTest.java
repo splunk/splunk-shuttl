@@ -15,13 +15,11 @@
 
 package com.splunk.shuttl.archiver.model;
 
-import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
@@ -46,8 +44,8 @@ public class BucketTest {
 		return newBucket(index, new File(path));
 	}
 
-	private Bucket newBucket(String index, File file) throws IOException {
-		return new Bucket(index, file, BucketFormat.SPLUNK_BUCKET);
+	private LocalBucket newBucket(String index, File file) throws IOException {
+		return new LocalBucket(file, index, BucketFormat.SPLUNK_BUCKET);
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -88,22 +86,21 @@ public class BucketTest {
 
 	public void createWithAbsolutePath_rawdataDirectoryExistsInsideBucket_getFormatReturnsSplunkBucket()
 			throws IOException {
-		Bucket fakeBucket = TUtilsBucket.createBucket();
+		LocalBucket fakeBucket = TUtilsBucket.createBucket();
 		Bucket bucket = newBucket("index-name", fakeBucket.getDirectory());
 		assertEquals(bucket.getFormat(), BucketFormat.SPLUNK_BUCKET);
 	}
 
 	public void getFormat_createWithFormat_getsFormat() throws IOException {
 		BucketFormat format = BucketFormat.UNKNOWN;
-		Bucket bucket = new Bucket("index-name", TUtilsFile.createDirectory(),
-				format);
+		Bucket bucket = new Bucket(null, null, null, format);
 		assertEquals(format, bucket.getFormat());
 	}
 
 	public void getName_givenExistingDirectory_correctBucketName()
 			throws IOException {
-		Bucket fakeBucket = TUtilsBucket.createBucketWithIndexAndName("index-name",
-				"db_12351235_12351290_1");
+		LocalBucket fakeBucket = TUtilsBucket.createBucketWithIndexAndName(
+				"index-name", "db_12351235_12351290_1");
 		Bucket bucket = newBucket("index-name", fakeBucket.getDirectory());
 		assertEquals("db_12351235_12351290_1", bucket.getName());
 
@@ -113,21 +110,21 @@ public class BucketTest {
 			throws IOException {
 		File existingDirectory = TUtilsBucket
 				.createFileFormatedAsBucket("db_12351235_12351290_1");
-		Bucket bucket = newBucket("index-name", existingDirectory);
+		LocalBucket bucket = newBucket("index-name", existingDirectory);
 		assertEquals(existingDirectory.getAbsolutePath(), bucket.getDirectory()
 				.getAbsolutePath());
 	}
 
 	public void deleteBucket_createdValidBucket_bucketRemovedFromFileSystem()
 			throws IOException {
-		Bucket createdBucket = TUtilsBucket.createBucket();
+		LocalBucket createdBucket = TUtilsBucket.createBucket();
 		createdBucket.deleteBucket();
 		assertTrue(!createdBucket.getDirectory().exists());
 	}
 
 	public void deleteBucket_createdValidBucket_onlyBucketFolderRemovedFromFileSystem()
 			throws IOException {
-		Bucket createdBucket = TUtilsBucket.createBucket();
+		LocalBucket createdBucket = TUtilsBucket.createBucket();
 		File bucketParent = createdBucket.getDirectory().getParentFile();
 		createdBucket.deleteBucket();
 		assertTrue(!createdBucket.getDirectory().exists());
@@ -136,7 +133,7 @@ public class BucketTest {
 
 	public void equals_givenTwoBucketsCreatedWithSameIndexAndSameAbsolutePath_equalEachother()
 			throws IOException {
-		Bucket testBucket = TUtilsBucket.createBucket();
+		LocalBucket testBucket = TUtilsBucket.createBucket();
 		String index = testBucket.getIndex();
 		String absolutePath = testBucket.getDirectory().getAbsolutePath();
 
@@ -145,59 +142,48 @@ public class BucketTest {
 		assertEquals(bucket1, bucket2);
 	}
 
-	public void getURI_validBucket_notNullURI() {
-		Bucket bucket = TUtilsBucket.createBucket();
-		assertNotNull(bucket.getURI());
+	public void getPath_validBucket_notNullPath() {
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		assertNotNull(bucket.getPath());
 	}
 
-	public void getDirectory_initWithFileUri_getDirectory() throws IOException {
-		File file = createDirectory();
-		Bucket bucketWithFileUri = new Bucket(file.toURI(), null, null, null);
-		assertEquals(file.getAbsolutePath(), bucketWithFileUri.getDirectory()
-				.getAbsolutePath());
-	}
-
-	@Test(expectedExceptions = { FileNotFoundException.class })
-	public void uriConstructor_initWithFileUriToNonExistingDirectory_throwsFileNotFoundException()
-			throws IOException {
-		File file = createDirectory();
-		assertTrue(file.delete());
-		new Bucket(file.toURI(), null, null, null);
-	}
-
-	@Test(expectedExceptions = { FileNotDirectoryException.class })
-	public void uriConstructor_initWithFileUriToFileInsteadOfDirectory_throwsFileNotDirectoryException()
-			throws IOException {
-		File file = createFile();
-		new Bucket(file.toURI(), null, null, null);
-	}
-
-	public void isRemote_uriConstructorWithLocalFileAsUri_false()
-			throws IOException {
-		URI localFileUri = createDirectory().toURI();
-		assertFalse(new Bucket(localFileUri, null, null, null).isRemote());
-	}
-
-	public void init_withNullURI_shouldBePossibleForTestableCreationOfBuckets()
+	public void init_withNullPath_shouldBePossibleForTestableCreationOfBuckets()
 			throws FileNotFoundException, FileNotDirectoryException {
 		new Bucket(null, "index", "bucketName", BucketFormat.UNKNOWN);
 	}
 
-	public void init_withNonFileURI_shouldBePossibleForTestableCreationOfBuckets()
+	public void init_withNonFilePath_shouldBePossibleForTestableCreationOfBuckets()
 			throws FileNotFoundException, FileNotDirectoryException {
-		new Bucket(URI.create("valid:/uri"), "index", "bucketName",
-				BucketFormat.UNKNOWN);
+		new Bucket("/not/a/file/path", "index", "bucketName", BucketFormat.UNKNOWN);
 	}
 
 	public void getSize_localBucket_notNull() throws IOException {
-		Bucket bucket = new Bucket(createDirectory().toURI(), null, null, null);
+		LocalBucket bucket = TUtilsBucket.createBucket();
 		assertNotNull(bucket.getSize());
 	}
 
 	public void getSize_remoteBucket_null() throws IOException {
-		Bucket bucket = new Bucket(URI.create("remote:/bucket"), null, null, null);
+		Bucket bucket = new RemoteBucket("/remote/bucket", null, null, null);
 		assertNull(bucket.getSize());
 	}
 
+	public void isReplicatedBucket_normalBucket_false() {
+		assertFalse(TUtilsBucket.createBucket().isReplicatedBucket());
+	}
+
+	public void isReplicatedBucket_replicatedBucket_true() {
+		assertTrue(TUtilsBucket.createReplicatedBucket().isReplicatedBucket());
+	}
+
+	public void getGuid_bucketWithGuid_guid() {
+		String guid = "guid";
+		Bucket bucketWithGuid = TUtilsBucket.createReplicatedBucket(guid);
+		assertEquals(guid, bucketWithGuid.getGuid());
+	}
+
+	@Test(expectedExceptions = { RuntimeException.class })
+	public void getGuid_bucketWithoutGuid_throws() {
+		TUtilsBucket.createBucket().getGuid();
+	}
 
 }

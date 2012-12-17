@@ -15,8 +15,6 @@
 package com.splunk.shuttl.archiver.usecases;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -32,13 +30,15 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.FileNotDirectoryException;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
-import com.splunk.shuttl.archiver.thaw.SplunkSettings;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
+import com.splunk.shuttl.archiver.usecases.util.FakeSplunkIndexesLayer;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
@@ -49,7 +49,7 @@ public class ImportCsvFunctionalTest {
 
 	private ArchiveConfiguration localCsvArchiveConfigration;
 	private BucketThawer csvThawer;
-	private Bucket realBucket;
+	private LocalBucket realBucket;
 	private BucketArchiver csvArchiver;
 	private File thawDirectory;
 	private File archiverData;
@@ -58,9 +58,9 @@ public class ImportCsvFunctionalTest {
 	public void setUp() throws IllegalIndexException {
 		localCsvArchiveConfigration = TUtilsFunctional
 				.getLocalCsvArchiveConfigration();
-		SplunkSettings splunkSettings = mock(SplunkSettings.class);
 		thawDirectory = createDirectory();
-		when(splunkSettings.getThawLocation(anyString())).thenReturn(thawDirectory);
+		SplunkIndexesLayer splunkIndexesLayer = new FakeSplunkIndexesLayer(
+				thawDirectory);
 
 		archiverData = createDirectory();
 		LocalFileSystemPaths localFileSystemPaths = new LocalFileSystemPaths(
@@ -68,11 +68,11 @@ public class ImportCsvFunctionalTest {
 
 		csvThawer = BucketThawerFactory
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(
-						localCsvArchiveConfigration, splunkSettings,
+						localCsvArchiveConfigration, splunkIndexesLayer,
 						localFileSystemPaths);
 
 		realBucket = TUtilsBucket.createRealBucket();
-		csvArchiver = BucketArchiverFactory.createWithConfiguration(
+		csvArchiver = BucketShuttlerFactory.createWithConfAndLocalPaths(
 				localCsvArchiveConfigration, localFileSystemPaths);
 	}
 
@@ -100,7 +100,7 @@ public class ImportCsvFunctionalTest {
 					final long sizeOfRealBucket) {
 				csvThawer.thawBuckets(realBucket.getIndex(), realBucket.getEarliest(),
 						realBucket.getLatest());
-				List<Bucket> thawedBuckets = csvThawer.getThawedBuckets();
+				List<LocalBucket> thawedBuckets = csvThawer.getThawedBuckets();
 
 				assertEquals(1, thawedBuckets.size());
 				Bucket thawedBucket = thawedBuckets.get(0);
@@ -116,7 +116,7 @@ public class ImportCsvFunctionalTest {
 		TUtilsFunctional.archiveBucket(realBucket, csvArchiver, splunkHome);
 	}
 
-	private long sizeOfBucket(Bucket b) {
+	private long sizeOfBucket(LocalBucket b) {
 		return FileUtils.sizeOfDirectory(b.getDirectory());
 	}
 }

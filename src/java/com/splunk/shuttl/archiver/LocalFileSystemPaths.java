@@ -23,11 +23,15 @@ import javax.management.InstanceNotFoundException;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
+import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 
 /**
  * Constants for creating directories where the Archiver can store its locks,
- * unfinished buckets and other files.
+ * unfinished buckets and other files. <br/>
+ * Getters that take a {@link Bucket} make sure that the directories returned
+ * are unique for that bucket.
  */
 public class LocalFileSystemPaths {
 
@@ -37,7 +41,7 @@ public class LocalFileSystemPaths {
 
 	final String ARCHIVE_LOCKS_NAME = "archive-locks-dir";
 
-	final String CSV_DIR_NAME = "csv-dir";
+	final String EXPORT_DIR_NAME = "format-export-dir";
 
 	final String THAW_LOCKS_NAME = "thaw-locks-dir";
 
@@ -45,7 +49,17 @@ public class LocalFileSystemPaths {
 
 	final String METADATA_DIR_NAME = "metadata-dir";
 
+	final String METADATA_TRANSFERS_NAME = "metadata-transfers-dir";
+
+	final String COPY_RECEIPTS_NAME = "copy-receipts-dir";
+
+	final String COPY_LOCKS_NAME = "copy-locks-dir";
+
 	private final String archiverDirectoryPath;
+
+	public LocalFileSystemPaths(File directory) {
+		this(directory.getAbsolutePath());
+	}
 
 	public LocalFileSystemPaths(String archiverDirectoryPath) {
 		this.archiverDirectoryPath = archiverDirectoryPath;
@@ -89,38 +103,84 @@ public class LocalFileSystemPaths {
 	}
 
 	/**
-	 * Contains locks for archiving buckets.
+	 * Contains locks for archiving buckets. Unique path for each bucket within a
+	 * Splunk indexer.
 	 */
-	public File getArchiveLocksDirectory() {
-		return createDirectoryUnderArchiverDir(ARCHIVE_LOCKS_NAME);
+	public File getArchiveLocksDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(ARCHIVE_LOCKS_NAME, bucket);
+	}
+
+	private File createBucketUniqueDirUnderArchiverDir(String name, Bucket bucket) {
+		File directoryUnderArchiverDir = createDirectoryUnderArchiverDir(name);
+		File indexDir = new File(directoryUnderArchiverDir, bucket.getIndex());
+		File bucketNameDir = new File(indexDir, bucket.getName());
+		File formatDir = new File(bucketNameDir, bucket.getFormat().toString());
+		formatDir.mkdirs();
+		return formatDir;
 	}
 
 	/**
-	 * Contains CSV files when exporting buckets.
+	 * Contains files required when exporting a bucket to a new format. Unique
+	 * path for each bucket within a Splunk indexer.
 	 */
-	public File getCsvDirectory() {
-		return createDirectoryUnderArchiverDir(CSV_DIR_NAME);
+	public File getExportDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(EXPORT_DIR_NAME, bucket);
 	}
 
 	/**
-	 * Contains locks for thawing buckets.
+	 * Contains locks for thawing buckets. Unique path for each bucket within a
+	 * Splunk indexer.
 	 */
-	public File getThawLocksDirectory() {
+	public File getThawLocksDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(THAW_LOCKS_NAME, bucket);
+	}
+
+	/**
+	 * The parent of all the thaw locks for the buckets. @see
+	 * {@link LocalFileSystemPaths#getThawLocksDirectory(Bucket)}
+	 */
+	public File getThawLocksDirectoryForAllBuckets() {
 		return createDirectoryUnderArchiverDir(THAW_LOCKS_NAME);
 	}
 
 	/**
-	 * Temporary contains thaw transfers.
+	 * Temporary contains thaw transfers. Unique path for each bucket within a
+	 * Splunk indexer.
 	 */
-	public File getThawTransfersDirectory() {
+	public File getThawTransfersDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(THAW_TRANSFERS_NAME, bucket);
+	}
+
+	/**
+	 * The parent of all the thaw transfers. @see
+	 * {@link LocalFileSystemPaths#getThawTransfersDirectory(Bucket)}
+	 */
+	public File getThawTransfersDirectoryForAllBuckets() {
 		return createDirectoryUnderArchiverDir(THAW_TRANSFERS_NAME);
 	}
 
 	/**
-	 * Directory for bucket metadata that the archiver adds to a bucket.
+	 * Directory for bucket metadata that the archiver adds to a bucket. Unique
+	 * path for each bucket within a Splunk indexer.
 	 */
-	public File getMetadataDirectory() {
-		return createDirectoryUnderArchiverDir(METADATA_DIR_NAME);
+	public File getMetadataDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(METADATA_DIR_NAME, bucket);
+	}
+
+	/**
+	 * Directory for transferring metadata. Will be unique for the bucket.
+	 */
+	public File getMetadataTransfersDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(METADATA_TRANSFERS_NAME,
+				bucket);
+	}
+
+	public File getCopyBucketReceiptsDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(COPY_RECEIPTS_NAME, bucket);
+	}
+
+	public File getCopyLocksDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(COPY_LOCKS_NAME, bucket);
 	}
 
 	public static LocalFileSystemPaths create() {
@@ -139,4 +199,11 @@ public class LocalFileSystemPaths {
 		}
 	}
 
+	/**
+	 * @param create
+	 *          - with config.
+	 */
+	public static LocalFileSystemPaths create(ArchiveConfiguration config) {
+		return new LocalFileSystemPaths(config.getLocalArchiverDir());
+	}
 }

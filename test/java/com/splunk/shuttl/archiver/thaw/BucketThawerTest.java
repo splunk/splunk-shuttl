@@ -33,6 +33,7 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
 import com.splunk.shuttl.archiver.listers.ListsBucketsFiltered;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer.FailedBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -46,17 +47,17 @@ public class BucketThawerTest {
 	private Date earliestTime;
 	private Date latestTime;
 	private Bucket bucket;
-	private ThawLocationProvider thawLocationProvider;
+	private LocalBucketStorage localBuckets;
 	private BucketLocker thawBucketLocker;
 
 	@BeforeMethod
 	public void setUp() {
 		listsBucketsFiltered = mock(ListsBucketsFiltered.class);
 		getsBucketsFromArchive = mock(GetsBucketsFromArchive.class);
-		thawLocationProvider = mock(ThawLocationProvider.class);
+		localBuckets = mock(LocalBucketStorage.class);
 		thawBucketLocker = new BucketLockerInTestDir(createDirectory());
 		bucketThawer = new BucketThawer(listsBucketsFiltered,
-				getsBucketsFromArchive, thawLocationProvider, thawBucketLocker);
+				getsBucketsFromArchive, localBuckets, thawBucketLocker);
 
 		index = "foo";
 		earliestTime = new Date();
@@ -88,14 +89,13 @@ public class BucketThawerTest {
 				archivedBucketWithinTimeRange2);
 	}
 
-	public void thawBuckets_bucketAlreadyThawedToThawLocation_doesNotThawBucketAgain()
+	public void thawBuckets_bucketAlreadyExistsInLocalStorage_doesNotThawBucketAgain()
 			throws IOException {
-		Bucket thawedBucket = TUtilsBucket.createBucket();
-		when(thawLocationProvider.getLocationInThawForBucket(thawedBucket))
-				.thenReturn(thawedBucket.getDirectory());
+		LocalBucket thawedBucket = TUtilsBucket.createBucket();
+		when(localBuckets.hasBucket(thawedBucket)).thenReturn(true);
 		when(
 				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
-						latestTime)).thenReturn(asList(thawedBucket));
+						latestTime)).thenReturn(asList((Bucket) thawedBucket));
 
 		bucketThawer.thawBuckets(index, earliestTime, latestTime);
 		verifyZeroInteractions(getsBucketsFromArchive);
@@ -104,8 +104,7 @@ public class BucketThawerTest {
 
 	public void thawBuckets_thawLocationProviderThrowsException_failBucketAndDoNotTransfer()
 			throws IOException {
-		doThrow(new IOException()).when(thawLocationProvider)
-				.getLocationInThawForBucket(bucket);
+		when(localBuckets.hasBucket(bucket)).thenThrow(new RuntimeException());
 		when(
 				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
 						latestTime)).thenReturn(asList(bucket));
@@ -134,14 +133,14 @@ public class BucketThawerTest {
 		when(
 				listsBucketsFiltered.listFilteredBucketsAtIndex(index, earliestTime,
 						latestTime)).thenReturn(asList(bucket1, bucket2));
-		Bucket thawedBucket1 = mock(Bucket.class);
-		Bucket thawedBucket2 = mock(Bucket.class);
+		LocalBucket thawedBucket1 = mock(LocalBucket.class);
+		LocalBucket thawedBucket2 = mock(LocalBucket.class);
 		when(getsBucketsFromArchive.getBucketFromArchive(bucket1)).thenReturn(
 				thawedBucket1);
 		when(getsBucketsFromArchive.getBucketFromArchive(bucket2)).thenReturn(
 				thawedBucket2);
 		bucketThawer.thawBuckets(index, earliestTime, latestTime);
-		List<Bucket> thawedBuckets = bucketThawer.getThawedBuckets();
+		List<LocalBucket> thawedBuckets = bucketThawer.getThawedBuckets();
 		assertEquals(2, thawedBuckets.size());
 		assertTrue(thawedBuckets.contains(thawedBucket1));
 		assertTrue(thawedBuckets.contains(thawedBucket2));
@@ -193,7 +192,7 @@ public class BucketThawerTest {
 	public void getFailedBuckets_whenBucketSucceed_doesntContainThatBucket()
 			throws ThawTransferFailException, ImportThawedBucketFailException {
 		when(getsBucketsFromArchive.getBucketFromArchive(bucket)).thenReturn(
-				mock(Bucket.class));
+				mock(LocalBucket.class));
 		run_thawBuckets_bucketFieldPassedToGetsBucketFromArchive();
 		assertTrue(bucketThawer.getFailedBuckets().isEmpty());
 	}

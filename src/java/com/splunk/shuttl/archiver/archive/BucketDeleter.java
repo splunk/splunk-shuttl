@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
  * Deletes {@link Bucket}s.
@@ -37,7 +38,7 @@ public class BucketDeleter {
 	 * @param bucket
 	 *          to delete.
 	 */
-	public void deleteBucket(Bucket bucket) {
+	public void deleteBucket(LocalBucket bucket) {
 		try {
 			bucket.deleteBucket();
 		} catch (IOException e) {

@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
@@ -30,7 +31,8 @@ import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 /**
@@ -42,30 +44,66 @@ public class ArchiveRestHandlerTest {
 	private ArchiveRestHandler archiveRestHandler;
 	private HttpClient httpClient;
 	private Logger logger;
+	private ShuttlServerMBean serverMBean;
 
 	@BeforeMethod
 	public void setUp() {
 		httpClient = mock(HttpClient.class, Mockito.RETURNS_MOCKS);
 		logger = mock(Logger.class);
-		archiveRestHandler = new ArchiveRestHandler(httpClient, logger);
+		serverMBean = mock(ShuttlServerMBean.class);
+		archiveRestHandler = new ArchiveRestHandler(httpClient, logger, serverMBean);
 	}
 
 	@Test(groups = { "fast-unit" })
-	public void callRestToArchiveBucket_givenBucket_executesRequestOnHttpClient()
+	public void callRestToArchiveLocalBucket_givenBucket_executesRequestOnHttpClient()
 			throws ClientProtocolException, IOException {
-		Bucket bucket = TUtilsBucket.createBucket();
-		archiveRestHandler.callRestToArchiveBucket(bucket);
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
 
 		verify(httpClient).execute(any(HttpUriRequest.class));
 	}
 
+	@Test(groups = { "fast-unit" })
+	public void callRestToArchiveLocalBucket_givenShuttlPort_requestHasShuttlPort()
+			throws ClientProtocolException, IOException {
+		int shuttlPort = 1234;
+		when(serverMBean.getHttpPort()).thenReturn(shuttlPort);
+
+		URI uri = getExecutedHttpRequestsUri();
+		int requestPort = uri.getPort();
+		assertEquals(shuttlPort, requestPort);
+	}
+
+	private URI getExecutedHttpRequestsUri() throws IOException,
+			ClientProtocolException {
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
+
+		ArgumentCaptor<HttpUriRequest> requestCaptor = ArgumentCaptor
+				.forClass(HttpUriRequest.class);
+		verify(httpClient).execute(requestCaptor.capture());
+		HttpUriRequest captured = requestCaptor.getValue();
+		return captured.getURI();
+	}
+
+	@Test(groups = { "fast-unit" })
+	public void callRestToArchiveLocalBucket_givenShuttlHost_requestHasShuttlHost()
+			throws ClientProtocolException, IOException {
+		String shuttlHost = "host";
+		when(serverMBean.getHttpHost()).thenReturn(shuttlHost);
+
+		URI uri = getExecutedHttpRequestsUri();
+		String requestHost = uri.getHost();
+		assertEquals(shuttlHost, requestHost);
+	}
+
 	@SuppressWarnings("unchecked")
-	public void callRestToArchiveBucket_httpClientThrowsClientProtocolException_caughtAndLogged()
+	public void callRestToArchiveLocalBucket_httpClientThrowsClientProtocolException_caughtAndLogged()
 			throws ClientProtocolException, IOException {
 		when(httpClient.execute(any(HttpUriRequest.class))).thenThrow(
 				ClientProtocolException.class);
-		Bucket bucket = TUtilsBucket.createBucket();
-		archiveRestHandler.callRestToArchiveBucket(bucket);
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
 
 		verifyClassWasOnlyErrorLogged(ClientProtocolException.class);
 	}
@@ -79,12 +117,12 @@ public class ArchiveRestHandlerTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void callRestToArchiveBucket_httpClientThrowsIOException_caughtAndLogged()
+	public void callRestToArchiveLocalBucket_httpClientThrowsIOException_caughtAndLogged()
 			throws ClientProtocolException, IOException {
 		when(httpClient.execute(any(HttpUriRequest.class))).thenThrow(
 				IOException.class);
-		Bucket bucket = TUtilsBucket.createBucket();
-		archiveRestHandler.callRestToArchiveBucket(bucket);
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		archiveRestHandler.callRestToArchiveLocalBucket(bucket);
 
 		verifyClassWasOnlyErrorLogged(IOException.class);
 	}

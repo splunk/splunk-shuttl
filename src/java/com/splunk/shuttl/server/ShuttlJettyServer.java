@@ -51,7 +51,6 @@ public class ShuttlJettyServer {
 				logger.debug("  host: " + c.getHost());
 				logger.debug("  port: " + c.getPort());
 				if (c.getName().equals("Splunk.Shuttl.Http")) {
-					c.setHost(servermbean.getHttpHost());
 					c.setPort(servermbean.getHttpPort());
 				}
 			}

@@ -24,6 +24,7 @@ import java.io.IOException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -32,18 +33,18 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 public class ThawLocationProviderTest {
 
 	ThawLocationProvider thawLocationProvider;
-	SplunkSettings splunkSettings;
+	SplunkIndexesLayer splunkSettings;
 	Bucket bucket;
 	File thawLocation;
-	File transferLocation;
+	LocalFileSystemPaths localFileSystemPaths;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
 		bucket = TUtilsBucket.createBucket();
-		splunkSettings = mock(SplunkSettings.class);
-		transferLocation = createDirectory();
+		splunkSettings = mock(SplunkIndexesLayer.class);
+		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
 		thawLocationProvider = new ThawLocationProvider(splunkSettings,
-				transferLocation);
+				localFileSystemPaths);
 
 		stubSplunkSettingsToReturnThawLocation();
 	}
@@ -71,10 +72,11 @@ public class ThawLocationProviderTest {
 		assertEquals(bucket.getName(), bucketsLocation.getName());
 	}
 
-	public void getThawTransferLocation_givenTransferLocation_fileIsInTransferLocation() {
+	public void getThawTransferLocation_givenTransferLocation_fileIsInThawTransferDirectoryForBucket() {
 		File transferLoc = thawLocationProvider.getThawTransferLocation(bucket);
-		assertEquals(transferLocation.getAbsolutePath(), transferLoc
-				.getParentFile().getAbsolutePath());
+		File transferDir = localFileSystemPaths.getThawTransfersDirectory(bucket);
+		assertEquals(transferDir.getAbsolutePath(), transferLoc.getParentFile()
+				.getAbsolutePath());
 	}
 
 	public void getThawTransferLocation_givenTransferLocation_fileHasNameOfBucketForUniquness() {
@@ -85,7 +87,7 @@ public class ThawLocationProviderTest {
 	public void getThawTransferLocation_locationExists_deletesLocationReturningANonExistingDirectory()
 			throws IOException {
 		File transferLoc = thawLocationProvider.getThawTransferLocation(bucket);
-		transferLoc.createNewFile();
+		assertTrue(transferLoc.mkdirs());
 		assertTrue(transferLoc.exists());
 		File secondLocation = thawLocationProvider.getThawTransferLocation(bucket);
 		assertEquals(transferLoc.getAbsolutePath(),

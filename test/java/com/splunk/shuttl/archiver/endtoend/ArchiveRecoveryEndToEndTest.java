@@ -20,7 +20,8 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
+
+import javax.management.InstanceNotFoundException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
@@ -33,12 +34,14 @@ import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
 import com.splunk.shuttl.archiver.archive.BucketFreezer;
-import com.splunk.shuttl.archiver.archive.PathResolver;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
+import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.server.mbeans.ShuttlServer;
+import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -64,24 +67,26 @@ public class ArchiveRecoveryEndToEndTest {
 
 			@Override
 			public void run() {
-				setUp(hadoopHost, hadoopPort);
-				runTests();
-				tearDown();
+				try {
+					setUp(hadoopHost, hadoopPort);
+					runTests();
+					tearDown();
+				} catch (Exception e) {
+					TUtilsTestNG.failForException(
+							"Got Exception from archive recovery end to end test.", e);
+				}
 			}
 
-			private void runTests() {
-				try {
-					givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets();
-				} catch (IOException e) {
-					TUtilsTestNG.failForException(
-							"Got IOException from archive recovery end to end test.", e);
-				}
+			private void runTests() throws IOException {
+				givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets();
 			}
 		});
 	}
 
-	private void setUp(String hadoopHost, String hadoopPort) {
+	private void setUp(String hadoopHost, String hadoopPort)
+			throws InstanceNotFoundException {
 		config = ArchiveConfiguration.getSharedInstance();
+		ShuttlServerMBean serverMBean = ShuttlServer.getMBeanProxy();
 		localFileSystemPaths = LocalFileSystemPaths.create();
 		pathResolver = new PathResolver(config);
 		hadoopFileSystem = getHadoopFileSystem(hadoopHost, hadoopPort);
@@ -90,9 +95,9 @@ public class ArchiveRecoveryEndToEndTest {
 				.create(localFileSystemPaths.getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
 		ArchiveRestHandler internalErrorRestHandler = new ArchiveRestHandler(
-				TUtilsMockito.createInternalServerErrorHttpClientMock());
+				TUtilsMockito.createInternalServerErrorHttpClientMock(), serverMBean);
 		ArchiveRestHandler successfulRealRestHandler = new ArchiveRestHandler(
-				new DefaultHttpClient());
+				new DefaultHttpClient(), serverMBean);
 
 		FailedBucketsArchiver noOpFailedBucketsArchiver = mock(FailedBucketsArchiver.class);
 		FailedBucketsArchiver realFailedBucketsArchiver = new FailedBucketsArchiver(
@@ -112,8 +117,8 @@ public class ArchiveRecoveryEndToEndTest {
 
 	private void cleanHadoopFileSystem() {
 		try {
-			hadoopFileSystem.delete(new Path(config.getArchivingRoot()), true);
-			hadoopFileSystem.delete(new Path(config.getTmpDirectory()), true);
+			hadoopFileSystem.delete(new Path(config.getArchiveDataPath()), true);
+			hadoopFileSystem.delete(new Path(config.getArchiveTempPath()), true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -122,9 +127,9 @@ public class ArchiveRecoveryEndToEndTest {
 	private void givenTwoFailedBucketAttempts_archivesTheThirdBucketAndTheTwoFailedBuckets()
 			throws IOException {
 		// Setup buckets
-		Bucket firstFailingBucket = TUtilsBucket.createBucket();
-		Bucket secondFailingBucket = TUtilsBucket.createBucket();
-		Bucket successfulBucket = TUtilsBucket.createBucket();
+		LocalBucket firstFailingBucket = TUtilsBucket.createBucket();
+		LocalBucket secondFailingBucket = TUtilsBucket.createBucket();
+		LocalBucket successfulBucket = TUtilsBucket.createBucket();
 
 		// Test
 		failingBucketFreezerWithoutRecovery.freezeBucket(firstFailingBucket
@@ -133,19 +138,21 @@ public class ArchiveRecoveryEndToEndTest {
 				.getIndex(), secondFailingBucket.getDirectory().getAbsolutePath());
 
 		// Verify bucket archiving failed.
-		URI firstBucketURI = pathResolver.resolveArchivePath(firstFailingBucket);
-		URI secondBucketURI = pathResolver.resolveArchivePath(secondFailingBucket);
-		assertFalse(hadoopFileSystem.exists(new Path(firstBucketURI)));
-		assertFalse(hadoopFileSystem.exists(new Path(secondBucketURI)));
+		String firstBucketPath = pathResolver
+				.resolveArchivePath(firstFailingBucket);
+		String secondBucketPath = pathResolver
+				.resolveArchivePath(secondFailingBucket);
+		assertFalse(hadoopFileSystem.exists(new Path(firstBucketPath)));
+		assertFalse(hadoopFileSystem.exists(new Path(secondBucketPath)));
 
 		successfulBucketFreezerWithRecovery.freezeBucket(successfulBucket
 				.getIndex(), successfulBucket.getDirectory().getAbsolutePath());
 		TUtilsFunctional.waitForAsyncArchiving();
 
 		// Verification
-		URI thirdBucketURI = pathResolver.resolveArchivePath(successfulBucket);
-		assertTrue(hadoopFileSystem.exists(new Path(firstBucketURI)));
-		assertTrue(hadoopFileSystem.exists(new Path(secondBucketURI)));
-		assertTrue(hadoopFileSystem.exists(new Path(thirdBucketURI)));
+		String thirdBucketPath = pathResolver.resolveArchivePath(successfulBucket);
+		assertTrue(hadoopFileSystem.exists(new Path(firstBucketPath)));
+		assertTrue(hadoopFileSystem.exists(new Path(secondBucketPath)));
+		assertTrue(hadoopFileSystem.exists(new Path(thirdBucketPath)));
 	}
 }

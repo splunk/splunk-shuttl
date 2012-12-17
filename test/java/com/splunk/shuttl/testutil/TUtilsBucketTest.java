@@ -28,11 +28,12 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 
 @Test(groups = { "fast-unit" })
 public class TUtilsBucketTest {
 
-	Bucket bucket;
+	LocalBucket bucket;
 
 	@BeforeMethod
 	public void setUp() {
@@ -89,7 +90,7 @@ public class TUtilsBucketTest {
 		File bucketDir = TUtilsBucket
 				.createFileFormatedAsBucket("db_12351290_12351235_1");
 		try {
-			new Bucket("index-name", bucketDir, BucketFormat.SPLUNK_BUCKET);
+			new LocalBucket(bucketDir, "index-name", BucketFormat.SPLUNK_BUCKET);
 		} catch (Exception e) {
 			TUtilsTestNG.failForException("Coudn't create a valid bucket dir", e);
 		}
@@ -97,7 +98,7 @@ public class TUtilsBucketTest {
 
 	public void createBucketInDirectory_givenDirectory_createsBucketInThatDirectory() {
 		File parent = TUtilsFile.createDirectory();
-		Bucket bucketCreated = TUtilsBucket.createBucketInDirectory(parent);
+		LocalBucket bucketCreated = TUtilsBucket.createBucketInDirectory(parent);
 		assertEquals(parent, bucketCreated.getDirectory().getParentFile());
 	}
 
@@ -105,8 +106,8 @@ public class TUtilsBucketTest {
 		File parent = null;
 		try {
 			parent = createDirectory();
-			Bucket bucket = TUtilsBucket.createBucketInDirectoryWithTimes(parent,
-					new Date(), new Date());
+			LocalBucket bucket = TUtilsBucket.createBucketInDirectoryWithTimes(
+					parent, new Date(), new Date());
 			assertEquals(parent.getAbsolutePath(), bucket.getDirectory()
 					.getParentFile().getAbsolutePath());
 		} finally {
@@ -190,10 +191,6 @@ public class TUtilsBucketTest {
 		assertEquals(BucketFormat.CSV, csvBucket.getFormat());
 	}
 
-	public void createRemoteBucket_noArguments_isRemote() {
-		assertTrue(TUtilsBucket.createRemoteBucket().isRemote());
-	}
-
 	public void createRemoteBucket_noArguments_hasIndex() {
 		assertTrue(TUtilsBucket.createRemoteBucket().getIndex() != null);
 	}
@@ -219,5 +216,88 @@ public class TUtilsBucketTest {
 		Bucket b = TUtilsBucket.createBucketInDirectoryWithTimesAndIndex(
 				getShuttlTestDirectory(), new Date(), new Date(), "foo");
 		assertEquals("foo", b.getIndex());
+	}
+
+	@Test(groups = { "slow-unit" })
+	public void createRealSplunkBucketTgz_createSuccess_bucketHasSplunkBucketTgzFormat() {
+		assertEquals(BucketFormat.SPLUNK_BUCKET_TGZ, TUtilsBucket
+				.createRealSplunkBucketTgz().getFormat());
+	}
+
+	public void createTgzBucket_noArgs_hasSplunkBucketTgzFormat() {
+		assertEquals(BucketFormat.SPLUNK_BUCKET_TGZ, TUtilsBucket.createTgzBucket()
+				.getFormat());
+	}
+
+	public void createTgzBucket_noArgs_hasOneTgzFileInBucket() {
+		File[] bucketFiles = TUtilsBucket.createTgzBucket().getDirectory()
+				.listFiles();
+		assertEquals(1, bucketFiles.length);
+		assertTrue(bucketFiles[0].getName().endsWith("tgz"));
+	}
+
+	public void createReplicatedBucket__nameStartsWith_rb() {
+		Bucket bucket = TUtilsBucket.createReplicatedBucket("foo",
+				createDirectory(), "baz");
+		assertTrue(bucket.getName().startsWith("rb"));
+	}
+
+	public void createReplicatedBucket_parent_directoryIsInParent() {
+		File parent = createDirectory();
+		LocalBucket b = TUtilsBucket.createReplicatedBucket("foo", parent, "baz");
+		assertEquals(b.getDirectory().getParentFile().getAbsolutePath(),
+				parent.getAbsolutePath());
+	}
+
+	public void createReplicatedBucket_guid_endsWith_guid() {
+		Bucket b = TUtilsBucket.createReplicatedBucket("foo", createDirectory(),
+				"baz");
+		assertEquals(b.getGuid(), "baz");
+	}
+
+	public void createReplicatedBucket_index_hasThatIndex() {
+		String index = "replicated_index";
+		LocalBucket b = TUtilsBucket.createReplicatedBucket(index,
+				createDirectory(), "baz");
+		assertEquals(index, b.getIndex());
+	}
+
+	public void replaceEverythingAfterEarliestTimeWithIndexAndGuid_indexAndGuid_endsWithIndexAndGuid() {
+		String name = bucket.getName();
+		long newIndex = 1234;
+		String newName = TUtilsBucket
+				.replaceEverythingAfterEarliestTimeWithIndexAndGuid(name, 1234, "guid");
+		assertTrue(newName.endsWith(newIndex + "_" + "guid"));
+
+		int idx = newName.lastIndexOf(newIndex + "");
+		String removedLastPart = newName.substring(0, idx);
+		assertTrue(bucket.getName().startsWith(removedLastPart));
+	}
+
+	@Test(groups = { "slow-unit" })
+	public void createRealReplicatedBucket_parameters_hasParameterProperties() {
+		File parent = createDirectory();
+		LocalBucket bucket = TUtilsBucket.createRealReplicatedBucket("theIndex",
+				parent, "theGuid");
+		assertEquals("theIndex", bucket.getIndex());
+		assertEquals(parent.getAbsolutePath(), bucket.getDirectory()
+				.getParentFile().getAbsolutePath());
+		assertEquals(bucket.getGuid(), "theGuid");
+	}
+
+	@Test(groups = { "slow-unit" })
+	public void createRealReplicatedBucket__isACopyOfARealBucket() {
+		LocalBucket realBucket = TUtilsBucket.createRealBucket();
+		LocalBucket replicated = TUtilsBucket.createRealReplicatedBucket("foo",
+				createDirectory(), "baz");
+		TUtilsTestNG.assertDirectoriesAreCopies(realBucket.getDirectory(),
+				replicated.getDirectory());
+	}
+
+	@Test(groups = { "slow-unit" })
+	public void createRealReplicatedBucket__isReplicatedBucket() {
+		LocalBucket rb = TUtilsBucket.createRealReplicatedBucket("foo",
+				createDirectory(), "guid");
+		assertTrue(rb.isReplicatedBucket());
 	}
 }

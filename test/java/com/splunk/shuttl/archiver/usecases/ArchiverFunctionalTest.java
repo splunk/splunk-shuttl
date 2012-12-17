@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -31,11 +30,11 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
-import com.splunk.shuttl.archiver.archive.BucketArchiverFactory;
-import com.splunk.shuttl.archiver.archive.PathResolver;
+import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystemFactory;
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.filesystem.PathResolver;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "functional" })
@@ -52,8 +51,8 @@ public class ArchiverFunctionalTest {
 		archiverData = createDirectory();
 		config = getLocalFileSystemConfiguration();
 		archiveFileSystem = ArchiveFileSystemFactory.getWithConfiguration(config);
-		bucketArchiver = BucketArchiverFactory
-				.createWithConfFileSystemAndCsvDirectory(config, archiveFileSystem,
+		bucketArchiver = BucketShuttlerFactory
+				.createWithConfFileSystemAndLocalPaths(config, archiveFileSystem,
 						new LocalFileSystemPaths(archiverData.getAbsolutePath()));
 		pathResolver = new PathResolver(config);
 	}
@@ -65,15 +64,15 @@ public class ArchiverFunctionalTest {
 	}
 
 	public void Archiver_givenExistingBucket_archiveIt() throws IOException {
-		Bucket bucket = TUtilsBucket.createBucket();
+		LocalBucket bucket = TUtilsBucket.createBucket();
 		int filesInBucket = bucket.getDirectory().listFiles().length;
 
 		bucketArchiver.archiveBucket(bucket);
 
-		URI bucketArchiveUri = pathResolver.resolveArchivePath(bucket);
-		List<URI> urisInBucketDirectoryInArchive = archiveFileSystem
-				.listPath(bucketArchiveUri);
-		assertTrue(filesInBucket <= urisInBucketDirectoryInArchive.size());
+		String bucketArchivePath = pathResolver.resolveArchivePath(bucket);
+		List<String> pathsInBucketDirectoryInArchive = archiveFileSystem
+				.listPath(bucketArchivePath);
+		assertTrue(filesInBucket <= pathsInBucketDirectoryInArchive.size());
 	}
 
 }

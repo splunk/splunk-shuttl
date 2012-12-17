@@ -2,29 +2,36 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Suite" parallel="none">
 	<parameter name="splunk.username" value="admin" />
-	<parameter name="splunk.password" value="changeme" />
+	<parameter name="splunk.password" value="changed" />
 	<parameter name="splunk.host" value="localhost" />
-	<parameter name="splunk.mgmtport" value="8089" />
+	<parameter name="splunk.mgmtport" value="8088" />
 	<parameter name="hadoop.host" value="localhost" />
 	<parameter name="hadoop.port" value="9000" />
 	<parameter name="shuttl.host" value="localhost" />
-	<parameter name="shuttl.port" value="9090" />
-	<parameter name="splunk.home" value="./build-cache/splunk" />
+	<parameter name="shuttl.port" value="9099" />
+	<parameter name="splunk.home" value="./build-cache/splunk-1" />
 	<parameter name="shuttl.conf.dir" value="./build/shuttl/conf" />
-
-	<test name="functional" preserve-order="true">
-		<classes>
-			<class name="com.splunk.shuttl.archiver.importexport.csv.CsvImporterFunctionalTest" />
-			<class name="com.splunk.shuttl.archiver.importexport.BucketExporterIntegrationTest" />
-
-		</classes>
-	</test> <!-- Test -->
+	<parameter name="cluster.master.port" value="8070" />
+	<parameter name="cluster.slave1.host" value="localhost" />
+	<parameter name="cluster.slave1.port" value="8071" />
+	<parameter name="cluster.slave2.host" value="localhost" />
+	<parameter name="cluster.slave2.port" value="8072"/>
+	<parameter name="cluster.slave2.splunk.home" value="./build-cache/splunk-slave-2"/>
+	<parameter name="cluster.slave2.shuttl.port" value="7092" />
 	
+
 	<test name="end-to-end" preserve-order="true" enabled="true">
 		<classes>
-			<class name="com.splunk.shuttl.archiver.endtoend.ArchiverEndToEndTest" />
-			<class name="com.splunk.shuttl.archiver.usecases.ImportCsvFunctionalTest" />
-			<class name="com.splunk.shuttl.archiver.usecases.TwoFormatsFunctionalTest" />
+			<class name="com.splunk.shuttl.archiver.endtoend.CopyWithoutDeletionEndToEndTest" />
 		</classes>
 	</test> <!-- Test -->
+
+	<test name="cluster-test" preserve-order="true" enabled="false">
+		<classes>
+			<class name="com.splunk.ClusterConfigTest" />
+			<class name="com.splunk.ClusterPeersTest" />
+			<class name="com.splunk.shuttl.archiver.endtoend.ClusterReplicatedBucketArchivingTest" />
+		</classes>
+	</test> <!-- Test -->
+
 </suite> <!-- Suite -->

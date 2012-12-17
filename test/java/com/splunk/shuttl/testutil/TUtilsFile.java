@@ -15,12 +15,15 @@
 
 package com.splunk.shuttl.testutil;
 
+import static java.util.Arrays.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Properties;
 
 import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FileUtils;
@@ -34,6 +37,14 @@ import org.testng.AssertJUnit;
  */
 public class TUtilsFile {
 
+	private static File createFileIn(File parent, String child) {
+		return createFileIn(parent.getAbsolutePath(), child);
+	}
+
+	private static File createFileIn(String parent, String child) {
+		return new File(parent, child);
+	}
+
 	/**
 	 * @return a temporary file with random content.
 	 * 
@@ -41,7 +52,8 @@ public class TUtilsFile {
 	 * @see TUtilsFile#createFileWithRandomContent()
 	 */
 	public static File createFileWithRandomContent() {
-		File testFile = createFile();
+		File testFile = createFileInParent(createDirectory(),
+				getUniquelyNamedFileWithPrefix("file-with-content").getName());
 		populateFileWithRandomContent(testFile);
 		return testFile;
 	}
@@ -121,7 +133,7 @@ public class TUtilsFile {
 	 * @return A directory with specified name that will be removed on JVM exit
 	 */
 	public static File createDirectoryWithName(String name) {
-		File tmpDirectory = new File(createDirectory(), name);
+		File tmpDirectory = createFileIn(createDirectory(), name);
 		createDirectory(tmpDirectory);
 		try {
 			FileUtils.forceDeleteOnExit(tmpDirectory);
@@ -148,7 +160,7 @@ public class TUtilsFile {
 	}
 
 	private static File getFileInShuttlTestDirectory(String tempDirName) {
-		return new File(getShuttlTestDirectory(), tempDirName);
+		return createFileIn(getShuttlTestDirectory(), tempDirName);
 	}
 
 	private static void createDirectory(File dir) {
@@ -192,18 +204,18 @@ public class TUtilsFile {
 	 *          name of the child
 	 * @return the created directory.
 	 */
-	public static File createDirectoryInParent(File parent, String string) {
-		File child = new File(parent, string);
+	public static File createDirectoryInParent(File parent, String name) {
 		if (!parent.getAbsolutePath().contains(
 				getShuttlTestDirectory().getAbsolutePath()))
-			throw new IllegalArgumentException(
-					"Parent must live in the ShuttlTestDirectory. Parent: " + parent);
+			System.err.println("Warning! Creating files in parent outside of "
+					+ "ShuttlTestDirectory. File: " + parent);
+		File child = createFileIn(parent, name);
 		createDirectory(child);
 		return child;
 	}
 
 	public static File createFileInParent(File parent, String fileName) {
-		File child = new File(parent, fileName);
+		File child = createFileIn(parent, fileName);
 		try {
 			child.createNewFile();
 		} catch (IOException e) {
@@ -257,10 +269,34 @@ public class TUtilsFile {
 	 *         shuttl's tests, should be children of.
 	 */
 	public static File getShuttlTestDirectory() {
-		File dir = new File(File.separator + "var" + File.separator + "tmp",
+		File dir = createFileIn(File.separator + "var" + File.separator + "tmp",
 				"ShuttlTestDirectory");
 		if (!dir.exists())
 			createDirectory(dir);
 		return dir;
+	}
+
+	/**
+	 * @return key value {@link Properties} set on a specific file.
+	 */
+	public static Properties writeKeyValueProperties(File hdfsProperties,
+			String... kvs) {
+		try {
+			FileUtils.writeLines(hdfsProperties, asList(kvs));
+			Properties properties = new Properties();
+			properties.load(new FileInputStream(hdfsProperties));
+			return properties;
+		} catch (Exception e) {
+			TUtilsTestNG.failForException("Got exception when setting up properties",
+					e);
+			return null;
+		}
+	}
+
+	/**
+	 * @return file with filename.
+	 */
+	public static File createFile(String fileName) {
+		return createDirectoryInParent(createDirectory(), fileName);
 	}
 }
