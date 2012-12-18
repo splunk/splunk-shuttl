@@ -42,7 +42,7 @@ public class ColdBucketCopierTest {
 		coldBucketCopier = new ColdBucketCopier(bucketInterator, receipts,
 				lockedCopier);
 
-		localBucket = mock(LocalBucket.class);
+		localBucket = TUtilsBucket.createBucket();
 	}
 
 	public void tryCopyingColdBuckets_givenIndex_checksReceiptOnColdBuckets() {
@@ -67,6 +67,13 @@ public class ColdBucketCopierTest {
 	public void copyColdBucket_givenReplicatedBucket_doesNotCopyBucket() {
 		LocalBucket replicatedBucket = TUtilsBucket.createReplicatedBucket();
 		coldBucketCopier.copyColdBucket(replicatedBucket);
+		verifyZeroInteractions(lockedCopier);
+	}
+
+	public void copyColdBucket_givenBucketStartingNameWithNumbers_doesNotCopyBucket() {
+		LocalBucket bucketStartingWithNumber = TUtilsBucket
+				.createBucketWithName("31_2305E9E3-8893-4EA8-A384-4E20ACE674A5");
+		coldBucketCopier.copyColdBucket(bucketStartingWithNumber);
 		verifyZeroInteractions(lockedCopier);
 	}
 }
