@@ -1,6 +1,8 @@
 Shuttl - Archiving for Splunk - In 10 min
 =====================================================
 
+This is a quickstart guide for shuttl and a few different backends. Below is a guide on how to install and configure shuttl. You will also find examples of the configuration files in the neighbouring folders.
+
 Prerequisites
 -------------
 
@@ -57,10 +59,12 @@ Here's how to install the Shuttl app in your Splunk instance. Shuttl comes with 
 4. While Splunk is not running, configure Shuttl and Splunk as mentioned below.
 5. Start Splunk up, and enable the Shuttl via the App section under Manager.
 
-### Shuttl Configuration
+Shuttl Configuration
+--------------------
+
 Firstly you want to configure your splunk index for shuttl. This is best done by creating a shuttl/local folder and creating the file indexes.conf within it or copy the one from default/ and modify it to your specifications.
 
-There are also another three configuration files that you might care about. One for archiving, one for Splunk and one for the Shuttl server. They all live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
+Secondly there are another three configuration files that you might care about. One for archiving, one for Splunk and one for the Shuttl server. They all live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
 
 In addition to these configuration files, there are property files for the backends. These live in shuttl/conf/backend directory. These need to be configured as well depending on the backendName you choose.
 
@@ -68,7 +72,7 @@ In addition to these configuration files, there are property files for the backe
 
 You need to configure Splunk to call the archiver script (setting the coldToFrozenScript and/or warmToColdScript) for each index that is being archived. You can do this by creating an indexes.conf file in $SPLUNK_HOME/etc/apps/shuttl/local with the appropriate config stanzas. An example is as follows:
 
-	[mytestindex] 
+	[mytestindex]
 	homePath = $SPLUNK_DB/mytestindex/db 
 	coldPath = $SPLUNK_DB/mytestindex/colddb 
 	thawedPath = $SPLUNK_DB/mytestindex/thaweddb 
@@ -144,8 +148,8 @@ Example for local storage:
 - hadoop.host: The host name to the hdfs name node.
 - hadoop.port: The port to the hdfs name node.
 
-	hadoop.host = NAMENODE_IP
-	hadoop.port = HDFS_NAMENODE_PORT
+    	hadoop.host = NAMENODE_IP	
+    	hadoop.port = HDFS_NAMENODE_PORT
 
 ### conf/backend/amazon.properties (required for s3, s3n or glacier)
 - aws.id: Your Amazon Web Services ID
@@ -154,22 +158,26 @@ Example for local storage:
 - glacier.vault: The vault name for storage in glacier.
 - glacier.endpoint: The server endpoint to where the data will be stored. (i.e. https://glacier.us-east-1.amazonaws.com/)
 * Note: The glacier backend currently uses both glacier and s3, so s3.bucket is still required when using glacier. This is also the reason why archivePath is always required.
-
-	# AWS access keys, which you get it from the aws console.
-	# Amazon Web Services access key id.
-	aws.id = AMAZON_ID
-	# Amazon Web Services secret key.
-	aws.secret = AMAZON_SECRET
 	
-	# Bucket name in s3/s3n.
-	s3.bucket = BUCKET_NAME
 	
-	# Name of the vault that the bucket data will be stored in glacier.
-	glacier.vault = VAULT_NAME
-	# Glacier endpoint i.e. https://glacier.us-east-1.amazonaws.com/
-	glacier.endpoint = GLACIER_ENDPOINT
+    	\# AWS access keys, which you get it from the aws console.
+    	\# Amazon Web Services access key id.
+    	aws.id = AMAZON_ID
+    	
+    	\# Amazon Web Services secret key.	
+    	aws.secret = AMAZON_SECRET
+    	
+    	\# Bucket name in s3/s3n.	
+    	s3.bucket = BUCKET_NAME
+    	
+    	\# Name of the vault that the bucket data will be stored in glacier.
+    	glacier.vault = VAULT_NAME
+    	
+    	\# Glacier endpoint i.e. https://glacier.us-east-1.amazonaws.com/
+    	glacier.endpoint = GLACIER_ENDPOINT
 	
-Note, the directory that the data will be archived to is 
+Note, the directory that the data will be archived to is: 
+	
 	[archivePath]/archive_data/[clusterName]/[serverName]/[indexName]
 
 
