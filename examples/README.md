@@ -60,7 +60,7 @@ Here's how to install the Shuttl app in your Splunk instance. Shuttl comes with 
 ### Shuttl Configuration
 Firstly you want to configure your splunk index for shuttl. This is best done by creating a shuttl/local folder and creating the file indexes.conf within it or copy the one from default/ and modify it to your specifications.
 
-There are also another three configuration files that you might care about. One for archiving, one for Splunk and one for the Shuttl server. They all live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
+Secondly there are another three configuration files that you might care about. One for archiving, one for Splunk and one for the Shuttl server. They all live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
 
 In addition to these configuration files, there are property files for the backends. These live in shuttl/conf/backend directory. These need to be configured as well depending on the backendName you choose.
 
@@ -173,6 +173,7 @@ Example for local storage:
     	glacier.endpoint = GLACIER_ENDPOINT
 	
 Note, the directory that the data will be archived to is 
+	
 	[archivePath]/archive_data/[clusterName]/[serverName]/[indexName]
 
 
