@@ -1,6 +1,8 @@
 Shuttl - Archiving for Splunk - In 10 min
 =====================================================
 
+This is a quickstart guide for shuttl and a few different backends. Below is a guide on how to install and configure shuttl. You will also find examples of the configuration files in the neighbouring folders.
+
 Prerequisites
 -------------
 
@@ -70,7 +72,7 @@ In addition to these configuration files, there are property files for the backe
 
 You need to configure Splunk to call the archiver script (setting the coldToFrozenScript and/or warmToColdScript) for each index that is being archived. You can do this by creating an indexes.conf file in $SPLUNK_HOME/etc/apps/shuttl/local with the appropriate config stanzas. An example is as follows:
 
-	[mytestindex] 
+	[mytestindex]
 	homePath = $SPLUNK_DB/mytestindex/db 
 	coldPath = $SPLUNK_DB/mytestindex/colddb 
 	thawedPath = $SPLUNK_DB/mytestindex/thaweddb 
