@@ -155,18 +155,12 @@ Example for local storage:
 - glacier.endpoint: The server endpoint to where the data will be stored. (i.e. https://glacier.us-east-1.amazonaws.com/)
 * Note: The glacier backend currently uses both glacier and s3, so s3.bucket is still required when using glacier. This is also the reason why archivePath is always required.
 
-	#AWS access keys, which you get it from the aws console.
-	#Amazon Web Services access key id.
-	aws.id = AMAZON_ID
-	#Amazon Web Services secret key.
+	aws.id = AMAZON_ID	
 	aws.secret = AMAZON_SECRET
-	
-	#Bucket name in s3/s3n.
+
 	s3.bucket = BUCKET_NAME
-	
-	#Name of the vault that the bucket data will be stored in glacier.
+
 	glacier.vault = VAULT_NAME
-	#Glacier endpoint i.e. https://glacier.us-east-1.amazonaws.com/
 	glacier.endpoint = GLACIER_ENDPOINT
 	
 Note, the directory that the data will be archived to is 
