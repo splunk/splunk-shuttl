@@ -15,8 +15,7 @@
 #        default, then you need to pass them as
 #        second and third argument.
 
-# Note: If you're using a "real" index, you might
-#       want to remove this fake bucket after it's
+# Note: You want to delete this bucket after it's
 #       been archived/shuttl'ed.
 
 set -u
@@ -66,9 +65,10 @@ curl -sS -X POST \
 curl_exit=$?
 echo 1>&2
 
-if [ $curl_exit -eq 0 ]; then
-    echo 1>&2 "Success!!!"
-else
+if [ $curl_exit -ne 0 ]; then
     echo 1>&2 "Failure!"
-    exit $curl_exit 
+    echo 1>&2
 fi
+
+echo 1>&2 "Remember to delete all the archived buckets under $splunk_index
+from the configured backend storage, when you're done testing."
