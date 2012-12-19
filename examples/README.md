@@ -146,9 +146,8 @@ Example for local storage:
 - hadoop.host: The host name to the hdfs name node.
 - hadoop.port: The port to the hdfs name node.
 
-	hadoop.host = NAMENODE_IP
-	
-	hadoop.port = HDFS_NAMENODE_PORT
+	`hadoop.host = NAMENODE_IP`	
+	`hadoop.port = HDFS_NAMENODE_PORT`
 
 ### conf/backend/amazon.properties (required for s3, s3n or glacier)
 - aws.id: Your Amazon Web Services ID
@@ -175,7 +174,7 @@ Example for local storage:
     	\# Glacier endpoint i.e. https://glacier.us-east-1.amazonaws.com/
     	glacier.endpoint = GLACIER_ENDPOINT
 	
-Note, the directory that the data will be archived to is 
+Note, the directory that the data will be archived to is: 
 	
 	[archivePath]/archive_data/[clusterName]/[serverName]/[indexName]
 
