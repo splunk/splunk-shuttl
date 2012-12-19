@@ -21,8 +21,8 @@
 
 set -u
 
-default_shuttl_host=localhost
-default_shuttl_port=9099
+default_shuttl_host=@SHUTTL.HOST@
+default_shuttl_port=@SHUTTL.PORT@
 
 print_usage() {
     echo 1>&2 "$0 [shuttl_port] [shuttl_host]"
