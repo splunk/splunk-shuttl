@@ -57,7 +57,9 @@ Here's how to install the Shuttl app in your Splunk instance. Shuttl comes with 
 4. While Splunk is not running, configure Shuttl and Splunk as mentioned below.
 5. Start Splunk up, and enable the Shuttl via the App section under Manager.
 
-### Shuttl Configuration
+Shuttl Configuration
+--------------------
+
 Firstly you want to configure your splunk index for shuttl. This is best done by creating a shuttl/local folder and creating the file indexes.conf within it or copy the one from default/ and modify it to your specifications.
 
 Secondly there are another three configuration files that you might care about. One for archiving, one for Splunk and one for the Shuttl server. They all live in the shuttl/conf directory. All the values are populated with default values to serve as an example.
