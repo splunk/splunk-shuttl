@@ -8,7 +8,7 @@ Prerequisites
 
 ### Splunk
 
-Currently the Splunk version used is 5.0.1. 
+The currently used Splunk version is 5.0.1. 
 Shuttl has support for Splunk Clustering.
 
 You can download it [Splunk][splunk-download]. And see the [Splunk documentation][] for instructions on installing and more.
@@ -22,7 +22,7 @@ You can download it [Splunk][splunk-download]. And see the [Splunk documentation
 
 ### Hadoop (optional)
 
-This is needed if you are using HDFS. Currently the Hadoop version used is 1.1.0.
+This is needed if you are using HDFS. Currently Hadoop 1.1.0 is used.
 
 You can download it from one of the [mirror sites][hadoop-download]. 
 And see the [Hadoop documentation][] for instructions on installing and more.
