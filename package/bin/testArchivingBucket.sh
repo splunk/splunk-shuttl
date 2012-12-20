@@ -7,13 +7,7 @@
 # to see if everything works, instead of
 # making a bucket "roll" to cold or frozen.
 
-# Usage: ./testArchivingBucket.sh <index> [host] [port] 
-#        Configure a splunk index and pass
-#        the name of the index to this script.
-#        If you've configured the Shuttl host and
-#        port to be something else than the 
-#        default, then you need to pass them as
-#        second and third argument.
+# Usage: ./testArchivingBucket.sh [shuttl_port] [shuttl_host] 
 
 # Note: You want to delete this bucket after it's
 #       been archived/shuttl'ed.
