@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:serverConf xmlns:ns2="com.splunk.shuttl.server.model">
-  <!-- specify your node's hostname (below is an amz example) -->
-  <httpHost>ip-10-10-100-100.ec2.internal</httpHost>
-  <httpPort>9090</httpPort>
-</ns2:serverConf>
