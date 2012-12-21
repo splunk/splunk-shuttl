@@ -6,7 +6,7 @@
     <!-- Path on the backend where Shuttl will store data -->
     <archivePath>/user/testUser/MyTestArea</archivePath>
 
-    <!-- Unique name for your Splunk cluster -- >
+    <!-- Unique name for your Splunk cluster -->
     <clusterName>hdfs-cluster</clusterName>
     <!-- Specify your node's name -->
     <serverName>Node-001</serverName>
