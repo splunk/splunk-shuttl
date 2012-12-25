@@ -36,7 +36,7 @@ else
     exit 1
 fi
 
-bucket_dir=$(mktemp -d -t db_1336330530_1336330530_0)
+bucket_dir=$(mktemp -d -t db_1336330530_1336330530_0.XXXXXX)
 mkdir $bucket_dir/rawdata
 touch $bucket_dir/rawdata/journal.gz
 touch $bucket_dir/rawdata/slizes.dat
