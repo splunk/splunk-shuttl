@@ -31,18 +31,17 @@ public class ClusterPeersTest {
 		String localHostIp = TUtilsIp.getLocalHostIp();
 		int slavePort = Integer.parseInt(slavePortString);
 
-		Service slaveService = new Service(localHostIp, slavePort);
-		slaveService.login(splunkUser, splunkPass);
-		String slaveGuid = slaveService.getInfo().getGuid();
-
 		Service masterService = new Service(localHostIp,
 				Integer.parseInt(masterPort));
 		masterService.login(splunkUser, splunkPass);
 		ClusterPeers clusterPeers = new ClusterPeers(masterService);
+
+		Service slaveService = new Service(localHostIp, slavePort);
+		slaveService.login(splunkUser, splunkPass);
+		String slaveGuid = slaveService.getInfo().getGuid();
 		ClusterPeer clusterPeer = clusterPeers.get(slaveGuid);
 
 		assertNotNull(clusterPeer);
 		assertEquals((int) clusterPeer.getPort(), slavePort);
-		assertEquals(clusterPeer.getHost(), localHostIp);
 	}
 }
