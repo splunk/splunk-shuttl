@@ -23,6 +23,7 @@
 	<property name="stage.bin.dir" value="${stage.dir}/bin" />
 	<property name="shuttl.conf.dir" location="${stage.conf.dir}" />
 	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
+	<property name="splunk-app.spl" value="${stage.dir}.spl" />
 	<property name="srcdir" value="${basedir}/src/java/" />
 	<property name="src.sh" value="${basedir}/src/sh" />
 	<property name="testdir" value="${basedir}/test/java/" />
@@ -1393,6 +1394,10 @@
 				<exclude name="bin/**" />
 			</tarfileset>
 		</tar>
+	</target>
+
+	<target name="create-spl-splunk-app-for-splunbase" depends="create-splunk-app">
+		<copy file="${splunk-app.tar}" tofile="${splunk-app.spl}" />
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->
