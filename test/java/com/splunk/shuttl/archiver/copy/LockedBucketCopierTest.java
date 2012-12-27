@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
+import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
@@ -63,8 +65,25 @@ public class LockedBucketCopierTest {
 	}
 
 	public void copyBucket_notGivenBucketLock_doesNothingWithDependencies() {
-		assertTrue(realBucketLocker.getLockForBucket(bucket).tryLockExclusive());
-		copyBucketEntryPoint.copyBucket(bucket);
+		final Runnable runnableForVerification = mock(Runnable.class);
+
+		SharedLockBucketHandler locksBucketThenCallsCopyBucket = new SharedLockBucketHandler() {
+
+			@Override
+			public void handleSharedLockedBucket(Bucket bucket) {
+				runnableForVerification.run();
+				assertFalse(realBucketLocker.getLockForBucket(bucket)
+						.tryLockExclusive());
+				copyBucketEntryPoint.copyBucket((LocalBucket) bucket);
+			}
+
+			@Override
+			public void bucketWasLocked(Bucket bucket) {
+			}
+		};
+		realBucketLocker.callBucketHandlerUnderSharedLock(bucket,
+				locksBucketThenCallsCopyBucket);
+		verify(runnableForVerification).run();
 		verifyZeroInteractions(endpoint, receipts);
 	}
 }
