@@ -60,6 +60,7 @@
 	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
 	<property name="cluster.slave2.splunk.home" value="${build-cache}/${cluster.slave2.name}" />
 	<property name="splunk.default.password" value="changeme" />
+	<property name="splunk.default.mgmtport" value="8089" />
 
 	<!-- splunk cluster properties -->
 	<property name="cluster.config.endpoint" value="services/cluster/config/config" />
