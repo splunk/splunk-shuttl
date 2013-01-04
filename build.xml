@@ -1271,8 +1271,12 @@
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,jar">
-		<antcall target="create-splunk-app" />
-		<antcall target="doc" />
+		<var name="splunk.mgmtport" value="${splunk.default.mgmtport}" />
+		<antcall>
+			<target name="create-splunk-app" />
+			<target name="create-spl-splunk-app-for-splunkbase" />
+			<target name="doc" />
+		</antcall>
 	</target>
 
 	<target name="create-splunk-app" depends="jar">
@@ -1397,7 +1401,7 @@
 		</tar>
 	</target>
 
-	<target name="create-spl-splunk-app-for-splunbase" depends="create-splunk-app">
+	<target name="create-spl-splunk-app-for-splunkbase" depends="create-splunk-app">
 		<copy file="${splunk-app.tar}" tofile="${splunk-app.spl}" />
 	</target>
 
