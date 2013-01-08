@@ -1,4 +1,4 @@
-Shuttl - Archiving for Splunk - In 10 min
+Shuttl - Archiving for Splunk - In 15 min
 =====================================================
 
 This is a quickstart guide for shuttl and a few different backends. Below is a guide on how to install and configure shuttl. You will also find examples of the configuration files in the neighbouring folders.
@@ -8,7 +8,7 @@ Prerequisites
 
 ### Splunk
 
-The currently used Splunk version is 5.0.1. 
+The currently used Splunk version is 5.0.x. 
 Shuttl has support for Splunk Clustering.
 
 You can download it [Splunk][splunk-download]. And see the [Splunk documentation][] for instructions on installing and more.
@@ -22,13 +22,13 @@ You can download it [Splunk][splunk-download]. And see the [Splunk documentation
 
 ### Hadoop (optional)
 
-This is needed if you are using HDFS. Currently Hadoop 1.1.0 is used.
+This is needed if you are using HDFS. Currently Hadoop 1.1.1 is used.
 
 You can download it from one of the [mirror sites][hadoop-download]. 
 And see the [Hadoop documentation][] for instructions on installing and more.
 
-[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.1.0
-[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.1.0
+[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.1.1
+[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.1.1
 
 Getting Started
 ---------------
@@ -79,10 +79,13 @@ You need to configure Splunk to call the archiver script (setting the coldToFroz
 	rotatePeriodInSecs = 10 
 	maxWarmDBCount = 1 
 	maxDataSize = 10000
+	maxTotalDataSizeMB = 10000
 	warmToColdScript = $SPLUNK_HOME/etc/apps/shuttl/bin/warmToColdScript.sh 
 	coldToFrozenScript = $SPLUNK_HOME/etc/apps/shuttl/bin/coldToFrozenScript.sh 
 	
-WARNING: the settings rotatePeriodInSecs, frozenTimePeriodInSecs, maxWarmDBCount are there only for testing to verify that data can be successfully transferred by inducing rapid bucket rolling. Don't use in production. See Set a retirement and archiving policy and Indexes.conf documentation to suit your test and deployment needs. Expected usage in production is that maxDataSize correspond to a HDFS block or larger (splunk default is 750mb), and maxHotIdleSecs should be set to 86400 for buckets approximately 24hrs worth of data.
+For the full index configuration options see [indexconf][].
+
+[indexconf]:http://docs.splunk.com/Documentation/Splunk/latest/admin/Indexesconf
 
 ### conf/archiver.xml
 
