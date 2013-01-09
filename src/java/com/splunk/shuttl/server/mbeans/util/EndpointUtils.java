@@ -47,27 +47,31 @@ public class EndpointUtils {
 
 	private static HttpPost createArchiverPostRequest(String shuttlHost,
 			int shuttlPort, String bucketPath, String index, String endpoint) {
-		URI copyBucketEndpoint = URI.create("http://" + shuttlHost + ":"
-				+ shuttlPort + "/" + ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER + endpoint);
+		URI copyBucketEndpoint = getShuttlEndpointUri(shuttlHost, shuttlPort,
+				endpoint);
 		HttpPost postRequest = createHttpPost(copyBucketEndpoint, "path",
 				bucketPath, "index", index);
 		return postRequest;
 	}
 
-	/**
-	 * @param endpoint
-	 * @param POST
-	 *          key values
-	 */
+	public static URI getShuttlEndpointUri(String shuttlHost, int shuttlPort,
+			String endpoint) {
+		URI copyBucketEndpoint = URI.create("http://" + shuttlHost + ":"
+				+ shuttlPort + "/" + ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER + endpoint);
+		return copyBucketEndpoint;
+	}
+
 	public static HttpPost createHttpPost(URI endpoint, Object... kvs) {
 		HttpPost httpPost = new HttpPost(endpoint);
+		setParamsToPostRequest(httpPost, createHttpParams(kvs));
+		return httpPost;
+	}
 
+	public static List<BasicNameValuePair> createHttpParams(Object... kvs) {
 		List<BasicNameValuePair> postParams = new ArrayList<BasicNameValuePair>();
 		for (int i = 0; i < kvs.length; i += 2)
 			postParams.add(createNameValuePair(kvs[i], kvs[i + 1]));
-
-		setParamsToPostRequest(httpPost, postParams);
-		return httpPost;
+		return postParams;
 	}
 
 	private static BasicNameValuePair createNameValuePair(Object name,

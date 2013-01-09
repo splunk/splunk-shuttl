@@ -80,7 +80,8 @@ public class CopyWithoutDeletionEndToEndTest {
 
 					@Override
 					public void run() {
-						Service service = SplunkIndexedLayerFactory.getLoggedInSplunkService();
+						Service service = SplunkIndexedLayerFactory
+								.getLoggedInSplunkService();
 						String index = "shuttl";
 						assertTrue(service.getIndexes().containsKey(index));
 						LocalBucket bucket = TUtilsBucket.createBucketInDirectoryWithIndex(
