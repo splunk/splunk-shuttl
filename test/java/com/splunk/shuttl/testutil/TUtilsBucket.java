@@ -60,7 +60,7 @@ public class TUtilsBucket {
 	}
 
 	private static String randomIndexName() {
-		return "index-" + System.currentTimeMillis();
+		return "index-" + RandomUtils.nextInt();
 	}
 
 	private static String randomBucketName() {

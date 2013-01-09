@@ -100,14 +100,13 @@ public class ClusterReplicatedBucketArchivingTest {
 		final LocalBucket rb = replicatedBucketProvider.create(coldPathExpanded,
 				slave1Guid);
 
+		final File slave1ShuttlConfDir = TUtilsEndToEnd
+				.getShuttlConfDirFromService(slave1);
 		try {
 			TUtilsEndToEnd.callSlaveArchiveBucketEndpoint(index, rb.getDirectory()
 					.getAbsolutePath(), slave2Host, Integer.parseInt(slave2ShuttlPort));
 			assertFalse(rb.getDirectory().exists());
 
-			String slave1SplunkHome = slave1.getSettings().getSplunkHome();
-			final File slave1ShuttlConfDir = new File(slave1SplunkHome
-					+ "/etc/apps/shuttl/conf");
 			TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 				@Override
@@ -119,6 +118,7 @@ public class ClusterReplicatedBucketArchivingTest {
 			});
 		} finally {
 			FileUtils.deleteQuietly(rb.getDirectory());
+			TUtilsEndToEnd.cleanHadoopFileSystem(slave1ShuttlConfDir, splunkHome);
 		}
 	}
 
