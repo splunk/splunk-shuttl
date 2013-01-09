@@ -3,6 +3,8 @@ Shuttl - Archiving for Splunk - In 15 min
 
 This is a quickstart guide for shuttl and a few different backends. Below is a guide on how to install and configure shuttl. You will also find examples of the configuration files in the neighbouring folders.
 
+WARNING: The examples provided in this guide are for testing only and should not be used in production environments without consulting splunk documentation.
+
 Prerequisites
 -------------
 
@@ -35,11 +37,8 @@ Getting Started
 
 Ensure that:
 * `JAVA_HOME` environment variable is defined correctly.
+* `SPLUNK_HOME` enviroment variable is defined correctly. 
 * you can run `ssh localhost` without having to enter a password.
-
-### How to Setup Passphraseless SSH
-
-Here's how you setup passphraseless ssh: http://hadoop.apache.org/common/docs/current/single_node_setup.html#Setup+passphraseless  
 
 Installing the app
 ------------------
@@ -78,8 +77,8 @@ You need to configure Splunk to call the archiver script (setting the coldToFroz
 	thawedPath = $SPLUNK_DB/mytestindex/thaweddb 
 	rotatePeriodInSecs = 10 
 	maxWarmDBCount = 1 
-	maxDataSize = 10000
-	maxTotalDataSizeMB = 10000
+	maxDataSize = 1024
+	maxTotalDataSizeMB = 2048
 	warmToColdScript = $SPLUNK_HOME/etc/apps/shuttl/bin/warmToColdScript.sh 
 	coldToFrozenScript = $SPLUNK_HOME/etc/apps/shuttl/bin/coldToFrozenScript.sh 
 	
