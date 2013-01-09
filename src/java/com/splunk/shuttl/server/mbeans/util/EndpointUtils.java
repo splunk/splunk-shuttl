@@ -34,11 +34,23 @@ public class EndpointUtils {
 
 	public static HttpPost createCopyBucketPostRequest(String shuttlHost,
 			int shuttlPort, LocalBucket bucket) {
+		return createArchiverPostRequest(shuttlHost, shuttlPort, bucket
+				.getDirectory().getAbsolutePath(), bucket.getIndex(),
+				ENDPOINT_BUCKET_COPY);
+	}
+
+	public static HttpPost createArchiveBucketPostRequest(String shuttlHost,
+			int shuttlPort, String bucketPath, String index) {
+		return createArchiverPostRequest(shuttlHost, shuttlPort, bucketPath, index,
+				ENDPOINT_BUCKET_ARCHIVE);
+	}
+
+	private static HttpPost createArchiverPostRequest(String shuttlHost,
+			int shuttlPort, String bucketPath, String index, String endpoint) {
 		URI copyBucketEndpoint = URI.create("http://" + shuttlHost + ":"
-				+ shuttlPort + "/" + ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER
-				+ ENDPOINT_BUCKET_COPY);
-		HttpPost postRequest = createHttpPost(copyBucketEndpoint, "path", bucket
-				.getDirectory().getAbsolutePath(), "index", bucket.getIndex());
+				+ shuttlPort + "/" + ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER + endpoint);
+		HttpPost postRequest = createHttpPost(copyBucketEndpoint, "path",
+				bucketPath, "index", index);
 		return postRequest;
 	}
 

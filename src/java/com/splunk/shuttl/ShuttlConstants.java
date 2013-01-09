@@ -36,7 +36,7 @@ public final class ShuttlConstants {
 	public static final String ENDPOINT_SERVER = "/server";
 	public static final String ENDPOINT_FORWARDER = "/forwarder";
 	public static final String ENDPOINT_SINK_PREFIX = "/sinkprefix";
-	public static final String ENDPOINT_BUCKET_ARCHIVER = "/bucket/archive";
+	public static final String ENDPOINT_BUCKET_ARCHIVE = "/bucket/archive";
 	public static final String ENDPOINT_BUCKET_COPY = "/bucket/copy";
 	public static final String ENDPOINT_BUCKET_THAW = "/bucket/thaw";
 	public static final String ENDPOINT_BUCKET_FLUSH = "/bucket/flush";
