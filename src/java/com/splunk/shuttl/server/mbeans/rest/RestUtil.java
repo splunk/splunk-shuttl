@@ -53,7 +53,7 @@ public class RestUtil {
 	/**
 	 * @return JSON response with buckets and their total size.
 	 */
-	public static String respondWithBuckets(List<Bucket> buckets) {
+	public static String bucketsToJson(List<Bucket> buckets) {
 		List<BucketBean> beans = new ArrayList<BucketBean>();
 		long totalBucketsSize = 0;
 

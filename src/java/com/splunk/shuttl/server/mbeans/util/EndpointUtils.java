@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -67,11 +68,19 @@ public class EndpointUtils {
 		return httpPost;
 	}
 
-	public static List<BasicNameValuePair> createHttpParams(Object... kvs) {
+	private static List<BasicNameValuePair> createHttpParams(Object... kvs) {
 		List<BasicNameValuePair> postParams = new ArrayList<BasicNameValuePair>();
-		for (int i = 0; i < kvs.length; i += 2)
-			postParams.add(createNameValuePair(kvs[i], kvs[i + 1]));
+		for (int i = 0; i < kvs.length; i += 2) {
+			Object key = kvs[i];
+			Object value = kvs[i + 1];
+			if (value != null)
+				postParams.add(createNameValuePair(key, value));
+		}
 		return postParams;
+	}
+
+	public static String createHttpGetParams(Object... kvs) {
+		return URLEncodedUtils.format(createHttpParams(kvs), "utf-8");
 	}
 
 	private static BasicNameValuePair createNameValuePair(Object name,

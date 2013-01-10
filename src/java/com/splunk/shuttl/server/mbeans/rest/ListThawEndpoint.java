@@ -54,7 +54,7 @@ public class ListThawEndpoint {
 		try {
 			List<Bucket> filteredBuckets = filteredBucketsInThaw(indexes, earliest,
 					latest);
-			return RestUtil.respondWithBuckets(filteredBuckets);
+			return RestUtil.bucketsToJson(filteredBuckets);
 		} catch (IllegalIndexException e) {
 			return RestUtil.respondWithIndexError(index);
 		}
