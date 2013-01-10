@@ -18,12 +18,9 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 import java.net.URI;
-import java.util.List;
 
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -36,7 +33,7 @@ import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 
-@Test(groups = { "cluster-test" }, enabled = false)
+@Test(groups = { "cluster-test" })
 public class DistributedBucketListingTest {
 
 	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.shuttl.port",
@@ -78,23 +75,17 @@ public class DistributedBucketListingTest {
 		JsonRestEndpointCaller endpointCaller = new JsonRestEndpointCaller(
 				new DefaultHttpClient());
 		HttpGet listBucketsRequest = new HttpGet(getListBucketRequestUri(
-				searchHeadHost, searchHeadShuttlPort, bucket));
+				searchHeadHost, searchHeadShuttlPort, bucket.getIndex()));
 		JSONObject json = endpointCaller.getJson(listBucketsRequest);
 		assertTrue(json.toString().contains(bucket.getName()));
 	}
 
 	private URI getListBucketRequestUri(String searchHeadHost,
-			int searchHeadShuttlPort, Bucket bucket) {
+			int searchHeadShuttlPort, String index) {
 		URI listBucketsEndpoint = EndpointUtils.getShuttlEndpointUri(
 				searchHeadHost, searchHeadShuttlPort,
 				ShuttlConstants.ENDPOINT_LIST_BUCKETS);
 		return URI.create(listBucketsEndpoint + "?"
-				+ constructHttpGetParams(bucket));
-	}
-
-	private String constructHttpGetParams(Bucket bucket) {
-		List<BasicNameValuePair> httpParamPairs = EndpointUtils.createHttpParams(
-				"index", bucket.getIndex());
-		return URLEncodedUtils.format(httpParamPairs, "utf-8");
+				+ EndpointUtils.createHttpGetParams("index", index));
 	}
 }
