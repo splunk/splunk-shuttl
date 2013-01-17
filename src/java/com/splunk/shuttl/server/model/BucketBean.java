@@ -19,8 +19,6 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.io.FileUtils;
-
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -143,8 +141,7 @@ public class BucketBean {
 	 *          to create bean from.
 	 */
 	public static BucketBean createBeanFromBucket(Bucket bucket) {
-		String size = FileUtils.byteCountToDisplaySize(bucket.getSize() == null ? 0
-				: bucket.getSize());
+		String size = "" + (bucket.getSize() == null ? 0 : bucket.getSize());
 		return new BucketBean(bucket.getFormat().name(), bucket.getIndex(),
 				bucket.getName(), bucket.getPath(),
 				stringFromDate(bucket.getEarliest()),
