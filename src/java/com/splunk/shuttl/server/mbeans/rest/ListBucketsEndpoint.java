@@ -57,12 +57,14 @@ import com.splunk.shuttl.archiver.thaw.SplunkConfiguration;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
 import com.splunk.shuttl.archiver.util.JsonUtils;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 /**
  * Endpoint for listing buckets in the archive.
  */
 @Path(ENDPOINT_ARCHIVER)
 public class ListBucketsEndpoint {
+
 	private static final org.apache.log4j.Logger logger = Logger
 			.getLogger(ListBucketsEndpoint.class);
 
@@ -93,6 +95,17 @@ public class ListBucketsEndpoint {
 		logger.info(happened("Received REST request to list buckets", "endpoint",
 				ENDPOINT_LIST_BUCKETS, "index", index, "from", from, "to", to));
 
+		try {
+			return doListBucketsForIndex(index, from, to);
+		} catch (Throwable t) {
+			logger.error(did("tried to list buckets", t, "to list bucket", "index",
+					index, "from", from, "to", to));
+			throw new RuntimeException(t);
+		}
+	}
+
+	private String doListBucketsForIndex(String index, String from, String to)
+			throws JSONException {
 		Date fromDate = RestUtil.getValidFromDate(from);
 		Date toDate = RestUtil.getValidToDate(to);
 
@@ -110,8 +123,14 @@ public class ListBucketsEndpoint {
 		List<JSONObject> jsons = requestOnSearchPeers(index, from, to);
 		jsons.add(jsonObject);
 
-		return JsonUtils.mergeKey(jsons, "buckets").toString(); // size is not
-																														// merged. Fix plx.
+		JSONObject mergedBuckets = JsonUtils.mergeKey(jsons,
+				JsonObjectNames.BUCKET_COLLECTION);
+		long size = JsonUtils.sumKeyInNestedJson(mergedBuckets,
+				JsonObjectNames.SIZE, JsonObjectNames.BUCKET_COLLECTION);
+
+		return RestUtil.writeKeyValueAsJson(JsonObjectNames.BUCKET_COLLECTION,
+				mergedBuckets.get(JsonObjectNames.BUCKET_COLLECTION),
+				JsonObjectNames.BUCKET_COLLECTION_SIZE, size).toString();
 	}
 
 	private List<Bucket> getFilteredBucketsAtIndex(String index, Date fromDate,

@@ -26,8 +26,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 import com.splunk.shuttl.server.model.BucketBean;
 
 public class RestUtil {
@@ -62,12 +65,27 @@ public class RestUtil {
 			totalBucketsSize += bucket.getSize() == null ? 0 : bucket.getSize();
 		}
 
-		Map<String, Object> response = new HashMap<String, Object>();
-		response.put("buckets_TOTAL_SIZE",
-				FileUtils.byteCountToDisplaySize(totalBucketsSize));
-		response.put("buckets", beans);
+		return RestUtil.writeKeyValueAsJson(JsonObjectNames.BUCKET_COLLECTION_SIZE,
+				FileUtils.byteCountToDisplaySize(totalBucketsSize),
+				JsonObjectNames.BUCKET_COLLECTION, beans).toString();
+	}
 
-		return RestUtil.writeMapAsJson(response);
+	public static JSONObject writeKeyValueAsJson(Object... kvs) {
+		JSONObject jsonObject = new JSONObject();
+		for (int i = 0; i < kvs.length; i += 2) {
+			Object k = kvs[i];
+			Object v = kvs[i + 1];
+			putSafe(jsonObject, k, v);
+		}
+		return jsonObject;
+	}
+
+	private static void putSafe(JSONObject jsonObject, Object k, Object v) {
+		try {
+			jsonObject.put(k.toString(), v);
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static BucketBean getBucketBean(Bucket bucket) {

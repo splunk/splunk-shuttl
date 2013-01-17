@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.endtoend;
 
+import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
 import com.splunk.shuttl.ShuttlConstants;
 import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
@@ -43,18 +45,21 @@ public class DistributedBucketListingTest {
 	public void _searchHeadAndSearchPeers_archivingAtPeersCanBeListedFromSearchHead(
 			String peer1Host, String peer1ShuttlPort, String peer2Host,
 			String peer2ShuttlPort, String searchHeadHost,
-			String searchHeadShuttlPort, String peer2SplunkHome) {
+			String searchHeadShuttlPort, String peer2SplunkHome) throws JSONException {
+		int shuttlPort = Integer.parseInt(searchHeadShuttlPort);
 
+		LocalBucket b1 = TUtilsBucket.createBucket();
+		LocalBucket b2 = TUtilsBucket.createBucketInDirectoryWithIndex(
+				createDirectory(), b1.getIndex());
 		try {
-			Bucket peer1Bucket = archiveBucketAtSearchPeer(peer1Host,
+			archiveBucketAtSearchPeer(b1, peer1Host,
 					Integer.parseInt(peer1ShuttlPort));
-			Bucket peer2Bucket = archiveBucketAtSearchPeer(peer2Host,
+			archiveBucketAtSearchPeer(b2, peer2Host,
 					Integer.parseInt(peer2ShuttlPort));
 
-			assertBucketCanBeListedAtMaster(searchHeadHost,
-					Integer.parseInt(searchHeadShuttlPort), peer1Bucket);
-			assertBucketCanBeListedAtMaster(searchHeadHost,
-					Integer.parseInt(searchHeadShuttlPort), peer2Bucket);
+			assertBucketsCanBeListedAtMaster(searchHeadHost, shuttlPort, b1, b2);
+			assertTotalBucketSizeIsTheSumOfBothBuckets(searchHeadHost, shuttlPort,
+					b1, b2);
 		} finally {
 			File shuttlConfDir = TUtilsEndToEnd
 					.getShuttlConfDirFromSplunkHome(peer2SplunkHome);
@@ -62,22 +67,27 @@ public class DistributedBucketListingTest {
 		}
 	}
 
-	private Bucket archiveBucketAtSearchPeer(String slave1Host,
+	private void archiveBucketAtSearchPeer(LocalBucket b, String slave1Host,
 			int slave1ShuttlPort) {
-		LocalBucket b = TUtilsBucket.createBucket();
 		TUtilsEndToEnd.callSlaveArchiveBucketEndpoint(b.getIndex(), b
 				.getDirectory().getAbsolutePath(), slave1Host, slave1ShuttlPort);
-		return b;
 	}
 
-	private void assertBucketCanBeListedAtMaster(String searchHeadHost,
-			int searchHeadShuttlPort, Bucket bucket) {
+	private void assertBucketsCanBeListedAtMaster(String searchHeadHost,
+			int searchHeadShuttlPort, Bucket... buckets) {
+		JSONObject json = jsonFromListBucketEndpoint(searchHeadHost,
+				searchHeadShuttlPort, buckets[0].getIndex());
+		for (Bucket b : buckets)
+			assertTrue(json.toString().contains(b.getName()));
+	}
+
+	private JSONObject jsonFromListBucketEndpoint(String searchHeadHost,
+			int searchHeadShuttlPort, String index) {
 		JsonRestEndpointCaller endpointCaller = new JsonRestEndpointCaller(
 				new DefaultHttpClient());
 		HttpGet listBucketsRequest = new HttpGet(getListBucketRequestUri(
-				searchHeadHost, searchHeadShuttlPort, bucket.getIndex()));
-		JSONObject json = endpointCaller.getJson(listBucketsRequest);
-		assertTrue(json.toString().contains(bucket.getName()));
+				searchHeadHost, searchHeadShuttlPort, index));
+		return endpointCaller.getJson(listBucketsRequest);
 	}
 
 	private URI getListBucketRequestUri(String searchHeadHost,
@@ -87,5 +97,17 @@ public class DistributedBucketListingTest {
 				ShuttlConstants.ENDPOINT_LIST_BUCKETS);
 		return URI.create(listBucketsEndpoint + "?"
 				+ EndpointUtils.createHttpGetParams("index", index));
+	}
+
+	private void assertTotalBucketSizeIsTheSumOfBothBuckets(
+			String searchHeadHost, int shuttlPort, Bucket... buckets)
+			throws JSONException {
+		long bucketSize = 0;
+		for (Bucket b : buckets)
+			bucketSize += b.getSize();
+
+		JSONObject json = jsonFromListBucketEndpoint(searchHeadHost, shuttlPort,
+				buckets[0].getIndex());
+		assertEquals(bucketSize, json.getLong("buckets_TOTAL_SIZE"));
 	}
 }

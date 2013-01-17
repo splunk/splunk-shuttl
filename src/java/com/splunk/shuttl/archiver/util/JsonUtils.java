@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.util;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.amazonaws.util.json.JSONArray;
@@ -47,6 +48,8 @@ public class JsonUtils {
 		Object value = getJsonKeyOrNull(json, key);
 		if (value != null) {
 			if (value instanceof JSONArray) {
+				if (!merged.has(key))
+					merged.put(key, Collections.emptyList());
 				mergeJsonArray(merged, key, (JSONArray) value);
 			} else {
 				appendKeyValue(merged, key, value);
@@ -72,6 +75,60 @@ public class JsonUtils {
 	private static void appendKeyValue(JSONObject merged, String key, Object value)
 			throws JSONException {
 		merged.accumulate(key, value);
+	}
+
+	/**
+	 * Takes a JSON, a key to sum and a key to the object within the JSON which
+	 * has this key. Examples:
+	 * 
+	 * <pre>
+	 * {} -> 0
+	 * {objectKey : {keyToSum : 3}} -> 3
+	 * {objectKey : [{keyToSum : 1}, {keyToSum : 4}]} -> 5
+	 * </pre>
+	 */
+	public static long sumKeyInNestedJson(JSONObject jsonObject, String keyToSum,
+			String objectKey) {
+		try {
+			return doSumKey(jsonObject, keyToSum, objectKey);
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static long doSumKey(JSONObject jsonObject, String keyToSum,
+			String objectKey) throws JSONException {
+		long size = 0;
+		if (jsonObject.has(objectKey)) {
+			Object object = jsonObject.get(objectKey);
+			if (object instanceof JSONArray) {
+				size = sumKeyInArray((JSONArray) object, keyToSum);
+			} else if (object instanceof JSONObject) {
+				size = valueOrZero((JSONObject) object, keyToSum);
+			} else {
+				throw new RuntimeException("Unknown JSON class: " + object.getClass());
+			}
+		}
+		return size;
+	}
+
+	private static long sumKeyInArray(JSONArray jsonArray, String key) {
+		try {
+			long sum = 0;
+			for (int i = 0; i < jsonArray.length(); i++)
+				sum += valueOrZero((JSONObject) jsonArray.get(i), key);
+			return sum;
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static long valueOrZero(JSONObject jsonObject, String key) {
+		try {
+			return jsonObject.getLong(key);
+		} catch (JSONException e) {
+			return 0;
+		}
 	}
 
 }

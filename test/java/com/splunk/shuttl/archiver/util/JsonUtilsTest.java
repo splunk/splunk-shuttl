@@ -70,11 +70,60 @@ public class JsonUtilsTest {
 		assertEquals(merge.get("k").toString(), "1");
 	}
 
+	public void merge_keyWithEmptyCollection_returnsSameJson() {
+		JSONObject o1 = json("{\"k\":[]}");
+		JSONObject merge = JsonUtils.mergeKey(asList(o1), "k");
+		assertEquals(o1.toString(), merge.toString());
+	}
+
+	public void merge_oneEmptyAndOneNotEmptyCollection_notEmptyCollection() {
+		JSONObject o1 = json("{\"k\":[]}");
+		JSONObject o2 = json("{\"k\":[1]}");
+		JSONObject merge = JsonUtils.mergeKey(asList(o1, o2), "k");
+		assertEquals(o2.toString(), merge.toString());
+	}
+
+	public void merge_notEmptyCollectionAndOneEmpty_notEmptyCollection() {
+		JSONObject o1 = json("{\"k\":[1]}");
+		JSONObject o2 = json("{\"k\":[]}");
+		JSONObject merge = JsonUtils.mergeKey(asList(o1, o2), "k");
+		assertEquals(o1.toString(), merge.toString());
+	}
+
 	private JSONObject json(String s) {
 		try {
 			return new JSONObject(s);
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public void sumKeyInNestedJson_jsonDoesNotContainKey_0() {
+		long sum = JsonUtils.sumKeyInNestedJson(json("{}"), "sumKey", "objectKey");
+		assertEquals(sum, 0);
+	}
+
+	public void sumKeyInNestedJson_singleObject_valueOfKeyToSumInNestedJson() {
+		JSONObject json = json("{objectKey : {keyToSum : 3}}");
+		long sum = JsonUtils.sumKeyInNestedJson(json, "keyToSum", "objectKey");
+		assertEquals(sum, 3);
+	}
+
+	public void sumKeyInNestedJson_nestedListContainsKeyToSum_sumOfAllTheKeysInList() {
+		JSONObject json = json("{objectKey : [{keyToSum : 1}, {keyToSum : 4}]}");
+		long sum = JsonUtils.sumKeyInNestedJson(json, "keyToSum", "objectKey");
+		assertEquals(sum, 5);
+	}
+
+	public void sumKeyInNestedJson_nestedJsonDoesNotContainKeyToSum_0() {
+		JSONObject json = json("{objectKey : {X : 3}}");
+		long sum = JsonUtils.sumKeyInNestedJson(json, "keyToSum", "objectKey");
+		assertEquals(sum, 0);
+	}
+
+	public void sumKeyInNestedJson_nestedJsonListDoesNotContainKey_sumOfAllTheFoundKeysInList() {
+		JSONObject json = json("{objectKey : [{keyToSum : 1}, {X : 4}]}");
+		long sum = JsonUtils.sumKeyInNestedJson(json, "keyToSum", "objectKey");
+		assertEquals(sum, 1);
 	}
 }
