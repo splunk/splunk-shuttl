@@ -60,6 +60,7 @@ import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 import com.splunk.shuttl.testutil.TUtilsFile;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -218,8 +219,8 @@ public class ArchiverEndToEndTest {
 		thawIndex = "shuttl";
 		tempDirectory = createDirectory();
 
-		Service service = new Service(splunkHost, Integer.parseInt(splunkPort));
-		service.login(splunkUserName, splunkPw);
+		Service service = TUtilsEndToEnd.getLoggedInService(splunkHost, splunkPort,
+				splunkUserName, splunkPw);
 		assertTrue(service.getIndexes().containsKey(thawIndex));
 		splunkIndexesLayer = new SplunkIndexesLayer(service);
 

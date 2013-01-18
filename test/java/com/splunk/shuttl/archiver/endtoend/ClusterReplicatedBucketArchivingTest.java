@@ -86,10 +86,10 @@ public class ClusterReplicatedBucketArchivingTest {
 			String splunkUser, String splunkPass, final String splunkHome,
 			ReplicatedBucketProvider replicatedBucketProvider,
 			final ArchivePathAsserter archivePathAsserter) {
-		Service slave1 = getLoggedInService(slave1Host, slave1Port, splunkUser,
-				splunkPass);
-		Service slave2 = getLoggedInService(slave2Host, slave2Port, splunkUser,
-				splunkPass);
+		Service slave1 = TUtilsEndToEnd.getLoggedInService(slave1Host, slave1Port,
+				splunkUser, splunkPass);
+		Service slave2 = TUtilsEndToEnd.getLoggedInService(slave2Host, slave2Port,
+				splunkUser, splunkPass);
 
 		assertTrue(slave2.getIndexes().containsKey(index));
 		String coldPathExpanded = slave2.getIndexes().get(index)
@@ -152,12 +152,5 @@ public class ClusterReplicatedBucketArchivingTest {
 				TUtilsTestNG.failForException("Path did not exist: " + archivePath, e);
 			}
 		}
-	}
-
-	private Service getLoggedInService(String slave2Host, String slave2Port,
-			String splunkUser, String splunkPass) {
-		Service slave2 = new Service(slave2Host, Integer.parseInt(slave2Port));
-		slave2.login(splunkUser, splunkPass);
-		return slave2;
 	}
 }

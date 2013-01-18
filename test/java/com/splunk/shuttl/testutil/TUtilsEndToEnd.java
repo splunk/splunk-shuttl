@@ -89,4 +89,17 @@ public class TUtilsEndToEnd {
 	public static File getShuttlConfDirFromSplunkHome(String splunkHome) {
 		return new File(splunkHome + "/etc/apps/shuttl/conf");
 	}
+
+	public static Service getLoggedInService(String host, String port,
+			String splunkUser, String splunkPass) {
+		return getLoggedInService(host, Integer.parseInt(port), splunkUser,
+				splunkPass);
+	}
+
+	public static Service getLoggedInService(String host, int port,
+			String splunkUser, String splunkPass) {
+		Service masterService = new Service(host, port);
+		masterService.login(splunkUser, splunkPass);
+		return masterService;
+	}
 }
