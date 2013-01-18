@@ -216,7 +216,7 @@ public class ArchiverEndToEndTest {
 		this.shuttlHost = shuttlHost;
 		this.shuttlPort = Integer.parseInt(shuttlPort);
 		archiveConfiguration = ArchiveConfiguration.getSharedInstance();
-		thawIndex = "shuttl";
+		thawIndex = TUtilsEndToEnd.REAL_SPLUNK_INDEX;
 		tempDirectory = createDirectory();
 
 		Service service = TUtilsEndToEnd.getLoggedInService(splunkHost, splunkPort,

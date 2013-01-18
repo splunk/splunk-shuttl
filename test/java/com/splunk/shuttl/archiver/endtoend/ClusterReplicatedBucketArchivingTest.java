@@ -42,7 +42,7 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 @Test(groups = { "cluster-test" })
 public class ClusterReplicatedBucketArchivingTest {
 
-	private String index = "shuttl";
+	private String index = TUtilsEndToEnd.REAL_SPLUNK_INDEX;
 
 	public interface ReplicatedBucketProvider {
 		LocalBucket create(String coldPathExpanded, String slave1Guid);

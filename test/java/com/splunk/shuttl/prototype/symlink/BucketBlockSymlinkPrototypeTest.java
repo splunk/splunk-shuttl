@@ -169,6 +169,6 @@ public class BucketBlockSymlinkPrototypeTest {
 		SplunkIndexesLayer splunkIndexesLayer = new SplunkIndexesLayer(
 				TUtilsEndToEnd.getLoggedInService(splunkHost, splunkPort,
 						splunkUsername, splunkPassword));
-		return splunkIndexesLayer.getThawLocation("shuttl");
+		return splunkIndexesLayer.getThawLocation(TUtilsEndToEnd.REAL_SPLUNK_INDEX);
 	}
 }

@@ -32,6 +32,8 @@ import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 
 public class TUtilsEndToEnd {
 
+	public static final String REAL_SPLUNK_INDEX = "shuttl";
+
 	public static void callSlaveArchiveBucketEndpoint(String index,
 			String bucketPath, String host, int shuttlPort) {
 		HttpPost httpPost = EndpointUtils.createArchiveBucketPostRequest(host,
