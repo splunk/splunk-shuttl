@@ -47,7 +47,7 @@ public class ColdBucketCopier {
 	}
 
 	void copyColdBucket(LocalBucket b) {
-		if (!b.isReplicatedBucket() && !receipts.hasReceipt(b))
+		if (b.isOriginalBucket() && !receipts.hasReceipt(b))
 			lockedCopier.copyBucket(b);
 	}
 }

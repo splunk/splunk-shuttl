@@ -20,8 +20,10 @@
 	<property name="stage.dir" value="${builddir}/${appname}" />
 	<property name="stage.conf.dir" value="${stage.dir}/conf" />
 	<property name="stage.conf.backend.dir" value="${stage.conf.dir}/backend" />
+	<property name="stage.bin.dir" value="${stage.dir}/bin" />
 	<property name="shuttl.conf.dir" location="${stage.conf.dir}" />
 	<property name="splunk-app.tar" value="${stage.dir}.tgz" />
+	<property name="splunk-app.spl" value="${stage.dir}.spl" />
 	<property name="srcdir" value="${basedir}/src/java/" />
 	<property name="src.sh" value="${basedir}/src/sh" />
 	<property name="testdir" value="${basedir}/test/java/" />
@@ -58,6 +60,7 @@
 	<property name="splunk.extracted.dir" value="${build-cache}/${splunk.server.name}" />
 	<property name="cluster.slave2.splunk.home" value="${build-cache}/${cluster.slave2.name}" />
 	<property name="splunk.default.password" value="changeme" />
+	<property name="splunk.default.mgmtport" value="8089" />
 
 	<!-- splunk cluster properties -->
 	<property name="cluster.config.endpoint" value="services/cluster/config/config" />
@@ -1271,8 +1274,12 @@
 
 	<!-- create the ditribution package, which assume will be a superset of the jar, and we'll tgz it at the end -->
 	<target name="dist" depends="clean,compile,jar">
-		<antcall target="create-splunk-app" />
-		<antcall target="doc" />
+		<var name="splunk.mgmtport" value="${splunk.default.mgmtport}" />
+		<antcall>
+			<target name="create-splunk-app" />
+			<target name="create-spl-splunk-app-for-splunkbase" />
+			<target name="doc" />
+		</antcall>
 	</target>
 
 	<target name="create-splunk-app" depends="jar">
@@ -1298,6 +1305,7 @@
 		<antcall>
 			<target name="copy-libs-to-stage-dir" />
 			<target name="configure-conf-files-in-stage-dir" />
+			<target name="configure-bin-files-in-stage-dir" />
 		</antcall>
 
 		<!-- update the version in the app.conf file -->
@@ -1368,6 +1376,20 @@
 		</replace>
 	</target>
 
+	<target name="configure-bin-files-in-stage-dir">
+		<antcall>
+			<target name="configure-staged-test-archive-script" />
+		</antcall>
+	</target>
+
+	<target name="configure-staged-test-archive-script">
+		<property name="stage.bin.test.archive.script" value="${stage.bin.dir}/testArchivingBucket.sh" />
+		<replace file="${stage.bin.test.archive.script}">
+			<replacefilter token="@SHUTTL.HOST@" value="${shuttl.host}" />
+			<replacefilter token="@SHUTTL.PORT@" value="${shuttl.port}" />
+		</replace>
+	</target>
+
 	<target name="tar-splunk-app">
 		<tar destfile="${splunk-app.tar}" compression="gzip">
 			<tarfileset dir="${stage.dir}/bin" prefix="${appname}/bin" filemode="755">
@@ -1380,6 +1402,10 @@
 				<exclude name="bin/**" />
 			</tarfileset>
 		</tar>
+	</target>
+
+	<target name="create-spl-splunk-app-for-splunkbase" depends="create-splunk-app">
+		<copy file="${splunk-app.tar}" tofile="${splunk-app.spl}" />
 	</target>
 
 	<!-- run the connector, this needs to be fixed -->

@@ -20,5 +20,5 @@ set -e
 set -u
 
 source src/sh/set-ant-env.sh $shuttl_dir
-$ANT_HOME/bin/ant
+$ANT_HOME/bin/ant dist 
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:archiverConf xmlns:ns2="com.splunk.shuttl.server.model">
+   <localArchiverDir>file://mnt/MyTestArea/shuttl_archiver</localArchiverDir>
+    <!-- Supported values for backend: local, hdfs, s3, s3n or glacier -->
+    <backendName>s3</backendName>
+    <!-- Path on the backend where Shuttl will store data -->
+    <archivePath>/myTestArea</archivePath>
+
+    <!-- Unique name for your Splunk cluster -->
+    <clusterName>s3-cluster</clusterName>
+    <!-- Specify any name for your server -->
+    <serverName>s3-server-001</serverName>
+  <archiveFormats>
+    <archiveFormat>SPLUNK_BUCKET</archiveFormat>
+    <archiveFormat>CSV</archiveFormat>
+  </archiveFormats>
+</ns2:archiverConf>

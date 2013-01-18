@@ -37,7 +37,8 @@ public class ClusterConfigTest {
 		slaveService.login(splunkUser, splunkPass);
 		ClusterConfig clusterConfig = new ClusterConfig(slaveService);
 
-		URI expected = URI.create("https://" + splunkHost + ":" + masterPort);
-		assertEquals(clusterConfig.getClusterMasterUri(), expected);
+		URI clusterMasterUri = clusterConfig.getClusterMasterUri();
+		assertEquals("https", clusterMasterUri.getScheme());
+		assertEquals(Integer.parseInt(masterPort), clusterMasterUri.getPort());
 	}
 }

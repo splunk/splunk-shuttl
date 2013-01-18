@@ -152,4 +152,15 @@ public class Bucket {
 		return bucketName.getDB().equals("rb");
 	}
 
+	/**
+	 * @return true if the bucket is the original bucket.
+	 */
+	public boolean isOriginalBucket() {
+		try {
+			return bucketName.getDB().equals("db");
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
 }

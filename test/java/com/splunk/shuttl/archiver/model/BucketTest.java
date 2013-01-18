@@ -15,7 +15,7 @@
 
 package com.splunk.shuttl.archiver.model;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -184,6 +184,22 @@ public class BucketTest {
 	@Test(expectedExceptions = { RuntimeException.class })
 	public void getGuid_bucketWithoutGuid_throws() {
 		TUtilsBucket.createBucket().getGuid();
+	}
+
+	public void isOriginal_nameStartsWithdb_true() {
+		LocalBucket original = TUtilsBucket.createBucket();
+		assertEquals("db", new BucketName(original.getName()).getDB());
+		assertTrue(original.isOriginalBucket());
+	}
+
+	public void isOriginal_replicatedBucket_false() {
+		assertFalse(TUtilsBucket.createReplicatedBucket().isOriginalBucket());
+	}
+
+	public void isOriginal_bucketNameIsIncomplete_false() {
+		LocalBucket bucketWithNumberedName = TUtilsBucket
+				.createBucketWithName("31_2305E9E3-8893-4EA8-A384-4E20ACE674A5");
+		assertFalse(bucketWithNumberedName.isOriginalBucket());
 	}
 
 }
