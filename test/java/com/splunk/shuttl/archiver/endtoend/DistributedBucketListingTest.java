@@ -32,6 +32,7 @@ import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 
@@ -108,6 +109,7 @@ public class DistributedBucketListingTest {
 
 		JSONObject json = jsonFromListBucketEndpoint(searchHeadHost, shuttlPort,
 				buckets[0].getIndex());
-		assertEquals(bucketSize, json.getLong("buckets_TOTAL_SIZE"));
+		assertEquals(bucketSize,
+				json.getLong(JsonObjectNames.BUCKET_COLLECTION_SIZE));
 	}
 }

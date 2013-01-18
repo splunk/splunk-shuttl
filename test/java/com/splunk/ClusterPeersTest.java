@@ -19,6 +19,7 @@ import static org.testng.Assert.*;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 import com.splunk.shuttl.testutil.TUtilsIp;
 
 @Test(groups = { "cluster-test" })
@@ -31,17 +32,19 @@ public class ClusterPeersTest {
 		String localHostIp = TUtilsIp.getLocalHostIp();
 		int slavePort = Integer.parseInt(slavePortString);
 
-		Service masterService = new Service(localHostIp,
-				Integer.parseInt(masterPort));
-		masterService.login(splunkUser, splunkPass);
+		String host = localHostIp;
+		int port = Integer.parseInt(masterPort);
+		Service masterService = TUtilsEndToEnd.getLoggedInService(host, port,
+				splunkUser, splunkPass);
 		ClusterPeers clusterPeers = new ClusterPeers(masterService);
 
-		Service slaveService = new Service(localHostIp, slavePort);
-		slaveService.login(splunkUser, splunkPass);
+		Service slaveService = TUtilsEndToEnd.getLoggedInService(localHostIp,
+				slavePort, splunkUser, splunkPass);
 		String slaveGuid = slaveService.getInfo().getGuid();
 		ClusterPeer clusterPeer = clusterPeers.get(slaveGuid);
 
 		assertNotNull(clusterPeer);
 		assertEquals((int) clusterPeer.getPort(), slavePort);
 	}
+
 }
