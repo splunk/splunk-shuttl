@@ -48,13 +48,18 @@ public class JsonUtils {
 		Object value = getJsonKeyOrNull(json, key);
 		if (value != null) {
 			if (value instanceof JSONArray) {
-				if (!merged.has(key))
-					merged.put(key, Collections.emptyList());
+				assureMergedValueIsAnArray(merged, key);
 				mergeJsonArray(merged, key, (JSONArray) value);
 			} else {
 				appendKeyValue(merged, key, value);
 			}
 		}
+	}
+
+	private static void assureMergedValueIsAnArray(JSONObject merged, String key)
+			throws JSONException {
+		if (!merged.has(key))
+			merged.put(key, Collections.emptyList());
 	}
 
 	private static Object getJsonKeyOrNull(JSONObject json, String key)
