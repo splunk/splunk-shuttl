@@ -25,7 +25,7 @@ import com.amazonaws.util.json.JSONObject;
 @Test(groups = { "fast-unit" })
 public class JsonUtilsTest {
 
-	public void merge_jsonWithSameKeyDifferentValues_jsonArrayWithBothValues()
+	public void mergeKey_jsonWithSameKeyDifferentValues_jsonArrayWithBothValues()
 			throws JSONException {
 		JSONObject o1 = json("{ \"k\" : 1 }");
 		JSONObject o2 = json("{ \"k\" : 2 }");
@@ -34,14 +34,14 @@ public class JsonUtilsTest {
 		assertEquals("{\"k\":[1,2]}", merge.toString());
 	}
 
-	public void merge_identicalJsons_addsBothValues() throws JSONException {
+	public void mergeKey_identicalJsons_addsBothValues() throws JSONException {
 		JSONObject o1 = json("{ \"k\" : 1 }");
 		JSONObject o2 = json("{ \"k\" : 1 }");
 		JSONObject merge = JsonUtils.mergeKey(asList(o1, o2), "k");
 		assertEquals(merge.get("k").toString(), "[1,1]");
 	}
 
-	public void merge_jsonWithDifferentKeys_otherKeyDoesNotExist()
+	public void mergeKey_jsonWithDifferentKeys_otherKeyDoesNotExist()
 			throws JSONException {
 		JSONObject o1 = json("{ \"k\" : 1 }");
 		JSONObject o2 = json("{ \"k\" : 1, \"j\" : 2 }");
@@ -54,7 +54,7 @@ public class JsonUtilsTest {
 		}
 	}
 
-	public void merge_jsonWithArrays_addsAllValuesToTheSameArray()
+	public void mergeKey_jsonWithArrays_addsAllValuesToTheSameArray()
 			throws JSONException {
 		JSONObject o1 = json("{ \"k\" : [1,1] }");
 		JSONObject o2 = json("{ \"k\" : [2,2] }");
@@ -63,31 +63,53 @@ public class JsonUtilsTest {
 		assertEquals(merge.get("k").toString(), "[1,1,2,2,3]");
 	}
 
-	public void merge_oneEmptyJson_equalsNonEmptyOne() throws JSONException {
+	public void mergeKey_oneEmptyJson_equalsNonEmptyOne() throws JSONException {
 		JSONObject o1 = json("{ \"k\" : 1 }");
 		JSONObject o2 = json("{ }");
 		JSONObject merge = JsonUtils.mergeKey(asList(o1, o2), "k");
 		assertEquals(merge.get("k").toString(), "1");
 	}
 
-	public void merge_keyWithEmptyCollection_returnsSameJson() {
+	public void mergeKey_keyWithEmptyCollection_returnsSameJson() {
 		JSONObject o1 = json("{\"k\":[]}");
 		JSONObject merge = JsonUtils.mergeKey(asList(o1), "k");
 		assertEquals(o1.toString(), merge.toString());
 	}
 
-	public void merge_oneEmptyAndOneNotEmptyCollection_notEmptyCollection() {
+	public void mergeKey_oneEmptyAndOneNotEmptyCollection_nonEmptyCollection() {
 		JSONObject o1 = json("{\"k\":[]}");
 		JSONObject o2 = json("{\"k\":[1]}");
 		JSONObject merge = JsonUtils.mergeKey(asList(o1, o2), "k");
 		assertEquals(o2.toString(), merge.toString());
 	}
 
-	public void merge_notEmptyCollectionAndOneEmpty_notEmptyCollection() {
+	public void mergeKey_notEmptyCollectionAndOneEmpty_nonEmptyCollection() {
 		JSONObject o1 = json("{\"k\":[1]}");
 		JSONObject o2 = json("{\"k\":[]}");
 		JSONObject merge = JsonUtils.mergeKey(asList(o1, o2), "k");
 		assertEquals(o1.toString(), merge.toString());
+	}
+
+	public void mergeKey_valueAndEmptyCollection_notEmptyCollection()
+			throws JSONException {
+		JSONObject o1 = json("{\"k\":1}");
+		JSONObject o2 = json("{\"k\":[]}");
+		JSONObject merge = JsonUtils.mergeKey(asList(o1, o2), "k");
+		assertEquals(merge.get("k").toString(), "1");
+	}
+
+	public void mergeKey_valueAndOneElementCollectino_bothValues()
+			throws JSONException {
+		JSONObject o1 = json("{\"k\":1}");
+		JSONObject o2 = json("{\"k\":[1]}");
+		JSONObject merge = JsonUtils.mergeKey(asList(o1, o2), "k");
+		assertEquals(merge.get("k").toString(), "[1,1]");
+	}
+
+	public void mergeKey_jsonWithTwoKeys_doesNotContainOtherKeyThatsItsNotMergedBy() {
+		JSONObject o1 = json("{\"k\":1,\"j\":2}");
+		JSONObject merge = JsonUtils.mergeKey(asList(o1), "k");
+		assertFalse(merge.has("j"));
 	}
 
 	private JSONObject json(String s) {
