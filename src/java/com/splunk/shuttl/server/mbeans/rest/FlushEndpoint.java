@@ -30,11 +30,12 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.amazonaws.util.json.JSONObject;
 import com.splunk.shuttl.archiver.flush.Flusher;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
-import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
+import com.splunk.shuttl.server.distributed.PostRequestOnSearchPeers;
 import com.splunk.shuttl.server.model.BucketBean;
 
 /**
@@ -50,15 +51,14 @@ public class FlushEndpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String flushBuckets(@FormParam("index") final String index,
 			@FormParam("from") String from, @FormParam("to") String to) {
-		logger.info(happened("Received REST request to list buckets", "endpoint",
-				ENDPOINT_LIST_BUCKETS, "index", index, "from", from, "to", to));
+		logger.debug(happened("Received REST request to flush buckets", "endpoint",
+				ENDPOINT_BUCKET_FLUSH, "index", index, "from", from, "to", to));
 
 		Date fromDate = RestUtil.getValidFromDate(from);
 		Date toDate = RestUtil.getValidToDate(to);
 
 		List<Exception> errors = new ArrayList<Exception>();
-		Flusher flusher = new Flusher(SplunkIndexedLayerFactory.create(),
-				ArchivedIndexesListerFactory.create());
+		Flusher flusher = new Flusher(SplunkIndexedLayerFactory.create());
 
 		List<String> indexes;
 		if (index == null)
@@ -69,12 +69,15 @@ public class FlushEndpoint {
 		for (String i : indexes) {
 			try {
 				flusher.flush(i, fromDate, toDate);
-			} catch (IllegalIndexException e) {
+			} catch (Exception e) {
 				errors.add(e);
 			}
 		}
 
-		return respondWithFlushedBuckets(flusher.getFlushedBuckets(), errors);
+		String json = respondWithFlushedBuckets(flusher.getFlushedBuckets(), errors);
+		List<JSONObject> jsons = new PostRequestOnSearchPeers(
+				ENDPOINT_BUCKET_FLUSH, index, from, to).execute();
+		return json;
 	}
 
 	private String respondWithFlushedBuckets(List<Bucket> flushedBuckets,
@@ -83,6 +86,6 @@ public class FlushEndpoint {
 		for (Bucket b : flushedBuckets)
 			responseBeans.add(BucketBean.createBeanFromBucket(b));
 
-		return RestUtil.writeBucketAction(responseBeans, new ArrayList<Object>());
+		return RestUtil.writeBucketAction(responseBeans, errors);
 	}
 }

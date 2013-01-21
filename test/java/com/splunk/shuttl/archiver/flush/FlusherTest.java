@@ -25,8 +25,6 @@ import java.util.Date;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.listers.ArchivedIndexesLister;
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
@@ -40,17 +38,14 @@ public class FlusherTest {
 	private String index;
 	private File thawDir;
 	private SplunkIndexesLayer splunkIndexesLayer;
-	private ArchivedIndexesLister indexesLister;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
 		splunkIndexesLayer = mock(SplunkIndexesLayer.class);
-		indexesLister = mock(ArchivedIndexesLister.class);
 		thawDir = createDirectory();
 		index = "index";
 		when(splunkIndexesLayer.getThawLocation(index)).thenReturn(thawDir);
-		when(indexesLister.listIndexes()).thenReturn(asList(index));
-		flusher = new Flusher(splunkIndexesLayer, indexesLister);
+		flusher = new Flusher(splunkIndexesLayer);
 	}
 
 	public void _emptyThawDirectory_flushesNothing() throws IllegalIndexException {
@@ -116,12 +111,5 @@ public class FlusherTest {
 		flusher.flush(index, new Date(), new Date());
 		assertTrue(dir.exists());
 		assertTrue(flusher.getFlushedBuckets().isEmpty());
-	}
-
-	@Test(expectedExceptions = { IllegalIndexException.class })
-	public void _givenIndexThatDoesNotExist_throwIllegalIndexException()
-			throws IllegalIndexException {
-		Bucket b = TUtilsBucket.createBucketInDirectory(thawDir);
-		flusher.flush("index-does-not-exist", b.getEarliest(), b.getLatest());
 	}
 }

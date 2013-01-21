@@ -34,9 +34,10 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 import com.splunk.shuttl.testutil.TUtilsFile;
 
-@Test(groups = { "cluster-test" }, enabled = false)
+@Test(groups = { "cluster-test" })
 public class DistributedFlushTest {
 
+	private String index = TUtilsEndToEnd.REAL_SPLUNK_INDEX;
 	private String splunkUser;
 	private String splunkPass;
 
@@ -49,34 +50,34 @@ public class DistributedFlushTest {
 			throws IOException {
 		this.splunkUser = splunkUser;
 		this.splunkPass = splunkPass;
-		String index = TUtilsEndToEnd.REAL_SPLUNK_INDEX;
 
+		assertThawDirectoryIsEmpty(peer1Host, peer1Port);
+		assertThawDirectoryIsEmpty(peer2Host, peer2Port);
 		try {
-			putBucketInPeerThawDirectory(peer1Host, peer1Port, index);
-			putBucketInPeerThawDirectory(peer2Host, peer2Port, index);
-			callFlushOnSearchHead(headHost, headShuttlPort, index);
-			assertBucketsAreDeletedFromPeersThawDirectory(peer1Host, peer1Port, index);
-			assertBucketsAreDeletedFromPeersThawDirectory(peer2Host, peer2Port, index);
+			putBucketInPeerThawDirectory(peer1Host, peer1Port);
+			putBucketInPeerThawDirectory(peer2Host, peer2Port);
+			callFlushOnSearchHead(headHost, headShuttlPort);
+			assertThawDirectoryIsEmpty(peer1Host, peer1Port);
+			assertThawDirectoryIsEmpty(peer2Host, peer2Port);
 		} catch (Exception t) {
-			deleteAllFilesInThawDir(getThawDirectory(peer1Host, peer1Port, index));
-			deleteAllFilesInThawDir(getThawDirectory(peer2Host, peer2Port, index));
+			deleteAllFilesInThawDir(getThawDirectory(peer1Host, peer1Port));
+			deleteAllFilesInThawDir(getThawDirectory(peer2Host, peer2Port));
 		}
 	}
 
-	private void putBucketInPeerThawDirectory(String host, String port,
-			String index) {
-		File thawDirectory = getThawDirectory(host, port, index);
+	private void putBucketInPeerThawDirectory(String host, String port) {
+		File thawDirectory = getThawDirectory(host, port);
 		TUtilsBucket.createBucketInDirectoryWithIndex(thawDirectory, index);
 	}
 
-	private File getThawDirectory(String host, String port, String index) {
+	private File getThawDirectory(String host, String port) {
 		Service service = TUtilsEndToEnd.getLoggedInService(host, port, splunkUser,
 				splunkPass);
 		return new File(service.getIndexes().get(index).getThawedPathExpanded());
 	}
 
-	private void callFlushOnSearchHead(String headHost, String headPort,
-			String index) throws IOException {
+	private void callFlushOnSearchHead(String headHost, String headPort)
+			throws IOException {
 		URI flushUri = EndpointUtils.getShuttlEndpointUri(headHost,
 				Integer.parseInt(headPort), ShuttlConstants.ENDPOINT_BUCKET_FLUSH);
 		HttpPost httpPost = EndpointUtils.createHttpPost(flushUri, "index", index);
@@ -84,9 +85,8 @@ public class DistributedFlushTest {
 		assertEquals(200, response.getStatusLine().getStatusCode());
 	}
 
-	private void assertBucketsAreDeletedFromPeersThawDirectory(String host,
-			String port, String index) {
-		File thawDirectory = getThawDirectory(host, port, index);
+	private void assertThawDirectoryIsEmpty(String host, String port) {
+		File thawDirectory = getThawDirectory(host, port);
 		assertTrue(TUtilsFile.isDirectoryEmpty(thawDirectory));
 	}
 
