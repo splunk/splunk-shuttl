@@ -89,7 +89,8 @@ public class DistributedFlushTest {
 		try {
 			String content = IOUtils.toString(response.getEntity().getContent());
 			for (LocalBucket b : buckets)
-				assertTrue(content.contains(b.getName()));
+				assertTrue(content.contains(b.getName()), "Content" + content
+						+ " did not contain: " + b.getName());
 		} finally {
 			EntityUtils.consume(response.getEntity());
 		}
