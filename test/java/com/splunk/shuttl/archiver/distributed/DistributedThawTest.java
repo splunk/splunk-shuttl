@@ -30,9 +30,11 @@ import com.splunk.shuttl.ShuttlConstants;
 import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 
-@Test(groups = { "cluster-test" }, enabled = false)
+@Test(groups = { "cluster-test" })
 public class DistributedThawTest {
 
 	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.shuttl.port",
@@ -45,9 +47,11 @@ public class DistributedThawTest {
 			String searchHeadShuttlPort, String splunkHome) throws IOException,
 			JSONException {
 
-		LocalBucket b1 = TUtilsBucket.createBucket();
+		String index = TUtilsEndToEnd.REAL_SPLUNK_INDEX;
+		LocalBucket b1 = TUtilsBucket.createBucketInDirectoryWithIndex(
+				createDirectory(), index);
 		LocalBucket b2 = TUtilsBucket.createBucketInDirectoryWithIndex(
-				createDirectory(), b1.getIndex());
+				createDirectory(), index);
 
 		try {
 			DistributedCommons.archiveBucketAtSearchPeer(b1, peer1Host,
@@ -74,8 +78,10 @@ public class DistributedThawTest {
 
 	private void assertBucketsWereThawed(JSONObject json, LocalBucket... buckets)
 			throws JSONException {
+		System.out.println(json);
 		for (LocalBucket b : buckets)
-			assertTrue(json.toString().contains(b.getName()),
-					"JSON" + json.toString() + " did not contain: " + b.getName());
+			assertTrue(json.get(JsonObjectNames.BUCKET_COLLECTION).toString()
+					.contains(b.getName()), "JSON" + json.toString()
+					+ " did not contain: " + b.getName());
 	}
 }

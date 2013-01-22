@@ -23,5 +23,6 @@ public class JsonObjectNames {
 	public static final String BUCKET_COLLECTION = "buckets";
 	public static final String SIZE = "size";
 	public static final String ERRORS = "errors";
+	public static final String FAILED_BUCKET_COLLECTION = "failed";
 
 }

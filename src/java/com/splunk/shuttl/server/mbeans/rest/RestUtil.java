@@ -107,8 +107,8 @@ public class RestUtil {
 	public static String writeBucketAction(List<BucketBean> successfulBuckets,
 			Object failedObjects) {
 		HashMap<String, Object> response = new HashMap<String, Object>();
-		response.put("buckets", successfulBuckets);
-		response.put("failed", failedObjects);
+		response.put(JsonObjectNames.BUCKET_COLLECTION, successfulBuckets);
+		response.put(JsonObjectNames.FAILED_BUCKET_COLLECTION, failedObjects);
 
 		return RestUtil.writeMapAsJson(response);
 	}
