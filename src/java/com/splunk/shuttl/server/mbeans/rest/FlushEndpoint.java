@@ -33,10 +33,10 @@ import org.apache.log4j.Logger;
 import com.amazonaws.util.json.JSONObject;
 import com.splunk.shuttl.archiver.flush.Flusher;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
+import com.splunk.shuttl.archiver.util.JsonUtils;
 import com.splunk.shuttl.server.distributed.PostRequestOnSearchPeers;
-import com.splunk.shuttl.server.model.BucketBean;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 /**
  * @author petterik
@@ -74,18 +74,16 @@ public class FlushEndpoint {
 			}
 		}
 
-		String json = respondWithFlushedBuckets(flusher.getFlushedBuckets(), errors);
+		JSONObject json = RestUtil.writeKeyValueAsJson(
+				JsonObjectNames.BUCKET_COLLECTION, flusher.getFlushedBuckets(),
+				JsonObjectNames.ERRORS, errors);
+
 		List<JSONObject> jsons = new PostRequestOnSearchPeers(
 				ENDPOINT_BUCKET_FLUSH, index, from, to).execute();
-		return json;
+		jsons.add(json);
+
+		return JsonUtils.mergeJsonsWithKeys(jsons,
+				JsonObjectNames.BUCKET_COLLECTION, JsonObjectNames.ERRORS).toString();
 	}
 
-	private String respondWithFlushedBuckets(List<Bucket> flushedBuckets,
-			List<Exception> errors) {
-		List<BucketBean> responseBeans = new ArrayList<BucketBean>();
-		for (Bucket b : flushedBuckets)
-			responseBeans.add(BucketBean.createBeanFromBucket(b));
-
-		return RestUtil.writeBucketAction(responseBeans, errors);
-	}
 }

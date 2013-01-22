@@ -136,4 +136,21 @@ public class JsonUtils {
 		}
 	}
 
+	public static JSONObject mergeJsonsWithKeys(List<JSONObject> jsons,
+			String... keys) {
+		JSONObject merge = new JSONObject();
+		for (String key : keys)
+			checkedPut(jsons, merge, key);
+		return merge;
+	}
+
+	private static void checkedPut(List<JSONObject> jsons, JSONObject merge,
+			String key) {
+		try {
+			merge.put(key, JsonUtils.mergeKey(jsons, key).get(key));
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }
