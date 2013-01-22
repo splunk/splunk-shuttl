@@ -20,19 +20,21 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.Service;
 import com.splunk.shuttl.ShuttlConstants;
+import com.splunk.shuttl.archiver.archive.BucketDeleter;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEndToEnd;
-import com.splunk.shuttl.testutil.TUtilsFile;
 
 @Test(groups = { "cluster-test" })
 public class DistributedFlushTest {
@@ -51,23 +53,19 @@ public class DistributedFlushTest {
 		this.splunkUser = splunkUser;
 		this.splunkPass = splunkPass;
 
-		assertThawDirectoryIsEmpty(peer1Host, peer1Port);
-		assertThawDirectoryIsEmpty(peer2Host, peer2Port);
+		LocalBucket peer1Bucket = putBucketInPeerThawDirectory(peer1Host, peer1Port);
+		LocalBucket peer2Bucket = putBucketInPeerThawDirectory(peer2Host, peer2Port);
 		try {
-			putBucketInPeerThawDirectory(peer1Host, peer1Port);
-			putBucketInPeerThawDirectory(peer2Host, peer2Port);
-			callFlushOnSearchHead(headHost, headShuttlPort);
-			assertThawDirectoryIsEmpty(peer1Host, peer1Port);
-			assertThawDirectoryIsEmpty(peer2Host, peer2Port);
+			HttpResponse response = callFlushOnSearchHead(headHost, headShuttlPort);
+			assertBucketsExistInFlushResponse(response, peer1Bucket, peer2Bucket);
 		} catch (Exception t) {
-			deleteAllFilesInThawDir(getThawDirectory(peer1Host, peer1Port));
-			deleteAllFilesInThawDir(getThawDirectory(peer2Host, peer2Port));
+			deleteBuckets(peer1Bucket, peer2Bucket);
 		}
 	}
 
-	private void putBucketInPeerThawDirectory(String host, String port) {
+	private LocalBucket putBucketInPeerThawDirectory(String host, String port) {
 		File thawDirectory = getThawDirectory(host, port);
-		TUtilsBucket.createBucketInDirectoryWithIndex(thawDirectory, index);
+		return TUtilsBucket.createBucketInDirectoryWithIndex(thawDirectory, index);
 	}
 
 	private File getThawDirectory(String host, String port) {
@@ -76,22 +74,31 @@ public class DistributedFlushTest {
 		return new File(service.getIndexes().get(index).getThawedPathExpanded());
 	}
 
-	private void callFlushOnSearchHead(String headHost, String headPort)
+	private HttpResponse callFlushOnSearchHead(String headHost, String headPort)
 			throws IOException {
 		URI flushUri = EndpointUtils.getShuttlEndpointUri(headHost,
 				Integer.parseInt(headPort), ShuttlConstants.ENDPOINT_BUCKET_FLUSH);
 		HttpPost httpPost = EndpointUtils.createHttpPost(flushUri, "index", index);
 		HttpResponse response = new DefaultHttpClient().execute(httpPost);
 		assertEquals(200, response.getStatusLine().getStatusCode());
+		return response;
 	}
 
-	private void assertThawDirectoryIsEmpty(String host, String port) {
-		File thawDirectory = getThawDirectory(host, port);
-		assertTrue(TUtilsFile.isDirectoryEmpty(thawDirectory));
+	private void assertBucketsExistInFlushResponse(HttpResponse response,
+			LocalBucket... buckets) throws IllegalStateException, IOException {
+		try {
+			String content = IOUtils.toString(response.getEntity().getContent());
+			for (LocalBucket b : buckets)
+				assertTrue(content.contains(b.getName()));
+		} finally {
+			EntityUtils.consume(response.getEntity());
+		}
 	}
 
-	private void deleteAllFilesInThawDir(File thawDirectory) {
-		FileUtils.deleteQuietly(thawDirectory);
-		thawDirectory.mkdir();
+	private void deleteBuckets(LocalBucket peer1Bucket, LocalBucket peer2Bucket) {
+		BucketDeleter deleter = BucketDeleter.create();
+		deleter.deleteBucket(peer1Bucket);
+		deleter.deleteBucket(peer2Bucket);
 	}
+
 }

@@ -148,4 +148,25 @@ public class JsonUtilsTest {
 		long sum = JsonUtils.sumKeyInNestedJson(json, "keyToSum", "objectKey");
 		assertEquals(sum, 1);
 	}
+
+	public void mergeJsonWithKeys_noKeys_emptyJson() {
+		JSONObject empty = new JSONObject();
+		JSONObject merge = JsonUtils.mergeJsonsWithKeys(asList(empty));
+		assertEquals(merge.toString(), empty.toString());
+	}
+
+	public void mergeJsonWithKeys_oneKey_keyGetsMerged() throws JSONException {
+		JSONObject o1 = json("{\"k\":1}");
+		JSONObject o2 = json("{\"k\":2}");
+		JSONObject merge = JsonUtils.mergeJsonsWithKeys(asList(o1, o2), "k");
+		assertEquals(merge.get("k").toString(), "[1,2]");
+	}
+
+	public void mergeJsonWithKeys_twoKeys_keysGetMerged() throws JSONException {
+		JSONObject o1 = json("{\"k\":1, \"j\":[2]}");
+		JSONObject o2 = json("{\"k\":2, \"j\":[3]}");
+		JSONObject merge = JsonUtils.mergeJsonsWithKeys(asList(o1, o2), "k", "j");
+		assertEquals(merge.get("k").toString(), "[1,2]");
+		assertEquals(merge.get("j").toString(), "[2,3]");
+	}
 }

@@ -22,5 +22,6 @@ public class JsonObjectNames {
 	public static final String BUCKET_COLLECTION_SIZE = "buckets_TOTAL_SIZE";
 	public static final String BUCKET_COLLECTION = "buckets";
 	public static final String SIZE = "size";
+	public static final String ERRORS = "errors";
 
 }
