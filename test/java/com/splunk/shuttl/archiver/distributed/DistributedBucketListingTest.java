@@ -17,7 +17,6 @@ package com.splunk.shuttl.archiver.distributed;
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
 
-import java.io.File;
 import java.net.URI;
 
 import org.apache.http.client.methods.HttpGet;
@@ -34,7 +33,6 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 import com.splunk.shuttl.testutil.TUtilsBucket;
-import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 
 @Test(groups = { "cluster-test" })
 public class DistributedBucketListingTest {
@@ -53,25 +51,17 @@ public class DistributedBucketListingTest {
 		LocalBucket b2 = TUtilsBucket.createBucketInDirectoryWithIndex(
 				createDirectory(), b1.getIndex());
 		try {
-			archiveBucketAtSearchPeer(b1, peer1Host,
+			DistributedCommons.archiveBucketAtSearchPeer(b1, peer1Host,
 					Integer.parseInt(peer1ShuttlPort));
-			archiveBucketAtSearchPeer(b2, peer2Host,
+			DistributedCommons.archiveBucketAtSearchPeer(b2, peer2Host,
 					Integer.parseInt(peer2ShuttlPort));
 
 			assertBucketsCanBeListedAtMaster(searchHeadHost, shuttlPort, b1, b2);
 			assertTotalBucketSizeIsTheSumOfBothBuckets(searchHeadHost, shuttlPort,
 					b1, b2);
 		} finally {
-			File shuttlConfDir = TUtilsEndToEnd
-					.getShuttlConfDirFromSplunkHome(peer2SplunkHome);
-			TUtilsEndToEnd.cleanHadoopFileSystem(shuttlConfDir, peer2SplunkHome);
+			DistributedCommons.cleanHadoopFileSystem(peer2SplunkHome);
 		}
-	}
-
-	private void archiveBucketAtSearchPeer(LocalBucket b, String slave1Host,
-			int slave1ShuttlPort) {
-		TUtilsEndToEnd.callSlaveArchiveBucketEndpoint(b.getIndex(), b
-				.getDirectory().getAbsolutePath(), slave1Host, slave1ShuttlPort);
 	}
 
 	private void assertBucketsCanBeListedAtMaster(String searchHeadHost,
@@ -80,7 +70,7 @@ public class DistributedBucketListingTest {
 				searchHeadShuttlPort, buckets[0].getIndex());
 		for (Bucket b : buckets)
 			assertTrue(json.toString().contains(b.getName()),
-					json + ":::" + b.toString());
+					"JSON" + json.toString() + " did not contain: " + b.getName());
 	}
 
 	private JSONObject jsonFromListBucketEndpoint(String searchHeadHost,
