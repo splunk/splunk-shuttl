@@ -79,7 +79,8 @@ public class DistributedBucketListingTest {
 		JSONObject json = jsonFromListBucketEndpoint(searchHeadHost,
 				searchHeadShuttlPort, buckets[0].getIndex());
 		for (Bucket b : buckets)
-			assertTrue(json.toString().contains(b.getName()));
+			assertTrue(json.toString().contains(b.getName()),
+					json + ":::" + b.toString());
 	}
 
 	private JSONObject jsonFromListBucketEndpoint(String searchHeadHost,
