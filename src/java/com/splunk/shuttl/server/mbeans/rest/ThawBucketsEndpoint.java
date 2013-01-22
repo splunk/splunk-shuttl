@@ -31,11 +31,16 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawer.FailedBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
+import com.splunk.shuttl.archiver.util.JsonUtils;
+import com.splunk.shuttl.server.distributed.PostRequestOnSearchPeers;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 import com.splunk.shuttl.server.model.BucketBean;
 
 /**
@@ -65,7 +70,8 @@ public class ThawBucketsEndpoint {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	public String thawBuckets(@FormParam("index") String index,
-			@FormParam("from") String from, @FormParam("to") String to) {
+			@FormParam("from") String from, @FormParam("to") String to)
+			throws JSONException {
 
 		logger.info(happened("Received REST request to thaw buckets", "endpoint",
 				ENDPOINT_BUCKET_THAW, "index", index, "from", from, "to", to));
@@ -87,12 +93,19 @@ public class ThawBucketsEndpoint {
 					"From and to date must be provided on the form yyyy-DD-mm");
 		}
 
-		// thaw
 		logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
+		// thaw
 		BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
 		bucketThawer.thawBuckets(index, fromDate, toDate);
 
-		return convertThawInfoToJSON(bucketThawer);
+		JSONObject json = new JSONObject(convertThawInfoToJSON(bucketThawer));
+		List<JSONObject> jsons = new PostRequestOnSearchPeers(ENDPOINT_BUCKET_THAW,
+				index, from, to).execute();
+		jsons.add(json);
+
+		return JsonUtils.mergeJsonsWithKeys(jsons,
+				JsonObjectNames.BUCKET_COLLECTION,
+				JsonObjectNames.FAILED_BUCKET_COLLECTION).toString();
 	}
 
 	private void logMetricsAtEndpoint(String endpoint) {
