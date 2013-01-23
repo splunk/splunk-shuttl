@@ -330,4 +330,9 @@ public class TUtilsBucket {
 	public static LocalBucket createReplicatedBucket(String guid) {
 		return createReplicatedBucket(randomIndexName(), createDirectory(), guid);
 	}
+
+	public static LocalBucket createBucketWithIndex(String index) {
+		return TUtilsBucket.createBucketInDirectoryWithIndex(createDirectory(),
+				index);
+	}
 }

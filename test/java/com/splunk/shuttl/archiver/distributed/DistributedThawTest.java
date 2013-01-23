@@ -78,7 +78,6 @@ public class DistributedThawTest {
 
 	private void assertBucketsWereThawed(JSONObject json, LocalBucket... buckets)
 			throws JSONException {
-		System.out.println(json);
 		for (LocalBucket b : buckets)
 			assertTrue(json.get(JsonObjectNames.BUCKET_COLLECTION).toString()
 					.contains(b.getName()), "JSON" + json.toString()
