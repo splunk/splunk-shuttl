@@ -28,9 +28,10 @@ import com.splunk.shuttl.ShuttlConstants;
 import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
-@Test(groups = { "cluster-test" }, enabled = false)
+@Test(groups = { "cluster-test" })
 public class DistributedListIndexesTest {
 
 	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.shuttl.port",
@@ -40,18 +41,22 @@ public class DistributedListIndexesTest {
 	public void _archiveTwoBucketsWithDifferentIndexes_listBothIndexesAtSearchHead(
 			String peer1Host, String peer1ShuttlPort, String peer2Host,
 			String peer2ShuttlPort, String searchHeadHost,
-			String searchHeadShuttlPort, String peer2SplunkHome) throws JSONException {
+			String searchHeadShuttlPort, String splunkHome) throws JSONException {
 		LocalBucket b1 = TUtilsBucket.createBucket();
 		LocalBucket b2 = TUtilsBucket.createBucketWithIndex(b1.getIndex() + "x");
 
-		DistributedCommons.archiveBucketAtSearchPeer(b1, peer1Host,
-				Integer.parseInt(peer1ShuttlPort));
-		DistributedCommons.archiveBucketAtSearchPeer(b2, peer2Host,
-				Integer.parseInt(peer2ShuttlPort));
+		try {
+			DistributedCommons.archiveBucketAtSearchPeer(b1, peer1Host,
+					Integer.parseInt(peer1ShuttlPort));
+			DistributedCommons.archiveBucketAtSearchPeer(b2, peer2Host,
+					Integer.parseInt(peer2ShuttlPort));
 
-		JSONObject listedIndexes = listIndexesAtSearchHead(searchHeadHost,
-				searchHeadShuttlPort);
-		assertBothIndexesWereListed(listedIndexes, b1, b2);
+			JSONObject listedIndexes = listIndexesAtSearchHead(searchHeadHost,
+					searchHeadShuttlPort);
+			assertBothIndexesWereListed(listedIndexes, b1, b2);
+		} finally {
+			DistributedCommons.cleanHadoopFileSystem(splunkHome);
+		}
 	}
 
 	private JSONObject listIndexesAtSearchHead(String searchHeadHost,
@@ -63,9 +68,10 @@ public class DistributedListIndexesTest {
 	}
 
 	private void assertBothIndexesWereListed(JSONObject json,
-			LocalBucket... buckets) {
+			LocalBucket... buckets) throws JSONException {
 		for (LocalBucket b : buckets)
-			assertTrue(json.toString().contains(b.getIndex()));
+			assertTrue(json.get(JsonObjectNames.INDEX_COLLECTION).toString()
+					.contains(b.getIndex()));
 	}
 
 }

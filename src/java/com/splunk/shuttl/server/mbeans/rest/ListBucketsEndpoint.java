@@ -28,7 +28,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.util.ajax.JSON;
 
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
@@ -73,7 +72,14 @@ public class ListBucketsEndpoint {
 		ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
 				pathResolver, archiveFileSystem);
 
-		return JSON.getDefault().toJSON(indexesLister.listIndexes());
+		JSONObject json = RestUtil.writeKeyValueAsJson(
+				JsonObjectNames.INDEX_COLLECTION, indexesLister.listIndexes());
+		List<JSONObject> jsons = new GetRequestOnSearchPeers(ENDPOINT_LIST_INDEXES,
+				null, null, null).execute();
+		jsons.add(json);
+
+		return JsonUtils
+				.mergeJsonsWithKeys(jsons, JsonObjectNames.INDEX_COLLECTION).toString();
 	}
 
 	@GET
