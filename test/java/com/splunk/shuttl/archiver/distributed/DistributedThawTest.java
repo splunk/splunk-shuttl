@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.distributed;
 
-import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
 
 import java.io.IOException;
@@ -48,10 +47,8 @@ public class DistributedThawTest {
 			JSONException {
 
 		String index = TUtilsEndToEnd.REAL_SPLUNK_INDEX;
-		LocalBucket b1 = TUtilsBucket.createBucketInDirectoryWithIndex(
-				createDirectory(), index);
-		LocalBucket b2 = TUtilsBucket.createBucketInDirectoryWithIndex(
-				createDirectory(), index);
+		LocalBucket b1 = TUtilsBucket.createBucketWithIndex(index);
+		LocalBucket b2 = TUtilsBucket.createBucketWithIndex(index);
 
 		try {
 			DistributedCommons.archiveBucketAtSearchPeer(b1, peer1Host,

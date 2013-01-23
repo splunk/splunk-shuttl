@@ -14,7 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.distributed;
 
-import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.Assert.*;
 
 import java.net.URI;
@@ -48,8 +47,7 @@ public class DistributedListBucketsTest {
 		int shuttlPort = Integer.parseInt(searchHeadShuttlPort);
 
 		LocalBucket b1 = TUtilsBucket.createBucket();
-		LocalBucket b2 = TUtilsBucket.createBucketInDirectoryWithIndex(
-				createDirectory(), b1.getIndex());
+		LocalBucket b2 = TUtilsBucket.createBucketWithIndex(b1.getIndex());
 		try {
 			DistributedCommons.archiveBucketAtSearchPeer(b1, peer1Host,
 					Integer.parseInt(peer1ShuttlPort));
