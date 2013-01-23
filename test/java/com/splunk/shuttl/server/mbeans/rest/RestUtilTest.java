@@ -18,10 +18,12 @@ import static java.util.Arrays.*;
 import static org.testng.Assert.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.testng.annotations.Test;
 
+import com.amazonaws.util.json.JSONArray;
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
 
@@ -49,6 +51,18 @@ public class RestUtilTest {
 		JSONObject actual = RestUtil.writeKeyValueAsJson("key",
 				new ArrayList<String>());
 		assertEquals(actual.toString(), "{\"key\":[]}");
+	}
+
+	public void writeKeyValueAsJson_list_isJSONArray() throws JSONException {
+		JSONObject actual = RestUtil.writeKeyValueAsJson("key",
+				new ArrayList<String>());
+		assertTrue(actual.get("key") instanceof JSONArray);
+	}
+
+	public void writeKeyValueAsJson_map_isJSONObject() throws JSONException {
+		JSONObject actual = RestUtil.writeKeyValueAsJson("key",
+				new HashMap<String, String>());
+		assertTrue(actual.get("key") instanceof JSONObject);
 	}
 
 	public void writeKeyValueAsJson_listWithThings_thingsInBrackets() {
