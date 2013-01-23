@@ -17,6 +17,7 @@ package com.splunk.shuttl.server.mbeans.rest;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -82,7 +83,13 @@ public class RestUtil {
 
 	private static void putSafe(JSONObject jsonObject, Object k, Object v) {
 		try {
-			jsonObject.put(k.toString(), v);
+			String key = k.toString();
+			if (v instanceof Collection)
+				jsonObject.put(key, (Collection<?>) v);
+			else if (v instanceof Map)
+				jsonObject.put(key, (Map<?, ?>) v);
+			else
+				jsonObject.put(key, v);
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}

@@ -169,4 +169,5 @@ public class JsonUtilsTest {
 		assertEquals(merge.get("k").toString(), "[1,2]");
 		assertEquals(merge.get("j").toString(), "[2,3]");
 	}
+
 }
