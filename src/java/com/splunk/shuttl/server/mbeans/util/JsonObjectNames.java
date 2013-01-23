@@ -24,5 +24,6 @@ public class JsonObjectNames {
 	public static final String SIZE = "size";
 	public static final String ERRORS = "errors";
 	public static final String FAILED_BUCKET_COLLECTION = "failed";
+	public static final String INDEX_COLLECTION = "indexes";
 
 }
