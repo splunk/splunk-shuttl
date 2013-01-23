@@ -35,7 +35,7 @@ import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "cluster-test" })
-public class DistributedBucketListingTest {
+public class DistributedListBucketsTest {
 
 	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.shuttl.port",
 			"cluster.slave2.host", "cluster.slave2.shuttl.port",
