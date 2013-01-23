@@ -104,7 +104,7 @@ class Archiving(controllers.BaseController):
                 errors = [ "<h1>Got a NON 200 status code!</h1>", 
                     "Index response:", indexesResponse[0], indexesResponse[1] ]
 
-        indexes = sorted(indexes)
+        indexes = sorted(indexes.get('indexes'))
         
         logger.debug('show - indexes: %s (%s)' % (indexes, type(indexes)))
 
