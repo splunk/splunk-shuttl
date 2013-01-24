@@ -14,25 +14,16 @@
 // limitations under the License.
 package com.splunk.shuttl.server.mbeans.rest;
 
-import static com.splunk.shuttl.archiver.LogFormatter.*;
-
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
-import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
+import com.splunk.shuttl.archiver.util.JsonUtils;
 import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
-import com.splunk.shuttl.server.model.BucketBean;
 
 public class RestUtil {
 
@@ -54,80 +45,16 @@ public class RestUtil {
 		return StringDateConverter.convert(to);
 	}
 
-	/**
-	 * @return JSON response with buckets and their total size.
-	 */
-	public static String bucketsToJson(List<Bucket> buckets) {
-		List<BucketBean> beans = new ArrayList<BucketBean>();
-		long totalBucketsSize = 0;
+	public static JSONObject mergeBucketCollectionsAndAddTotalSize(
+			List<JSONObject> jsons) throws JSONException {
+		JSONObject mergedBuckets = JsonUtils.mergeKey(jsons,
+				JsonObjectNames.BUCKET_COLLECTION);
+		long size = JsonUtils.sumKeyInNestedJson(mergedBuckets,
+				JsonObjectNames.SIZE, JsonObjectNames.BUCKET_COLLECTION);
 
-		for (Bucket bucket : buckets) {
-			beans.add(getBucketBean(bucket));
-			totalBucketsSize += bucket.getSize() == null ? 0 : bucket.getSize();
-		}
-
-		return RestUtil.writeKeyValueAsJson(JsonObjectNames.BUCKET_COLLECTION_SIZE,
-				FileUtils.byteCountToDisplaySize(totalBucketsSize),
-				JsonObjectNames.BUCKET_COLLECTION, beans).toString();
-	}
-
-	public static JSONObject writeKeyValueAsJson(Object... kvs) {
-		JSONObject jsonObject = new JSONObject();
-		for (int i = 0; i < kvs.length; i += 2) {
-			Object k = kvs[i];
-			Object v = kvs[i + 1];
-			putSafe(jsonObject, k, v);
-		}
-		return jsonObject;
-	}
-
-	private static void putSafe(JSONObject jsonObject, Object k, Object v) {
-		try {
-			String key = k.toString();
-			if (v instanceof Collection)
-				jsonObject.put(key, (Collection<?>) v);
-			else if (v instanceof Map)
-				jsonObject.put(key, (Map<?, ?>) v);
-			else
-				jsonObject.put(key, v);
-		} catch (JSONException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private static BucketBean getBucketBean(Bucket bucket) {
-		return BucketBean.createBeanFromBucket(bucket);
-	}
-
-	public static String respondWithIndexError(String index) {
-		Map<String, Object> responseMap = new HashMap<String, Object>();
-		responseMap.put("error", "Could not flush index: " + index
-				+ ", because it's not been shuttled.");
-		return RestUtil.writeMapAsJson(responseMap);
-	}
-
-	/**
-	 * @param thawedBucketBeans
-	 * @param failedBucketBeans
-	 * @return
-	 */
-	public static String writeBucketAction(List<BucketBean> successfulBuckets,
-			Object failedObjects) {
-		HashMap<String, Object> response = new HashMap<String, Object>();
-		response.put(JsonObjectNames.BUCKET_COLLECTION, successfulBuckets);
-		response.put(JsonObjectNames.FAILED_BUCKET_COLLECTION, failedObjects);
-
-		return RestUtil.writeMapAsJson(response);
-	}
-
-	public static String writeMapAsJson(Map<String, Object> ret) {
-		try {
-			return new ObjectMapper().writeValueAsString(ret);
-		} catch (Exception e) {
-			logger.error(did("attempted to convert thawed/failed "
-					+ "buckets to JSON string", e, null));
-			throw new RuntimeException(e);
-		}
+		return JsonUtils.writeKeyValueAsJson(JsonObjectNames.BUCKET_COLLECTION,
+				mergedBuckets.get(JsonObjectNames.BUCKET_COLLECTION),
+				JsonObjectNames.BUCKET_COLLECTION_SIZE, size);
 	}
 
 }

@@ -48,28 +48,28 @@ public class ListThawEndpoint {
 	public String listThawedBuckets(@QueryParam("index") String index,
 			@QueryParam("from") String from, @QueryParam("to") String to)
 			throws JSONException {
-
-		Date earliest = RestUtil.getValidFromDate(from);
-		Date latest = RestUtil.getValidToDate(to);
-		List<String> indexes;
-		if (index == null)
-			indexes = ArchivedIndexesListerFactory.create().listIndexes();
-		else
-			indexes = asList(index);
-
 		try {
+			Date earliest = RestUtil.getValidFromDate(from);
+			Date latest = RestUtil.getValidToDate(to);
+			List<String> indexes;
+			if (index == null)
+				indexes = ArchivedIndexesListerFactory.create().listIndexes();
+			else
+				indexes = asList(index);
+
 			List<Bucket> filteredBuckets = filteredBucketsInThaw(indexes, earliest,
 					latest);
-			JSONObject json = new JSONObject(RestUtil.bucketsToJson(filteredBuckets));
+
+			JSONObject json = JsonUtils.writeKeyValueAsJson(
+					JsonObjectNames.BUCKET_COLLECTION, filteredBuckets);
 			List<JSONObject> jsons = new GetRequestOnSearchPeers(ENDPOINT_THAW_LIST,
 					index, from, to).execute();
 			jsons.add(json);
 
-			return JsonUtils.mergeJsonsWithKeys(jsons,
-					JsonObjectNames.BUCKET_COLLECTION,
-					JsonObjectNames.BUCKET_COLLECTION_SIZE).toString();
-		} catch (IllegalIndexException e) {
-			return RestUtil.respondWithIndexError(index);
+			return RestUtil.mergeBucketCollectionsAndAddTotalSize(jsons).toString();
+		} catch (Exception e) {
+			return JsonUtils.writeKeyValueAsJson(JsonObjectNames.ERRORS, asList(e))
+					.toString();
 		}
 	}
 

@@ -17,8 +17,13 @@ package com.splunk.shuttl.archiver.util;
 import static java.util.Arrays.*;
 import static org.testng.Assert.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
 import org.testng.annotations.Test;
 
+import com.amazonaws.util.json.JSONArray;
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
 
@@ -73,21 +78,21 @@ public class JsonUtilsTest {
 	public void mergeKey_keyWithEmptyCollection_returnsSameJson() {
 		JSONObject o1 = json("{\"k\":[]}");
 		JSONObject merge = JsonUtils.mergeKey(asList(o1), "k");
-		assertEquals(o1.toString(), merge.toString());
+		assertJsonEquals(o1, merge);
 	}
 
 	public void mergeKey_oneEmptyAndOneNotEmptyCollection_nonEmptyCollection() {
 		JSONObject o1 = json("{\"k\":[]}");
 		JSONObject o2 = json("{\"k\":[1]}");
 		JSONObject merge = JsonUtils.mergeKey(asList(o1, o2), "k");
-		assertEquals(o2.toString(), merge.toString());
+		assertJsonEquals(o2, merge);
 	}
 
 	public void mergeKey_notEmptyCollectionAndOneEmpty_nonEmptyCollection() {
 		JSONObject o1 = json("{\"k\":[1]}");
 		JSONObject o2 = json("{\"k\":[]}");
 		JSONObject merge = JsonUtils.mergeKey(asList(o1, o2), "k");
-		assertEquals(o1.toString(), merge.toString());
+		assertJsonEquals(o1, merge);
 	}
 
 	public void mergeKey_valueAndEmptyCollection_notEmptyCollection()
@@ -152,7 +157,7 @@ public class JsonUtilsTest {
 	public void mergeJsonWithKeys_noKeys_emptyJson() {
 		JSONObject empty = new JSONObject();
 		JSONObject merge = JsonUtils.mergeJsonsWithKeys(asList(empty));
-		assertEquals(merge.toString(), empty.toString());
+		assertJsonEquals(merge, empty);
 	}
 
 	public void mergeJsonWithKeys_oneKey_keyGetsMerged() throws JSONException {
@@ -168,6 +173,57 @@ public class JsonUtilsTest {
 		JSONObject merge = JsonUtils.mergeJsonsWithKeys(asList(o1, o2), "k", "j");
 		assertEquals(merge.get("k").toString(), "[1,2]");
 		assertEquals(merge.get("j").toString(), "[2,3]");
+	}
+
+	public void writeKeyValueAsJson_noKeyValues_emptyJson() {
+		assertJsonEquals(JsonUtils.writeKeyValueAsJson(), new JSONObject());
+	}
+
+	@Test(expectedExceptions = { RuntimeException.class })
+	public void writeKeyValueAsJson_keyNoValue_throws() {
+		JsonUtils.writeKeyValueAsJson("key");
+	}
+
+	public void writeKeyValueAsJson_keyAndValue_jsonWithKeyAndValue()
+			throws JSONException {
+		JSONObject expected = new JSONObject();
+		expected.put("key", "value");
+		JSONObject actual = JsonUtils.writeKeyValueAsJson("key", "value");
+		assertJsonEquals(expected, actual);
+	}
+
+	public void writeKeyValueAsJson_emptyList_brackets() {
+		JSONObject actual = JsonUtils.writeKeyValueAsJson("key",
+				new ArrayList<String>());
+		assertEquals(actual.toString(), "{\"key\":[]}");
+	}
+
+	public void writeKeyValueAsJson_list_isJSONArray() throws JSONException {
+		JSONObject actual = JsonUtils.writeKeyValueAsJson("key",
+				new ArrayList<String>());
+		assertTrue(actual.get("key") instanceof JSONArray);
+	}
+
+	public void writeKeyValueAsJson_map_isJSONObject() throws JSONException {
+		JSONObject actual = JsonUtils.writeKeyValueAsJson("key",
+				new HashMap<String, String>());
+		assertTrue(actual.get("key") instanceof JSONObject);
+	}
+
+	public void writeKeyValueAsJson_listWithThings_thingsInBrackets() {
+		JSONObject actual = JsonUtils
+				.writeKeyValueAsJson("key", asList("v1", "v2"));
+		assertEquals(actual.toString(), "{\"key\":[\"v1\",\"v2\"]}");
+	}
+
+	public void writeKeyValueAsJson_emptySet_brackets() {
+		JSONObject actual = JsonUtils.writeKeyValueAsJson("key",
+				new HashSet<String>());
+		assertEquals(actual.toString(), "{\"key\":[]}");
+	}
+
+	private void assertJsonEquals(JSONObject o1, JSONObject o2) {
+		assertEquals(o1.toString(), o2.toString());
 	}
 
 }

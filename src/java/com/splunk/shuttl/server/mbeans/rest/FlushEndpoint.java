@@ -74,7 +74,7 @@ public class FlushEndpoint {
 			}
 		}
 
-		JSONObject json = RestUtil.writeKeyValueAsJson(
+		JSONObject json = JsonUtils.writeKeyValueAsJson(
 				JsonObjectNames.BUCKET_COLLECTION, flusher.getFlushedBuckets(),
 				JsonObjectNames.ERRORS, errors);
 
