@@ -60,7 +60,7 @@ public class DistributedListThawedTest {
 	private JSONObject listThawedByCallingHead(String headHost,
 			String headShuttlPort, String index) {
 		URI endpointUri = EndpointUtils.getShuttlEndpointUri(headHost,
-				Integer.parseInt(headShuttlPort), ShuttlConstants.ENDPOINT_THAW_LIST);
+				Integer.parseInt(headShuttlPort), ShuttlConstants.ENDPOINT_LIST_THAW);
 		String getParams = EndpointUtils.createHttpGetParams("index", index);
 		return JsonRestEndpointCaller.create().getJson(
 				new HttpGet(URI.create(endpointUri + "?" + getParams)));

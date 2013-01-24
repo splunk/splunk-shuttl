@@ -38,10 +38,6 @@ import com.splunk.shuttl.archiver.util.JsonUtils;
 import com.splunk.shuttl.server.distributed.PostRequestOnSearchPeers;
 import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
-/**
- * @author petterik
- * 
- */
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_FLUSH)
 public class FlushEndpoint {
 
@@ -51,7 +47,7 @@ public class FlushEndpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String flushBuckets(@FormParam("index") final String index,
 			@FormParam("from") String from, @FormParam("to") String to) {
-		logger.debug(happened("Received REST request to flush buckets", "endpoint",
+		logger.info(happened("Received REST request to flush buckets", "endpoint",
 				ENDPOINT_BUCKET_FLUSH, "index", index, "from", from, "to", to));
 
 		Date fromDate = RestUtil.getValidFromDate(from);
