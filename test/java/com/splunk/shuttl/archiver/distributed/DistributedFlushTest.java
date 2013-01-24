@@ -28,7 +28,6 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.ShuttlConstants;
-import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 import com.splunk.shuttl.testutil.TUtilsEndToEnd;
@@ -54,7 +53,7 @@ public class DistributedFlushTest {
 					index);
 			assertBucketsExistInFlushResponse(response, peer1Bucket, peer2Bucket);
 		} catch (Exception t) {
-			deleteBuckets(peer1Bucket, peer2Bucket);
+			DistributedCommons.deleteBuckets(peer1Bucket, peer2Bucket);
 		}
 	}
 
@@ -78,12 +77,6 @@ public class DistributedFlushTest {
 		} finally {
 			EntityUtils.consume(response.getEntity());
 		}
-	}
-
-	private void deleteBuckets(LocalBucket peer1Bucket, LocalBucket peer2Bucket) {
-		BucketDeleter deleter = BucketDeleter.create();
-		deleter.deleteBucket(peer1Bucket);
-		deleter.deleteBucket(peer2Bucket);
 	}
 
 }

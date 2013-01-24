@@ -17,6 +17,7 @@ package com.splunk.shuttl.archiver.distributed;
 import java.io.File;
 
 import com.splunk.Service;
+import com.splunk.shuttl.archiver.archive.BucketDeleter;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEndToEnd;
@@ -44,4 +45,9 @@ public class DistributedCommons {
 		return TUtilsBucket.createBucketInDirectoryWithIndex(thawDirectory, index);
 	}
 
+	public static void deleteBuckets(LocalBucket... buckets) {
+		BucketDeleter deleter = BucketDeleter.create();
+		for (LocalBucket b : buckets)
+			deleter.deleteBucket(b);
+	}
 }
