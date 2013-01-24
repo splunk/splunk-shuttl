@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +23,8 @@ import java.util.Map;
 import com.amazonaws.util.json.JSONArray;
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
+import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.server.model.BucketBean;
 
 public class JsonUtils {
 
@@ -160,9 +163,27 @@ public class JsonUtils {
 		for (int i = 0; i < kvs.length; i += 2) {
 			Object k = kvs[i];
 			Object v = kvs[i + 1];
+
+			v = changeToBucketBeansIfValueIsAListOfBuckets(v);
+
 			putSafe(jsonObject, k, v);
 		}
 		return jsonObject;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Object changeToBucketBeansIfValueIsAListOfBuckets(Object v) {
+		if (v instanceof List<?>) {
+			List<?> list = (List<?>) v;
+			if (!list.isEmpty() && list.get(0) instanceof Bucket) {
+				List<Bucket> buckets = (List<Bucket>) list;
+				List<BucketBean> beans = new ArrayList<BucketBean>();
+				for (Bucket b : buckets)
+					beans.add(BucketBean.createBeanFromBucket(b));
+				v = beans;
+			}
+		}
+		return v;
 	}
 
 	private static void putSafe(JSONObject jsonObject, Object k, Object v) {

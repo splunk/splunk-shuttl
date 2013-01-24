@@ -26,6 +26,10 @@ import org.testng.annotations.Test;
 import com.amazonaws.util.json.JSONArray;
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
+import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
+import com.splunk.shuttl.server.model.BucketBean;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
 public class JsonUtilsTest {
@@ -220,6 +224,17 @@ public class JsonUtilsTest {
 		JSONObject actual = JsonUtils.writeKeyValueAsJson("key",
 				new HashSet<String>());
 		assertEquals(actual.toString(), "{\"key\":[]}");
+	}
+
+	public void writeKeyValueAsJson_isBucketCollection_writesAsBucketBeans()
+			throws JSONException {
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		String bucket_key = JsonObjectNames.BUCKET_COLLECTION;
+		JSONObject json = JsonUtils.writeKeyValueAsJson(bucket_key, asList(bucket));
+
+		String actual = ((JSONArray) json.get(bucket_key)).get(0).toString();
+		assertEquals(actual,
+				new JSONObject(BucketBean.createBeanFromBucket(bucket)).toString());
 	}
 
 	private void assertJsonEquals(JSONObject o1, JSONObject o2) {
