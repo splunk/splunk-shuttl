@@ -17,11 +17,8 @@ package com.splunk.shuttl.server.mbeans.rest;
 import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -31,12 +28,14 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
-import com.splunk.shuttl.archiver.model.Bucket;
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
 import com.splunk.shuttl.archiver.thaw.BucketThawer;
-import com.splunk.shuttl.archiver.thaw.BucketThawer.FailedBucket;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
-import com.splunk.shuttl.server.model.BucketBean;
+import com.splunk.shuttl.archiver.util.JsonUtils;
+import com.splunk.shuttl.server.distributed.PostRequestOnSearchPeers;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 /**
  * Endpoint for thawing buckets.
@@ -65,7 +64,8 @@ public class ThawBucketsEndpoint {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	public String thawBuckets(@FormParam("index") String index,
-			@FormParam("from") String from, @FormParam("to") String to) {
+			@FormParam("from") String from, @FormParam("to") String to)
+			throws JSONException {
 
 		logger.info(happened("Received REST request to thaw buckets", "endpoint",
 				ENDPOINT_BUCKET_THAW, "index", index, "from", from, "to", to));
@@ -87,12 +87,19 @@ public class ThawBucketsEndpoint {
 					"From and to date must be provided on the form yyyy-DD-mm");
 		}
 
-		// thaw
 		logMetricsAtEndpoint(ENDPOINT_BUCKET_THAW);
+		// thaw
 		BucketThawer bucketThawer = BucketThawerFactory.createDefaultThawer();
 		bucketThawer.thawBuckets(index, fromDate, toDate);
 
-		return convertThawInfoToJSON(bucketThawer);
+		JSONObject json = convertThawInfoToJSON(bucketThawer);
+		List<JSONObject> jsons = new PostRequestOnSearchPeers(ENDPOINT_BUCKET_THAW,
+				index, from, to).execute();
+		jsons.add(json);
+
+		return JsonUtils.mergeJsonsWithKeys(jsons,
+				JsonObjectNames.BUCKET_COLLECTION,
+				JsonObjectNames.FAILED_BUCKET_COLLECTION).toString();
 	}
 
 	private void logMetricsAtEndpoint(String endpoint) {
@@ -102,31 +109,10 @@ public class ThawBucketsEndpoint {
 		logger.info(logMessage);
 	}
 
-	/**
-	 * Converts a list of ThawInfo objects into a JSON object obeying the
-	 * following schema: { "thawed": { "type":"array", "items": {
-	 * "type":"BucketBean" } } "failed": { "type":"array", "items": {
-	 * "type":"object", "properties": { "bucket": { "type":"BucketBean" }
-	 * "reason": { "type":"string" } } } }
-	 * 
-	 * @param thawInfos
-	 * @return JSON object conforming to the above schema (as a string).
-	 */
-	private String convertThawInfoToJSON(BucketThawer bucketThawer) {
-		List<BucketBean> thawedBucketBeans = new ArrayList<BucketBean>();
-		List<Map<String, Object>> failedBucketBeans = new ArrayList<Map<String, Object>>();
-
-		for (Bucket bucket : bucketThawer.getThawedBuckets())
-			thawedBucketBeans.add(BucketBean.createBeanFromBucket(bucket));
-
-		for (FailedBucket failedBucket : bucketThawer.getFailedBuckets()) {
-			Map<String, Object> temp = new HashMap<String, Object>();
-			temp.put("bucket", BucketBean.createBeanFromBucket(failedBucket.bucket));
-			temp.put("reason", failedBucket.exception.getClass().getSimpleName());
-			failedBucketBeans.add(temp);
-		}
-
-		return RestUtil.writeBucketAction(thawedBucketBeans, failedBucketBeans);
+	private JSONObject convertThawInfoToJSON(BucketThawer bucketThawer) {
+		return JsonUtils.writeKeyValueAsJson(JsonObjectNames.BUCKET_COLLECTION,
+				bucketThawer.getThawedBuckets(),
+				JsonObjectNames.FAILED_BUCKET_COLLECTION,
+				bucketThawer.getFailedBuckets());
 	}
-
 }

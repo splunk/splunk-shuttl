@@ -26,6 +26,7 @@ import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 
 /**
@@ -62,7 +63,7 @@ public class ArchiveLotsOfBucketsWithDifferentTimeRanges {
 		for (int i = 0; i < TWO_YEARS_OF_DAYS; i++) {
 			Date latest = new Date(earliest.getTime());
 			LocalBucket bucket = TUtilsBucket.createBucketWithIndexAndTimeRange(
-					"shuttl",
+					TUtilsEndToEnd.REAL_SPLUNK_INDEX,
 					earliest, latest);
 			bucketArchiver.archiveBucket(bucket);
 			earliest = new Date(latest.getTime() + 1 + MILLI_SECONDS_IN_A_DAY);

@@ -31,7 +31,6 @@ import java.util.Map;
 import javax.management.InstanceNotFoundException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.http.HttpResponse;
@@ -42,6 +41,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
 import com.splunk.Service;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
@@ -50,6 +51,7 @@ import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLockerInTestDir;
+import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
@@ -59,7 +61,9 @@ import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.server.mbeans.ShuttlServer;
 import com.splunk.shuttl.server.mbeans.ShuttlServerMBean;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 import com.splunk.shuttl.testutil.TUtilsBucket;
+import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 import com.splunk.shuttl.testutil.TUtilsFile;
 import com.splunk.shuttl.testutil.TUtilsFunctional;
 import com.splunk.shuttl.testutil.TUtilsMBean;
@@ -215,11 +219,11 @@ public class ArchiverEndToEndTest {
 		this.shuttlHost = shuttlHost;
 		this.shuttlPort = Integer.parseInt(shuttlPort);
 		archiveConfiguration = ArchiveConfiguration.getSharedInstance();
-		thawIndex = "shuttl";
+		thawIndex = TUtilsEndToEnd.REAL_SPLUNK_INDEX;
 		tempDirectory = createDirectory();
 
-		Service service = new Service(splunkHost, Integer.parseInt(splunkPort));
-		service.login(splunkUserName, splunkPw);
+		Service service = TUtilsEndToEnd.getLoggedInService(splunkHost, splunkPort,
+				splunkUserName, splunkPw);
 		assertTrue(service.getIndexes().containsKey(thawIndex));
 		splunkIndexesLayer = new SplunkIndexesLayer(service);
 
@@ -260,21 +264,13 @@ public class ArchiverEndToEndTest {
 		assertEquals(bucketToFreeze.getName(), thawedBucket.getName());
 	}
 
-	private void verifyFreezeByListingBucketInArchive(Bucket bucket) {
+	private void verifyFreezeByListingBucketInArchive(Bucket bucket)
+			throws JSONException {
 		HttpGet listRequest = getListGetRequest(bucket.getIndex(),
 				bucket.getEarliest(), bucket.getLatest());
-		HttpResponse response = executeUriRequest(listRequest);
-		int statusCode = response.getStatusLine().getStatusCode();
-		if (statusCode != 200) {
-			System.out.println("Did not get status code 200."
-					+ " Printing response. StatusCode: " + statusCode);
-			System.out.println(getLinesFromResponse(response));
-			fail();
-		}
-		List<String> lines = getLinesFromResponse(response);
-		assertEquals(1, lines.size());
-		assertTrue("response: " + lines.get(0),
-				lines.get(0).contains("\"bucketName\":\"" + bucket.getName() + "\""));
+		JSONObject json = JsonRestEndpointCaller.create().getJson(listRequest);
+		assertTrue(json.get(JsonObjectNames.BUCKET_COLLECTION).toString()
+				.contains(bucket.getName()));
 	}
 
 	private HttpGet getListGetRequest(String index, Date earliest, Date latest) {
@@ -285,16 +281,6 @@ public class ArchiverEndToEndTest {
 	private String createQuery(String index, Date earliest, Date latest) {
 		return "?index=" + index + "&from=" + earliest.getTime() + "&to="
 				+ latest.getTime();
-	}
-
-	private List<String> getLinesFromResponse(HttpResponse response) {
-		try {
-			return IOUtils.readLines(response.getEntity().getContent());
-		} catch (IOException e) {
-			TUtilsTestNG.failForException("Could not read lines for http response.",
-					e);
-			return null;
-		}
 	}
 
 	private boolean isThawDirectoryEmpty() {

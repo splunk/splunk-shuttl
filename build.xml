@@ -282,11 +282,14 @@
 	<target name="clean-built-classes-then-compile" depends="clean-built-classes, compile" />
 
 	<propertyset id="testng">
+		<propertyref name="cluster.master.host" />
 		<propertyref name="cluster.master.port" />
 		<propertyref name="cluster.slave1.host" />
 		<propertyref name="cluster.slave1.port" />
 		<propertyref name="cluster.slave2.host" />
 		<propertyref name="cluster.slave2.port" />
+		<propertyref name="cluster.master.shuttl.port" />
+		<propertyref name="cluster.slave1.shuttl.port" />
 		<propertyref name="cluster.slave2.shuttl.port" />
 		<propertyref name="cluster.slave2.splunk.home" />
 		<propertyref name="splunk.username" />

@@ -15,6 +15,7 @@
 package com.splunk.shuttl.server.mbeans.rest;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
+import static com.splunk.shuttl.archiver.LogFormatter.*;
 import static java.util.Arrays.*;
 
 import java.util.Date;
@@ -26,37 +27,59 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.log4j.Logger;
+
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
 import com.splunk.shuttl.archiver.flush.ThawedBuckets;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
-import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
+import com.splunk.shuttl.archiver.util.JsonUtils;
+import com.splunk.shuttl.server.distributed.GetRequestOnSearchPeers;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
-@Path(ENDPOINT_ARCHIVER + ENDPOINT_THAW_LIST)
+@Path(ENDPOINT_ARCHIVER + ENDPOINT_LIST_THAW)
 public class ListThawEndpoint {
+
+	private static final Logger logger = Logger.getLogger(ListThawEndpoint.class);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String listThawedBuckets(@QueryParam("index") String index,
-			@QueryParam("from") String from, @QueryParam("to") String to) {
-
-		Date earliest = RestUtil.getValidFromDate(from);
-		Date latest = RestUtil.getValidToDate(to);
-		List<String> indexes;
-		if (index == null)
-			indexes = ArchivedIndexesListerFactory.create().listIndexes();
-		else
-			indexes = asList(index);
+			@QueryParam("from") String from, @QueryParam("to") String to)
+			throws JSONException {
+		logger
+				.info(happened("Received REST request to list thawed buckets",
+						"endpoint", ENDPOINT_LIST_THAW, "index", index, "from", from, "to",
+						to));
 
 		try {
+			Date earliest = RestUtil.getValidFromDate(from);
+			Date latest = RestUtil.getValidToDate(to);
+			List<String> indexes;
+			if (index == null)
+				indexes = ArchivedIndexesListerFactory.create().listIndexes();
+			else
+				indexes = asList(index);
+
 			List<Bucket> filteredBuckets = filteredBucketsInThaw(indexes, earliest,
 					latest);
-			return RestUtil.respondWithBuckets(filteredBuckets);
-		} catch (IllegalIndexException e) {
-			return RestUtil.respondWithIndexError(index);
+
+			JSONObject json = JsonUtils.writeKeyValueAsJson(
+					JsonObjectNames.BUCKET_COLLECTION, filteredBuckets);
+			List<JSONObject> jsons = new GetRequestOnSearchPeers(ENDPOINT_LIST_THAW,
+					index, from, to).execute();
+			jsons.add(json);
+
+			return RestUtil.mergeBucketCollectionsAndAddTotalSize(jsons).toString();
+		} catch (Exception e) {
+			return JsonUtils.writeKeyValueAsJson(JsonObjectNames.ERRORS, asList(e))
+					.toString();
 		}
 	}
 

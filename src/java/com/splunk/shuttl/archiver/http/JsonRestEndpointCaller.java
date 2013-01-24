@@ -14,22 +14,28 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.http;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.log4j.Logger;
 
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
-import com.amazonaws.util.json.JSONTokener;
 
 /**
  * Calls a REST endpoint, returning JSON.
  */
 public class JsonRestEndpointCaller {
+
+	private static final Logger logger = Logger
+			.getLogger(JsonRestEndpointCaller.class);
 
 	private final HttpClient httpClient;
 
@@ -44,7 +50,7 @@ public class JsonRestEndpointCaller {
 	public JSONObject getJson(HttpUriRequest httpRequest) {
 		HttpResponse response = getResponseFromRequest(httpRequest);
 		InputStream content = getReponseContent(response);
-		return extractJsonFromContent(content);
+		return extractJsonFromContent(toString(content));
 	}
 
 	private HttpResponse getResponseFromRequest(HttpUriRequest request) {
@@ -63,11 +69,25 @@ public class JsonRestEndpointCaller {
 		}
 	}
 
-	private JSONObject extractJsonFromContent(InputStream content) {
+	private String toString(InputStream content) {
 		try {
-			return new JSONObject(new JSONTokener(new InputStreamReader(content)));
-		} catch (JSONException e) {
+			return IOUtils.toString(content);
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private JSONObject extractJsonFromContent(String jsonString) {
+		try {
+			return new JSONObject(jsonString);
+		} catch (JSONException e) {
+			logger.error(did("Tried to create JSON object from string", e,
+					"to create object", "json_string", jsonString));
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static JsonRestEndpointCaller create() {
+		return new JsonRestEndpointCaller(new DefaultHttpClient());
 	}
 }

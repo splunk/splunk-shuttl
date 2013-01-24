@@ -84,7 +84,7 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		String requestString = "http://" + serverMBean.getHttpHost() + ":"
 				+ serverMBean.getHttpPort() + "/" + ShuttlConstants.ENDPOINT_CONTEXT
 				+ ShuttlConstants.ENDPOINT_ARCHIVER
-				+ ShuttlConstants.ENDPOINT_BUCKET_ARCHIVER;
+				+ ShuttlConstants.ENDPOINT_BUCKET_ARCHIVE;
 
 		HttpPost request = new HttpPost(requestString);
 

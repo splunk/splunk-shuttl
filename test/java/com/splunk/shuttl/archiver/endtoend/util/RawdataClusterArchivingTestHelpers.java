@@ -19,7 +19,6 @@ import static org.testng.Assert.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.Arrays;
 
 import com.splunk.shuttl.archiver.endtoend.ClusterReplicatedBucketArchivingTest.ArchivePathAsserter;
 import com.splunk.shuttl.archiver.endtoend.ClusterReplicatedBucketArchivingTest.ReplicatedBucketProvider;
@@ -50,11 +49,8 @@ public class RawdataClusterArchivingTestHelpers {
 				LocalBucket fullReplicatedBucket) {
 			File[] filesExceptRawdataAndDotFiles = getFilesExceptRawdataAndDotFiles(fullReplicatedBucket);
 			assertFalse(filesExceptRawdataAndDotFiles.length == 0);
-			System.out.println(Arrays.toString(filesExceptRawdataAndDotFiles));
 			for (File f : filesExceptRawdataAndDotFiles)
 				assertTrue(f.delete(), "Could not delete: " + f.getAbsolutePath());
-			System.out.println(Arrays.toString(fullReplicatedBucket.getDirectory()
-					.listFiles()));
 		}
 
 		private File[] getFilesExceptRawdataAndDotFiles(

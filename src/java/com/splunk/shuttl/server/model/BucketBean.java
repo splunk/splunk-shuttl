@@ -19,8 +19,6 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.io.FileUtils;
-
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -35,7 +33,7 @@ public class BucketBean {
 	private String uri;
 	private String from;
 	private String to;
-	private String size;
+	private Long size;
 
 	/**
 	 * Needed for JAX-RS
@@ -44,7 +42,7 @@ public class BucketBean {
 	}
 
 	public BucketBean(String format, String indexName, String bucketName,
-			String uri, String from, String to, String size) {
+			String uri, String from, String to, Long size) {
 		this.format = format;
 		this.indexName = indexName;
 		this.bucketName = bucketName;
@@ -131,10 +129,10 @@ public class BucketBean {
 	}
 
 	public void setSize(String size) {
-		this.size = size;
+		this.size = Long.parseLong(size);
 	}
 
-	public String getSize() {
+	public Long getSize() {
 		return size;
 	}
 
@@ -143,8 +141,7 @@ public class BucketBean {
 	 *          to create bean from.
 	 */
 	public static BucketBean createBeanFromBucket(Bucket bucket) {
-		String size = FileUtils.byteCountToDisplaySize(bucket.getSize() == null ? 0
-				: bucket.getSize());
+		Long size = bucket.getSize() == null ? 0 : bucket.getSize();
 		return new BucketBean(bucket.getFormat().name(), bucket.getIndex(),
 				bucket.getName(), bucket.getPath(),
 				stringFromDate(bucket.getEarliest()),

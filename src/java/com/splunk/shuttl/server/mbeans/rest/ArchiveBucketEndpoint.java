@@ -42,7 +42,7 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.BucketModifier;
 import com.splunk.shuttl.server.mbeans.rest.ShuttlBucketEndpoint.ShuttlProvider;
 
-@Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_ARCHIVER)
+@Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_ARCHIVE)
 public class ArchiveBucketEndpoint {
 
 	private static Logger logger = Logger.getLogger(ArchiveBucketEndpoint.class);

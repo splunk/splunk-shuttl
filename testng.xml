@@ -11,26 +11,29 @@
 	<parameter name="shuttl.port" value="9099" />
 	<parameter name="splunk.home" value="./build-cache/splunk-1" />
 	<parameter name="shuttl.conf.dir" value="./build/shuttl/conf" />
+	<parameter name="cluster.master.host" value="localhost" />
 	<parameter name="cluster.master.port" value="8070" />
 	<parameter name="cluster.slave1.host" value="localhost" />
 	<parameter name="cluster.slave1.port" value="8071" />
 	<parameter name="cluster.slave2.host" value="localhost" />
 	<parameter name="cluster.slave2.port" value="8072"/>
 	<parameter name="cluster.slave2.splunk.home" value="./build-cache/splunk-slave-2"/>
+	<parameter name="cluster.master.shuttl.port" value="7090" />
+	<parameter name="cluster.slave1.shuttl.port" value="7091" />
 	<parameter name="cluster.slave2.shuttl.port" value="7092" />
 	
 
-	<test name="end-to-end" preserve-order="true" enabled="true">
+	<test name="end-to-end" preserve-order="true" enabled="false">
 		<classes>
 			<class name="com.splunk.shuttl.archiver.endtoend.CopyWithoutDeletionEndToEndTest" />
 		</classes>
 	</test> <!-- Test -->
 
-	<test name="cluster-test" preserve-order="true" enabled="false">
+	<test name="cluster-test" preserve-order="true" enabled="true">
 		<classes>
 			<class name="com.splunk.ClusterConfigTest" />
 			<class name="com.splunk.ClusterPeersTest" />
-			<class name="com.splunk.shuttl.archiver.endtoend.ClusterReplicatedBucketArchivingTest" />
+			<class name="com.splunk.shuttl.archiver.endtoend.DistributedBucketListingTest" />
 		</classes>
 	</test> <!-- Test -->
 
