@@ -145,6 +145,8 @@ class Archiving(controllers.BaseController):
         buckets['buckets_NO_DATA_MSG'] = "No buckets in that range!"
         buckets['buckets_TOTAL_SIZE'] = self.bytes_to_size(buckets['buckets_TOTAL_SIZE']) 
         
+        buckets['buckets'] = self.set_bucket_sizes_to_human_readable_format(buckets['buckets'])
+
         logger.debug('list_buckets - buckets: %s (%s)' % (buckets, type(buckets)))
 
         return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=buckets, errors=errors))
@@ -155,6 +157,11 @@ class Archiving(controllers.BaseController):
                 return "%3.1f %s" % (num, x)
             num /= 1024.0
         return "%3.1f %s" % (num, 'PB')
+
+    def set_bucket_sizes_to_human_readable_format(self, buckets):
+        for bucket in buckets:
+            bucket['size'] = self.bytes_to_size(bucket['size'])
+        return buckets
 
     # Attempts to flush buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['POST'])
