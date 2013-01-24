@@ -19,7 +19,9 @@ import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -29,6 +31,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.amazonaws.util.json.JSONArray;
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
 import com.splunk.shuttl.ShuttlConstants;
@@ -59,7 +62,7 @@ public class ListBucketsEndpoint {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(ENDPOINT_LIST_INDEXES)
-	public String listAllIndexes() {
+	public String listAllIndexes() throws JSONException {
 		logger.info(happened("Received REST request to list indexes", "endpoint",
 				ENDPOINT_LIST_INDEXES));
 
@@ -77,8 +80,18 @@ public class ListBucketsEndpoint {
 				null, null, null).execute();
 		jsons.add(json);
 
-		return JsonUtils
-				.mergeJsonsWithKeys(jsons, JsonObjectNames.INDEX_COLLECTION).toString();
+		JSONObject merge = JsonUtils.mergeJsonsWithKeys(jsons,
+				JsonObjectNames.INDEX_COLLECTION);
+		return uniqifyIndexes(merge).toString();
+	}
+
+	private JSONObject uniqifyIndexes(JSONObject json) throws JSONException {
+		JSONArray jsonArray = json.getJSONArray(JsonObjectNames.INDEX_COLLECTION);
+		Set<String> uniqueIndexes = new HashSet<String>();
+		for (int i = 0; i < jsonArray.length(); i++)
+			uniqueIndexes.add(jsonArray.getString(i));
+		return JsonUtils.writeKeyValueAsJson(JsonObjectNames.INDEX_COLLECTION,
+				uniqueIndexes);
 	}
 
 	@GET

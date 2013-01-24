@@ -74,4 +74,36 @@ public class DistributedListIndexesTest {
 					.contains(b.getIndex()));
 	}
 
+	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.shuttl.port",
+			"cluster.slave2.host", "cluster.slave2.shuttl.port",
+			"cluster.master.host", "cluster.master.shuttl.port",
+			"cluster.slave2.splunk.home" })
+	public void _archiveTwoBucketsWithSameIndexes_indexIsUnique(String peer1Host,
+			String peer1ShuttlPort, String peer2Host, String peer2ShuttlPort,
+			String searchHeadHost, String searchHeadShuttlPort, String splunkHome)
+			throws JSONException {
+		String index = "some-index-string";
+
+		LocalBucket b1 = TUtilsBucket.createBucketWithIndex(index);
+		LocalBucket b2 = TUtilsBucket.createBucketWithIndex(index);
+
+		try {
+			DistributedCommons.archiveBucketAtSearchPeer(b1, peer1Host,
+					Integer.parseInt(peer1ShuttlPort));
+			DistributedCommons.archiveBucketAtSearchPeer(b2, peer2Host,
+					Integer.parseInt(peer2ShuttlPort));
+
+			JSONObject listedIndexes = listIndexesAtSearchHead(searchHeadHost,
+					searchHeadShuttlPort);
+			assertIndexIsUnique(listedIndexes, index);
+		} finally {
+			DistributedCommons.cleanHadoopFileSystem(splunkHome);
+		}
+	}
+
+	private void assertIndexIsUnique(JSONObject listedIndexes, String index)
+			throws JSONException {
+		assertEquals("[\"" + index + "\"]",
+				listedIndexes.get(JsonObjectNames.INDEX_COLLECTION).toString());
+	}
 }
