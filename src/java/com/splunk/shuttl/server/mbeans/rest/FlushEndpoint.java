@@ -72,14 +72,15 @@ public class FlushEndpoint {
 
 		JSONObject json = JsonUtils.writeKeyValueAsJson(
 				JsonObjectNames.BUCKET_COLLECTION, flusher.getFlushedBuckets(),
-				JsonObjectNames.ERRORS, errors);
+				JsonObjectNames.FAILED_BUCKET_COLLECTION, errors);
 
 		List<JSONObject> jsons = new PostRequestOnSearchPeers(
 				ENDPOINT_BUCKET_FLUSH, index, from, to).execute();
 		jsons.add(json);
 
 		return JsonUtils.mergeJsonsWithKeys(jsons,
-				JsonObjectNames.BUCKET_COLLECTION, JsonObjectNames.ERRORS).toString();
+				JsonObjectNames.BUCKET_COLLECTION,
+				JsonObjectNames.FAILED_BUCKET_COLLECTION).toString();
 	}
 
 }
