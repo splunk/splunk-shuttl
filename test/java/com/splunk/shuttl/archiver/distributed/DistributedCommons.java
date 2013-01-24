@@ -16,7 +16,9 @@ package com.splunk.shuttl.archiver.distributed;
 
 import java.io.File;
 
+import com.splunk.Service;
 import com.splunk.shuttl.archiver.model.LocalBucket;
+import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 
 public class DistributedCommons {
@@ -31,6 +33,15 @@ public class DistributedCommons {
 		File shuttlConfDir = TUtilsEndToEnd
 				.getShuttlConfDirFromSplunkHome(splunkHome);
 		TUtilsEndToEnd.cleanHadoopFileSystem(shuttlConfDir, splunkHome);
+	}
+
+	public static LocalBucket putBucketInPeerThawDirectory(String splunkHost,
+			String splunkPort, String splunkUser, String splunkPass, String index) {
+		Service service = TUtilsEndToEnd.getLoggedInService(splunkHost, splunkPort,
+				splunkUser, splunkPass);
+		File thawDirectory = new File(service.getIndexes().get(index)
+				.getThawedPathExpanded());
+		return TUtilsBucket.createBucketInDirectoryWithIndex(thawDirectory, index);
 	}
 
 }
