@@ -72,7 +72,7 @@ public class ListBucketsEndpoint {
 		ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
 				pathResolver, archiveFileSystem);
 
-		JSONObject json = RestUtil.writeKeyValueAsJson(
+		JSONObject json = JsonUtils.writeKeyValueAsJson(
 				JsonObjectNames.INDEX_COLLECTION, indexesLister.listIndexes());
 		List<JSONObject> jsons = new GetRequestOnSearchPeers(ENDPOINT_LIST_INDEXES,
 				null, null, null).execute();
@@ -107,26 +107,18 @@ public class ListBucketsEndpoint {
 		List<Bucket> filteredBucketsAtIndex = getFilteredBucketsAtIndex(index,
 				fromDate, toDate);
 
-		List<Bucket> buckets = filteredBucketsAtIndex;
 		List<Bucket> bucketsWithSize = new java.util.ArrayList<Bucket>();
-		for (Bucket b : buckets)
+		for (Bucket b : filteredBucketsAtIndex)
 			bucketsWithSize.add(getBucketWithSize(b));
 
-		JSONObject jsonObject = createJsonObject(RestUtil
-				.bucketsToJson(bucketsWithSize));
+		JSONObject jsonObject = JsonUtils.writeKeyValueAsJson(
+				JsonObjectNames.BUCKET_COLLECTION, bucketsWithSize);
 
 		List<JSONObject> jsons = new GetRequestOnSearchPeers(
 				ShuttlConstants.ENDPOINT_LIST_BUCKETS, index, from, to).execute();
 		jsons.add(jsonObject);
 
-		JSONObject mergedBuckets = JsonUtils.mergeKey(jsons,
-				JsonObjectNames.BUCKET_COLLECTION);
-		long size = JsonUtils.sumKeyInNestedJson(mergedBuckets,
-				JsonObjectNames.SIZE, JsonObjectNames.BUCKET_COLLECTION);
-
-		return RestUtil.writeKeyValueAsJson(JsonObjectNames.BUCKET_COLLECTION,
-				mergedBuckets.get(JsonObjectNames.BUCKET_COLLECTION),
-				JsonObjectNames.BUCKET_COLLECTION_SIZE, size).toString();
+		return RestUtil.mergeBucketCollectionsAndAddTotalSize(jsons).toString();
 	}
 
 	private List<Bucket> getFilteredBucketsAtIndex(String index, Date fromDate,
@@ -158,11 +150,4 @@ public class ListBucketsEndpoint {
 				config), archiveFileSystem, localFileSystemPaths));
 	}
 
-	private JSONObject createJsonObject(String jsonString) {
-		try {
-			return new JSONObject(jsonString);
-		} catch (JSONException e) {
-			throw new RuntimeException(e);
-		}
-	}
 }

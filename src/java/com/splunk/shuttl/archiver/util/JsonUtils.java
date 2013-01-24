@@ -14,8 +14,10 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.util;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.amazonaws.util.json.JSONArray;
 import com.amazonaws.util.json.JSONException;
@@ -153,4 +155,27 @@ public class JsonUtils {
 		}
 	}
 
+	public static JSONObject writeKeyValueAsJson(Object... kvs) {
+		JSONObject jsonObject = new JSONObject();
+		for (int i = 0; i < kvs.length; i += 2) {
+			Object k = kvs[i];
+			Object v = kvs[i + 1];
+			putSafe(jsonObject, k, v);
+		}
+		return jsonObject;
+	}
+
+	private static void putSafe(JSONObject jsonObject, Object k, Object v) {
+		try {
+			String key = k.toString();
+			if (v instanceof Collection)
+				jsonObject.put(key, (Collection<?>) v);
+			else if (v instanceof Map)
+				jsonObject.put(key, (Map<?, ?>) v);
+			else
+				jsonObject.put(key, v);
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
