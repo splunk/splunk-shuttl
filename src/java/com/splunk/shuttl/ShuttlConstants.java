@@ -40,7 +40,7 @@ public final class ShuttlConstants {
 	public static final String ENDPOINT_BUCKET_COPY = "/bucket/copy";
 	public static final String ENDPOINT_BUCKET_THAW = "/bucket/thaw";
 	public static final String ENDPOINT_BUCKET_FLUSH = "/bucket/flush";
-	public static final String ENDPOINT_THAW_LIST = "/thaw/list";
+	public static final String ENDPOINT_LIST_THAW = "/thaw/list";
 	public static final String ENDPOINT_LIST_BUCKETS = "/bucket/list";
 	public static final String ENDPOINT_LIST_INDEXES = "/index/list";
 	public static final String ENDPOINT_ARCHIVER = "/archiver";

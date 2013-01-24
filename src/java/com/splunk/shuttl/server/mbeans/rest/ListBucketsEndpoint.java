@@ -60,7 +60,6 @@ public class ListBucketsEndpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(ENDPOINT_LIST_INDEXES)
 	public String listAllIndexes() {
-
 		logger.info(happened("Received REST request to list indexes", "endpoint",
 				ENDPOINT_LIST_INDEXES));
 
