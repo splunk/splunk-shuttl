@@ -32,7 +32,7 @@ import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 
-@Test(groups = { "cluster-test" }, enabled = false)
+@Test(groups = { "cluster-test" })
 public class DistributedListThawedTest {
 
 	@Parameters(value = { "cluster.slave1.host", "cluster.slave1.port",

@@ -26,14 +26,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
 import com.splunk.shuttl.archiver.flush.ThawedBuckets;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.archiver.thaw.BucketFilter;
-import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
+import com.splunk.shuttl.archiver.util.JsonUtils;
+import com.splunk.shuttl.server.distributed.GetRequestOnSearchPeers;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_THAW_LIST)
 public class ListThawEndpoint {
@@ -41,7 +46,8 @@ public class ListThawEndpoint {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String listThawedBuckets(@QueryParam("index") String index,
-			@QueryParam("from") String from, @QueryParam("to") String to) {
+			@QueryParam("from") String from, @QueryParam("to") String to)
+			throws JSONException {
 
 		Date earliest = RestUtil.getValidFromDate(from);
 		Date latest = RestUtil.getValidToDate(to);
@@ -54,7 +60,14 @@ public class ListThawEndpoint {
 		try {
 			List<Bucket> filteredBuckets = filteredBucketsInThaw(indexes, earliest,
 					latest);
-			return RestUtil.bucketsToJson(filteredBuckets);
+			JSONObject json = new JSONObject(RestUtil.bucketsToJson(filteredBuckets));
+			List<JSONObject> jsons = new GetRequestOnSearchPeers(ENDPOINT_THAW_LIST,
+					index, from, to).execute();
+			jsons.add(json);
+
+			return JsonUtils.mergeJsonsWithKeys(jsons,
+					JsonObjectNames.BUCKET_COLLECTION,
+					JsonObjectNames.BUCKET_COLLECTION_SIZE).toString();
 		} catch (IllegalIndexException e) {
 			return RestUtil.respondWithIndexError(index);
 		}
