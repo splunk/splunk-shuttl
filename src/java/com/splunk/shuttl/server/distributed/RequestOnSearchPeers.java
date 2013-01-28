@@ -15,10 +15,14 @@
 package com.splunk.shuttl.server.distributed;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
+import static java.util.Arrays.*;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -41,47 +45,74 @@ public class RequestOnSearchPeers {
 	private final Service splunkService;
 	private final RequestOnSearchPeer requestOnSearchPeer;
 
-	private final List<RuntimeException> exceptions;
+	private final Queue<RuntimeException> exceptions;
 
 	public RequestOnSearchPeers(Service splunkService,
 			RequestOnSearchPeer requestOnSearchPeer) {
 		this.splunkService = splunkService;
 		this.requestOnSearchPeer = requestOnSearchPeer;
-		this.exceptions = new LinkedList<RuntimeException>();
+		this.exceptions = new ConcurrentLinkedQueue<RuntimeException>();
+	}
+
+	public List<RuntimeException> getExceptions() {
+		return queueToList(exceptions, new RuntimeException[0]);
+	}
+
+	private <T> List<T> queueToList(Queue<T> jsons, T[] t) {
+		return asList(jsons.toArray(t));
 	}
 
 	/**
 	 * @return JSONObjects as response from each distributed peer.
 	 */
 	public List<JSONObject> execute() {
-		return requestOnSearchPeers();
+		return requestOnSearchPeersInParallel();
 	}
 
-	private List<JSONObject> requestOnSearchPeers() {
-		List<JSONObject> jsons = new ArrayList<JSONObject>();
+	private List<JSONObject> requestOnSearchPeersInParallel() {
+		final Queue<JSONObject> jsons = new ConcurrentLinkedQueue<JSONObject>();
 		exceptions.clear();
 
 		EntityCollection<DistributedPeer> distributedPeers = splunkService
 				.getDistributedPeers();
-		if (distributedPeers != null)
-			for (DistributedPeer dp : distributedPeers.values())
-				executeRequestOnPeer(dp, jsons);
-		return jsons;
+		if (distributedPeers != null) {
+			ExecutorService executorService = Executors.newCachedThreadPool();
+			executeRequestsInParallel(jsons, distributedPeers, executorService);
+			joinRequests(executorService);
+		}
+		return queueToList(jsons, new JSONObject[0]);
 	}
 
-	private void executeRequestOnPeer(DistributedPeer dp, List<JSONObject> jsons) {
+	private void executeRequestsInParallel(final Queue<JSONObject> jsons,
+			EntityCollection<DistributedPeer> distributedPeers,
+			ExecutorService executorService) {
+		for (final DistributedPeer dp : distributedPeers.values())
+			executorService.submit(new Runnable() {
+				@Override
+				public void run() {
+					executeRequestOnPeer(dp, jsons);
+				}
+			}, null);
+	}
+
+	private void executeRequestOnPeer(DistributedPeer dp, Queue<JSONObject> jsons) {
 		try {
-			jsons.add(requestOnSearchPeer.executeRequest(dp));
+			jsons.offer(requestOnSearchPeer.executeRequest(dp));
 		} catch (RuntimeException e) {
 			logger.warn(warn("Executed request on distributed peer", e,
 					"will add to exceptions, which can be "
 							+ "retrieved with getExceptions()"));
-			exceptions.add(e);
+			exceptions.offer(e);
 		}
 	}
 
-	public List<RuntimeException> getExceptions() {
-		return exceptions;
+	private void joinRequests(ExecutorService executorService) {
+		try {
+			executorService.shutdown();
+			executorService.awaitTermination(10, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			logger.warn(warn("waited for executor to finish", e, "will do nothing"));
+		}
 	}
 
 	public static RequestOnSearchPeers createPost(String endpoint, String index,
