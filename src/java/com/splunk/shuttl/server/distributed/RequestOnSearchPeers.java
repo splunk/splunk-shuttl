@@ -97,7 +97,9 @@ public class RequestOnSearchPeers {
 
 	private void executeRequestOnPeer(DistributedPeer dp, Queue<JSONObject> jsons) {
 		try {
-			jsons.offer(requestOnSearchPeer.executeRequest(dp));
+			JSONObject json = requestOnSearchPeer.executeRequest(dp);
+			if (!Thread.currentThread().isInterrupted())
+				jsons.offer(json);
 		} catch (RuntimeException e) {
 			logger.warn(warn("Executed request on distributed peer", e,
 					"will add to exceptions, which can be "
@@ -112,6 +114,8 @@ public class RequestOnSearchPeers {
 			executorService.awaitTermination(10, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			logger.warn(warn("waited for executor to finish", e, "will do nothing"));
+		} finally {
+			executorService.shutdownNow();
 		}
 	}
 
