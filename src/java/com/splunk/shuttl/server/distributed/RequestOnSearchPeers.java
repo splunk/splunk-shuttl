@@ -17,13 +17,10 @@ package com.splunk.shuttl.server.distributed;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import com.amazonaws.util.json.JSONObject;
 import com.splunk.DistributedPeer;
 import com.splunk.EntityCollection;
 import com.splunk.Service;
-import com.splunk.shuttl.archiver.clustering.ShuttlPortEndpoint;
 import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 import com.splunk.shuttl.archiver.thaw.SplunkConfiguration;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
@@ -33,10 +30,13 @@ import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
  */
 public class RequestOnSearchPeers {
 
-	private ShuttlEndpointRequestProvider requestProvider;
+	private final Service splunkService;
+	private final RequestOnSearchPeer requestOnSearchPeer;
 
-	public RequestOnSearchPeers(ShuttlEndpointRequestProvider requestProvider) {
-		this.requestProvider = requestProvider;
+	public RequestOnSearchPeers(Service splunkService,
+			RequestOnSearchPeer requestOnSearchPeer) {
+		this.splunkService = splunkService;
+		this.requestOnSearchPeer = requestOnSearchPeer;
 	}
 
 	/**
@@ -47,64 +47,33 @@ public class RequestOnSearchPeers {
 	}
 
 	private List<JSONObject> requestOnSearchPeers() {
-		Service splunkService = SplunkIndexedLayerFactory
-				.getLoggedInSplunkService();
+		List<JSONObject> jsons = new ArrayList<JSONObject>();
+
 		EntityCollection<DistributedPeer> distributedPeers = splunkService
 				.getDistributedPeers();
-
-		return jsonResponsesFromExecutedRequestOnPeers(distributedPeers);
-	}
-
-	private List<JSONObject> jsonResponsesFromExecutedRequestOnPeers(
-			EntityCollection<DistributedPeer> distributedPeers) {
-		List<JSONObject> jsons = new ArrayList<JSONObject>();
 		if (distributedPeers != null)
 			for (DistributedPeer dp : distributedPeers.values())
-				jsons.add(executeRequestOnPeers(dp));
+				jsons.add(requestOnSearchPeer.executeRequest(dp));
 		return jsons;
-	}
-
-	private JSONObject executeRequestOnPeers(DistributedPeer dp) {
-		JsonRestEndpointCaller endpointCaller = new JsonRestEndpointCaller(
-				new DefaultHttpClient());
-
-		Service dpService = getDistributedPeerService(dp);
-		int shuttlPort = getShuttlPort(dpService);
-		return endpointCaller.getJson(requestProvider.createRequest(
-				dpService.getHost(), shuttlPort));
-	}
-
-	private Service getDistributedPeerService(DistributedPeer dp) {
-		Service dpService = createService(dp);
-		authenticateService(dpService);
-		return dpService;
-	}
-
-	private Service createService(DistributedPeer dp) {
-		String nameThatIsThePeersIpAndPortPair = dp.getName();
-		String[] hostPortPair = nameThatIsThePeersIpAndPortPair.split(":");
-		return new Service(hostPortPair[0], Integer.parseInt(hostPortPair[1]));
-	}
-
-	private void authenticateService(Service dpService) {
-		SplunkConfiguration splunkConf = SplunkConfiguration.create();
-		dpService.login(splunkConf.getUsername(), splunkConf.getPassword());
-	}
-
-	private int getShuttlPort(Service dpService) {
-		return ShuttlPortEndpoint.create(dpService).getShuttlPort();
 	}
 
 	public static RequestOnSearchPeers createPost(String endpoint, String index,
 			String from, String to) {
-		return new RequestOnSearchPeers(new PostRequestProvider(endpoint, index,
-				from, to));
+		return create(new PostRequestProvider(endpoint, index, from, to));
 	}
 
 	public static RequestOnSearchPeers createGet(String endpoint, String index,
 			String from, String to) {
-		return new RequestOnSearchPeers(new GetRequestProvider(endpoint, index,
-				from, to));
+		return create(new GetRequestProvider(endpoint, index, from, to));
+	}
+
+	private static RequestOnSearchPeers create(
+			ShuttlEndpointRequestProvider requestProvider) {
+		Service splunkService = SplunkIndexedLayerFactory
+				.getLoggedInSplunkService();
+		return new RequestOnSearchPeers(splunkService, new RequestOnSearchPeer(
+				requestProvider, JsonRestEndpointCaller.create(),
+				SplunkConfiguration.create()));
 	}
 
 }
