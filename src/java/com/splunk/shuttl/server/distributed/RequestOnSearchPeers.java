@@ -17,7 +17,6 @@ package com.splunk.shuttl.server.distributed;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.amazonaws.util.json.JSONObject;
@@ -32,19 +31,12 @@ import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
 /**
  * Makes requests on the distributed peers connected to the Shuttl's Splunk.
  */
-public abstract class RequestOnSearchPeers {
+public class RequestOnSearchPeers {
 
-	protected String endpoint;
-	protected String index;
-	protected String from;
-	protected String to;
+	private ShuttlEndpointRequestProvider requestProvider;
 
-	public RequestOnSearchPeers(String endpoint, String index, String from,
-			String to) {
-		this.endpoint = endpoint;
-		this.index = index;
-		this.from = from;
-		this.to = to;
+	public RequestOnSearchPeers(ShuttlEndpointRequestProvider requestProvider) {
+		this.requestProvider = requestProvider;
 	}
 
 	/**
@@ -78,7 +70,8 @@ public abstract class RequestOnSearchPeers {
 
 		Service dpService = getDistributedPeerService(dp);
 		int shuttlPort = getShuttlPort(dpService);
-		return endpointCaller.getJson(createRequest(dpService, shuttlPort));
+		return endpointCaller.getJson(requestProvider.createRequest(
+				dpService.getHost(), shuttlPort));
 	}
 
 	private Service getDistributedPeerService(DistributedPeer dp) {
@@ -102,7 +95,16 @@ public abstract class RequestOnSearchPeers {
 		return ShuttlPortEndpoint.create(dpService).getShuttlPort();
 	}
 
-	protected abstract HttpUriRequest createRequest(Service dpService,
-			int shuttlPort);
+	public static RequestOnSearchPeers createPost(String endpoint, String index,
+			String from, String to) {
+		return new RequestOnSearchPeers(new PostRequestProvider(endpoint, index,
+				from, to));
+	}
+
+	public static RequestOnSearchPeers createGet(String endpoint, String index,
+			String from, String to) {
+		return new RequestOnSearchPeers(new GetRequestProvider(endpoint, index,
+				from, to));
+	}
 
 }

@@ -14,29 +14,10 @@
 // limitations under the License.
 package com.splunk.shuttl.server.distributed;
 
-import java.net.URI;
-
 import org.apache.http.client.methods.HttpUriRequest;
 
-import com.splunk.Service;
-import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
+public interface ShuttlEndpointRequestProvider {
 
-/**
- * Creates a POST request for RequestOnSearchPeers.
- */
-public class PostRequestOnSearchPeers extends RequestOnSearchPeers {
-
-	public PostRequestOnSearchPeers(String endpoint, String index, String from,
-			String to) {
-		super(endpoint, index, from, to);
-	}
-
-	@Override
-	protected HttpUriRequest createRequest(Service dpService, int shuttlPort) {
-		URI endpointUri = EndpointUtils.getShuttlEndpointUri(dpService.getHost(),
-				shuttlPort, endpoint);
-		return EndpointUtils.createHttpPost(endpointUri, "index", index, "from",
-				from, "to", to);
-	}
+	HttpUriRequest createRequest(String shuttlHost, int shuttlPort);
 
 }

@@ -34,7 +34,7 @@ import com.splunk.shuttl.archiver.thaw.BucketThawer;
 import com.splunk.shuttl.archiver.thaw.BucketThawerFactory;
 import com.splunk.shuttl.archiver.thaw.StringDateConverter;
 import com.splunk.shuttl.archiver.util.JsonUtils;
-import com.splunk.shuttl.server.distributed.PostRequestOnSearchPeers;
+import com.splunk.shuttl.server.distributed.RequestOnSearchPeers;
 import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 /**
@@ -93,8 +93,8 @@ public class ThawBucketsEndpoint {
 		bucketThawer.thawBuckets(index, fromDate, toDate);
 
 		JSONObject json = convertThawInfoToJSON(bucketThawer);
-		List<JSONObject> jsons = new PostRequestOnSearchPeers(ENDPOINT_BUCKET_THAW,
-				index, from, to).execute();
+		List<JSONObject> jsons = RequestOnSearchPeers.createPost(
+				ENDPOINT_BUCKET_THAW, index, from, to).execute();
 		jsons.add(json);
 
 		return JsonUtils.mergeJsonsWithKeys(jsons,

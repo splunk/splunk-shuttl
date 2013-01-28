@@ -35,7 +35,7 @@ import com.splunk.shuttl.archiver.flush.Flusher;
 import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
 import com.splunk.shuttl.archiver.util.JsonUtils;
-import com.splunk.shuttl.server.distributed.PostRequestOnSearchPeers;
+import com.splunk.shuttl.server.distributed.RequestOnSearchPeers;
 import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_BUCKET_FLUSH)
@@ -74,7 +74,7 @@ public class FlushEndpoint {
 				JsonObjectNames.BUCKET_COLLECTION, flusher.getFlushedBuckets(),
 				JsonObjectNames.FAILED_BUCKET_COLLECTION, errors);
 
-		List<JSONObject> jsons = new PostRequestOnSearchPeers(
+		List<JSONObject> jsons = RequestOnSearchPeers.createPost(
 				ENDPOINT_BUCKET_FLUSH, index, from, to).execute();
 		jsons.add(json);
 

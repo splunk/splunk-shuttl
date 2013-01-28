@@ -40,7 +40,7 @@ import com.splunk.shuttl.archiver.thaw.BucketFilter;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexesLayer;
 import com.splunk.shuttl.archiver.util.JsonUtils;
-import com.splunk.shuttl.server.distributed.GetRequestOnSearchPeers;
+import com.splunk.shuttl.server.distributed.RequestOnSearchPeers;
 import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 @Path(ENDPOINT_ARCHIVER + ENDPOINT_LIST_THAW)
@@ -72,8 +72,8 @@ public class ListThawEndpoint {
 
 			JSONObject json = JsonUtils.writeKeyValueAsJson(
 					JsonObjectNames.BUCKET_COLLECTION, filteredBuckets);
-			List<JSONObject> jsons = new GetRequestOnSearchPeers(ENDPOINT_LIST_THAW,
-					index, from, to).execute();
+			List<JSONObject> jsons = RequestOnSearchPeers.createGet(
+					ENDPOINT_LIST_THAW, index, from, to).execute();
 			jsons.add(json);
 
 			return RestUtil.mergeBucketCollectionsAndAddTotalSize(jsons).toString();
