@@ -14,8 +14,13 @@
 // limitations under the License.
 package com.splunk.shuttl.server.distributed;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.amazonaws.util.json.JSONObject;
 import com.splunk.DistributedPeer;
@@ -30,13 +35,19 @@ import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
  */
 public class RequestOnSearchPeers {
 
+	private static final Logger logger = Logger
+			.getLogger(RequestOnSearchPeers.class);
+
 	private final Service splunkService;
 	private final RequestOnSearchPeer requestOnSearchPeer;
+
+	private final List<RuntimeException> exceptions;
 
 	public RequestOnSearchPeers(Service splunkService,
 			RequestOnSearchPeer requestOnSearchPeer) {
 		this.splunkService = splunkService;
 		this.requestOnSearchPeer = requestOnSearchPeer;
+		this.exceptions = new LinkedList<RuntimeException>();
 	}
 
 	/**
@@ -48,13 +59,29 @@ public class RequestOnSearchPeers {
 
 	private List<JSONObject> requestOnSearchPeers() {
 		List<JSONObject> jsons = new ArrayList<JSONObject>();
+		exceptions.clear();
 
 		EntityCollection<DistributedPeer> distributedPeers = splunkService
 				.getDistributedPeers();
 		if (distributedPeers != null)
 			for (DistributedPeer dp : distributedPeers.values())
-				jsons.add(requestOnSearchPeer.executeRequest(dp));
+				executeRequestOnPeer(dp, jsons);
 		return jsons;
+	}
+
+	private void executeRequestOnPeer(DistributedPeer dp, List<JSONObject> jsons) {
+		try {
+			jsons.add(requestOnSearchPeer.executeRequest(dp));
+		} catch (RuntimeException e) {
+			logger.warn(warn("Executed request on distributed peer", e,
+					"will add to exceptions, which can be "
+							+ "retrieved with getExceptions()"));
+			exceptions.add(e);
+		}
+	}
+
+	public List<RuntimeException> getExceptions() {
+		return exceptions;
 	}
 
 	public static RequestOnSearchPeers createPost(String endpoint, String index,
@@ -75,5 +102,4 @@ public class RequestOnSearchPeers {
 				requestProvider, JsonRestEndpointCaller.create(),
 				SplunkConfiguration.create()));
 	}
-
 }
