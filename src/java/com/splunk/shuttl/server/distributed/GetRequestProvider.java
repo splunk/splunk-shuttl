@@ -19,24 +19,30 @@ import java.net.URI;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import com.splunk.Service;
 import com.splunk.shuttl.server.mbeans.util.EndpointUtils;
 
 /**
  * Creates a GET request for RequestOnSearchPeers
  */
-public class GetRequestOnSearchPeers extends RequestOnSearchPeers {
+public class GetRequestProvider implements ShuttlEndpointRequestProvider {
 
-	public GetRequestOnSearchPeers(String endpoint, String index, String from,
+	private final String endpoint;
+	private final String index;
+	private final String from;
+	private final String to;
+
+	public GetRequestProvider(String endpoint, String index, String from,
 			String to) {
-		super(endpoint, index, from, to);
+		this.endpoint = endpoint;
+		this.index = index;
+		this.from = from;
+		this.to = to;
 	}
 
 	@Override
-	protected HttpUriRequest createRequest(Service distributedPeerService,
-			int shuttlPort) {
-		URI endpointUri = EndpointUtils.getShuttlEndpointUri(
-				distributedPeerService.getHost(), shuttlPort, endpoint);
+	public HttpUriRequest createRequest(String shuttlHost, int shuttlPort) {
+		URI endpointUri = EndpointUtils.getShuttlEndpointUri(shuttlHost,
+				shuttlPort, endpoint);
 		return new HttpGet(URI.create(endpointUri
 				+ "?"
 				+ EndpointUtils.createHttpGetParams("index", index, "from", from, "to",

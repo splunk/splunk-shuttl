@@ -47,7 +47,7 @@ import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketSizeResolver;
 import com.splunk.shuttl.archiver.util.JsonUtils;
-import com.splunk.shuttl.server.distributed.GetRequestOnSearchPeers;
+import com.splunk.shuttl.server.distributed.RequestOnSearchPeers;
 import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 /**
@@ -76,8 +76,8 @@ public class ListBucketsEndpoint {
 
 		JSONObject json = JsonUtils.writeKeyValueAsJson(
 				JsonObjectNames.INDEX_COLLECTION, indexesLister.listIndexes());
-		List<JSONObject> jsons = new GetRequestOnSearchPeers(ENDPOINT_LIST_INDEXES,
-				null, null, null).execute();
+		List<JSONObject> jsons = RequestOnSearchPeers.createGet(
+				ENDPOINT_LIST_INDEXES, null, null, null).execute();
 		jsons.add(json);
 
 		JSONObject merge = JsonUtils.mergeJsonsWithKeys(jsons,
@@ -126,7 +126,7 @@ public class ListBucketsEndpoint {
 		JSONObject jsonObject = JsonUtils.writeKeyValueAsJson(
 				JsonObjectNames.BUCKET_COLLECTION, bucketsWithSize);
 
-		List<JSONObject> jsons = new GetRequestOnSearchPeers(
+		List<JSONObject> jsons = RequestOnSearchPeers.createGet(
 				ShuttlConstants.ENDPOINT_LIST_BUCKETS, index, from, to).execute();
 		jsons.add(jsonObject);
 
