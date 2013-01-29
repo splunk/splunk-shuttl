@@ -73,7 +73,7 @@ public class ListThawEndpoint {
 			JSONObject json = JsonUtils.writeKeyValueAsJson(
 					JsonObjectNames.BUCKET_COLLECTION, filteredBuckets);
 			List<JSONObject> jsons = RequestOnSearchPeers.createGet(
-					ENDPOINT_LIST_THAW, index, from, to).execute();
+					ENDPOINT_LIST_THAW, index, from, to).execute().jsons;
 			jsons.add(json);
 
 			return RestUtil.mergeBucketCollectionsAndAddTotalSize(jsons).toString();

@@ -44,17 +44,10 @@ public class RequestOnSearchPeers {
 	private final Service splunkService;
 	private final RequestOnSearchPeer requestOnSearchPeer;
 
-	private final Queue<RuntimeException> exceptions;
-
 	public RequestOnSearchPeers(Service splunkService,
 			RequestOnSearchPeer requestOnSearchPeer) {
 		this.splunkService = splunkService;
 		this.requestOnSearchPeer = requestOnSearchPeer;
-		this.exceptions = new ConcurrentLinkedQueue<RuntimeException>();
-	}
-
-	public List<RuntimeException> getExceptions() {
-		return queueToList(exceptions);
 	}
 
 	private <T> List<T> queueToList(Queue<T> jsons) {
@@ -64,37 +57,40 @@ public class RequestOnSearchPeers {
 	/**
 	 * @return JSONObjects as response from each distributed peer.
 	 */
-	public List<JSONObject> execute() {
+	public SearchPeerResponse execute() {
 		return requestOnSearchPeersInParallel();
 	}
 
-	private List<JSONObject> requestOnSearchPeersInParallel() {
+	private SearchPeerResponse requestOnSearchPeersInParallel() {
 		final Queue<JSONObject> jsons = new ConcurrentLinkedQueue<JSONObject>();
-		exceptions.clear();
+		final Queue<RuntimeException> exceptions = new ConcurrentLinkedQueue<RuntimeException>();
 
 		EntityCollection<DistributedPeer> distributedPeers = splunkService
 				.getDistributedPeers();
 		if (distributedPeers != null) {
 			ExecutorService executorService = Executors.newCachedThreadPool();
-			executeRequestsInParallel(jsons, distributedPeers, executorService);
+			executeRequestsInParallel(jsons, exceptions, distributedPeers,
+					executorService);
 			joinRequests(executorService);
 		}
-		return queueToList(jsons);
+		return new SearchPeerResponse(queueToList(jsons), queueToList(exceptions));
 	}
 
 	private void executeRequestsInParallel(final Queue<JSONObject> jsons,
+			final Queue<RuntimeException> exceptions,
 			EntityCollection<DistributedPeer> distributedPeers,
 			ExecutorService executorService) {
 		for (final DistributedPeer dp : distributedPeers.values())
 			executorService.submit(new Runnable() {
 				@Override
 				public void run() {
-					executeRequestOnPeer(dp, jsons);
+					executeRequestOnPeer(dp, jsons, exceptions);
 				}
 			}, null);
 	}
 
-	private void executeRequestOnPeer(DistributedPeer dp, Queue<JSONObject> jsons) {
+	private void executeRequestOnPeer(DistributedPeer dp,
+			Queue<JSONObject> jsons, Queue<RuntimeException> exceptions) {
 		try {
 			JSONObject json = requestOnSearchPeer.executeRequest(dp);
 			if (!Thread.currentThread().isInterrupted())
