@@ -15,8 +15,8 @@
 package com.splunk.shuttl.server.distributed;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
-import static java.util.Arrays.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -30,7 +30,6 @@ import com.amazonaws.util.json.JSONObject;
 import com.splunk.DistributedPeer;
 import com.splunk.EntityCollection;
 import com.splunk.Service;
-import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 import com.splunk.shuttl.archiver.thaw.SplunkConfiguration;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
 
@@ -55,11 +54,11 @@ public class RequestOnSearchPeers {
 	}
 
 	public List<RuntimeException> getExceptions() {
-		return queueToList(exceptions, new RuntimeException[0]);
+		return queueToList(exceptions);
 	}
 
-	private <T> List<T> queueToList(Queue<T> jsons, T[] t) {
-		return asList(jsons.toArray(t));
+	private <T> List<T> queueToList(Queue<T> jsons) {
+		return new ArrayList<T>(jsons);
 	}
 
 	/**
@@ -80,7 +79,7 @@ public class RequestOnSearchPeers {
 			executeRequestsInParallel(jsons, distributedPeers, executorService);
 			joinRequests(executorService);
 		}
-		return queueToList(jsons, new JSONObject[0]);
+		return queueToList(jsons);
 	}
 
 	private void executeRequestsInParallel(final Queue<JSONObject> jsons,
@@ -134,7 +133,6 @@ public class RequestOnSearchPeers {
 		Service splunkService = SplunkIndexedLayerFactory
 				.getLoggedInSplunkService();
 		return new RequestOnSearchPeers(splunkService, new RequestOnSearchPeer(
-				requestProvider, JsonRestEndpointCaller.create(),
-				SplunkConfiguration.create()));
+				requestProvider, SplunkConfiguration.create()));
 	}
 }
