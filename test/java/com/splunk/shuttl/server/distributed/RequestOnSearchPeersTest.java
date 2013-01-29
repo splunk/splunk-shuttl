@@ -50,7 +50,7 @@ public class RequestOnSearchPeersTest {
 		when(requestOnSearchPeer.executeRequest(any(DistributedPeer.class)))
 				.thenReturn(new JSONObject());
 
-		List<JSONObject> jsons = requestOnSearchPeers.execute();
+		List<JSONObject> jsons = requestOnSearchPeers.execute().jsons;
 		assertEquals(jsons.size(), 2);
 	}
 
@@ -61,7 +61,7 @@ public class RequestOnSearchPeersTest {
 
 	public void execute_noDistributedPeers_emptyList() {
 		mockServiceToReturnPeers();
-		List<JSONObject> actual = requestOnSearchPeers.execute();
+		List<JSONObject> actual = requestOnSearchPeers.execute().jsons;
 		assertEquals(actual, new ArrayList<DistributedPeer>());
 	}
 
@@ -70,7 +70,7 @@ public class RequestOnSearchPeersTest {
 		mockServiceToReturnPeers(failingPeer);
 		when(requestOnSearchPeer.executeRequest(failingPeer)).thenThrow(
 				new RuntimeException());
-		List<JSONObject> actual = requestOnSearchPeers.execute();
+		List<JSONObject> actual = requestOnSearchPeers.execute().jsons;
 		assertEquals(actual, new ArrayList<DistributedPeer>());
 	}
 
@@ -85,15 +85,14 @@ public class RequestOnSearchPeersTest {
 		when(requestOnSearchPeer.executeRequest(successfulPeer)).thenReturn(
 				successfulJson);
 
-		List<JSONObject> actual = requestOnSearchPeers.execute();
+		List<JSONObject> actual = requestOnSearchPeers.execute().jsons;
 		assertEquals(actual.size(), 1);
 		assertTrue(actual.get(0) == successfulJson);
 	}
 
 	public void getExceptions_noPeers_noExceptions() {
 		mockServiceToReturnPeers();
-		requestOnSearchPeers.execute();
-		List<RuntimeException> actual = requestOnSearchPeers.getExceptions();
+		List<RuntimeException> actual = requestOnSearchPeers.execute().exceptions;
 		assertEquals(actual, new ArrayList<RuntimeException>());
 	}
 
@@ -102,20 +101,7 @@ public class RequestOnSearchPeersTest {
 		RuntimeException exception = new RuntimeException();
 		when(requestOnSearchPeer.executeRequest(any(DistributedPeer.class)))
 				.thenThrow(exception);
-		requestOnSearchPeers.execute();
-		List<RuntimeException> exceptions = requestOnSearchPeers.getExceptions();
-		assertEquals(exceptions.size(), 1);
-		assertEquals(exceptions.get(0), exception);
-	}
-
-	public void getExceptions_onePeerThatThrows_exceptionsAreClearedEveryExecute() {
-		mockServiceToReturnPeers(mock(DistributedPeer.class));
-		RuntimeException exception = new RuntimeException();
-		when(requestOnSearchPeer.executeRequest(any(DistributedPeer.class)))
-				.thenThrow(exception);
-		requestOnSearchPeers.execute();
-		requestOnSearchPeers.execute();
-		List<RuntimeException> exceptions = requestOnSearchPeers.getExceptions();
+		List<RuntimeException> exceptions = requestOnSearchPeers.execute().exceptions;
 		assertEquals(exceptions.size(), 1);
 		assertEquals(exceptions.get(0), exception);
 	}

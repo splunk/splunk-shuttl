@@ -48,6 +48,7 @@ import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketSizeResolver;
 import com.splunk.shuttl.archiver.util.JsonUtils;
 import com.splunk.shuttl.server.distributed.RequestOnSearchPeers;
+import com.splunk.shuttl.server.distributed.SearchPeerResponse;
 import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 /**
@@ -77,7 +78,7 @@ public class ListBucketsEndpoint {
 		JSONObject json = JsonUtils.writeKeyValueAsJson(
 				JsonObjectNames.INDEX_COLLECTION, indexesLister.listIndexes());
 		List<JSONObject> jsons = RequestOnSearchPeers.createGet(
-				ENDPOINT_LIST_INDEXES, null, null, null).execute();
+				ENDPOINT_LIST_INDEXES, null, null, null).execute().jsons;
 		jsons.add(json);
 
 		JSONObject merge = JsonUtils.mergeJsonsWithKeys(jsons,
@@ -128,12 +129,12 @@ public class ListBucketsEndpoint {
 
 		RequestOnSearchPeers requestOnSearchPeers = RequestOnSearchPeers.createGet(
 				ShuttlConstants.ENDPOINT_LIST_BUCKETS, index, from, to);
-		List<JSONObject> jsons = requestOnSearchPeers.execute();
+		SearchPeerResponse peerResponse = requestOnSearchPeers.execute();
+		List<JSONObject> jsons = peerResponse.jsons;
 		jsons.add(jsonObject);
 
 		return RestUtil.mergeBucketCollectionsAndAddTotalSize(jsons)
-				.put(JsonObjectNames.EXCEPTIONS, requestOnSearchPeers.getExceptions())
-				.toString();
+				.put(JsonObjectNames.EXCEPTIONS, peerResponse.exceptions).toString();
 	}
 
 	private List<Bucket> getFilteredBucketsAtIndex(String index, Date fromDate,

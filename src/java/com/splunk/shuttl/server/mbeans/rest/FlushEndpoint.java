@@ -75,7 +75,7 @@ public class FlushEndpoint {
 				JsonObjectNames.FAILED_BUCKET_COLLECTION, errors);
 
 		List<JSONObject> jsons = RequestOnSearchPeers.createPost(
-				ENDPOINT_BUCKET_FLUSH, index, from, to).execute();
+				ENDPOINT_BUCKET_FLUSH, index, from, to).execute().jsons;
 		jsons.add(json);
 
 		return JsonUtils.mergeJsonsWithKeys(jsons,
