@@ -126,11 +126,14 @@ public class ListBucketsEndpoint {
 		JSONObject jsonObject = JsonUtils.writeKeyValueAsJson(
 				JsonObjectNames.BUCKET_COLLECTION, bucketsWithSize);
 
-		List<JSONObject> jsons = RequestOnSearchPeers.createGet(
-				ShuttlConstants.ENDPOINT_LIST_BUCKETS, index, from, to).execute();
+		RequestOnSearchPeers requestOnSearchPeers = RequestOnSearchPeers.createGet(
+				ShuttlConstants.ENDPOINT_LIST_BUCKETS, index, from, to);
+		List<JSONObject> jsons = requestOnSearchPeers.execute();
 		jsons.add(jsonObject);
 
-		return RestUtil.mergeBucketCollectionsAndAddTotalSize(jsons).toString();
+		return RestUtil.mergeBucketCollectionsAndAddTotalSize(jsons)
+				.put(JsonObjectNames.EXCEPTIONS, requestOnSearchPeers.getExceptions())
+				.toString();
 	}
 
 	private List<Bucket> getFilteredBucketsAtIndex(String index, Date fromDate,

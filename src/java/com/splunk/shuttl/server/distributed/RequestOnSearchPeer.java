@@ -24,22 +24,19 @@ import com.splunk.shuttl.archiver.thaw.SplunkConfiguration;
 public class RequestOnSearchPeer {
 
 	private final ShuttlEndpointRequestProvider requestProvider;
-	private final JsonRestEndpointCaller endpointCaller;
 	private final SplunkConfiguration splunkConf;
 
 	public RequestOnSearchPeer(ShuttlEndpointRequestProvider requestProvider,
-			JsonRestEndpointCaller endpointCaller,
 			SplunkConfiguration splunkConfiguration) {
 		this.requestProvider = requestProvider;
-		this.endpointCaller = endpointCaller;
 		this.splunkConf = splunkConfiguration;
 	}
 
 	public JSONObject executeRequest(DistributedPeer dp) {
 		Service dpService = getDistributedPeerService(dp);
 		int shuttlPort = ShuttlPortEndpoint.create(dpService).getShuttlPort();
-		return endpointCaller.getJson(requestProvider.createRequest(
-				dpService.getHost(), shuttlPort));
+		return JsonRestEndpointCaller.create().getJson(
+				requestProvider.createRequest(dpService.getHost(), shuttlPort));
 	}
 
 	private Service getDistributedPeerService(DistributedPeer dp) {

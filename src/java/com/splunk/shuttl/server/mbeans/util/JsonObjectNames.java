@@ -26,5 +26,6 @@ public class JsonObjectNames {
 	public static final String FAILED_BUCKET_COLLECTION = "failed";
 	public static final String INDEX_COLLECTION = "indexes";
 	public static final String SERVER_NAME = "server_name";
+	public static final String EXCEPTIONS = "exceptions";
 
 }
