@@ -38,6 +38,9 @@ import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
  */
 public class RequestOnSearchPeers {
 
+	private static final int REQUEST_JOIN_TIMEOUT_IN_SECONDS = 90;
+	private static final int ADDITIONAL_TIMEOUT_PER_REQUEST_IN_SECONDS = 15;
+
 	private static final Logger logger = Logger
 			.getLogger(RequestOnSearchPeers.class);
 
@@ -71,7 +74,7 @@ public class RequestOnSearchPeers {
 			ExecutorService executorService = Executors.newCachedThreadPool();
 			executeRequestsInParallel(jsons, exceptions, distributedPeers,
 					executorService);
-			joinRequests(executorService);
+			joinRequests(executorService, distributedPeers.size());
 		}
 		return new SearchPeerResponse(queueToList(jsons), queueToList(exceptions));
 	}
@@ -80,13 +83,14 @@ public class RequestOnSearchPeers {
 			final Queue<RuntimeException> exceptions,
 			EntityCollection<DistributedPeer> distributedPeers,
 			ExecutorService executorService) {
-		for (final DistributedPeer dp : distributedPeers.values())
+		for (final DistributedPeer dp : distributedPeers.values()) {
 			executorService.submit(new Runnable() {
 				@Override
 				public void run() {
 					executeRequestOnPeer(dp, jsons, exceptions);
 				}
 			}, null);
+		}
 	}
 
 	private void executeRequestOnPeer(DistributedPeer dp,
@@ -103,15 +107,21 @@ public class RequestOnSearchPeers {
 		}
 	}
 
-	private void joinRequests(ExecutorService executorService) {
+	private void joinRequests(ExecutorService executorService, int requests) {
 		try {
 			executorService.shutdown();
-			executorService.awaitTermination(10, TimeUnit.SECONDS);
+			executorService.awaitTermination(getJoinRequestTimeout(requests),
+					TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			logger.warn(warn("waited for executor to finish", e, "will do nothing"));
 		} finally {
 			executorService.shutdownNow();
 		}
+	}
+
+	private int getJoinRequestTimeout(int requests) {
+		return REQUEST_JOIN_TIMEOUT_IN_SECONDS + requests
+				* ADDITIONAL_TIMEOUT_PER_REQUEST_IN_SECONDS;
 	}
 
 	public static RequestOnSearchPeers createPost(String endpoint, String index,
