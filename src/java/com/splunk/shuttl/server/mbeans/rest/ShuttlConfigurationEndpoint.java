@@ -16,16 +16,15 @@ package com.splunk.shuttl.server.mbeans.rest;
 
 import static com.splunk.shuttl.ShuttlConstants.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.management.InstanceNotFoundException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.splunk.shuttl.archiver.util.JsonUtils;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 @Path(ENDPOINT_SHUTTL_CONFIGURATION)
 public class ShuttlConfigurationEndpoint {
@@ -35,9 +34,8 @@ public class ShuttlConfigurationEndpoint {
 	@Path(ENDPOINT_CONFIG_SERVERNAME)
 	public String getServerName() {
 		String serverName = getConfiguredServerName();
-		Map<String, Object> hashMap = new HashMap<String, Object>();
-		hashMap.put("server_name", serverName);
-		return RestUtil.writeMapAsJson(hashMap);
+		return JsonUtils.writeKeyValueAsJson(JsonObjectNames.SERVER_NAME,
+				serverName).toString();
 	}
 
 	private String getConfiguredServerName() {

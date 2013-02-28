@@ -104,7 +104,7 @@ class Archiving(controllers.BaseController):
                 errors = [ "<h1>Got a NON 200 status code!</h1>", 
                     "Index response:", indexesResponse[0], indexesResponse[1] ]
 
-        indexes = sorted(indexes)
+        indexes = sorted(indexes.get('indexes'))
         
         logger.debug('show - indexes: %s (%s)' % (indexes, type(indexes)))
 
@@ -143,10 +143,25 @@ class Archiving(controllers.BaseController):
 
         buckets['SUPER_HEADER'] = SUPER_HEADER
         buckets['buckets_NO_DATA_MSG'] = "No buckets in that range!"
+        buckets['buckets_TOTAL_SIZE'] = self.bytes_to_size(buckets['buckets_TOTAL_SIZE']) 
+        
+        buckets['buckets'] = self.set_bucket_sizes_to_human_readable_format(buckets['buckets'])
 
         logger.debug('list_buckets - buckets: %s (%s)' % (buckets, type(buckets)))
 
         return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=buckets, errors=errors))
+
+    def bytes_to_size(self, num):
+        for x in ['bytes','KB','MB','GB', 'TB']:
+            if num < 1024.0:
+                return "%3.1f %s" % (num, x)
+            num /= 1024.0
+        return "%3.1f %s" % (num, 'PB')
+
+    def set_bucket_sizes_to_human_readable_format(self, buckets):
+        for bucket in buckets:
+            bucket['size'] = self.bytes_to_size(bucket['size'])
+        return buckets
 
     # Attempts to flush buckets in a specific index and time range
     @expose_page(must_login=True, trim_spaces=True, methods=['POST'])

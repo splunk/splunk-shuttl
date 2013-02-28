@@ -19,12 +19,12 @@ package com.splunk.shuttl.archiver.clustering;
  */
 public class CallsRemoteIndexer {
 
-	private final ShuttlPortEndpointProvider entityProvider;
+	private final ShuttlPortEndpointProvider shuttlPortEndpointProvider;
 	private final RemoteShuttl remoteShuttl;
 
 	public CallsRemoteIndexer(ShuttlPortEndpointProvider entityProvider,
 			RemoteShuttl remoteShuttl) {
-		this.entityProvider = entityProvider;
+		this.shuttlPortEndpointProvider = entityProvider;
 		this.remoteShuttl = remoteShuttl;
 	}
 
@@ -34,7 +34,7 @@ public class CallsRemoteIndexer {
 	}
 
 	private int getShuttlPort(IndexerInfo indexerInfo) {
-		return entityProvider.getForIndexerInfo(indexerInfo).getShuttlPort();
+		return shuttlPortEndpointProvider.getForIndexerInfo(indexerInfo).getShuttlPort();
 	}
 
 	public static CallsRemoteIndexer create() {

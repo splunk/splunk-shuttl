@@ -19,7 +19,9 @@ import static com.splunk.shuttl.ShuttlConstants.*;
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -28,8 +30,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.util.ajax.JSON;
 
+import com.amazonaws.util.json.JSONArray;
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
+import com.splunk.shuttl.ShuttlConstants;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
@@ -41,20 +46,24 @@ import com.splunk.shuttl.archiver.listers.ListsBucketsFilteredFactory;
 import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.thaw.BucketSizeResolver;
+import com.splunk.shuttl.archiver.util.JsonUtils;
+import com.splunk.shuttl.server.distributed.RequestOnSearchPeers;
+import com.splunk.shuttl.server.distributed.SearchPeerResponse;
+import com.splunk.shuttl.server.mbeans.util.JsonObjectNames;
 
 /**
  * Endpoint for listing buckets in the archive.
  */
 @Path(ENDPOINT_ARCHIVER)
 public class ListBucketsEndpoint {
+
 	private static final org.apache.log4j.Logger logger = Logger
 			.getLogger(ListBucketsEndpoint.class);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(ENDPOINT_LIST_INDEXES)
-	public String listAllIndexes() {
-
+	public String listAllIndexes() throws JSONException {
 		logger.info(happened("Received REST request to list indexes", "endpoint",
 				ENDPOINT_LIST_INDEXES));
 
@@ -66,7 +75,24 @@ public class ListBucketsEndpoint {
 		ArchivedIndexesLister indexesLister = new ArchivedIndexesLister(
 				pathResolver, archiveFileSystem);
 
-		return JSON.getDefault().toJSON(indexesLister.listIndexes());
+		JSONObject json = JsonUtils.writeKeyValueAsJson(
+				JsonObjectNames.INDEX_COLLECTION, indexesLister.listIndexes());
+		List<JSONObject> jsons = RequestOnSearchPeers.createGet(
+				ENDPOINT_LIST_INDEXES, null, null, null).execute().jsons;
+		jsons.add(json);
+
+		JSONObject merge = JsonUtils.mergeJsonsWithKeys(jsons,
+				JsonObjectNames.INDEX_COLLECTION);
+		return uniqifyIndexes(merge).toString();
+	}
+
+	private JSONObject uniqifyIndexes(JSONObject json) throws JSONException {
+		JSONArray jsonArray = json.getJSONArray(JsonObjectNames.INDEX_COLLECTION);
+		Set<String> uniqueIndexes = new HashSet<String>();
+		for (int i = 0; i < jsonArray.length(); i++)
+			uniqueIndexes.add(jsonArray.getString(i));
+		return JsonUtils.writeKeyValueAsJson(JsonObjectNames.INDEX_COLLECTION,
+				uniqueIndexes);
 	}
 
 	@GET
@@ -77,18 +103,38 @@ public class ListBucketsEndpoint {
 		logger.info(happened("Received REST request to list buckets", "endpoint",
 				ENDPOINT_LIST_BUCKETS, "index", index, "from", from, "to", to));
 
+		try {
+			return doListBucketsForIndex(index, from, to);
+		} catch (Throwable t) {
+			logger.error(did("tried to list buckets", t, "to list bucket", "index",
+					index, "from", from, "to", to));
+			throw new RuntimeException(t);
+		}
+	}
+
+	private String doListBucketsForIndex(String index, String from, String to)
+			throws JSONException {
 		Date fromDate = RestUtil.getValidFromDate(from);
 		Date toDate = RestUtil.getValidToDate(to);
 
 		List<Bucket> filteredBucketsAtIndex = getFilteredBucketsAtIndex(index,
 				fromDate, toDate);
 
-		List<Bucket> buckets = filteredBucketsAtIndex;
 		List<Bucket> bucketsWithSize = new java.util.ArrayList<Bucket>();
-		for (Bucket b : buckets)
+		for (Bucket b : filteredBucketsAtIndex)
 			bucketsWithSize.add(getBucketWithSize(b));
 
-		return RestUtil.respondWithBuckets(bucketsWithSize);
+		JSONObject jsonObject = JsonUtils.writeKeyValueAsJson(
+				JsonObjectNames.BUCKET_COLLECTION, bucketsWithSize);
+
+		RequestOnSearchPeers requestOnSearchPeers = RequestOnSearchPeers.createGet(
+				ShuttlConstants.ENDPOINT_LIST_BUCKETS, index, from, to);
+		SearchPeerResponse peerResponse = requestOnSearchPeers.execute();
+		List<JSONObject> jsons = peerResponse.jsons;
+		jsons.add(jsonObject);
+
+		return RestUtil.mergeBucketCollectionsAndAddTotalSize(jsons)
+				.put(JsonObjectNames.EXCEPTIONS, peerResponse.exceptions).toString();
 	}
 
 	private List<Bucket> getFilteredBucketsAtIndex(String index, Date fromDate,
@@ -119,4 +165,5 @@ public class ListBucketsEndpoint {
 		return new BucketSizeResolver(ArchiveBucketSize.create(new PathResolver(
 				config), archiveFileSystem, localFileSystemPaths));
 	}
+
 }

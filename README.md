@@ -55,13 +55,13 @@ You can download it [Splunk][splunk-download].  And see the [Splunk documentatio
 
 ### Hadoop (optional)
 
-This is needed if you are using HDFS. Currently the Hadoop version used is 1.0.3
+This is needed if you are using HDFS. Currently the Hadoop version used is 1.1.1
 
 You can download it from one of the [mirror sites][hadoop-download].
 And see the [Hadoop documentation][] for instructions on installing and more.
 
-[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.0.3
-[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.0.3
+[hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.1.1
+[Hadoop documentation]:http://hadoop.apache.org/common/docs/r1.1.1
 
 
 Development

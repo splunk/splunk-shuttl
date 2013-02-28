@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.testutil.TUtilsEndToEnd;
 import com.splunk.shuttl.testutil.TUtilsIp;
 
 @Test(groups = { "cluster-test" })
@@ -33,11 +34,12 @@ public class ClusterConfigTest {
 			String masterPort, String slavePort, String splunkUser, String splunkPass)
 			throws UnknownHostException {
 		String splunkHost = TUtilsIp.getLocalHostIp();
-		Service slaveService = new Service(splunkHost, Integer.parseInt(slavePort));
-		slaveService.login(splunkUser, splunkPass);
+		Service slaveService = TUtilsEndToEnd.getLoggedInService(splunkHost,
+				slavePort, splunkUser, splunkPass);
 		ClusterConfig clusterConfig = new ClusterConfig(slaveService);
 
-		URI expected = URI.create("https://" + splunkHost + ":" + masterPort);
-		assertEquals(clusterConfig.getClusterMasterUri(), expected);
+		URI clusterMasterUri = clusterConfig.getClusterMasterUri();
+		assertEquals("https", clusterMasterUri.getScheme());
+		assertEquals(Integer.parseInt(masterPort), clusterMasterUri.getPort());
 	}
 }

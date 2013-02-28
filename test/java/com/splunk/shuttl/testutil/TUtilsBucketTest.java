@@ -218,6 +218,11 @@ public class TUtilsBucketTest {
 		assertEquals("foo", b.getIndex());
 	}
 
+	public void createBucketWithIndex_givenIndex_hasIndex() {
+		LocalBucket b = TUtilsBucket.createBucketWithIndex("index");
+		assertEquals(b.getIndex(), "index");
+	}
+
 	@Test(groups = { "slow-unit" })
 	public void createRealSplunkBucketTgz_createSuccess_bucketHasSplunkBucketTgzFormat() {
 		assertEquals(BucketFormat.SPLUNK_BUCKET_TGZ, TUtilsBucket

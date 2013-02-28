@@ -32,7 +32,6 @@ import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketArchiver;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerFactory;
 import com.splunk.shuttl.archiver.flush.Flusher;
-import com.splunk.shuttl.archiver.listers.ArchivedIndexesListerFactory;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -87,8 +86,7 @@ public class FlusherFunctionalTest {
 
 		assertArchivingAndThawingWasSuccessful(b1, b2);
 
-		Flusher flusher = new Flusher(splunkIndexesLayer,
-				ArchivedIndexesListerFactory.create(config));
+		Flusher flusher = new Flusher(splunkIndexesLayer);
 		flusher.flush(index, later, later);
 
 		List<Bucket> flushedBuckets = flusher.getFlushedBuckets();

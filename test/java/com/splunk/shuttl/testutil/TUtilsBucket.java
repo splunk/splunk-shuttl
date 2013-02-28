@@ -60,7 +60,7 @@ public class TUtilsBucket {
 	}
 
 	private static String randomIndexName() {
-		return "index-" + System.currentTimeMillis();
+		return "index-" + RandomUtils.nextInt();
 	}
 
 	private static String randomBucketName() {
@@ -329,5 +329,10 @@ public class TUtilsBucket {
 
 	public static LocalBucket createReplicatedBucket(String guid) {
 		return createReplicatedBucket(randomIndexName(), createDirectory(), guid);
+	}
+
+	public static LocalBucket createBucketWithIndex(String index) {
+		return TUtilsBucket.createBucketInDirectoryWithIndex(createDirectory(),
+				index);
 	}
 }

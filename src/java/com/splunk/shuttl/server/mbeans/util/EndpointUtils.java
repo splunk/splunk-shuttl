@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -34,28 +35,52 @@ public class EndpointUtils {
 
 	public static HttpPost createCopyBucketPostRequest(String shuttlHost,
 			int shuttlPort, LocalBucket bucket) {
-		URI copyBucketEndpoint = URI.create("http://" + shuttlHost + ":"
-				+ shuttlPort + "/" + ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER
-				+ ENDPOINT_BUCKET_COPY);
-		HttpPost postRequest = createHttpPost(copyBucketEndpoint, "path", bucket
-				.getDirectory().getAbsolutePath(), "index", bucket.getIndex());
+		return createArchiverPostRequest(shuttlHost, shuttlPort, bucket
+				.getDirectory().getAbsolutePath(), bucket.getIndex(),
+				ENDPOINT_BUCKET_COPY);
+	}
+
+	public static HttpPost createArchiveBucketPostRequest(String shuttlHost,
+			int shuttlPort, String bucketPath, String index) {
+		return createArchiverPostRequest(shuttlHost, shuttlPort, bucketPath, index,
+				ENDPOINT_BUCKET_ARCHIVE);
+	}
+
+	private static HttpPost createArchiverPostRequest(String shuttlHost,
+			int shuttlPort, String bucketPath, String index, String endpoint) {
+		URI copyBucketEndpoint = getShuttlEndpointUri(shuttlHost, shuttlPort,
+				endpoint);
+		HttpPost postRequest = createHttpPost(copyBucketEndpoint, "path",
+				bucketPath, "index", index);
 		return postRequest;
 	}
 
-	/**
-	 * @param endpoint
-	 * @param POST
-	 *          key values
-	 */
+	public static URI getShuttlEndpointUri(String shuttlHost, int shuttlPort,
+			String endpoint) {
+		URI copyBucketEndpoint = URI.create("http://" + shuttlHost + ":"
+				+ shuttlPort + "/" + ENDPOINT_CONTEXT + ENDPOINT_ARCHIVER + endpoint);
+		return copyBucketEndpoint;
+	}
+
 	public static HttpPost createHttpPost(URI endpoint, Object... kvs) {
 		HttpPost httpPost = new HttpPost(endpoint);
-
-		List<BasicNameValuePair> postParams = new ArrayList<BasicNameValuePair>();
-		for (int i = 0; i < kvs.length; i += 2)
-			postParams.add(createNameValuePair(kvs[i], kvs[i + 1]));
-
-		setParamsToPostRequest(httpPost, postParams);
+		setParamsToPostRequest(httpPost, createHttpParams(kvs));
 		return httpPost;
+	}
+
+	private static List<BasicNameValuePair> createHttpParams(Object... kvs) {
+		List<BasicNameValuePair> postParams = new ArrayList<BasicNameValuePair>();
+		for (int i = 0; i < kvs.length; i += 2) {
+			Object key = kvs[i];
+			Object value = kvs[i + 1];
+			if (value != null)
+				postParams.add(createNameValuePair(key, value));
+		}
+		return postParams;
+	}
+
+	public static String createHttpGetParams(Object... kvs) {
+		return URLEncodedUtils.format(createHttpParams(kvs), "utf-8");
 	}
 
 	private static BasicNameValuePair createNameValuePair(Object name,
