@@ -148,7 +148,7 @@ class Archiving(controllers.BaseController):
         buckets['buckets'] = self.set_bucket_sizes_to_human_readable_format(buckets['buckets'])
 
         logger.debug('list_buckets - buckets: %s (%s)' % (buckets, type(buckets)))
-
+        buckets.pop("exceptions", None)
         return self.render_template('/shuttl:/templates/bucket_list.html', dict(tables=buckets, errors=errors))
 
     def bytes_to_size(self, num):
