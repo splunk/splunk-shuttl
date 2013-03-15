@@ -56,8 +56,10 @@ public class ArchivedIndexesLister {
 		String indexesHome = pathResolver.getIndexesHome();
 		List<String> indexPaths = listIndexesPathsOnArchiveFileSystem(indexesHome);
 		List<String> indexes = new ArrayList<String>();
-		for (String path : indexPaths)
-			indexes.add(FilenameUtils.getName(path));
+		for (String path : indexPaths) {
+			indexes.add(FilenameUtils.getName(FilenameUtils
+					.normalizeNoEndSeparator(path)));
+		}
 		return indexes;
 	}
 
