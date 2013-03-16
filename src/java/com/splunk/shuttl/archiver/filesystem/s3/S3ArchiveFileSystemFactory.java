@@ -46,7 +46,8 @@ public class S3ArchiveFileSystemFactory {
 	}
 
 	private static ArchiveFileSystem create(String scheme) {
-		URI s3Uri = createS3UriForHadoopFileSystem(scheme);
+		AWSCredentialsImpl credentials = AWSCredentialsImpl.create();
+		URI s3Uri = createS3UriForHadoopFileSystem(scheme, credentials);
 
 		try {
 			return new HadoopArchiveFileSystem(FileSystem.get(s3Uri,
@@ -56,8 +57,8 @@ public class S3ArchiveFileSystemFactory {
 		}
 	}
 
-	private static URI createS3UriForHadoopFileSystem(String scheme) {
-		AWSCredentialsImpl credentials = AWSCredentialsImpl.create();
+	public static URI createS3UriForHadoopFileSystem(String scheme,
+			AWSCredentialsImpl credentials) {
 		return URI.create(scheme + "://"
 				+ urlEncode(credentials.getAWSAccessKeyId()) + ":"
 				+ urlEncode(credentials.getAWSSecretKey()) + "@"
