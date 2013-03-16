@@ -15,7 +15,9 @@
 package com.splunk.shuttl.archiver.filesystem.s3;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -56,7 +58,17 @@ public class S3ArchiveFileSystemFactory {
 
 	private static URI createS3UriForHadoopFileSystem(String scheme) {
 		AWSCredentialsImpl credentials = AWSCredentialsImpl.create();
-		return URI.create(scheme + "://" + credentials.getAWSAccessKeyId() + ":"
-				+ credentials.getAWSSecretKey() + "@" + credentials.getS3Bucket());
+		return URI.create(scheme + "://"
+				+ urlEncode(credentials.getAWSAccessKeyId()) + ":"
+				+ urlEncode(credentials.getAWSSecretKey()) + "@"
+				+ urlEncode(credentials.getS3Bucket()));
+	}
+
+	private static String urlEncode(String s) {
+		try {
+			return URLEncoder.encode(s, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
