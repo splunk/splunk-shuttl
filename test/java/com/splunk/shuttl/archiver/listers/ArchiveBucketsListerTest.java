@@ -106,4 +106,25 @@ public class ArchiveBucketsListerTest {
 					.isBucketEqualOnIndexFormatAndName(bucket1, bucket)
 					|| TUtilsTestNG.isBucketEqualOnIndexFormatAndName(bucket2, bucket));
 	}
+
+	public void listBucketsInIndex_givenBucketsThatEndWithFileSeparator_returnListWithBucket()
+			throws IOException {
+		String basePath = "/path/to/bucketsHome/";
+		String index = "index";
+		String bucketName = "bucket";
+		String bucketPathWithFileSeparator = basePath + bucketName + "/";
+		List<String> bucketsInBucketsHome = Arrays
+				.asList(bucketPathWithFileSeparator);
+		when(archiveFileSystem.listPath(anyString())).thenReturn(
+				bucketsInBucketsHome);
+		when(pathResolver.resolveIndexFromPathToBucket(anyString())).thenReturn(
+				index);
+
+		List<Bucket> buckets = archiveBucketsLister.listBucketsInIndex(index);
+		assertEquals(1, buckets.size());
+		Bucket bucket1 = new Bucket(bucketPathWithFileSeparator, index, bucketName,
+				null);
+		assertTrue(TUtilsTestNG.isBucketEqualOnIndexFormatAndName(buckets.get(0),
+				bucket1));
+	}
 }

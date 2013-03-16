@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.thaw;
 
+import static java.util.Arrays.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
@@ -109,5 +110,17 @@ public class BucketFormatResolverTest {
 				.resolveBucketsFormats(mockedBucketsList);
 		assertEquals(1, bucketsWithFormat.size());
 		assertEquals(path, bucketsWithFormat.get(0).getPath());
+	}
+
+	public void getBucketFormats_givenPathWithoutFileSeparator_bucketFormat() {
+		List<BucketFormat> bucketFormats = bucketFormatResolver
+				.getBucketFormats(asList("/path/" + BucketFormat.SPLUNK_BUCKET));
+		assertEquals(bucketFormats.get(0), BucketFormat.SPLUNK_BUCKET);
+	}
+
+	public void getBucketFormats_givenPathWithFileSeparator_bucketFormat() {
+		List<BucketFormat> bucketFormats = bucketFormatResolver
+				.getBucketFormats(asList("/path/" + BucketFormat.SPLUNK_BUCKET + "/"));
+		assertEquals(bucketFormats.get(0), BucketFormat.SPLUNK_BUCKET);
 	}
 }

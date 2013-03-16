@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
@@ -28,6 +27,7 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.RemoteBucket;
+import com.splunk.shuttl.archiver.util.UtilsPath;
 
 /**
  * Lists {@link Bucket}s in an {@link ArchiveFileSystem}.
@@ -102,7 +102,7 @@ public class ArchiveBucketsLister {
 
 	private Bucket createBucketFromPathToBucket(String pathToBucket) {
 		String bucketIndex = pathResolver.resolveIndexFromPathToBucket(pathToBucket);
-		String bucketName = FilenameUtils.getBaseName(pathToBucket);
+		String bucketName = UtilsPath.getNameOfPath(pathToBucket);
 		return this.createBucketWithErrorHandling(pathToBucket, bucketIndex,
 				bucketName);
 	}

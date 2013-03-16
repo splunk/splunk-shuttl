@@ -20,11 +20,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.PathResolver;
+import com.splunk.shuttl.archiver.util.UtilsPath;
 
 /**
  * Lists indexes in an {@link ArchiveFileSystem}
@@ -57,8 +57,7 @@ public class ArchivedIndexesLister {
 		List<String> indexPaths = listIndexesPathsOnArchiveFileSystem(indexesHome);
 		List<String> indexes = new ArrayList<String>();
 		for (String path : indexPaths) {
-			indexes.add(FilenameUtils.getName(FilenameUtils
-					.normalizeNoEndSeparator(path)));
+			indexes.add(UtilsPath.getNameOfPath(path));
 		}
 		return indexes;
 	}
