@@ -39,6 +39,13 @@ public class S3ArchiveFileSystemFactoryTest {
 		assertEquals(uri.getHost(), "bucket");
 	}
 
+	@Test(expectedExceptions = { RuntimeException.class })
+	public void s3UriForHadoop_s3BucketNameHasUnderscore_throwsAnExceptions() {
+		S3ArchiveFileSystemFactory.createS3UriForHadoopFileSystem("scheme",
+				new AWSCredentialsImpl("id", "secret", null, "bucket_with_underscores",
+						null));
+	}
+
 	public void s3UriForHadoop_secretWithSpecialSymbols_validUri() {
 		URI uri = S3ArchiveFileSystemFactory.createS3UriForHadoopFileSystem(
 				"scheme",
