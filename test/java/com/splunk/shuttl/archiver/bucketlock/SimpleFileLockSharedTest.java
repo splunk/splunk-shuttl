@@ -42,7 +42,9 @@ public class SimpleFileLockSharedTest {
 			SimpleFileLockSharedTest.class.getName() + "-fileToLock");
 
 	private static final int GOT_SHARED_LOCK = 5;
-	private static final int NO_SHARED_LOCK = GOT_SHARED_LOCK - 1;
+	private static final int NO_SHARED_LOCK = 4;
+	private static final int GOT_EXCLUSIVE_LOCK = 10;
+	private static final int NO_EXCLUSIVE_LOCK = 11;
 	private static final int DATA = 18;
 
 	SimpleFileLock simpleLock;
@@ -74,13 +76,13 @@ public class SimpleFileLockSharedTest {
 	public void tryLockShared_noLockOnFile_acquiresLockAndCannotBeLockWithTryLock()
 			throws IOException {
 		otherJvmLocker.runClassAsync(LockShared_Release.class);
-		waitForOtherJvmToTrySharedLock();
+		waitForOtherJvmToTryLock();
 		assertFalse(simpleLock.tryLockExclusive());
 		signalOtherJvmToFinish();
 		assertEquals(GOT_SHARED_LOCK, (int) otherJvmLocker.getExitCode());
 	}
 
-	private void waitForOtherJvmToTrySharedLock() throws IOException {
+	private void waitForOtherJvmToTryLock() throws IOException {
 		InputStream in = otherJvmLocker.getInputStreamFromClass();
 		in.read();
 	}
@@ -97,7 +99,7 @@ public class SimpleFileLockSharedTest {
 		assertTrue(simpleLock.tryLockExclusive());
 		assertTrue(simpleLock.tryConvertExclusiveToSharedLock());
 		otherJvmLocker.runClassAsync(LockShared_Release.class);
-		waitForOtherJvmToTrySharedLock();
+		waitForOtherJvmToTryLock();
 		simpleLock.closeLock();
 
 		// Should not acquire lock even though we just closed it, because of the
@@ -113,10 +115,43 @@ public class SimpleFileLockSharedTest {
 			throws IOException {
 		assertTrue(simpleLock.tryLockExclusive());
 		otherJvmLocker.runClassAsync(LockShared_Release.class);
-		waitForOtherJvmToTrySharedLock();
+		waitForOtherJvmToTryLock();
 		signalOtherJvmToFinish();
 		simpleLock.closeLock();
 		assertEquals(NO_SHARED_LOCK, (int) otherJvmLocker.getExitCode());
+	}
+
+	@Test(timeOut = 3000)
+	public void tryLockExclusive_fileIsLockedExclusive_otherJvmCannotGetExclusiveLock()
+			throws IOException {
+		assertTrue(simpleLock.tryLockExclusive());
+		otherJvmLocker.runClassAsync(LockExclusive_Release.class);
+		waitForOtherJvmToTryLock();
+		signalOtherJvmToFinish();
+		simpleLock.closeLock();
+		assertEquals(NO_EXCLUSIVE_LOCK, (int) otherJvmLocker.getExitCode());
+	}
+
+	@Test(timeOut = 3000)
+	public void tryLockExclusive_otherJvmGetsExclusiveLock_thisJvmCannotGetExclusiveLock()
+			throws IOException {
+		otherJvmLocker.runClassAsync(LockExclusive_Release.class);
+		waitForOtherJvmToTryLock();
+		assertFalse(simpleLock.tryLockExclusive());
+		signalOtherJvmToFinish();
+		simpleLock.closeLock();
+		assertEquals(GOT_EXCLUSIVE_LOCK, (int) otherJvmLocker.getExitCode());
+	}
+
+	@Test(timeOut = 3000)
+	public void tryLockExclusive_otherJvmGetsExclusiveLockThenGetsKilled_thisJvmGetsExclusiveLock()
+			throws IOException {
+		otherJvmLocker.runClassAsync(LockExclusive_Release.class);
+		waitForOtherJvmToTryLock();
+		assertFalse(simpleLock.tryLockExclusive());
+		otherJvmLocker.kill();
+		assertTrue(simpleLock.tryLockExclusive());
+		simpleLock.closeLock();
 	}
 
 	private static SimpleFileLock getSimpleFileLock() {
@@ -142,15 +177,36 @@ public class SimpleFileLockSharedTest {
 			else
 				System.exit(NO_SHARED_LOCK);
 		}
+	}
 
-		private static void writeData() {
-			System.out.write(DATA);
-			System.out.flush();
-		}
+	private static void writeData() {
+		System.out.write(DATA);
+		System.out.flush();
+	}
 
-		private static void readData() throws IOException {
-			InputStream in = System.in;
-			in.read();
+	private static void readData() throws IOException {
+		InputStream in = System.in;
+		in.read();
+	}
+
+	/**
+	 * Communicates via stdin and stdout, to synchronize that calls are made in
+	 * the right order. This class first locks a {@link SimpleFileLock} with a
+	 * shared lock, writes to stdout and waits for a response. It releases the
+	 * lock once it has gotten a response.
+	 */
+	private static class LockExclusive_Release {
+		@SuppressWarnings("unused")
+		public static void main(String[] args) throws IOException {
+			SimpleFileLock exclusiveLock = getSimpleFileLock();
+			boolean lockExclusive = exclusiveLock.tryLockExclusive();
+			writeData(); // Notifies that it's first action has been made
+			readData(); // Waits until it can go again.
+			exclusiveLock.closeLock();
+			if (lockExclusive)
+				System.exit(GOT_EXCLUSIVE_LOCK);
+			else
+				System.exit(NO_EXCLUSIVE_LOCK);
 		}
 	}
 }

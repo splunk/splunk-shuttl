@@ -16,6 +16,8 @@ package com.splunk.shuttl.archiver.archive;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
@@ -34,29 +36,36 @@ public class BucketShuttlerRunner implements Runnable {
 
 	private final BucketShuttler bucketShuttler;
 	private final LocalBucket bucket;
-	private final BucketLock bucketLock;
+	private final List<BucketLock> bucketLocks;
 
 	/**
 	 * @param bucketShuttler
 	 *          for shuttling a bucket.
 	 * @param bucket
 	 *          to shuttl.
-	 * @param bucketLock
+	 * @param bucketLocks
 	 *          which is already locked.
 	 */
 	public BucketShuttlerRunner(BucketShuttler bucketShuttler,
-			LocalBucket bucket, BucketLock bucketLock) {
-		if (!bucketLock.isLocked())
-			throw new NotLockedException("Bucket Lock has to be locked already"
-					+ " before archiving bucket");
+			LocalBucket bucket, List<BucketLock> bucketLocks) {
 		this.bucketShuttler = bucketShuttler;
 		this.bucket = bucket;
-		this.bucketLock = bucketLock;
+		this.bucketLocks = bucketLocks;
+		if (!locksAreLocked())
+			throw new NotLockedException("Bucket Lock has to be locked already"
+					+ " before archiving bucket");
+	}
+
+	private boolean locksAreLocked() {
+		for (BucketLock lock : bucketLocks)
+			if (!lock.isLocked())
+				return false;
+		return true;
 	}
 
 	@Override
 	public void run() {
-		if (bucketLock.isLocked())
+		if (locksAreLocked())
 			archiveBucket();
 		else
 			handleErrorThatBucketShouldStillBeLocked();
@@ -79,8 +88,13 @@ public class BucketShuttlerRunner implements Runnable {
 			bucketShuttler.shuttlBucket(bucket);
 			logger.info(done("Archived bucket", "bucket", bucket));
 		} finally {
-			bucketLock.deleteLockFile();
-			bucketLock.closeLock();
+			for (BucketLock lock : bucketLocks)
+				cleanLock(lock);
 		}
+	}
+
+	private void cleanLock(BucketLock lock) {
+		lock.deleteLockFile();
+		lock.closeLock();
 	}
 }

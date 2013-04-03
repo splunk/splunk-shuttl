@@ -177,4 +177,9 @@ public class LocalFileSystemPathsTest {
 		assertBucketUniquePathInsideArchiverDirectory(localFileSystemPaths
 				.getCopyLocksDirectory(bucket));
 	}
+
+	public void getTransferLocksDirectory_bucket_uniquePerBucket() {
+		assertBucketUniquePathInsideArchiverDirectory(localFileSystemPaths
+				.getTransferLocksDirectory(bucket));
+	}
 }

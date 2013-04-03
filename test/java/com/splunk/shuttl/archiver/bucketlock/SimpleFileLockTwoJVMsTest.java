@@ -24,7 +24,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.shuttl.archiver.bucketlock.SimpleFileLock;
 import com.splunk.shuttl.testutil.ShellClassRunner;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
@@ -35,6 +34,8 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 public class SimpleFileLockTwoJVMsTest {
 
 	static final Integer EXIT_STATUS_ON_FALSE_LOCK = 47;
+	static final Integer EXIT_STATUS_ON_TRUE_LOCK = 48;
+
 	static File fileToLock = new File(SimpleFileLockTwoJVMsTest.class.getName()
 			+ "-fileToLock");
 	SimpleFileLock simpleFileLock;
@@ -63,7 +64,7 @@ public class SimpleFileLockTwoJVMsTest {
 	public void tryLockExclusive_inOtherJvmAfterLockingInThisJvm_false() {
 		assertTrue(simpleFileLock.tryLockExclusive());
 		ShellClassRunner otherJvmRunner = new ShellClassRunner();
-		otherJvmRunner.runClassAsync(FalseLockInOtherJVM.class);
+		otherJvmRunner.runClassAsync(LockInOtherJVM.class);
 
 		assertEquals(EXIT_STATUS_ON_FALSE_LOCK, otherJvmRunner.getExitCode());
 	}
@@ -72,16 +73,16 @@ public class SimpleFileLockTwoJVMsTest {
 		return SimpleFileLock.createFromFile(fileToLock);
 	}
 
-	private static class FalseLockInOtherJVM {
+	private static class LockInOtherJVM {
 
 		// It's launched with the ShellClassRunner.
 		@SuppressWarnings("unused")
 		public static void main(String[] args) {
 			SimpleFileLock simpleFileLock = getSimpleFileLock();
-			if (!simpleFileLock.tryLockExclusive())
-				System.exit(EXIT_STATUS_ON_FALSE_LOCK);
+			if (simpleFileLock.tryLockExclusive())
+				System.exit(EXIT_STATUS_ON_TRUE_LOCK);
 			else
-				System.exit(-1);
+				System.exit(EXIT_STATUS_ON_FALSE_LOCK);
 		}
 	}
 }

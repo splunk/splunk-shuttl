@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.archive;
 
+import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
 
 import org.testng.annotations.BeforeMethod;
@@ -38,14 +39,14 @@ public class BucketShuttlerRunnerTest {
 		bucketLock = mock(BucketLock.class);
 		when(bucketLock.isLocked()).thenReturn(true);
 		bucketArchiverRunner = new BucketShuttlerRunner(bucketShuttler, bucket,
-				bucketLock);
+				asList(bucketLock));
 	}
 
 	@Test(expectedExceptions = { NotLockedException.class })
 	public void constructor_bucketLockIsNotLocked_throwNotLockedException() {
 		BucketLock bucketLock = mock(BucketLock.class);
 		when(bucketLock.isLocked()).thenReturn(false);
-		new BucketShuttlerRunner(bucketShuttler, bucket, bucketLock);
+		new BucketShuttlerRunner(bucketShuttler, bucket, asList(bucketLock));
 	}
 
 	@Test(groups = { "fast-unit" })

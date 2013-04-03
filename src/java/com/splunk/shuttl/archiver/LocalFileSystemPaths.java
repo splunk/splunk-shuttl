@@ -55,6 +55,8 @@ public class LocalFileSystemPaths {
 
 	final String COPY_LOCKS_NAME = "copy-locks-dir";
 
+	final String PUT_TRANSFER_LOCKS_NAME = "put-transfers-locks-dir";
+
 	private final String archiverDirectoryPath;
 
 	public LocalFileSystemPaths(File directory) {
@@ -181,6 +183,11 @@ public class LocalFileSystemPaths {
 
 	public File getCopyLocksDirectory(Bucket bucket) {
 		return createBucketUniqueDirUnderArchiverDir(COPY_LOCKS_NAME, bucket);
+	}
+
+	public File getTransferLocksDirectory(Bucket bucket) {
+		return createBucketUniqueDirUnderArchiverDir(PUT_TRANSFER_LOCKS_NAME,
+				bucket);
 	}
 
 	public static LocalFileSystemPaths create() {

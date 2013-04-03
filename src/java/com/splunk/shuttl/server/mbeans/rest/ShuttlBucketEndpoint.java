@@ -15,11 +15,14 @@
 package com.splunk.shuttl.server.mbeans.rest;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
+import static java.util.Arrays.*;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.BucketShuttler;
@@ -86,15 +89,15 @@ public class ShuttlBucketEndpoint {
 
 	private void createAndRunBucketShuttling(String path, String index) {
 		LocalBucket bucket = createBucket(path, index);
-		BucketLock bucketLock = createBucketLock(bucket);
+		List<BucketLock> bucketLocks = createBucketLocks(bucket);
 		BucketShuttler bucketShuttler = createShuttler(bucket);
 		bucket = bucketModifier.modifyLocalBucket(bucket);
 
-		runShuttlerOnASeparateThread(bucket, bucketLock, bucketShuttler);
+		runShuttlerOnASeparateThread(bucket, bucketLocks, bucketShuttler);
 	}
 
 	private void runShuttlerOnASeparateThread(LocalBucket bucket,
-			BucketLock bucketLock, BucketShuttler bucketShuttler) {
+			List<BucketLock> bucketLock, BucketShuttler bucketShuttler) {
 		Runnable r = new BucketShuttlerRunner(bucketShuttler, bucket, bucketLock);
 		new Thread(r).run();
 	}
@@ -110,12 +113,18 @@ public class ShuttlBucketEndpoint {
 				new File(path), BucketFormat.SPLUNK_BUCKET);
 	}
 
-	private BucketLock createBucketLock(LocalBucket bucket) {
+	private List<BucketLock> createBucketLocks(LocalBucket bucket) {
 		BucketLock bucketLock = bucketLocker.getLockForBucket(bucket);
 		if (!bucketLock.tryLockShared())
 			throw new IllegalStateException("We must ensure that the"
 					+ " bucket archiver has a " + "lock to the bucket it will transfer");
-		return bucketLock;
-	}
 
+		BucketLock transferLock = new BucketTransferLocker(
+				LocalFileSystemPaths.create()).getLockForBucket(bucket);
+		if (!transferLock.tryLockExclusive())
+			throw new RuntimeException("Could not transfer bucket: " + bucket
+					+ ", because transfer lock was not accquired");
+
+		return asList(bucketLock, transferLock);
+	}
 }
