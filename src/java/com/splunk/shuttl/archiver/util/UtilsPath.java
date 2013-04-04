@@ -14,6 +14,7 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.util;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.Path;
 
 /**
@@ -37,6 +38,10 @@ public class UtilsPath {
 	public static Path createPathByAppending(Path pathThatWillBeAppended,
 			Path pathToAppend) {
 		return pathThatWillBeAppended.suffix(pathToAppend.toUri().getPath());
+	}
+
+	public static String getNameOfPath(String path) {
+		return FilenameUtils.getName(FilenameUtils.normalizeNoEndSeparator(path));
 	}
 
 }

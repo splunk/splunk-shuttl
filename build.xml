@@ -781,7 +781,6 @@
 			<target name="splunk-set-splunkd-port-and-password" />
 			<target name="install-shuttl-splunk-app" />
 			<target name="splunk-set-server-name" />
-			<target name="enable-shuttl-splunk-app" />
 		</antcall>
 	</target>
 
@@ -968,28 +967,6 @@
 		<exec executable="${splunk.home}/bin/splunk">
 			<arg line="restart" />
 		</exec>
-	</target>
-
-	<target name="enable-shuttl-splunk-app" depends="check-if-shuttl-is-enabled" unless="isShuttlAlreadyEnabled">
-		<var name="splunk.endpoint" value="services/apps/local/shuttl/enable" />
-
-		<var name="splunk.endpoint.options" value="" />
-
-		<antcall target="splunk-curl-post-call" />
-		<antcall target="splunkd-restart" />
-	</target>
-
-	<target name="check-if-shuttl-is-enabled" depends="set-splunk-home">
-		<exec executable="sh" outputproperty="isShuttlEnabled">
-			<arg value="-c" />
-			<arg value="${splunk.home}/bin/splunk display app -auth ${splunk.username}:${splunk.password} | grep shuttl | grep -o ENABLED || true" />
-		</exec>
-		<if>
-			<equals arg1="${isShuttlEnabled}" arg2="ENABLED" />
-			<then>
-				<property name="isShuttlAlreadyEnabled" value="true" />
-			</then>
-		</if>
 	</target>
 
 	<target name="splunk-teardown" depends="set-splunk-home,check-for-splunk-binary" if="existsSplunkBinary">
@@ -1206,7 +1183,6 @@
 			<target name="install-shuttl-splunk-app" />
 			<target name="manual-test-configure-shuttl-archiver-conf" />
 			<target name="manual-test-create-fast-rolling-index" />
-			<target name="enable-shuttl-splunk-app" />
 		</antcall>
 	</target>
 

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
@@ -29,6 +28,7 @@ import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
 import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.RemoteBucket;
+import com.splunk.shuttl.archiver.util.UtilsPath;
 
 /**
  * Uses {@link ArchiveFileSystem} and {@link PathResolver} to list available
@@ -102,10 +102,10 @@ public class BucketFormatResolver {
 		}
 	}
 
-	private List<BucketFormat> getBucketFormats(List<String> formatPaths) {
+	public List<BucketFormat> getBucketFormats(List<String> formatPaths) {
 		List<BucketFormat> formats = new ArrayList<BucketFormat>();
 		for (String path : formatPaths) {
-			String formatName = FilenameUtils.getName(path);
+			String formatName = UtilsPath.getNameOfPath(path);
 			formats.add(BucketFormat.valueOf(formatName));
 		}
 		return formats;

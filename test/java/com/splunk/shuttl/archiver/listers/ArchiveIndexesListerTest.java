@@ -60,11 +60,20 @@ public class ArchiveIndexesListerTest {
 			throws IOException {
 		String index1 = "dir1";
 		String index2 = "dir2";
-		List<String> pathsToIndexDirectories = Arrays.asList(
-				"/valid/path/" + index1, "/valid/path/" + index2);
+		List<String> pathsToIndexDirectories = Arrays.asList("/valid/path/"
+				+ index1, "/valid/path/" + index2);
 		when(fileSystem.listPath(anyString())).thenReturn(pathsToIndexDirectories);
 		List<String> listIndexes = archivedIndexesLister.listIndexes();
 		assertEquals(listIndexes, Arrays.asList(index1, index2));
+	}
+
+	public void listIndexes_givenDirectoryThatEndsWithFileSeparator_listsDirectory()
+			throws IOException {
+		String index = "dir/";
+		when(fileSystem.listPath(anyString())).thenReturn(
+				Arrays.asList("/valid/path/" + index));
+		List<String> listIndexes = archivedIndexesLister.listIndexes();
+		assertEquals(Arrays.asList("dir"), listIndexes);
 	}
 
 }
