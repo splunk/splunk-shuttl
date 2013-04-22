@@ -14,7 +14,12 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.retry;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
+import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
+import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
+import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandler;
 
 /**
@@ -24,23 +29,23 @@ public class PeriodicallyTransferRetrier implements Runnable {
 
 	private final FailedBucketsArchiver failedBucketsArchiver;
 	private final SharedLockBucketHandler sharedLockBucketHandler;
-	private final long retryTime;
+	private final long retryTimeInMs;
 
 	private boolean stop = false;
 
 	public PeriodicallyTransferRetrier(
 			FailedBucketsArchiver failedBucketsArchiver,
-			SharedLockBucketHandler sharedLockBucketHandler, long retryTime) {
+			SharedLockBucketHandler sharedLockBucketHandler, long retryTimeInMs) {
 		this.failedBucketsArchiver = failedBucketsArchiver;
 		this.sharedLockBucketHandler = sharedLockBucketHandler;
-		this.retryTime = retryTime;
+		this.retryTimeInMs = retryTimeInMs;
 	}
 
 	@Override
 	public void run() {
 		while (!stop && !Thread.currentThread().isInterrupted()) {
 			try {
-				Thread.sleep(retryTime);
+				Thread.sleep(retryTimeInMs);
 			} catch (InterruptedException e) {
 				return;
 			}
@@ -55,4 +60,25 @@ public class PeriodicallyTransferRetrier implements Runnable {
 		stop = true;
 	}
 
+	public static void main(String[] args) throws InterruptedException {
+		long retryEveryMinute = 1000 * 60;
+
+		PeriodicallyTransferRetrier retrier = createRetrier(retryEveryMinute);
+
+		Thread thread = new Thread(retrier);
+		thread.start();
+		thread.join();
+	}
+
+	private static PeriodicallyTransferRetrier createRetrier(long retryTimeInMs) {
+		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
+				.create(LocalFileSystemPaths.create().getSafeDirectory());
+		BucketLocker bucketLocker = new ArchiveBucketLocker();
+		FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
+				bucketMover, bucketLocker);
+		ArchiveRestHandler archiveRestHandler = ArchiveRestHandler.create();
+
+		return new PeriodicallyTransferRetrier(failedBucketsArchiver,
+				archiveRestHandler, retryTimeInMs);
+	}
 }
