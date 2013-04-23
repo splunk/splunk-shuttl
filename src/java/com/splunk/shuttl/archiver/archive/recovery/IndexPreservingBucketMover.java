@@ -107,9 +107,11 @@ public class IndexPreservingBucketMover {
 		String index = file.getName();
 		File[] bucketsInIndex = file.listFiles();
 		if (bucketsInIndex != null)
-			for (File bucket : bucketsInIndex)
-				movedBuckets.add(BucketFactory.createBucketWithIndexDirectoryAndFormat(
-						index, bucket, ONLY_VALID_BUCKET_FORMAT));
+			for (File f : bucketsInIndex)
+				if (f.isDirectory())
+					movedBuckets.add(BucketFactory
+							.createBucketWithIndexDirectoryAndFormat(index, f,
+									ONLY_VALID_BUCKET_FORMAT));
 	}
 
 	/**

@@ -16,6 +16,8 @@ package com.splunk.shuttl.archiver.archive.recovery;
 
 import static com.splunk.shuttl.archiver.LogFormatter.*;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
@@ -52,10 +54,12 @@ public class FailedBucketsArchiver {
 	 *          possible to get a lock on the bucket.
 	 */
 	public void archiveFailedBuckets(SharedLockBucketHandler bucketHandler) {
-		logger.debug(will("Archiving failed buckets", "failed buckets",
-				bucketMover.getMovedBuckets()));
+		List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
+		if (!movedBuckets.isEmpty())
+			logger.info(will("Archiving failed buckets", "failed buckets",
+					movedBuckets));
 
-		for (Bucket movedBucket : bucketMover.getMovedBuckets())
+		for (Bucket movedBucket : movedBuckets)
 			bucketLocker.callBucketHandlerUnderSharedLock(movedBucket, bucketHandler);
 	}
 

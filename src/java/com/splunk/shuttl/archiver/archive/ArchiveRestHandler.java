@@ -69,6 +69,7 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 		try {
 			HttpUriRequest archiveBucketRequest = createBucketArchiveRequest(bucket);
 			response = executeArchiveBucketRequest(bucket, archiveBucketRequest);
+			handleResponseFromDoingArchiveBucketRequest(response, bucket);
 		} catch (HttpResponseException e) {
 			logHttpResponseException(bucket, e);
 		} catch (IOException e) {
@@ -102,9 +103,7 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 			ClientProtocolException, HttpResponseException {
 		logger.debug(will("Send an archive bucket request", "request_uri",
 				archiveBucketRequest.getURI()));
-		HttpResponse response = httpClient.execute(archiveBucketRequest);
-		handleResponseFromDoingArchiveBucketRequest(response, bucket);
-		return response;
+		return httpClient.execute(archiveBucketRequest);
 	}
 
 	private void handleResponseFromDoingArchiveBucketRequest(
@@ -174,7 +173,8 @@ public class ArchiveRestHandler implements SharedLockBucketHandler {
 	 */
 	@Override
 	public void bucketWasLocked(Bucket bucket) {
-		// Do nothing.
+		logger.debug(warn("Wanted to archive bucket", "bucket was already locked",
+				"Won't do anything about this", "bucket", bucket));
 	}
 
 	public static ArchiveRestHandler create() {

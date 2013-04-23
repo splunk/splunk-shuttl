@@ -15,6 +15,7 @@
 package com.splunk.shuttl.archiver.retry;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
@@ -105,11 +106,20 @@ public class PeriodicallyTransferRetrierTest {
 	}
 
 	private void stopRetrier(Thread thread) throws InterruptedException {
+		stopRetrier(thread, retrier);
+	}
+
+	private void stopRetrier(Thread thread, PeriodicallyTransferRetrier retrier)
+			throws InterruptedException {
 		retrier.stop();
 		thread.join();
 	}
 
 	private Thread startRetrier() {
+		return startRetrier(retrier);
+	}
+
+	private Thread startRetrier(PeriodicallyTransferRetrier retrier) {
 		Thread thread = new Thread(retrier);
 		thread.start();
 		return thread;
@@ -185,4 +195,36 @@ public class PeriodicallyTransferRetrierTest {
 		assertFalse(wasBucketMovedAndFileAdded(bucket));
 	}
 
+	@Test(timeOut = 2000)
+	public void isRunning__trueWhenRetrierIsRunning() throws InterruptedException {
+		assertFalse(retrier.isRunning());
+		Thread thread = startRetrier();
+		waitForRetierToStartRunning();
+		stopRetrier(thread);
+		assertFalse(retrier.isRunning());
+	}
+
+	private void waitForRetierToStartRunning() {
+		waitForRetierToStartRunning(retrier);
+	}
+
+	private void waitForRetierToStartRunning(PeriodicallyTransferRetrier retrier) {
+		while (!retrier.isRunning())
+			Thread.yield();
+	}
+
+	@Test(timeOut = 2000)
+	public void _failedBucketArchiverThrowingException_stillContinuesToRetry()
+			throws InterruptedException {
+		FailedBucketsArchiver archiver = mock(FailedBucketsArchiver.class);
+		PeriodicallyTransferRetrier retrier = new PeriodicallyTransferRetrier(
+				archiver, null, 1);
+		doThrow(new RuntimeException()).when(archiver).archiveFailedBuckets(null);
+
+		Thread thread = startRetrier(retrier);
+		waitForRetierToStartRunning(retrier);
+		verify(archiver, atLeastOnce()).archiveFailedBuckets(null);
+		assertTrue(retrier.isRunning());
+		stopRetrier(thread, retrier);
+	}
 }

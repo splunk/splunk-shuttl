@@ -14,8 +14,13 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.retry;
 
+import static com.splunk.shuttl.archiver.LogFormatter.*;
+
+import org.apache.log4j.Logger;
+
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveRestHandler;
+import com.splunk.shuttl.archiver.archive.RegistersArchiverMBean;
 import com.splunk.shuttl.archiver.archive.recovery.ArchiveBucketLocker;
 import com.splunk.shuttl.archiver.archive.recovery.FailedBucketsArchiver;
 import com.splunk.shuttl.archiver.archive.recovery.IndexPreservingBucketMover;
@@ -27,11 +32,15 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandle
  */
 public class PeriodicallyTransferRetrier implements Runnable {
 
+	private static final Logger logger = Logger
+			.getLogger(PeriodicallyTransferRetrier.class);
+
 	private final FailedBucketsArchiver failedBucketsArchiver;
 	private final SharedLockBucketHandler sharedLockBucketHandler;
 	private final long retryTimeInMs;
 
 	private boolean stop = false;
+	private boolean isRunning = false;
 
 	public PeriodicallyTransferRetrier(
 			FailedBucketsArchiver failedBucketsArchiver,
@@ -43,13 +52,36 @@ public class PeriodicallyTransferRetrier implements Runnable {
 
 	@Override
 	public void run() {
+		isRunning = true;
+		try {
+			runLoop();
+		} finally {
+			isRunning = false;
+		}
+	}
+
+	private void runLoop() {
 		while (!stop && !Thread.currentThread().isInterrupted()) {
-			try {
-				Thread.sleep(retryTimeInMs);
-			} catch (InterruptedException e) {
-				return;
-			}
+			retryTransferBuckets();
+			waitAWhile();
+		}
+	}
+
+	private void retryTransferBuckets() {
+		try {
 			failedBucketsArchiver.archiveFailedBuckets(sharedLockBucketHandler);
+		} catch (Exception e) {
+			logger.info(did("Get an exception when retrying to archive buckets", e,
+					"that the retry of a failed archived bucket might work", "exception",
+					e));
+		}
+	}
+
+	private void waitAWhile() {
+		try {
+			Thread.sleep(retryTimeInMs);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -58,6 +90,10 @@ public class PeriodicallyTransferRetrier implements Runnable {
 	 */
 	public void stop() {
 		stop = true;
+	}
+
+	public boolean isRunning() {
+		return isRunning;
 	}
 
 	public static void main(String[] args) throws InterruptedException {
@@ -71,6 +107,8 @@ public class PeriodicallyTransferRetrier implements Runnable {
 	}
 
 	private static PeriodicallyTransferRetrier createRetrier(long retryTimeInMs) {
+		RegistersArchiverMBean.create().register();
+
 		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
 				.create(LocalFileSystemPaths.create().getSafeDirectory());
 		BucketLocker bucketLocker = new ArchiveBucketLocker();
