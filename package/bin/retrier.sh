@@ -21,4 +21,4 @@
 cd $SPLUNK_HOME/etc/apps/shuttl/bin
 
 source java_executable.env
-exec $JAVA -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.archiver.retry.PeriodicallyTransferRetrier
+exec $JAVA -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.archiver.retry.ColdToFrozenRetrier

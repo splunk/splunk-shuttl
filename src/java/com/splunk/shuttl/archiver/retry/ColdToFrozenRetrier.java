@@ -30,16 +30,15 @@ import com.splunk.shuttl.archiver.bucketlock.BucketLocker.SharedLockBucketHandle
 /**
  * Periodically retries to transfer buckets moved by the bucket mover.
  */
-public class PeriodicallyTransferRetrier implements Runnable {
+public class ColdToFrozenRetrier implements Runnable {
 
 	private static final Logger logger = Logger
-			.getLogger(PeriodicallyTransferRetrier.class);
+			.getLogger(ColdToFrozenRetrier.class);
 
 	private final FailedBucketsArchiver failedBucketsArchiver;
 	private final SharedLockBucketHandler sharedLockBucketHandler;
 
-	public PeriodicallyTransferRetrier(
-			FailedBucketsArchiver failedBucketsArchiver,
+	public ColdToFrozenRetrier(FailedBucketsArchiver failedBucketsArchiver,
 			SharedLockBucketHandler sharedLockBucketHandler) {
 		this.failedBucketsArchiver = failedBucketsArchiver;
 		this.sharedLockBucketHandler = sharedLockBucketHandler;
@@ -60,7 +59,7 @@ public class PeriodicallyTransferRetrier implements Runnable {
 		createRetrier().run();
 	}
 
-	private static PeriodicallyTransferRetrier createRetrier() {
+	private static ColdToFrozenRetrier createRetrier() {
 		RegistersArchiverMBean.create().register();
 
 		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
@@ -70,7 +69,6 @@ public class PeriodicallyTransferRetrier implements Runnable {
 				bucketMover, bucketLocker);
 		ArchiveRestHandler archiveRestHandler = ArchiveRestHandler.create();
 
-		return new PeriodicallyTransferRetrier(failedBucketsArchiver,
-				archiveRestHandler);
+		return new ColdToFrozenRetrier(failedBucketsArchiver, archiveRestHandler);
 	}
 }
