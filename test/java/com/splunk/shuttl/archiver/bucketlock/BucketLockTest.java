@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.model.Bucket;
+import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
 
 @Test(groups = { "fast-unit" })
@@ -71,5 +72,17 @@ public class BucketLockTest {
 		assertTrue(bucketLock.tryLockExclusive());
 		bucketLock.deleteLockFile();
 		assertFalse(bucketLock.getLockFile().exists());
+	}
+
+	public void _lockBucketThenReleaseThenLockAgain_getsLock() {
+		LocalBucket bucket = TUtilsBucket.createBucket();
+		BucketLock lock1 = new BucketLock(bucket, locksDirectory);
+		BucketLock lock2 = new BucketLock(bucket, locksDirectory);
+
+		assertTrue(lock1.tryLockExclusive());
+		assertTrue(lock1.tryConvertExclusiveToSharedLock());
+		lock1.closeLock();
+		assertTrue(lock2.tryLockExclusive());
+		lock2.closeLock();
 	}
 }

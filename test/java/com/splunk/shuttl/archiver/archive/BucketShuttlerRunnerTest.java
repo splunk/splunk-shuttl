@@ -56,7 +56,7 @@ public class BucketShuttlerRunnerTest {
 		verify(bucketLock).deleteLockFile();
 	}
 
-	public void run_failedArchiving_closesAndDeletesBucketLock() {
+	public void run_failedArchiving_closesLockButDoesNotDeleteIt() {
 		doThrow(new RuntimeException()).when(bucketShuttler).shuttlBucket(bucket);
 		try {
 			bucketArchiverRunner.run();
@@ -64,7 +64,7 @@ public class BucketShuttlerRunnerTest {
 			// Do nothing.
 		}
 		verify(bucketLock).closeLock();
-		verify(bucketLock).deleteLockFile();
+		verify(bucketLock, never()).deleteLockFile();
 	}
 
 	@Test(expectedExceptions = { IllegalStateException.class })

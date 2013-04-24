@@ -63,7 +63,8 @@ public class GroupRegex {
 					"Bucket name was not legal. Throwing IllegalBucketNameException",
 					"Bucket name to be legal", "bucket_name", value,
 					"legal_bucket_name_regex", regex));
-			throw new IllegalRegexGroupException();
+			throw new IllegalRegexGroupException("regex: " + regex + ", value: "
+					+ value);
 		}
 	}
 }

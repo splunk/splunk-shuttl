@@ -21,8 +21,8 @@ import com.splunk.shuttl.archiver.model.BucketName;
  */
 public class IllegalRegexGroupException extends RuntimeException {
 
-	public IllegalRegexGroupException() {
-		super();
+	public IllegalRegexGroupException(String msg) {
+		super(msg);
 	}
 
 	public IllegalRegexGroupException(IndexOutOfBoundsException e) {

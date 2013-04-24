@@ -76,6 +76,7 @@ public class BucketLockerCloseLockTest {
 
 	public void callBucketHandlerWithBucketSharedLock_givenRunnableThatThrowsException_closesLock() {
 		when(bucketLock.tryLockExclusive()).thenReturn(true);
+		when(bucketLock.tryConvertExclusiveToSharedLock()).thenReturn(true);
 		try {
 			bucketLocker.callBucketHandlerUnderSharedLock(mock(Bucket.class),
 					new SharedLockBucketHandler() {
