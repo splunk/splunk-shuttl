@@ -86,7 +86,7 @@ public class ColdToFrozenRetryEndToEndTest {
 	}
 
 	private File getScript() {
-		String coldToFrozenRetryScriptName = "retrier.sh";
+		String coldToFrozenRetryScriptName = "coldToFrozenRetry.sh";
 		File coldToFrozenRetryScript = new File(System.getenv("SPLUNK_HOME"),
 				"/etc/apps/shuttl/bin/" + coldToFrozenRetryScriptName);
 		assertTrue(coldToFrozenRetryScript.canExecute());
