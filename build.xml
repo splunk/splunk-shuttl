@@ -845,6 +845,7 @@
 		<antcall>
 			<target name="remove-shuttl-splunk-app" />
 			<target name="do-install-shuttl-splunk-app" />
+			<target name="retry-disable-cold-to-frozen" />
 		</antcall>
 	</target>
 
@@ -1067,7 +1068,16 @@
 	</target>
 
 	<!-- END Splunk cluster targets -->
-
+	
+	<!-- Retrier targets -->
+	<target name="retry-disable-cold-to-frozen">
+		<var name="splunk.endpoint" value="servicesNS/admin/shuttl/data/inputs/script/%24SPLUNK_HOME%252Fetc%252Fapps%252Fshuttl%252Fbin%252Fretrier.sh" />
+		<var name="splunk.endpoint.options" value="-d disabled=1" />
+		<antcall target="splunk-curl-post-call" />
+	</target>
+	
+	<!-- END Retrier targets -->
+	
 	<!-- Call with ${splunk.endpoint} and ${splunk.endpoint.data} set -->
 	<target name="splunk-curl-post-call" depends="splunk-start">
 		<fail unless="splunk.endpoint" message="property splunk.endpoint must be set before calling this target" />
