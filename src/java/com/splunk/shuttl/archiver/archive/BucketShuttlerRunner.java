@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
+import com.splunk.shuttl.archiver.bucketlock.BucketLockCleaner;
 import com.splunk.shuttl.archiver.bucketlock.SimpleFileLock.NotLockedException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
@@ -65,14 +66,44 @@ public class BucketShuttlerRunner implements Runnable {
 
 	@Override
 	public void run() {
+		Exception exception = null;
+		try {
+			archiveBucketsIfLocksAreAcquired();
+		} catch (Exception e) {
+			exception = e;
+			throwExceptionWrappedMaybe(e);
+		} finally {
+			cleanLocks(exception);
+		}
+	}
+
+	private void throwExceptionWrappedMaybe(Exception e) {
+		if (e instanceof RuntimeException)
+			throw (RuntimeException) e;
+		throw new RuntimeException(e);
+	}
+
+	private void cleanLocks(Exception exception) {
+		BucketLockCleaner.closeLocks(bucketLocks);
+		if (exception == null)
+			BucketLockCleaner.deleteLocks(bucketLocks);
+	}
+
+	private void archiveBucketsIfLocksAreAcquired() {
 		if (locksAreLocked())
 			archiveBucket();
 		else
 			handleErrorThatBucketShouldStillBeLocked();
 	}
 
+	private void archiveBucket() {
+		logger.info(will("Archiving bucket", "bucket", bucket));
+		bucketShuttler.shuttlBucket(bucket);
+		logger.info(done("Archived bucket", "bucket", bucket));
+	}
+
 	private void handleErrorThatBucketShouldStillBeLocked() {
-		logger.debug(did("Was going to archive bucket",
+		logger.error(did("Was going to archive bucket",
 				"Bucket was not locked before archiving it",
 				"Bucket must have been locked before archiving, "
 						+ "to make sure that it is safe to transfer "
@@ -80,21 +111,5 @@ public class BucketShuttlerRunner implements Runnable {
 				"bucket", bucket));
 		throw new IllegalStateException("Bucket should still be locked"
 				+ " when starting to archive " + "the bucket. Aborting archiving.");
-	}
-
-	private void archiveBucket() {
-		try {
-			logger.info(will("Archiving bucket", "bucket", bucket));
-			bucketShuttler.shuttlBucket(bucket);
-			logger.info(done("Archived bucket", "bucket", bucket));
-		} finally {
-			for (BucketLock lock : bucketLocks)
-				cleanLock(lock);
-		}
-	}
-
-	private void cleanLock(BucketLock lock) {
-		lock.deleteLockFile();
-		lock.closeLock();
 	}
 }

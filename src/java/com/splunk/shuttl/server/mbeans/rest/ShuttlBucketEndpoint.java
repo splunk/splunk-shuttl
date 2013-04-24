@@ -28,6 +28,7 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.archive.BucketShuttler;
 import com.splunk.shuttl.archiver.archive.BucketShuttlerRunner;
 import com.splunk.shuttl.archiver.bucketlock.BucketLock;
+import com.splunk.shuttl.archiver.bucketlock.BucketLockCleaner;
 import com.splunk.shuttl.archiver.bucketlock.BucketLocker;
 import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -90,10 +91,18 @@ public class ShuttlBucketEndpoint {
 	private void createAndRunBucketShuttling(String path, String index) {
 		LocalBucket bucket = createBucket(path, index);
 		List<BucketLock> bucketLocks = createBucketLocks(bucket);
-		BucketShuttler bucketShuttler = createShuttler(bucket);
-		bucket = bucketModifier.modifyLocalBucket(bucket);
+		shuttlWithLocks(bucket, bucketLocks);
+	}
 
-		runShuttlerOnASeparateThread(bucket, bucketLocks, bucketShuttler);
+	private void shuttlWithLocks(LocalBucket bucket, List<BucketLock> bucketLocks) {
+		try {
+			BucketShuttler bucketShuttler = createShuttler(bucket);
+			bucket = bucketModifier.modifyLocalBucket(bucket);
+
+			runShuttlerOnASeparateThread(bucket, bucketLocks, bucketShuttler);
+		} finally {
+			BucketLockCleaner.closeLocks(bucketLocks);
+		}
 	}
 
 	private void runShuttlerOnASeparateThread(LocalBucket bucket,
