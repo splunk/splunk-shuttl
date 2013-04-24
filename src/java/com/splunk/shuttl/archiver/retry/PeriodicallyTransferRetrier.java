@@ -37,37 +37,16 @@ public class PeriodicallyTransferRetrier implements Runnable {
 
 	private final FailedBucketsArchiver failedBucketsArchiver;
 	private final SharedLockBucketHandler sharedLockBucketHandler;
-	private final long retryTimeInMs;
-
-	private boolean stop = false;
-	private boolean isRunning = false;
 
 	public PeriodicallyTransferRetrier(
 			FailedBucketsArchiver failedBucketsArchiver,
-			SharedLockBucketHandler sharedLockBucketHandler, long retryTimeInMs) {
+			SharedLockBucketHandler sharedLockBucketHandler) {
 		this.failedBucketsArchiver = failedBucketsArchiver;
 		this.sharedLockBucketHandler = sharedLockBucketHandler;
-		this.retryTimeInMs = retryTimeInMs;
 	}
 
 	@Override
 	public void run() {
-		isRunning = true;
-		try {
-			runLoop();
-		} finally {
-			isRunning = false;
-		}
-	}
-
-	private void runLoop() {
-		while (!stop && !Thread.currentThread().isInterrupted()) {
-			retryTransferBuckets();
-			waitAWhile();
-		}
-	}
-
-	private void retryTransferBuckets() {
 		try {
 			failedBucketsArchiver.archiveFailedBuckets(sharedLockBucketHandler);
 		} catch (Exception e) {
@@ -77,36 +56,11 @@ public class PeriodicallyTransferRetrier implements Runnable {
 		}
 	}
 
-	private void waitAWhile() {
-		try {
-			Thread.sleep(retryTimeInMs);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Stops the retrier
-	 */
-	public void stop() {
-		stop = true;
-	}
-
-	public boolean isRunning() {
-		return isRunning;
-	}
-
 	public static void main(String[] args) throws InterruptedException {
-		long retryEveryMinute = 1000 * 60;
-
-		PeriodicallyTransferRetrier retrier = createRetrier(retryEveryMinute);
-
-		Thread thread = new Thread(retrier);
-		thread.start();
-		thread.join();
+		createRetrier().run();
 	}
 
-	private static PeriodicallyTransferRetrier createRetrier(long retryTimeInMs) {
+	private static PeriodicallyTransferRetrier createRetrier() {
 		RegistersArchiverMBean.create().register();
 
 		IndexPreservingBucketMover bucketMover = IndexPreservingBucketMover
@@ -117,6 +71,6 @@ public class PeriodicallyTransferRetrier implements Runnable {
 		ArchiveRestHandler archiveRestHandler = ArchiveRestHandler.create();
 
 		return new PeriodicallyTransferRetrier(failedBucketsArchiver,
-				archiveRestHandler, retryTimeInMs);
+				archiveRestHandler);
 	}
 }

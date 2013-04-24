@@ -15,12 +15,10 @@
 package com.splunk.shuttl.archiver.retry;
 
 import static com.splunk.shuttl.testutil.TUtilsFile.*;
-import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
@@ -41,7 +39,6 @@ import com.splunk.shuttl.testutil.TUtilsTestNG;
 public class PeriodicallyTransferRetrierTest {
 
 	private PeriodicallyTransferRetrier retrier;
-	private long retryTime;
 	private IndexPreservingBucketMover bucketMover;
 
 	private File safeBucketDirectory;
@@ -62,10 +59,9 @@ public class PeriodicallyTransferRetrierTest {
 		FailedBucketsArchiver failedBucketsArchiver = new FailedBucketsArchiver(
 				bucketMover, bucketLocker);
 
-		retryTime = 15;
 		addsFileToBucket = new AddsFileToBucket();
 		retrier = new PeriodicallyTransferRetrier(failedBucketsArchiver,
-				addsFileToBucket, retryTime);
+				addsFileToBucket);
 	}
 
 	private static class AddsFileToBucket implements SharedLockBucketHandler {
@@ -111,7 +107,6 @@ public class PeriodicallyTransferRetrierTest {
 
 	private void stopRetrier(Thread thread, PeriodicallyTransferRetrier retrier)
 			throws InterruptedException {
-		retrier.stop();
 		thread.join();
 	}
 
@@ -139,50 +134,19 @@ public class PeriodicallyTransferRetrierTest {
 		return movedBucket;
 	}
 
-	@Test(timeOut = 3000)
 	public void _anotherBucketAfterTheFirstOneHasBeenMoved_retriesBothBuckets()
 			throws InterruptedException {
 		LocalBucket first = TUtilsBucket.createBucket();
 		LocalBucket second = TUtilsBucket.createBucket();
 
 		bucketMover.moveBucket(first);
-
-		Thread thread = startRetrier();
-		waitUntilRetrierIsDoneWorking();
-		assertTrue(wasBucketMovedAndFileAdded(first));
-		deleteMovedBuckets();
-
 		bucketMover.moveBucket(second);
-		waitUntilRetrierIsDoneWorking();
 
-		stopRetrier(thread);
-		assertTrue(wasBucketMovedAndFileAdded(second));
-	}
+		retrier.run();
 
-	private void waitUntilRetrierIsDoneWorking() throws InterruptedException {
-		int counter = 0;
-		long timeout = 1000;
-		while (!fileHasBeenAddedToAllMovedBuckets())
-			if (++counter > timeout)
-				throw new RuntimeException(
-						"Waited too long for retrier to do its work.");
-			else
-				Thread.sleep(1);
-	}
-
-	private boolean fileHasBeenAddedToAllMovedBuckets() {
-		List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
-		if (movedBuckets.isEmpty())
-			return false;
-		for (Bucket b : movedBuckets)
-			if (!addsFileToBucket.getFileToAdd((LocalBucket) b).exists())
-				return false;
-		return true;
-	}
-
-	private void deleteMovedBuckets() {
 		for (Bucket b : bucketMover.getMovedBuckets())
-			FileUtils.deleteQuietly(((LocalBucket) b).getDirectory());
+			assertTrue(b.getName().equals(first.getName())
+					|| b.getName().equals(second.getName()));
 	}
 
 	public void _startingThenStoppingTheRetrier_doesNotRetryBucketsAfterHaveBeingStopped()
@@ -195,36 +159,4 @@ public class PeriodicallyTransferRetrierTest {
 		assertFalse(wasBucketMovedAndFileAdded(bucket));
 	}
 
-	@Test(timeOut = 2000)
-	public void isRunning__trueWhenRetrierIsRunning() throws InterruptedException {
-		assertFalse(retrier.isRunning());
-		Thread thread = startRetrier();
-		waitForRetierToStartRunning();
-		stopRetrier(thread);
-		assertFalse(retrier.isRunning());
-	}
-
-	private void waitForRetierToStartRunning() {
-		waitForRetierToStartRunning(retrier);
-	}
-
-	private void waitForRetierToStartRunning(PeriodicallyTransferRetrier retrier) {
-		while (!retrier.isRunning())
-			Thread.yield();
-	}
-
-	@Test(timeOut = 2000)
-	public void _failedBucketArchiverThrowingException_stillContinuesToRetry()
-			throws InterruptedException {
-		FailedBucketsArchiver archiver = mock(FailedBucketsArchiver.class);
-		PeriodicallyTransferRetrier retrier = new PeriodicallyTransferRetrier(
-				archiver, null, 1);
-		doThrow(new RuntimeException()).when(archiver).archiveFailedBuckets(null);
-
-		Thread thread = startRetrier(retrier);
-		waitForRetierToStartRunning(retrier);
-		verify(archiver, atLeastOnce()).archiveFailedBuckets(null);
-		assertTrue(retrier.isRunning());
-		stopRetrier(thread, retrier);
-	}
 }
