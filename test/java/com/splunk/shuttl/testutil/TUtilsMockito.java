@@ -26,8 +26,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicHttpResponse;
 
-import com.splunk.EntityCollection;
 import com.splunk.Index;
+import com.splunk.IndexCollection;
 import com.splunk.Service;
 
 /**
@@ -97,11 +97,10 @@ public class TUtilsMockito {
 	/**
 	 * @return {@link Service} that returns a thawLocationPath for indexName.
 	 */
-	@SuppressWarnings("unchecked")
 	public static Service createSplunkServiceReturningThawPathForIndex(
 			String indexName, String thawLocationPath) {
 		Service splunkService = mock(Service.class);
-		EntityCollection<Index> indexesMock = mock(EntityCollection.class);
+		IndexCollection indexesMock = mock(IndexCollection.class);
 		Index indexMock = mock(Index.class);
 
 		when(splunkService.getIndexes()).thenReturn(indexesMock);

@@ -12,6 +12,7 @@
       <!-- Add a second resolver to find jdo2-api/2.3-ec which hive depends on
       and which is oddly missing from the maven repos -->
       <ibiblio name="maven2" m2compatible="true" root="http://www.datanucleus.org/downloads/maven2" />
+      <ibiblio name="ext-release-local" m2compatible="true" root="http://splunk.artifactoryonline.com/splunk/ext-releases-local" />
       <ibiblio name="springsource-simple" m2compatible="true" root="http://repo.springsource.org/simple/ext-release-local" />
     </chain>
   </resolvers>
