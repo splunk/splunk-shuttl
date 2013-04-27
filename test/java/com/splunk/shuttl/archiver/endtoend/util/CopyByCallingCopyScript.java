@@ -45,7 +45,8 @@ public class CopyByCallingCopyScript implements CopiesBucket {
 
 	@Override
 	public void copyBucket(LocalBucket bucket) {
-		Service splunkService = SplunkIndexedLayerFactory.getLoggedInSplunkService();
+		Service splunkService = SplunkIndexedLayerFactory
+				.getLoggedInSplunkService();
 		Index index = splunkService.getIndexes().get(bucket.getIndex());
 		File indexColdDir = new File(index.getColdPathExpanded());
 		assertTrue(indexColdDir.exists());
@@ -67,17 +68,17 @@ public class CopyByCallingCopyScript implements CopiesBucket {
 		Map<String, String> env = new HashMap<String, String>();
 		env.put("SPLUNK_HOME", new File(splunkHome).getAbsolutePath());
 		List<String> command = createCommand(bucket, copyScript,
-				movedBucketDirectory);
+				movedBucketDirectory, "additional-parameter-to-sleep-the-script");
 		int exit = shellExecutor.executeCommand(env, command);
 		assertEquals(exit, 0);
 	}
 
 	private List<String> createCommand(LocalBucket bucket, File copyScript,
-			File movedBucketDirectory) {
+			File movedBucketDirectory, String additionalParameter) {
 		String scriptPath = copyScript.getAbsolutePath();
 		String bucketPath = bucket.getDirectory().getAbsolutePath();
 		String dirPath = movedBucketDirectory.getAbsolutePath();
-		return asList(scriptPath, bucketPath, dirPath);
+		return asList(scriptPath, bucketPath, dirPath, additionalParameter);
 	}
 
 	private File getCopyScript() {

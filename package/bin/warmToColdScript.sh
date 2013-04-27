@@ -39,3 +39,11 @@ mv $bucket $cold_path_destination
 
 source java_executable.env
 $JAVA -cp ./*:../lib/* com.splunk.shuttl.archiver.copy.ColdCopyEntryPoint "$cold_path_destination" &
+
+# The sleep below is for when testing the script through Java.
+# For some reason, the ColdCopyEntryPoint won't have time to start,
+# before the script ends. And it seems like all background processes
+# are killed/slayed when Java ends it's shell process.
+if [ "$#" -gt 2 ]; then
+  sleep 3 # Java sleep.
+fi
