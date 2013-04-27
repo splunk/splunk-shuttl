@@ -1071,7 +1071,7 @@
 	
 	<!-- Retrier targets -->
 	<target name="retry-disable-cold-to-frozen">
-		<var name="splunk.endpoint" value="servicesNS/admin/shuttl/data/inputs/script/%24SPLUNK_HOME%252Fetc%252Fapps%252Fshuttl%252Fbin%252Fretrier.sh" />
+		<var name="splunk.endpoint" value="servicesNS/admin/shuttl/data/inputs/script/%24SPLUNK_HOME%252Fetc%252Fapps%252Fshuttl%252Fbin%252FcoldToFrozenRetry.sh" />
 		<var name="splunk.endpoint.options" value="-d disabled=1" />
 		<antcall target="splunk-curl-post-call" />
 	</target>
