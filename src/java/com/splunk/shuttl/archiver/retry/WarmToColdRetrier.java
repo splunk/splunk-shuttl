@@ -14,11 +14,42 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.retry;
 
+import com.splunk.Service;
+import com.splunk.WarmToColdIndex;
+import com.splunk.WarmToColdIndexCollection;
+import com.splunk.shuttl.archiver.copy.ColdCopyEntryPoint;
+import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
+
 /**
  * Retries to copy any buckets that has failed to be transferred.
  */
-public class WarmToColdRetrier {
+public class WarmToColdRetrier implements Runnable {
+
+	private Service service;
+
+	public WarmToColdRetrier(Service service) {
+		this.service = service;
+	}
+
+	@Override
+	public void run() {
+		retryAllIndexesWithShuttlsWarmToColdScriptSet();
+	}
+
+	private void retryAllIndexesWithShuttlsWarmToColdScriptSet() {
+		WarmToColdIndexCollection indexCollection = new WarmToColdIndexCollection(
+				service);
+		String shuttlWarmToColdScript = "etc/apps/shuttl/bin/warmToColdScript.sh";
+
+		for (WarmToColdIndex index : indexCollection.values())
+			if (index.getWarmToColdScript().endsWith(shuttlWarmToColdScript))
+				ColdCopyEntryPoint.createColdBucketCopier().tryCopyingColdBuckets(
+						index.getName());
+	}
 
 	public static void main(String[] args) {
+		Service service = SplunkIndexedLayerFactory.getLoggedInSplunkService();
+		new WarmToColdRetrier(service).run();
 	}
+
 }
