@@ -18,7 +18,6 @@ import static java.util.Arrays.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
 import org.testng.annotations.Parameters;
@@ -37,33 +36,44 @@ import com.splunk.shuttl.testutil.TUtilsEnvironment;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
-@Test(groups = { "end-to-end" }, enabled = false)
+@Test(groups = { "end-to-end" })
 public class WarmToColdRetryEndToEndTest {
 
 	@Parameters(value = { "shuttl.conf.dir", "splunk.home" })
 	public void _bucketInColdDirectoryWithNoCopyReceipt_archivesBucket(
-			final String shuttlConfDir, final String splunkHome) {
+			final String shuttlConfDirPath, final String relativeSplunkHome) {
+		final File shuttlConfDir = new File(shuttlConfDirPath);
+		final String splunkHome = new File(relativeSplunkHome).getAbsolutePath();
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 			@Override
 			public void run() {
-				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
-				TUtilsMBean.runWithRegisteredMBeans(new File(shuttlConfDir),
-						new Runnable() {
-
-							@Override
-							public void run() {
-								LocalBucket bucket = putBucketInColdDirectory();
-								executeWarmToColdRetryScript(splunkHome);
-								assertBucketWasArchived(bucket);
-							}
-						});
+				try {
+					doRunTest(shuttlConfDir, splunkHome);
+				} finally {
+					TUtilsEndToEnd.cleanHadoopFileSystem(shuttlConfDir, splunkHome);
+				}
 			}
+
+			private void doRunTest(final File shuttlConfDir, final String splunkHome) {
+				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
+				TUtilsMBean.runWithRegisteredMBeans(shuttlConfDir, new Runnable() {
+
+					@Override
+					public void run() {
+						LocalBucket bucket = putBucketInColdDirectory();
+						executeWarmToColdRetryScript(splunkHome);
+						assertBucketWasArchived(bucket);
+					}
+				});
+			}
+
 		});
 	}
 
 	private LocalBucket putBucketInColdDirectory() {
-		return TUtilsBucket.createBucketInDirectory(getColdDirectory());
+		return TUtilsBucket.createBucketInDirectoryWithIndex(getColdDirectory(),
+				TUtilsEndToEnd.REAL_SPLUNK_INDEX);
 	}
 
 	private File getColdDirectory() {
@@ -75,7 +85,8 @@ public class WarmToColdRetryEndToEndTest {
 	private void executeWarmToColdRetryScript(String splunkHome) {
 		HashMap<String, String> env = new HashMap<String, String>();
 		env.put("SPLUNK_HOME", splunkHome);
-		int exit = ShellExecutor.getInstance().executeCommand(env,
+		ShellExecutor shellExecutor = ShellExecutor.getInstance();
+		int exit = shellExecutor.executeCommand(env,
 				asList(getWarmToColdRetryScript(splunkHome).getAbsolutePath()));
 		assertEquals(exit, 0);
 	}
@@ -96,7 +107,7 @@ public class WarmToColdRetryEndToEndTest {
 				.getWithConfiguration(config);
 		try {
 			assertTrue(archive.exists(pathResolver.resolveArchivePath(bucket)));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			TUtilsTestNG.failForException(null, e);
 		}
 	}

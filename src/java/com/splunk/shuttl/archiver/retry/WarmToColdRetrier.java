@@ -17,8 +17,12 @@ package com.splunk.shuttl.archiver.retry;
 import com.splunk.Service;
 import com.splunk.WarmToColdIndex;
 import com.splunk.WarmToColdIndexCollection;
+import com.splunk.shuttl.archiver.archive.RegistersArchiverMBean;
 import com.splunk.shuttl.archiver.copy.ColdCopyEntryPoint;
 import com.splunk.shuttl.archiver.thaw.SplunkIndexedLayerFactory;
+import com.splunk.shuttl.server.mbeans.JMXSplunk;
+import com.splunk.shuttl.server.mbeans.JMXSplunkMBean;
+import com.splunk.shuttl.server.mbeans.util.RegistersMBeans;
 
 /**
  * Retries to copy any buckets that has failed to be transferred.
@@ -39,17 +43,32 @@ public class WarmToColdRetrier implements Runnable {
 	private void retryAllIndexesWithShuttlsWarmToColdScriptSet() {
 		WarmToColdIndexCollection indexCollection = new WarmToColdIndexCollection(
 				service);
-		String shuttlWarmToColdScript = "etc/apps/shuttl/bin/warmToColdScript.sh";
 
 		for (WarmToColdIndex index : indexCollection.values())
-			if (index.getWarmToColdScript().endsWith(shuttlWarmToColdScript))
+			if (isWarmToColdScriptConfiguredToBeShuttlsScript(index))
 				ColdCopyEntryPoint.createColdBucketCopier().tryCopyingColdBuckets(
 						index.getName());
 	}
 
-	public static void main(String[] args) {
+	private boolean isWarmToColdScriptConfiguredToBeShuttlsScript(
+			WarmToColdIndex index) {
+		String shuttlWarmToColdScript = "etc/apps/shuttl/bin/warmToColdScript.sh";
+
+		return index.getWarmToColdScript() != null
+				&& index.getWarmToColdScript().endsWith(shuttlWarmToColdScript);
+	}
+
+	public static void main(String... args) {
+		registerMBeans();
+
 		Service service = SplunkIndexedLayerFactory.getLoggedInSplunkService();
 		new WarmToColdRetrier(service).run();
+	}
+
+	private static void registerMBeans() {
+		RegistersArchiverMBean.create().register();
+		RegistersMBeans registersMBeans = RegistersMBeans.create();
+		registersMBeans.registerMBean(JMXSplunkMBean.OBJECT_NAME, new JMXSplunk());
 	}
 
 }

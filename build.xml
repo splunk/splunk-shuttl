@@ -1087,7 +1087,7 @@
 		<mkdir dir="${shuttl.local.dir}" />
 		<touch file="${shuttl.local.indexes.conf}" />
 		<echo append="false" message="[shuttl]${line.separator}" file="${shuttl.local.indexes.conf}" />
-		<echo append="true" message="warmToColdScript = $SPLUNK_HOME/etc/apps/shuttl/warmToColdScript.sh" file="${shuttl.local.indexes.conf}" />
+		<echo append="true" message="warmToColdScript = $SPLUNK_HOME/etc/apps/shuttl/bin/warmToColdScript.sh" file="${shuttl.local.indexes.conf}" />
 	</target>
 
 	<!-- Call with ${splunk.endpoint} and ${splunk.endpoint.data} set -->
