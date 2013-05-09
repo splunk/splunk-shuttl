@@ -52,17 +52,17 @@ public class ColdCopyEntryPoint {
 	}
 
 	private static void callCopyBucketEndpointWithBucket(String indexName) {
-		ShuttlServerMBean serverMBean = ShuttlServer
-				.getRegisteredServerMBean(logger);
 		RegistersArchiverMBean.create().register();
 
-		ColdBucketCopier coldBucketCopier = createColdBucketCopier(serverMBean);
+		ColdBucketCopier coldBucketCopier = createColdBucketCopier();
 
 		coldBucketCopier.tryCopyingColdBuckets(indexName);
 	}
 
-	private static ColdBucketCopier createColdBucketCopier(
-			ShuttlServerMBean serverMBean) {
+	public static ColdBucketCopier createColdBucketCopier() {
+		ShuttlServerMBean serverMBean = ShuttlServer
+				.getRegisteredServerMBean(logger);
+		
 		CallCopyBucketEndpoint callCopyBucketEndpoint = CallCopyBucketEndpoint
 				.create(serverMBean);
 		LocalFileSystemPaths fileSystemPaths = LocalFileSystemPaths.create();

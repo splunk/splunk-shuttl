@@ -93,11 +93,10 @@ public class OverrideWithOldArchiverRootURIConfiguration {
 	}
 
 	private void overrideHdfs() {
-		overrideHdfsProperties(archiverRootURI.getHost(),
-				archiverRootURI.getPort(), overrideReason);
+		overrideHdfsProperties(archiverRootURI.getHost(), archiverRootURI.getPort());
 	}
 
-	private void overrideHdfsProperties(String host, int port, String reason) {
+	private void overrideHdfsProperties(String host, int port) {
 		try {
 			Properties props = new Properties();
 			props.setProperty("hadoop.host", host);
@@ -114,11 +113,10 @@ public class OverrideWithOldArchiverRootURIConfiguration {
 		String id = split[0];
 		String secret = split[1];
 		String bucket = archiverRootURI.getHost();
-		overrideS3Properties(id, secret, bucket, overrideReason);
+		overrideS3Properties(id, secret, bucket);
 	}
 
-	private void overrideS3Properties(String id, String secret, String bucket,
-			String reason) {
+	private void overrideS3Properties(String id, String secret, String bucket) {
 		try {
 			Properties props = new Properties();
 			props.setProperty("aws.id", id);

@@ -40,16 +40,16 @@ public class ShuttlArchiverMBeanArchiverRootURITest {
 
 	ShuttlArchiverMBean archiverMBean;
 
-	@Parameters(value = { "splunk.home" })
+	@Parameters(value = { "splunk.home", "hadoop.host", "hadoop.port" })
 	public void _givenArchiverRootURIWithHdfsScheme_setsBackendAndPathWithURIAndHadoopProperties(
-			final String splunkHome) {
+			final String splunkHome, final String hadoopHost, final String hadoopPort) {
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
 					TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
-					set_Backend_ArchivePath_AndHadoopProperties();
+					set_Backend_ArchivePath_AndHadoopProperties(hadoopHost, hadoopPort);
 				} catch (IOException e) {
 					TUtilsTestNG.failForException("Got IOException", e);
 				}
@@ -57,21 +57,44 @@ public class ShuttlArchiverMBeanArchiverRootURITest {
 		});
 	}
 
-	private void set_Backend_ArchivePath_AndHadoopProperties() throws IOException {
+	private void set_Backend_ArchivePath_AndHadoopProperties(String hadoopHost,
+			String hadoopPort) throws IOException {
+		File hdfsPropertiesFile = BackendConfigurationFiles.create().getByName(
+				HdfsProperties.HDFS_PROPERTIES_FILENAME);
+		try {
+			runHdfsTestCase(hdfsPropertiesFile);
+		} finally {
+			teardown(hadoopHost, hadoopPort, hdfsPropertiesFile);
+		}
+	}
+
+	private void runHdfsTestCase(File hdfsPropertiesFile) throws IOException {
 		String host = "thehost";
 		String port = "9876";
-		String archiverRootURI = "hdfs://" + host + ":" + port + "/archiver_root";
+		String archiverRootURI = createHdfsArchiverRootUri(host, port);
 
 		createArchiverMbeanWithArchiverRootURI(archiverRootURI);
 		assertEquals("hdfs", archiverMBean.getBackendName());
 		assertEquals("/archiver_root", archiverMBean.getArchivePath());
 
 		Properties hdfsProperties = new Properties();
-		File hdfsPropertiesFile = BackendConfigurationFiles.create().getByName(
-				HdfsProperties.HDFS_PROPERTIES_FILENAME);
 		hdfsProperties.load(FileUtils.openInputStream(hdfsPropertiesFile));
 		assertEquals(host, hdfsProperties.getProperty("hadoop.host"));
 		assertEquals(port, hdfsProperties.getProperty("hadoop.port"));
+	}
+
+	private void teardown(String hadoopHost, String hadoopPort,
+			File hdfsPropertiesFile) throws IOException {
+		createArchiverMbeanWithArchiverRootURI(createHdfsArchiverRootUri(
+				hadoopHost, hadoopPort));
+		Properties hdfsProperties = new Properties();
+		hdfsProperties.load(FileUtils.openInputStream(hdfsPropertiesFile));
+		assertEquals(hadoopHost, hdfsProperties.getProperty("hadoop.host"));
+		assertEquals(hadoopPort, hdfsProperties.getProperty("hadoop.port"));
+	}
+
+	private String createHdfsArchiverRootUri(String host, String port) {
+		return "hdfs://" + host + ":" + port + "/archiver_root";
 	}
 
 	private void createArchiverMbeanWithArchiverRootURI(String archiverRootURI)

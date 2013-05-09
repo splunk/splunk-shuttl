@@ -65,6 +65,9 @@
 	<!-- splunk cluster properties -->
 	<property name="cluster.config.endpoint" value="services/cluster/config/config" />
 
+	<!-- shuttl test environment properties -->
+	<property name="shuttl.local.dir" value="${splunk.extracted.dir}/etc/apps/shuttl/local" />
+	<property name="shuttl.local.indexes.conf" value="${shuttl.local.dir}/indexes.conf" />
 
 	<!-- ivy properties -->
 	<property name="ivy.utils" value="${contribdir}/ivy-utils" />
@@ -845,6 +848,9 @@
 		<antcall>
 			<target name="remove-shuttl-splunk-app" />
 			<target name="do-install-shuttl-splunk-app" />
+			<target name="retry-disable-cold-to-frozen" />
+			<target name="set-shuttl-warm-to-cold-script" />
+			<target name="splunkd-restart" />
 		</antcall>
 	</target>
 
@@ -1067,6 +1073,22 @@
 	</target>
 
 	<!-- END Splunk cluster targets -->
+
+	<!-- Retrier targets -->
+	<target name="retry-disable-cold-to-frozen">
+		<var name="splunk.endpoint" value="servicesNS/admin/shuttl/data/inputs/script/%24SPLUNK_HOME%252Fetc%252Fapps%252Fshuttl%252Fbin%252FcoldToFrozenRetry.sh" />
+		<var name="splunk.endpoint.options" value="-d disabled=1" />
+		<antcall target="splunk-curl-post-call" />
+	</target>
+
+	<!-- END Retrier targets -->
+
+	<target name="set-shuttl-warm-to-cold-script">
+		<mkdir dir="${shuttl.local.dir}" />
+		<touch file="${shuttl.local.indexes.conf}" />
+		<echo append="false" message="[shuttl]${line.separator}" file="${shuttl.local.indexes.conf}" />
+		<echo append="true" message="warmToColdScript = $SPLUNK_HOME/etc/apps/shuttl/bin/warmToColdScript.sh" file="${shuttl.local.indexes.conf}" />
+	</target>
 
 	<!-- Call with ${splunk.endpoint} and ${splunk.endpoint.data} set -->
 	<target name="splunk-curl-post-call" depends="splunk-start">

@@ -36,9 +36,9 @@ import com.splunk.shuttl.testutil.TUtilsBucket;
 import com.splunk.shuttl.testutil.TUtilsTestNG;
 
 @Test(groups = { "slow-unit" })
-public class PeriodicallyTransferRetrierTest {
+public class ColdToFrozenRetrierTest {
 
-	private PeriodicallyTransferRetrier retrier;
+	private ColdToFrozenRetrier retrier;
 	private IndexPreservingBucketMover bucketMover;
 
 	private File safeBucketDirectory;
@@ -60,7 +60,7 @@ public class PeriodicallyTransferRetrierTest {
 				bucketMover, bucketLocker);
 
 		addsFileToBucket = new AddsFileToBucket();
-		retrier = new PeriodicallyTransferRetrier(failedBucketsArchiver,
+		retrier = new ColdToFrozenRetrier(failedBucketsArchiver,
 				addsFileToBucket);
 	}
 
@@ -105,7 +105,7 @@ public class PeriodicallyTransferRetrierTest {
 		stopRetrier(thread, retrier);
 	}
 
-	private void stopRetrier(Thread thread, PeriodicallyTransferRetrier retrier)
+	private void stopRetrier(Thread thread, ColdToFrozenRetrier retrier)
 			throws InterruptedException {
 		thread.join();
 	}
@@ -114,7 +114,7 @@ public class PeriodicallyTransferRetrierTest {
 		return startRetrier(retrier);
 	}
 
-	private Thread startRetrier(PeriodicallyTransferRetrier retrier) {
+	private Thread startRetrier(ColdToFrozenRetrier retrier) {
 		Thread thread = new Thread(retrier);
 		thread.start();
 		return thread;

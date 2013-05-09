@@ -24,8 +24,8 @@ import java.io.File;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.splunk.EntityCollection;
 import com.splunk.Index;
+import com.splunk.IndexCollection;
 import com.splunk.Service;
 import com.splunk.shuttl.archiver.model.IllegalIndexException;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -62,9 +62,8 @@ public class ColdBucketInteratorTest {
 		assertEquals(buckets, actualBuckets);
 	}
 
-	@SuppressWarnings("unchecked")
 	private String stubSplunkIndexColdPath(String index) {
-		EntityCollection<Index> indexes = mock(EntityCollection.class);
+		IndexCollection indexes = mock(IndexCollection.class);
 		when(splunkService.getIndexes()).thenReturn(indexes);
 		Index splunkIndex = mock(Index.class);
 		when(indexes.get(index)).thenReturn(splunkIndex);
@@ -73,11 +72,10 @@ public class ColdBucketInteratorTest {
 		return coldPath;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test(expectedExceptions = { IllegalIndexException.class })
 	public void _givenServiceDoesNotHaveIndex_throws() {
 		when(splunkService.getIndexes()).thenReturn(
-				mock(EntityCollection.class, RETURNS_DEFAULTS));
+				mock(IndexCollection.class, RETURNS_DEFAULTS));
 		coldBucketInterator.coldBucketsAtIndex(index);
 	}
 }
