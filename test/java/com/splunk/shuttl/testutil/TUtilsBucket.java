@@ -316,8 +316,8 @@ public class TUtilsBucket {
 
 	public static String replaceEverythingAfterEarliestTimeWithIndexAndGuid(
 			String bucketName, long newBucketIndex, String guid) {
-		String bucketIndex = new BucketName(bucketName).getIndex();
-		int idx = bucketName.lastIndexOf(bucketIndex);
+		long bucketNumber = new BucketName(bucketName).getBucketNumber();
+		int idx = bucketName.lastIndexOf("" + bucketNumber);
 		String removedIndex = bucketName.substring(0, idx);
 		return removedIndex + newBucketIndex + "_" + guid;
 	}

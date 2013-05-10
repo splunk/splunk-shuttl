@@ -58,7 +58,7 @@ public class BucketIteratorFactory {
 			bucketName.getDB();
 			bucketName.getEarliest();
 			bucketName.getLatest();
-			bucketName.getIndex();
+			bucketName.getBucketNumber();
 		}
 	}
 

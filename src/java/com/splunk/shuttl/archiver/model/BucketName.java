@@ -89,15 +89,21 @@ public class BucketName {
 		return Long.parseLong(groupRegex.getValue(LATEST_GROUP));
 	}
 
-	/**
-	 * Throws {@link IllegalRegexGroupException} if name was not valid to get
-	 * Index.
+  /**
+	 * @throws {@link IllegalRegexGroupException} if name was not valid to get
+	 * number.
+	 * @throws {@link IllegalBucketNameException if the number is not a number.
 	 * 
-	 * @return index of the {@link Bucket}'s name.
+	 * @return number of the {@link Bucket}'s name.
 	 */
-	public String getIndex() {
+	public long getBucketNumber() {
 		validateBucketName();
-		return groupRegex.getValue(INDEX_GROUP);
+		String value = groupRegex.getValue(INDEX_GROUP);
+		try {
+			return Long.parseLong(value);
+		} catch (Exception e) {
+			throw new IllegalBucketNameException(e);
+		}
 	}
 
 	/*
@@ -128,6 +134,10 @@ public class BucketName {
 
 		public IllegalBucketNameException(String msg) {
 			super(msg);
+		}
+
+		public IllegalBucketNameException(Exception e) {
+			super(e);
 		}
 
 		private static final long serialVersionUID = 1L;

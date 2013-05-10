@@ -28,7 +28,7 @@ public class BucketNameTest {
 	String db;
 	long earliest;
 	long latest;
-	String index;
+	long index;
 	String guid;
 
 	private BucketName bucketName = null;
@@ -39,7 +39,7 @@ public class BucketNameTest {
 		db = "db";
 		earliest = 12345678;
 		latest = earliest + 100;
-		index = "index-1";
+		index = 123;
 		guid = "guid";
 		bucketName = null; // To avoid boiler plate BucketName for every test.
 
@@ -62,7 +62,7 @@ public class BucketNameTest {
 		assertEquals(db, bucketName.getDB());
 		assertEquals(earliest, bucketName.getEarliest());
 		assertEquals(latest, bucketName.getLatest());
-		assertEquals(index, bucketName.getIndex());
+		assertEquals(index, bucketName.getBucketNumber());
 	}
 
 	public void getDB_givenDBWithNumber_returnGivenDB() {
@@ -118,22 +118,29 @@ public class BucketNameTest {
 		getBucketName(db, earliest, "", index, guid).getLatest();
 	}
 
-	public void getIndex_givenDashesLettersAndNumbers_validIndex() {
-		String index = "index-1332222208803";
-		bucketName = getBucketName(db, earliest, latest, index, guid);
-		assertEquals(index, bucketName.getIndex());
-	}
-
-	@Test(expectedExceptions = { IllegalRegexGroupException.class })
-	public void getIndex_givenEmptyIndex_throwIllegalBucketNameException() {
-		getBucketName(db, earliest, latest, "", guid).getIndex();
+	public void getBucketNumber_givenInteger_returnsInteger() {
+		long bucketNumber = getBucketName(db, earliest, latest, "1", guid)
+				.getBucketNumber();
+		assertEquals(1, bucketNumber);
 	}
 
 	@Test(expectedExceptions = { IllegalBucketNameException.class })
-	public void getIndex_givenIndexWithUnderscores_throws() {
+	public void getBucketNumber_givenDashesLettersAndNumbers_invalidIndexAndThrows() {
+		String index = "index-1332222208803";
+		bucketName = getBucketName(db, earliest, latest, index, guid);
+		assertEquals(index, bucketName.getBucketNumber());
+	}
+
+	@Test(expectedExceptions = { IllegalRegexGroupException.class })
+	public void getBucketNumber_givenEmptyNumber_throwIllegalBucketNameException() {
+		getBucketName(db, earliest, latest, "", guid).getBucketNumber();
+	}
+
+	@Test(expectedExceptions = { IllegalBucketNameException.class })
+	public void getBucketNumber_givenIndexWithUnderscores_throws() {
 		String index = "_index_with_underscores_";
 		bucketName = getBucketName(db, earliest, latest, index, guid);
-		bucketName.getIndex();
+		bucketName.getBucketNumber();
 	}
 
 	public void getName_givenNameForString_returnString() {
