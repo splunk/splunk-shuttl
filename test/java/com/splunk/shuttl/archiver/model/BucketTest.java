@@ -202,4 +202,8 @@ public class BucketTest {
 		assertFalse(bucketWithNumberedName.isOriginalBucket());
 	}
 
+	public void getBucketNumber_givenNumber_getsNumber() {
+		LocalBucket b = TUtilsBucket.createBucketWithName("db_12351235_12351290_2");
+		assertEquals(2, b.getBucketNumber());
+	}
 }

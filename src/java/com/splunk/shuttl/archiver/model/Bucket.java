@@ -163,4 +163,11 @@ public class Bucket {
 		}
 	}
 
+	/**
+	 * @return bucket number of the bucket
+	 */
+	public long getBucketNumber() {
+		return bucketName.getBucketNumber();
+	}
+
 }

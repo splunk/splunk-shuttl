@@ -60,14 +60,17 @@ public class TUtilsBucket {
 	}
 
 	private static String randomIndexName() {
-		return "index-" + RandomUtils.nextInt();
+		return "index-" + randomBucketNumber();
+	}
+
+	private static int randomBucketNumber() {
+		return RandomUtils.nextInt();
 	}
 
 	private static String randomBucketName() {
 		long latest = System.currentTimeMillis() / 1000;
 		long earliest = latest - (RandomUtils.nextInt(10) + 1);
-		return String.format("db_%d_%d_%d", latest, earliest,
-				RandomUtils.nextInt(1000));
+		return String.format("db_%d_%d_%d", latest, earliest, randomBucketNumber());
 	}
 
 	/**
@@ -167,7 +170,7 @@ public class TUtilsBucket {
 	private static String getNameWithEarliestAndLatestTime(Date earliest,
 			Date latest) {
 		return "db_" + toSec(latest.getTime()) + "_" + toSec(earliest.getTime())
-				+ "_" + randomIndexName();
+				+ "_" + randomBucketNumber();
 	}
 
 	private static long toSec(long time) {
@@ -334,5 +337,15 @@ public class TUtilsBucket {
 	public static LocalBucket createBucketWithIndex(String index) {
 		return TUtilsBucket.createBucketInDirectoryWithIndex(createDirectory(),
 				index);
+	}
+
+	public static LocalBucket createBucketWithBucketNumber(int i) {
+		BucketName randomName = new BucketName(randomBucketName());
+		String separator = "_";
+		BucketName bucketName = new BucketName(randomName.getDB() + separator
+				+ randomName.getLatest() + separator + randomName.getEarliest()
+				+ separator + i);
+
+		return createBucketWithName(bucketName.getName());
 	}
 }

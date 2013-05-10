@@ -279,6 +279,16 @@ public class TUtilsBucketTest {
 		assertTrue(bucket.getName().startsWith(removedLastPart));
 	}
 
+	public void createBucketWithBucketNumber_givenNumber_bucketWithNumber() {
+		LocalBucket b = TUtilsBucket.createBucketWithBucketNumber(1);
+		assertEquals(1, b.getBucketNumber());
+	}
+
+	public void createBucketWithBucketNumber__bucketIsSane() {
+		LocalBucket b = TUtilsBucket.createBucketWithBucketNumber(1);
+		assertTrue(b.getLatest().after(b.getEarliest()));
+	}
+
 	@Test(groups = { "slow-unit" })
 	public void createRealReplicatedBucket_parameters_hasParameterProperties() {
 		File parent = createDirectory();
