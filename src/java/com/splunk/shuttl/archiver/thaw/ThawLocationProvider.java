@@ -19,6 +19,7 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
@@ -69,7 +70,7 @@ public class ThawLocationProvider {
 	}
 
 	private void deleteFile(File file) {
-		boolean wasDeleted = file.delete();
+		boolean wasDeleted = FileUtils.deleteQuietly(file);
 		if (!wasDeleted)
 			Logger.getLogger(getClass()).warn(
 					warn("Tried deleting a file", "Could not delete it",

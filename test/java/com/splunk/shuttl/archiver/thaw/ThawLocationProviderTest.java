@@ -88,6 +88,7 @@ public class ThawLocationProviderTest {
 			throws IOException {
 		File transferLoc = thawLocationProvider.getThawTransferLocation(bucket);
 		assertTrue(transferLoc.mkdirs());
+		new File(transferLoc, "foo.file").createNewFile();
 		assertTrue(transferLoc.exists());
 		File secondLocation = thawLocationProvider.getThawTransferLocation(bucket);
 		assertEquals(transferLoc.getAbsolutePath(),
