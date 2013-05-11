@@ -37,14 +37,16 @@ public class ThawLocationProviderTest {
 	Bucket bucket;
 	File thawLocation;
 	LocalFileSystemPaths localFileSystemPaths;
+	ThawBucketDirectoryNamer thawBucketDirectoryNamer;
 
 	@BeforeMethod
 	public void setUp() throws IllegalIndexException {
 		bucket = TUtilsBucket.createBucket();
 		splunkSettings = mock(SplunkIndexesLayer.class);
 		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
+		thawBucketDirectoryNamer = mock(ThawBucketDirectoryNamer.class);
 		thawLocationProvider = new ThawLocationProvider(splunkSettings,
-				localFileSystemPaths);
+				localFileSystemPaths, thawBucketDirectoryNamer);
 
 		stubSplunkSettingsToReturnThawLocation();
 	}
@@ -54,6 +56,8 @@ public class ThawLocationProviderTest {
 		thawLocation = createFilePath();
 		when(splunkSettings.getThawLocation(bucket.getIndex())).thenReturn(
 				thawLocation);
+		when(thawBucketDirectoryNamer.getBucketDirectoryName(bucket)).thenReturn(
+				"foo");
 	}
 
 	@Test(groups = { "fast-unit" })
@@ -65,11 +69,12 @@ public class ThawLocationProviderTest {
 				.getParentFile().getAbsolutePath());
 	}
 
-	public void getLocationInThawForBucket_givenThawLocation_directoryHasNameOfBucketForUniquness()
+	public void getLocationInThawForBucket_givenThawLocation_directoryHasNameGivenByGetBucketDirectoryName()
 			throws IOException {
 		File bucketsLocation = thawLocationProvider
 				.getLocationInThawForBucket(bucket);
-		assertEquals(bucket.getName(), bucketsLocation.getName());
+		assertEquals(thawBucketDirectoryNamer.getBucketDirectoryName(bucket),
+				bucketsLocation.getName());
 	}
 
 	public void getThawTransferLocation_givenTransferLocation_fileIsInThawTransferDirectoryForBucket() {

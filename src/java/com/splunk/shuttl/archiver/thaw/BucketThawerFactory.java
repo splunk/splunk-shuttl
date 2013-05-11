@@ -60,7 +60,8 @@ public class BucketThawerFactory {
 			LocalFileSystemPaths localFileSystemPaths,
 			ArchiveFileSystem archiveFileSystem) {
 		ThawLocationProvider thawLocationProvider = new ThawLocationProvider(
-				splunkIndexesLayer, localFileSystemPaths);
+				splunkIndexesLayer, localFileSystemPaths,
+				new ThawBucketDirectoryNamer());
 
 		ThawBucketTransferer thawBucketTransferer = getThawBucketTransferer(
 				archiveFileSystem, thawLocationProvider);

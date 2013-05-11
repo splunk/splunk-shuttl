@@ -32,17 +32,21 @@ public class ThawLocationProvider {
 
 	private final SplunkIndexesLayer splunkIndexesLayer;
 	private final LocalFileSystemPaths localFileSystemPaths;
+	private final ThawBucketDirectoryNamer thawBucketDirectoryNamer;
 
 	/**
 	 * @param splunkIndexesLayer
 	 *          for looking up the thaw directory.
 	 * @param localFileSystemPaths
 	 *          thaw buckets live while they are transfered.
+	 * @param thawBucketDirectoryNamer
 	 */
 	public ThawLocationProvider(SplunkIndexesLayer splunkIndexesLayer,
-			LocalFileSystemPaths localFileSystemPaths) {
+			LocalFileSystemPaths localFileSystemPaths,
+			ThawBucketDirectoryNamer thawBucketDirectoryNamer) {
 		this.splunkIndexesLayer = splunkIndexesLayer;
 		this.localFileSystemPaths = localFileSystemPaths;
+		this.thawBucketDirectoryNamer = thawBucketDirectoryNamer;
 	}
 
 	/**
@@ -53,7 +57,9 @@ public class ThawLocationProvider {
 	 */
 	public File getLocationInThawForBucket(Bucket bucket) throws IOException {
 		File thawLocation = splunkIndexesLayer.getThawLocation(bucket.getIndex());
-		return new File(thawLocation, bucket.getName());
+		String bucketDirectoryName = thawBucketDirectoryNamer
+				.getBucketDirectoryName(bucket);
+		return new File(thawLocation, bucketDirectoryName);
 	}
 
 	/**
