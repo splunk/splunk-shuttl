@@ -289,6 +289,22 @@ public class TUtilsBucketTest {
 		assertTrue(b.getLatest().after(b.getEarliest()));
 	}
 
+	public void createBucketWithBucketNumber_numberIndexLatestAndEarliest_hasAllThoseProperties() {
+		Date latest = new Date();
+		Date earliest = new Date();
+		LocalBucket b = TUtilsBucket.createBucketWithBucketNumber(3, "index",
+				latest, earliest);
+
+		assertEquals(b.getBucketNumber(), 3);
+		assertEquals(b.getLatest(), truncateMilis(latest));
+		assertEquals(b.getEarliest(), truncateMilis(earliest));
+		assertEquals(b.getIndex(), "index");
+	}
+
+	private Date truncateMilis(Date date) {
+		return new Date(date.getTime() / 1000 * 1000);
+	}
+
 	@Test(groups = { "slow-unit" })
 	public void createRealReplicatedBucket_parameters_hasParameterProperties() {
 		File parent = createDirectory();

@@ -169,8 +169,14 @@ public class TUtilsBucket {
 
 	private static String getNameWithEarliestAndLatestTime(Date earliest,
 			Date latest) {
+		return getNameWithEarliestLatestAndBucketNumber(earliest, latest,
+				randomBucketNumber());
+	}
+
+	private static String getNameWithEarliestLatestAndBucketNumber(Date earliest,
+			Date latest, long bucketNumber) {
 		return "db_" + toSec(latest.getTime()) + "_" + toSec(earliest.getTime())
-				+ "_" + randomBucketNumber();
+				+ "_" + bucketNumber;
 	}
 
 	private static long toSec(long time) {
@@ -340,12 +346,24 @@ public class TUtilsBucket {
 	}
 
 	public static LocalBucket createBucketWithBucketNumber(int i) {
-		BucketName randomName = new BucketName(randomBucketName());
-		String separator = "_";
-		BucketName bucketName = new BucketName(randomName.getDB() + separator
-				+ randomName.getLatest() + separator + randomName.getEarliest()
-				+ separator + i);
+		Bucket b = bucketWithRandomName();
+		return createBucketWithBucketNumber(i, randomIndexName(), b.getLatest(),
+				b.getEarliest());
+	}
 
-		return createBucketWithName(bucketName.getName());
+	private static Bucket bucketWithRandomName() {
+		try {
+			return new Bucket(null, null, randomBucketName(), null, null);
+		} catch (Exception e) {
+			TUtilsTestNG.failForException(null, e);
+			return null;
+		}
+	}
+
+	public static LocalBucket createBucketWithBucketNumber(int bucketNumber,
+			String index, Date latest, Date earliest) {
+		return createBucketWithIndexAndName(
+				index,
+				getNameWithEarliestLatestAndBucketNumber(earliest, latest, bucketNumber));
 	}
 }
