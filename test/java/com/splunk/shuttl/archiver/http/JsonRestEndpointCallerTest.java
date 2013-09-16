@@ -18,8 +18,8 @@ import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
 import com.amazonaws.util.StringInputStream;
 import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
-import com.splunk.shuttl.archiver.http.JsonRestEndpointCaller;
 
 @Test(groups = { "fast-unit" })
 public class JsonRestEndpointCallerTest {
@@ -48,20 +47,33 @@ public class JsonRestEndpointCallerTest {
 	@SuppressWarnings("serial")
 	public void getJson_givenRestEndpoint_jsonContainsContentFromHttpResponse()
 			throws ClientProtocolException, IOException, JSONException {
-		Map<String, String> mapWithKeyValue = new HashMap<String, String>() {
-			{
-				put("key", "value");
-			}
-		};
-		JSONObject jsonObject = new JSONObject(mapWithKeyValue);
+		HttpUriRequest httpRequest = mockHttpRequestToReturnJson(new JSONObject(
+				new HashMap<String, String>() {
+					{
+						put("key", "value");
+					}
+				}).toString());
 
+		JSONObject actualJson = restEndpointCaller.getJson(httpRequest);
+		assertEquals(actualJson.getString("key"), "value");
+	}
+
+	private HttpUriRequest mockHttpRequestToReturnJson(String content)
+			throws IOException, ClientProtocolException, UnsupportedEncodingException {
 		HttpUriRequest httpRequest = mock(HttpUriRequest.class);
 		HttpResponse response = mock(HttpResponse.class, RETURNS_DEEP_STUBS);
 		when(httpClient.execute(httpRequest)).thenReturn(response);
 		when(response.getEntity().getContent()).thenReturn(
-				new StringInputStream(jsonObject.toString()));
+				new StringInputStream(content));
+		return httpRequest;
+	}
+
+	public void getJson_notJsonReponse_unknownContentKeyWithTheResponse()
+			throws IOException, JSONException {
+		final String notJsonResponse = " \nRepsonse Content that isn't json, but contains json {\"key\":\"value\"}";
+		HttpUriRequest httpRequest = mockHttpRequestToReturnJson(notJsonResponse);
 
 		JSONObject actualJson = restEndpointCaller.getJson(httpRequest);
-		assertEquals(actualJson.getString("key"), "value");
+		assertEquals(actualJson.getString("unknown_response"), notJsonResponse);
 	}
 }

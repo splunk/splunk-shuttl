@@ -18,6 +18,8 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -79,12 +81,21 @@ public class JsonRestEndpointCaller {
 
 	private JSONObject extractJsonFromContent(String jsonString) {
 		try {
-			return new JSONObject(jsonString);
+			if (jsonString.trim().startsWith("{"))
+				return new JSONObject(jsonString);
+			else
+				return createUnknownJsonContent(jsonString);
 		} catch (JSONException e) {
 			logger.error(did("Tried to create JSON object from string", e,
 					"to create object", "json_string", jsonString));
 			throw new RuntimeException(e);
 		}
+	}
+
+	private JSONObject createUnknownJsonContent(String jsonString) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("unknown_response", jsonString);
+		return new JSONObject(map);
 	}
 
 	public static JsonRestEndpointCaller create() {
