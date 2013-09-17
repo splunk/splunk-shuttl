@@ -52,7 +52,7 @@ public class WarmToColdRetrier implements Runnable {
 
 	private boolean isWarmToColdScriptConfiguredToBeShuttlsScript(
 			WarmToColdIndex index) {
-		String shuttlWarmToColdScript = "etc/apps/shuttl/bin/warmToColdScript.sh";
+		String shuttlWarmToColdScript = "shuttl/bin/warmToColdScript.sh";
 
 		return index.getWarmToColdScript() != null
 				&& index.getWarmToColdScript().endsWith(shuttlWarmToColdScript);
