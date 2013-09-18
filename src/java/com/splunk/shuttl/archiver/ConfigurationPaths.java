@@ -15,30 +15,89 @@
 package com.splunk.shuttl.archiver;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 /**
  * Paths to shuttl configuration files.
  */
 public class ConfigurationPaths {
 
-	private static final String CONFIGURATION_PATH = "etc/apps/shuttl/conf/";
-	private static final String BACKEND_PROPERTIES_PATH = "etc/apps/shuttl/conf/backend";
+	public interface ShuttlHomeProvider {
+		File getShuttlHome();
+	}
+
+	private static final String CONFIGURATION_PATH = "conf/";
+	private static final String BACKEND_PROPERTIES_PATH = "conf/backend";
+	private final ShuttlHomeProvider shuttlHomeProvider;
+
+	public ConfigurationPaths(ShuttlHomeProvider shuttlHomeProvider) {
+		this.shuttlHomeProvider = shuttlHomeProvider;
+	}
 
 	/**
-	 * @return directory where shuttl has it's MBean configuration files.
+	 * @return directory where Shuttl has it's MBean configuration files.
 	 */
-	public static File getDefaultConfDirectory() {
-		return new File(getSplunkHome(), CONFIGURATION_PATH);
+	public File getDefaultConfDirectory() {
+		return new File(shuttlHomeProvider.getShuttlHome(), CONFIGURATION_PATH);
 	}
 
-	public static File getBackendConfigDirectory() {
-		return new File(getSplunkHome(), BACKEND_PROPERTIES_PATH);
+	public File getBackendConfigDirectory() {
+		return new File(shuttlHomeProvider.getShuttlHome(), BACKEND_PROPERTIES_PATH);
 	}
 
-	private static String getSplunkHome() {
-		String splunkHome = System.getenv("SPLUNK_HOME");
-		if (splunkHome == null)
-			throw new RuntimeException("SPLUNK_HOME was not set.");
-		return splunkHome;
+	public static ConfigurationPaths create() {
+		return new ConfigurationPaths(new ShuttlHomeProvider() {
+
+			@Override
+			public File getShuttlHome() {
+				if (getShuttlHomeThroughJar() != null)
+					return getShuttlHomeThroughJar();
+				else if (getShuttlHomeThroughSplunkHome() != null)
+					return getShuttlHomeThroughSplunkHome();
+				else
+					throw new RuntimeException(
+							"Could not resolve Shuttl's install location");
+			}
+
+			private File getShuttlHomeThroughJar() {
+				File shuttlJar = getJarLocation();
+				File binDir = shuttlJar.getParentFile();
+				File shuttlHome = binDir.getParentFile();
+				return shuttlJar.getName().endsWith(".jar")
+						&& binDir.getName().equals("bin")
+						&& shuttlHome.getName().equals("shuttl") ? shuttlHome : null;
+			}
+
+			/**
+			 * Taken from Stack overflow:
+			 * 
+			 * <pre>
+			 * http://stackoverflow.com/questions/320542/how-to-get-the-path-of-a-running-jar-file
+			 * </pre>
+			 */
+			private File getJarLocation() {
+				try {
+					return new File(URLDecoder.decode(ConfigurationPaths.class
+							.getProtectionDomain().getCodeSource().getLocation().getPath(),
+							"UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					return new File("/did/not/find/jar");
+				}
+			}
+
+			private File getShuttlHomeThroughSplunkHome() {
+				String splunkHome = System.getenv("SPLUNK_HOME");
+				if (splunkHome == null)
+					return null;
+
+				File shuttlThroughSplunkHome = new File(splunkHome, "etc/apps/shuttl");
+				if (!shuttlThroughSplunkHome.exists())
+					return null;
+
+				return shuttlThroughSplunkHome;
+			}
+
+		});
 	}
 }

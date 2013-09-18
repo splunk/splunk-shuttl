@@ -45,8 +45,8 @@ public class BackendConfigurationFiles {
 	}
 
 	public static BackendConfigurationFiles create() {
-		return new BackendConfigurationFiles(
-				ConfigurationPaths.getBackendConfigDirectory());
+		return new BackendConfigurationFiles(ConfigurationPaths.create()
+				.getBackendConfigDirectory());
 	}
 
 	public static class ConfigurationFileDoesNotExist extends RuntimeException {

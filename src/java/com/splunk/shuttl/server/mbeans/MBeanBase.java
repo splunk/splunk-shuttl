@@ -35,7 +35,7 @@ public abstract class MBeanBase<T> implements MBeanPersistance {
 	private final File confFile;
 
 	public MBeanBase() {
-		this(ConfigurationPaths.getDefaultConfDirectory());
+		this(ConfigurationPaths.create().getDefaultConfDirectory());
 	}
 
 	public MBeanBase(File confDirectory) {

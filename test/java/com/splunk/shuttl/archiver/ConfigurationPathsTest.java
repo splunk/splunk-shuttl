@@ -16,36 +16,46 @@ package com.splunk.shuttl.archiver;
 
 import static org.testng.Assert.*;
 
+import java.io.File;
+
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.ConfigurationPaths.ShuttlHomeProvider;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
 public class ConfigurationPathsTest {
 
+	@Test(groups = { "fast-unit" })
+	public void _givenShuttlHomeProvider_getsPaths() {
+		final String shuttlHome = "/foo/bar/shuttl";
+		ConfigurationPaths paths = new ConfigurationPaths(new ShuttlHomeProvider() {
+
+			@Override
+			public File getShuttlHome() {
+				return new File(shuttlHome);
+			}
+		});
+		assertEquals(shuttlHome + "/conf/backend", paths
+				.getBackendConfigDirectory().getAbsolutePath());
+		assertEquals(shuttlHome + "/conf", paths.getDefaultConfDirectory()
+				.getAbsolutePath());
+	}
+
 	@Test(groups = { "end-to-end" })
 	@Parameters(value = { "splunk.home" })
-	public void _givenSplunkHome_gettingDirectoriesGetsExistingDirs(
+	public void _givenSplunkHomeWithCreate_gettingDirectoriesGetsExistingDirs(
 			final String splunkHome) {
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 			@Override
 			public void run() {
 				TUtilsEnvironment.setEnvironmentVariable("SPLUNK_HOME", splunkHome);
-				assertTrue(ConfigurationPaths.getDefaultConfDirectory().exists());
-				assertTrue(ConfigurationPaths.getBackendConfigDirectory().exists());
+				ConfigurationPaths configurationPaths = ConfigurationPaths.create();
+				assertTrue(configurationPaths.getDefaultConfDirectory().exists());
+				assertTrue(configurationPaths.getBackendConfigDirectory().exists());
 			}
 		});
 	}
 
-	@Test(groups = { "fast-unit" }, expectedExceptions = { RuntimeException.class })
-	public void _givenNoSplunkHome_throws() {
-		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
-
-			@Override
-			public void run() {
-				ConfigurationPaths.getBackendConfigDirectory();
-			}
-		});
-	}
 }
