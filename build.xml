@@ -782,9 +782,8 @@
 	<target name="splunk-configure-and-start">
 		<antcall>
 			<target name="splunk-set-splunkd-port-and-password" />
-			<target name="install-shuttl-splunk-app" />
 			<target name="splunk-set-server-name" />
-			<target name="enable-shuttl-splunk-app" />
+			<target name="install-shuttl-splunk-app" />
 		</antcall>
 	</target>
 
@@ -849,7 +848,9 @@
 		<antcall>
 			<target name="remove-shuttl-splunk-app" />
 			<target name="do-install-shuttl-splunk-app" />
+			<target name="enable-shuttl-splunk-app" />
 			<target name="retry-disable-cold-to-frozen" />
+			<target name="retry-disable-warm-to-cold" />
 			<target name="set-shuttl-warm-to-cold-script" />
 			<target name="splunkd-restart" />
 		</antcall>
@@ -1099,7 +1100,13 @@
 
 	<!-- Retrier targets -->
 	<target name="retry-disable-cold-to-frozen">
-		<var name="splunk.endpoint" value="servicesNS/admin/shuttl/data/inputs/script/%24SPLUNK_HOME%252Fetc%252Fapps%252Fshuttl%252Fbin%252FcoldToFrozenRetry.sh" />
+		<var name="splunk.endpoint" value="servicesNS/nobody/shuttl/data/inputs/script/.%252Fbin%252FcoldToFrozenRetry.sh" />
+		<var name="splunk.endpoint.options" value="-d disabled=1" />
+		<antcall target="splunk-curl-post-call" />
+	</target>
+
+	<target name="retry-disable-warm-to-cold">
+		<var name="splunk.endpoint" value="servicesNS/nobody/shuttl/data/inputs/script/.%252Fbin%252FwarmToColdRetry.sh" />
 		<var name="splunk.endpoint.options" value="-d disabled=1" />
 		<antcall target="splunk-curl-post-call" />
 	</target>
@@ -1228,7 +1235,6 @@
 			<target name="install-shuttl-splunk-app" />
 			<target name="manual-test-configure-shuttl-archiver-conf" />
 			<target name="manual-test-create-fast-rolling-index" />
-			<target name="enable-shuttl-splunk-app" />
 		</antcall>
 	</target>
 
