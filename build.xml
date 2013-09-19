@@ -1098,6 +1098,30 @@
 
 	<!-- END Splunk cluster targets -->
 
+	<!-- Splunk Search Head Pooling targets -->
+
+	<target name="setup-splunk-search-head-pooling">
+		<antcall>
+			<target name="splunk-stop" />
+			<target name="do-setup-splunk-search-head-pooling" />
+			<target name="splunk-start" />
+		</antcall>
+	</target>
+
+	<target name="do-setup-splunk-search-head-pooling">
+		<property name="splunk.search.head.pooling.storage" value="${splunk.home}/var/shared_storage" />
+		<mkdir dir="${splunk.search.head.pooling.storage}" />
+
+		<exec executable="${splunk.home}/bin/splunk">
+			<arg value="pooling" />
+			<arg value="enable" />
+			<arg value="${splunk.search.head.pooling.storage}" />
+		</exec>
+		<move file="${splunk.home}/etc/apps" todir="${splunk.search.head.pooling.storage}/etc" overwrite="true" />
+	</target>
+
+	<!-- END Splunk Search Head Pooling targets -->
+
 	<!-- Retrier targets -->
 	<target name="retry-disable-cold-to-frozen">
 		<var name="splunk.endpoint" value="servicesNS/nobody/shuttl/data/inputs/script/.%252Fbin%252FcoldToFrozenRetry.sh" />
