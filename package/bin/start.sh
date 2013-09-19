@@ -18,7 +18,8 @@
 # limitations under the License.
 #
 
-cd $SPLUNK_HOME/etc/apps/shuttl/bin
+script_dir=$(dirname $0)
+cd $script_dir
 
 source java_executable.env
 exec $JAVA -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.server.ShuttlJettyServer

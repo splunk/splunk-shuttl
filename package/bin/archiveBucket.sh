@@ -1,18 +1,5 @@
 #!/bin/bash
 
-# archiveBucket.sh - the Shuttl archive script to be called by Splunk
-#
-# Note, Splunk (4.3) will only pass in one parameter (the last one), 
-# so in the conf file is where you should specify the second parameter.
-#
-# ex.
-#
-#  [archiver-test-index]
-#  homePath   = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/db
-#  coldPath   = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/colddb
-#  thawedPath = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/thaweddb
-#  coldToFrozenScript = $SPLUNK_HOME/etc/apps/shep/bin/archiveBucket.sh archiver-test-index
-
 #
 #
 # Copyright (C) 2011 Splunk Inc.
@@ -38,9 +25,8 @@ set -e
 set -u
 
 
-: ${SPLUNK_HOME:?"Need to set SPLUNK_HOME to non-empty"}
-
-cd $SPLUNK_HOME/etc/apps/shuttl/bin
+script_dir=$(dirname $0)
+cd $script_dir
 
 if [ $# -lt 2 ]; then
     echo 1>&2 "usage: $0 <index> <bucket>"

@@ -1,16 +1,5 @@
 #!/bin/bash
 
-# coldToFrozenScript.sh - the Shuttl archive script to be called by Splunk
-#
-# Example configuration (indexes.conf)
-#
-#  [archiver-test-index]
-#  homePath   = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/db
-#  coldPath   = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/colddb
-#  thawedPath = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/thaweddb
-#  coldToFrozenScript = $SPLUNK_HOME/etc/apps/shep/bin/coldToFrozenScript.sh
-#
-#
 # Copyright (C) 2011 Splunk Inc.
 #
 # Splunk Inc. licenses this file
@@ -31,9 +20,8 @@ set -e
 set -u
 
 
-: ${SPLUNK_HOME:?"Need to set SPLUNK_HOME to non-empty"}
-
-cd $SPLUNK_HOME/etc/apps/shuttl/bin
+script_dir=$(dirname $0)
+cd $script_dir
 
 if [ $# -lt 1 ]; then
     echo 1>&2 "usage: $0 <bucket>"

@@ -1,16 +1,5 @@
 #!/bin/bash
 
-# warmToColdScript.sh - the Shuttl copy script to be called by Splunk
-#
-# Example configuration (indexes.conf)
-#
-#  [archiver-test-index]
-#  homePath   = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/db
-#  coldPath   = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/colddb
-#  thawedPath = $SPLUNK_HOME/var/lib/splunk/archiver-test-index/thaweddb
-#  warmToColdScript = $SPLUNK_HOME/etc/apps/shep/bin/warmToColdScript.sh
-#
-#
 # Copyright (C) 2012 Splunk Inc.
 #
 # Splunk Inc. licenses this file
@@ -30,7 +19,8 @@
 set -e
 set -u
 
-cd $SPLUNK_HOME/etc/apps/shuttl/bin
+script_dir=$(dirname $0)
+cd $script_dir
 
 bucket="$1"
 cold_path_destination="$2"
