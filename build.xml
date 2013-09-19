@@ -1099,6 +1099,9 @@
 	<!-- END Splunk cluster targets -->
 
 	<!-- Splunk Search Head Pooling targets -->
+	<target name="set-pooling-storage" depends="set-splunk-home">
+		<property name="splunk.search.head.pooling.storage" value="${splunk.home}/var/shared_storage" />
+	</target>
 
 	<target name="setup-splunk-search-head-pooling">
 		<antcall>
@@ -1108,8 +1111,7 @@
 		</antcall>
 	</target>
 
-	<target name="do-setup-splunk-search-head-pooling">
-		<property name="splunk.search.head.pooling.storage" value="${splunk.home}/var/shared_storage" />
+	<target name="do-setup-splunk-search-head-pooling" depends="set-pooling-storage">
 		<mkdir dir="${splunk.search.head.pooling.storage}" />
 
 		<exec executable="${splunk.home}/bin/splunk">
@@ -1118,6 +1120,21 @@
 			<arg value="${splunk.search.head.pooling.storage}" />
 		</exec>
 		<move file="${splunk.home}/etc/apps" todir="${splunk.search.head.pooling.storage}/etc" overwrite="true" />
+	</target>
+
+	<target name="manual-test-search-head-pooling">
+		<antcall>
+			<target name="manual-test-format-splunk-bucket" />
+			<target name="setup-splunk-search-head-pooling" />
+			<target name="set-search-head-pooling-fast-rolling-index" />
+			<target name="splunkd-restart"></target>
+		</antcall>
+	</target>
+
+	<target name="set-search-head-pooling-fast-rolling-index" depends="set-pooling-storage">
+		<var name="splunk.endpoint" value="servicesNS/nobody/shuttl/data/indexes/archiver-test-index" />
+		<var name="splunk.endpoint.options" value="-d coldToFrozenScript=${splunk.search.head.pooling.storage}/etc/apps/shuttl/bin/coldToFrozenScript.sh" />
+		<antcall target="splunk-curl-post-call" />
 	</target>
 
 	<!-- END Splunk Search Head Pooling targets -->
