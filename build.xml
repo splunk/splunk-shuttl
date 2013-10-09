@@ -1003,12 +1003,7 @@
 		<antcall>
 			<target name="splunk-stop-forced" />
 			<target name="splunk-clean-eventdata" />
-			<target name="shuttl-kill-server" />
 		</antcall>
-	</target>
-
-	<target name="shuttl-kill-server">
-		<exec executable="${src.sh}/kill-shuttl-server.sh" />
 	</target>
 
 	<target name="check-for-splunk-binary">
