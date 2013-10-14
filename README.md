@@ -1,4 +1,4 @@
-Shuttl - Archiving for Splunk 
+Shuttl - Archiving for Splunk
 =======================================
 
 Splunk is the premier technology for gaining Operational Intelligence on Machine Data. Since it
@@ -27,7 +27,7 @@ License
 
 Shuttl is licensed under the Apache License 2.0. Details can be found in the LICENSE file.
 
-Shuttl is an unsupported community open source project and therefore is subject to being incomplete and containing bugs. 
+Shuttl is an unsupported community open source project and therefore is subject to being incomplete and containing bugs.
 
 The Apache License only applies to Shuttl and no other Splunk software is implied.
 
@@ -144,7 +144,7 @@ In addition to these configuration files, there are property files for the backe
 - password: Splunk password
 
 #### backend/hdfs.properties (required for hdfs.):
-- hadoop.host: The host name to the hdfs name node. 
+- hadoop.host: The host name to the hdfs name node.
 - hadoop.port: The port to the hdfs name node.
 
 #### backend/amazon.properties (required for s3, s3n or glacier)
@@ -187,3 +187,4 @@ Now run:
 	$ `ant clean-all`
 	$ `ant test-all`
 
+See examples/README.md for the quickstart guide.

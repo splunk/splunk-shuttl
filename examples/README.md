@@ -10,7 +10,7 @@ Prerequisites
 
 ### Splunk
 
-The currently used Splunk version is 5.0.x. 
+The currently used Splunk version is 5.0.x.
 Shuttl has support for Splunk Clustering.
 
 You can download it [Splunk][splunk-download]. And see the [Splunk documentation][] for instructions on installing and more.
@@ -26,7 +26,7 @@ You can download it [Splunk][splunk-download]. And see the [Splunk documentation
 
 This is needed if you are using HDFS. Currently Hadoop 1.1.1 is used.
 
-You can download it from one of the [mirror sites][hadoop-download]. 
+You can download it from one of the [mirror sites][hadoop-download].
 And see the [Hadoop documentation][] for instructions on installing and more.
 
 [hadoop-download]:http://www.apache.org/dyn/closer.cgi?path=hadoop/core/hadoop-1.1.1
@@ -37,7 +37,7 @@ Getting Started
 
 Ensure that:
 * `JAVA_HOME` environment variable is defined correctly.
-* `SPLUNK_HOME` enviroment variable is defined correctly. 
+* `SPLUNK_HOME` enviroment variable is defined correctly.
 * you can run `ssh localhost` without having to enter a password.
 
 Installing the app
@@ -72,16 +72,16 @@ In addition to these configuration files, there are property files for the backe
 You need to configure Splunk to call the archiver script (setting the coldToFrozenScript and/or warmToColdScript) for each index that is being archived. You can do this by creating an indexes.conf file in $SPLUNK_HOME/etc/apps/shuttl/local with the appropriate config stanzas. An example is as follows:
 
 	[mytestindex]
-	homePath = $SPLUNK_DB/mytestindex/db 
-	coldPath = $SPLUNK_DB/mytestindex/colddb 
-	thawedPath = $SPLUNK_DB/mytestindex/thaweddb 
-	rotatePeriodInSecs = 10 
-	maxWarmDBCount = 1 
+	homePath = $SPLUNK_DB/mytestindex/db
+	coldPath = $SPLUNK_DB/mytestindex/colddb
+	thawedPath = $SPLUNK_DB/mytestindex/thaweddb
+	rotatePeriodInSecs = 10
+	maxWarmDBCount = 1
 	maxDataSize = 1024
 	maxTotalDataSizeMB = 2048
-	warmToColdScript = $SPLUNK_HOME/etc/apps/shuttl/bin/warmToColdScript.sh 
-	coldToFrozenScript = $SPLUNK_HOME/etc/apps/shuttl/bin/coldToFrozenScript.sh 
-	
+	warmToColdScript = $SPLUNK_HOME/etc/apps/shuttl/bin/warmToColdScript.sh
+	coldToFrozenScript = $SPLUNK_HOME/etc/apps/shuttl/bin/coldToFrozenScript.sh
+
 For the full index configuration options see [indexconf][].
 
 [indexconf]:http://docs.splunk.com/Documentation/Splunk/latest/admin/Indexesconf
@@ -105,7 +105,7 @@ Example for local storage:
 	    <backendName>local</backendName>
 	    <!-- Path on the backend where Shuttl will store data -->
 	    <archivePath>/user/testUser/testArea</archivePath>
-	
+
 	    <clusterName>clusterName</clusterName>
 	    <serverName>localhost</serverName>
 	  <!-- Three example formats -->
@@ -118,15 +118,18 @@ Example for local storage:
 
 ### conf/server.xml
 
+Shuttl relies on a separate Jetty server to handle requests.  The default
+configuration will listen to http://localhost:9099.
+
 - httpHost: The host name of the machine. (usually localhost)
-- httpPort: The port for the shuttl server. (usually 9090)
+- httpPort: The port for the shuttl server. (usually 9099)
 
 Example for local storage:
 
 	<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 	<ns2:serverConf xmlns:ns2="com.splunk.shuttl.server.model">
 	  <httpHost>localhost</httpHost>
-	  <httpPort>9090</httpPort>
+	  <httpPort>9099</httpPort>
 	</ns2:serverConf>
 
 ### conf/splunk.xml
@@ -150,7 +153,7 @@ Example for local storage:
 - hadoop.host: The host name to the hdfs name node.
 - hadoop.port: The port to the hdfs name node.
 
-    	hadoop.host = NAMENODE_IP	
+    	hadoop.host = NAMENODE_IP
     	hadoop.port = HDFS_NAMENODE_PORT
 
 ### conf/backend/amazon.properties (required for s3, s3n or glacier)
@@ -160,26 +163,26 @@ Example for local storage:
 - glacier.vault: The vault name for storage in glacier.
 - glacier.endpoint: The server endpoint to where the data will be stored. (i.e. https://glacier.us-east-1.amazonaws.com/)
 * Note: The glacier backend currently uses both glacier and s3, so s3.bucket is still required when using glacier. This is also the reason why archivePath is always required.
-	
-	
+
+
     	\# AWS access keys, which you get it from the aws console.
     	\# Amazon Web Services access key id.
     	aws.id = AMAZON_ID
-    	
-    	\# Amazon Web Services secret key.	
+
+    	\# Amazon Web Services secret key.
     	aws.secret = AMAZON_SECRET
-    	
-    	\# Bucket name in s3/s3n.	
+
+    	\# Bucket name in s3/s3n.
     	s3.bucket = BUCKET_NAME
-    	
+
     	\# Name of the vault that the bucket data will be stored in glacier.
     	glacier.vault = VAULT_NAME
-    	
+
     	\# Glacier endpoint i.e. https://glacier.us-east-1.amazonaws.com/
     	glacier.endpoint = GLACIER_ENDPOINT
-	
-Note, the directory that the data will be archived to is: 
-	
+
+Note, the directory that the data will be archived to is:
+
 	[archivePath]/archive_data/[clusterName]/[serverName]/[indexName]
 
 
@@ -187,5 +190,40 @@ Run it!
 -------
 
 Now feed your index with data and enjoy!
+
+
+Troubleshooting
+---------------
+
+If you have issues, here are a few steps you can try:
+
+* Verify that the info provided in conf/splunk.xml will properly authenticate:
+
+  curl -k -d "username=[username]&password=[password]" "https://localhost:8089/services/auth/login"
+
+  You should get a sessionKey response:
+
+  ```
+  <response>
+    <sessionKey>XXXXXXXXXXXXXXXXXXx</sessionKey>
+  </response>
+  ```
+
+* Check that the Shuttl Jetty server responds without any error:
+
+  curl http://localhost:9099/shuttl/rest/archiver/index/list
+
+* If a configuration needs to be modified, the Jetty process running as
+com.splunk.shuttl.server.ShuttlJettyServer may need to be reloaded.
+The process that is running should look like the following:
+
+```
+java -Djetty.home=. -Dsplunk.home=../../../../ -cp .:../lib/*:./* com.splunk.shuttl.server.ShuttlJettyServer
+```
+
+Restarting Splunk does not always kill this process.  If this situation happens,
+you may need to disable the Shuttl app in Splunk and kill the Jetty server
+manually.  Renabling the app from Splunk should restart this Jetty server again.
+
 
 
