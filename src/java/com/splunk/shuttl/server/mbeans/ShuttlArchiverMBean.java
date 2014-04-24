@@ -16,6 +16,8 @@ package com.splunk.shuttl.server.mbeans;
 
 import java.util.List;
 
+import com.splunk.shuttl.server.model.ArchiveFormat;
+
 /**
  * @author kpakkirisamy
  * 
@@ -28,9 +30,9 @@ public interface ShuttlArchiverMBean {
 
 	public void setLocalArchiverDir(String localArchiverDir);
 
-	public List<String> getArchiveFormats();
+	public List<ArchiveFormat> getArchiveFormats();
 
-	public void setArchiveFormats(List<String> archiveFormats);
+	public void setArchiveFormats(List<ArchiveFormat> archiveFormats);
 
 	public String getClusterName();
 

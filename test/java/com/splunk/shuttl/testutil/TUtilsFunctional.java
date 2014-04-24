@@ -21,7 +21,9 @@ import static org.testng.AssertJUnit.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -134,7 +136,7 @@ public class TUtilsFunctional {
 		String archivePath = createDirectory().getAbsolutePath();
 		return ArchiveConfiguration.createSafeConfiguration("localArchiverDir",
 				archivePath, bucketFormats, "clusterName", "serverName", bucketFormats,
-				"local");
+				"local", new HashMap<BucketFormat, Map<String, String>>());
 	}
 
 }

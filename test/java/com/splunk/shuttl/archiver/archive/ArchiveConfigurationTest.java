@@ -20,13 +20,16 @@ import static org.testng.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
+import com.splunk.shuttl.server.model.ArchiveFormat;
 
 @Test(groups = { "fast-unit" })
 public class ArchiveConfigurationTest {
@@ -45,7 +48,7 @@ public class ArchiveConfigurationTest {
 	@Test(groups = { "fast-unit" })
 	public void getArchiveFormat_givenAnyFormatAsStringInMBean_returnsBucketFormat() {
 		when(mBean.getArchiveFormats()).thenReturn(
-				asList(BucketFormat.SPLUNK_BUCKET.name()));
+				asList(ArchiveFormat.create(BucketFormat.SPLUNK_BUCKET.name())));
 		List<BucketFormat> archiveFormat = createConfiguration()
 				.getArchiveFormats();
 		assertNotNull(archiveFormat);
@@ -154,6 +157,19 @@ public class ArchiveConfigurationTest {
 						+ archiveTempPath);
 	}
 
+	@SuppressWarnings("serial")
+	public void getFormatMetadata_givenFormatMetadata_getsFormatMetadata() {
+		when(mBean.getArchiveFormats()).thenReturn(
+				asList(ArchiveFormat.create("CSV", "foo", "bar")));
+		Map<BucketFormat, Map<String, String>> metadata = createConfiguration()
+				.getFormatMetadata();
+		assertEquals(metadata.get(BucketFormat.CSV), new HashMap<String, String>() {
+			{
+				put("foo", "bar");
+			}
+		});
+	}
+
 	public void newWithServerName_serverName_newInstanceWithNewServerName() {
 		ArchiveConfiguration original = createConfiguration();
 		ArchiveConfiguration newConfig = original
@@ -165,7 +181,8 @@ public class ArchiveConfigurationTest {
 	public void newWithServerName_configHasAllValues_allValuesOtherThanServerNameAreTheSame() {
 		List<BucketFormat> list = asList(BucketFormat.UNKNOWN);
 		ArchiveConfiguration originalConf = new ArchiveConfiguration("a", list,
-				"c", "d", list, "f", "g", "h");
+				"c", "d", list, "f", "g", "h",
+				new HashMap<BucketFormat, Map<String, String>>());
 		ArchiveConfiguration newConf = originalConf
 				.newConfigWithServerName("newServerName");
 
@@ -180,6 +197,7 @@ public class ArchiveConfigurationTest {
 		assertEquals(originalConf.getClusterName(), newConf.getClusterName());
 		assertEquals(originalConf.getLocalArchiverDir(),
 				newConf.getLocalArchiverDir());
+		assertEquals(originalConf.getFormatMetadata(), newConf.getFormatMetadata());
 
 		assertNotEquals(originalConf.getServerName(), newConf.getServerName());
 	}

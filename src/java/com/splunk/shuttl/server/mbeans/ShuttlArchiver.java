@@ -20,6 +20,7 @@ import java.util.List;
 import javax.management.InstanceNotFoundException;
 
 import com.splunk.shuttl.server.mbeans.util.MBeanUtils;
+import com.splunk.shuttl.server.model.ArchiveFormat;
 import com.splunk.shuttl.server.model.ArchiverConf;
 
 /**
@@ -72,12 +73,12 @@ public class ShuttlArchiver extends MBeanBase<ArchiverConf> implements
 	}
 
 	@Override
-	public List<String> getArchiveFormats() {
+	public List<ArchiveFormat> getArchiveFormats() {
 		return conf.getArchiveFormats();
 	}
 
 	@Override
-	public void setArchiveFormats(List<String> formats) {
+	public void setArchiveFormats(List<ArchiveFormat> formats) {
 		conf.setArchiveFormats(formats);
 	}
 

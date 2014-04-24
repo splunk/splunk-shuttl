@@ -20,12 +20,17 @@ import static org.testng.Assert.*;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+
+import javax.xml.namespace.QName;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.server.model.ArchiveFormat;
 import com.splunk.shuttl.testutil.TUtilsMBean;
 import com.splunk.shuttl.testutil.TUtilsString;
 
@@ -64,10 +69,27 @@ public class ShuttlArchiverMBeanTest {
 	}
 
 	public void setArchiveFormat_archiveFormatIsSet_gotArchiveFormat() {
-		List<String> archiveFormats1 = asList("SPLUNK_BUCKET");
+		List<ArchiveFormat> archiveFormats1 = toArchiveFormats(asList("SPLUNK_BUCKET"));
 		assertNotEquals(archiverMBean.getArchiveFormats(), archiveFormats1);
 		archiverMBean.setArchiveFormats(archiveFormats1);
 		assertEquals(archiverMBean.getArchiveFormats(), archiveFormats1);
+	}
+
+	private List<ArchiveFormat> toArchiveFormats(List<String> names) {
+		return toArchiveFormats(names, null, null);
+	}
+
+	private List<ArchiveFormat> toArchiveFormats(List<String> names,
+			String formatWithAttrs, HashMap<QName, String> attributes) {
+		List<ArchiveFormat> list = new LinkedList<ArchiveFormat>();
+		for (String name : names) {
+			ArchiveFormat format = ArchiveFormat.create(name);
+			if (formatWithAttrs != null && formatWithAttrs.equals(name)) {
+				format.setAttributes(attributes);
+			}
+			list.add(format);
+		}
+		return list;
 	}
 
 	public void setClusterName_clusterNameIsSet_gotClusterName() {
@@ -92,7 +114,6 @@ public class ShuttlArchiverMBeanTest {
 	}
 
 	public void save_configured_producesCorrectXML() throws Exception {
-		List<String> archiveFormats = asList("SPLUNK_BUCKET", "CSV");
 		String expectedConfigFile = TUtilsMBean.XML_HEADER
 				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">\n"
 				+ "<archiveFormats>\n"
@@ -107,12 +128,13 @@ public class ShuttlArchiverMBeanTest {
 
 		File file = getTempFile();
 		archiverMBean = ShuttlArchiver.createWithConfFile(file);
-		archiverMBean.setArchiveFormats(archiveFormats);
+		List<String> archiveFormatNames = asList("SPLUNK_BUCKET", "CSV");
+		archiverMBean.setArchiveFormats(toArchiveFormats(archiveFormatNames));
 		archiverMBean.setClusterName(clusterName);
 		archiverMBean.setServerName(serverName);
 		archiverMBean.setBackendName(backendName);
 		archiverMBean.setArchivePath(archivePath);
-		archiverMBean.setBucketFormatPriority(archiveFormats);
+		archiverMBean.setBucketFormatPriority(archiveFormatNames);
 		archiverMBean.save();
 
 		assertEquals(TUtilsString.noSpaces(FileUtils.readFileToString(file)),
@@ -124,7 +146,8 @@ public class ShuttlArchiverMBeanTest {
 				+ "<ns2:archiverConf xmlns:ns2=\"com.splunk.shuttl.server.model\">\n"
 				+ "<archiveFormats>\n"
 				+ "<archiveFormat>SPLUNK_BUCKET</archiveFormat>\n"
-				+ "<archiveFormat>CSV</archiveFormat>\n" + "</archiveFormats>\n"
+				+ "<archiveFormat compression=\"foo\">CSV</archiveFormat>\n"
+				+ "</archiveFormats>\n"
 				+ "<clusterName>" + clusterName + "</clusterName>\n"
 				+ "    <serverName>" + serverName + "</serverName>\n"
 				+ "    <backendName>" + backendName + "</backendName>\n"
@@ -137,7 +160,13 @@ public class ShuttlArchiverMBeanTest {
 		file.deleteOnExit();
 		FileUtils.writeStringToFile(file, configFilePreset);
 		archiverMBean = ShuttlArchiver.createWithConfFile(file);
-		assertEquals(archiverMBean.getArchiveFormats(), archiveFormats);
+		assertEquals(archiverMBean.getArchiveFormats(),
+				toArchiveFormats(archiveFormats, "CSV", new HashMap<QName, String>() {
+					private static final long serialVersionUID = -7911784216872889718L;
+					{
+						put(new QName("compression"), "foo");
+					}
+				}));
 		assertEquals(archiverMBean.getClusterName(), clusterName);
 		assertEquals(archiverMBean.getServerName(), serverName);
 		assertEquals(archiverMBean.getBackendName(), backendName);

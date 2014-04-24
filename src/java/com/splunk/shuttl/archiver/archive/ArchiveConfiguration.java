@@ -19,14 +19,19 @@ import static com.splunk.shuttl.archiver.LogFormatter.*;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.management.InstanceNotFoundException;
+import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.server.mbeans.ShuttlArchiver;
 import com.splunk.shuttl.server.mbeans.ShuttlArchiverMBean;
+import com.splunk.shuttl.server.model.ArchiveFormat;
 
 public class ArchiveConfiguration {
 
@@ -41,11 +46,13 @@ public class ArchiveConfiguration {
 	private final String tempPath;
 	private final String archivePath;
 	private final String backendName;
+	private final Map<BucketFormat, Map<String, String>> formatMetadata;
 
 	ArchiveConfiguration(String localArchiverDir,
 			List<BucketFormat> bucketFormats, String clusterName, String serverName,
 			List<BucketFormat> bucketFormatPriority, String tempPath,
-			String archivePath, String backendName) {
+			String archivePath, String backendName,
+			Map<BucketFormat, Map<String, String>> formatMetadata) {
 		this.localArchiverDir = localArchiverDir;
 		this.bucketFormats = bucketFormats;
 		this.clusterName = clusterName;
@@ -54,6 +61,7 @@ public class ArchiveConfiguration {
 		this.tempPath = tempPath;
 		this.archivePath = archivePath;
 		this.backendName = backendName;
+		this.formatMetadata = formatMetadata;
 	}
 
 	/**
@@ -103,27 +111,36 @@ public class ArchiveConfiguration {
 		String clusterName = mBean.getClusterName();
 		String serverName = mBean.getServerName();
 		List<BucketFormat> bucketFormatPriority = createFormatPriorityList(mBean);
+		Map<BucketFormat, Map<String, String>> bucketFormatMetadata = getBucketFormatMetadata(mBean);
 		return createSafeConfiguration(mBean.getLocalArchiverDir(), archivePath,
 				bucketFormats, clusterName, serverName, bucketFormatPriority,
-				backendName);
+				backendName, bucketFormatMetadata);
 	}
 
 	public static ArchiveConfiguration createSafeConfiguration(
 			String localArchiverDir, String archivePath,
 			List<BucketFormat> bucketFormats, String clusterName, String serverName,
-			List<BucketFormat> bucketFormatPriority, String backendName) {
+			List<BucketFormat> bucketFormatPriority, String backendName,
+			Map<BucketFormat, Map<String, String>> bucketFormatMetadata) {
 		String archiveDataPath = getChildToArchivingRoot(archivePath,
 				ARCHIVE_DATA_DIRECTORY_NAME);
 		String archiveTempPath = getChildToArchivingRoot(archivePath,
 				TEMPORARY_DATA_DIRECTORY_NAME) + "/" + serverName;
 		return new ArchiveConfiguration(localArchiverDir, bucketFormats,
 				clusterName, serverName, bucketFormatPriority, archiveTempPath,
-				archiveDataPath, backendName);
+				archiveDataPath, backendName, bucketFormatMetadata);
 	}
 
 	private static List<BucketFormat> bucketFormatsFromMBean(
 			ShuttlArchiverMBean mBean) {
-		return getFormatsFromNames(mBean.getArchiveFormats());
+		List<String> formatNames = new ArrayList<String>();
+		List<ArchiveFormat> archiveFormats = mBean.getArchiveFormats();
+		if (archiveFormats != null) {
+			for (ArchiveFormat f : archiveFormats) {
+				formatNames.add(f.getName());
+			}
+		}
+		return getFormatsFromNames(formatNames);
 	}
 
 	private static String getChildToArchivingRoot(String archivePath,
@@ -145,6 +162,25 @@ public class ArchiveConfiguration {
 		return bucketFormats;
 	}
 
+	private static Map<BucketFormat, Map<String, String>> getBucketFormatMetadata(
+			ShuttlArchiverMBean mBean) {
+		HashMap<BucketFormat, Map<String, String>> formatMetadata = new HashMap<BucketFormat, Map<String, String>>();
+		List<ArchiveFormat> archiveFormats = mBean.getArchiveFormats();
+		if (archiveFormats != null) {
+			for (ArchiveFormat format : mBean.getArchiveFormats()) {
+				Map<String, String> metadata = new HashMap<String, String>();
+				Map<QName, String> attributes = format.getAttributes();
+				if (attributes != null) {
+					for (Entry<QName, String> e : format.getAttributes().entrySet()) {
+						metadata.put(e.getKey().getLocalPart(), e.getValue());
+					}
+				}
+				formatMetadata.put(BucketFormat.valueOf(format.getName()), metadata);
+			}
+		}
+		return formatMetadata;
+	}
+
 	public List<BucketFormat> getArchiveFormats() {
 		return bucketFormats;
 	}
@@ -160,7 +196,7 @@ public class ArchiveConfiguration {
 	public ArchiveConfiguration newConfigWithServerName(String serverName) {
 		return new ArchiveConfiguration(localArchiverDir, bucketFormats,
 				clusterName, serverName, bucketFormatPriority, tempPath, archivePath,
-				backendName);
+				backendName, formatMetadata);
 	}
 
 	/**
@@ -198,6 +234,13 @@ public class ArchiveConfiguration {
 	 */
 	public String getBackendName() {
 		return backendName;
+	}
+
+	/**
+	 * @return the format metadata. For example compressions and other metadata.
+	 */
+	public Map<BucketFormat, Map<String, String>> getFormatMetadata() {
+		return formatMetadata;
 	}
 
 }

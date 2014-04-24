@@ -18,6 +18,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -33,7 +34,7 @@ import javax.xml.bind.annotation.XmlType;
 		"archiverRootURI" })
 public class ArchiverConf {
 	private String localArchiverDir;
-	private List<String> archiveFormats;
+	private List<ArchiveFormat> archiveFormats;
 	private String clusterName;
 	private String serverName;
 	private List<String> bucketFormatPriority;
@@ -50,12 +51,12 @@ public class ArchiverConf {
 	}
 
 	@XmlElementWrapper(name = "archiveFormats")
-	@XmlElement(name = "archiveFormat")
-	public List<String> getArchiveFormats() {
+	@XmlElements({ @XmlElement(name = "archiveFormat", type = ArchiveFormat.class) })
+	public List<ArchiveFormat> getArchiveFormats() {
 		return archiveFormats;
 	}
 
-	public void setArchiveFormats(List<String> formats) {
+	public void setArchiveFormats(List<ArchiveFormat> formats) {
 		this.archiveFormats = formats;
 	}
 
@@ -106,4 +107,5 @@ public class ArchiverConf {
 	public void setArchiverRootURI(String archiverRootURI) {
 		this.archiverRootURI = archiverRootURI;
 	}
+
 }
