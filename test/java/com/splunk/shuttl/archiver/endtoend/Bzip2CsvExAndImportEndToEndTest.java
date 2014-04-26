@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.importexport.BucketExporter;
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
 import com.splunk.shuttl.archiver.importexport.NoFileFoundException;
 import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
@@ -75,7 +76,7 @@ public class Bzip2CsvExAndImportEndToEndTest {
 		try {
 			CsvExporter csvExporter = CsvExporter.create(BucketToCsvFileExporter
 					.create(localFileSystemPaths));
-			CsvBzip2Exporter exporter = CsvBzip2Exporter.create(csvExporter,
+			BucketExporter exporter = CsvBzip2Exporter.create(csvExporter,
 					localFileSystemPaths);
 
 			LocalBucket realBucket = TUtilsBucket.createRealBucket();

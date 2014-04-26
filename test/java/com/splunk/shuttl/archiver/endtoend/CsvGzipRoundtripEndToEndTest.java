@@ -14,10 +14,6 @@
 // limitations under the License.
 package com.splunk.shuttl.archiver.endtoend;
 
-import static org.testng.AssertJUnit.*;
-
-import org.apache.hadoop.io.compress.BZip2Codec;
-import org.apache.hadoop.io.compress.SplittableCompressionCodec;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -25,30 +21,23 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.usecases.FormatRoundtripFunctionalTest;
 import com.splunk.shuttl.testutil.TUtilsEnvironment;
 
-public class CsvBzip2RoundtripEndToEndTest extends
-		FormatRoundtripFunctionalTest {
+public class CsvGzipRoundtripEndToEndTest extends FormatRoundtripFunctionalTest {
 
 	@Override
 	protected BucketFormat getFormat() {
-		return BucketFormat.CSV_BZIP2;
+		return BucketFormat.CSV_GZIP;
 	}
 
-	@Test(groups = { "fast-test" })
-	public void _givenBzip2Codec_isSplittableCompressionCodec() {
-		BZip2Codec bZip2Codec = new BZip2Codec();
-		assertTrue(bZip2Codec instanceof SplittableCompressionCodec);
-	}
-	
 	@Test(groups = { "end-to-end" })
 	@Parameters(value = { "splunk.home" })
-	public void _givenConfigWithBzip2Format_archivesBzip2Bucket(String splunkHome)
+	public void _givenConfigWithGzipFormat_archivesGzipBucket(String splunkHome)
 			throws Exception {
 		_givenConfigWithSomeFormat_archivesBucketWithTheFormat(splunkHome);
 	}
 
 	@Test(groups = { "end-to-end" })
 	@Parameters(value = { "splunk.home" })
-	public void _givenConfigWithBzip2Format_thawsBucketToSplunkBucket(
+	public void _givenConfigWithGzipFormat_thawsBucketToSplunkBucket(
 			final String splunkHome) throws Exception {
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
@@ -59,4 +48,5 @@ public class CsvBzip2RoundtripEndToEndTest extends
 			}
 		});
 	}
+
 }

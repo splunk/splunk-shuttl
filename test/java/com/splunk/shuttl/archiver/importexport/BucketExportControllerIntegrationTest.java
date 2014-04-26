@@ -31,6 +31,7 @@ import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvBzip2Exporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
+import com.splunk.shuttl.archiver.importexport.csv.CsvGzipExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvSnappyExporter;
 import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
@@ -56,6 +57,7 @@ public class BucketExportControllerIntegrationTest {
 				.create(csvExporter, TgzFormatExporter.create(CreatesBucketTgz
 						.create(localFileSystemPaths)), CsvSnappyExporter.create(
 						csvExporter, localFileSystemPaths), CsvBzip2Exporter.create(
+						csvExporter, localFileSystemPaths), CsvGzipExporter.create(
 						csvExporter, localFileSystemPaths));
 	}
 
