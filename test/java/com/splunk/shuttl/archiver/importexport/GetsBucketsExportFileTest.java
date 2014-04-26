@@ -39,7 +39,7 @@ public class GetsBucketsExportFileTest {
 	public void setUp() {
 		bucket = TUtilsBucket.createBucket();
 		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
-		extension = "ext";
+		extension = ".ext";
 		getsBucketsExportFile = new GetsBucketsExportFile(localFileSystemPaths);
 	}
 
@@ -69,6 +69,6 @@ public class GetsBucketsExportFileTest {
 
 	public void __fileHasBucketNameForUniquness() {
 		File file = getsBucketsExportFile.getExportFile(bucket, extension);
-		assertEquals(bucket.getName() + "." + extension, file.getName());
+		assertEquals(bucket.getName() + extension, file.getName());
 	}
 }

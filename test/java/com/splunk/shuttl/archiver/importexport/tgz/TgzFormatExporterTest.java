@@ -33,7 +33,8 @@ public class TgzFormatExporterTest {
 	public void __createsATgzThenCreatesTheBucketObject() {
 		CreatesBucketTgz createsBucketTgz = CreatesBucketTgz
 				.create(new LocalFileSystemPaths(createDirectory()));
-		BucketFileCreator bucketFileCreator = BucketFileCreator.createForTgz();
+		BucketFileCreator bucketFileCreator = new BucketFileCreator(
+				BucketFormat.SPLUNK_BUCKET_TGZ);
 
 		TgzFormatExporter toTgz = new TgzFormatExporter(createsBucketTgz,
 				bucketFileCreator);

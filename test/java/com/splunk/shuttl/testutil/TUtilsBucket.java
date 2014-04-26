@@ -220,15 +220,16 @@ public class TUtilsBucket {
 	public static LocalBucket createRealCsvBucket() {
 		LocalBucket realCsvBucketCopy = copyBucketWithUrl(REAL_CSV_BUCKET_URL);
 		File csvFile = UtilsBucket.getCsvFile(realCsvBucketCopy);
-		BucketFileCreator bucketFileCreator = BucketFileCreator.createForCsv();
+		BucketFileCreator bucketFileCreator = new BucketFileCreator(
+				BucketFormat.CSV);
 		return bucketFileCreator.createBucketWithFile(csvFile, realCsvBucketCopy);
 	}
 
 	public static LocalBucket createRealSplunkBucketTgz() {
 		LocalBucket realTgzBucketCopy = copyBucketWithUrl(REAL_SPLUNK_BUCKET_TGZ_URL);
 		File tgzFile = UtilsBucket.getTgzFile(realTgzBucketCopy);
-		return BucketFileCreator.createForTgz().createBucketWithFile(tgzFile,
-				realTgzBucketCopy);
+		return new BucketFileCreator(BucketFormat.SPLUNK_BUCKET_TGZ)
+				.createBucketWithFile(tgzFile, realTgzBucketCopy);
 	}
 
 	private static LocalBucket copyBucketWithUrl(URL bucketUrl) {

@@ -23,7 +23,9 @@ import com.splunk.shuttl.archiver.filesystem.PathResolver;
 import com.splunk.shuttl.archiver.filesystem.transaction.TransactionExecuter;
 import com.splunk.shuttl.archiver.importexport.BucketExportController;
 import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
+import com.splunk.shuttl.archiver.importexport.csv.CsvBzip2Exporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
+import com.splunk.shuttl.archiver.importexport.csv.CsvSnappyExporter;
 import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.metastore.ArchiveBucketSize;
@@ -101,8 +103,11 @@ public class BucketShuttlerFactory {
 		TgzFormatExporter tgzFormatExporter = TgzFormatExporter
 				.create(CreatesBucketTgz.create(localFileSystemPaths));
 
+		CsvExporter csvExporter = CsvExporter.create(bucketToCsvFileExporter);
 		BucketExportController bucketExportController = BucketExportController
-				.create(CsvExporter.create(bucketToCsvFileExporter), tgzFormatExporter);
+				.create(csvExporter, tgzFormatExporter,
+						CsvSnappyExporter.create(csvExporter, localFileSystemPaths),
+						CsvBzip2Exporter.create(csvExporter, localFileSystemPaths));
 		ArchiveBucketTransferer bucketTransferer = new ArchiveBucketTransferer(
 				archiveFileSystem, pathResolver, archiveBucketSize,
 				new TransactionExecuter());

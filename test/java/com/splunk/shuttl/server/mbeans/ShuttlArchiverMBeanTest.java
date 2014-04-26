@@ -86,6 +86,8 @@ public class ShuttlArchiverMBeanTest {
 			ArchiveFormat format = ArchiveFormat.create(name);
 			if (formatWithAttrs != null && formatWithAttrs.equals(name)) {
 				format.setAttributes(attributes);
+			} else {
+				format.setAttributes(null);
 			}
 			list.add(format);
 		}

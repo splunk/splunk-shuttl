@@ -16,8 +16,7 @@ package com.splunk.shuttl.archiver.util;
 
 import java.io.File;
 
-import org.apache.commons.io.FilenameUtils;
-
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.NoFileFoundException;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -32,24 +31,26 @@ public class UtilsBucket {
 	 * @throws {@link NoFileFoundException} when no csv file was found.
 	 */
 	public static File getCsvFile(LocalBucket csvBucket) {
-		return getFileFromBucket(csvBucket, "csv");
+		return getFileFromBucket(csvBucket, BucketFormat.CSV);
 	}
 
 	private static boolean isBucketEmpty(LocalBucket csvBucket) {
 		return csvBucket.getDirectory().listFiles().length == 0;
 	}
 
-	private static File getFileFromBucket(LocalBucket bucket, String extension) {
+	public static File getFileFromBucket(LocalBucket bucket, BucketFormat format) {
 		if (isBucketEmpty(bucket))
 			throw new IllegalArgumentException("Bucket was empty!");
 		else
-			return doGetFileFromBucket(bucket, extension);
+			return doGetFileFromBucket(bucket, format);
 	}
 
-	private static File doGetFileFromBucket(LocalBucket csvBucket,
-			String extension) {
-		for (File file : csvBucket.getDirectory().listFiles())
-			if (FilenameUtils.getExtension(file.getName()).equals(extension))
+	private static File doGetFileFromBucket(LocalBucket bucket,
+			BucketFormat format) {
+		String extensionWithoutDot = BucketFormat.extensionOfFormat(format)
+				.replaceFirst(".", "");
+		for (File file : bucket.getDirectory().listFiles())
+			if (file.getName().endsWith(extensionWithoutDot))
 				return file;
 		throw new NoFileFoundException();
 	}
@@ -58,6 +59,6 @@ public class UtilsBucket {
 	 * @return the .tgz file in a bucket, which has a TGZ bucket format.
 	 */
 	public static File getTgzFile(LocalBucket realTgzBucket) {
-		return getFileFromBucket(realTgzBucket, "tgz");
+		return getFileFromBucket(realTgzBucket, BucketFormat.SPLUNK_BUCKET_TGZ);
 	}
 }

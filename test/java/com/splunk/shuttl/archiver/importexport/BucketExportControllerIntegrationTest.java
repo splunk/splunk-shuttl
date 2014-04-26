@@ -29,7 +29,9 @@ import org.testng.annotations.Test;
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.csv.BucketToCsvFileExporter;
+import com.splunk.shuttl.archiver.importexport.csv.CsvBzip2Exporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
+import com.splunk.shuttl.archiver.importexport.csv.CsvSnappyExporter;
 import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -48,10 +50,13 @@ public class BucketExportControllerIntegrationTest {
 	@BeforeMethod
 	public void setUp() {
 		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
+		CsvExporter csvExporter = CsvExporter.create(BucketToCsvFileExporter
+				.create(localFileSystemPaths));
 		bucketExportController = BucketExportController
-				.create(CsvExporter.create(BucketToCsvFileExporter
-						.create(localFileSystemPaths)), TgzFormatExporter
-						.create(CreatesBucketTgz.create(localFileSystemPaths)));
+				.create(csvExporter, TgzFormatExporter.create(CreatesBucketTgz
+						.create(localFileSystemPaths)), CsvSnappyExporter.create(
+						csvExporter, localFileSystemPaths), CsvBzip2Exporter.create(
+						csvExporter, localFileSystemPaths));
 	}
 
 	@AfterMethod

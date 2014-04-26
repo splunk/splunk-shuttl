@@ -49,9 +49,13 @@ public abstract class BucketFileCreatorTest {
 
 	protected abstract BucketFormat getFormat();
 
-	protected abstract String getExtension();
+	private String getExtension() {
+		return BucketFormat.extensionOfFormat(getFormat());
+	}
 
-	protected abstract BucketFileCreator getInstance();
+	private BucketFileCreator getInstance() {
+		return new BucketFileCreator(getFormat());
+	}
 
 	@AfterMethod
 	public void tearDown() {

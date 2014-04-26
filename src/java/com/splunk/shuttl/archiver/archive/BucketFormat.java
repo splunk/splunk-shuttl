@@ -16,13 +16,17 @@
 package com.splunk.shuttl.archiver.archive;
 
 public enum BucketFormat {
-	SPLUNK_BUCKET, UNKNOWN, CSV, SPLUNK_BUCKET_TGZ;
+	SPLUNK_BUCKET, UNKNOWN, CSV, SPLUNK_BUCKET_TGZ, CSV_SNAPPY, CSV_BZIP2;
 
 	public static String extensionOfFormat(BucketFormat format) {
 		if (format.equals(CSV))
 			return ".csv";
 		else if (format.equals(SPLUNK_BUCKET_TGZ))
 			return ".tgz";
+		else if (format.equals(CSV_SNAPPY))
+			return ".csv.sz";
+		else if (format.equals(CSV_BZIP2))
+			return ".csv.bz";
 		return "";
 	}
 }

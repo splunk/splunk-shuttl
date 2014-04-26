@@ -17,6 +17,7 @@ package com.splunk.shuttl.archiver.importexport;
 import java.io.File;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.Bucket;
 
 /**
@@ -35,12 +36,13 @@ public class GetsBucketsExportFile {
 	 * @return not yet existing .csv file unique for the {@link Bucket}
 	 */
 	public File getCsvFile(Bucket bucket) {
-		return getExportFile(bucket, "csv");
+		return getExportFile(bucket,
+				BucketFormat.extensionOfFormat(BucketFormat.CSV));
 	}
 
 	public File getExportFile(Bucket bucket, String extension) {
 		File exportDir = localFileSystemPaths.getExportDirectory(bucket);
-		File file = new File(exportDir, bucket.getName() + "." + extension);
+		File file = new File(exportDir, bucket.getName() + extension);
 		if (file.exists())
 			file.delete();
 		return file;

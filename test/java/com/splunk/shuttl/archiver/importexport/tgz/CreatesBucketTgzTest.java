@@ -26,6 +26,7 @@ import java.util.HashMap;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -52,7 +53,10 @@ public class CreatesBucketTgzTest {
 		emptyMap = new HashMap<String, String>();
 		bucket = TUtilsBucket.createBucket();
 		tgz = createFile();
-		when(getsBucketsExportFile.getExportFile(bucket, "tgz")).thenReturn(tgz);
+		when(
+				getsBucketsExportFile.getExportFile(bucket,
+						BucketFormat.extensionOfFormat(BucketFormat.SPLUNK_BUCKET_TGZ)))
+				.thenReturn(tgz);
 	}
 
 	public void _givenBucket_createsTarWithBucketNameAndTarExtension() {

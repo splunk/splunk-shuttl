@@ -92,7 +92,7 @@ public class UtilsFile {
 	 */
 	public static String getFileNameSansExt(File file, String extension) {
 		String fileName = file.getName();
-		int extensionIndex = fileName.lastIndexOf("." + extension);
+		int extensionIndex = fileName.lastIndexOf(extension);
 		return fileName.substring(0, extensionIndex);
 	}
 }

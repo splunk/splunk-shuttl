@@ -46,7 +46,7 @@ public class CsvExporter implements BucketExporter {
 
 	public static CsvExporter create(
 			BucketToCsvFileExporter bucketToCsvFileExporter) {
-		return new CsvExporter(bucketToCsvFileExporter,
-				BucketFileCreator.createForCsv());
+		return new CsvExporter(bucketToCsvFileExporter, new BucketFileCreator(
+				BucketFormat.CSV));
 	}
 }

@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.HashMap;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.GetsBucketsExportFile;
 import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -49,7 +50,8 @@ public class CreatesBucketTgz {
 	 * Creates a .tgz file from a bucket.
 	 */
 	public File createTgz(LocalBucket bucket) {
-		File tgz = getsBucketsExportFile.getExportFile(bucket, "tgz");
+		File tgz = getsBucketsExportFile.getExportFile(bucket,
+				BucketFormat.extensionOfFormat(BucketFormat.SPLUNK_BUCKET_TGZ));
 		try {
 			createTgzFileFromBucket(bucket, tgz);
 		} catch (TgzBucketCreationFailedException e) {

@@ -16,6 +16,7 @@ package com.splunk.shuttl.archiver.importexport.tgz;
 
 import java.io.File;
 
+import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
 import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -45,7 +46,7 @@ public class TgzFormatExporter implements BucketExporter {
 	}
 
 	public static TgzFormatExporter create(CreatesBucketTgz createsBucketTgz) {
-		return new TgzFormatExporter(createsBucketTgz,
-				BucketFileCreator.createForTgz());
+		return new TgzFormatExporter(createsBucketTgz, new BucketFileCreator(
+				BucketFormat.SPLUNK_BUCKET_TGZ));
 	}
 }

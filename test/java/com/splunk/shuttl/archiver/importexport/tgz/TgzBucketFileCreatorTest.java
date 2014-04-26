@@ -17,7 +17,6 @@ package com.splunk.shuttl.archiver.importexport.tgz;
 import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
-import com.splunk.shuttl.archiver.importexport.BucketFileCreator;
 import com.splunk.shuttl.archiver.importexport.BucketFileCreatorTest;
 
 @Test(groups = { "fast-unit" })
@@ -26,16 +25,6 @@ public class TgzBucketFileCreatorTest extends BucketFileCreatorTest {
 	@Override
 	protected BucketFormat getFormat() {
 		return BucketFormat.SPLUNK_BUCKET_TGZ;
-	}
-
-	@Override
-	protected String getExtension() {
-		return "tgz";
-	}
-
-	@Override
-	protected BucketFileCreator getInstance() {
-		return BucketFileCreator.createForTgz();
 	}
 
 }

@@ -38,9 +38,9 @@ public class BucketFileCreator {
 	 * @param Format
 	 *          which the bucket created should be.
 	 */
-	private BucketFileCreator(BucketFormat format, String extension) {
+	public BucketFileCreator(BucketFormat format) {
 		this.format = format;
-		this.extension = extension;
+		this.extension = BucketFormat.extensionOfFormat(format);
 	}
 
 	/**
@@ -101,13 +101,4 @@ public class BucketFileCreator {
 						"Bucket to be created", "bucket", bucket, "bucket_directory",
 						bucketDir));
 	}
-
-	public static BucketFileCreator createForCsv() {
-		return new BucketFileCreator(BucketFormat.CSV, "csv");
-	}
-
-	public static BucketFileCreator createForTgz() {
-		return new BucketFileCreator(BucketFormat.SPLUNK_BUCKET_TGZ, "tgz");
-	}
-
 }

@@ -12,26 +12,33 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.splunk.shuttl.archiver.usecases;
+package com.splunk.shuttl.archiver.importexport.csv;
 
-import org.testng.annotations.Test;
+import org.apache.hadoop.io.compress.BZip2Codec;
+import org.apache.hadoop.io.compress.CompressionCodec;
 
 import com.splunk.shuttl.archiver.archive.BucketFormat;
+import com.splunk.shuttl.archiver.importexport.BucketImporter;
+import com.splunk.shuttl.archiver.model.BucketFactory;
 
-public class TgzRoundtripFunctionalTest extends FormatRoundtripFunctionalTest {
+public class CsvBzip2Importer extends CsvCompressedImporter {
+
+	public CsvBzip2Importer(CsvImporter csvImporter, BucketFactory bucketFactory) {
+		super(csvImporter, bucketFactory);
+	}
 
 	@Override
 	protected BucketFormat getFormat() {
-		return BucketFormat.SPLUNK_BUCKET_TGZ;
+		return BucketFormat.CSV_BZIP2;
 	}
 
-	@Test(groups = { "functional" })
-	public void _givenConfigWithTgzFormat_archivesTgzBucket() {
-		_givenConfigWithSomeFormat_archivesBucketWithTheFormat(null);
+	@Override
+	protected CompressionCodec getCodec() {
+		return new BZip2Codec();
 	}
 
-	@Test(groups = { "functional" })
-	public void _givenConfigWithTgzFormat_thawsBucketToSplunkBucket() {
-		_givenConfigWithSomeFormat_thawsBucketToSplunkBucket(null);
+	public static BucketImporter create(CsvImporter csvImporter) {
+		return new CsvBzip2Importer(csvImporter, new BucketFactory());
 	}
+
 }

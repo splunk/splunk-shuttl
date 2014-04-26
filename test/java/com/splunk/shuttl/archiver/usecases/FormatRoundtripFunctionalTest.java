@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
@@ -50,7 +49,7 @@ public abstract class FormatRoundtripFunctionalTest {
 	private File testDirectory;
 	private LocalFileSystemPaths localFileSystemPaths;
 
-	@BeforeMethod
+	@BeforeMethod(alwaysRun = true)
 	public void setUp() {
 		confWithSpecificFormat = getLocalConfigurationThatArchivesFormats(asList(getFormat()));
 		testDirectory = createDirectory();
@@ -73,9 +72,9 @@ public abstract class FormatRoundtripFunctionalTest {
 		tearDownLocalConfig(confWithSpecificFormat);
 	}
 
-	@Test(groups = { "functional" })
-	public void _givenConfigWithSomeFormat_archivesBucketWithTheFormat() {
-		Bucket bucket = getBucketWithFormatArchived();
+	public void _givenConfigWithSomeFormat_archivesBucketWithTheFormat(
+			String splunkHomeOrNull) {
+		Bucket bucket = getBucketWithFormatArchived(splunkHomeOrNull);
 
 		List<Bucket> buckets = ListsBucketsFilteredFactory.create(
 				confWithSpecificFormat)
@@ -86,18 +85,21 @@ public abstract class FormatRoundtripFunctionalTest {
 		assertEquals(getFormat(), buckets.get(0).getFormat());
 	}
 
-	private Bucket getBucketWithFormatArchived() {
+	private Bucket getBucketWithFormatArchived(String splunkHomeOrNull) {
 		LocalBucket bucket = TUtilsBucket.createRealBucket();
-		archiveBucket(bucket, bucketArchiver);
+		if (splunkHomeOrNull == null)
+			archiveBucket(bucket, bucketArchiver);
+		else
+			archiveBucket(bucket, bucketArchiver, splunkHomeOrNull);
 		return bucket;
 	}
 
-	@Test(groups = { "functional" })
-	public void _givenConfigWithSomeFormat_thawsBucketToSplunkBucket()
+	public void _givenConfigWithSomeFormat_thawsBucketToSplunkBucket(
+			String splunkHomeOrNull)
 			throws IllegalIndexException {
 		File thawDir = createDirectory();
 
-		Bucket bucket = getBucketWithFormatArchived();
+		Bucket bucket = getBucketWithFormatArchived(splunkHomeOrNull);
 		SplunkIndexesLayer splunkIndexesLayer = new FakeSplunkIndexesLayer(thawDir);
 
 		BucketThawer bucketThawer = BucketThawerFactory
