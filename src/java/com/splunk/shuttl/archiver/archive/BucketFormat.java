@@ -24,9 +24,9 @@ public enum BucketFormat {
 		else if (format.equals(SPLUNK_BUCKET_TGZ))
 			return ".tgz";
 		else if (format.equals(CSV_SNAPPY))
-			return ".csv.sz";
+			return ".csv.snappy";
 		else if (format.equals(CSV_BZIP2))
-			return ".csv.bz";
+			return ".csv.bz2";
 		else if (format.equals(CSV_GZIP))
 			return ".csv.gz";
 		return "";
