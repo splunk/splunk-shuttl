@@ -1,3 +1,8 @@
+# Project status:
+Shuttl development has ***stalled***. There's no known developer working on this project.
+
+Shuttl seems to work for Splunk 6.x when it's built off the develop branch, but it's experimental.
+
 Shuttl - Archiving for Splunk 
 =======================================
 
