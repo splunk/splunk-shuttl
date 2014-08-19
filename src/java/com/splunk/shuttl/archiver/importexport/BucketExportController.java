@@ -28,6 +28,7 @@ import com.splunk.shuttl.archiver.importexport.csv.CsvBzip2Exporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvGzipExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvSnappyExporter;
+import com.splunk.shuttl.archiver.importexport.light.SplunkLightExporter;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -104,13 +105,14 @@ public class BucketExportController {
 	 */
 	public static BucketExportController create(CsvExporter csvExporter,
 			TgzFormatExporter tgzFormatExporter, CsvSnappyExporter csvSnappyExporter,
-			CsvBzip2Exporter csvBzip2Exporter, CsvGzipExporter csvGzipExporter) {
+			CsvBzip2Exporter csvBzip2Exporter, CsvGzipExporter csvGzipExporter, SplunkLightExporter splunkLightExporter) {
 		Map<BucketFormat, BucketExporter> formatChangers = new HashMap<BucketFormat, BucketExporter>();
 		formatChangers.put(BucketFormat.CSV, csvExporter);
 		formatChangers.put(BucketFormat.SPLUNK_BUCKET_TGZ, tgzFormatExporter);
 		formatChangers.put(BucketFormat.CSV_SNAPPY, csvSnappyExporter);
 		formatChangers.put(BucketFormat.CSV_BZIP2, csvBzip2Exporter);
 		formatChangers.put(BucketFormat.CSV_GZIP, csvGzipExporter);
+		formatChangers.put(BucketFormat.SPLUNK_BUCKET_LIGHT, splunkLightExporter);
 
 		return new BucketExportController(formatChangers);
 	}

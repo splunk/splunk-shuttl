@@ -18,6 +18,8 @@ import static com.splunk.shuttl.testutil.TUtilsFile.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -33,6 +35,7 @@ import com.splunk.shuttl.archiver.importexport.csv.CsvBzip2Exporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvGzipExporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvSnappyExporter;
+import com.splunk.shuttl.archiver.importexport.light.SplunkLightExporter;
 import com.splunk.shuttl.archiver.importexport.tgz.CreatesBucketTgz;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzFormatExporter;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -45,20 +48,11 @@ import com.splunk.shuttl.testutil.TUtilsEnvironment;
 @Test(groups = { "end-to-end" })
 public class BucketExportControllerIntegrationTest {
 
-	private BucketExportController bucketExportController;
 	private LocalFileSystemPaths localFileSystemPaths;
 
 	@BeforeMethod
 	public void setUp() {
 		localFileSystemPaths = new LocalFileSystemPaths(createDirectory());
-		CsvExporter csvExporter = CsvExporter.create(BucketToCsvFileExporter
-				.create(localFileSystemPaths));
-		bucketExportController = BucketExportController
-				.create(csvExporter, TgzFormatExporter.create(CreatesBucketTgz
-						.create(localFileSystemPaths)), CsvSnappyExporter.create(
-						csvExporter, localFileSystemPaths), CsvBzip2Exporter.create(
-						csvExporter, localFileSystemPaths), CsvGzipExporter.create(
-						csvExporter, localFileSystemPaths));
 	}
 
 	@AfterMethod
@@ -81,6 +75,16 @@ public class BucketExportControllerIntegrationTest {
 	}
 
 	private void exportingBucketWithRealDataToCsvCreatesCsvBucket() {
+		CsvExporter csvExporter = CsvExporter.create(BucketToCsvFileExporter
+				.create(localFileSystemPaths));
+		BucketExportController bucketExportController = BucketExportController
+				.create(csvExporter, TgzFormatExporter.create(CreatesBucketTgz
+						.create(localFileSystemPaths)), CsvSnappyExporter.create(
+						csvExporter, localFileSystemPaths), CsvBzip2Exporter.create(
+						csvExporter, localFileSystemPaths), CsvGzipExporter.create(
+						csvExporter, localFileSystemPaths), SplunkLightExporter
+						.create(new HashMap<BucketFormat, Map<String, String>>()));
+
 		LocalBucket realBucket = TUtilsBucket.createRealBucket();
 		LocalBucket csvBucket = bucketExportController.exportBucket(realBucket,
 				BucketFormat.CSV);

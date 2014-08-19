@@ -27,9 +27,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.splunk.shuttl.archiver.archive.ArchiveConfiguration;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
+import com.splunk.shuttl.archiver.model.BucketFactory;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
 /**
@@ -38,51 +38,59 @@ import com.splunk.shuttl.archiver.model.LocalBucket;
  */
 public class SplunkLightExporter implements BucketExporter {
 
+	/**
+	 * 
+	 */
+	public static final BucketFormat EXPORT_FORMAT = BucketFormat.SPLUNK_BUCKET_LIGHT;
 	private static final String MATCH_NOTHING_PATTERN = "";
 	private static final String MATCH_ALL_PATTERN = ".*";
 
-	private final Map<BucketFormat, List<Pattern>> whitelists;
-	private final Map<BucketFormat, List<Pattern>> blacklists;
+	private final List<Pattern> whitelists;
+	private final List<Pattern> blacklists;
 
-	public SplunkLightExporter(Map<BucketFormat, Map<String, String>> metadata) {
-		this.whitelists = getWhitelists(metadata);
-		this.blacklists = getBlacklists(metadata);
+	public SplunkLightExporter(List<Pattern> whitelist, List<Pattern> blacklist) {
+		this.whitelists = whitelist;
+		this.blacklists = blacklist;
 	}
 
 	@Override
 	public LocalBucket exportBucket(LocalBucket b) {
 		File directory = b.getDirectory();
-		for (Entry<String, File> e : getPathsRelativeToBucket(b, directory)
+		for (Entry<String, File> e : getFilesRelativeToBucket(b, directory)
 				.entrySet()) {
-			if (!shouldKeepPath(e.getKey(), b.getFormat())) {
+			String relativePath = e.getKey();
+			if (!shouldKeepPath(relativePath)) {
 				FileUtils.deleteQuietly(e.getValue());
 			}
 		}
-		return b;
+		return BucketFactory.createBucketWithIndexDirectoryAndFormat(b.getIndex(),
+				b.getDirectory(), EXPORT_FORMAT);
 	}
 
-	private boolean shouldKeepPath(String path, BucketFormat format) {
-		boolean whitelisted = isPathMatching(whitelists, path, format);
-		boolean blacklisted = isPathMatching(blacklists, path, format);
+	private boolean shouldKeepPath(String path) {
+		boolean whitelisted = isPathMatching(whitelists, path);
+		boolean blacklisted = isPathMatching(blacklists, path);
 		return whitelisted && !blacklisted;
 	}
 
-	private boolean isPathMatching(Map<BucketFormat, List<Pattern>> patterns,
-			String path, BucketFormat format) {
-		for (Pattern pattern : patterns.get(format)) {
-			if (pattern.matcher(path).matches()) {
+	private boolean isPathMatching(List<Pattern> patterns, String path) {
+		for (Pattern pattern : patterns)
+			if (pattern.matcher(path).matches()
+					|| patternEqualsFilename(pattern, path))
 				return true;
-			}
-		}
 		return false;
 	}
 
-	private Map<BucketFormat, List<Pattern>> getBlacklists(
+	private boolean patternEqualsFilename(Pattern pattern, String path) {
+		return pattern.pattern().equals(new File(path).getName());
+	}
+
+	public static Map<BucketFormat, List<Pattern>> getBlacklists(
 			Map<BucketFormat, Map<String, String>> metadata) {
 		return getPatterns(metadata, "blacklist", MATCH_NOTHING_PATTERN);
 	}
 
-	private Map<BucketFormat, List<Pattern>> getWhitelists(
+	public static Map<BucketFormat, List<Pattern>> getWhitelists(
 			Map<BucketFormat, Map<String, String>> metadata) {
 		return getPatterns(metadata, "whitelist", MATCH_ALL_PATTERN);
 	}
@@ -108,8 +116,8 @@ public class SplunkLightExporter implements BucketExporter {
 		return patterns;
 	}
 
-	private static List<Pattern> getPattern(Map<String, String> meta, String patternKey,
-			Pattern defaultPattern) {
+	private static List<Pattern> getPattern(Map<String, String> meta,
+			String patternKey, Pattern defaultPattern) {
 		if (!meta.containsKey(patternKey))
 			return asList(defaultPattern);
 
@@ -135,14 +143,15 @@ public class SplunkLightExporter implements BucketExporter {
 	 *  "dir/file" : new File(bucket_dir, "dir/file")}
 	 * </pre>
 	 */
-	public static HashMap<String, File> getPathsRelativeToBucket(LocalBucket b,
+	public static HashMap<String, File> getFilesRelativeToBucket(LocalBucket b,
 			File currentDir) {
 		HashMap<String, File> pathToFile = new HashMap<String, File>();
 		String pathToBucket = b.getDirectory().getAbsolutePath();
 		for (File f : currentDir.listFiles()) {
-			pathToFile.put(getPathRelativeToBucket(pathToBucket, f), f);
 			if (f.isDirectory()) {
-				pathToFile.putAll(getPathsRelativeToBucket(b, f));
+				pathToFile.putAll(getFilesRelativeToBucket(b, f));
+			} else {
+				pathToFile.put(getPathRelativeToBucket(pathToBucket, f), f);
 			}
 		}
 		return pathToFile;
@@ -154,10 +163,10 @@ public class SplunkLightExporter implements BucketExporter {
 		return StringUtils.substringAfter(removeBucketPath, File.separator);
 	}
 
-	public static SplunkLightExporter create(ArchiveConfiguration config) {
-		Map<BucketFormat, Map<String, String>> metadata = config
-				.getFormatMetadata();
-		return new SplunkLightExporter(metadata);
+	public static SplunkLightExporter create(
+			Map<BucketFormat, Map<String, String>> metadata) {
+		return new SplunkLightExporter(getWhitelists(metadata).get(EXPORT_FORMAT),
+				getBlacklists(metadata).get(EXPORT_FORMAT));
 	}
 
 }

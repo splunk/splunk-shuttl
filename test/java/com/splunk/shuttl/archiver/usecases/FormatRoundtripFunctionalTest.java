@@ -20,7 +20,9 @@ import static java.util.Arrays.*;
 import static org.testng.Assert.*;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
@@ -51,7 +53,8 @@ public abstract class FormatRoundtripFunctionalTest {
 
 	@BeforeMethod(alwaysRun = true)
 	public void setUp() {
-		confWithSpecificFormat = getLocalConfigurationThatArchivesFormats(asList(getFormat()));
+		confWithSpecificFormat = getLocalConfigurationThatArchivesFormats(
+				asList(getFormat()), getFormatMetadata());
 		testDirectory = createDirectory();
 		localFileSystemPaths = new LocalFileSystemPaths(
 				testDirectory.getAbsolutePath());
@@ -66,13 +69,17 @@ public abstract class FormatRoundtripFunctionalTest {
 
 	protected abstract BucketFormat getFormat();
 
+	protected Map<BucketFormat, Map<String, String>> getFormatMetadata() {
+		return Collections.emptyMap();
+	}
+
 	@AfterMethod
 	public void tearDown() {
 		FileUtils.deleteQuietly(testDirectory);
 		tearDownLocalConfig(confWithSpecificFormat);
 	}
 
-	public void _givenConfigWithSomeFormat_archivesBucketWithTheFormat(
+	public List<Bucket> _givenConfigWithSomeFormat_archivesBucketWithTheFormat(
 			String splunkHomeOrNull) {
 		Bucket bucket = getBucketWithFormatArchived(splunkHomeOrNull);
 
@@ -83,6 +90,7 @@ public abstract class FormatRoundtripFunctionalTest {
 
 		assertEquals(1, buckets.size());
 		assertEquals(getFormat(), buckets.get(0).getFormat());
+		return buckets;
 	}
 
 	private Bucket getBucketWithFormatArchived(String splunkHomeOrNull) {

@@ -127,16 +127,24 @@ public class TUtilsFunctional {
 	/**
 	 * @param bucketFormats
 	 *          to archive.
+	 * @param hashMap
 	 * @return an archive configuration that archives locally (for speed) with all
 	 *         the formats specified. The format order in the list also specifies
 	 *         the priority when thawing.
 	 */
 	public static ArchiveConfiguration getLocalConfigurationThatArchivesFormats(
 			List<BucketFormat> bucketFormats) {
+		return getLocalConfigurationThatArchivesFormats(bucketFormats,
+				new HashMap<BucketFormat, Map<String, String>>());
+	}
+
+	public static ArchiveConfiguration getLocalConfigurationThatArchivesFormats(
+			List<BucketFormat> bucketFormats,
+			Map<BucketFormat, Map<String, String>> formatMetadata) {
 		String archivePath = createDirectory().getAbsolutePath();
 		return ArchiveConfiguration.createSafeConfiguration("localArchiverDir",
 				archivePath, bucketFormats, "clusterName", "serverName", bucketFormats,
-				"local", new HashMap<BucketFormat, Map<String, String>>());
+				"local", formatMetadata);
 	}
 
 }

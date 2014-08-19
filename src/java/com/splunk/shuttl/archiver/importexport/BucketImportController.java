@@ -22,6 +22,7 @@ import com.splunk.shuttl.archiver.importexport.csv.CsvBzip2Importer;
 import com.splunk.shuttl.archiver.importexport.csv.CsvGzipImporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvImporter;
 import com.splunk.shuttl.archiver.importexport.csv.CsvSnappyImporter;
+import com.splunk.shuttl.archiver.importexport.light.SplunkLightImporter;
 import com.splunk.shuttl.archiver.importexport.tgz.TgzImporter;
 import com.splunk.shuttl.archiver.model.Bucket;
 import com.splunk.shuttl.archiver.model.LocalBucket;
@@ -69,6 +70,8 @@ public class BucketImportController {
 				CsvSnappyImporter.create(csvImporter));
 		importers.put(BucketFormat.CSV_BZIP2, CsvBzip2Importer.create(csvImporter));
 		importers.put(BucketFormat.CSV_GZIP, CsvGzipImporter.create(csvImporter));
+		importers.put(BucketFormat.SPLUNK_BUCKET_LIGHT,
+				SplunkLightImporter.create());
 
 		return new BucketImportController(importers);
 	}
