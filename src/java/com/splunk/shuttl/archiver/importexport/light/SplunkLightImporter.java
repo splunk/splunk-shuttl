@@ -15,9 +15,19 @@
 package com.splunk.shuttl.archiver.importexport.light;
 
 import com.splunk.shuttl.archiver.importexport.BucketImporter;
+import com.splunk.shuttl.archiver.importexport.ShellExecutor;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 
 public class SplunkLightImporter implements BucketImporter {
+
+	private final SplunkRebuildTool splunkRebuildTool;
+	private final ShellExecutor shellExecutor;
+
+	public SplunkLightImporter(SplunkRebuildTool splunkRebuildTool,
+			ShellExecutor shellExecutor) {
+		this.splunkRebuildTool = splunkRebuildTool;
+		this.shellExecutor = shellExecutor;
+	}
 
 	@Override
 	public LocalBucket importBucket(LocalBucket b) {
@@ -25,7 +35,12 @@ public class SplunkLightImporter implements BucketImporter {
 	}
 
 	public static SplunkLightImporter create() {
-		throw new UnsupportedOperationException();
+		return new SplunkLightImporter(new SplunkRebuildTool(),
+				ShellExecutor.getInstance());
+	}
+
+	private static class SplunkRebuildTool {
+
 	}
 
 }

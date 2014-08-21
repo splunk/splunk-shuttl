@@ -15,6 +15,7 @@
 package com.splunk.shuttl.archiver.importexport.light;
 
 import static java.util.Arrays.*;
+import static org.mockito.Mockito.*;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.model.LocalBucket;
 import com.splunk.shuttl.testutil.TUtilsBucket;
@@ -44,100 +46,122 @@ public class SplunkLightExporterTest {
 
 	private BucketFormat format = SplunkLightExporter.EXPORT_FORMAT;
 	private LocalBucket bucket;
-	private File cleanBucketDir;
-	private File rawdata;
-	private File fooFile;
-	private File journalgz;
+	private LocalFileSystemPaths localFileSystemPaths;
+	private File exportDirectory;
 
 	@BeforeMethod
 	public void setUp() throws IOException {
+		exportDirectory = TUtilsFile.createDirectory();
 		bucket = TUtilsBucket.createBucket();
-		cleanBucketDir = cleanBucketDir(bucket);
-		rawdata = createDirs(cleanBucketDir, "rawdata");
-		fooFile = createFile(cleanBucketDir, "foo.file");
-		journalgz = createFile(cleanBucketDir, "rawdata/journal.gz");
+		cleanBucketDir(bucket);
+		createDirs(rawdata(bucket));
+		createFile(fooFile(bucket));
+		createFile(journalGz(bucket));
+		localFileSystemPaths = mock(LocalFileSystemPaths.class);
+		when(localFileSystemPaths.getExportDirectory(bucket)).thenReturn(
+				exportDirectory);
 	}
 
-	public void exportBucket_whitelistingRawdata_keepsRawdataDirWithContents()
+	private File journalGz(LocalBucket bucket) {
+		return new File(bucket.getDirectory(), "rawdata/journal.gz");
+	}
+
+	private File fooFile(LocalBucket bucket) {
+		return new File(bucket.getDirectory(), "foo.file");
+	}
+
+	private File rawdata(LocalBucket bucket) {
+		return new File(bucket.getDirectory(), "rawdata");
+	}
+
+	public void exportBucket_whitelistingRawdata_exportsRawdataDirWithContents()
 			throws IOException {
 		Map<BucketFormat, Map<String, String>> metadata = getLazyMetadata();
 		metadata.get(SplunkLightExporter.EXPORT_FORMAT)
 				.put("whitelist", "rawdat.*");
 
-		LocalBucket exportedBucket = SplunkLightExporter.create(metadata)
-				.exportBucket(bucket);
-		Assert.assertEquals(exportedBucket.getDirectory(), bucket.getDirectory());
-		assertTrue(rawdata.exists());
-		assertTrue(journalgz.exists());
-		assertFalse(fooFile.exists());
+		LocalBucket exported = SplunkLightExporter.create(localFileSystemPaths,
+				metadata).exportBucket(bucket);
+		Assert.assertNotEquals(exported.getDirectory(), bucket.getDirectory());
+		assertTrue(rawdata(exported).exists());
+		assertTrue(journalGz(exported).exists());
+		assertFalse(fooFile(exported).exists());
 	}
 
-	public void exportBucket_blacklistDir_removesDir() {
+	public void exportBucket_blacklistJournal_doesNotExportTheRawdataDir() {
 		Map<BucketFormat, Map<String, String>> metadata = getLazyMetadata();
 		metadata.get(format).put("blacklist", ".*journal.gz");
 
-		SplunkLightExporter.create(metadata).exportBucket(bucket);
-		assertFalse(journalgz.exists());
-		assertTrue(rawdata.exists());
-		assertTrue(fooFile.exists());
+		LocalBucket export = SplunkLightExporter.create(localFileSystemPaths,
+				metadata).exportBucket(bucket);
+
+		assertFalse(journalGz(export).exists());
+		assertFalse(rawdata(export).exists());
+		assertTrue(fooFile(export).exists());
 	}
 
-	public void exportBucket_noMetadata_keepsAllFiles() {
-		SplunkLightExporter.create(getLazyMetadata()).exportBucket(bucket);
-		assertTrue(journalgz.exists());
-		assertTrue(rawdata.exists());
-		assertTrue(rawdata.exists());
+	public void exportBucket_noMetadata_exportsAllFiles() {
+		LocalBucket exported = SplunkLightExporter.create(localFileSystemPaths,
+				getLazyMetadata()).exportBucket(bucket);
+		assertTrue(journalGz(exported).exists());
+		assertTrue(rawdata(exported).exists());
+		assertTrue(fooFile(exported).exists());
 	}
 
 	public void exportBucket_whiteAndBlacklist_blacklistingTrumpsWhitelisting() {
 		Map<BucketFormat, Map<String, String>> metadata = getLazyMetadata();
-		metadata.get(format).put("whitelist", "rawdata.*");
+		metadata.get(format).put("whitelist", "rawdata.*,foo.*");
 		metadata.get(format).put("blacklist", ".*journal.gz");
 
-		SplunkLightExporter.create(metadata).exportBucket(bucket);
-		assertFalse(journalgz.exists());
-		assertTrue(rawdata.exists());
-		assertFalse(fooFile.exists()); // does not mention fooFile
+		LocalBucket exported = SplunkLightExporter.create(localFileSystemPaths,
+				metadata).exportBucket(bucket);
+		assertFalse(journalGz(exported).exists());
+		assertFalse(rawdata(exported).exists());
+		assertTrue(fooFile(exported).exists());
 	}
 
-	public void exportBucket_whitelistFileWithinADirectory_keepsDirectoryToo() {
+	public void exportBucket_whitelistFileWithinADirectory_exportsDirectoryToo() {
 		Map<BucketFormat, Map<String, String>> metadata = getLazyMetadata();
 		metadata.get(format).put("whitelist", ".*journal.gz");
 
-		SplunkLightExporter.create(metadata).exportBucket(bucket);
-		assertTrue(journalgz.exists());
-		assertTrue(rawdata.exists());
-		assertFalse(fooFile.exists());
+		LocalBucket exported = SplunkLightExporter.create(localFileSystemPaths,
+				metadata).exportBucket(bucket);
+		assertTrue(journalGz(exported).exists());
+		assertTrue(rawdata(exported).exists());
+		assertFalse(fooFile(exported).exists());
 	}
 
-	public void exportBucket_whitelistCanListMultipleFiles_keepsAllListedFiles() {
+	public void exportBucket_whitelistCanListMultipleFiles_exportsAllListedFiles() {
 		Map<BucketFormat, Map<String, String>> metadata = getLazyMetadata();
-		metadata.get(format).put("whitelist", "rawdata,foo.*");
+		metadata.get(format).put("whitelist", ".*journal.gz,foo.*");
 
-		SplunkLightExporter.create(metadata).exportBucket(bucket);
-		assertFalse(journalgz.exists());
-		assertTrue(rawdata.exists());
-		assertTrue(fooFile.exists());
+		LocalBucket exported = SplunkLightExporter.create(localFileSystemPaths,
+				metadata).exportBucket(bucket);
+		assertTrue(journalGz(exported).exists());
+		assertTrue(rawdata(exported).exists());
+		assertTrue(fooFile(exported).exists());
 	}
 
-	public void exportBucket_blacklistCanListMutlipleFiles_deletesAllListedFiles() {
+	public void exportBucket_blacklistCanListMutlipleFiles_doesNotExportBlacklistedFiles() {
 		Map<BucketFormat, Map<String, String>> metadata = getLazyMetadata();
 		metadata.get(format).put("blacklist", "foo.*,.*journal.*");
 
-		SplunkLightExporter.create(metadata).exportBucket(bucket);
-		assertFalse(journalgz.exists());
-		assertTrue(rawdata.exists());
-		assertFalse(fooFile.exists());
+		LocalBucket exported = SplunkLightExporter.create(localFileSystemPaths,
+				metadata).exportBucket(bucket);
+		assertFalse(journalGz(exported).exists());
+		assertFalse(rawdata(exported).exists());
+		assertFalse(fooFile(exported).exists());
 	}
 
-	public void exportBucket_whitelistFilename_keepsFilename() {
+	public void exportBucket_whitelistFilename_exportsFilename() {
 		Map<BucketFormat, Map<String, String>> metadata = getLazyMetadata();
-		metadata.get(format).put("whitelist", journalgz.getName());
+		metadata.get(format).put("whitelist", "journal.gz");
 
-		SplunkLightExporter.create(metadata).exportBucket(bucket);
-		assertTrue(journalgz.exists());
-		assertTrue(rawdata.exists());
-		assertFalse(fooFile.exists());
+		LocalBucket exported = SplunkLightExporter.create(localFileSystemPaths,
+				metadata).exportBucket(bucket);
+		assertTrue(journalGz(exported).exists());
+		assertTrue(rawdata(exported).exists());
+		assertFalse(fooFile(exported).exists());
 	}
 
 	public void getPatterns_givenMetadataPerFormat_groupsPatternsByFormat() {
@@ -185,10 +209,10 @@ public class SplunkLightExporterTest {
 			// Clean bucket
 			File bucketDir = cleanBucketDir(b);
 
-			createFile(bucketDir, "file");
-			createDirs(bucketDir, "dir/dir2/dir3");
-			createFile(bucketDir, "dir/file");
-			createFile(bucketDir, "dir/dir2/dir3/file");
+			validateNewFile(bucketDir, "file");
+			validateNewDirs(bucketDir, "dir/dir2/dir3");
+			validateNewFile(bucketDir, "dir/file");
+			validateNewFile(bucketDir, "dir/dir2/dir3/file");
 			Set<String> expectedKeySet = new HashSet<String>();
 			expectedKeySet.addAll(asList("file", "dir/file", "dir/dir2/dir3/file"));
 
@@ -203,16 +227,21 @@ public class SplunkLightExporterTest {
 		}
 	}
 
-	private File createDirs(File bucketDir, String path) {
-		File dir = new File(bucketDir, path);
-		assertTrue(dir.mkdirs());
-		return dir;
+	private void validateNewDirs(File bucketDir, String child) {
+		assertTrue(new File(bucketDir, child).mkdirs());
 	}
 
-	private File createFile(File bucketDir, String path) throws IOException {
-		File file = new File(bucketDir, path);
-		assertTrue(file.createNewFile());
-		return file;
+	private void validateNewFile(File bucketDir, String child) throws IOException {
+		assertTrue(new File(bucketDir, child).createNewFile());
+
+	}
+
+	private void createDirs(File d) {
+		assertTrue(d.mkdirs());
+	}
+
+	private void createFile(File f) throws IOException {
+		assertTrue(f.createNewFile());
 	}
 
 	private File cleanBucketDir(LocalBucket b) {

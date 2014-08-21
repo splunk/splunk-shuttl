@@ -82,8 +82,9 @@ public class BucketExportControllerIntegrationTest {
 						.create(localFileSystemPaths)), CsvSnappyExporter.create(
 						csvExporter, localFileSystemPaths), CsvBzip2Exporter.create(
 						csvExporter, localFileSystemPaths), CsvGzipExporter.create(
-						csvExporter, localFileSystemPaths), SplunkLightExporter
-						.create(new HashMap<BucketFormat, Map<String, String>>()));
+						csvExporter, localFileSystemPaths), SplunkLightExporter.create(
+						localFileSystemPaths,
+						new HashMap<BucketFormat, Map<String, String>>()));
 
 		LocalBucket realBucket = TUtilsBucket.createRealBucket();
 		LocalBucket csvBucket = bucketExportController.exportBucket(realBucket,

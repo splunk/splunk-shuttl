@@ -104,7 +104,7 @@ public abstract class FormatRoundtripFunctionalTest {
 
 	public void _givenConfigWithSomeFormat_thawsBucketToSplunkBucket(
 			String splunkHomeOrNull)
-			throws IllegalIndexException {
+ throws IllegalIndexException {
 		File thawDir = createDirectory();
 
 		Bucket bucket = getBucketWithFormatArchived(splunkHomeOrNull);

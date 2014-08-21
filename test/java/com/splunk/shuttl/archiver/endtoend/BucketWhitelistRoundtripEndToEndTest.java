@@ -74,7 +74,7 @@ public class BucketWhitelistRoundtripEndToEndTest extends
 		assertTrue(madeAllAssertions);
 	}
 
-	@Test(groups = { "end-to-end" }, enabled = false)
+	@Test(groups = { "end-to-end" })
 	@Parameters(value = { "splunk.home" })
 	public void _2(final String splunkHome) {
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {

@@ -111,7 +111,8 @@ public class BucketShuttlerFactory {
 						CsvSnappyExporter.create(csvExporter, localFileSystemPaths),
 						CsvBzip2Exporter.create(csvExporter, localFileSystemPaths),
 						CsvGzipExporter.create(csvExporter, localFileSystemPaths),
-						SplunkLightExporter.create(config.getFormatMetadata()));
+						SplunkLightExporter.create(localFileSystemPaths,
+								config.getFormatMetadata()));
 		ArchiveBucketTransferer bucketTransferer = new ArchiveBucketTransferer(
 				archiveFileSystem, pathResolver, archiveBucketSize,
 				new TransactionExecuter());

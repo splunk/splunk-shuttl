@@ -17,6 +17,7 @@ package com.splunk.shuttl.archiver.importexport.light;
 import static java.util.Arrays.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.splunk.shuttl.archiver.LocalFileSystemPaths;
 import com.splunk.shuttl.archiver.archive.BucketFormat;
 import com.splunk.shuttl.archiver.importexport.BucketExporter;
 import com.splunk.shuttl.archiver.model.BucketFactory;
@@ -47,24 +49,41 @@ public class SplunkLightExporter implements BucketExporter {
 
 	private final List<Pattern> whitelists;
 	private final List<Pattern> blacklists;
+	private final LocalFileSystemPaths localFileSystemPaths;
 
-	public SplunkLightExporter(List<Pattern> whitelist, List<Pattern> blacklist) {
+	public SplunkLightExporter(LocalFileSystemPaths localFileSystemPaths,
+			List<Pattern> whitelist, List<Pattern> blacklist) {
+		this.localFileSystemPaths = localFileSystemPaths;
 		this.whitelists = whitelist;
 		this.blacklists = blacklist;
 	}
 
 	@Override
 	public LocalBucket exportBucket(LocalBucket b) {
+		try {
+			return doExportBucket(b);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private LocalBucket doExportBucket(LocalBucket b) throws IOException {
+		File exportDir = localFileSystemPaths.getExportDirectory(b);
+		exportDir.mkdirs();
+
 		File directory = b.getDirectory();
 		for (Entry<String, File> e : getFilesRelativeToBucket(b, directory)
 				.entrySet()) {
 			String relativePath = e.getKey();
-			if (!shouldKeepPath(relativePath)) {
-				FileUtils.deleteQuietly(e.getValue());
+			if (shouldKeepPath(relativePath)) {
+				File exportFile = new File(exportDir, relativePath);
+				// Do our best to make sure directories exist.
+				exportFile.getParentFile().mkdirs();
+				FileUtils.copyFile(e.getValue(), exportFile);
 			}
 		}
 		return BucketFactory.createBucketWithIndexDirectoryAndFormat(b.getIndex(),
-				b.getDirectory(), EXPORT_FORMAT);
+				exportDir, EXPORT_FORMAT);
 	}
 
 	private boolean shouldKeepPath(String path) {
@@ -164,9 +183,11 @@ public class SplunkLightExporter implements BucketExporter {
 	}
 
 	public static SplunkLightExporter create(
+			LocalFileSystemPaths localFileSystemPaths,
 			Map<BucketFormat, Map<String, String>> metadata) {
-		return new SplunkLightExporter(getWhitelists(metadata).get(EXPORT_FORMAT),
-				getBlacklists(metadata).get(EXPORT_FORMAT));
+		return new SplunkLightExporter(localFileSystemPaths,
+				getWhitelists(metadata).get(EXPORT_FORMAT), getBlacklists(metadata)
+						.get(EXPORT_FORMAT));
 	}
 
 }
