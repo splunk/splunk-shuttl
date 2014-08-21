@@ -69,21 +69,22 @@ public class SplunkLightExporter implements BucketExporter {
 
 	private LocalBucket doExportBucket(LocalBucket b) throws IOException {
 		File exportDir = localFileSystemPaths.getExportDirectory(b);
-		exportDir.mkdirs();
+		File exportBucketDir = new File(exportDir, b.getName());
+		exportBucketDir.mkdirs();
 
 		File directory = b.getDirectory();
 		for (Entry<String, File> e : getFilesRelativeToBucket(b, directory)
 				.entrySet()) {
 			String relativePath = e.getKey();
 			if (shouldKeepPath(relativePath)) {
-				File exportFile = new File(exportDir, relativePath);
+				File exportFile = new File(exportBucketDir, relativePath);
 				// Do our best to make sure directories exist.
 				exportFile.getParentFile().mkdirs();
 				FileUtils.copyFile(e.getValue(), exportFile);
 			}
 		}
 		return BucketFactory.createBucketWithIndexDirectoryAndFormat(b.getIndex(),
-				exportDir, EXPORT_FORMAT);
+				exportBucketDir, EXPORT_FORMAT);
 	}
 
 	private boolean shouldKeepPath(String path) {
