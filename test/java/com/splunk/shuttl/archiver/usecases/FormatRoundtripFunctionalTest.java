@@ -114,6 +114,8 @@ public abstract class FormatRoundtripFunctionalTest {
 				.createWithConfigAndSplunkSettingsAndLocalFileSystemPaths(
 						confWithSpecificFormat,
 						splunkIndexesLayer, localFileSystemPaths);
+		
+		assertEquals(0, bucketThawer.getThawedBuckets().size());
 
 		bucketThawer.thawBuckets(bucket.getIndex(), bucket.getEarliest(),
 				bucket.getLatest());

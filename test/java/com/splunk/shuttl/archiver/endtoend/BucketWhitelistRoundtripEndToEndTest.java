@@ -53,7 +53,8 @@ public class BucketWhitelistRoundtripEndToEndTest extends
 
 	@Test(groups = { "end-to-end" })
 	@Parameters(value = { "splunk.home" })
-	public void _(String splunkHome) throws IOException {
+	public void _givenSplunkLightFormat_archiveBucket(String splunkHome)
+			throws IOException {
 		List<Bucket> buckets = _givenConfigWithSomeFormat_archivesBucketWithTheFormat(splunkHome);
 		FileSystem fs = FileSystem.getLocal(new Configuration());
 		int archiveMetaDir = 1;
@@ -76,7 +77,7 @@ public class BucketWhitelistRoundtripEndToEndTest extends
 
 	@Test(groups = { "end-to-end" })
 	@Parameters(value = { "splunk.home" })
-	public void _2(final String splunkHome) {
+	public void _givenArchivedSplunkLightFormat_thawBucket(final String splunkHome) {
 		TUtilsEnvironment.runInCleanEnvironment(new Runnable() {
 
 			@Override

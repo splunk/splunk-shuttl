@@ -35,24 +35,17 @@ public class SplunkLightImporter implements BucketImporter {
 	private static final Logger logger = Logger
 			.getLogger(SplunkLightImporter.class);
 
-	private final SplunkBucketRepairTool splunkRebuildTool;
+	private final Lazy<SplunkBucketRepairTool> splunkRebuildTool;
 
-	public SplunkLightImporter(SplunkBucketRepairTool splunkRebuildTool) {
+	public SplunkLightImporter(Lazy<SplunkBucketRepairTool> splunkRebuildTool) {
 		this.splunkRebuildTool = splunkRebuildTool;
 	}
 
 	@Override
 	public LocalBucket importBucket(LocalBucket b) {
-		LocalBucket rebuiltBucket = splunkRebuildTool.rebuild(b);
+		LocalBucket rebuiltBucket = splunkRebuildTool.get().rebuild(b);
 		return BucketFactory.createBucketWithIndexDirectoryAndFormat(b.getIndex(),
 				rebuiltBucket.getDirectory(), BucketFormat.SPLUNK_BUCKET);
-	}
-
-	public static SplunkLightImporter create() {
-		return new SplunkLightImporter(new SplunkBucketRepairTool(
-
-		ShellExecutor.getInstance(), SplunkEnvironment.getSplunkHome(),
-				SplunkEnvironment.getEnvironment()));
 	}
 
 	private static class SplunkBucketRepairTool {
@@ -71,21 +64,43 @@ public class SplunkLightImporter implements BucketImporter {
 		public LocalBucket rebuild(LocalBucket b) {
 			String splunkBinary = new File(splunkHome, "bin" + File.separator
 					+ "splunk").getAbsolutePath();
-			List<String> command = asList(splunkBinary, "fsck", "repair",
-					"--one-bucket", "--include-hots", "--bucket-path="
-							+ b.getDirectory().getAbsolutePath());
+			List<String> command = asList(splunkBinary, "rebuild", b.getDirectory()
+					.getAbsolutePath(), b.getIndex());
 			int exit = shellExecutor.executeCommand(env, command);
-
-			if (exit != 0)
-				throw new RuntimeException("Did not rebuild bucket correctly: "
-						+ b.getDirectory());
-
-			if (logger.isDebugEnabled()) {
-				logger.debug(LogFormatter.did("Rebuild bucket", "command was executed",
-						null, "stderr", shellExecutor.getStdErr(), "stdout",
-						shellExecutor.getStdOut()));
-			}
+			validateExitCode(b, exit);
 			return b;
 		}
+
+		private void validateExitCode(LocalBucket b, int exit) {
+			boolean nonZeroExit = exit != 0;
+			if (nonZeroExit || logger.isDebugEnabled()) {
+				String message = LogFormatter.did("Rebuild bucket",
+						"command was executed", null, "stderr", shellExecutor.getStdErr(),
+						"stdout", shellExecutor.getStdOut());
+				if (nonZeroExit) {
+					throw new RuntimeException(message);
+				} else {
+					logger.debug(message);
+				}
+			}
+		}
+	}
+
+	public static SplunkLightImporter create() {
+		// Init lazily to avoid getting the splunk environment, which is not
+		// available for all test.
+		return new SplunkLightImporter(new Lazy<SplunkBucketRepairTool>() {
+
+			@Override
+			public SplunkBucketRepairTool get() {
+				return new SplunkBucketRepairTool(ShellExecutor.getInstance(),
+						SplunkEnvironment.getSplunkHome(),
+						SplunkEnvironment.getEnvironment());
+			}
+		});
+	}
+
+	private static interface Lazy<T> {
+		T get();
 	}
 }
