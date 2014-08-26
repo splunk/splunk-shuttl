@@ -1,0 +1,43 @@
+(def xml-in "in.xml") 
+(def json-out "out.json")
+
+(require '[clojure.java.io :as io])
+(require '[clojure.xml :as xml])
+(require '[clojure.zip :as zip])
+(require '[cheshire.core :as json])
+(require '[clojure.string :as str])
+
+(def testxml2 (-> xml-in io/file xml/parse))
+
+(def parsed
+  {:shuttl-tests 
+   (->> testxml2 :content 
+        (reduce (fn [old path] 
+                  (conj old 
+                        {:_type (-> path :attrs :dir (str/split #"/") last) 
+                         :tests (->> path 
+                                     :content 
+                                     (mapcat 
+                                       (fn [class] 
+                                         (map 
+                                           (fn [method] 
+                                             (str 
+                                               (-> class :attrs :name (str/split #"\.") last)
+                                               "::" 
+                                               (-> method :attrs :name))) 
+                                           (-> class :content)))))}))[]))})
+
+(def filtered-setup-teardown 
+  (update-in 
+    parsed
+    [:shuttl-tests] 
+    (fn [tests] 
+      (->> tests 
+           (map (fn [ts] 
+                  (update-in ts [:tests] 
+                             (fn [tests] 
+                               (filter (complement #(re-find #"before[Mm]ethod|before[Cc]lass|set[Uu]p|tear[Dd]+own|after[Cc]lass" %))
+                                       tests)))))))))
+
+(json/generate-stream filtered-setup-teardown (io/writer json-out) {:pretty true})
+
