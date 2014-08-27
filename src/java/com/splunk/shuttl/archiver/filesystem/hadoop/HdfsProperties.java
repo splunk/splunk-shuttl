@@ -16,9 +16,12 @@ package com.splunk.shuttl.archiver.filesystem.hadoop;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.log4j.Logger;
 
 import com.splunk.shuttl.archiver.filesystem.BackendConfigurationFiles;
 
@@ -27,22 +30,20 @@ import com.splunk.shuttl.archiver.filesystem.BackendConfigurationFiles;
  */
 public class HdfsProperties {
 
+
+	private static final Logger logger = Logger.getLogger(HdfsProperties.class);
+
+	public static final String FS_DEFAULT_NAME = "fs.default.name";
 	public static final String HDFS_PROPERTIES_FILENAME = "hdfs.properties";
 
-	private final String host;
-	private final String port;
+	private final Configuration conf;
 
-	public HdfsProperties(String host, String port) {
-		this.host = host;
-		this.port = port;
+	public HdfsProperties(Configuration conf) {
+		this.conf = conf;
 	}
 
-	public String getHost() {
-		return host;
-	}
-
-	public String getPort() {
-		return port;
+	public Configuration getConf() {
+		return conf;
 	}
 
 	public static HdfsProperties create() {
@@ -58,7 +59,33 @@ public class HdfsProperties {
 		Properties properties = loadProperties(hdfsProperties);
 		String host = properties.getProperty("hadoop.host");
 		String port = properties.getProperty("hadoop.port");
-		return new HdfsProperties(host, port);
+		Configuration conf = getConf(properties);
+		setUriOldStyle(conf, host, port);
+		return new HdfsProperties(conf);
+	}
+
+	private static void setUriOldStyle(Configuration conf, String host,
+			String port) {
+		if (host == null) {
+			return;
+		} else {
+			String uri = "hdfs://" + host;
+			if (port != null)
+				uri += ":" + port;
+			logger.warn("Setting hdfs URI=" + uri
+					+ ", with the deprecated hadoop.host and hadoop.port style. "
+					+ "Since hdfs configuration supports arbitrary key-values, consider "
+					+ "using fs.default.name instead.");
+			conf.set(FS_DEFAULT_NAME, uri);
+		}
+	}
+
+	private static Configuration getConf(Properties properties) {
+		Configuration conf = new Configuration();
+		for (Entry<Object, Object> e : properties.entrySet()) {
+			conf.set(e.getKey().toString(), e.getValue().toString());
+		}
+		return conf;
 	}
 
 	private static Properties loadProperties(File hdfsProperties) {

@@ -30,7 +30,8 @@ import com.splunk.shuttl.testutil.TUtilsFile;
 public class HadoopArchiveFileSystemFactoryTest {
 
 	@Parameters(value = { "hadoop.host", "hadoop.port" })
-	public void create_givenPropertyFile_createsInstance(String hadoopHost,
+	public void create_givenPropertyFileWithHostAndPort_createsInstance(
+			String hadoopHost,
 			String hadoopPort) throws IOException {
 
 		File hdfsProperties = createFile();
@@ -44,4 +45,19 @@ public class HadoopArchiveFileSystemFactoryTest {
 		assertEquals(hadoopPort, "" + fs.getUri().getPort());
 	}
 
+	@Parameters(value = { "hadoop.host", "hadoop.port" })
+	public void create_givenPropertyFileWithHadoopFsKeyValues_createsInstance(
+			String hadoopHost, String hadoopPort) throws IOException {
+
+		File hdfsProperties = createFile();
+		TUtilsFile.writeKeyValueProperties(hdfsProperties,
+				HdfsProperties.FS_DEFAULT_NAME + " = hdfs://" + hadoopHost + ":"
+						+ hadoopPort);
+
+		HadoopArchiveFileSystem hdfs = HadoopArchiveFileSystemFactory
+				.createWithPropertyFile(hdfsProperties);
+		FileSystem fs = hdfs.getFileSystem();
+		assertEquals(hadoopHost, fs.getUri().getHost());
+		assertEquals(hadoopPort, "" + fs.getUri().getPort());
+	}
 }

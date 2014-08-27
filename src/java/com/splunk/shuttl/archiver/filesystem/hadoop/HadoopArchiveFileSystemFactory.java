@@ -16,9 +16,7 @@ package com.splunk.shuttl.archiver.filesystem.hadoop;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
 import com.splunk.shuttl.archiver.filesystem.ArchiveFileSystem;
@@ -50,9 +48,8 @@ public class HadoopArchiveFileSystemFactory {
 	private static HadoopArchiveFileSystem doCreate(File hdfsProperties)
 			throws IOException {
 		HdfsProperties properties = HdfsProperties.create(hdfsProperties);
-		FileSystem fs = FileSystem.get(
-				URI.create("hdfs://" + properties.getHost() + ":"
-						+ properties.getPort()), new Configuration());
+
+		FileSystem fs = FileSystem.get(properties.getConf());
 		return new HadoopArchiveFileSystem(fs);
 	}
 }
