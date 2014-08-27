@@ -97,9 +97,9 @@ public class BucketShuttlerRunner implements Runnable {
 	}
 
 	private void archiveBucket() {
-		logger.info(will("Archiving bucket", "bucket", bucket));
+		logger.debug(will("Archiving bucket", "bucket", bucket));
 		bucketShuttler.shuttlBucket(bucket);
-		logger.info(done("Archived bucket", "bucket", bucket));
+		logger.debug(done("Archived bucket", "bucket", bucket));
 	}
 
 	private void handleErrorThatBucketShouldStillBeLocked() {

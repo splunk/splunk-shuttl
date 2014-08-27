@@ -57,11 +57,11 @@ public class GetsBucketsFromArchive {
 	 */
 	public LocalBucket getBucketFromArchive(Bucket bucket)
 			throws ThawTransferFailException, ImportThawedBucketFailException {
-		logger.info(will("Attempting to thaw bucket", "bucket", bucket));
+		logger.debug(will("Attempting to thaw bucket", "bucket", bucket));
 		LocalBucket thawedBucket = getTransferedBucket(bucket);
 		LocalBucket importedBucket = importThawedBucket(thawedBucket);
 		Bucket bucketWithSize = bucketSizeResolver.resolveBucketSize(thawedBucket);
-		logger.info(done("Thawed bucket", "bucket", importedBucket));
+		logger.debug(done("Thawed bucket", "bucket", importedBucket));
 		return BucketFactory.createBucketWithIndexDirectoryAndSize(
 				importedBucket.getIndex(), importedBucket.getDirectory(),
 				importedBucket.getFormat(), bucketWithSize.getSize());

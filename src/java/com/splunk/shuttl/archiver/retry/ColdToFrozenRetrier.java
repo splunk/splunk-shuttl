@@ -49,7 +49,7 @@ public class ColdToFrozenRetrier implements Runnable {
 		try {
 			failedBucketsArchiver.archiveFailedBuckets(sharedLockBucketHandler);
 		} catch (Exception e) {
-			logger.info(did("Get an exception when retrying to archive buckets", e,
+			logger.error(did("Get an exception when retrying to archive buckets", e,
 					"that the retry of a failed archived bucket might work", "exception",
 					e));
 		}

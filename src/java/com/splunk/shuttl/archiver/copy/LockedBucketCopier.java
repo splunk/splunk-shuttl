@@ -54,11 +54,11 @@ public class LockedBucketCopier {
 
 		@Override
 		public void handleSharedLockedBucket(Bucket bucket) {
-			logger.info(will("call copy bucket endpoint", "bucket", bucket));
+			logger.debug(will("call copy bucket endpoint", "bucket", bucket));
 			LocalBucket localBucket = (LocalBucket) bucket;
 			try {
 				endpoint.call(localBucket);
-				logger.info(done("calling copy bucket endpoint", "bucket", bucket));
+				logger.debug(done("calling copy bucket endpoint", "bucket", bucket));
 				receipts.createReceipt(localBucket);
 			} catch (RuntimeException e) {
 				logger.error(did("Call copy endpoint to copy bucket", e,

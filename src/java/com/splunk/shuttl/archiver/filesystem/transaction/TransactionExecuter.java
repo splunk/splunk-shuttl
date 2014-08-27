@@ -40,12 +40,12 @@ public class TransactionExecuter {
 	 */
 	public static void executeTransaction(Transaction transaction) {
 		try {
-			logger.info(will("Prepare transaction", "transaction", transaction));
+			logger.debug(will("Prepare transaction", "transaction", transaction));
 			transaction.prepare();
-			logger.info(done("Preparing transaction", "transaction", transaction));
-			logger.info(will("Commit transaction", "transaction", transaction));
+			logger.debug(done("Preparing transaction", "transaction", transaction));
+			logger.debug(will("Commit transaction", "transaction", transaction));
 			transaction.commit();
-			logger.info(done("Commit transaction", "transaction", transaction));
+			logger.debug(done("Commit transaction", "transaction", transaction));
 		} catch (RuntimeException e) {
 			logger.error(did("Executed transaction", e,
 					"Transaction to prepare and commit", "transaction", transaction));

@@ -62,11 +62,11 @@ public class GlacierClient {
 	 */
 	public void upload(File file, String dst) throws AmazonServiceException,
 			AmazonClientException, FileNotFoundException {
-		logger.info(will("Use amazon glacier ArchiveTransferManager"
+		logger.debug(will("Use amazon glacier ArchiveTransferManager"
 				+ " to transfer file to a vault", "file", file, "vault", vault,
 				"destination", dst));
 		UploadResult result = transferManager.upload(vault, dst, file);
-		logger.info(done("Uploading file to glacier."));
+		logger.debug(done("Uploading file to glacier."));
 		putArchiveId(dst, result.getArchiveId());
 	}
 
@@ -85,10 +85,10 @@ public class GlacierClient {
 	}
 
 	private void doDownloadArchiveToFile(String archiveId, File file) {
-		logger.info(will("Download archive from glacier", "destination", file,
+		logger.debug(will("Download archive from glacier", "destination", file,
 				"archiveId", archiveId));
 		transferManager.download(vault, archiveId, file);
-		logger.info(done("Downloaded archive from glacier", "destination", file));
+		logger.debug(done("Downloaded archive from glacier", "destination", file));
 	}
 
 	private void makeFilesParentsExist(File file) {

@@ -56,7 +56,7 @@ public class FailedBucketsArchiver {
 	public void archiveFailedBuckets(SharedLockBucketHandler bucketHandler) {
 		List<Bucket> movedBuckets = bucketMover.getMovedBuckets();
 		if (!movedBuckets.isEmpty())
-			logger.info(will("Archiving failed buckets", "failed buckets",
+			logger.debug(will("Archiving failed buckets", "failed buckets",
 					movedBuckets));
 
 		for (Bucket movedBucket : movedBuckets)

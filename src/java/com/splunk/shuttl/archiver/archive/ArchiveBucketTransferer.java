@@ -64,7 +64,7 @@ public class ArchiveBucketTransferer {
 	public void transferBucketToArchive(Bucket bucket) {
 		String destination = pathResolver.resolveArchivePath(bucket);
 		String tempPath = pathResolver.resolveTempPathForBucket(bucket);
-		logger.info(will("attempting to transfer bucket to archive", "bucket",
+		logger.debug(will("attempting to transfer bucket to archive", "bucket",
 				bucket, "destination", destination));
 		Transaction bucketTransaction = PutBucketTransaction.create(
 				archiveFileSystem, bucket, tempPath, destination);

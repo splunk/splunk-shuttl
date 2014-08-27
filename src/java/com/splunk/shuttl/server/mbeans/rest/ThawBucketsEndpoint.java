@@ -71,11 +71,11 @@ public class ThawBucketsEndpoint {
 				ENDPOINT_BUCKET_THAW, "index", index, "from", from, "to", to));
 
 		if (from == null) {
-			logger.info("No from time provided - defaulting to 0001-01-01");
+			logger.debug("No from time provided - defaulting to 0001-01-01");
 			from = "0001-01-01";
 		}
 		if (to == null) {
-			logger.info("No to time provided - defaulting to 9999-12-31");
+			logger.debug("No to time provided - defaulting to 9999-12-31");
 			to = "9999-12-31";
 		}
 

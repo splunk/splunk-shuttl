@@ -117,7 +117,7 @@ public class BucketFreezer {
 		String path = args[0];
 		String index = EntryPointUtil.getIndexNameForBucketDir(new File(path));
 
-		logger.info(will("Attempting to archive bucket", "index", index, "path",
+		logger.debug(will("Attempting to archive bucket", "index", index, "path",
 				path));
 		try {
 			registersArchiverMBean.register();

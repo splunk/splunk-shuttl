@@ -123,7 +123,7 @@ public class GlacierArchiveFileSystem implements ArchiveFileSystem {
 		try {
 			glacierClient.getArchiveId(path);
 		} catch (GlacierArchiveIdDoesNotExist e) {
-			logger.info(will("Will set archiveId on glacierClient from persisted "
+			logger.warn(will("Will set archiveId on glacierClient from persisted "
 					+ "archiveId, because it did not exist."));
 			String archiveId = glacierArchiveIdStore.getArchiveId(remoteBucket);
 			glacierClient.putArchiveId(path, archiveId);
